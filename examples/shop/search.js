@@ -27,7 +27,7 @@ cola(function (model, param) {
 		inputSearch: {
 			$type: "input",
 			bind: "searchText",
-			ui: "transparent inverted",
+			class: "transparent inverted",
 			placeholder: "Search...",
 			width: "100%",
 			click: function() {

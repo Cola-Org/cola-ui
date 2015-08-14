@@ -13,19 +13,19 @@ cola(function (model, param) {
 	model.widgetConfig({
 		listRecommandedProducts: {
 			$type: "listView",
-			ui: "product-list lightgrey",
+			class: "product-list lightgrey",
 			bind: "product in recommandedProducts",
 			columns: "3 6 9 12",
 			highlightCurrentItem: false
 		},
 		buttonFavorite: {
 			$type: "button",
-			ui: "orange",
+			class: "orange",
 			icon: "star"
 		},
 		buttonAddToCart: {
 			$type: "button",
-			ui: "red",
+			class: "red",
 			icon: "add to cart",
 			caption: "Buy"
 		}

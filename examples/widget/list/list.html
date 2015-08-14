@@ -52,7 +52,7 @@
 
 <div c-widget="input; bind:languages.name">
 	<div c-widget="label">Name</div>
-	<div c-widget="button; caption:Add; ui:positive; click:{{addLanguage()}}"></div>
+	<div c-widget="button; caption:Add; class:positive; click:{{addLanguage()}}"></div>
 </div>
 
 Sort: <select c-bind="sortParam" c-options="['$none', '$random', '+name','-name']"></select>
@@ -60,7 +60,7 @@ Sort: <select c-bind="sortParam" c-options="['$none', '$random', '+name','-name'
 <div id="listTemplate">
 	<template name="default">
 		<li>
-			<div c-widget="button; caption:Delete; ui:negative; click:{{deleteLanguage(language)}}; size:mini"></div>
+			<div c-widget="button; caption:Delete; class:negative; click:{{deleteLanguage(language)}}; size:mini"></div>
 			<span c-bind="language.name"></span>
 		</li>
 	</template>

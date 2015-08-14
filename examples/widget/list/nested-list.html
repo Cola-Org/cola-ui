@@ -39,7 +39,7 @@
 			model.widgetConfig({
 				nestedList: {
 					$type: "nestedList",
-					ui: "",
+					class: "",
 					autoSplit: false,
 					title: "Nested List",
 					bind: {
@@ -63,7 +63,7 @@
 <div id="nestedList" style="height:100%">
 	<template name="default">
 		<li style="padding:16px">
-			<div c-widget="button; caption:Delete; ui:negative; click:{{remove(node)}}; size:mini"></div>
+			<div c-widget="button; caption:Delete; class:negative; click:{{remove(node)}}; size:mini"></div>
 			&nbsp;
 			<span c-bind="node.name"></span>
 		</li>

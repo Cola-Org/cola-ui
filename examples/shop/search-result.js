@@ -8,7 +8,7 @@ cola(function (model, param) {
 	model.widgetConfig({
 		listSearchResult: {
 			$type: "listView",
-			ui: "product-list lightgrey",
+			class: "product-list lightgrey",
 			height: "100%",
 			bind: "product in searchResult",
 			columns: "row 4 6 8 12",

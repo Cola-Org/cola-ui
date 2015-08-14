@@ -29,7 +29,7 @@
 						desktopInfo: {
 							color: "blue",
 							click: function (self,arg) {
-								cola.alert("Hello World !!", {ui: window.messageBoxUi})
+								cola.alert("Hello World !!", {class: window.messageBoxUi})
 							}
 						},
 						desktopWarning: {
@@ -37,7 +37,7 @@
 							click: function () {
 								cola.alert("Hello World !!", {
 									level: cola.MessageBox.level.WARNING,
-									ui: window.messageBoxUi
+									class: window.messageBoxUi
 								})
 							}
 						},
@@ -46,7 +46,7 @@
 							click: function () {
 								cola.alert("Hello World !!", {
 									level: cola.MessageBox.level.ERROR,
-									ui: window.messageBoxUi
+									class: window.messageBoxUi
 								})
 							}
 						},

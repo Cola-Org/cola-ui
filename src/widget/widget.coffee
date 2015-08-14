@@ -192,12 +192,12 @@ class cola.Widget extends cola.RenderableElement
 				@["_float"] = value
 				return
 
-		ui:
+		class:
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_ui"]
+				oldValue = @["_class"]
 				@get$Dom().removeClass(oldValue) if oldValue and @_dom and oldValue isnt value
-				@["_ui"] = value
+				@["_class"] = value
 				return
 
 		popup:
@@ -327,8 +327,8 @@ class cola.Widget extends cola.RenderableElement
 		super()
 		float = @get("float")
 		@_classNamePool.add("#{float} floated")if float
-		ui = @get("ui")
-		@_classNamePool.add(ui) if ui
+		className = @get("class")
+		@_classNamePool.add(className) if className
 		@_classNamePool.toggle("display-none",!!!@_display)
 
 		return

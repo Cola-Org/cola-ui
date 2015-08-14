@@ -38,7 +38,7 @@
 							"c-repeat": "lang in ['Java','C','Ruby','Javascript','Python','R'] | sort:'$random'",
 							"c-widget": {
 								$type: "Button",
-								ui: "orange",
+								class: "orange",
 								caption: "{{lang}}"
 							}
 						},
@@ -52,11 +52,11 @@
 				btnName: {
 					$type: "button",
 					caption: "{{name}}",
-					ui: "green",
+					class: "green",
 					click: "showMessage"
 				},
 				btnCity: {
-					ui: "blue",
+					class: "blue",
 					click: function (self) {
 						alert("Button " + self.get("caption") + " clicked.");
 					}
@@ -95,7 +95,7 @@
 <p></p>
 
 <div c-repeat="num in [1,2,3,4,5,6,7,8,9]"
-	 c-widget="button; caption:{{num}}; ui:{{ (num % 2) ? 'red' : 'yellow' }}; click:{{ numberClick(self) }}"></div>
+	 c-widget="button; caption:{{num}}; class:{{ (num % 2) ? 'red' : 'yellow' }}; click:{{ numberClick(self) }}"></div>
 
 <p></p>
 
@@ -107,7 +107,7 @@
 
 <p></p>
 
-<div c-widget="button; ui:purple; caption:xRender(template, model); click:xRender"></div>
+<div c-widget="button; class:purple; caption:xRender(template, model); click:xRender"></div>
 
 <p></p>
 

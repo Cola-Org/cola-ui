@@ -19,7 +19,7 @@
 			model.widgetConfig({
 				listScroll: {
 					$type: "listView",
-					ui: "striped",
+					class: "striped",
 					bind: "item in items | sort:'name'",
 					allowNoCurrent: false,
 					group: true,
@@ -66,17 +66,17 @@
 	<template name="slide-left-pane">
 		<li style="margin-top:6px">
 			<div style="display:table-cell">
-				<div c-widget="button; caption:Like; ui:positive" style="margin:1px"></div>
+				<div c-widget="button; caption:Like; class:positive" style="margin:1px"></div>
 			</div>
 			<div style="display:table-cell">
-				<div c-widget="button; caption:Del; ui:negative" style="margin:1px"></div>
+				<div c-widget="button; caption:Del; class:negative" style="margin:1px"></div>
 			</div>
 		</li>
 	</template>
 	<template name="slide-right-pane">
 		<li style="margin-top:6px">
 			<div style="display:table-cell;padding-left:6px">
-				<div c-widget="button; caption:Warn; ui:warn" style="margin:1px"></div>
+				<div c-widget="button; caption:Warn; class:warn" style="margin:1px"></div>
 			</div>
 		</li>
 	</template>

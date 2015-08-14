@@ -1,5 +1,5 @@
 <div class="box">
-	<div c-widget="titleBar; ui:secondary teal inverted" style="margin:0 !important;">
+	<div c-widget="titleBar; class:secondary teal inverted" style="margin:0 !important;">
 		<a c-widget="icon:chevron left; click:hideLayer"></a>
 
 		<div class="item text" style="font-weight:bold">Detail</div>
@@ -17,7 +17,7 @@
 				<div class="description" c-bind="product.description"></div>
 			</div>
 			<!--<div>-->
-			<!--<span c-repeat="color in product.color" c-widget="label; ui:large grey; text:{{color}}" style="margin:1px"></span>-->
+			<!--<span c-repeat="color in product.color" c-widget="label; class:large grey; text:{{color}}" style="margin:1px"></span>-->
 			<!--</div>-->
 		</div>
 
@@ -32,7 +32,7 @@
 							<div class="label" c-bind="product.label"></div>
 							<label class="currency">$</label><label class="price" c-bind="product.price"></label>
 						</div>
-						<div c-widget="corner; position:left; ui:red; icon:heart"
+						<div c-widget="corner; position:left; class:red; icon:heart"
 							 c-display="product.favorite"></div>
 					</a>
 				</li>
