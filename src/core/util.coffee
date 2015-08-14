@@ -26,14 +26,15 @@ cola.util.parseStyleLikeString = (styleStr, headerProp) ->
 	for part, i in parts
 		j = part.indexOf(":")
 		if j > 0
-			styleProp = $.trim(part.substring(0, j))
-			styleExpr = $.trim(part.substring(j + 1))
+			styleProp = @trim(part.substring(0, j))
+			styleExpr = @trim(part.substring(j + 1))
 			if styleProp and styleExpr
 				style[styleProp] = styleExpr
 		else if i == 0 and headerProp
-			style[headerProp] = $.trim(part)
+			style[headerProp] = @trim(part)
 		else
-			style[headerProp] = true
+			part = @trim(part)
+			style[part] = true if part
 
 	#	if invalid
 	#		throw new cola.I18nException("cola.error.invalidFormat", styleStr)
