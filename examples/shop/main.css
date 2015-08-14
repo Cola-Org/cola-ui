@@ -1,0 +1,67 @@
+.ui.corner {
+    opacity: 0.6;
+    border-radius: 0;
+}
+
+.white {
+    background-color: #fefefe !important;
+}
+
+.lightgrey {
+    background-color: #ebebeb !important;
+}
+
+.icon {
+    font-size: 1.1em !important;
+}
+
+.label {
+    color: #6e6e6e;
+}
+
+.currency {
+    color: rgba(251, 82, 0, 0.84);
+    margin-right: 0.125em;
+}
+
+.price {
+    color: rgba(251, 82, 0, 0.84);
+}
+
+.product-list {
+    padding: 2px;
+}
+
+.product-list .product {
+    padding: 2px !important;
+    background: transparent !important;
+}
+
+.product-list .product > a {
+    display: block;
+    background: #fff;
+    min-height: 160px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.product-list .product:active {
+    background: #dcdcdc;
+}
+
+.product-list .image {
+    width: 100%;
+}
+
+.product-list .text {
+    padding: 0.25em 1em;
+}
+
+.product-list .label {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.product-list .price {
+    font-size: 150%;
+}

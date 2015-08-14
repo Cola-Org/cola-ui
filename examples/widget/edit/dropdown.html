@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<script src="../../include-all.js"></script>
+	<style>
+	</style>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("languages", [
+				{name: "Javascript"},
+				{name: "Java"},
+				{name: "C"},
+				{name: "C++"},
+				{name: "Coffee"},
+				{name: "Ruby"},
+				{name: "R"},
+				{name: "Python"},
+				{name: "Pascal"}
+			]);
+
+			model.action({
+				pickValue: function(self) {
+					dropdown = cola.findDropDown(self);
+					if (dropdown) {
+						dropdown.close("Yeah!");
+					}
+				}
+			});
+
+			model.widgetConfig({
+				dropdown1: {
+					$type: "dropdown",
+					openMode: "layer",
+					items: "{{language in languages}}",
+					valueProperty: "name"
+				},
+				dropdown2: {
+					$type: "dropdown",
+					openMode: "dialog",
+					items: "{{language in languages}}",
+					valueProperty: "name"
+				},
+				dropdown3: {
+					$type: "dropdown",
+					ui: "error",
+					openMode: "drop",
+					items: "{{language in languages}}",
+					valueProperty: "name"
+				},
+				dropdown4: {
+					$type: "customDropdown",
+					openMode: "drop"
+				},
+				dropdown5: {
+					$type: "customDropdown",
+					openMode: "drop",
+					valueProperty: "name",
+					content: {
+						$type: "table",
+						bind: "language in languages",
+						columns: [{ bind: ".name" }],
+						itemClick: function(self, arg) {
+							var dropdown = cola.findDropDown(self);
+							if (dropdown) dropdown.close(arg.item);
+						}
+					}
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding:20px;">
+
+<div id="dropdown1"></div>
+
+<p></p>
+
+<div id="dropdown2">
+	<div c-widget="button; caption:Test"></div>
+</div>
+
+<p></p>
+
+<div id="dropdown3">
+	<template>
+		<li>
+			<i class="green checkmark icon"></i>
+			<label c-bind="language.name"></label>
+		</li>
+	</template>
+</div>
+
+<p></p>
+
+<div id="dropdown4">
+	<template>
+		<div c-widget="button; caption:Pick Value; click:{{pickValue(self)}}"></div>
+	</template>
+</div>
+
+<p></p>
+
+<div id="dropdown5"></div>
+
+</body>
+</html>

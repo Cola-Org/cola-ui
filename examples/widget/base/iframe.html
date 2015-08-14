@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>IFrame</title>
+	<script src="../../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+
+<script type="text/javascript">
+			new cola.Segment({
+				content: [
+					{
+						$type: "IFrame", path: "http://bsdn.org", loadingText: "正在装载……",
+						load:function(){
+							alert("do");
+						}
+					}
+				]
+			}).appendTo(document.body);
+</script>
+</body>
+</html>

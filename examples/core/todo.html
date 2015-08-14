@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set({
+				todos: [
+					{ title: "meeting", done: true },
+					{ title: "date" },
+					{ title: "lunch" , done: true},
+					{ title: "play basketball" },
+					{ title: "game" }
+				],
+				sortOptions: ["", "done", "-done", "title", "-title", "done,title"]
+			});
+
+			model.action({
+				add: function () {
+					model.get("todos").insert({
+						title: model.get("newItem")
+					});
+					model.set("newItem", null);
+				},
+				delete: function (todo) {
+					todo.remove();
+				},
+				stat: function () {
+					var done = 0, total = 0;
+					model.get("todos").each(function (todo) {
+						total++;
+						if (todo.get("done")) done++;
+					});
+					return done + "/" + total;
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+<p>
+	<input c-bind="newItem">
+	<button c-onclick="add()" c-disabled="newItem?false:true">Add</button>
+</p>
+<p>
+	Filter: <input c-bind="filterParam">
+	Sort: <select c-bind="sortParam" c-options="sortOptions"></select>
+</p>
+<ul>
+	<li c-repeat="todo in todos | filter:filterParam | sort:sortParam">
+		<input type="checkbox" c-bind="todo.done">
+		<span c-bind="todo.title"></span>
+		<button c-onclick="delete(todo)">Delete</button>
+	</li>
+</ul>
+<p>
+	<span c-bind="stat()"></span>
+</p>
+</body>
+</html>

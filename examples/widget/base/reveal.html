@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Reveal</title>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			var inventionPath = "../../images/demo/invention.jpg",
+					titleImgPath = "../../images/demo/title.png",
+					stickfigurePath = "../../images/demo/stickfigure.jpg",
+					photoPath = "../../images/demo/photo2.jpg";
+
+			model.widgetConfig({
+				textContent: {
+					visibleContent: "Dorado",
+					hiddenContent: "好酷啊"
+				},
+				imgContent: {
+					visibleContent: {
+						$type: "Image", src: inventionPath
+					},
+					hiddenContent: {
+						$type: "Image", src: titleImgPath
+					}
+				},
+				imgContent2: {
+					type: "rotate", ui: "circular",
+					visibleContent: {
+						$type: "Image", circular: true, src: stickfigurePath
+					},
+					hiddenContent: {
+						$type: "Image", circular: true, src: photoPath
+					}
+				}
+			})
+		});
+	</script>
+</head>
+<body style="padding: 20px;">
+<div id="textContent" c-widget="Reveal"></div>
+<div id="imgContent" c-widget="Reveal"></div>
+<div id="imgContent2" c-widget="Reveal"></div>
+</body>
+</html>

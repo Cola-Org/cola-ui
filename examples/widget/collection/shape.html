@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Shape</title>
+
+	<script src="../../include-all.js"></script>
+
+
+</head>
+<body style="padding: 20px;" class="demo">
+
+<script>
+	var avatars = [
+		"../../images/avatar/large/ade.jpg",
+		"../../images/avatar/large/chris.jpg",
+		"../../images/avatar/large/daniel.jpg",
+		"../../images/avatar/large/christian.jpg",
+		"../../images/avatar/large/helen.jpg",
+		"../../images/avatar/large/laura.jpg"];
+	var sides = [];
+	for (var i = 0; i < avatars.length; i++) {
+
+		sides.push({
+			$type: "Image", src: avatars[i], size: "medium"
+		})
+	}
+	var shapeDemo = new cola.Shape({
+
+		ui: "square",
+		afterChange: function (self, arg) {
+
+		},
+		sides: sides
+
+	})
+	new cola.Segment(
+			{
+				content: [
+					shapeDemo,
+					{
+						$type: "Button", caption: "翻转",
+						click: function () {
+							shapeDemo.flip("right")
+						}
+					}
+				]
+			}
+	).appendTo(document.body);
+
+
+</script>
+
+</body>
+</html>

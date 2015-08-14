@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Dimmer</title>
+	<script src="../../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+<script type="text/javascript">
+	var containerChildren = [{
+		$type: "Image", src: "../../images/wireframe/square-image.png"
+	}];
+
+	var contains = [];
+	var onCreate = function (self, arg) {
+		contains.push(self);
+	};
+
+	new cola.Segment({
+		dimmer: {
+			content: "cola"
+		},
+		content: [
+			{
+				$type: "ButtonGroup",
+				items: [
+					{
+						$type: "Button", caption: "关",
+						click: function () {
+							contains.forEach(function (control) {
+								control.showDimmer();
+							})
+						}
+					},
+					"",
+					{
+						$type: "Button", caption: "开", ui: "positive",
+						click: function () {
+							contains.forEach(function (control) {
+								control.hideDimmer();
+							})
+						}
+					}
+				]
+
+
+			},
+			{
+				$type: "Segment", content: containerChildren, createDom: onCreate
+			},
+
+			{
+				$type: "Segment", content: containerChildren, createDom: onCreate,
+				dimmer: {
+					content: {
+						tagName: "h2", 'class': "ui inverted icon header",
+						content: [
+							{
+								tagName: "i", 'class': "heart icon"
+							}, {
+								tagName: "span", content: "Dimmed 消息!"
+							}
+						]
+					}
+				}
+			},
+			{
+				$type: "Segment", content: containerChildren, createDom: onCreate,
+				dimmer: {
+					opacity: 0.5
+				}
+			},
+			{
+				$type: "Segment", content: containerChildren, createDom: onCreate,
+				dimmer: {
+					closable: false,
+					content: {
+						tagName: "h2", 'class': "ui inverted icon header",
+						content: [
+							{
+								tagName: "i", 'class': "smile icon"
+							}, {
+								tagName: "span", content: "关不掉我!"
+							}
+						]
+					}
+				}
+			}
+
+		]
+	}).appendTo(document.body);
+</script>
+
+
+</body>
+</html>

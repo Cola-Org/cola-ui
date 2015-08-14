@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>段落/容器</title>
+	<script src="../../include-all.js"></script>
+</head>
+<body style="padding: 20px;">
+<script type="text/javascript">
+
+	var body=document.body,
+			colors = ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"];
+	new cola.Segment({
+		height: 100
+	}).appendTo(body);
+
+	for(var i=0;i<colors.length;i++){
+		new cola.Segment({
+			color: colors[i]
+		}).appendTo(body);
+	}
+	var propertyNames=["disabled","loading"]
+	for(var i=0;i<propertyNames.length;i++){
+		var config={
+			height: 100
+		};
+		config[propertyNames[i]]=true;
+		new cola.Segment(config).appendTo(body);
+	}
+
+	new cola.Segment({
+		color: "orange",inverted: true
+	}).appendTo(body);
+
+	new cola.Segment({
+		height: 100,ui: "stacked"
+	}).appendTo(body);
+
+	new cola.Segment({
+		height: 100,ui: "piled"
+	}).appendTo(body);
+
+	new cola.Segment({
+		height: 100,textAlign: "left"
+	}).appendTo(body).get$Dom().append("内容靠左显示");
+	new cola.Segment({
+		height: 100,textAlign: "center"
+	}).appendTo(body).get$Dom().append("内容居中显示");
+	cola.widget({
+		$type:"Segment",height: 100,textAlign: "right"
+	}).appendTo(body).get$Dom().append("内容靠右显示");
+
+</script>
+
+</body>
+</html>

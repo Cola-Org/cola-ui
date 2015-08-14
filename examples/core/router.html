@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola.router("$root", {
+			redirectTo: "#/list"
+		});
+		cola.router("list", {
+			title: "List",
+			jsUrl: "$",
+			templateUrl: "router-list.html"
+		});
+		cola.router("detail", {
+			path: "/detail/:city",
+			title: "Detail",
+			jsUrl: "$",
+			templateUrl: "router-detail.html"
+		});
+	</script>
+</head>
+<body class="c-view">
+<p>Router Sample</p>
+
+<p class="c-viewport"></p>
+</body>
+</html>

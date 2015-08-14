@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
+	<title>Dialog</title>
+	<script src="../../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+<div id="showDialog"></div>
+
+<div id="showModalDialog"></div>
+<div id="dialog" c-widget="dialog"></div>
+<div id="modalDialog" c-widget="dialog; dimmerClose:true">
+	<div class="actions">
+		<div c-widget="button; caption:确认"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	cola(function (model) {
+
+		model.widgetConfig({
+			showDialog: {
+				$type: "button",
+				caption: "显示",
+				click: function () {
+					cola.widget("dialog").show();
+				}
+			},
+			showModalDialog:{
+				$type: "button",
+				caption: "显示模态",
+
+				click: function () {
+					cola.widget("modalDialog").show();
+				}
+			},
+			dialog: {
+				width: "40%", height: "40%"
+			}
+		});
+	})
+
+</script>
+
+</body>
+</html>

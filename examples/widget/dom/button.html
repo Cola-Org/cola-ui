@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
+	<title>Button</title>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("name", "Tom");
+
+			model.set("addresses", [
+				{
+					city: "shanghai",
+					postCode: 201101
+				},
+				{
+					city: "beijing",
+					postCode: 100020
+				},
+				{
+					city: "shenzhen",
+					postCode: 300021
+				}
+			]);
+
+			model.action({
+				showMessage: function (self) {
+					alert(model.get("name"))
+				},
+				numberClick: function (self) {
+					alert(self.get("caption"));
+				},
+				xRender: function () {
+					var fragment = cola.xRender([
+						{
+							tagName: "div",
+							"c-repeat": "lang in ['Java','C','Ruby','Javascript','Python','R'] | sort:'$random'",
+							"c-widget": {
+								$type: "Button",
+								ui: "orange",
+								caption: "{{lang}}"
+							}
+						},
+						{tagName: "p"}
+					], model);
+					document.body.appendChild(fragment);
+				}
+			});
+
+			model.widgetConfig({
+				btnName: {
+					$type: "button",
+					caption: "{{name}}",
+					ui: "green",
+					click: "showMessage"
+				},
+				btnCity: {
+					ui: "blue",
+					click: function (self) {
+						alert("Button " + self.get("caption") + " clicked.");
+					}
+				},
+				btnSetName: {
+					caption: "SetName",
+					click: function (self, arg) {
+						arg.model.set("address.city", "CHANGED");
+					}
+				}
+			});
+
+			cola.ready(function() {
+				var btnName = cola.widget("btnName");
+				btnName.set("caption", "####");
+			});
+		});
+	</script>
+
+</head>
+<body style="padding: 20px;">
+<div id="btnName"></div>
+<div c-widget="#btnName; size:huge"></div>
+
+<p></p>
+
+<div c-repeat="address in addresses" style="margin:4px">
+	<div id="btnCity" c-widget="button; caption:{{address.city}}"></div>
+	<div id="btnSetName" c-widget="button"></div>
+</div>
+
+<p></p>
+
+<div id="btnCity" c-repeat="address in addresses" c-widget="button; caption:{{address.city}}"></div>
+
+<p></p>
+
+<div c-repeat="num in [1,2,3,4,5,6,7,8,9]"
+	 c-widget="button; caption:{{num}}; ui:{{ (num % 2) ? 'red' : 'yellow' }}; click:{{ numberClick(self) }}"></div>
+
+<p></p>
+
+<div c-widget="buttonGroup">
+	<div c-widget="button; caption:添加"></div>
+	<div c-widget="Separator"></div>
+	<div c-widget="button; caption:删除"></div>
+</div>
+
+<p></p>
+
+<div c-widget="button; ui:purple; caption:xRender(template, model); click:xRender"></div>
+
+<p></p>
+
+</body>
+</html>

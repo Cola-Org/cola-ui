@@ -1,0 +1,15 @@
+@media only screen and (max-width:40.0625em) {
+    #listSearchResult .product > a {
+        min-height: 8em;
+    }
+
+    #listSearchResult .image {
+        width: 8em;
+        float: left;
+        margin-right: 1em;
+    }
+
+    #listSearchResult .text {
+        margin-top: 2em;
+    }
+}

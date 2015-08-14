@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("addresses", [
+				{
+					city: "shanghai",
+					postCode: 201101
+				},
+				{
+					city: "beijing",
+					postCode: 100020
+				},
+				{
+					city: "shenzhen",
+					postCode: 300021
+				}
+			]);
+
+			model.action({
+				prev: function () {
+					model.get("addresses").previous();
+				},
+				next: function () {
+					model.get("addresses").next();
+				},
+				each: function () {
+					model.get("addresses").each(function (address) {
+						alert(address.get("city"));
+					});
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding:20px">
+<button c-onclick="prev()">Prev</button>
+<button c-onclick="next()">Next</button>
+<button c-onclick="each()">Each</button>
+<hr>
+<input c-bind="addresses.city">
+<input c-bind="addresses.postCode">
+<hr>
+<ul>
+	<li c-repeat="address in addresses">
+		<span c-bind="address.city"></span>
+		<span c-bind="address.postCode"></span>
+	</li>
+</ul>
+</body>
+</html>
