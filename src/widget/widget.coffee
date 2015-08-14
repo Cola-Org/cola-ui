@@ -100,10 +100,8 @@ class cola.RenderableElement extends cola.Element
 		@_classNamePool.add("ui")
 		className = @constructor.CLASS_NAME
 		if className
-#			@_classNamePool.add(className)
 			names = $.trim(className).split(" ")
-			for name in names
-				@_classNamePool.add(name)
+			@_classNamePool.add(name) for name in names
 
 		@_resetDimension()
 
