@@ -46,9 +46,10 @@ class cola.ClassNamePool
 		if !!status then @add(className) else @remove(className)
 		return
 
+
 _destroyRenderableElement = (node, data) ->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
-	if not element?_destroyed
+	if not element? _destroyed
 		element._domRemoved = true
 		element.destroy()
 	return
@@ -77,6 +78,7 @@ class cola.RenderableElement extends cola.Element
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
 		@_refreshDom()
+		@_rendered = true
 		return
 
 	_createDom: ()->
@@ -99,7 +101,7 @@ class cola.RenderableElement extends cola.Element
 		className = @constructor.CLASS_NAME
 		if className
 #			@_classNamePool.add(className)
-			names=$.trim(className).split(" ")
+			names = $.trim(className).split(" ")
 			for name in names
 				@_classNamePool.add(name)
 
@@ -169,8 +171,29 @@ class cola.RenderableElement extends cola.Element
 		@_destroyed = true
 		return
 
+	addClass: (value, continuous)->
+		if continuous
+			cola.util.addClass(@_dom, value, true)
+		else
+			@get$Dom().addClass(value)
+		return @
+
+	removeClass: (value, continuous)->
+		if continuous
+			cola.util.removeClass(@_dom, value, true)
+		else
+			@get$Dom().removeClass(value)
+		return @
+
+	toggleClass: (value, state, continuous)->
+		if continuous
+			cola.util.toggleClass(@_dom, value, state, true)
+		else
+			@get$Dom().toggleClass(value, state)
+		return @
+
 ###
-    Dorado 基础组件
+Dorado 基础组件
 ###
 class cola.Widget extends cola.RenderableElement
 	@CLASS_NAME: "control"
@@ -325,11 +348,12 @@ class cola.Widget extends cola.RenderableElement
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-		float = @get("float")
-		@_classNamePool.add("#{float} floated")if float
-		className = @get("class")
-		@_classNamePool.add(className) if className
-		@_classNamePool.toggle("display-none",!!!@_display)
+
+		@_classNamePool.add("#{@_float} floated") if @_float
+		@_classNamePool.toggle("display-none", !!!@_display)
+
+		if !@_rendered and @_class
+			@_classNamePool.add(name) for name in @_class.split(" ")
 
 		return
 
