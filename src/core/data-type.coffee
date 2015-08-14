@@ -150,6 +150,21 @@ class cola.EntityDataType extends cola.DataType
 	getProperties: () ->
 		return @_properties
 
+cola.DataType.dataTypeSetter = (dataType) ->
+	if typeof dataType == "string"
+		name = dataType
+		scope = @_scope
+		if scope
+			dataType = scope.dataType(name)
+		else
+			dataType = cola.DataType.defaultDataTypes[name]
+		if not dataType
+			throw new cola.I18nException("cola.error.unrecognizedDataType", name)
+	else if dataType? and not (dataType instanceof cola.DataType)
+		dataType = new cola.EntityDataType(dataType)
+	@_dataType = dataType or null
+	return
+
 class cola.Property extends cola.Element
 	@ATTRIBUTES:
 		name:
@@ -200,21 +215,6 @@ class cola.ComputeProperty extends cola.Property
 
 	compute: (entity) ->
 		return @fire("compute", @, {entity: entity})
-
-cola.DataType.dataTypeSetter = (dataType) ->
-	if typeof dataType == "string"
-		name = dataType
-		scope = cola.currentScope
-		if scope
-			dataType = scope.dataType(name)
-		else
-			dataType = cola.DataType.defaultDataTypes[name]
-		if not dataType
-			throw new cola.I18nException("cola.error.unrecognizedDataType", name)
-	else if dataType? and not (dataType instanceof cola.DataType)
-		dataType = new cola.EntityDataType(dataType)
-	@_dataType = dataType or null
-	return
 
 cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 	if aggregated == undefined

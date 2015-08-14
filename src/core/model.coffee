@@ -701,7 +701,7 @@ class cola.DataModel extends cola.AbstractDataModel
 
 	_getRootData: () ->
 		if !@_rootData?
-			@_rootDataType = new cola.EntityDataType()
+			@_rootDataType ?= new cola.EntityDataType()
 			@_rootData = rootData = new cola.Entity(@_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
@@ -712,6 +712,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		return @_rootData
 
 	describe: (name, config) ->
+		@_rootDataType ?= new cola.EntityDataType()
 		if typeof name is "string"
 			property = @_rootDataType?.getProperty(name)
 			if config

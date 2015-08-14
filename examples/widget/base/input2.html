@@ -6,7 +6,12 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			model.setDataType(dataType, "date");
+			model.describe("dateValue", "date");
+			model.describe("dateValue", {
+				dataType: "date",
+				validators: ["required", "email"]
+			});
+
 			model.set("dateValue", new Date());
 
 			model.widgetConfig({

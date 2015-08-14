@@ -19,35 +19,32 @@
 				}
 			}
 
-			model.setDataType("items", {
-				properties: [
-					{
-						name: "int",
+			model.dataType({
+				name: "Item",
+				properties: {
+					"int": {
 						caption: "数字",
 						dataType: "int"
 					},
-					{
-						name: "col1",
+					"col1": {
 						caption: "Col 1"
 					},
-					{
-						name: "col2",
+					"col2": {
 						caption: "Col 2"
 					},
-					{
-						name: "col3",
+					"col3": {
 						caption: "Col 3"
 					},
-					{
-						name: "col4",
+					"col4": {
 						caption: "Col 4"
 					},
-					{
-						name: "col5",
+					"col5": {
 						caption: "Col 5"
 					}
-				]
+				}
 			});
+
+			model.describe("items", "Item");
 			model.set("items", items);
 
 			model.action({
