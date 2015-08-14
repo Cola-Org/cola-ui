@@ -5,24 +5,20 @@ module.exports = (grunt) ->
 		clean:
 			build: ["dest/work", "dest/publish"]
 			workTemp: ["dest/work/cola"]
+			dev:["dest/dev"]
 		coffee:
-			core:
+			dev:
 				options:
 					sourceMap: false
 					join: true
 				files:
-					"dest/cola.js": sources.coffee.core
-			widget:
-				options:
-					sourceMap: false
-					join: true
-				files:
-					"dest/widget/widget.js": sources.coffee.widget
-					"dest/widget/base.js": sources.coffee.base
-					"dest/widget/edit.js": sources.coffee.edit
-					"dest/widget/layout.js": sources.coffee.layout
-					"dest/widget/collection.js": sources.coffee.collection
-					"dest/widget/list.js": sources.coffee.list
+					"dest/dev/cola.js": sources.coffee.core
+					"dest/dev/widget/widget.js": sources.coffee.widget
+					"dest/dev/widget/base.js": sources.coffee.base
+					"dest/dev/widget/edit.js": sources.coffee.edit
+					"dest/dev/widget/layout.js": sources.coffee.layout
+					"dest/dev/widget/collection.js": sources.coffee.collection
+					"dest/dev/widget/list.js": sources.coffee.list
 
 			"cola-core":
 				options:
@@ -41,12 +37,12 @@ module.exports = (grunt) ->
 						"dest/work/cola/coffee/widget.coffee"
 					]
 		less:
-			widget:
+			dev:
 				options:
 					sourceMap: false
 					join: true
 				files:
-					"dest/skins/default/cola.css": sources.less.cola
+					"dest/dev/skins/default/cola.css": sources.less.cola
 			build:
 				options:
 					sourceMap: false
@@ -58,7 +54,7 @@ module.exports = (grunt) ->
 				expand: true
 				cwd: "src"
 				src: ["lib/**"]
-				dest: "dest"
+				dest: "dest/dev"
 
 			semantic:
 				expand: true
@@ -119,10 +115,10 @@ module.exports = (grunt) ->
 		watch:
 			coffee:
 				files: ["src/**/*.coffee"]
-				tasks: "coffee"
+				tasks: "coffee:dev"
 			less:
 				files: ["src/**/*.less"]
-				tasks: "less"
+				tasks: "less:dev"
 			libs:
 				files: ["src/lib/**"]
 				tasks: "copy:libs"
@@ -247,7 +243,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
 	grunt.registerTask "test", ["mochaTask", "qunitTask"]
-	grunt.registerTask "compile", ["coffee", "less"]
+	grunt.registerTask "compile", ["clean:dev","coffee:dev", "less:dev", "copy:libs"]
 	grunt.registerTask "doc", ["yamlToDoc", "copy:docResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]

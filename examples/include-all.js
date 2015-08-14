@@ -38,4 +38,4 @@ function includeAll(root) {
 	writeScriptlet("widget/list.js");
 }
 
-includeAll(location.protocol + "//" + location.host + "/cola-ui/dest/");
+includeAll(location.protocol + "//" + location.host + "/cola-ui/dest/dev/");
