@@ -85,6 +85,12 @@ class cola.EntityDataType extends cola.DataType
 				if properties instanceof Array
 					for property in properties
 						@addProperty(property)
+				else
+					for name, config of properties
+						if config
+							if not (property instanceof cola.Property)
+								config.name = name
+							@addProperty(config)
 
 	@EVENTS:
 		beforeCurrentChange: null
@@ -104,7 +110,7 @@ class cola.EntityDataType extends cola.DataType
 		super(config)
 
 	addProperty: (property) ->
-		if !(property instanceof cola.Property)
+		if not (property instanceof cola.Property)
 			if typeof property.compute == "function"
 				property = new cola.ComputeProperty(property)
 			else

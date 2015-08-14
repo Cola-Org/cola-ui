@@ -30,11 +30,13 @@ cola.util.parseStyleLikeString = (styleStr, headerProp) ->
 			styleExpr = @trim(part.substring(j + 1))
 			if styleProp and styleExpr
 				style[styleProp] = styleExpr
-		else if i == 0 and headerProp
-			style[headerProp] = @trim(part)
 		else
 			part = @trim(part)
-			style[part] = true if part
+			if not part then continue
+			if i == 0 and headerProp
+				style[headerProp] = part
+			else
+				style[part] = true
 
 	#	if invalid
 	#		throw new cola.I18nException("cola.error.invalidFormat", styleStr)
