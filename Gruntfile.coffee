@@ -144,14 +144,14 @@ module.exports = (grunt) ->
 					}
 				]
 
-		"cola-clean":
+		"cola-ui-clean":
 			core:
 				files:
 					"dest/work/cola/coffee/cola.coffee": sources.coffee.core
 			widget:
 				files:
 					"dest/work/cola/coffee/widget.coffee": sources.coffee.widgetAll
-		"cola-license":
+		"cola-ui-license":
 			options:
 				license: """
 /*! Cola UI - v1.0.0
@@ -227,16 +227,7 @@ module.exports = (grunt) ->
 						ext: '.gz.css'
 					}
 				]
-		replace:
-			example:
-				src: ['src/**/*.coffee', 'src/**/*.less', 'src/**/*.yaml', 'test/**/*.*', 'sample/**/*.js','sample/**/*.html','sample/**/*.css','sample/**/*.json']
-				overwrite: true
-				replacements: [{
-					from: 'dorado'
-					to: 'cola'
-				}]
 
-	grunt.loadNpmTasks 'grunt-text-replace'
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-less"
 	grunt.loadNpmTasks "grunt-mocha-test"
@@ -260,6 +251,6 @@ module.exports = (grunt) ->
 	grunt.registerTask "doc", ["yamlToDoc", "copy:docResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
-	grunt.registerTask "build", ["clean:build", "cola-clean", "coffee:cola-core", "coffee:cola-widget",
-								 "less:build", "cola-license", "concat",
+	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
+								 "less:build", "cola-ui-license", "concat",
 								 "copy:semantic", "rename", "uglify:build", "cssmin", "compress", "clean:workTemp"]
