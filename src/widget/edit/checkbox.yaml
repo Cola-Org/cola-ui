@@ -1,0 +1,66 @@
+
+- name: cola.AbstractCheckbox
+  stereotype: class
+  super: cola.AbstractEditor
+  attributes:
+    - name: value
+      type: any
+      defaultValue: false
+      description: |
+        编辑器中的数值
+
+    - name: label
+      type: string
+      description: |
+        标签
+
+    - name: name
+      type: string
+      description: 名称
+
+    - name: disabled
+      type: boolean
+      defaultValue: false
+      description: 失效的，禁用的
+
+    - name: onValue
+      type: int|boolean|Object
+      defaultValue: true
+      description: 当复选框被选中的时候的value值。
+
+    - name: offValue
+      type: int|boolean|Object
+      defaultValue: false
+      description: 当复选框未被选中的时候的value值。
+
+    - name: checked
+      defaultValue: false
+      type: boolean
+      description: 复选框是否被选中。
+
+  methods:
+    - name: toggle
+      label: 切换值;onValue与offValue之间
+
+
+- name: cola.Checkbox
+  stereotype: class
+  super: cola.AbstractCheckbox
+  attributes:
+
+    - name: indeterminateValue
+      type: int|boolean|Object
+      description: 当复选框处于第三态时的value值。
+
+    - name: triState
+      type: boolean
+      defaultValue: false
+      description: 是否3态复选框，即是否启用复选框的mixed状态。
+
+- name: cola.Toggle
+  stereotype: class
+  super: cola.AbstractCheckbox
+
+- name: cola.Slider
+  stereotype: class
+  super: cola.AbstractCheckbox

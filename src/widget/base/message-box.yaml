@@ -1,0 +1,39 @@
+name: cola
+stereotype: namespace
+methods:
+  - name: alert
+    label: cola 消息框
+    arguments:
+      - name: msg
+        type: String
+        description: 消息内容
+      - name: options
+        type: Object
+        description: 可配置项
+    description: |
+      <strong>options可配置项如下</strong>
+      <ul>
+        <li>title: 标题</li>
+        <li>icon: 图标</li>
+        <li>ui: 样式风格</li>
+        <li>level: 提示等级(info,warning,error)</li>
+        <li>onHide: 隐藏时触发的回调</li>
+      </ul>
+  - name: confirm
+    label: cola 确认框
+    arguments:
+      - name: msg
+        type: String
+        description: 消息内容
+      - name: options
+        type: Object
+        description: 可配置项
+    description: |
+      <strong>options可配置项如下</strong>
+      <ul>
+        <li>title: 标题</li>
+        <li>icon: 图标</li>
+        <li>level: 提示等级(info,warning,error)</li>
+        <li>onApprove: 被认可时触发的回调</li>
+        <li>onDeny: 被否决时触发的回调</li>
+      </ul>

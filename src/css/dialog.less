@@ -1,0 +1,153 @@
+.ui.dialog {
+	position: absolute;
+	z-index: 1000;
+	display: none;
+	top: 50%;
+	left: 50%;
+	text-align: left;
+	background: #ffffff;
+	border: none;
+	box-shadow: 1px 3px 3px 0px rgba(0, 0, 0, 0.2), 1px 3px 15px 2px rgba(0, 0, 0, 0.2);
+	-webkit-transform-origin: 50% 25%;
+	-ms-transform-origin: 50% 25%;
+	transform-origin: 50% 25%;
+	border-radius: 0.28571429rem;
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+	will-change: top, left, margin, transform, opacity;
+	min-width: 240px;
+}
+
+.ui.dialog > :first-child:not(.icon),
+.ui.dialog > .icon:first-child + * {
+	border-top-left-radius: 0.28571429rem;
+	border-top-right-radius: 0.28571429rem;
+}
+
+.ui.dialog > :last-child {
+	border-bottom-left-radius: 0.28571429rem;
+	border-bottom-right-radius: 0.28571429rem;
+}
+
+/*******************************
+            Content
+*******************************/
+
+/*--------------
+     Close
+---------------*/
+
+.ui.dialog .close-btn {
+	cursor: pointer;
+	position: absolute;
+	top: -1rem;
+	right: -1.25rem;
+	z-index: 1;
+	border-radius: 50%;
+	opacity: 0.8;
+	font-size: 1.25em;
+	color: #ffffff;
+	line-height: 2rem;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+}
+
+.ui.dialog  .close-btn:hover {
+	opacity: 1;
+}
+
+/*--------------
+     Header
+---------------*/
+
+.ui.dialog > .header {
+	display: block;
+	background: #ffffff;
+	margin: 0em;
+	padding: 1.25rem 1.5rem;
+	box-shadow: none;
+	color: rgba(0, 0, 0, 0.85);
+	border-bottom: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+.ui.dialog > .header:not(.ui) {
+	font-size: 1.42857143rem;
+	line-height: 1.2857em;
+	font-weight: bold;
+}
+
+/*--------------
+     Content
+---------------*/
+
+.ui.dialog > .content {
+	display: block;
+	width: 100%;
+	font-size: 1em;
+	line-height: 1.4;
+	padding: 1.5rem;
+	background: #ffffff;
+}
+
+.ui.dialog > .image.content {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: normal;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+
+	> .image ,> .description{
+		display: block;
+		-webkit-box-flex: 0;
+		-webkit-flex: 0 1 auto;
+		-ms-flex: 0 1 auto;
+		flex: 0 1 auto;
+		-webkit-align-self: center;
+		-ms-flex-item-align: center;
+		align-self: center;
+		min-width: 0px;
+	}
+}
+
+
+.ui.dialog > .content > .icon + .description,
+.ui.dialog > .content > .image + .description {
+	-webkit-box-flex: 0;
+	-webkit-flex: 0 1 auto;
+	-ms-flex: 0 1 auto;
+	flex: 0 1 auto;
+	min-width: '';
+	width: auto;
+	padding-left: 2em;
+}
+
+/*rtl:ignore*/
+.ui.dialog > .content > .image > i.icon {
+	margin: 0em;
+	opacity: 1;
+	width: auto;
+	line-height: 1;
+	font-size: 8rem;
+}
+
+/*--------------
+     Actions
+---------------*/
+
+.ui.dialog .actions {
+	background: #f9fafb;
+	padding: 1rem 1rem;
+	border-top: 1px solid rgba(34, 36, 38, 0.15);
+	text-align: right;
+}
+
+.ui.dialog .actions > .button {
+	margin-left: 0.75em;
+}

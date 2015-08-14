@@ -1,0 +1,41 @@
+.ui.stack {
+	height: 100%;
+	.items-wrap {
+		position: relative;
+		height: 100%;
+		overflow: hidden;
+		width: 100%;
+		.item {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			right: 0px;
+			bottom: 0px;
+			display: none;
+			&.black {
+				//background-color: #1b1c1d !important;
+				//color: #ffffff !important;
+			}
+
+			&.blue {
+				//background-color: #3b83c0 !important;
+				//color: #ffffff !important;
+			}
+
+			&.green {
+				//background-color: #5bbd72 !important;
+				//color: #ffffff !important;
+			}
+		}
+
+	}
+}
+
+html {
+	&.ios {
+		height: 100% !important;
+		body {
+			height: 100% !important;
+		}
+	}
+}

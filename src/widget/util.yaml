@@ -1,0 +1,90 @@
+name: cola.util
+stereotype: namespace
+methods:
+  - name: addClass
+    label: 为dom添加class，支持semantic连写模式
+    arguments:
+      - name: dom
+        type: HTMLElement
+
+      - name: value
+        type: string
+
+      - name: continuous
+        type: boolean
+        description: 是否连续
+
+    return:
+      type: cola.util
+      description: cola.util工具类
+
+  - name: removeClass
+    label: 删除dom class，支持semantic连写模式
+    arguments:
+      - name: dom
+        type: HTMLElement
+
+      - name: value
+        type: string
+
+      - name: continuous
+        type: boolean
+        description: 是否连写
+
+    return:
+      type: cola.util
+      description: cola.util工具类
+
+  - name: toggleClass
+    label: 与jqeury的toggleClass 功能类似，不过支持了semantic连写模式
+    arguments:
+      - name: dom
+        type: HTMLElement
+
+      - name: value
+        type: string
+
+      - name: stateVal
+        type: boolean
+        description: 状态
+
+      - name: continuous
+        type: boolean
+        description: 是否连续
+
+    return:
+      type: cola.util
+      description: cola.util工具类
+
+  - name: hasClass
+    label: 判断class的存在性
+    arguments:
+      - name: dom
+        type: HTMLElement
+
+      - name: className
+        type: string
+
+    return:
+      type: cola.util
+      description: cola.util工具类
+
+  - name: typeOf
+    label: 判断对象类型,跨域了window scope。
+    arguments:
+      - name: obj
+        type: any
+
+      - name: type
+        type: string
+        enum:
+          - object
+          - boolean
+          - number
+          - string
+          - function
+          - array
+          - date
+          - regexp
+          - undefined
+          - null

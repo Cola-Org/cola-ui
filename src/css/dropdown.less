@@ -1,0 +1,80 @@
+@import (reference) "global";
+
+@borderRadius: @defaultBorderRadius;
+@downBorderColor: rgba(0, 0, 0, 0.3);
+
+.ui.input.drop {
+	> .icon {
+		pointer-events: inherit !important;
+	}
+	> .value-content {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		line-height: 1.2142em;
+		padding: 0.67861429em 0.4em;
+		pointer-events: none;
+		list-style: none;
+
+		&.placeholder {
+			.opacity(30%) !important;
+		}
+	}
+
+	&.opened {
+		input {
+			border-color: @downBorderColor;
+		}
+		> .value-content {
+			.opacity(50%);
+		}
+	}
+}
+
+.ui.drop-container {
+	background: @inputBackground;
+	.filter-container {
+		background: @inputBackground;
+		padding: 0.25em;
+	}
+}
+
+.ui.drop-container.dialog {
+	min-width: 20em;
+}
+
+.ui.drop-box {
+	position: absolute;
+	display: none;
+	overflow: auto;
+	border: 1px solid @downBorderColor;
+	min-height: 1em;
+
+	&.direction-down {
+		border-radius: 0 0 @borderRadius @borderRadius;
+		border-top-width: 0;
+		&.x-over {
+			border-radius: @borderRadius;
+			border-top-width: 1px;
+		}
+	}
+	&.direction-up {
+		border-radius: @borderRadius @borderRadius 0 0;
+		border-bottom-width: 0;
+		&.x-over {
+			border-radius: @borderRadius;
+			border-bottom-width: 1px;
+		}
+	}
+	.filter-pane {
+		padding: 0.5em;
+	}
+}
+
+.ui.drop-box.inverted {
+	border-radius: @borderRadius;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+}

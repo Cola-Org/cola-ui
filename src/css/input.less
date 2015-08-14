@@ -1,0 +1,238 @@
+@import (reference) "global";
+@import (reference) "../../semantic-src/themes/default/elements/input.variables";
+
+.ui.input > .editor {
+	-webkit-appearance: none !important;
+	margin: 0em;
+	max-width: 100%;
+	flex: 1 0 auto;
+	outline: none;
+	-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+	text-align: @textAlign;
+	line-height: @lineHeight;
+
+	font-family: @inputFont;
+	padding: @padding;
+
+	background: @background;
+	border: @border;
+	color: @inputColor;
+	border-radius: @borderRadius;
+	transition: @transition;
+
+	box-shadow: @boxShadow;
+}
+
+/*--------------------
+      Placeholder
+---------------------*/
+
+/* browsers require these rules separate */
+
+.ui.input > .editor::-webkit-input-placeholder {
+	color: @placeholderColor;
+}
+
+.ui.input > .editor::-moz-placeholder {
+	color: @placeholderColor;
+}
+
+.ui.input > .editor::-ms-input-placeholder {
+	color: @placeholderColor;
+}
+
+/*******************************
+            States
+*******************************/
+
+/*--------------------
+        Active
+---------------------*/
+
+.ui.input > .editor:active,
+.ui.input.down > .editor {
+	border-color: @downBorderColor;
+	background: @downBackground;
+	color: @downColor;
+	box-shadow: @downBoxShadow;
+}
+
+.ui.input.focus > .editor,
+.ui.input > .editor:focus {
+	border-color: @focusBorderColor;
+	background: @focusBackground;
+	color: @focusColor;
+	box-shadow: @focusBoxShadow;
+}
+
+.ui.input.focus > .editor::-webkit-input-placeholder,
+.ui.input > .editor:focus > .editor::-webkit-input-placeholder {
+	color: @placeholderFocusColor;
+}
+
+.ui.input.focus > .editor::-moz-placeholder,
+.ui.input > .editor:focus > .editor::-moz-placeholder {
+	color: @placeholderFocusColor;
+}
+
+.ui.input.focus > .editor::-ms-input-placeholder,
+.ui.input > .editor:focus > .editor::-ms-input-placeholder {
+	color: @placeholderFocusColor;
+}
+
+/*--------------------
+        Error
+---------------------*/
+
+.ui.input.error > .editor {
+	background-color: @errorBackground;
+	border-color: @errorBorder;
+	color: @errorColor;
+	box-shadow: @errorBoxShadow;
+}
+
+/* Error Placeholder */
+.ui.input.error > .editor ::-webkit-input-placeholder {
+	color: @placeholderErrorColor;
+}
+
+.ui.input.error > .editor ::-moz-placeholder {
+	color: @placeholderErrorColor;
+}
+
+.ui.input.error > .editor ::-ms-input-placeholder {
+	color: @placeholderErrorColor;
+}
+
+/* Focused Error Placeholder */
+.ui.input.error > .editor :focus::-webkit-input-placeholder {
+	color: @placeholderErrorFocusColor;
+}
+
+.ui.input.error > .editor :focus::-moz-placeholder {
+	color: @placeholderErrorFocusColor;
+}
+
+.ui.input.error > .editor :focus::-ms-input-placeholder {
+	color: @placeholderErrorFocusColor;
+}
+
+/*******************************
+           Variations
+*******************************/
+
+/*--------------------
+      Transparent
+---------------------*/
+
+.ui.transparent.input > .editor {
+	border-color: transparent !important;
+	background-color: transparent !important;
+	padding: 0em !important;
+	box-shadow: none !important;
+}
+
+.ui.transparent.icon.input > .editor {
+	padding-left: 0em !important;
+	padding-right: @transparentIconMargin !important;
+}
+
+.ui.transparent[class*="left icon"].input > .editor {
+	padding-left: @transparentIconMargin !important;
+	padding-right: 0em !important;
+}
+
+.ui.transparent.inverted.input > .editor {
+	color: inherit;
+}
+
+.ui.transparent.inverted.input > .editor::-webkit-input-placeholder {
+	color: @transparentInvertedPlaceholderColor;
+}
+
+.ui.transparent.inverted.input > .editor::-moz-placeholder {
+	color: @transparentInvertedPlaceholderColor;
+}
+
+.ui.transparent.inverted.input > .editor::-ms-input-placeholder {
+	color: @transparentInvertedPlaceholderColor;
+}
+
+.ui.icon.input > .editor {
+	padding-right: @iconMargin !important;
+}
+
+.ui[class*="left icon"].input > .editor {
+	padding-left: @iconMargin !important;
+	padding-right: @horizontalPadding !important;
+}
+
+/* Focus */
+.ui.icon.input > .editor:focus ~ i.icon {
+	opacity: 1;
+}
+
+/* Regular Label on Left */
+.ui.labeled.input:not([class*="corner labeled"]):not([class*="right labeled"]) > .editor {
+	border-left: none;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+
+.ui[class*="right labeled"].input > .editor {
+	border-right: none;
+	border-top-right-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+}
+
+/* Spacing with corner label */
+.ui[class*="corner labeled"]:not(.left).labeled.input > .editor {
+	padding-right: @labeledMargin !important;
+}
+
+.ui[class*="corner labeled"].icon.input:not(.left) > .editor {
+	padding-right: @labeledIconInputMargin !important;
+}
+
+/* Left Labeled */
+.ui[class*="corner labeled"].left.labeled.input > .editor {
+	padding-left: @labeledMargin !important;
+}
+
+.ui[class*="corner labeled"].icon.input.left > .editor {
+	padding-left: @labeledIconInputMargin !important;
+}
+
+/* Button on Right */
+.ui.action.input:not([class*="left action"]) > .editor {
+	border-right: none;
+	border-top-right-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+}
+
+.ui[class*="left action"].input > .editor {
+	border-left: none;
+	border-top-left-radius: 0px !important;
+	border-bottom-left-radius: 0px !important;
+}
+
+/*--------------------
+       Inverted
+---------------------*/
+
+/* Standard */
+.ui.inverted.input > .editor {
+	border: none;
+}
+
+/*--------------------
+        Fluid
+---------------------*/
+
+.ui.fluid.input {
+	display: flex;
+}
+
+.ui.fluid.input > .editor {
+	width: 0px !important;
+}

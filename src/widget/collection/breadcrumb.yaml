@@ -1,0 +1,136 @@
+- name: cola.breadcrumb.Section
+  stereotype: class
+  label: cola 面包屑控件
+  super: cola.Widget
+  attributes:
+    - name: text
+      label: 内容
+      type: string
+
+    - name: active
+      label: 是当前激活的
+      type: boolean
+      defaultValue: false
+
+
+- name: cola.Breadcrumb
+  stereotype: class
+  label: cola 面包屑控件
+  super: cola.Widget
+  attributes:
+    - name: divider
+      label: 分隔符
+      type: string
+      enum:
+        - chevron
+        - slash
+      defaultValue: chevron
+
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+
+    - name: sections
+      label: 面包屑切片
+      type: Array
+      description: |
+        <code>
+        new cola.Breadcrumb({
+          sections:[
+            "首页",
+            {
+              text:"系统管理",
+              active:true //将此切片设置为当前
+            },
+            "字典维护",
+            "产品类型"
+          ]
+        })
+        </code>
+    - name: currentIndex
+      label: 当前Section的序号（自0开始计算）
+      type: number
+
+  events:
+    - name: beforeChange
+      label: 当切换Section之前触发
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            newSection:
+              type: cola.breadcrumb.Section
+              description: 要切换到的Section
+            oldSection:
+              type: cola.breadcrumb.Section
+              description: 当前的Section
+
+    - name: change
+      label: 当切换Section之后触发
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            newSection:
+              type: cola.breadcrumb.Section
+              description: 当前的Section
+            oldSection:
+              type: cola.breadcrumb.Section
+              description: 要切换到的Section
+
+  methods:
+    - name: addSection
+      label: 添加一个Section
+      arguments:
+        - name: section
+          type: cola.breadcrumb.Section
+
+    - name: removeSection
+      label: 移除Section
+      arguments:
+        - name: section
+          type: cola.breadcrumb.Section||number
+
+    - name: clear
+      label: 清空Sections
+
+    - name: getSection
+      label: 获得一个Section
+      arguments:
+        - name: index
+          type: number||string
+          description: section在此列表中的序号(index从0开始算起)或者 section内容(text属性)
+      return:
+        type: cola.breadcrumb.Section
+    - name: setCurrent
+      label: 设置当前
+      arguments:
+        - name: index
+          type: number||string||cola.breadcrumb.Section
+          description: section在此列表中的序号(index从0开始算起)或者 section内容(text属性)或者section本身
+      return:
+        type: cola.Breadcrumb
+        description: 组件本身
+
+    - name: getCurrent
+      label: 获得当前
+      return:
+        type: cola.breadcrumb.Section
+        description: 当前Section
+
+    - name: getCurrentIndex
+      label: 获得当前元素序号
+      return:
+        type: Number

@@ -1,0 +1,64 @@
+name: cola.Element
+stereotype: class
+label: cola的基本对象类型
+
+constructors:
+  - arguments:
+      - name: config
+        type: object
+
+methods:
+  - name: set
+    type: cola.Element
+    arguments:
+      - name: key
+        type: string | object
+      - name: value
+        type: object
+        optional: true
+
+  - name: get
+    type: any
+    arguments:
+      - name: key
+        type: string
+
+  - name: _bind
+    type: cola.Element
+    arguments:
+      - name: eventName
+        type: string
+      - name: listener
+        type: function
+
+  - name: _unbind
+    type: cola.Element
+    arguments:
+      - name: eventName
+        type: string
+      - name: listener
+        type: function
+
+  - name: getListeners
+    type: function[]
+    arguments:
+      - name: eventName
+        type: string
+
+  - name: fire
+    type: boolean
+    arguments:
+      - name: eventName
+        type: string
+      - name: params
+        type: any[]
+
+events:
+  - name: excpetion
+    arguments:
+      - name: excpetion
+
+attributes:
+  - name: tag
+    label: 标签
+    type: string | string[]

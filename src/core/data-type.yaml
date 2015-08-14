@@ -1,0 +1,9 @@
+name: cola.DataType
+stereotype: class
+super: cola.Element
+
+---
+
+name: cola.PropertyDef
+stereotype: class
+super: cola.Element

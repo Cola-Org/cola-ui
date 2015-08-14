@@ -1,0 +1,179 @@
+- name: cola.RenderableElement
+  stereotype: class
+  label: cola可渲染元素
+  super: cola.Element
+
+  constructors:
+    - arguments:
+        - name: config
+          type: object
+
+  methods:
+    - name: refresh
+      label: 刷新控件
+
+    - name: appendTo
+      return:
+        type: cola.Widget
+      label: 追加到指定的dom中
+      arguments:
+        - name: dom
+          type: HTMLElement | jQuery | zepto
+
+    - name: getDom
+      return:
+        type: HTMLElement
+
+    - name: get$Dom
+      type: jQeury|zepto
+      label: 获得此组件Dom的jQuery或zepto实例
+
+    - name: remove
+      return:
+        type: cola.Widget
+      label: 从dom树上移除此组件
+
+    - name: destroy
+      label: 销毁此组件
+
+- name: cola.Widget
+  stereotype: class
+  label: cola组件基础类
+  super: cola.RenderableElement
+  methods:
+    - name: showDimmer
+      return:
+        type: cola.Widget
+      label: 显示调光器
+      arguments:
+        - name: options
+          type: object
+      description: |
+        <code>
+        var widget=new cola.Widget();
+        widget.showDimmer({content:"中间内容"})
+        widget.showDimmer({
+          tagName:"div",
+          content:{
+            tagName:"div",
+            content:"中间内容"
+          }
+        })
+        </code>
+
+    - name: hideDimmer
+      return:
+        type: cola.Widget
+      label: 关闭调光器
+
+  events:
+    - name: click
+      label: 单击事件
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              description: 组件本身
+            - name: event
+              type: Event
+              description: window.event 对象
+
+    - name: dblclick
+      label: 双击事件
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              description: 组件本身
+            - name: event
+              type: Event
+              description: window.event 对象
+
+    - name: mousedown
+      label: 鼠标左键被按下
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              description: 组件本身
+            - name: event
+              type: Event
+              description: window.event 对象
+
+    - name: mouseup
+      label: 鼠标左键弹起
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              description: 组件本身
+            - name: event
+              type: Event
+              description: window.event 对象
+
+    - name: tap
+      label: 触碰事件
+      description: |
+            在touch环境下建议使用此事件,在Android下响应比click快
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              description: 组件本身
+            - name: event
+              type: Event
+              description: window.event 对象
+
+  attributes:
+    - name: float
+      type: string
+      enum:
+        - left
+        - right
+      description: |
+        浮动:通过属性将根据所设定的值在容器中浮动显示
+
+    - name: display
+      label: 是否显示
+      defaultValue: true
+      type: boolean
+
+    - name: ui
+      defaultValue: true
+      type: string
+      description: |
+        用户可自定样式之后通过此属性激活自定义样式，或者启用框架提供的样式
+
+    - name: popup
+      description: |
+        弹出信息内容，当鼠悬停时显示此内容
+
+    - name: dimmer
+      label: 调光器内容
+
+    - name: width
+      type: number|string
+      description: |
+        宽度(如果传入的值为number将计量单位为px)
+
+    - name: height
+      type: number|string
+      description: |
+            高度(如果传入的值为number将计量单位为px)
+
+

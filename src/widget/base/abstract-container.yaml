@@ -1,0 +1,39 @@
+name: cola.AbstractContainer
+stereotype: class
+label: cola 抽象Container控件
+description: 此控件为容器类如：Layer,Segment,Link等控件的超类。
+super: cola.Widget
+attributes:
+  - name: content
+    type: string|HTMLElement|cola.Widget|object
+    description: |
+      容器内容,可如下模式赋值:
+      <code>
+        此属性支持多态参数：
+        new cola.Layer({
+          content:"内容"
+        });
+        new cola.Layer({
+          content:{
+            tagName:"div",
+            content:"内容"
+          }
+        });
+        new cola.Layer({
+          content:document.createElement("div")
+        });
+        new cola.Layer({
+          content:{
+            $type:"Button",
+            caption:"按钮"
+          }
+        });
+      </code>
+
+
+methods:
+  - name: getContentContainer
+    label: 取得内容容器
+    return:
+      type: HTMLElement
+

@@ -1,0 +1,40 @@
+cola.error.objectUndefined: 找不到指定的对象"{0}"。
+cola.error.unrecognizedAttribute: 未知的属性"{0}"。
+cola.error.attributeValueRequired: 属性"{0}"的值不能为空。
+cola.error.attributeReadOnly: 属性"{0}"是只读的。
+cola.error.attributeReadOnlyAfterCreate: 属性"{0}"只能在创建时修改。
+cola.error.attributeEnumOutOfRange: 属性"{0}"的枚举值"{1}"超出范围。
+cola.error.unrecognizedEvent: 未知的事件"{0}"。
+cola.error.singleEventListener: 事件"{0}"不能注册一个以上的监听器。
+cola.error.invalidInstanceOfAttribute: 无法根据属性"{0}"获得有效的对象。
+cola.error.invalidListener: 尝试向"{0}"绑定无效的事件监听器。
+cola.error.objectNotFree: '"{0}"早已归属于另一个"{1}"。'
+cola.error.duplicateModelName: 'Model"{0}"早已存在。'
+cola.error.loadResourceFailed: '状态资源"{0}"失败。"{1}"'
+
+cola.date.monthNames: '一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月'
+cola.date.monthNamesShort: '一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月'
+cola.date.dayNames: '星期日,星期一,星期二,星期三,星期四,星期五,星期六'
+cola.date.dayNamesShort: '日,一,二,三,四,五,六'
+cola.date.amDesignator: 上午
+cola.date.pmDesignator: 下午
+
+cola.error.unrecognizedDataType: 未知的数据类型"{0}"。
+cola.error.unmatchedDataType: 不匹配的数据类型。期望"{0}"，实际为"{1}"。
+cola.error.entityNotBelongToEntityList: 该数据实体并不属于当前集合。
+cola.error.getResultDuringAjax: 不能在执行异步Ajax"{0}"的过程中尝试以同步方式获得返回结果。
+cola.error.setData: 无法向指定的位置或属性中赋值"{0}"。
+cola.error.dataAttached: 该数据早已附着于模型树的"{0}"中。
+cola.error.dataNeverAttached: 该数据尚未附着到到任何模型树中。
+cola.error.providerUndefined: 未定义DataProvider。
+cola.error.urlAndSericeUndefined: Ajax的url和service均未定义。
+
+cola.error.invalidFormat: 属性值的格式不正确"{0}"。
+cola.error.repeatNeedCollection: '"{0}"绑定的数据不是cola.EntityList或Array。'
+
+cola.error.needRepeatBinding: '"{0}"不是一个迭代型的绑定表达式。'
+cola.error.needSimpleBinding: '"{0}"不是一个简单的表达式。'
+cola.error.bindingNotWritable: 绑定表达式"{0}"不支持数据回写。
+cola.error.invalidSubmitData: 无效的提交数据，UpdateAction只支持提交cola.Entity或cola.EntityList。
+
+cola.warn.noDataToSubmit: 没有可提交的数据。

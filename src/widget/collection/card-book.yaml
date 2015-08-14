@@ -1,0 +1,31 @@
+name: cola.CardBook
+stereotype: class
+label: cola 卡片组件,该组件可以添加多个子组件，但是每次只能显示一个子组件，显示的组件称为活动组件。
+super: cola.AbstractItemGroup
+events:
+  - name: beforeChange
+    label: 当切换之前触发
+    arguments:
+      - name: self
+        description: 事件的发起者,即组件本身
+      - name: arg
+        properties:
+          newItem:
+            type: cola.Widget|HTMLElemnt
+            description: 要切换到Item
+          oldItem:
+            type: cola.Widget|HTMLElemnt
+            description: 当前的Item
+  - name: change
+    label: 当切换之后触发
+    arguments:
+      - name: self
+        description: 事件的发起者,即组件本身
+      - name: arg
+        properties:
+          newItem:
+            type: cola.Widget|HTMLElemnt
+            description: 切换后当前Item
+          oldItem:
+            type: cola.Widget|HTMLElemnt
+            description: 切换前的当前Item

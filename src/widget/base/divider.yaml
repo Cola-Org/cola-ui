@@ -1,0 +1,50 @@
+name: cola.Divider
+stereotype: class
+label: cola分割线控件
+super: cola.Widget
+attributes:
+  - name: content
+    label: 分隔条内容
+    type: Object||Array||cola.Widget||HtmlElement||string
+    description: |
+      <code>
+      new cola.Divider(
+        {
+          content:{
+            $type:"Button",caption:"按钮"
+          }
+        }
+      );
+      new cola.Divider(
+        {
+          content:[{
+            tagName:"div",
+            class:"content"
+          },{
+              tagName:"div",
+              class:"content"
+          }]
+        }
+      );
+      new cola.Divider(
+        {
+          content:new cola.Button({caption:"按钮"})
+        }
+      );
+      new cola.Divider(
+        {
+          content:"分割线"
+        }
+      );
+        </code>
+
+  - name: direction
+    label: 方向
+    type: string
+    enum:
+      - vertical
+      - horizontal
+      -
+    defaultValue: horizontal
+
+

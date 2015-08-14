@@ -1,0 +1,112 @@
+@import "est/all.less";
+
+@screen: ~"only screen";
+@small-up: @screen;
+@small-only: ~"only screen and (max-width: 40em)";
+
+@medium-up: ~"only screen and (min-width:40.0625em)";
+@medium-only: ~"only screen and (min-width:40.0625em) and (max-width:58.5em)";
+
+@large-up: ~"only screen and (min-width:58.5em)";
+@large-only: ~"only screen and (min-width:58.5em) and (max-width:90em)";
+
+@xlarge-up: ~"only screen and (min-width:90.0625em)";
+@xlarge-only: ~"only screen and (min-width:90.0625em) and (max-width:120em)";
+
+@xxlarge-up: ~"only screen and (min-width:120.0625em)";
+
+@total-columns: 12;
+@block-grid-elements: @total-columns;
+@opposite-direction: right;
+@default-spacing: 0rem;
+@column-gutter: @default-spacing;
+@row-width: 100%;
+@default-float: left;
+
+@type    : 'global';
+@element : 'reset';
+
+@import (reference) '../../semantic-src/theme.config';
+@fontName: "Microsoft YaHei", 'Lato';
+
+.clearfix() {
+	&:before, &:after {
+		content: " ";
+		display: table;
+	}
+	&:after {
+		clear: both;
+	}
+}
+
+template {
+	display: none;
+}
+
+.mobile {
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+
+	::-webkit-scrollbar {
+		-webkit-appearance: none;
+		&:vertical {
+			width: 2px;
+		}
+		&:horizontal {
+			height: 2px;
+		}
+		&-thumb {
+			background: #ccc;
+		}
+	}
+}
+
+.display-none {
+	display: none;
+}
+
+.colored(@name,@color,@colorName,@style) {
+	.@{colorName}-@{name} {
+		@{style}: @color
+	}
+}
+
+.colored(background, @red, red, background-color);
+.colored(background, @orange, orange, background-color);
+.colored(background, @yellow, yellow, background-color);
+.colored(background, @olive, olive, background-color);
+.colored(background, @green, green, background-color);
+.colored(background, @teal, teal, background-color);
+.colored(background, @blue, blue, background-color);
+.colored(background, @violet, violet, background-color);
+.colored(background, @purple, purple, background-color);
+.colored(background, @pink, pink, background-color);
+.colored(background, @brown, brown, background-color);
+.colored(background, @grey, grey, background-color);
+.colored(background, @black, black, background-color);
+.colored(text, @red, red, color);
+.colored(text, @orange, orange, color);
+.colored(text, @yellow, yellow, color);
+.colored(text, @olive, olive, color);
+.colored(text, @green, green, color);
+.colored(text, @teal, teal, color);
+.colored(text, @blue, blue, color);
+.colored(text, @violet, violet, color);
+.colored(text, @purple, purple, color);
+.colored(text, @pink, pink, color);
+.colored(text, @brown, brown, color);
+.colored(text, @grey, grey, color);
+.colored(text, @black, black, color);
+.colored(border, @red, red, border-color);
+.colored(border, @orange, orange, border-color);
+.colored(border, @yellow, yellow, border-color);
+.colored(border, @olive, olive, border-color);
+.colored(border, @green, green, border-color);
+.colored(border, @teal, teal, border-color);
+.colored(border, @blue, blue, border-color);
+.colored(border, @violet, violet, border-color);
+.colored(border, @purple, purple, border-color);
+.colored(border, @pink, pink, border-color);
+.colored(border, @brown, brown, border-color);
+.colored(border, @grey, grey, border-color);
+.colored(border, @black, black, border-color);

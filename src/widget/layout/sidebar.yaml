@@ -1,0 +1,108 @@
+
+- name: cola.Sidebar
+  stereotype: class
+  super: cola.AbstractContainer
+  description: 侧边栏控件此控件需与cola.Drawer 配合使用
+  attributes:
+    - name: direction
+      type: String
+      enum:
+        - left
+        - right
+        - top
+        - bottom
+      defaultValue: left
+      description: 位置
+
+    - name: size
+      type: number
+      description: 侧边栏尺寸。当位置为left或right时未宽度，top或bottom时为高度
+
+    - name: transition
+      type: String
+      defaultValue: overlay
+      enum:
+        - overlay
+        - push
+      description: 桌面模式下的 过渡效果
+
+    - name: mobileTransition
+      type: String
+      defaultValue: overlay
+      enum:
+        - overlay
+        - push
+      description: 手机模式下的 过渡效果
+
+  events:
+    - name: beforeShow
+      label: 在显示之前触发。
+    - name: show
+      label: 在显示之后触发。
+    - name: beforeHide
+      label: 在隐藏之前触发。
+    - name: hide
+      label: 在隐藏之后触发。
+
+  methods:
+    - name: show
+      type: cola.Widget
+      arguments:
+        - name: callback
+          type: Function
+          description: 回调函数
+    - name: hide
+      type: cola.Widget
+      arguments:
+        - name: callback
+          type: Function
+          description: 回调函数
+    - name: isVisible
+      type: boolean
+      description: 是否可见
+
+- name: cola.Drawer
+  stereotype: class
+  super: cola.AbstractContainer
+  description: 抽屉控件此控件需与cola.Sidebar 配合使用
+  methods:
+    - name: getPusherDom
+      type: HTMLElement
+
+    - name: showSidebar
+      type: cola.Widget
+      label: 显示侧边栏(显示抽屉下的第一个侧边栏)
+      arguments:
+        - name: callback
+          type: Function
+          description: 回调函数
+
+    - name: showSidebar
+      type: cola.Widget
+      label: 显示侧边栏
+      arguments:
+        - name: id
+          type: String
+          description: 侧边栏控件ID
+        - name: callback
+          type: Function
+          description: 回调函数
+
+    - name: hideSidebar
+      type: cola.Widget
+      label: 隐藏侧边栏(隐藏抽屉下的第一个侧边栏)
+      arguments:
+        - name: callback
+          type: Function
+          description: 回调函数
+
+    - name: hideSidebar
+      type: cola.Widget
+      label: 隐藏侧边栏
+      arguments:
+        - name: id
+          type: String
+          description: 侧边栏控件ID
+        - name: callback
+          type: Function
+          description: 回调函数

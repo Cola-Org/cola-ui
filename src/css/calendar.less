@@ -1,0 +1,208 @@
+@import (reference) "global";
+
+@default-calender-color: @teal;
+.calendar {
+	overflow: hidden;
+	position: relative;
+
+	table {
+		width: 100%;
+	}
+
+	.header {
+		height: 2.25em;
+		padding: 0.25em 2.5em;
+
+		.button {
+			display: inline-block;
+			float: left;
+			width: 1.5em;
+			height: 1.5em;
+			line-height: 1.5em;
+			text-align: center;
+			color: @default-calender-color;
+			cursor: pointer;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 1.25em;
+			&.next {
+				float: right;
+			}
+			&.prev:before {
+				font-family: Icons;
+				content: "\f104";
+			}
+			&.next:before {
+				font-family: Icons;
+				content: "\f105";
+			}
+		}
+		.label {
+			margin: 0 1.5em;
+			text-align: center;
+			line-height: 1.5em;
+			cursor: pointer;
+			font-size: 1.25em;
+			color: #454545;
+		}
+
+		.year, .month {
+			display: inline-block;
+			width: 50%;
+		}
+
+	}
+
+	.date-header {
+		height: 1.5em;
+		border-bottom: 1px solid @default-calender-color;
+
+		td {
+			text-align: center;
+		}
+	}
+
+	.popup-wrapper {
+		position: absolute;
+		top: 36px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.date-table-wrapper {
+		position: relative;
+		min-height: 400px;
+		min-width: 300px;
+		.ui.stack {
+			width: 100%;
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0px;
+			bottom: 0px;
+		}
+		.date-table {
+			height: 236px;
+			float: left;
+
+			&.hidden {
+				display: none;
+			}
+
+			td {
+				text-align: center;
+				padding: 0.5em 0;
+				&.has-event {
+					padding-bottom: 2px;
+					&:after {
+						content: "";
+						display: block;
+						width: 6px;
+						height: 6px;
+						position: relative;
+						left: 50%;
+						top: 2px;
+						margin-left: -3px;
+						border-radius: 3px;
+						background: #ccc;
+					}
+				}
+
+				&.next-month, &.prev-month {
+					opacity: 0.4;
+				}
+
+				div.label {
+					display: inline-block;
+					width: 1.75em;
+					height: 1.75em;
+					padding: 1px;
+					line-height: 1.75em;
+					cursor: pointer;
+				}
+				&.selected div.label {
+					padding: 0;
+					background: @default-calender-color;
+					color: #FFF;
+					border-radius: 50%
+				}
+			}
+		}
+	}
+	.mixin_calendar_color(@name,@color) {
+		&.@{name} {
+			.header .button {
+				color: @color;
+			}
+			.date-header {
+				border-bottom: 1px solid @color;
+			}
+			.date-table-wrapper .date-table td {
+				&.selected div.label {
+					background: @color;
+				}
+			}
+		}
+	}
+	.mixin_calendar_color(red, @red);
+	.mixin_calendar_color(orange, @orange);
+	.mixin_calendar_color(yellow, @yellow);
+	.mixin_calendar_color(olive, @olive);
+	.mixin_calendar_color(green, @green);
+	.mixin_calendar_color(teal, @teal);
+	.mixin_calendar_color(blue, @blue);
+	.mixin_calendar_color(violet, @violet);
+	.mixin_calendar_color(purple, @purple);
+	.mixin_calendar_color(pink, @pink);
+	.mixin_calendar_color(brown, @brown);
+	.mixin_calendar_color(grey, @grey);
+
+	&.inverted {
+		background-color: @black;
+		color: @invertedTextColor;
+		.header {
+			.button {
+				color: @invertedTextColor;
+			}
+			.label {
+				color: @invertedTextColor;
+			}
+		}
+		.date-header {
+			border: none;
+		}
+		> .header, > .date-header {
+			background-color: @whiteBorderColor;
+		}
+		.date-table-wrapper .date-table td {
+			&.selected div.label {
+				background: #fff;
+				color: @black;
+			}
+		}
+
+		.mixin_calendar_inverted_color(@name,@color) {
+			&.@{name} {
+				background-color: @color;
+				.date-table-wrapper .date-table td {
+					&.selected div.label {
+						color: @color;
+					}
+				}
+			}
+		}
+		.mixin_calendar_inverted_color(red, @red);
+		.mixin_calendar_inverted_color(orange, @orange);
+		.mixin_calendar_inverted_color(yellow, @yellow);
+		.mixin_calendar_inverted_color(olive, @olive);
+		.mixin_calendar_inverted_color(green, @green);
+		.mixin_calendar_inverted_color(teal, @teal);
+		.mixin_calendar_inverted_color(blue, @blue);
+		.mixin_calendar_inverted_color(violet, @violet);
+		.mixin_calendar_inverted_color(purple, @purple);
+		.mixin_calendar_inverted_color(pink, @pink);
+		.mixin_calendar_inverted_color(brown, @brown);
+		.mixin_calendar_inverted_color(grey, @grey);
+	}
+
+}

@@ -1,0 +1,179 @@
+@import (reference) "global";
+@import (reference) "items-view";
+
+@TreeNodePadding: 0.25em;
+@TreeNodeImpactMinHeight: 1.5em;
+@TreeNodeImpactIndent: 1.5em;
+
+@TreeNodeMinHeight: 2.2em;
+@TreeNodeIndent: 2.25em;
+
+.ui.tree {
+	.item {
+		padding: 0;
+	}
+
+	.child-nodes {
+		margin-left: @TreeNodeIndent !important;
+	}
+
+	.node {
+		min-height: @TreeNodeMinHeight + @TreeNodePadding * 2;
+		padding: @TreeNodePadding;
+		line-height: @TreeNodeMinHeight;
+		> .expand-button {
+			float: left;
+			width: @TreeNodeMinHeight;
+			height: @TreeNodeMinHeight;
+			margin-right: @TreeNodePadding;
+			&:before {
+				.transition-duration(0.3s);
+				.transition-property(transform);
+				font-family: Icons;
+				content: "\f105"; // Arrow Right
+				display: block;
+				text-align: center;
+				line-height: @TreeNodeMinHeight;
+			}
+		}
+
+		&.expanded > .expand-button:before {
+			.rotate(90deg);
+		}
+		&.leaf > .expand-button {
+			visibility: hidden;
+		}
+		.ui.checkbox {
+			top: 0.35em;
+		}
+	}
+}
+
+.ui.tree.impact {
+	.child-nodes {
+		margin-left: @TreeNodeImpactIndent !important;
+	}
+	.node {
+		min-height: @TreeNodeImpactMinHeight + @TreeNodePadding * 2;
+		line-height: @TreeNodeImpactMinHeight;
+		> .expand-button {
+			width: @TreeNodeImpactMinHeight;
+			height: @TreeNodeImpactMinHeight;
+			&:before {
+				line-height: @TreeNodeImpactMinHeight;
+			}
+		}
+		.ui.checkbox {
+			top: 0.25em;
+		}
+	}
+}
+
+.ui.tree {
+	.item:not(.current) {
+		> .node:hover, > .node:active {
+			background: @itemsViewHoverBackground;
+		}
+	}
+	.item.current {
+		> .node {
+			background: @itemsViewCurrentBackground;
+			color: @itemsViewCurrentColor;
+		}
+	}
+}
+
+.ui.tree.inverted {
+	background: @itemsViewInvertedBackground;
+	.item {
+		color: @itemsViewInvertedTextColor;
+		background: @itemsViewInvertedBackground;
+		&:not(.current) {
+			> .node:hover, > .node:active {
+				background: @itemsViewInvertedHoverBackground
+			}
+		}
+		&.current {
+			> .node {
+				background: @itemsViewInvertedCurrentBackground;
+			}
+		}
+	}
+}
+
+.ui.tree.basic {
+	background: none;
+	.item:not(.current) {
+		color: inherit;
+		background: none;
+		> .node, > .node:hover > .node:active {
+			color: inherit;
+			background: none;
+		}
+	}
+	.item.current {
+		> .node {
+			color: inherit;
+			background: none;
+		}
+	}
+}
+
+.tree-light-color(@color) {
+	.ui.tree.light-@{color} {
+		.item:not(.current) {
+			> .node:hover, > .node:active {
+				background: fade(@@color, 10%);
+			}
+		}
+		.item.current {
+			> .node {
+				background: fade(@@color, 20%);
+			}
+		}
+	}
+}
+
+.tree-light-color(red);
+.tree-light-color(orange);
+.tree-light-color(yellow);
+.tree-light-color(olive);
+.tree-light-color(green);
+.tree-light-color(teal);
+.tree-light-color(blue);
+.tree-light-color(violet);
+.tree-light-color(purple);
+.tree-light-color(pink);
+.tree-light-color(brown);
+.tree-light-color(grey);
+.tree-light-color(black);
+
+.tree-color(@color) {
+	.ui.tree.@{color} {
+		.item:not(.current) {
+			> .node:hover, > .node:active {
+				background: fade(@@color, 12%);
+			}
+		}
+		.item.current {
+			> .node {
+				background: @@color;
+				color: @invertedSelectedTextColor;
+			}
+		}
+	}
+}
+
+.tree-color(red);
+.tree-color(orange);
+.tree-color(yellow);
+.tree-color(olive);
+.tree-color(green);
+.tree-color(teal);
+.tree-color(blue);
+.tree-color(violet);
+.tree-color(purple);
+.tree-color(pink);
+.tree-color(brown);
+.tree-color(grey);
+.tree-color(black);

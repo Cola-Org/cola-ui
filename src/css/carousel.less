@@ -1,0 +1,102 @@
+.ui.carousel {
+	overflow: hidden;
+	position: relative;
+	> .items-wrap {
+		display: -webkit-box;
+		display: -moz-box;
+		position: relative;
+		height: 100%;
+		> * {
+			box-sizing: border-box;
+			width: 100%;
+			height: 100%;
+			position: relative;
+		}
+	}
+	> .indicators {
+		position: absolute;
+		z-index: 1;
+		vertical-align: middle;
+		text-align: center;
+		display: -webkit-box;
+		display: -moz-box;
+		-webkit-box-pack: center;
+		-moz-box-pack: center;
+		-webkit-box-align: center;
+		-moz-box-align: center;
+		> span {
+			display: block;
+			box-sizing: border-box;
+			width: 10px;
+			height: 10px;
+			-webkit-border-radius: 50%;
+			-moz-border-radius: 50%;
+			border-radius: 50%;
+			border: transparent solid 2px;
+			background-clip: content-box;
+			margin: 2px;
+			-webkit-transition-duration: 0.6s;
+			-moz-transition-duration: 0.6s;
+			-ms-transition-duration: 0.6s;
+			-o-transition-duration: 0.6s;
+			transition-duration: 0.6s;
+			-webkit-transition-property: background-color, border-color, color, -webkit-box-shadow, -webkit-transform;
+			-moz-transition-property: background-color, border-color, color, -moz-box-shadow, -moz-transform;
+			transition-property: background-color, border-color, color, box-shadow, transform;
+			-webkit-transition-property: background-color, border;
+			-moz-transition-property: background-color, border;
+			-ms-transition-property: background-color, border;
+			-o-transition-property: background-color, border;
+			transition-property: background-color, border;
+
+			background-color: rgba(136, 136, 136, 0.5);
+		}
+		> span.active {
+			border-color: #15a4fa;
+			background-color: #15a4fa;
+		}
+	}
+}
+
+.ui.carousel-horizontal {
+	> .items-wrap {
+		-webkit-box-orient: horizontal;
+		-moz-box-orient: horizontal;
+	}
+	> .indicators {
+		left: 0;
+		bottom: 0px;
+		width: 100%;
+		height: 24px;
+		-webkit-box-orient: horizontal;
+		-moz-box-orient: horizontal;
+	}
+}
+
+.ui.carousel-vertical {
+	> .items-wrap {
+		-webkit-box-orient: vertical;
+		-moz-box-orient: vertical;
+	}
+
+	> .indicators {
+		right: 0;
+		top: 0;
+		width: 24px;
+		height: 100%;
+		-webkit-box-orient: vertical;
+		-moz-box-orient: vertical;
+	}
+}
+
+.ui.carousel-inverse {
+	> .indicators {
+		> span {
+			background-color: rgba(136, 136, 136, 0.5);
+		}
+		> span.active {
+			border-color: #15a4fa;
+			background-color: #fa6b15;
+		}
+	}
+}

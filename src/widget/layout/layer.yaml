@@ -1,0 +1,120 @@
+name: cola.Layer
+stereotype: class
+label: cola 层控件
+super: cola.AbstractContainer
+
+attributes:
+  - name: animation
+    type: String
+    enum:
+      - scale
+      - drop
+      - browse right
+      - browse
+      - slide left
+      - slide right
+      - slide up
+      - slide down
+      - fade left
+      - fade right
+      - fade up
+      - fade down
+      - fly left
+      - fly right
+      - fly up
+      - fly down
+      - swing left
+      - swing right
+      - swing up
+      - swing down
+      - horizontal flip
+      - vertical flip
+
+    description: 弹出动画类型
+    defaultValue: slide left
+
+  - name: duration
+    type: number
+    defaultValue: 300
+    description: 弹出动画时间(以毫秒为单位)
+
+  - name: visible
+    type: Boolean
+    description: 是否可见
+    readOnly: true
+
+
+events:
+  - name: beforeShow
+    label: 在显示之前触发。
+  - name: show
+    label: 在显示之后触发。
+  - name: beforeHide
+    label: 在隐藏之前触发。
+  - name: hide
+    label: 在隐藏之后触发。
+methods:
+  - name: show
+    label: 显示
+    type: cola.Dialog
+    arguments:
+      - name: options
+        type: Object
+      - name: callback
+        type: Function
+        description: 回调函数
+    description: |
+      动画选配置请参考如下例子代码:
+      <code>
+      var options={
+        animation: "none" //无动画模式显示
+      };
+      var options2={
+        animation: "swing up",
+        duration: 200 //动画持续时间（毫秒为单位）
+      };
+      layer.show(options,function(){
+        alert("显示");
+      })
+      </code>
+  - name: show
+    label: 显示
+    type: cola.Widget
+    arguments:
+      - name: callback
+        type: Function
+        description: 回调函数
+  - name: hide
+    type: cola.Widget
+    label: 隐藏
+    arguments:
+      - name: options
+        type: Object
+
+      - name: callback
+        type: Function
+        description: 回调函数
+    description: |
+      隐藏动画选项,配置请参考如下例子代码:
+      <code>
+      var options={
+        animation: "none" //无动画模式隐藏
+      };
+      var options2={
+        animation: "swing up",
+        duration: 200 //动画持续时间（毫秒为单位）
+      };
+      layer.hide(options,function(){
+        alert("隐藏");
+      })
+      </code>
+  - name: hide
+    type: cola.Widget
+    label: 隐藏
+    arguments:
+      - name: callback
+        type: Function
+        description: 回调函数
+  - name: isVisible
+    type: boolean
+    label: 是否可见

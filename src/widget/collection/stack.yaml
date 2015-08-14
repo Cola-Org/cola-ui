@@ -1,0 +1,28 @@
+name: cola.Stack
+stereotype: class
+label: Stark 可无限切换的是堆容器 用户可通过此控件展示数据
+super: cola.Widget
+events:
+  - name: change
+    label: 当切换之后触发
+    arguments:
+      - name: self
+        description: 事件的发起者,即组件本身
+      - name: arg
+        properties:
+          - name: current
+            type: HTMLElement
+            description: 当前可见容器
+          - name: prev
+            type: HTMLElement
+            description: 上一个容器
+          - name: next
+            type: HTMLElement
+            description: 下一个容器
+methods:
+  - name: next
+    type: cola.Widget
+    label: 切换到下一个
+  - name: previous
+    type: cola.Widget
+    label: 切换到上一个

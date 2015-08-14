@@ -1,0 +1,116 @@
+@import (reference) "global";
+
+@block-grid-default-spacing: @default-spacing;
+@align-block-grid-to-grid: false;
+@spacing: @block-grid-default-spacing;
+
+.base-block-grid() {
+	display: block;
+	padding: 0;
+	.clearfix();
+	> li {
+		display: block;
+		float: @default-float;
+		height: auto;
+	}
+}
+
+.base-block-grid(@include-spacing:true) when (@include-spacing = true) {
+	> li {
+		padding: 0 (@block-grid-default-spacing/2) @block-grid-default-spacing;
+	}
+}
+
+.base-block-grid() when (@align-block-grid-to-grid = true) {
+	margin: 0 (-@block-grid-default-spacing/2);
+}
+
+.base-block-grid() when (@align-block-grid-to-grid = false) {
+	margin: 0;
+}
+
+.block-grid-aligned(@row, @spacing) {
+	.child-padding(@i,@row,@grid-column) {
+		&:nth-of-type(@{row}n@{grid-column}) {
+			padding-left: (@spacing - ((@spacing / @row) * (@row - (@i - 1))));
+			padding-right: (@spacing - ((@spacing / @row) * @i));
+		}
+	}
+	._aligned(@i,@row) when (@row > @i) {
+		@ggg: ~"+@{i}";
+		.child-padding(@i, @row, @ggg)
+	}
+	._aligned(@i,@row) when (@row = @i) {
+		.child-padding(@i, @row, ~"")
+	}
+
+	.mixin-loop (@i) when (@i<=@block-grid-elements) {
+		//._aligned(@i, @row);
+		.mixin-loop(@i+1);
+	}
+	.mixin-loop(1);
+}
+
+.per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) {
+	> li {
+		list-style: none;
+		width: 100%/@row;
+		&:nth-of-type(1n) {
+			clear: none;
+		}
+		&:nth-of-type(@{row}n+1) {
+			clear: both;
+		}
+	}
+}
+
+.per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) when (@include-spacing=true) {
+	> li {
+		padding: 0 (@spacing/2) @spacing;
+	}
+}
+
+.per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) when (@align-block-grid-to-grid=true) {
+	> li {
+		.block-grid-aligned(@row, @spacing);
+	}
+}
+
+.block-grid-html-classes(@size,@include-spacing) {
+	.@{size}-row-list > li {
+		list-style: none;
+		width: 100%;
+	}
+
+	.mixin-loop (@i) when (@i<=@block-grid-elements) {
+		.@{size}-block-grid-@{i} {
+			.per-row(@i, @block-grid-default-spacing, @include-spacing);
+		}
+		.mixin-loop(@i+1);
+	}
+	.mixin-loop(1);
+}
+
+[class*="block-grid-"] {
+	.base-block-grid();
+}
+
+@media @small-up {
+	.block-grid-html-classes(small, false);
+}
+
+@media @medium-up {
+	.block-grid-html-classes(medium, false);
+}
+
+@media @large-up {
+	.block-grid-html-classes(large, false);
+}
+
+@media @xlarge-up {
+	.block-grid-html-classes(xlarge, false);
+}
+
+@media @xxlarge-up {
+	.block-grid-html-classes(xxlarge, false);
+}

@@ -1,0 +1,58 @@
+name: cola
+stereotype: namespace
+label: cola的命名空间
+description: |
+            cola的Javascript库时所使用的名称。
+            此命名空间并不是绝对的，即当您在使用它并不永远是cola。最终的命名空间取决于您导入
+
+properties:
+  - name: version
+    type: string
+    label: 版本号
+
+methods:
+  - name: setting(key)
+    type: any
+    label: 读取一个设置项
+    arguments:
+      - name: key
+        type: string
+
+  - name: setting(key,value)
+    type: cola
+    label: 写入一个设置项
+    arguments:
+      - name: key
+        type: string
+      - name: value
+        type: any
+
+  - name: setting(settings)
+    type: cola
+    label: 写入一批设置项
+    arguments:
+      - name: settings
+        type: object
+
+events:
+  - name: excpetion
+    arguments:
+      - name: excpetion
+
+classes:
+  - name: cola.Exception
+    properties:
+      - name: message
+        type: string
+        label: 异常信息
+
+  - name: cola.AbortException
+    super: cola.Exception
+
+  - name: cola.RunnableException
+    super: cola.Exception
+    properties:
+      - name: script
+        type: string
+        label: 可执行的代码
+

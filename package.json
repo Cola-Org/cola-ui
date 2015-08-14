@@ -1,0 +1,35 @@
+{
+  "name": "cola-ui",
+  "version": "8.0.0",
+  "license": "MIT",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "chai": "~2.2.0",
+    "coffee-script": "~1.9.3",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-coffee": "~0.13.0",
+    "grunt-contrib-compress": "^0.13.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-copy": "~0.8.0",
+    "grunt-contrib-cssmin": "^0.12.3",
+    "grunt-contrib-less": "~1.0.0",
+    "grunt-contrib-qunit": "~0.7.0",
+    "grunt-contrib-rename": "0.0.3",
+    "grunt-contrib-uglify": "~0.9.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-dorado-build": "git+https://github.com/AlexTong/grunt-dorado-build",
+    "grunt-mocha-test": "~0.12.7",
+    "grunt-text-replace": "^0.4.0",
+    "grunt-yaml": "~0.4.1",
+    "mocha": "~2.2.5",
+    "qunitjs": "~1.18.0",
+    "underscore": "^1.8.3"
+  },
+  "dependencies": {}
+}

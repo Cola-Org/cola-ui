@@ -1,0 +1,48 @@
+
+- name: cola.Rating
+  stereotype: class
+  super: cola.Widget
+  attributes:
+    - name: rating
+      type: Int
+      defaultValue: 0
+      description: 当前值
+
+    - name: maxRating
+      type: Int
+      description: 最高值
+
+    - name: disabled
+      type: boolean
+      defaultValue: false
+      description: 禁用状态，只读模式
+
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+
+  events:
+    - name: rate
+      description: 当值发生改变时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            value:
+              type: Int
+              description: 当前值
+
+  methods:
+    - name: clear
+      label: 清空当前值

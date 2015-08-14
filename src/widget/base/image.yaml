@@ -1,0 +1,40 @@
+- name: cola.Image
+  stereotype: class
+  label: cola 图片控件
+  super: cola.Widget
+  attributes:
+    - name: src
+      label: 图片的url
+      type: string
+
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+
+    - name: states
+      label: 状态
+      type: string
+      enum:
+        - disabled
+        - hidden
+        - ""
+      defaultValue: ""
+
+- name: cola.Avatar
+  stereotype: class
+  label: cola 图像控件
+  super: cola.Image
+
+
+
+

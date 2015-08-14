@@ -1,0 +1,31 @@
+name: cola.IFrame
+stereotype: class
+label: cola IFrame控件
+super: cola.Widget
+attributes:
+  - name: path
+    label: IFrame 对应的路径
+    type: string
+
+  - name: loadingText
+    label: 当iframe中的内容加载过程中的显示内容
+    type: string
+
+events:
+  - name: load
+    label: 当iframe中的页面加载完毕之后触发
+
+methods:
+  - name: getContentWindow
+    label: 取得iframe中的window 对象
+    return:
+      type: Window
+
+  - name: reload
+    label: 重新载入页面
+
+  - name: open
+    label: 打开指定path
+    arguments:
+      - name: path
+        type: string

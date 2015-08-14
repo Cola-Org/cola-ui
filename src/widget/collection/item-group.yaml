@@ -1,0 +1,68 @@
+name: cola.AbstractItemGroup
+stereotype: class
+label: cola 的抽象ItemGroup
+super: cola.Widget
+attributes:
+  - name: items
+    label: 子项列表
+    type: Array
+
+  - name: currentIndex
+    label: 当前Item的序号（自0开始计算）
+    type: number
+
+methods:
+  - name: getContentContainer
+    label: 返回容纳子项的Dom 元素
+    return:
+      type: HTMLElement
+
+  - name: getItemDom
+    label: 移除Section
+    arguments:
+      - name: index
+        type: number
+        description: Item的序号（自0开始计算）
+    return:
+      type: HTMLElement
+      description: item对应的Dom元素
+
+  - name: setCurrentIndex
+    label: 设置当前项
+    arguments:
+      - name: index
+        label: Item的序号（自0开始计算）
+
+  - name: addItem
+    label: 添加Item
+    arguments:
+      - name: config
+        type: object||HTMLElement
+    description: |
+      <code>
+      groupWidget.addItem({
+        $type:"Button",
+        caption:"按钮",
+        active:true //将此项设置为当前
+      })
+      groupWidget.addItem({
+        tagName:"div",
+        content:"html element item",
+        active:true //将此项设置为当前
+      })
+      groupWidget.addItem(document.createElement("div"))
+      </code>
+
+  - name: clearItems
+    label: 清空Items
+    return:
+      type: cola.AbstractItemGroup
+      description: 组件本身
+
+  - name: removeItem
+    label: 移除指定Item
+    arguments:
+      - name: item
+        type: number||HTMLElement||cola.Widget
+        description: |
+          item本身或者序号

@@ -1,0 +1,163 @@
+
+- name: cola.steps.Step
+  stereotype: class
+  super: cola.Widget
+  attributes:
+    - name: icon
+      type: string
+      description: 图标
+
+    - name: content
+      type: string
+      description: 内容
+
+    - name: states
+      enum:
+        - completed
+        - active
+        - ""
+      type: string
+      defaultValue: ""
+      description: |
+        状态:
+        <ul>
+          <li>completed: 完成态</li>
+          <li>active: 激活态、当前态</li>
+          <li>"":默认状态 </li>
+        <ul>
+    - name: disabled
+      type: boolean
+      description: 禁用态
+
+- name: cola.Steps
+  stereotype: class
+  super: cola.Widget
+  label: 步骤控件
+  attributes:
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+    - name: steps
+      type: Array(cola.steps.Step||Object)
+      description: |
+        子步骤列表。具体设置如下所示：
+        <code>
+        new cola.Steps({
+          steps:[
+          {icon:"home",content:"设置属性",states:"completed"},
+          {icon:"home",content:"项目属性",states:"active"},
+          {icon:"home",content:"项目人员"},
+          {icon:"home",content:"人员详细"},
+          {icon:"home",content:"完成"}
+          ]
+        })
+        </code>
+    - name: currentIndex
+      type: number
+      description: 当前元素Index
+    - name: autoComplete
+      type: boolean
+      defaultValue: true
+      description: |
+        是否自动完成属性。
+        true:当切换当前时当前元素之前的元素都被改写为complete状态。
+        false: 不发生变化
+
+
+  events:
+    - name: beforeChange
+      description: 切换当前项前时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            oldCurrent:
+              type: cola.steps.Step
+              description: 原当前项
+            newCurrent:
+              type: cola.steps.Step
+              description: 目标当前项
+    - name: change
+      description: 切换当前项之后时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            oldCurrent:
+              type: cola.steps.Step
+              description: 原当前项
+            newCurrent:
+              type: cola.steps.Step
+              description: 目标当前项
+
+    - name: complete
+      description: 当所有流程都执行完成时触发此事件
+
+  methods:
+    - name: addStep
+      label: 添加Step
+      arguments:
+        - name: config
+          type: object||cola.steps.Step
+          description: |
+              <code>
+              steps.addStep({
+                caption:"首页",
+                icon:"home"
+              });
+              steps.addStep(new cola.step.Step())
+              </code>
+
+    - name: getStep
+      label: 根据index获得指定的Step
+
+
+
+    - name: setCurrent
+      label: 根据index或者Step设定当前项
+      arguments:
+        - name: item
+          type: number||cola.steps.Step
+          description: |
+            step本身或者序号
+
+    - name: getCurrent
+      label: 获得当前Step
+    - name: remobeStep
+      label: 根据index或者Step删除指定Step
+      arguments:
+        - name: item
+          type: number||cola.steps.Step
+          description: |
+            step本身或者序号
+    - name: clear
+      label: 清空所有Step
+    - name: next
+      label: 流转到下一步
+    - name: previous
+      label: 流转到上一步
+    - name: complete
+      label: 完成整个流程
+    - name: goTo
+      label: 流转到指定步骤
+      arguments:
+        - name: index
+          type: number
+          description: |
+            目标Index
+
+
+
+

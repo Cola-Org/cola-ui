@@ -1,0 +1,44 @@
+name: cola.Carousel
+stereotype: class
+label: cola 走马灯控件。
+super: cola.AbstractItemGroup
+attributes:
+  - name: orientation
+    type: String
+    enum:
+      - horizontal
+      - vertical
+    defaultValue: horizontal
+    description: 切换方向
+events:
+  - name: change
+    label: 当切换之后触发
+    arguments:
+      - name: self
+        description: 事件的发起者,即组件本身
+      - name: arg
+        properties:
+          - name: index
+            type: Number
+            description: 当前元素索引(从0开始计算)
+methods:
+  - name: next
+    return:
+      type: cola.Widget
+      description: 组件本身
+    label: 切换到下一个
+  - name: previous
+    label: 切换到上一个
+    return:
+      type: cola.Widget
+      description: 组件本身
+  - name: refreshItems
+    label: 刷新子项列表
+    return:
+      type: cola.Widget
+      description: 组件本身
+  - name: refreshIndicators
+    laebl: 刷新指示器
+    return:
+      type: cola.Widget
+      description: 组件本身

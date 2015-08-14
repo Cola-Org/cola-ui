@@ -1,0 +1,99 @@
+
+.multi-slot-picker {
+	background-color: #fff;
+	z-index: 9999999;
+	padding-top: 20px;
+	color: #333333;
+	overflow: hidden;
+
+	> .body {
+		width: 100%;
+		display: -webkit-box;
+		-webkit-box-align: center;
+		-webkit-box-pack: center;
+		-webkit-box-orient: horizontal;
+		> .slot-picker {
+			-webkit-box-flex: 0;
+			-webkit-flex: 0 1 auto;
+			margin-left: 20px;
+			flex: 0 1 auto;
+			> .unit {
+				text-align: center;
+				color: #333333;
+			}
+			> .slot {
+				position: relative;
+				> .mask {
+					z-index: 3;
+					position: absolute;
+					left: 1px;
+					top: 0;
+					right: 1px;
+					height: 100%;
+					display: -webkit-box;
+					display: -moz-box;
+					-webkit-box-orient: vertical;
+					-moz-box-orient: vertical;
+					-webkit-box-pack: center;
+					-moz-box-pack: center;
+					-webkit-box-flex: 1;
+					-moz-box-flex: 1;
+					pointer-events: none;
+					overflow: hidden;
+					> .bar {
+						height: 60px;
+						border: #00b5ad solid 1px;
+						border-left-width: 0;
+						border-right-width: 0;
+					}
+				}
+				> .list {
+					display: -webkit-box;
+					display: -moz-box;
+					-webkit-box-align: stretch;
+					-moz-box-align: stretch;
+					-webkit-box-flex: 1;
+					-moz-box-flex: 1;
+					height: 180px;
+					background-color: #ffffff;
+					overflow: hidden;
+					position: relative;
+					width: 62px;
+					> .items-wrap {
+						overflow: hidden;
+						display: block;
+						position: absolute;
+						top: 0px;
+						left: 0px;
+						width: 62px;
+						font-size: 1.25em;
+						> .slot-item {
+							height: 60px;
+							line-height: 60px;
+							text-align: center;
+							vertical-align: middle;
+						}
+						> .dummy-item {
+							height: 60px;
+						}
+					}
+				}
+			}
+		}
+		> .slot-picker:first-child {
+			margin-left: 0;
+		}
+	}
+	> .ui.attached.buttons.actions {
+		display: block;
+		margin-top: 20px !important;
+	}
+}
+
+.ui.layer.date-timer{
+	position: fixed;
+	z-index: 1001;
+	> .actions {
+		display: block;
+	}
+}

@@ -1,0 +1,97 @@
+
+- name: cola.MenuButton
+  stereotype: class
+  label: cola 菜单按钮
+  super: cola.Button
+  attributes:
+    - name: items
+      type: Array
+      description: |
+        此Items将在Menu的从左到右排列。
+        此属性内容可通过以下方式定义。
+        <code>
+        new cola.MenuButton(
+        {
+          items: [
+            {
+              $type: "Input",icon:"sreach" //ControlItem的定义
+            },
+            {
+              caption: "腾讯微博", icon: "qq"
+            },
+            {
+              caption: "微信", icon: "weixin"
+            },
+
+            {
+              caption: "新浪微博", icon: "sina"
+            },
+            {
+              caption: "人人网", icon: "renren"
+            },
+            {
+              caption: "facebook", icon: "facebook"
+            }
+          ]
+        }
+        )
+        </code>
+
+  events:
+    - name: menuItemClick
+      description: 当菜单某一个Item被单击时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            item:
+              type: cola.MenuItem
+              description: 被单击的菜单项
+            event:
+              type: Event
+              description: window.event 对象
+  methods:
+    - name: addMenuItem
+      label: 添加Item
+      arguments:
+        - name: config
+          type: object||HTMLElement
+      description: |
+          <code>
+          menuButton.addItem({
+            $type:"Button",
+            caption:"按钮"
+          })
+          menuButton.addItem({
+            caption:"首页",
+            icon:"home"
+          })
+          </code>
+      return:
+        type: cola.MenuItem
+        description: 组件本身
+
+    - name: clearMenuItems
+      label: 清空Items
+      return:
+        type: cola.MenuButton
+        description: 组件本身
+
+    - name: removeMenuItem
+      label: 移除指定Item
+      arguments:
+        - name: item
+          type: number||cola.MenuItem
+          description: item本身或者序号
+
+    - name: getMenuItem
+      label: 获得指定的MenuItem
+      arguments:
+        - name: index
+          type: number
+          description: item序号
+      return:
+        type: cola.MenuButton
+        description: 组件本身
+

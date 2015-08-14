@@ -1,0 +1,8 @@
+
+- name: cola.Select
+  stereotype: class
+  super: cola.AbstractInput
+  attributes:
+    - name: options
+      type: Array|cola.EntityList
+      description: 可选项列表

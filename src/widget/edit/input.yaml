@@ -1,0 +1,112 @@
+
+- name: cola.AbstractInput
+  stereotype: class
+  super: cola.AbstractEditor
+  attributes:
+    - name: value
+      type: any
+      defaultValue: false
+      description: |
+        编辑器中的数值
+
+    - name: dataType
+      type: string
+      description: 数据类型
+
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+
+    - name: placeholder
+      type: string
+      description: 当文本编辑框中没有任何实际内容时显示的文本。
+
+    - name: icon
+      type: string
+      description: 图标
+
+    - name: iconPosition
+      type: string
+      defaultValue: right
+      enum:
+        - left
+        - right
+      description: 图标位置
+
+    - name: corner
+      type: cola.Corner
+      description: 角标
+
+    - name: label
+      type: cola.Label
+      description: 标签
+
+    - name: labelPosition
+      type: string
+      defaultValue: left
+      enum:
+        - left
+        - right
+      description: 标签显示的位置
+
+    - name: actionButton
+      type: cola.Button
+      description: 触发按钮
+
+    - name: buttonPosition
+      type: string
+      defaultValue: right
+      enum:
+        - left
+        - right
+      description: 触发按钮显示的位置
+
+
+
+  methods:
+    - name: focus
+      label: 使控件获得控制焦点
+
+- name: cola.Input
+  stereotype: class
+  super: cola.AbstractInput
+  attributes:
+    - name: displayFormat
+      type: String
+      description: |
+        显示格式。此属性只在定义了dataType时才有效。
+
+    - name: inputFormat
+      type: String
+      description: 输入格式。此属性只在定义了dataType时才有效。
+    - name: inputType
+      type: string
+      enum:
+        - button
+        - checkbox
+        - file
+        - hidden
+        - image
+        - password
+        - radio
+        - reset
+        - submit
+        - text
+      description: 规定Input类型
+
+  events:
+    - name: focus
+      description: 当控件获得控制焦点时触发的事件。
+    - name: blur
+      description: 当控件失去控制焦点时触发的事件
+

@@ -1,0 +1,125 @@
+- name: cola.Progress
+  stereotype: class
+  super: cola.Widget
+  attributes:
+    - name: total
+      type: number
+      defaultValue: 0
+      description:  总值
+
+    - name: value
+      type: number
+      defaultValue: 0
+      description: 当前进度值
+
+    - name: labelFormat
+      type: string
+      enum:
+        - percent
+        - ratio
+      description: 进度显示标签格式
+
+    - name: ratioText
+      type: string
+      defaultValue: |
+        {value}/{total}
+      description: |
+          当labelFormat值设定为ratio; 起作用。
+          可用如下模式自由定义:
+          <ul>
+          <li>{value} de {total}</li>
+          <li>{total} 的 {value}已装载!</li>
+          <li>{value}/{total}(默认)</li>
+          </ul>
+
+    - name: activeMessage
+      type: string
+      description: |
+        活跃状态消息如:{total}资源的{value}已装载
+
+    - name: successMessage
+      type: string
+      description: |
+        成功结束的消息如:{total}资源已装载完成!
+
+    - name: autoSuccess
+      type: boolean
+      defaultValue: true
+      description: 结束时都否自动触发完成事件!
+
+    - name: showActivity
+      type: boolean
+      description: 显示活跃状态动画
+
+    - name: limitValues
+      type: boolean
+      defaultValue: true
+      description: 设置成true时，当高于100%或者低于0%时自动调整值。设置成false时触发错误。
+
+    - name: precision
+      type: number
+      description: 小数点精确计算进步
+
+    - name: size
+      label: 尺寸
+      type: string
+      enum:
+        - mini
+        - tiny
+        - small
+        - medium
+        - large
+        - big
+        - huge
+        - massive
+      defaultValue: medium
+
+    - name: color
+      label: 颜色
+      type: string
+      enum:
+        - black
+        - yellow
+        - green
+        - blue
+        - orange
+        - purple
+        - red
+        - pink
+        - teal
+      defaultValue: ""
+
+  methods:
+    - name: reset
+      label: 重置
+
+    - name: success
+      label: 触发成功
+      arguments:
+        - name: message
+          type: string
+          description: 消息内容
+
+    - name: warning
+      label: 触发警告
+      arguments:
+        - name: message
+          type: string
+          description: 消息内容
+
+    - name: error
+      label: 触发错误
+      arguments:
+        - name: message
+          type: string
+          description: 消息内容
+
+    - name: progress
+      label: 改写进度
+      arguments:
+        - name: progress
+          type: number
+          description: 进度值
+
+    - name: complete
+      label: 完成
