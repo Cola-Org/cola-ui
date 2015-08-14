@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+
+			function generateNodes(node, deepth) {
+				deepth = deepth || 0;
+				var children = [];
+				var prefix = node ? node.name + "." : "";
+				var len = Math.random() * 10 + 10;
+				for (var i = 0; i < len; i++) {
+					var child = {
+						name: prefix + i
+					};
+					if (deepth < 3) generateNodes(child, deepth + 1);
+					children.push(child)
+				}
+				if (node) {
+					node.nodes = children;
+				}
+				return children;
+			}
+
+			var nodes = generateNodes();
+			model.set("node", {
+				nodes: nodes
+			});
+
+			model.action({
+				remove: function (entity) {
+					entity.remove();
+				}
+			});
+
+			model.widgetConfig({
+				nestedList: {
+					$type: "nestedList",
+					ui: "",
+					autoSplit: false,
+					title: "Nested List",
+					bind: {
+						recursive: true,
+						expression: "node in node.nodes",
+						titleProperty: "name"
+					},
+					initLayer: function (self, arg) {
+						arg.titleBar.set("rightItems", [
+							{
+								icon: "plus"
+							}
+						]);
+					}
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding:0px;margin:0;">
+<div id="nestedList" style="height:100%">
+	<template name="default">
+		<li style="padding:16px">
+			<div c-widget="button; caption:Delete; ui:negative; click:{{remove(node)}}; size:mini"></div>
+			&nbsp;
+			<span c-bind="node.name"></span>
+		</li>
+	</template>
+	<template name="group-header">
+		<li>
+			<span c-bind="group.name"></span>
+		</li>
+	</template>
+</div>
+</body>
+</html>

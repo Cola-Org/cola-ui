@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Steps</title>
+	<script src="../../include-all.js"></script>
+
+
+	<style>
+		.row {
+			padding: 4px;
+		}
+
+	</style>
+</head>
+<body style="padding: 20px;">
+<div id="stepsDemo" c-widget="Steps">
+	<div c-widget="Step">
+		<i class="setting icon"></i>
+
+		<div class="title">Cola5</div>
+		<div class="description">展现中间件</div>
+	</div>
+
+
+	<div c-widget="Step">
+		<i class="setting icon"></i>
+
+		<div class="content">
+			<div class="title">Cola6</div>
+			<div class="description">综合开发平台</div>
+		</div>
+	</div>
+	<div c-widget="Step">
+		<i class="setting icon"></i>
+
+		<div class="content">
+			<div class="title">Cola7</div>
+			<div class="description">综合开发平台</div>
+		</div>
+	</div>
+
+	<div c-widget="Step">
+		<i class="setting icon"></i>
+
+		<div class="content">
+			<div class="title">Cola8</div>
+			<div class="description">综合开发平台</div>
+		</div>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+	cola(function (model) {
+		model.widgetConfig({
+			stepsDemo: {
+				beforeChange: function (self, arg) {
+					console.log("---before-");
+					console.log(arg)
+				},
+				complete: function () {
+					console.log("complete")
+				}
+			}
+		})
+	});
+	function createWidget(configs) {
+		configs.forEach(function (config) {
+			cola.widget({
+				$type: "Segment",
+				content: [
+					config
+				]
+			}).appendTo(document.body);
+		})
+	}
+	createWidget([
+		{
+			$type: "Steps",
+			steps: [
+				{
+					states: "completed", icon: "setting",
+					content: {
+						title: "Cola5"
+					}
+				},
+				{
+					states: "active", icon: "setting",
+					content: {
+						title: "Cola6", description: "平台整合版本"
+					}
+				},
+				{
+					disabled: true, icon: "setting",
+					content: {
+						title: "Cola7"
+					}
+				}
+			]
+		}, {
+			$type: "Steps", ui: "vertical",
+			steps: [
+				{
+					states: "completed", icon: "setting",
+					content: {
+						title: "Cola5"
+					}
+				},
+				{
+					states: "active", icon: "setting",
+					content: {
+						title: "Cola6", description: "平台整合版本"
+					}
+				},
+				{
+					disabled: true, icon: "setting",
+					content: {
+						title: "Cola7"
+					}
+				}
+			]
+		}, {
+			$type: "Steps", ui: "ordered",
+			steps: [
+				{
+					states: "completed",
+					content: {
+						title: "Cola5"
+					}
+				},
+				{
+					states: "active",
+					content: {
+						title: "Cola6", description: "平台整合版本"
+					}
+				},
+				{
+					disabled: true,
+					content: {
+						title: "Cola7"
+					}
+				}
+			]
+		}, {
+			$type: "Steps", ui: "fluid",
+			steps: [
+				{
+					states: "completed",
+					content: {
+						title: "Cola5"
+					}
+				},
+				{
+					states: "active",
+					content: {
+						title: "Cola6", description: "平台整合版本"
+					}
+				},
+				{
+					disabled: true,
+					content: {
+						title: "Cola7"
+					}
+				}
+			]
+		}
+	]);
+
+
+</script>
+</body>
+</html>

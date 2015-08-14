@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("addresses", cola.data({
+				url: "city.json"
+			}));
+		});
+	</script>
+</head>
+<body>
+	<ul class="c-view">
+		<li c-repeat="address in addresses">
+			<span c-bind="address.city"></span>
+			<span c-bind="address.postCode"></span>
+		</li>
+	</ul>
+</body>
+</html>

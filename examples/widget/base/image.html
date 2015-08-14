@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Image</title>
+
+	<script src="../../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+<script type="text/javascript">
+
+			var imagePath = "../../images/wireframe/image.png", whiteImage = "../../images/wireframe/white-image.png";
+			new cola.Segment({
+				content: [
+					{
+						$type: "Image", bordered: true,
+						src: whiteImage, size: "small"
+					}, {
+						$type: "Image", rounded: true,
+						src: imagePath, size: "medium"
+					}, {
+						$type: "Image", bordered: true,
+						src: whiteImage, size: "medium"
+					}, {
+						$type: "Image", centered: true,
+						src: imagePath, size: "medium"
+					}, {
+						$type: "Image", circular: true, bordered: true,
+						src: whiteImage, size: "medium"
+					}
+				]
+
+			}).appendTo(document.body)
+
+
+</script>
+</body>
+</html>

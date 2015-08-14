@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("name", "World");
+		});
+	</script>
+</head>
+<body>
+	Hello <span c-bind="name"></span>
+	<br>
+	<input c-bind="name">
+</body>
+</html>

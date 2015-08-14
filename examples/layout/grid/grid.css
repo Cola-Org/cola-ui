@@ -1,0 +1,79 @@
+.gs-example .row {
+	border: 1px solid #c6c6c6;
+	/*margin: 0.3rem !important;*/
+}
+
+.gs-example .row .row {
+	margin: 0;
+}
+
+.gs-example .border-none {
+	border-right: none !important;
+}
+
+.gs-example .columns {
+	padding-left: inherit;
+	padding-right: inherit;
+	border: 3px solid #fff;
+	background: #eee;
+}
+
+.gs-example .columns:nth-child(2) {
+	background: #e1e1e1;
+}
+
+.gs-example p {
+	padding: 10px;
+	margin-bottom: 0;
+	text-align: center;
+}
+
+.gs-example p {
+	margin: 0;
+}
+
+
+.gs-example .row,.example .row {
+	max-width: 80rem;
+}
+
+.example .row.display {
+	background: #eee;
+	font-size: 11px;
+	margin-bottom: 10px;
+	line-height: 2rem;
+	border: solid 1px #c6c6c6;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.example .row.display .columns:nth-child(2), .row.display .columns.small-centered, .row.display .columns.large-centered {
+	background: #e1e1e1;
+}
+
+.example .row.display .columns.color-end {
+	background: #d4d4d4;
+}
+
+.example .row {
+	max-width: 80rem;
+}
+
+.example .row.display-end {
+	background: #fff;
+	font-size: 11px;
+	margin-bottom: 10px;
+	line-height: 2rem;
+	border: solid 1px #c6c6c6;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+}
+
+.example .row.display-end .columns {
+	background: #e1e1e1;
+	border-left: 1px solid #c6c6c6;
+}
+
+.example .row.display-end .columns.color-end {
+	background: #d4d4d4;
+}

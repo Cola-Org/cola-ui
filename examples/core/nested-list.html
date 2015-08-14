@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("regions", cola.data({
+				url: "regions.json"
+			}));
+
+			model.action({
+				prev: function () {
+					model.get("regions").previous();
+				},
+				next: function () {
+					model.get("regions").next();
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding:20px">
+<button c-onclick="prev()">Prev</button>
+<button c-onclick="next()">Next</button>
+<hr>
+<input c-bind="regions.name">
+<!--<div c-widget="listView; bind:regions"></div>-->
+<hr>
+<ul>
+	<li c-repeat="address in regions.addresses">
+		<span c-bind="address.city"></span>
+		<span c-bind="address.postCode"></span>
+	</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,16 @@
+cola(function(model) {
+	model.set("addresses", [
+		{
+			city: "shanghai",
+			postCode: 201101
+		},
+		{
+			city: "beijing",
+			postCode: 100020
+		},
+		{
+			city: "shenzhen",
+			postCode: 300021
+		}
+	]);
+});

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set({
+				name: "World"
+			});
+			model.action({
+				showMessage: function () {
+					alert("Hello World!");
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<button c-onclick="showMessage(name)">Show Message</button>
+</body>
+</html>

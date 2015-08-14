@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Progress</title>
+
+	<script src="../../include-all.js"></script>
+
+
+
+</head>
+<body style="padding: 20px;">
+<script type="text/javascript">
+
+			function createWidget(configs) {
+				configs.forEach(function (config) {
+					cola.widget({
+						$type: "Segment",
+						content: [
+							config
+						]
+					}).appendTo(document.body);
+				})
+			}
+
+			createWidget([
+				{
+					$type: "Progress", value: 0, total: 5
+				},
+				{
+					$type: "Progress", value: 2, total: 5, activeMessage: "已装载{value}的{total}",
+					change: function () {
+						console.log("onChange")
+					}
+				},
+				{
+					$type: "Progress",
+					value: 5,
+					total: 5,
+					activeMessage: "{value} 的 {total}",
+					successMessage: "装载完成！",
+					success: function () {
+						console.log("onSuccess")
+					}
+				}
+			]);
+			var progressDemo = new cola.Progress({
+				$type: "Progress", value: 2, total: 5,
+				activeMessage: "已装载{value}的{total}",successMessage: '加载完成!',
+				change: function (self, arg) {
+					console.log(arg)
+				}
+			})
+			cola.widget({
+				$type: "Segment",
+				content: [
+					progressDemo,
+					{
+						$type: "Button",
+						caption: "装载",
+						click: function (self, arg) {
+							var value=progressDemo.get("value") + 1;
+							progressDemo.progress(value);
+
+
+						}
+					}
+				]
+			}).appendTo(document.body);
+
+
+</script>
+</body>
+</html>

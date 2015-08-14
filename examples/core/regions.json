@@ -1,0 +1,28 @@
+[
+	{
+		"name": "north",
+		"addresses": [
+			{
+				"city": "beijing",
+				"postCode": 100020
+			},
+			{
+				"city": "tianjin",
+				"postCode": 500021
+			}
+		]
+	},
+	{
+		"name": "south",
+		"addresses": [
+			{
+				"city": "shanghai",
+				"postCode": 201101
+			},
+			{
+				"city": "shenzhen",
+				"postCode": 300021
+			}
+		]
+	}
+]
