@@ -39,11 +39,8 @@ class cola.AbstractModel
 		@data.set(path, data, context)
 		return @
 
-	getDataType: (path) ->
-		return @getDataType(path)
-
-	setDataType: (path, dataType) ->
-		return @setDataType(path, dataType)
+	describe: (name, config) ->
+		return @data.describe(name, config)
 
 	dataType: (name) ->
 		if typeof name == "string"
@@ -555,8 +552,7 @@ class cola.AbstractDataModel
 				property.set("dataType", data.$dataType) if data.$dataType
 
 		if !provider or hasValue
-			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data._parent and data != rootData._data[prop]
-				# is alias
+			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data._parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
 
 				path = data.getPath("always")
@@ -715,28 +711,31 @@ class cola.DataModel extends cola.AbstractDataModel
 			)
 		return @_rootData
 
+	describe: (name, config) ->
+		if typeof name is "string"
+			property = @_rootDataType?.getProperty(name)
+			if config
+				if not property
+					property = @_rootDataType.addProperty(name: name)
+				if typeof config is "string"
+					dataType = @getDataTypeByName(config)
+					if not dataType
+						throw new cola.I18nException("cola.error.unrecognizedDataType", config)
+					property.set("dataType", dataType)
+				else
+					property.set(config)
+			else
+				return property
+		else if name
+			config = name
+			for propertyName, propertyConfig of config
+				@describe(propertyName, propertyConfig)
+		return
+
 	getDataType: (path) ->
 		property = @_rootDataType?.getProperty(path)
 		dataType = property?.get("dataType")
 		return dataType
-
-	setDataType: (path, dataType) ->
-		if typeof dataType == "string"
-			name = dataType
-			dataType = @_dataTypeStore?[name]
-			dataType ?= cola.DataType.defaultDataTypes[name]
-		else if not (dataType instanceof cola.DataType)
-			dataType = new cola.EntityDataType(dataType)
-
-		if not @_rootDataType then @_getRootData()
-		property = @_rootDataType.getProperty(path)
-		if not property
-			if path.indexOf(".") < 0
-				@_rootDataType.addProperty(
-					name: path
-					dataType: dataType
-				)
-		return
 
 	getDataTypeByName: (name) ->
 		dataType = @_dataTypeStore?[name]
@@ -801,6 +800,12 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			})
 		return
 
+	describe: (name, config) ->
+		if name == @alias
+			return super(name, config)
+		else
+			return @parent.describe(name, config)
+
 	getDataType: (path) ->
 		i = path.indexOf(".")
 		if i > 0
@@ -816,33 +821,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		else
 			return @parent.getDataType(path)
 
-	setDataType: (path, dataType) ->
-		convertDataType = (dataType) ->
-			if typeof dataType == "string"
-				name = dataType
-				dataType = @_dataTypeStore?[name]
-				dataType ?= cola.DataType.defaultDataTypes[name]
-			else if not (dataType instanceof cola.DataType)
-				dataType = new cola.EntityDataType(dataType)
-			return dataType
-
-		i = path.indexOf(".")
-		if i > 0
-			if path.substring(0, i) == @alias
-				if @dataType
-					property = @dataType?.getProperty(path.substring(i + 1))
-					if property
-						property.set("dataType", convertDataType(dataType))
-			else
-				@parent.setDataType(path, dataType)
-		else if path == @alias
-			@dataType = convertDataType(dataType)
-		else
-			@parent.setDataType(path, dataType)
-		return
-
 	getDataTypeByName: (name) ->
 		return @parent.getDataTypeByName(name)
+
+	regDataType: (dataType) ->
+		return @parent.regDataType(dataType)
+
+	unregDataType: (dataType) ->
+		return @parent.unregDataType(dataType)
 
 	_bind: (path, processor, nonCurrent) ->
 		hasNonCurrent = super(path, processor, nonCurrent)
