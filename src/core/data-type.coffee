@@ -209,7 +209,7 @@ cola.DataType.dataTypeSetter = (dataType) ->
 			dataType = scope.dataType(name)
 		else
 			dataType = cola.DataType.defaultDataTypes[name]
-		if !dataType
+		if not dataType
 			throw new cola.I18nException("cola.error.unrecognizedDataType", name)
 	else if dataType? and not (dataType instanceof cola.DataType)
 		dataType = new cola.EntityDataType(dataType)
