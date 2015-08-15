@@ -108,7 +108,7 @@ class cola.RenderableElement extends cola.Element
 		return
 
 	_refreshDom: ()->
-		return unless @_dom
+		return unless @_dom or not @_destroyed
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
 
 		@_doRefreshDom()

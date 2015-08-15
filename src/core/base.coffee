@@ -72,15 +72,6 @@ colaEventRegistry =
 	beforeRouterSwitch: {}
 	routerSwitch: {}
 
-cola._parseListener = (listener) ->
-	argsMode = 1
-	argStr = listener.toString().match(/\([^\(\)]*\)/)[0]
-	args = argStr.substring(1, argStr.length - 1).split(",");
-	if args.length
-		if cola.util.trim(args[0]) is "arg" then argsMode = 2
-	listener._argsMode = argsMode
-	return argsMode
-
 cola.on = (eventName, listener) ->
 	i = eventName.indexOf(":")
 	if i > 0
@@ -157,7 +148,7 @@ cola.fire = (eventName, self, arg = {}) ->
 		for listener in listeners
 			argsMode = listener._argsMode
 			if not listener._argsMode
-				argsMode = cola._parseListener(listener)
+				argsMode = cola.util.parseListener(listener)
 			if argsMode == 1
 				retValue = listener.call(@, self, arg)
 			else

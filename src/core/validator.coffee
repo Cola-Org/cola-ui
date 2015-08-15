@@ -18,24 +18,29 @@ cola.registerTypeResolver "validator", (config) ->
 
 class cola.Validator extends cola.Element
 	@ATTRIBUTES:
+		message: null
+		messageType:
+			defaultValue: "error"
+			enum: ["error", "warning", "info"]
 		disabled: null
 
-	validate: () ->
+	_getDefaultPrompt: (data) ->
+		return "\"#{data}\" is not a valid value."
+
+	_parseValidResult: (result) ->
+		if typeof result is "boolean"
+			if result
+				result = null
+			else
+				result = {messageType: @_messageType, message: @_message}
+		else if result? and typeof result is "string"
+			result = {messageType: @_messageType, message: result}
+		return result
+
+	validate: (data) ->
 		return if @_disabled
-		return @_validate.apply(@, arguments)
-
-class cola.CustomValidator extends cola.Element
-	@ATTRIBUTES:
-		func: null
-
-	constructor: (config) ->
-		if typeof config == "function"
-			@set("func", config)
-		else
-			super(config)
-
-	_validate: () ->
-		return @_func?.apply(@, arguments)
+		result = @_validate(data)
+		return @_parseValidResult(result)
 
 class cola.RequireValidator extends cola.Validator
 	@ATTRIBUTES:
@@ -43,7 +48,9 @@ class cola.RequireValidator extends cola.Validator
 			defaultValue: true
 
 	_validate: (data) ->
-		return
+		if not (typeof data is "string") then return data?
+		if @_trim then data = cola.util.trim(data)
+		return !!data
 
 class cola.NumberValidator extends cola.Validator
 	@ATTRIBUTES:
@@ -55,7 +62,12 @@ class cola.NumberValidator extends cola.Validator
 			defaultValue: true
 
 	_validate: (data) ->
-		return
+		result = true
+		if @_min?
+			result = if @_minInclude then (data >= @_min) else (data > @_min)
+		if result and @_max?
+			result = if @_maxInclude then (data <= @_max) else (data < @_max)
+		return result
 
 class cola.LengthValidator extends cola.Validator
 	@ATTRIBUTES:
@@ -63,7 +75,15 @@ class cola.LengthValidator extends cola.Validator
 		max: null
 
 	_validate: (data) ->
-		return
+		if typeof data is "string" or typeof data is "number"
+			result = true
+			len = (data + "").length
+			if @_min?
+				result = len >= @_min
+			if result and @_max?
+				result = len <= @_max
+			return result
+		return true
 
 class cola.RegExpValidator extends cola.Validator
 	@ATTRIBUTES:
@@ -73,47 +93,106 @@ class cola.RegExpValidator extends cola.Validator
 			enum: ["white", "black"]
 
 	_validate: (data) ->
-		return
+		regExp = @_regExp
+		if regExp and typeof data is "string"
+			if not regExp instanceof RegExp
+				regExp = new RegExp(regExp)
+			result = true
+			result = data.match(regExp)
+			if @_mode is "black"
+				result = not result
+			return result
+		return true
 
 class cola.EmailValidator extends cola.Validator
 	_validate: (data) ->
-		return
+		if typeof data is "string"
+			return data.match(/^[a-z]([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
+		return true
+
+class cola.UrlValidator extends cola.Validator
+	_validate: (data) ->
+		if typeof data is "string"
+			return data.match(/^(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i)
+		return true
 
 class cola.AsyncValidator extends cola.Validator
 	@ATTRIBUTES:
-		defaultValue: true
-
-class cola.ActionValidator extends cola.AsyncValidator
-	@ATTRIBUTES:
-		action: null
 		async:
-			getter: () ->
-				return @_action?.get("async")
+			defaultValue: true
 
-	_validate: (data, callback) ->
-		if @_action
-			action = @_action
-			parameter = action.get("parameter")
-			if parameter
-				if cola.util.isSimpleValue(parameter)
-					oldParameter = parameter
-					parameter = {
-						data: data
-						parameter: oldParameter
-					}
-				else
-					parameter.data = data
-			else
-				parameter = {
-					data: parameter
-				}
-
-			action.set("parameter", parameter).execute({
-				scope: @
-				callback: (success, result) ->
+	validate: (data, callback) ->
+		return if @_disabled
+		if @_async
+			result = @_validate(data, {
+				callback: (success, result) =>
+					if success
+						result = @_parseValidResult(result)
 					cola.callback(callback, success, result)
 					return
 			})
 		else
-			cola.callback(callback, true, null)
-		return
+			result = @_validate(data)
+			result = @_parseValidResult(result)
+			cola.callback(callback, true, result)
+		return result
+
+class cola.AjaxValidator extends cola.AsyncValidator
+	@ATTRIBUTES:
+		url: null
+		sendJson: null
+		method: null
+		ajaxOptions: null
+		parameter: null
+
+	_validate: (data, callback) ->
+		sendData = @_parameter
+		if not sendData? or sendData is ":data"
+			sendData = data
+		else if typeof sendData is "object"
+			for p, v of sendData
+				if v is ":data" then sendData[p] = data
+
+		options = {}
+		ajaxOptions = @_ajaxOptions
+		if ajaxOptions
+			for p, v of ajaxOptions
+				options[p] = v
+
+		options.async = !!callback
+		options.url = @_url
+		options.data = sendData
+		options.sendJson = @_sendJson
+		options.method = @_method
+
+		if options.sendJson and !options.method
+			options.method = "post"
+
+		invoker = new cola.AjaxServiceInvoker(@, options)
+		if callback
+			return invoker.invokeAsync(callback)
+		else
+			return invoker.invokeSync()
+
+class cola.CustomValidator extends cola.AsyncValidator
+	@ATTRIBUTES:
+		func: null
+
+	constructor: (config) ->
+		if typeof config is "function"
+			@set(
+				func: config
+				async: cola.util.parseFunctionArgs(config).length > 1
+			)
+		else
+			super(config)
+
+	_validate: (data, callback) ->
+		if callback
+			if @_func
+				@_func(data, callback)
+			else
+				cola.callback(callback, true)
+			return
+		else
+			return @_func?(data)

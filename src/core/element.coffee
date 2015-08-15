@@ -389,7 +389,7 @@ class cola.Element
 					if typeof listener == "function"
 						argsMode = listener._argsMode
 						if not listener._argsMode
-							argsMode = cola._parseListener(listener)
+							argsMode = cola.util.parseListener(listener)
 						if argsMode == 1
 							retValue = listener.call(self, self, arg)
 						else

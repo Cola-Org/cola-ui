@@ -42,6 +42,24 @@ cola.util.parseStyleLikeString = (styleStr, headerProp) ->
 	#		throw new cola.I18nException("cola.error.invalidFormat", styleStr)
 	return style
 
+cola.util.parseFunctionArgs = (func) ->
+	argStr = func.toString().match(/\([^\(\)]*\)/)[0]
+	rawArgs = argStr.substring(1, argStr.length - 1).split(",");
+	args = []
+	for arg, i in rawArgs
+		arg = cola.util.trim(arg)
+		if arg then args.push(arg)
+	return args
+
+cola.util.parseListener = (listener) ->
+	argsMode = 1
+	argStr = listener.toString().match(/\([^\(\)]*\)/)[0]
+	args = argStr.substring(1, argStr.length - 1).split(",");
+	if args.length
+		if cola.util.trim(args[0]) is "arg" then argsMode = 2
+	listener._argsMode = argsMode
+	return argsMode
+
 cola.util.isCompatibleType = (baseType, type) ->
 	if type == baseType then return true
 	while type.__super__

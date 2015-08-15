@@ -8,9 +8,8 @@ else
 #IMPORT_END
 
 class cola.AjaxServiceInvoker
-	constructor: (@ajaxService, context) ->
+	constructor: (@ajaxService, @invokerOptions) ->
 		@callbacks = []
-		@invokerOptions = @ajaxService.getInvokerOptions(context)
 
 	invokeCallback: (success, result) ->
 		@invoking = false
@@ -20,7 +19,7 @@ class cola.AjaxServiceInvoker
 			cola.callback(callback, success, result)
 		return
 
-	_invoke: (async = true) ->
+	_internalInvoke: (async = true) ->
 		invokerOptions = @invokerOptions
 		retValue = undefined
 
@@ -39,7 +38,7 @@ class cola.AjaxServiceInvoker
 		if options.sendJson
 			options.data = JSON.stringify(options.data)
 
-		$.ajax(options)
+		cola.ajax(options)
 		return retValue
 
 	invokeAsync: (callback) ->
@@ -47,18 +46,20 @@ class cola.AjaxServiceInvoker
 		if @invoking then return false
 
 		@invoking = true
-		@_invoke()
+		@_internalInvoke()
 		return true
 
-	invokeSync: () ->
+	invokeSync: (callback) ->
 		if @invoking
 			throw new cola.I18nException("cola.error.getResultDuringAjax", @url)
-		return @_invoke(false)
+		@callbacks.push(callback)
+		return @_internalInvoke(false)
 
 class cola.AjaxService extends cola.Element
 	@ATTRIBUTES:
 		url: null
 		sendJson: null
+		method: null
 		parameter: null
 		ajaxOptions: null
 
@@ -76,11 +77,11 @@ class cola.AjaxService extends cola.Element
 		options.data = @_parameter
 		options.sendJson = @_sendJson
 		if options.sendJson and !options.method
-			options.method = ""
+			options.method = "post"
 		return options
 
 	getInvoker: (context) ->
-		return new cola.AjaxServiceInvoker(@, context)
+		return new cola.AjaxServiceInvoker(@, @getInvokerOptions(context))
 
 class cola.Provider extends cola.AjaxService
 	@ATTRIBUTES:
@@ -121,5 +122,5 @@ class cola.Provider extends cola.AjaxService
 
 class cola.Resolver extends cola.AjaxService
 	@ATTRIBUTES:
-		method:
-			defaultValue: "post"
+		sendJson:
+			defaultValue: true

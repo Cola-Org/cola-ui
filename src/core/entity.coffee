@@ -625,7 +625,7 @@ class Page extends LinkedList
 		if providerInvoker
 			ajaxService = providerInvoker.ajaxService
 			ajaxService.set("pageNo", @pageNo)
-			providerInvoker = new cola.AjaxServiceInvoker(ajaxService)
+			providerInvoker = ajaxService.getInvoker()
 			if callback
 				providerInvoker.invokeAsync(
 					callback: (success, result) =>

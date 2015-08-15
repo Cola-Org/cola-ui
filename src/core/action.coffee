@@ -43,12 +43,12 @@ class cola.Action extends cola.Element
 			result = @_execute.apply(@)
 
 			@set("result", result)
-			@fire("success", @, { result: result })
+			@fire("success", @, {result: result})
 
 			if @_successMesssage
 				cola.Action.showSuccessMessage(@, @_successMesssage)
 		catch ex
-			if @fire("failure", @, { exception: ex }) == false
+			if @fire("failure", @, {exception: ex}) == false
 				cola.Exception.removeException(ex)
 
 		@fire("afterExecute", @)
@@ -71,7 +71,6 @@ class cola.AsyncAction extends cola.Action
 	@ATTRIBUTES:
 		async:
 			defaultValue: true
-		timeout: null
 		executingMesssage: null
 
 	@showExecutingMessage: (scope, message) ->
@@ -91,12 +90,12 @@ class cola.AsyncAction extends cola.Action
 
 				if success
 					@set("result", result)
-					@fire("success", @, { result: result })
+					@fire("success", @, {result: result})
 
 					if @_successMesssage
 						cola.Action.showSuccessMessage(@, @_successMesssage)
 				else
-					if @fire("failure", @, { exception: result }) == false
+					if @fire("failure", @, {exception: result}) == false
 						cola.Exception.removeException(result)
 
 				if callback
@@ -117,26 +116,34 @@ class cola.AsyncAction extends cola.Action
 class cola.AjaxAction extends cola.AsyncAction
 	@ATTRIBUTES:
 		url: null
+		sendJson: null
 		method: null
+		ajaxOptions: null
 
 	_getData: () ->
 		return @_parameter
 
 	_execute: (callback) ->
-		$.ajax(
-			async: @_async
-			url: @_url
-			method: @_method
-			data: @_getData()
-			timeout: @_timeout
-			success: (result) ->
-				cola.callback(callback, true, result) if callback
-				return
-			error: (error) ->
-				cola.callback(callback, false, error) if callback
-				return
-		)
-		return
+		options = {}
+		ajaxOptions = @_ajaxOptions
+		if ajaxOptions
+			for p, v of ajaxOptions
+				options[p] = v
+
+		options.async = @_async
+		options.url = @getUrl()
+		options.data = @_getData()
+		options.sendJson = @_sendJson
+		options.method = @_method
+
+		if options.sendJson and !options.method
+			options.method = "post"
+
+		invoker = new cola.AjaxServiceInvoker(@, options)
+		if @_async
+			return invoker.invokeAsync(callback)
+		else
+			return invoker.invokeSync(callback)
 
 class cola.UpdateAction extends cola.AjaxAction
 	@ATTRIBUTES:
@@ -169,7 +176,7 @@ class cola.UpdateAction extends cola.AjaxAction
 			delete @_cacheData
 			return data
 
-		data =@_data
+		data = @_data
 		if data
 			if !(data instanceof cola.Entity or data instanceof cola.EntityList)
 				if typeof data == "string"
