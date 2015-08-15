@@ -1,3 +1,8 @@
+_removeTranslateStyle = (element)->
+	for prefix in ['Moz', 'Webkit', 'O', 'ms']
+		element.style[prefix + "Transform"] = ""
+	element.style.transform = ""
+
 class cola.Layer extends cola.AbstractContainer
 	@CLASS_NAME: "layer transition hidden"
 	@ATTRIBUTES:
@@ -26,11 +31,13 @@ class cola.Layer extends cola.AbstractContainer
 		beforeShow: null
 		beforeHide: null
 
-	_onShow:()->
-	_onHide:()->
-	_initDom:()->
-	_doTransition:(options, callback)->
+	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
+	_onShow: ()->
+	_onHide: ()->
+	_initDom: ()->
+	_doTransition: (options, callback)->
 		layer = @
+
 		onComplete = ->
 			if typeof callback == "function"
 				callback.call(layer)
@@ -42,13 +49,46 @@ class cola.Layer extends cola.AbstractContainer
 			@get$Dom().transition(options.target)
 			onComplete()
 			return @
+		animation = options.animation or @_animation or "slide left"
+		duration = options.duration or @_duration or 300
+		if @constructor.SLIDE_ANIMATIONS.indexOf(animation) < 0
+			@get$Dom().transition({
+				animation: animation
+				duration: duration
+				onComplete: onComplete
+				queue: true
+			})
+		else
+			$dom = @get$Dom()
+			width = $dom.width()
+			height = $dom.height()
+			isHorizontal = animation is "slide left" or animation is "slide right"
+			if animation is "slide left"
+				x = width
+				y = 0
+			else if animation is "slide right"
+				x = -width
+				y = 0
+			else if animation is "slide up"
+				x = 0
+				y = height
+			else
+				x = 0
+				y = -height
+			isShow = options.target is "show"
+			if isShow then cola.Fx.translateElement(@_dom, x, y)
+			configs =
+				duration: duration
+				complete: ()=>
+					if not isShow then $dom.removeClass("visible").addClass("hidden")
+					_removeTranslateStyle(@_dom)
+					onComplete()
+			if isHorizontal
+				configs.x = if isShow then 0 else x
+			else
+				configs.y = if isShow then 0 else y
 
-		@get$Dom().transition({
-			animation: options.animation or @_animation or "slide left"
-			duration: options.duration or @_duration or 300
-			onComplete: onComplete
-			queue: true
-		})
+			$dom.removeClass("hidden").addClass("visible").transit(configs)
 
 		return
 
@@ -81,6 +121,9 @@ class cola.Layer extends cola.AbstractContainer
 
 		@_transition(options, callback)
 		return @
+
+	toggle: ()->
+		return @[if @isVisible() then "hide" else "show"].apply(@, arguments)
 
 	isVisible: ()->
 		return  @get$Dom().transition("stop all").transition("is visible")

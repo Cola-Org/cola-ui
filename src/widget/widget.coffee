@@ -190,6 +190,12 @@ class cola.RenderableElement extends cola.Element
 			@get$Dom().toggleClass(value, state)
 		return @
 
+	hasClass: (value, continuous)->
+		if continuous
+			return cola.util.hasClass(@_dom, value, true)
+		else
+			return @get$Dom().hasClass(value)
+
 ###
 Dorado 基础组件
 ###
@@ -453,6 +459,7 @@ class cola.Widget extends cola.RenderableElement
 			delete @_hammer
 			delete @_bindedEvents
 			delete @_parent
+			delete @_doms
 
 		super()
 		@_destroyed = true
