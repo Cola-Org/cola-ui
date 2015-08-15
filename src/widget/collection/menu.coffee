@@ -3,13 +3,34 @@ cola.menu ?= {}
 class cola.menu.AbstractMenuItem extends cola.Widget
 	@ATTRIBUTES:
 		parent: null
+		active:
+			defaultValue: false
+			setter: (value)->
+				oldValue = @_active
+				@_active = value
+				if oldValue isnt value and value then @onActive(@)
+			getter: ()->
+				if !@_active and @_rendered
+					@_active = @get$Dom().hasClass("active")
+				return @_active
+
 	onItemClick: (event, item)->
 		parentMenu = @_parent
 		parentMenu.onItemClick(event, item) if parentMenu and parentMenu instanceof cola.Menu
 		return
+
+	onActive: (item)->
+		parentMenu = @_parent
+		parentMenu.setActiveItem(item) if parentMenu and parentMenu instanceof cola.Menu
+
 	getParent: ()-> @_parent
 	hasSubMenu: ()->
 		return !!this._subMenu
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_parent
+
 
 class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	@CLASS_NAME: "item"
@@ -17,6 +38,10 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	@ATTRIBUTES:
 		caption: null
 		icon: null
+		href:
+			refreshDom: true
+		target:
+			refreshDom: true
 		items:
 			setter: (value)->
 				@_items = value
@@ -50,14 +75,27 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 
 		return
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		$dom = $(dom)
-		$dom.click((event)=>
+	_initDom: (dom)->
+		super(dom)
+		@_$dom ?= $(dom)
+		@_$dom.click((event)=>
+			if @_subMenu then return
 			return @onItemClick(event, @)
 		)
-		$dom.append(@_subMenu.getDom())if @_subMenu and @_subMenu.parentNode isnt dom
+		if @_subMenu
+			subMenuDom = @_subMenu.getDom()
+			if subMenuDom.parentNode isnt dom then dom.appendChild(subMenuDom)
 		return
+	_setDom: (dom, parseChild)->
+		if parseChild
+			unless @_href
+				href = dom.getAttribute("href")
+				@_href = href if href
+			unless @_target
+				target = dom.getAttribute("target")
+				@_target = target if target
+
+		super(dom, parseChild)
 
 	_createDom: ()->
 		icon = @get("icon") or ""
@@ -78,6 +116,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 		return unless @_dom
 		super()
 		@_doms ?= {}
+		$dom = @get$Dom()
 		if !@_caption and @_icon
 			@_classNamePool.add("icon")
 		if @_icon
@@ -86,15 +125,21 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 					tagName: "i",
 					class: "#{@_icon or ""} icon"
 				})
-			if @_doms.iconDom.parentNode isnt @_dom then @get$Dom().prepend(@_doms.iconDom)
+			if @_doms.iconDom.parentNode isnt @_dom then $dom.prepend(@_doms.iconDom)
 			$fly(@_doms.iconDom).addClass(@_icon)
 		else
 			$(@_doms.iconDom).remove()
-		$(@_dom).find(">.ui.menu").removeClass("ui")
+
+		$dom.find(">.ui.menu").removeClass("ui")
+
 		if @_subMenu
 			subMenuDom = @_subMenu.getDom()
 			if subMenuDom.parentNode isnt @_dom then @_dom.appendChild(subMenuDom)
-
+		if @_href
+			$dom.attr("href", @_href)
+		else
+			$dom.removeAttr("href")
+		$dom.attr("target", @_target || "")
 		return
 
 	_resetSubMenu: (config)->
@@ -107,6 +152,11 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 			@_subMenu._isSubMemu = true
 		else
 			delete @_subMenu
+
+	destroy: ()->
+		return if @_destroyed
+		@_subMenu?.destroy()
+		super()
 
 class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 	@CLASS_NAME: "dropdown item"
@@ -164,6 +214,7 @@ class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
 			child = child.nextSibling
 
 		return
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
@@ -175,6 +226,11 @@ class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
 		control = @get("control")
 		dom.appendChild(control.getDom()) if control
 		return
+
+	destroy: ()->
+		return if @_destroyed
+		@_control?.destroy()
+		super()
 
 class cola.menu.HeaderMenuItem extends cola.menu.AbstractMenuItem
 	@CLASS_NAME: "header item"
@@ -210,6 +266,7 @@ class cola.Menu extends cola.Widget
 				@clearRightItems() if @["_rightItems"]
 				@addRightItem(item) for item in value if value
 
+
 		centered:
 			defaultValue: false
 	@EVENTS:
@@ -222,11 +279,9 @@ class cola.Menu extends cola.Widget
 			childNode = node.firstChild
 			@_rightItems ?= []
 			while childNode
-				if childNode.nodeTypes == 1
+				if childNode.nodeType == 1
 					menuItem = cola.widget(child)
-					if menuItem
-						menuItem._parent = @
-						@_rightItems.push(menuItem)
+					if menuItem then @addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return
 
@@ -236,9 +291,7 @@ class cola.Menu extends cola.Widget
 				if childNode.nodeType == 1
 					menuItem = cola.widget(childNode)
 					if menuItem
-						menuItem._parent = @
-						@_items.push(menuItem)
-
+						@addItem(menuItem)
 					else if !@_rightMenuDom and cola.util.hasClass(childNode, "right menu")
 						@_rightMenuDom = childNode
 						parseRightMenu(childNode)
@@ -258,7 +311,6 @@ class cola.Menu extends cola.Widget
 		super()
 		$(@_containerDom).toggleClass("ui container", !!@_centered)
 		if @_isSubMemu then @_classNamePool.remove("ui")
-
 
 		return
 
@@ -281,18 +333,12 @@ class cola.Menu extends cola.Widget
 				if rItemDom.parentNode isnt @_rightMenuDom
 					@_rightMenuDom.appendChild(rItemDom)
 
-		firstChild = dom.children[0]
-		fragmentElement = $.xCreate({
+		$(dom).prepend($.xCreate({
 			tagName: "div"
 			class: "left-items"
-		})
-		if firstChild
-			$(firstChild).before(fragmentElement)
-		else
-			dom.appendChild(fragmentElement)
-
-		$(dom).hover(()=>
-			@get$Dom().find(">.dropdown.item,.right.menu>.dropdown.item").each((index, item)=>
+		})).hover(()=>
+			$dom = @get$Dom()
+			$dom.find(">.dropdown.item,.right.menu>.dropdown.item").each((index, item)=>
 				$item = $(item)
 				if $item.hasClass("c-dropdown") then return
 				$item.addClass("c-dropdown")
@@ -304,6 +350,17 @@ class cola.Menu extends cola.Widget
 			return
 		).delegate(">.item,.right.menu>.item", "click", ()-> menu._setActive(this))
 		return
+
+	_setDom: (dom, parseChild)->
+		super(dom, parseChild)
+		if @_activeItem then @_setActive(@_activeItem.getDom())
+		return
+
+	setActiveItem: (item)->
+		unless item.get("active")
+			item.set("active", true)
+		@_activeItem = item
+		if @_rendered then @_setActive(item.getDom())
 
 	_setActive: (itemDom)->
 		if @_parent and @_parent instanceof cola.menu.DropdownMenuItem then return
@@ -356,6 +413,8 @@ class cola.Menu extends cola.Widget
 					})
 			else
 				menuItem = new cola.menu.MenuItem(config)
+		else if config instanceof cola.menu.AbstractMenuItem
+			menuItem = config
 		return menuItem
 
 	addItem: (config)->
@@ -364,7 +423,8 @@ class cola.Menu extends cola.Widget
 		menuItem._parent = @
 		@_items ?= []
 		@_items.push(menuItem)
-
+		active = menuItem.get("active")
+		if active then @_activeItem = menuItem
 		if @_dom
 			container = @_getItemsContainer()
 			itemDom = menuItem.getDom()
@@ -373,6 +433,8 @@ class cola.Menu extends cola.Widget
 					$(@_rightMenuDom).before(menuItem.getDom())
 				else
 					container.appendChild(menuItem.getDom())
+
+
 		return @
 
 	addRightItem: (config)->
@@ -381,6 +443,8 @@ class cola.Menu extends cola.Widget
 		menuItem._parent = @
 		@_rightItems ?= []
 		@_rightItems.push(menuItem)
+		active = menuItem.get("active")
+		if active then @_activeItem = menuItem
 
 		if @_dom
 			container = @_getItemsContainer()
@@ -446,6 +510,14 @@ class cola.Menu extends cola.Widget
 				class: "right menu"
 			}
 		)
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_activeItem
+		@clearRightItems()
+		@clearItems()
+		delete @_containerDom
+		return @
 
 
 class cola.TitleBar extends cola.Menu
@@ -486,12 +558,7 @@ class cola.TitleBar extends cola.Menu
 					tagName: "div"
 					class: "title"
 				})
-				firstChild = @_dom.children[0]
-
-				if firstChild
-					$(firstChild).before(@_doms.title)
-				else
-					@_dom.appendChild(@_doms.title)
+				@get$Dom().prepend(@_doms.title)
 			$(@_doms.title).text(@_title)
 		else
 			$(@_doms.title).empty()
