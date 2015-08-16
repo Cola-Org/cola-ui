@@ -108,8 +108,7 @@ class cola.Model extends cola.AbstractModel
 						fn = action
 					else if !(action instanceof cola.Action)
 						config = action
-						ActionConstr = cola.resolveType("action", config)
-						action = new ActionConstr(config)
+						action = cola.create("action", config, cola.Action)
 						fn = () ->
 							return action.execute.apply(action, arguments)
 						fn = fn.bind(store)
@@ -464,6 +463,9 @@ class cola.AbstractDataModel
 		@disableObserverCount = 0
 
 	get: (path, loadMode, context) ->
+		if not path
+			return @_getRootData() or @model.parent?.get()
+
 		if @_aliasMap
 			i = path.indexOf('.')
 			firstPart = if i > 0 then path.substring(0, i) else path
@@ -691,7 +693,7 @@ class cola.AbstractDataModel
 				processor._processMessage(node.__path, path, type, arg)
 
 		if notifyChildren
-			notifyChildren2 = type != cola.constants.MESSAGE_STATE_CHANGE and !(cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
+			notifyChildren2 = !(cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and !(cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
 			for part, subNode of node
 				if subNode and (part == "**" or notifyChildren2) and part != "__processorMap" and part != "__path"
 					@_processDataMessage(subNode, path, type, arg, true)
@@ -733,8 +735,11 @@ class cola.DataModel extends cola.AbstractDataModel
 				@describe(propertyName, propertyConfig)
 		return
 
+	getPropertyDef: (path) ->
+		return @_rootDataType?.getProperty(path)
+
 	getDataType: (path) ->
-		property = @_rootDataType?.getProperty(path)
+		property = @getPropertyDef(path)
 		dataType = property?.get("dataType")
 		return dataType
 

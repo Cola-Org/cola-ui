@@ -503,3 +503,11 @@ cola.resolveType = (namespace, config, baseType) ->
 					break
 		return constructor
 	return
+
+cola.create = (namespace, config, baseType) ->
+	if typeof config is "string"
+		config = {
+			$type: config
+		}
+	constr = cola.resolveType(namespace, config, baseType)
+	return new constr(config)

@@ -160,8 +160,7 @@ _columnsSetter = (table, columnConfigs) ->
 			if columnConfig instanceof Column
 				column = columnConfig
 			else
-				columnType = cola.resolveType("table.column", columnConfig)
-				column = new columnType(columnConfig)
+				column = cola.create("table.column", columnConfig, Column)
 			column._setTable(table)
 			columns.push(column)
 	@_columns = columns

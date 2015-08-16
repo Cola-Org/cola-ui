@@ -8,7 +8,7 @@ else
 
 cola.registerTypeResolver "validator", (config) ->
 	return unless config and config.$type
-	return cola[$.camelCase(config.$type) + "Validator"]
+	return cola[cola.util.capitalize(config.$type) + "Validator"]
 
 cola.registerTypeResolver "validator", (config) ->
 	if typeof config == "function"
@@ -24,25 +24,24 @@ class cola.Validator extends cola.Element
 			enum: ["error", "warning", "info"]
 		disabled: null
 
-	_getDefaultPrompt: (data) ->
+	_getDefaultMessage: (data) ->
 		return "\"#{data}\" is not a valid value."
 
-	_parseValidResult: (result) ->
+	_parseValidResult: (result, data) ->
 		if typeof result is "boolean"
 			if result
 				result = null
 			else
-				result = {messageType: @_messageType, message: @_message}
+				result = {type: @_messageType, text: @_message or @_getDefaultMessage(data)}
 		else if result? and typeof result is "string"
-			result = {messageType: @_messageType, message: result}
+			result = {type: @_messageType, text: result}
 		return result
 
 	validate: (data) ->
-		return if @_disabled
 		result = @_validate(data)
-		return @_parseValidResult(result)
+		return @_parseValidResult(result, data)
 
-class cola.RequireValidator extends cola.Validator
+class cola.RequiredValidator extends cola.Validator
 	@ATTRIBUTES:
 		trim:
 			defaultValue: true
@@ -98,7 +97,7 @@ class cola.RegExpValidator extends cola.Validator
 			if not regExp instanceof RegExp
 				regExp = new RegExp(regExp)
 			result = true
-			result = data.match(regExp)
+			result = !!data.match(regExp)
 			if @_mode is "black"
 				result = not result
 			return result
@@ -107,13 +106,13 @@ class cola.RegExpValidator extends cola.Validator
 class cola.EmailValidator extends cola.Validator
 	_validate: (data) ->
 		if typeof data is "string"
-			return data.match(/^[a-z]([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
+			return !!data.match(/^[a-z]([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
 		return true
 
 class cola.UrlValidator extends cola.Validator
 	_validate: (data) ->
 		if typeof data is "string"
-			return data.match(/^(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i)
+			return !!data.match(/^(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i)
 		return true
 
 class cola.AsyncValidator extends cola.Validator

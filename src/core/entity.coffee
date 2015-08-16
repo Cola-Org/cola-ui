@@ -44,10 +44,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-	#_parent
-	#_parentProperty
-	#_providerInvoker
-	#_disableWriteObservers
+#_parent
+#_parentProperty
+#_providerInvoker
+#_disableWriteObservers
 
 	constructor: (dataType, data) ->
 		@id = cola.uniqueId()
@@ -194,7 +194,7 @@ class cola.Entity
 					else if value.hasOwnProperty("$data")
 						value = cola.DataType.jsonToEntity(value, null, true)
 					else if value instanceof Date
-						# do nothing
+# do nothing
 					else
 						value = cola.DataType.jsonToEntity(value, null, false)
 				changed = oldValue != value
@@ -202,6 +202,24 @@ class cola.Entity
 			changed = oldValue != value
 
 		if changed
+			if property and property instanceof cola.BaseProperty
+				if property._validators and property._rejectInvalidValue
+					messages = null
+					for validator in property._validators
+						if value? or validator instanceof cola.RequiredValidator
+							unless validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
+								message = validator.validate(value)
+								if message
+									messages ?= []
+									if message instanceof Array
+										Array::push.apply(messages, message)
+									else
+										messages.push(message)
+					if messages
+						for message in messages
+							if message is VALIDATION_ERROR
+								throw new cola.Exception(message.text)
+
 			if @_disableWriteObservers == 0
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
 					delete oldValue._parent
@@ -228,6 +246,20 @@ class cola.Entity
 					value: value
 					oldValue: oldValue
 				})
+
+			if messages != undefined
+				@_messageHolder?.clear(prop)
+				@addMessage(prop, messages)
+
+				if value?
+					for validator in property._validators
+						if not validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
+							validator.validate(value, (message) =>
+								if message then @addMessage(prop, message)
+								return
+							)
+			else
+				@validate(prop)
 		return value
 
 	getText: (prop, loadMode = "auto", callback, context) ->
@@ -350,7 +382,7 @@ class cola.Entity
 		oldState = @state
 		@state = state
 
-		@_notify(cola.constants.MESSAGE_STATE_CHANGE, {
+		@_notify(cola.constants.MESSAGE_EDITING_STATE_CHANGE, {
 			entity: @
 			oldState: oldState
 			state: state
@@ -450,9 +482,9 @@ class cola.Entity
 		return @
 
 	_notify: (type, arg) ->
-		if @_disableObserverCount == 0
+		if @_disableObserverCount is 0
 			path = @getPath(true)
-			if type == cola.constants.MESSAGE_DATA_CHANGE
+			if (type is cola.constants.MESSAGE_DATA_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and arg.property
 				if path
 					path = path.concat(arg.property)
 				else
@@ -464,24 +496,76 @@ class cola.Entity
 		@_listener?.onMessage(path, type, arg)
 		return
 
-	validate: () ->
-		@Message = null
+	_validate: (prop) ->
+		property = @dataType.getProperty(prop)
+		if property and property instanceof cola.BaseProperty
+			if property._validators
+				data = @_data[prop]
+				if data and (data instanceof cola.Provider or data instanceof cola.AjaxServiceInvoker)
+					return
+
+				for validator in property._validators
+					if not validator._disabled
+						if validator instanceof cola.AsyncValidator and validator.get("async")
+							if data?
+								validator.validate(data, (message) =>
+									if message then @addMessage(prop, message)
+									return
+								)
+						else if data? or validator instanceof cola.RequiredValidator
+							message = validator.validate(data)
+							if message
+								@_addMessage(prop, message)
+								messageChanged = true
+		return messageChanged
+
+	validate: (prop) ->
+		if  @_messageHolder
+			oldKeyMessage = @_messageHolder.getKeyMessage()
+			@_messageHolder.clear(prop)
+
+		if @dataType
+			if prop
+				@_validate(prop)
+				@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+			else
+				for property in @dataType.getProperties().elements()
+					@_validate(property._name)
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._name})
+
+		keyMessage = @_messageHolder?.getKeyMessage()
+		if (oldKeyMessage or keyMessage) and not (oldKeyMessage is keyMessage)
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
+	_addMessage: (prop, message) ->
+		messageHolder = @_messageHolder
+		if not messageHolder
+			@_messageHolder = messageHolder = new MessageHolder()
+		if message instanceof Array
+			for m in message
+				if messageHolder.add(prop, m) then topKeyChanged = true
+		else
+			if messageHolder.add(prop, message) then topKeyChanged = true
+		return topKeyChanged
+
 	addMessage: (prop, message) ->
-		(@Message ?= new EntityMessage()).addDetail(prop, message)
+		if arguments.length is 1
+			message = prop
+			prop = "$"
+		if prop is "$"
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+		else
+			topKeyChanged = @_addMessage(prop, message)
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
 	getKeyMessage: (prop) ->
-		if @Message
-			if prop
-				return @Message.getKeyMessage(prop)
-			else
-				return @Message.keyMessage
-		return null
+		return @_messageHolder?.getKeyMessage(prop)
 
 	getMessages: (prop) ->
-		return @Message?.getDetail(prop)
+		return @_messageHolder?.getMessages(prop)
 
 	toJSON: (options) ->
 		state = options?.state or false
@@ -571,7 +655,7 @@ class Page extends LinkedList
 
 		entityList.totalEntityCount = rawJson.$entityCount if rawJson.$entityCount?
 		if entityList.totalEntityCount?
-			entityList.pageCount = parseInt((entityList.totalEntityCount  +  entityList.pageSize  - 1) / entityList.pageSize)
+			entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
 			entityList.pageCountDetermined = true
 
 		entityList.entityCount += json.length
@@ -642,7 +726,7 @@ class cola.EntityList extends LinkedList
 	entityCount: 0
 	totalEntityCount: 0
 
-	# full, no-count, append
+# full, no-count, append
 	pageMode: "append"
 	pageSize: 0
 	pageNo: 1
@@ -650,9 +734,9 @@ class cola.EntityList extends LinkedList
 
 	_disableObserverCount: 0
 
-	#_parent
-	#_parentProperty
-	#_providerInvoker
+#_parent
+#_parentProperty
+#_providerInvoker
 
 	constructor: (dataType, array) ->
 		@id = cola.uniqueId()
@@ -1164,26 +1248,80 @@ _Entity._getEntityId = (entity) ->
 		return entity._id
 
 VALIDATION_NONE = "none"
-VALIDATION_OK = "ok"
-VALIDATION_WARN = "warn"
+VALIDATION_INFO = "info"
+VALIDATION_WARN = "warning"
 VALIDATION_ERROR = "error"
-VALIDATION_VALIDATING = "validating"
 
-# TODO
-class EntityMessage
+TYPE_SEVERITY =
+	VALIDATION_INFO: 1
+	VALIDATION_WARN: 2
+	VALIDATION_ERROR: 4
+
+class MessageHolder
 	constructor: () ->
 		@keyMessage = {}
 		@propertyMessages = {}
 
-	addMessage: (prop, message) ->
-		return @
+	_compare: (message1, message2) ->
+		return (TYPE_SEVERITY[message1.type] or 0) - (TYPE_SEVERITY[message2.type] or 0)
 
-	getMessages: (prop) ->
-		return null
+	add: (prop, message) ->
+		messages = @propertyMessages[prop]
+		if not messages
+			@propertyMessages[prop] = [message]
+		else
+			messages.push(message)
 
-	clear: () ->
-		@propertyMessages = {}
-		return @
+		isTopKey = (prop is "$")
+		if keyMessage
+			if @_compare(message, keyMessage) > 0
+				@keyMessage[prop] = message
+				topKeyChanged = isTopKey
+		else
+			@keyMessage[prop] = message
+			topKeyChanged = isTopKey
+
+		if not topKeyChanged and not isTopKey
+			keyMessage = @keyMessage["$"]
+			if keyMessage
+				if @_compare(message, keyMessage) > 0
+					@keyMessage["$"] = message
+					topKeyChanged = true
+			else
+				@keyMessage["$"] = message
+				topKeyChanged = true
+		return topKeyChanged
+
+	clear: (prop) ->
+		if prop
+			delete @propertyMessages[prop]
+			delete @keyMessage[prop]
+
+			for p, messages of @propertyMessages
+				for message in messages
+					if not keyMessage
+						keyMessage = message
+					else if @_compare(message, keyMessage) > 0
+						keyMessage = message
+					else
+						continue
+					if keyMessage.type is VALIDATION_ERROR
+						break
+			@keyMessage["$"] = keyMessage
+		else
+			@keyMessage = {}
+			@propertyMessages = {}
+		return
+
+	getMessages: (prop = "$") ->
+		return @propertyMessages[prop]
+
+	getKeyMessage: (prop = "$") ->
+		return @keyMessage[prop]
+
+###
+Functions
+###
 
 cola.each = (collection, fn) ->
 	if collection instanceof cola.EntityList

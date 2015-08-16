@@ -194,9 +194,27 @@ class cola.BaseProperty extends cola.Property
 			readOnlyAfterCreate: true
 		validators:
 			setter: (validators) ->
+
+				addValidator = (validator) =>
+					if not (validator instanceof cola.Validator)
+						validator = cola.create("validator", validator, cola.Validator)
+					@_validators.push(validator)
+					if validator instanceof cola.RequiredValidator and not @_required
+						@_required = true
+					return
+
+				delete @_validators
+				if validators
+					@_validators = []
+					if typeof validators is "string"
+						validator = cola.create("validator", validators, cola.Validator)
+						@_validators.push(validator)
+					else if validators instanceof Array
+						addValidator(validator) for validator in validators
+					else
+						addValidator(validators)
 				return
-			getter: () ->
-				return null
+		rejectInvalidValue: null
 
 	@EVENTS:
 		beforeWrite: null

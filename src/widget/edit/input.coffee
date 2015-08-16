@@ -105,7 +105,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 			refreshDom: true
 			defaultValue: "right"
 			enum: ["left", "right"]
-		state: null
 
 	destroy: ()->
 		unless @_destroyed
@@ -310,6 +309,7 @@ class cola.Input extends cola.AbstractInput
 	@EVENTS:
 		focus: null
 		blur: null
+		
 	_createEditorDom: ()->
 		return $.xCreate({
 			tagName: "input",
@@ -343,6 +343,12 @@ class cola.Input extends cola.AbstractInput
 			@_inputFocused = false
 			@_refreshInputValue(@_value)
 			@fire("blur",@)
+
+			if !@_value? or @_value is "" and @_bindInfo.isWriteable
+				propertyDef = @_getBindingPropertyDef()
+				if propertyDef?._required and propertyDef._validators
+					entity = @_scope.get(@_bindInfo.entityPath)
+					entity.validate(@_bindInfo.property) if entity
 			return
 		)
 		return

@@ -63,6 +63,10 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 	if jsonConfig
 		config[k] = v for k, v of jsonConfig
 
+	if typeof config is "string"
+		config = {
+			$type: config
+		}
 	oldParentConstr = context.constr
 	constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
 	config.$constr = context.constr = constr
@@ -114,7 +118,7 @@ cola.widget = (config, namespace) ->
 
 cola.findWidget = (dom, type) ->
 	if type and typeof type == "string"
-		type = cola.resolveType("widget", { $type: type })
+		type = cola.resolveType("widget", {$type: type})
 		return null unless type
 
 	while dom
@@ -242,14 +246,21 @@ cola.DataWidgetMixin =
 			bindInfo.expression = expression = cola._compileExpression(bindStr)
 			if expression.repeat or expression.setAlias
 				throw new cola.I18nException("cola.error.needSimpleBinding", bindStr)
-			bindInfo.isWriteable = (expression.type == "MemberExpression" or expression.type == "Identifier") and
-					not expression.hasCallStatement and not expression.convertors
+			if (expression.type == "MemberExpression" or expression.type == "Identifier") and not expression.hasCallStatement and not expression.convertors
+				bindInfo.isWriteable = true
+				i = bindStr.lastIndexOf(".")
+				if i > 0
+					bindInfo.entityPath = bindStr.substring(0, i)
+					bindInfo.property = bindStr.substring(i + 1)
+				else
+					bindInfo.entityPath = null
+					bindInfo.property = bindStr
 
 			if !@_bindProcessor
 				@_bindProcessor = bindProcessor = {
 					_processMessage: (bindingPath, path, type, arg) =>
 						if @_filterDataMessage
-							if !@_filterDataMessage(path, type, arg)
+							if not @_filterDataMessage(path, type, arg)
 								return
 						else
 							unless cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @_watchingMoreMessage
@@ -321,10 +332,13 @@ cola.DataWidgetMixin =
 		@_scope.set(@_bindStr, value)
 		return
 
+	_getBindingPropertyDef: () ->
+		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
+		return @_scope.data.getPropertyDef(@_bindStr)
+
 	_getBindingDataType: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
 		return @_scope.data.getDataType(@_bindStr)
-		return
 
 	_isRootOfTarget: (changedPath, targetPath) ->
 		if !changedPath or !targetPath then return true
