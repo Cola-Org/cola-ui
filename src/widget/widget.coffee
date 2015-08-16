@@ -113,7 +113,7 @@ class cola.RenderableElement extends cola.Element
 
 		@_doRefreshDom()
 
-		newClassName = $.trim(@_classNamePool.join())
+		newClassName = @_classNamePool.join()
 		@_dom.className = newClassName
 		@_classNamePool.destroy()
 		delete @["_classNamePool"]

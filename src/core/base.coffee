@@ -295,7 +295,7 @@ cola.i18n = (key, params...) ->
 			return key
 	else
 # i18n(bundle, locale)
-# load i18n resources from bundle(json)
+# load i18n resources from bundle(json format)
 		bundle = key
 		locale = params[0] or defaultLocale
 		oldBundle = i18nStore[locale]

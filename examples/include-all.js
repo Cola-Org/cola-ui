@@ -3,11 +3,11 @@ function includeAll(root) {
 	 //cacheBuster="?time="+new Date().getTime();
 
 	function writeScriptlet(file) {
-		document.write("<script language=\"JavaScript\" type=\"text/javascript\" src=\"" + root + file + cacheBuster + "\"></script>");
+		document.write("<script language=\"JavaScript\" type=\"text/javascript\" charset=\"utf-8\" src=\"" + root + file + cacheBuster + "\"></script>");
 	}
 
 	function writeStyleSheet(file) {
-		document.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + root + file +cacheBuster+ "\" />");
+		document.write("<link rel=\"stylesheet\" type=\"text/css\" charset=\"utf-8\" href=\"" + root + file +cacheBuster+ "\" />");
 	}
 
 	writeStyleSheet("lib/semantic-ui/semantic.css");
@@ -36,6 +36,8 @@ function includeAll(root) {
 	writeScriptlet("widget/edit.js");
 	writeScriptlet("widget/collection.js");
 	writeScriptlet("widget/list.js");
+
+	writeScriptlet("i18n/zh-Hans/cola.js");
 }
 
 includeAll(location.protocol + "//" + location.host + "/cola-ui/dest/dev/");
