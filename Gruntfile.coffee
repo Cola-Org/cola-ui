@@ -5,7 +5,7 @@ module.exports = (grunt) ->
 		clean:
 			build: ["dest/work", "dest/publish"]
 			workTemp: ["dest/work/cola"]
-			dev:["dest/dev"]
+			dev: ["dest/dev"]
 		coffee:
 			dev:
 				options:
@@ -100,17 +100,8 @@ module.exports = (grunt) ->
 				files: [
 					expand: true
 					cwd: "src"
-					src: ["**/*.yaml", "!i18n/**/*.yaml"]
+					src: ["**/*.yaml"]
 					dest: "doc"
-				]
-			i18n:
-				options:
-					space: 4
-				files: [
-					expand: true
-					cwd: "src"
-					src: ["i18n/**/*.yaml"]
-					dest: "dest"
 				]
 		watch:
 			coffee:
@@ -135,7 +126,7 @@ module.exports = (grunt) ->
 					{
 						expand: true
 						cwd: "src"
-						src: ["**/*.yaml", "!i18n/**/*.yaml"]
+						src: ["**/*.yaml"]
 						dest: "doc"
 					}
 				]
@@ -243,7 +234,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
 	grunt.registerTask "test", ["mochaTask", "qunitTask"]
-	grunt.registerTask "compile", ["clean:dev","coffee:dev", "less:dev", "copy:libs"]
+	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
 	grunt.registerTask "doc", ["yamlToDoc", "copy:docResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
