@@ -101,7 +101,7 @@ class cola.Tree extends cola.ItemsView
 						tagName: "div"
 						"c-widget":
 							$type: "checkbox"
-							ui: "node-checkbox"
+							class: "node-checkbox"
 							triState: true
 					}
 				]

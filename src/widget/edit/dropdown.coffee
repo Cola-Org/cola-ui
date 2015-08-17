@@ -199,7 +199,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_finalOpenMode = openMode = @_getFinalOpenMode()
 
 		config =
-			ui: "drop-container"
+			class: "drop-container"
 			dom: $.xCreate(
 				tagName: "div"
 				content: @_getDropdownContent()
