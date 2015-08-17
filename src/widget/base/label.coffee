@@ -11,10 +11,10 @@ class cola.Label extends cola.Widget
 			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_size"]
+				oldValue = @_size
 				if oldValue and oldValue isnt value and @_dom
-					@get$Dom().removeClass(oldValue)
-				@["_size"] = value
+					@removeClass(oldValue)
+				@_size = value
 				return
 
 		text:
@@ -23,11 +23,10 @@ class cola.Label extends cola.Widget
 		icon:
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_icon"]
-				@["_icon"] = value
+				oldValue = @_icon
+				@_icon = value
 				if  oldValue isnt value and @_dom and @_doms?.iconDom
-					$iconDom = $(@_doms.iconDom)
-					$iconDom.removeClass(oldValue)
+					$fly(@_doms.iconDom).removeClass(oldValue)
 				return
 
 		iconPosition:
@@ -43,25 +42,20 @@ class cola.Label extends cola.Widget
 			refreshDom: true
 			enum: ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"]
 			setter: (value)->
-				oldValue = @["_color"]
-				@get$Dom().removeClass(oldValue)  if oldValue and oldValue isnt value and @_dom
-				@["_color"] = value
+				oldValue = @_color
+				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
+				@_color = value
 				return
 
 		attached:
 			refreshDom: true
 			defaultValue: ""
-			enum: ["left top", "left bottom", "right top", "right bottom", "top", "bottom"]
+			enum: ["left top", "left bottom", "right top", "right bottom", "top", "bottom", ""]
 			setter: (value)->
-				oldValue = @["_attached"]
-				$removeClass(@_dom, "#{oldValue} attached", true) if oldValue and @_dom
-				@["_attached"] = value
+				oldValue = @_attached
+				@removeClass("#{oldValue} attached", true) if oldValue and @_dom
+				@_attached = value
 				return
-
-
-	_setDom: (dom, parseChild)->
-		@_doms ?= {}
-		super(dom, parseChild)
 
 	_parseDom: (dom)->
 		return unless dom
@@ -75,10 +69,9 @@ class cola.Label extends cola.Widget
 
 	_refreshIcon: ()->
 		return unless @_dom
-		$dom = @get$Dom()
 		@_doms ?= {}
-		icon = @get("icon")
-		iconPosition = @get("iconPosition")
+		icon = @_icon
+		iconPosition = @_iconPosition
 		if icon
 			@_doms.iconDom ?= document.createElement("i")
 			iconDom = @_doms.iconDom
@@ -87,27 +80,25 @@ class cola.Label extends cola.Widget
 			if iconPosition is "left" and @_doms.textDom
 				$(@_doms.textDom).before(iconDom)
 			else
-				$dom.append(iconDom)
-		else if  @_doms.iconDom
-			$(@_doms.iconDom).remove()
+				@_dom.appendChild(iconDom)
+		else if @_doms.iconDom
+			cola.detachNode(@_doms.iconDom)
 		return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-
-		$dom = @get$Dom()
 		classNamePool = @_classNamePool
-		text = @get("text") or ""
+		text = @_text or ""
 		textDom = @_doms.textDom
 		if text
 			unless textDom
 				textDom = document.createElement("span")
 				@_doms.textDom = textDom
-			$(textDom).text(text)
-			$dom.append(textDom)
+			$fly(textDom).text(text)
+			@_dom.appendChild(textDom)
 		else
-			$(textDom).remove() if textDom
+			if textDom then cola.detachNode(textDom)
 
 		size = @get("size")
 		classNamePool.add(size) if size
@@ -130,31 +121,30 @@ class cola.ImageLabel extends cola.Label
 			refreshDom: true
 			defaultValue: "right"
 			enum: ["left", "right"]
-		detail:null
+		detail: null
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 		@_doms ?= {}
 		if @_image
 			unless @_doms.image
-				@_doms.image=$.xCreate({
-					tagName:"img"
-					src:@_image
+				@_doms.image = $.xCreate({
+					tagName: "img"
+					src: @_image
 				})
 			if @_doms.image.parentNode isnt @_dom then @get$Dom().prepend(@_doms.image)
-			$fly(@_doms.image).attr("src",@_image)
+			$fly(@_doms.image).attr("src", @_image)
 		else
-			if @_doms.image then $fly(@_doms.image).remove()
-		detailDom=$(".detail",@_dom)
+			if @_doms.image then cola.detachNode(@_doms.image)
+		detailDom = $(".detail", @_dom)
 		if @_detail
-
-			if detailDom.length >0
+			if detailDom.length > 0
 				detailDom.text(@_detail)
 			else
-				detailDom=$.xCreate({
-					tagName:"div"
-					class:"detail"
-					content:@_detail
+				detailDom = $.xCreate({
+					tagName: "div"
+					class: "detail"
+					content: @_detail
 				})
 				@_dom.appendChild(detailDom)
 		else
@@ -168,17 +158,16 @@ class cola.PointingLabel extends cola.Label
 			defaultValue: "top"
 			enum: ["left", "right", "top", "bottom"]
 			setter: (value)->
-				oldValue = @["_pointing"]
-				@get$Dom().removeClass(oldValue) if oldValue and @_dom
-				@["_pointing"] = value
+				oldValue = @_pointing
+				@removeClass(oldValue) if oldValue and @_dom
+				@_pointing = value
 				return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 
-		pointing = @get("pointing")
-		@_classNamePool.add(pointing) if pointing and @_dom
+		if @_pointing then @_classNamePool.add(@_pointing)
 
 class cola.Tag extends cola.Label
 	@CLASS_NAME: "tag label"
@@ -189,40 +178,39 @@ class cola.Corner extends cola.Label
 	@ATTRIBUTES:
 		position:
 			enum: ["left", "right"]
+			defaultValue: "right"
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_position"]
+				oldValue = @_position
 				if oldValue and oldValue isnt value and @_dom
-					$dom = @get$Dom()
-					$dom.removeClass(oldValue) if oldValue is "left"
-				@["_position"] = value
+					@removeClass(oldValue)
+				@_position = value
 				return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-
-		position = @get("position")
-		@_classNamePool.add(position) if position is "left"
+		@_classNamePool.add(@_position)
 
 class cola.Ribbon extends cola.Label
 	@CLASS_NAME: "ribbon label"
 	@ATTRIBUTES:
 		position:
 			enum: ["left", "right"]
+			defaultValue: "left"
 			setter: (value)->
-				oldValue = @["_position"]
+				oldValue = @_position
 				return if oldValue is value
 				if oldValue is "right" and @_dom
-					cola.util.removeClass(@_dom, "right ribbon", true)
-					@get$Dom().addClass("ribbon")
-				@["_position"] = value
+					@removeClass("right ribbon", true)
+					@addClass("ribbon")
+				@_position = value
 				return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-		position = @get("position")
+		position = @_position
 		if position is "right"
 			@_classNamePool.remove("ribbon")
 			@_classNamePool.add("right ribbon")

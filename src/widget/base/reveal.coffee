@@ -20,7 +20,7 @@ class cola.Reveal extends cola.Widget
 		direction:
 			refreshDom: true
 			enum: ["left", "right", "up", "down"]
-			defaultValue:"left"
+			defaultValue: "left"
 			setter: (value)->
 				oldValue = @["_direction"]
 				if oldValue and @_dom and oldValue isnt value
@@ -44,30 +44,22 @@ class cola.Reveal extends cola.Widget
 		visibleContent:
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_visibleContent"]
-				oldValue?.destroy?()
-				delete @["_visibleContent"]
-				delete @["_visibleContentDom"]
-				@_visibleContent = @_getContent(value)
-				@_refreshContent("visible") if @_dom
-				return
+				@_setContent(value, "visibleContent")
+				return @
 
 		hiddenContent:
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_hiddenContent"]
-				oldValue?.destroy?()
-				delete @["_hiddenContent"]
-				delete @["_hiddenContentDom"]
-				@_hiddenContent = @_getContent(value)
-				@_refreshContent("hidden") if @_dom
-				return
+				@_setContent(value, "hiddenContent")
+				return @
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-
-		@_refreshContent("visible") if @_visibleContent
-		@_refreshContent("hidden") if @_hiddenContent
+	_initDom: (dom)->
+		super(dom)
+		for container in ["visibleContent", "hiddenContent"]
+			key = "_#{container}"
+			if @[key]?.length
+				@_render(el, container) for el in @[key]
+		return
 
 	_parseDom: (dom)->
 		return unless dom
@@ -88,58 +80,58 @@ class cola.Reveal extends cola.Widget
 
 			child = child.nextSibling
 
-	_getContent: (value)->
-		content = null
-		if typeof value is "string"
-			content = $.xCreate(
-				tagName: "SPAN"
-				content: value
-			)
-		else if value.constructor == Object.prototype.constructor
-			if value.$type
-				content = cola.widget(value)
-			else
-				content = $.xCreate(value)
-		else
-			content = value
+	_clearContent: (target)->
+		old = @["_#{target}"]
+		if old
+			for el in old
+				el.destroy() if el instanceof cola.widget
+			@["_#{target}"] = []
 
-		return content
-
-	_getContentDom: (context)->
-		content = @get("#{context}Content")
-		return unless content
-		domKey = "_#{context}ContentDom"
-		unless  @[domKey]
-			if content instanceof cola.Widget
-				@[domKey] = content.getDom()
-			else if content.nodeType is 1
-				@[domKey] = content
-
-		return @[domKey]
-
-	_refreshContent: (context)->
-		contentDom = @_getContentDom(context)
-		return unless contentDom
-
-		parentNode = contentDom.parentNode
 		@_doms ?= {}
-		domKey = "#{context}Content"
-		if parentNode
-			if  parentNode is @_doms[domKey]
-				return
-			else if parentNode is @_dom
-				$(contentDom).addClass("#{context} content")
-				return
+		$(@_doms[target]).empty() if @_doms[target]
+		return
 
-		unless @_doms[domKey]
-			@_doms[domKey] = $.xCreate({
-				tagName: "div"
-				class: "#{context} content"
-			})
+	_setContent: (value, target)->
+		@_clearContent(target)
 
-		@get$Dom().append(@_doms[domKey]) if @_doms[domKey].parentNode isnt @_dom
+		if value instanceof Array
+			for el in value
+				result = cola.xRender(el, @_scope)
+				@_addContentElement(result, target) if result
+		else
+			result = cola.xRender(value, @_scope)
+			@_addContentElement(result, target)  if result
 
-		$(@_doms[domKey]).empty().append(contentDom)
+		return
+
+	_makeContentDom: (target)->
+		@_doms ?= {}
+		if not @_doms[target]
+			@_doms[target] = document.createElement("div")
+			@_doms[target].className = "#{if target is "visibleContent" then "visible" else "hidden"} content"
+			@_dom.appendChild(@_doms[target])
+
+		return @_doms[target]
+
+	_addContentElement: (element, target)->
+		name = "_#{target}"
+		@[name] ?= []
+		targetList = @[name]
+		targetList.push(element)
+
+		@_render(element, target) if element and @_dom
+		return
+
+	_render: (node, target)->
+		@_doms ?= {}
+
+		@_makeContentDom(target) unless @_doms[target]
+		dom = node
+
+		if node instanceof cola.Widget
+			dom = node.getDom()
+
+		@_doms[target].appendChild(dom) if dom.parentNode isnt @_doms[target]
 		return
 
 	_doRefreshDom: ()->

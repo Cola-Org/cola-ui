@@ -64,7 +64,7 @@ class cola.RenderableElement extends cola.Element
 		if config
 			dom = config.dom
 			delete config.dom if dom
-
+		@_doms ?= {}
 		super(config)
 		@_setDom(dom, true) if dom
 
@@ -113,7 +113,7 @@ class cola.RenderableElement extends cola.Element
 
 		@_doRefreshDom()
 
-		newClassName = @_classNamePool.join()
+		newClassName = $.trim(@_classNamePool.join())
 		@_dom.className = newClassName
 		@_classNamePool.destroy()
 		delete @["_classNamePool"]
@@ -320,7 +320,6 @@ class cola.Widget extends cola.RenderableElement
 			hammerEvent: "swipeup"
 		swipeDown:
 			hammerEvent: "swipedown"
-
 	_setDom: (dom, parseChild)->
 		return unless dom
 		super(dom, parseChild)

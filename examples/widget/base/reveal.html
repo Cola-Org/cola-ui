@@ -6,31 +6,18 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			var inventionPath = "../../images/demo/invention.jpg",
-					titleImgPath = "../../images/demo/title.png",
-					stickfigurePath = "../../images/demo/stickfigure.jpg",
-					photoPath = "../../images/demo/photo2.jpg";
-
+			var image = "../../images/wireframe/square-image.png", adeAvatar = "../../images/avatar/large/ade.jpg";
 			model.widgetConfig({
 				textContent: {
-					visibleContent: "Dorado",
-					hiddenContent: "好酷啊"
+					visibleContent: "Cola UI",
+					hiddenContent: "双向数据绑定"
 				},
 				imgContent: {
 					visibleContent: {
-						$type: "Image", src: inventionPath
+						$type: "Image", src: image, class:"small"
 					},
 					hiddenContent: {
-						$type: "Image", src: titleImgPath
-					}
-				},
-				imgContent2: {
-					type: "rotate", class: "circular",
-					visibleContent: {
-						$type: "Image", circular: true, src: stickfigurePath
-					},
-					hiddenContent: {
-						$type: "Image", circular: true, src: photoPath
+						$type: "Image", src: adeAvatar,class:"small"
 					}
 				}
 			})
@@ -40,6 +27,13 @@
 <body style="padding: 20px;">
 <div id="textContent" c-widget="Reveal"></div>
 <div id="imgContent" c-widget="Reveal"></div>
-<div id="imgContent2" c-widget="Reveal"></div>
+<div c-widget="Reveal; type:rotate; direction:right">
+	<div class="visible content">
+		<img c-widget="Image; src:../../images/wireframe/square-image.png; class:small circular">
+	</div>
+	<div class="hidden content">
+		<img c-widget="Image; src:../../images/avatar/large/helen.jpg; class:small circular">
+	</div>
+</div>
 </body>
 </html>

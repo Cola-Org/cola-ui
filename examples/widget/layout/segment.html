@@ -8,46 +8,50 @@
 <body style="padding: 20px;">
 <script type="text/javascript">
 
-	var body=document.body,
+	var body = document.body,
 			colors = ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"];
 	new cola.Segment({
-		height: 100
+		height: 100,
+		content:{
+			$type:"Button",
+			caption:"内容"
+		}
 	}).appendTo(body);
 
-	for(var i=0;i<colors.length;i++){
+	for (var i = 0; i < colors.length; i++) {
 		new cola.Segment({
 			color: colors[i]
 		}).appendTo(body);
 	}
-	var propertyNames=["disabled","loading"]
-	for(var i=0;i<propertyNames.length;i++){
-		var config={
+	var propertyNames = ["disabled", "loading"]
+	for (var i = 0; i < propertyNames.length; i++) {
+		var config = {
 			height: 100
 		};
-		config[propertyNames[i]]=true;
+		config[propertyNames[i]] = true;
 		new cola.Segment(config).appendTo(body);
 	}
 
 	new cola.Segment({
-		color: "orange",inverted: true
+		color: "orange", inverted: true
 	}).appendTo(body);
 
 	new cola.Segment({
-		height: 100,class: "stacked"
+		height: 100, class: "stacked"
 	}).appendTo(body);
 
 	new cola.Segment({
-		height: 100,class: "piled"
+		height: 100, class: "piled"
 	}).appendTo(body);
 
 	new cola.Segment({
-		height: 100,textAlign: "left"
+		height: 100, textAlign: "left"
 	}).appendTo(body).get$Dom().append("内容靠左显示");
 	new cola.Segment({
-		height: 100,textAlign: "center"
+		height: 100, textAlign: "center"
 	}).appendTo(body).get$Dom().append("内容居中显示");
 	cola.widget({
-		$type:"Segment",height: 100,textAlign: "right"
+		$type: "Segment", height: 100, textAlign: "right"
 	}).appendTo(body).get$Dom().append("内容靠右显示");
 
 </script>
