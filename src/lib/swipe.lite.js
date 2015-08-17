@@ -153,7 +153,7 @@ function Swipe(container, options) {
 				case 'touchend':
 				case 'mouseup':
 					offloadFn(this.end(event));
-					dorado.util.DISABLE_SCROLLER_DRAG = false;
+					cola.util.DISABLE_SCROLLER_DRAG = false;
 					break;
 				case 'webkitTransitionEnd':
 				case 'msTransitionEnd':
@@ -233,7 +233,7 @@ function Swipe(container, options) {
 							: 1 );                                 // no resistance if false
 
 					if (Math.abs(delta.x) > 5) {
-						dorado.util.DISABLE_SCROLLER_DRAG = true;
+						cola.util.DISABLE_SCROLLER_DRAG = true;
 					}
 
 					// translate 1:1
@@ -252,7 +252,7 @@ function Swipe(container, options) {
 							: 1 );                                 // no resistance if false
 
 					if (Math.abs(delta.y) > 5) {
-						dorado.util.DISABLE_SCROLLER_DRAG = true;
+						cola.util.DISABLE_SCROLLER_DRAG = true;
 					}
 
 					// translate 1:1
