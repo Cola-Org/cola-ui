@@ -19,7 +19,7 @@ cola.sequenceNo = () ->
 cola._EMPTY_FUNC = () ->
 
 if window?
-	(() ->
+	do()->
 		cola.browser = {}
 		cola.os = {}
 		cola.device = {}
@@ -56,7 +56,7 @@ if window?
 			else
 				cola.device.pad = window.screen.width >= theshold or window.screen.height >= theshold
 			cola.device.phone = !cola.device.pad
-		return)()
+		return
 
 ###
 Event
