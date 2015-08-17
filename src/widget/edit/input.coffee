@@ -320,6 +320,7 @@ class cola.Input extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_initDom: (dom)->
+		super(dom)
 		$(@_doms.input).on("change", ()=>
 			readOnly = !!@get("readOnly")
 			if !readOnly

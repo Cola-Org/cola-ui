@@ -512,7 +512,7 @@ class cola.Entity
 									if message then @addMessage(prop, message)
 									return
 								)
-						else if data? or validator instanceof cola.RequiredValidator
+						else if (data? and data isnt "") or validator instanceof cola.RequiredValidator
 							message = validator.validate(data)
 							if message
 								@_addMessage(prop, message)
@@ -534,7 +534,7 @@ class cola.Entity
 					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._name})
 
 		keyMessage = @_messageHolder?.getKeyMessage()
-		if (oldKeyMessage or keyMessage) and not (oldKeyMessage is keyMessage)
+		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
@@ -564,8 +564,8 @@ class cola.Entity
 	getKeyMessage: (prop) ->
 		return @_messageHolder?.getKeyMessage(prop)
 
-	getMessages: (prop) ->
-		return @_messageHolder?.getMessages(prop)
+	findMessages: (prop, type) ->
+		return @_messageHolder?.findMessages(prop, type)
 
 	toJSON: (options) ->
 		state = options?.state or false
@@ -1318,6 +1318,22 @@ class MessageHolder
 
 	getKeyMessage: (prop = "$") ->
 		return @keyMessage[prop]
+
+	findMessages: (prop, type) ->
+		if prop
+			ms = @propertyMessages[prop]
+			if type
+				messages = []
+				for m in ms
+					if m.type is type then messages.push(m)
+			else
+				messages = ms
+		else
+			messages = []
+			for p, ms of @propertyMessages
+				for m in ms
+					if not type or m.type is type then messages.push(m)
+		return messages
 
 ###
 Functions
