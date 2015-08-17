@@ -80,18 +80,14 @@ class cola.Dialog extends cola.Layer
 			minHeight = height - actionsHeight - headerHeight
 			$(@_doms.content).css("min-height", "#{minHeight}px")
 		super()
-	_onHide: ()->
-		super()
-#		@_hideModalLayer()
-	_transition: (options, callback)->
-		arg = {}
-		@fire("before#{options.target.substring(0, 1).toUpperCase() + options.target.substring(1)}", @, {})
-		return false if arg.processDefault is false
-		$dom = @get$Dom()
 
+	_transition: (options, callback)->
+		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
+		$dom = @get$Dom()
+		isShow = options.target is "show"
 		if @get("modal")
-			if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
-		if options.target is "show"
+			if isShow then @_showModalLayer() else @_hideModalLayer()
+		if isShow
 			width = $dom.width()
 			height = $dom.height()
 			parentNode = @_context or @_dom.parentNode
