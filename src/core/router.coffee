@@ -225,15 +225,9 @@ _onStateChange = (path) ->
 $ () ->
 	setTimeout(() ->
 		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
-			state = window.history.state
-			if state
-				path = state.path
-				if path.indexOf("#") > -1
-					_onHashChange()
-				else
-					_onStateChange(path)
-			else
-				_onStateChange("")
+			if not location.hash
+				state = window.history.state
+				_onStateChange(state?.path or "")
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->
