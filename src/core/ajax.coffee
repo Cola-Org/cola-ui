@@ -1,9 +1,25 @@
+_toJSON = (data) ->
+	if data
+		if typeof data is "object"
+			if data instanceof cola.Entity or data instanceof cola.EntityList
+				data = data.toJSON()
+			else
+				rawData = data
+				data = {}
+				for p, v of rawData
+					data[p] = _toJSON(v)
+		else if typeof data is "function"
+			data = undefined
+	return data
+
 cola.ajax = (options, callback) ->
 	realOptions = {}
 	realOptions[p] = v for p, v of options
-	if cola.fire("beforeAjaxRequest", cola, options) == false then return
+	if cola.fire("beforeAjaxRequest", cola, realOptions) == false then return
 
-	success = options.success
+	realOptions.data = _toJSON(realOptions.data)
+
+	success = realOptions.success
 	realOptions.success = (result, status, xhr) ->
 		if cola.getListeners("ajaxSuccess")
 			arg =
@@ -15,7 +31,7 @@ cola.ajax = (options, callback) ->
 		success?(result, status, xhr)
 		return
 
-	error = options.error
+	error = realOptions.error
 	realOptions.error = (xhr, status, ex) ->
 		if cola.getListeners("ajaxError")
 			arg =
