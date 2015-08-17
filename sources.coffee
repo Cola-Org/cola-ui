@@ -56,6 +56,7 @@ sources =
 			"src/widget/edit/rating.coffee"
 			"src/widget/edit/selector.coffee"
 			"src/widget/edit/dropdown.coffee"
+			"src/widget/edit/form.coffee"
 		]
 		layout: [
 			"src/widget/layout/segment.coffee"

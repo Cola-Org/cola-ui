@@ -6,6 +6,17 @@
 	<style>
 	</style>
 	<script type="text/javascript">
+		cola.ready(function () {
+			cola.widget("form1").setMessages([{
+				type: "error",
+				text: "AAAAAAAAAAAAAA"
+			}]);
+//			$(".ui.form").form({
+//				on: "disabled",
+//				inline: true
+//			});
+		});
+
 		cola(function (model) {
 			model.describe({
 				id: {
@@ -27,14 +38,14 @@
 </head>
 <body style="padding:20px;">
 
-<div class="ui form segment">
+<div id="form1" c-widget="form">
 	<div class="field">
 		<div c-widget="input; bind:id"></div>
 	</div>
 	<div class="field">
 		<div c-widget="input; bind:num"></div>
 	</div>
-	<!--<div class="ui error message"></div>-->
+	<div class="ui error message"></div>
 </div>
 
 </body>

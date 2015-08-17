@@ -100,7 +100,6 @@ cola.xRender = (template, model, context) ->
 		while child
 			documentFragment.appendChild(child)
 			child = child.nextSibling
-		div = null
 	else
 		oldScope = cola.currentScope
 		cola.currentScope = model

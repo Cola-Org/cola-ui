@@ -529,25 +529,29 @@ class cola.Entity
 				@_validate(prop)
 				@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
 			else
-				for property in @dataType.getProperties().elements()
+				for property in @dataType.getProperties().elements
 					@_validate(property._name)
 					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._name})
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
-		return @
+		return keyMessage
 
 	_addMessage: (prop, message) ->
 		messageHolder = @_messageHolder
 		if not messageHolder
-			@_messageHolder = messageHolder = new MessageHolder()
+			@_messageHolder = messageHolder = new _Entity.MessageHolder()
 		if message instanceof Array
 			for m in message
 				if messageHolder.add(prop, m) then topKeyChanged = true
 		else
 			if messageHolder.add(prop, message) then topKeyChanged = true
 		return topKeyChanged
+
+	clearMessages: (prop) ->
+		@_messageHolder?.clear(prop)
+		return @
 
 	addMessage: (prop, message) ->
 		if arguments.length is 1
@@ -1257,12 +1261,12 @@ TYPE_SEVERITY =
 	VALIDATION_WARN: 2
 	VALIDATION_ERROR: 4
 
-class MessageHolder
+class cola.Entity.MessageHolder
 	constructor: () ->
 		@keyMessage = {}
 		@propertyMessages = {}
 
-	_compare: (message1, message2) ->
+	compare: (message1, message2) ->
 		return (TYPE_SEVERITY[message1.type] or 0) - (TYPE_SEVERITY[message2.type] or 0)
 
 	add: (prop, message) ->
@@ -1274,7 +1278,7 @@ class MessageHolder
 
 		isTopKey = (prop is "$")
 		if keyMessage
-			if @_compare(message, keyMessage) > 0
+			if @compare(message, keyMessage) > 0
 				@keyMessage[prop] = message
 				topKeyChanged = isTopKey
 		else
@@ -1284,7 +1288,7 @@ class MessageHolder
 		if not topKeyChanged and not isTopKey
 			keyMessage = @keyMessage["$"]
 			if keyMessage
-				if @_compare(message, keyMessage) > 0
+				if @compare(message, keyMessage) > 0
 					@keyMessage["$"] = message
 					topKeyChanged = true
 			else
@@ -1301,7 +1305,7 @@ class MessageHolder
 				for message in messages
 					if not keyMessage
 						keyMessage = message
-					else if @_compare(message, keyMessage) > 0
+					else if @compare(message, keyMessage) > 0
 						keyMessage = message
 					else
 						continue

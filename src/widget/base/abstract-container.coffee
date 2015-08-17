@@ -110,7 +110,6 @@ class cola.AbstractContainer extends cola.Widget
 		return if @_destroyed
 		if @_content
 			for child in @_content
-				@_doRemove(child)
 				child.destroy?()
 			delete @_content
 		super()

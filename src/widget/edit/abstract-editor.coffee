@@ -36,23 +36,9 @@ class cola.AbstractEditor extends cola.Widget
 			cola.util.addClass(dom, @_state)
 
 		fieldDom = dom.parentNode
-		if jQuery.find.matchesSelector(fieldDom, ".field")
-			$formDom = $fly(fieldDom).closest(".ui.form")
-		else
+		if not jQuery.find.matchesSelector(fieldDom, ".field")
 			fieldDom = null
-		@_fieldDom = fieldDom or null
-		@_formDom = $formDom[0] or null
-
-		if fieldDom
-			cola.util.addClass(fieldDom, @_state)
-
-		if @_formDom
-			if not $formDom.data("_colaFormInited")
-				inline = $formDom.find(">.ui.message").length is 0
-				$formDom.data("_colaFormInited", true).data("_setting.inline", inline).form(
-					on: "_disabled"
-					inline: inline
-				)
+		@_fieldDom = fieldDom
 		return
 
 	_setValue: (value) ->
@@ -79,33 +65,16 @@ class cola.AbstractEditor extends cola.Widget
 
 	_processDataMessage: (path, type, arg) ->
 		if type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+			if @_formDom == undefined
+				if @_fieldDom
+					$formDom = $fly(@_fieldDom).closest(".ui.form")
+				@_formDom = $formDom?[0] or null
+
 			if @_formDom
-				keyMessage = arg.entity.getKeyMessage(arg.property)
-				@set("state", keyMessage?.type)
-
-				if @_formDom
-					classPool = new cola.ClassNamePool(@_formDom.className)
-					topKeyMessage = arg.entity.getKeyMessage()
-					classPool.remove("info").remove("warning").remove("error")
-					if topKeyMessage?.type
-						classPool.add(topKeyMessage.type)
-					@_formDom.className = classPool.join()
-
-				$formDom = $fly(@_formDom)
-				if not $formDom.data("_setting.inline")	# Semantic UI的BUG导致无法通过get settings获得settings
-					errors = []
-					messages = arg.entity.findMessages(null, "error")
-					if messages
-						errors.push(m.text) for m in messages
-					$formDom.form("add errors", errors)
-				else
-					editorDom = @_$dom.find("input, textarea, select")[0]
-					if editorDom
-						editorDom.id or= cola.uniqueId()
-						if keyMessage?.type is "error"
-							$formDom.form("add prompt", editorDom.id, keyMessage.text)
-						else
-							$formDom.form("remove prompt", {identifier: editorDom.id})
+				form = cola.widget(@_formDom)
+				if form and form instanceof cola.Form
+					keyMessage = arg.entity.getKeyMessage(arg.property)
+					form.setFieldMessages(@, keyMessage)
 		else
 			value = @_readBindingValue()
 			if @_dataType

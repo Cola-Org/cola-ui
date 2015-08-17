@@ -208,7 +208,7 @@ class cola.BaseProperty extends cola.Property
 					@_validators = []
 					if typeof validators is "string"
 						validator = cola.create("validator", validators, cola.Validator)
-						@_validators.push(validator)
+						addValidator(validator)
 					else if validators instanceof Array
 						addValidator(validator) for validator in validators
 					else

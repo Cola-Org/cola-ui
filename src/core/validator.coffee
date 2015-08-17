@@ -33,7 +33,7 @@ class cola.Validator extends cola.Element
 				result = null
 			else
 				result = {type: @_messageType, text: @_message or @_getDefaultMessage(data)}
-		else if result? and typeof result is "string"
+		else if result and typeof result is "string"
 			result = {type: @_messageType, text: result}
 		return result
 
@@ -126,7 +126,7 @@ class cola.EmailValidator extends cola.Validator
 
 class cola.UrlValidator extends cola.Validator
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.url", data)
+		return cola.i18n("cola.validator.error.email", data)
 
 	_validate: (data) ->
 		if typeof data is "string"
@@ -160,15 +160,18 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		sendJson: null
 		method: null
 		ajaxOptions: null
-		parameter: null
+		data: null
 
 	_validate: (data, callback) ->
-		sendData = @_parameter
+		sendData = @_data
 		if not sendData? or sendData is ":data"
 			sendData = data
 		else if typeof sendData is "object"
+			realSendData = {}
 			for p, v of sendData
-				if v is ":data" then sendData[p] = data
+				if v is ":data" then v = data
+				realSendData[p] = v
+			sendData = realSendData
 
 		options = {}
 		ajaxOptions = @_ajaxOptions
@@ -197,6 +200,7 @@ class cola.CustomValidator extends cola.AsyncValidator
 
 	constructor: (config) ->
 		if typeof config is "function"
+			super()
 			@set(
 				func: config
 				async: cola.util.parseFunctionArgs(config).length > 1
