@@ -93,9 +93,7 @@ class cola.Layer extends cola.AbstractContainer
 		return
 
 	_transition: (options, callback)->
-		arg = {}
-		@fire("before#{cola.util.capitalize(options.target)}", @, {})
-		return false if arg.processDefault is false
+		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
 		@_doTransition(options, callback)
 		return @
 
