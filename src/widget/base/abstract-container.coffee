@@ -5,12 +5,10 @@ class cola.AbstractContainer extends cola.Widget
 	@ATTRIBUTES:
 		content:
 			setter: (value)->
-				@_setInternal(value, "content")
+				@_setContent(value, "content")
 				return @
 	_initDom:(dom)->
-		@_doms?={}
 		if @_content
-			@_makeInternalDom("content") unless @_doms?.content
 			@_render(el, "content") for el in @_content
 		return
 
@@ -28,27 +26,8 @@ class cola.AbstractContainer extends cola.Widget
 
 	getContentContainer: ()->
 		return @getDom()
-
-	_parseContentElement: (element)->
-		result = null
-		if typeof element == "string"
-			result = $.xCreate({
-				tagName: "SPAN"
-				content: element
-			})
-		else if element.constructor == Object.prototype.constructor and element.$type
-			widget = cola.widget(element)
-			result = widget
-		else if element instanceof cola.Widget
-			result = element
-		else if element.nodeType == 1
-			result = element
-		else
-			result = $.xCreate(element)
-
-		return result
-
-	_clearInternal: (target)->
+		
+	_clearContent: (target)->
 		old = @["_#{target}"]
 		if old
 			for el in old
@@ -59,26 +38,26 @@ class cola.AbstractContainer extends cola.Widget
 		$(@_doms[target]).empty()if @_doms[target]
 		return
 
-	_setInternal: (value, target)->
-		@_clearInternal(target)
+	_setContent: (value, target)->
+		@_clearContent(target)
 
 		if value instanceof Array
 			for el in value
-				result = @_parseContentElement(el)
-				@_addInternalElement(result, target) if result
+				result = cola.xRender(el,@_scope)
+				@_addContentElement(result, target) if result
 		else
-			result = @_parseContentElement(value)
-			@_addInternalElement(result, target)  if result
+			result =cola.xRender(value,@_scope)
+			@_addContentElement(result, target)  if result
 
 		return
 
-	_makeInternalDom: (target)->
+	_makeContentDom: (target)->
 		@_doms ?= {}
 		@_doms[target] = @_dom
 
 		return @_dom
 
-	_addInternalElement: (element, target)->
+	_addContentElement: (element, target)->
 		name = "_#{target}"
 		@[name] ?= []
 		targetList = @[name]
@@ -97,7 +76,7 @@ class cola.AbstractContainer extends cola.Widget
 	_render: (node, target)->
 		@_doms ?= {}
 
-		@_makeInternalDom(target) unless @_doms[target]
+		@_makeContentDom(target) unless @_doms[target]
 		dom = node
 
 		if node instanceof cola.Widget

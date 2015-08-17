@@ -2,19 +2,24 @@ class cola.Dialog extends cola.Layer
 	@CLASS_NAME: "dialog transition v-box hidden"
 	@ATTRIBUTES:
 		context: null
+		animation:
+			defaultValue: "scale"
+			enum: [
+				"scale", "drop", "browse right", "browse",
+				"slide left", "slide right", "slide up", "slide down",
+				"fade left", "fade right", "fade up", "fade down",
+				"fly left", "fly right", "fly up", "fly down",
+				"swing left", "swing right", "swing up", "swing down",
+				"horizontal flip", "vertical flip"
+			]
 		header:
 			setter: (value)->
-				@_setInternal(value, "header")
-				return @
-
-		content:
-			setter: (value)->
-				@_setInternal(value, "content")
+				@_setContent(value, "header")
 				return @
 
 		actions:
 			setter: (value)->
-				@_setInternal(value, "actions")
+				@_setContent(value, "actions")
 				return @
 
 		modal:
@@ -29,22 +34,16 @@ class cola.Dialog extends cola.Layer
 	getContentContainer: ()->
 		return null unless @_dom
 		unless @_doms.content
-			@_makeInternalDom("content")
+			@_makeContentDom("content")
 
 		return @_doms.content
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-
-		@_doms ?= {}
-		unless @_doms.content then @_makeInternalDom("content")
-
+	_initDom: (dom)->
+		super(dom)
 		for container in ["header", "actions"]
 			key = "_#{container}"
 			if @[key]?.length
-				@_makeInternalDom(container) unless @_doms[container]
 				@_render(el, container) for el in @[key]
-
 		return
 
 	_createCloseButton: ()->
@@ -103,7 +102,7 @@ class cola.Dialog extends cola.Layer
 
 		@_doTransition(options, callback)
 
-	_makeInternalDom: (target)->
+	_makeContentDom: (target)->
 		@_doms ?= {}
 		dom = document.createElement("div")
 		dom.className = target
@@ -135,7 +134,7 @@ class cola.Dialog extends cola.Layer
 			while childNode
 				if childNode.nodeType == 1
 					widget = cola.widget(childNode)
-					@_addInternalElement(widget or childNode, target)
+					@_addContentElement(widget or childNode, target)
 				childNode = childNode.nextSibling
 
 			return

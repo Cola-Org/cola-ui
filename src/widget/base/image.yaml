@@ -21,14 +21,10 @@
         - massive
       defaultValue: medium
 
-    - name: states
-      label: 状态
-      type: string
-      enum:
-        - disabled
-        - hidden
-        - ""
-      defaultValue: ""
+    - name: disabled
+      label: 禁用的、失效的
+      type: boolean
+      defaultValue: false
 
 - name: cola.Avatar
   stereotype: class

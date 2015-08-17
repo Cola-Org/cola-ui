@@ -20,7 +20,10 @@ methods:
     label: 取得iframe中的window 对象
     return:
       type: Window
-
+  - name: getLoaderContainer
+    label: 取得iframe中装载蒙版容器
+    return:
+      type: HTMLElement
   - name: reload
     label: 重新载入页面
 

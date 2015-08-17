@@ -7,19 +7,19 @@ class cola.AbstractButton extends cola.Widget
 			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_size"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_size"] = value
+				oldValue = @_size
+				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
+				@_size = value
 				return
 
 		color:
 			refreshDom: true
 			enum: ["red", "orange", "yellow", "olive", "green", "teal", "blue", "violet", "purple", "pink", "brown",
-				   "grey", "black"]
+			       "grey", "black"]
 			setter: (value)->
-				oldValue = @["_color"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_color"] = value
+				oldValue = @_color
+				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
+				@_color = value
 				return
 
 		attached:
@@ -27,10 +27,10 @@ class cola.AbstractButton extends cola.Widget
 			defaultValue: ""
 			enum: ["left", "right", "top", "bottom", ""]
 			setter: (value)->
-				oldValue = @["_attached"]
-				cola.util.removeClass(@_dom, "#{oldValue} attached",
-					true) if oldValue and oldValue isnt value and @_dom
-				@["_attached"] = value
+				oldValue = @_attached
+				if oldValue and oldValue isnt value and @_dom
+					@removeClass("#{oldValue} attached", true)
+				@_attached = value
 				return
 
 	_doRefreshDom: ()->
@@ -50,7 +50,6 @@ class cola.AbstractButton extends cola.Widget
 class cola.Button extends cola.AbstractButton
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
-		"left labeled", "right labeled",
 		"top attached", "bottom attached", "left attached", "right attached"
 	]
 	@CLASS_NAME: "button"
@@ -61,11 +60,10 @@ class cola.Button extends cola.AbstractButton
 		icon:
 			refreshDom: true
 			setter: (value)->
-				oldValue = @["_icon"]
-				@["_icon"] = value
+				oldValue = @_icon
+				@_icon = value
 				if oldValue and oldValue isnt value and @_dom and @_doms?.iconDom
-					$iconDom = $(@_doms.iconDom)
-					$iconDom.removeClass(oldValue)
+					$fly(@_doms.iconDom).removeClass(oldValue)
 				return
 
 		iconPosition:
@@ -77,17 +75,19 @@ class cola.Button extends cola.AbstractButton
 			refreshDom: true
 			defaultValue: false
 
+		disabled:
+			refreshDom: true
+			defaultValue: false
+
 		states:
 			refreshDom: true
 			defaultValue: ""
-			enum: ["disabled", "loading", "active", ""]
+			enum: ["loading", "active", ""]
 			setter: (value)->
-				oldValue = @["_states"]
+				oldValue = @_states
 				if oldValue and oldValue isnt value and @_dom then $fly(@_dom).removeClass(oldValue)
-				@["_states"] = value
+				@_states = value
 				return
-
-
 
 	_parseDom: (dom)->
 		unless @_caption
@@ -122,13 +122,13 @@ class cola.Button extends cola.AbstractButton
 				else
 					@_classNamePool.add("labeled")
 			@_classNamePool.add("icon")
-			@_doms.iconDom or= document.createElement("i")
+			@_doms.iconDom ?= document.createElement("i")
 			iconDom = @_doms.iconDom
-			$(iconDom).addClass("#{icon} icon")
+			$fly(iconDom).addClass("#{icon} icon")
 
 			$dom.append(iconDom) if iconDom.parentNode isnt @_dom
-		else
-			$(@_doms.iconDom).remove() if @_doms.iconDom
+		else if @_doms.iconDom
+			$fly(@_doms.iconDom).remove()
 
 		return
 
@@ -139,45 +139,36 @@ class cola.Button extends cola.AbstractButton
 
 		$dom = @get$Dom()
 		classNamePool = @_classNamePool
-		@_doms ?= {}
-		caption = @get("caption")
+		caption = @_caption
 		captionDom = @_doms.captionDom
 
 		if caption
 			unless captionDom
 				captionDom = document.createElement("span")
 				@_doms.captionDom = captionDom
-			$(captionDom).text(caption)
+			$fly(captionDom).text(caption)
 			$dom.append(captionDom) if captionDom.parentNode isnt @_dom
 		else
-			$(captionDom).remove() if captionDom
+			$fly(captionDom).remove() if captionDom
 
 		if @get("focusable") then $dom.attr("tabindex", "0") else  $dom.removeAttr("tabindex")
 
 		@_refreshIcon()
 		states = @_states
 		if states then classNamePool.add(states)
+		classNamePool.toggle("disabled", @_disabled)
 
-		return
-
-	destroy: ()->
-		unless @_destroyed
-			delete @_doms
-			super()
 		return
 
 cola.buttonGroup = {}
 
 class cola.buttonGroup.Separator extends cola.Widget
-	@SEMANTIC_CLASS:[]
+	@SEMANTIC_CLASS: []
 	@CLASS_NAME: "or"
 	@ATTRIBUTES:
 		text:
-			defaultValue: ""
-			setter: (value)->
-				@["_value"] = value
-				@refresh()
-
+			defaultValue: "or"
+			refreshDom: true
 	_parseDom: (dom)->
 		return unless dom
 
@@ -192,12 +183,15 @@ class cola.buttonGroup.Separator extends cola.Widget
 		return unless @_dom
 		super()
 
-		$(@_dom).attr("data-text", @get("text")) if @_dom
+		@get$Dom().attr("data-text", @_text) if @_dom
 		return @
-
 
 cola.buttonGroup.emptyItems = []
 class cola.ButtonGroup extends cola.AbstractButton
+	@SEMANTIC_CLASS: [
+		"left floated", "right floated",
+		"top attached", "bottom attached", "left attached", "right attached"
+	]
 	@CHILDREN_TYPE_NAMESPACE: "button-group"
 	@CLASS_NAME: "buttons"
 	@ATTRIBUTES:
@@ -218,7 +212,6 @@ class cola.ButtonGroup extends cola.AbstractButton
 				return
 
 	_setDom: (dom, parseChild)->
-		@_doms ?= {}
 		super(dom, parseChild)
 
 		if @_items?.length
@@ -234,9 +227,9 @@ class cola.ButtonGroup extends cola.AbstractButton
 				if itemDom isnt targetDom
 					button = cola.widget(itemDom)
 					if button
-						button.set("states","")
+						button.set("states", "")
 					else
-						$(itemDom).removeClass("active disabled")
+						$(itemDom).removeClass("active")
 				return
 			)
 
@@ -263,7 +256,6 @@ class cola.ButtonGroup extends cola.AbstractButton
 					@addItem(widget) if widget instanceof cola.Button or widget instanceof cola.buttonGroup.Separator
 			child = child.nextSibling
 
-		@_doms ?= {}
 		return
 
 	_resetFluid: ()->
@@ -291,9 +283,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 
 	_doRefreshDom: ()->
 		return unless @_dom
-
 		super()
-
 		@_resetFluid()
 		return
 
@@ -353,7 +343,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 		return
 
 	getItem: (index)->
-		return @_items[index] if @_items
+		return @_items?[index]
 
 	getItems: ()->
 		return @_items or cola.buttonGroup.emptyItems

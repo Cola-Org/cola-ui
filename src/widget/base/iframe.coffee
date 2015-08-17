@@ -9,7 +9,6 @@ class cola.IFrame extends cola.Widget
 				@_path = value
 				return if oldValue is value or !@_dom
 				@_loaded = false
-				$(@_doms?.dimmer).addClass("active")
 				@_replaceUrl(@_path)
 				return
 
@@ -18,13 +17,11 @@ class cola.IFrame extends cola.Widget
 	@EVENTS:
 		load: null
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
+	_initDom: (dom)->
 		frame = @
+		frameDoms = @_doms
 		$dom = $(dom)
-		$dom.addClass("loading").empty()
-		frameDoms = @_doms ?= {}
-		$dom.append($.xCreate([
+		$dom.addClass("loading").empty().append($.xCreate([
 			{
 				tagName: "div"
 				class: "ui active inverted dimmer"
@@ -33,13 +30,11 @@ class cola.IFrame extends cola.Widget
 					class: "ui medium text loader"
 					content: @_loadingText or ""
 					contextKey: "loader"
-
 				}
 				contextKey: "dimmer"
 			}
 			{
 				tagName: "iframe",
-				className: "iframe hidden",
 				contextKey: "iframe",
 				scrolling: if cola.os.ios then "no" else "auto"
 				frameBorder: 0
@@ -50,8 +45,12 @@ class cola.IFrame extends cola.Widget
 			frame.fire("load", @, {})
 			frame._loaded = true
 			$(frameDoms.dimmer).removeClass("active")
-		).attr("src", @get("path"))
+		).attr("src", @_path)
 		return
+
+	getLoaderContainer: ()->
+		if not @_dom then @getDom()
+		return @_doms.dimmer
 
 	getContentWindow: ()->
 		@_doms ?= {}

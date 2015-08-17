@@ -13,15 +13,10 @@ class cola.Image extends cola.Widget
 				@["_size"] = value
 				return
 
-		states:
+		disabled:
 			refreshDom: true
-			defaultValue: ""
-			enum: ["disabled", "hidden", ""]
-			setter: (value)->
-				oldValue = @["_states"]
-				if oldValue and oldValue isnt value and @_dom then $fly(@_dom).removeClass(oldValue)
-				@["_states"] = value
-				return @
+			defaultValue: false
+
 
 	_parseDom: (dom)->
 		return unless dom
@@ -41,10 +36,9 @@ class cola.Image extends cola.Widget
 		size = @get("size")
 		classNamePool.add(size) if size
 
-		src = @get("src")
-		$dom.attr("src", src)
+		$dom.attr("src", @_src)
 
-		if @_states then classNamePool.add(@_states)
+		classNamePool.toggle("disabled", @_disabled)
 
 		return
 

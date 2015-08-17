@@ -5,192 +5,32 @@
 	<title>Button</title>
 
 	<script src="../../include-all.js"></script>
-	<style>
-		.row {
-			padding: 4px;
-		}
-	</style>
 </head>
 <body style="padding: 20px;">
-<div class="row" id="caption">
-
+<div c-widget="Button; caption:Cola"></div>
+<p></p>
+<div c-repeat="color in colors" c-widget="button; caption:{{color}}; class:{{color}}"></div>
+<p></p>
+<div c-repeat="size in sizes" c-widget="button; caption:{{size}}; class:{{size}}"></div>
+<p></p>
+<div c-repeat="ui in uis" c-widget="button; caption:{{ui}}; class:{{ui}}"></div>
+<p></p>
+<div c-widget="ButtonGroup">
+	<div c-repeat="num in ['one','two','three','four']" c-widget="button; caption:{{num}};"></div>
 </div>
-<div class="row" id="float">
-
-</div>
-<div class="row" id="ui">
-
-</div>
-<div class="row" id="size">
-
-</div>
-<div class="row" id="icon">
-
-</div>
-
-<div class="row" id="disabled">
-
-</div>
-<div class="row" id="loading">
-
+<p></p>
+<div c-widget="ButtonGroup">
+	<div c-widget="Button; class:green">添加</div>
+	<div c-widget="Separator;"></div>
+	<div c-widget="Button;">删除</div>
 </div>
 
-<div class="row" id="color">
-
-</div>
-
-<div class="row " id="inverted">
-
-</div>
-
-<div class="row" id="circular">
-
-</div>
-
-
-<div class="row" id="buttonGroup">
-
-</div>
-<div class="row" id="buttonGroupFluid">
-
-</div>
-<div class="row" id="buttonGroupVertical">
-
-</div>
 <script type="text/javascript">
-	var colors = ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"];
-	var sizes = ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"];
-	var uiList = ["default", "basic", "negative", "positive", "secondary", "primary"];
-//
-//	function createButton(container, configs) {
-//		configs.forEach(function (config) {
-//			new cola.Button(config).appendTo(container)
-//		})
-//	}
-//
-//	new cola.Button({
-//		caption: "Cola Button"
-//	}).appendTo($("#caption"));
-//
-//
-//	createButton($("#float"), [
-//		{
-//			caption: "浮动:左侧-01", float: "left"
-//		}, {
-//			caption: "浮动:左侧-02", float: "left"
-//		}, {
-//			caption: "浮动:右侧-01", float: "right"
-//		}, {
-//			caption: "浮动:右侧-02", float: "right",
-//			icon: "right arrow", iconPosition: "right"
-//		}
-//	]);
-//
-//	for (var i = 0; i < uiList.length; i++) {
-//		new cola.Button({
-//			caption: "ui " + uiList[i] + " Button",
-//			class: uiList[i]
-//		}).appendTo($("#ui"));
-//	}
-//
-//	for (var i = 0; i < sizes.length; i++) {
-//		new cola.Button({
-//			caption: sizes[i] + " Button",
-//			class: sizes[i]
-//		}).appendTo($("#size"));
-//	}
-//
-//	createButton($("#icon"), [
-//		{
-//			icon: "cloud"
-//		}, {
-//			caption: "暂停", icon: "pause"
-//		}, {
-//			caption: "下一曲", icon: "right arrow", iconPosition: "right"
-//		}
-//	]);
-//
-//	new cola.Button({
-//		caption: "disabled Button",
-//		disabled: true
-//	}).appendTo($("#disabled"));
-//
-//
-//	var loadingButton = new cola.Button({
-//		caption: "启动服务", loading: false,
-//		click: function (self, arg) {
-//			self.set("loading", !self.get("loading"));
-//			self.refresh();
-//		}
-//	});
-//	loadingButton.appendTo($("#loading"));
-//
-//	new cola.Button({
-//		icon: "refresh", loading: false,
-//		click: function (self, arg) {
-//			loadingButton.set("loading", !loadingButton.get("loading"));
-//		}
-//	}).appendTo($("#loading"));
-//
-//
-//	for (var i = 0; i < colors.length; i++) {
-//		new cola.Button({
-//			caption: colors[i], color: colors[i]
-//		}).appendTo($("#color"));
-//
-//		new cola.Button({
-//			class:"inverted", caption: colors[i], color: colors[i]
-//		}).appendTo($("#inverted"));
-//	}
-//
-//
-//	new cola.Button({
-//		icon: "settings", class:"circular"
-//	}).appendTo($("#circular"));
-//
-//	new cola.Button({
-//		icon: "settings", caption: "胶囊", class:"circular", color: "teal"
-//	}).appendTo($("#circular"));
-//
-//	var groupItems = [
-//		{
-//			$type: "Button", caption: "添加"
-//		},
-//		{
-//			$type: "Button", caption: "修改"
-//		},
-//		{
-//			$type: "Button", caption: "删除"
-//		},
-//		{
-//			$type: "Button", caption: "保存"
-//		}
-//	];
-//
-//	new cola.ButtonGroup({
-//		items: groupItems
-//	}).appendTo($("#buttonGroup"))
-
-	new cola.ButtonGroup({
-		items: [
-			{
-				$type: "Button", caption: "添加",
-				click: function () {
-					alert("ddd");
-				}
-			},
-			{
-				$type: "-", text: "或"
-			},
-			{
-				$type: "Button", caption: "修改"
-			}
-		]
-	}).appendTo($("#buttonGroup"));
-
-
-
-
+	cola(function (model) {
+		model.set("colors", ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"]);
+		model.set("sizes", ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]);
+		model.set("uis", ["default", "basic", "negative", "positive", "secondary", "primary"]);
+	});
 </script>
 </body>
 </html>
