@@ -32,7 +32,7 @@ do()->
 			question:
 				title: "确认框"
 				icon: "black help circle icon"
-		ui: "standard"
+		class: "standard"
 		level:
 			WARNING: "warning"
 			ERROR: "error"

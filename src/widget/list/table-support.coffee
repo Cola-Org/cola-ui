@@ -76,7 +76,7 @@ class SelectColumn extends ContentColumn
 	renderHeader: (dom, item) ->
 		if !dom.firstChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
-				ui: "in-cell"
+				class: "in-cell"
 				triState: true
 				click: (self) =>
 					@selectAll(self.get("checked"))
@@ -88,7 +88,7 @@ class SelectColumn extends ContentColumn
 	renderCell: (dom, item) ->
 		if !dom.firstChild
 			checkbox = new cola.Checkbox(
-				ui: "in-cell"
+				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
 				change: () =>
 					if !@_ignoreCheckedChange
@@ -209,10 +209,10 @@ class cola.AbstractTable extends cola.ItemsView
 			tagName: "tr"
 		"checkbox-column":
 			tagName: "div"
-			"c-widget": "checkbox;ui:in-cell;bind:$default"
+			"c-widget": "checkbox;class:in-cell;bind:$default"
 		"input-column":
 			tagName: "div"
-			"c-widget": "input;ui:in-cell;bind:$default"
+			"c-widget": "input;class:in-cell;bind:$default"
 			style:
 				width: "100%"
 		"group-header":

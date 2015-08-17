@@ -859,7 +859,7 @@ cola.mobile.showDateTimePicker = (options)->
 			animation: "slide down"
 			vertical: true
 			horizontal: true
-			ui: "date-timer"
+			class: "date-timer"
 		})
 #		timerLayer.set("content",picker)
 		timerLayer._picker = picker

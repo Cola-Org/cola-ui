@@ -104,7 +104,7 @@ class cola.NestedList extends cola.Widget
 		highlightCurrentItem = (@_autoSplit and @_largeScreen and index == 0)
 		listConfig =
 			$type: "listView"
-			ui: @_ui
+			class: @_ui
 			highlightCurrentitem: true
 			allowNoCurrent: not highlightCurrentItem
 			highlightCurrentItem: highlightCurrentItem
@@ -144,7 +144,7 @@ class cola.NestedList extends cola.Widget
 								contextKey: "titleBar"
 								"c-widget":
 									$type: "titleBar"
-									ui: @_ui
+									class: @_ui
 									items: menuItemsConfig
 						},
 						{
