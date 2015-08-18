@@ -1,31 +1,39 @@
 cola.breadcrumb ?= {}
 class cola.breadcrumb.Section extends cola.Widget
 	@CLASS_NAME: "section"
+	@TAG_NAME: "a"
 	@ATTRIBUTES:
 		text:
 			refreshDom: true
 		active:
 			refreshDom: true
 			defaultValue: false
+		href:
+			refreshDom: true
+		target:
+			refreshDom: true
 
 	_parseDom: (dom)->
 		unless @_text
 			text = cola.util.getTextChildData(dom)
 			@_text = text if text
+		unless @_href
+			href = dom.getAttribute("href")
+			@_href = href if href
+		unless @_target
+			target = dom.getAttribute("target")
+			@_target = target if target
 		return
-
-	_createDom: ()->
-		dom = document.createElement("a")
-		dom.className = "section"
-		return dom
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 		text = @get("text")
-		@get$Dom().text(text)if text
-		active = @get("active")
-		@_classNamePool.toggle("active", !!active)
+		@get$Dom().text(text or "")
+		@_classNamePool.toggle("active", @_active)
+		$dom = @get$Dom()
+		if @_href then $dom.attr("href", @_href) else $dom.removeAttr("href")
+		$dom.attr("target", @_target || "")
 		return
 
 class cola.Breadcrumb extends cola.Widget
@@ -49,20 +57,13 @@ class cola.Breadcrumb extends cola.Widget
 			refreshDom: true
 			setter: (value)->
 				@clear()
-				for section in value
-					if section instanceof cola.breadcrumb.Section
-						@addSection(section)
-					else if typeof section is "string"
-						@addSection(new cola.breadcrumb.Section({text: section}))
-					else if section.constructor == Object.prototype.constructor
-						@addSection(new cola.breadcrumb.Section(section))
+				@addSection(section) for section in value
 				return @
 
 		currentIndex:
 			setter: (value)->
-				@["_currentIndex"] = value
+				@_currentIndex = value
 				@setCurrent(value)
-
 			getter: ()->
 				if @_current and @_sections
 					return @_sections.indexOf(@_current)
@@ -70,17 +71,19 @@ class cola.Breadcrumb extends cola.Widget
 					return -1
 
 	@EVENTS:
-		beforeChange: null
+		sectionClick: null
 		change: null
 	_initDom: (dom)->
 		super(dom)
-
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
 		if @_sections?.length
-			@_rendSection(section) for section in @_sections
-		return
-
+			for section in @_sections
+				@_rendSection(section)
+				if section.get("active") then active = section
+			if active then @_doChange(section)
+		activeSection = (targetDom)=>
+			@fire("sectionClick", @, {sectionDom: targetDom})
+			@_doChange(targetDom)
+		@get$Dom().delegate(">.section", "click", (event)-> activeSection(this, event))
 	_parseDom: (dom)->
 		return unless dom
 		child = dom.firstChild
@@ -140,31 +143,39 @@ class cola.Breadcrumb extends cola.Widget
 		return
 
 	_doChange: (section)->
-		oldCurrent = @_current
-		newCurrent = section
-
-		return if oldCurrent is newCurrent
-
-		arg =
-			oldSection: oldCurrent
-			newSection: newCurrent
-
-		@fire("beforeChange", @, arg)
-
-		if arg.processDefault is false
-			newCurrent.set("active", false)
+		if section.nodeType is 1
+			targetDom = section
+		else if section instanceof cola.breadcrumb.Section
+			targetDom = section.getDom()
+		else
 			return
-		oldCurrent.set("active", false) if oldCurrent
-		newCurrent.set("active", true)
 
-		@fire("change", @, arg)
+		$(">.section.active", @_dom).each((index, itemDom)->
+			if itemDom isnt targetDom
+				section = cola.widget(itemDom)
+				if section then section.set("active", false) else $fly(itemDom).removeClass("active")
+			return
+		)
+
+		targetSection = cola.widget(targetDom)
+		for s in @_sections
+			if s isnt targetSection then s.set("active", false)
+		@_current = targetSection
+		if targetSection then targetSection.set("active", true) else $fly(targetDom).addClass("active")
+		if @_rendered then @fire("change", @, {currentDom: targetDom})
 		return
 
-
-	addSection: (section)->
+	addSection: (config)->
 		return @ if @_destroyed
 		@_sections ?= []
-		if section instanceof cola.breadcrumb.Section
+		if config instanceof cola.breadcrumb.Section
+			section = config
+		else if typeof config is "string"
+			section = new cola.breadcrumb.Section({text: config})
+		else if config.constructor == Object::constructor
+			section = new cola.breadcrumb.Section(config)
+
+		if section
 			@_sections.push(section)
 			@_rendSection(section) if @_dom
 			active = section.get("active")

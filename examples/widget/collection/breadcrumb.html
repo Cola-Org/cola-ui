@@ -4,33 +4,27 @@
 	<meta charset="utf-8">
 	<title>Breadcrumb</title>
 	<script src="../../include-all.js"></script>
-
-
-	<style>
-		.row {
-			padding: 4px;
-		}
-
-	</style>
 </head>
 <body style="padding: 20px;" class="demo">
- <div c-widget="Breadcrumb">
-	 <a class="section">home</a>
-	 <a class="section">store</a>
- </div>
+<div c-widget="Breadcrumb">
+	<a class="section" href="#button">home</a>
+	<a class="section" href="#list">store</a>
+</div>
+<p></p>
 
+<div id="jsonExample"></div>
 <script type="text/javascript">
 	cola(function (model) {
-
-	})
-	new cola.Breadcrumb(
-			{
+		model.widgetConfig({
+			jsonExample: {
+				$type: "Breadcrumb",
 				sections: [
 					"com", "bstek", "cola", "addons", "cola-ui"
 				],
 				currentIndex: 2
 			}
-	).appendTo(window.document.body);
+		})
+	});
 </script>
 </body>
 </html>

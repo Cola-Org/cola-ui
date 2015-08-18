@@ -88,7 +88,7 @@ class cola.Reveal extends cola.Widget
 			@["_#{target}"] = []
 
 		@_doms ?= {}
-		$(@_doms[target]).empty() if @_doms[target]
+		$fly(@_doms[target]).empty() if @_doms[target]
 		return
 
 	_setContent: (value, target)->
@@ -149,3 +149,10 @@ class cola.Reveal extends cola.Widget
 		classNamePool.add(direction) if direction
 
 		return
+	_getContentContainer: (target)->
+		return unless @_dom
+		@_makeContentDom(target) unless @_doms[target]
+		return @_doms[target]
+
+	getVisibleContentContainer: ()-> return @_getContentContainer("visible")
+	getHiddenContentContainer: ()-> return @_getContentContainer("hidden")

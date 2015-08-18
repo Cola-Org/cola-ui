@@ -13,9 +13,9 @@ class cola.CardBook extends cola.AbstractItemGroup
 			child = child.nextSibling
 		return null
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		@_itemsRender() if @_items
+	_initDom: (dom)->
+		super(dom)
+		if @_items then @_itemsRender()
 		return
 
 	setCurrentIndex: (index)->

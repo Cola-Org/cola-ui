@@ -77,8 +77,16 @@ attributes:
           </code>
 
   - name: hiddenContent
-    label: 变脸状态内容
+    label: 激活状态可见内容
     type: object||cola.Widget||string
     description: |
       请参考visibleContent属性设置
-
+methods:
+  - name: getVisibleContentContainer
+    label: 取得Visible内容容器对象
+    return:
+      type: HTMLElement
+  - name: getHiddenContentContainer
+    label: 取得Hidden内容容器对象
+    return:
+      type: HTMLElement

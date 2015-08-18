@@ -14,21 +14,16 @@ class cola.AbstractItemGroup extends cola.Widget
 	constructor: (config) ->
 		@_items = []
 		super(config)
-
-	getContentContainer: ()->
-		return @getDom()
-	getItems: ()->
-		return @_items
+	getContentContainer: ()->return @getDom()
+	getItems: ()->return @_items
 	getItemDom: (item)->
 		itemConfig = item
 		if typeof item is "number"
 			itemConfig = @_items[item]
-
 		if itemConfig instanceof cola.Widget
 			itemDom = itemConfig.getDom()
 		else if itemConfig.nodeType == 1
 			itemDom = itemConfig
-
 		return itemDom
 
 	_addItemToDom: (item)->
@@ -54,40 +49,23 @@ class cola.AbstractItemGroup extends cola.Widget
 		@_currentIndex = index
 		return @
 
-	_doOnItemsChange: ()->
-		cola.util.delay(@, "_refreshItems", 50, @refreshItems)
-		return
-
+	_doOnItemsChange: ()-> cola.util.delay(@, "_refreshItems", 50, @refreshItems)
 	refreshItems: ()->
 		cola.util.cancelDelay(@, "_refreshItems")
 		return @
 
 	addItem: (config)->
-		if config.constructor == Object.prototype.constructor
-			active = config.active
-			delete config.active
-			if config.$type
-				item = cola.widget(config)
-			else
-				item = $.xCreate(config)
-
-		else if config.nodeType == 1
-			active = cola.util.hasClass(config, "active")
-			item = cola.widget(config)
-			item ?= config
-
+		item = cola.xRender(config, @_scope)
 		return @ unless item
-		return @ if @_items.indexOf(item) > -1
+		active = cola.util.hasClass(item, "active")
 		@_items.push(item)
 		@_addItemToDom(item)
-		@setCurrentIndex(@_items.indexOf(item)) if !!active
+		@setCurrentIndex(@_items.indexOf(item)) if active
 		@_doOnItemsChange()
 		return @
 
 	clearItems: ()->
-		@_items ?= []
 		return @ if @_items.length == 0
-
 		for item in @_items
 			if item instanceof cola.Widget
 				item.destroy()
@@ -104,9 +82,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		else
 			itemObj = item
 			index = @_items.indexOf(item)
-
 		@_items.splice(index, 1)
-
 		if itemObj instanceof cola.Widget
 			itemObj.destroy()
 		else

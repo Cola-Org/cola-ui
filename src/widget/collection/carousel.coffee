@@ -59,8 +59,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		dom.appendChild(@_doms.wrap)
 		return null
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
+	_initDom: (dom)->
 		@_createIndicatorContainer(dom) unless @_doms.indicators
 		@_createItemsWrap(dom) unless @_doms.wrap
 
@@ -84,12 +83,16 @@ class cola.Carousel extends cola.AbstractItemGroup
 	setCurrentIndex: (index)->
 		@fire("change", @, {index: index})
 		@_currentIndex = index
-		if @_dom and @_doms.indicators
-			try
-				$(".active", @_doms.indicators).removeClass("active")
-				activeSpan = @_doms.indicators.children[index]
-				activeSpan?.className = "active"
-			catch e
+		if @_dom
+			if @_doms.indicators
+				try
+					$(".active", @_doms.indicators).removeClass("active")
+					activeSpan = @_doms.indicators.children[index]
+					activeSpan?.className = "active"
+				catch e
+			if @_scroller
+				pos = @_scroller.getPos()
+				if pos isnt index then @_scroller.setPos(index)
 		return @
 
 	refreshIndicators: ()->

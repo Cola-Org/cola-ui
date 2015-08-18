@@ -12,6 +12,14 @@
       type: boolean
       defaultValue: false
 
+    - name: href
+      label: 目标地址
+      type: string
+
+    - name: target
+      label: 目标框架
+      type: string
+
 
 - name: cola.Breadcrumb
   stereotype: class
@@ -62,19 +70,17 @@
       type: number
 
   events:
-    - name: beforeChange
-      label: 当切换Section之前触发
+    - name: sectionClick
+      label: 当Section被单击后触发
       arguments:
         - name: self
           label: 事件的发起者,即组件本身
         - name: arg
           properties:
-            newSection:
-              type: cola.breadcrumb.Section
-              description: 要切换到的Section
-            oldSection:
-              type: cola.breadcrumb.Section
-              description: 当前的Section
+            section:
+              type: HTMLElement
+              description: 被单击的Section Dom
+
 
     - name: change
       label: 当切换Section之后触发
@@ -83,12 +89,9 @@
           label: 事件的发起者,即组件本身
         - name: arg
           properties:
-            newSection:
-              type: cola.breadcrumb.Section
-              description: 当前的Section
-            oldSection:
-              type: cola.breadcrumb.Section
-              description: 要切换到的Section
+            currentDom:
+              type: HTMLElement
+              description: 当前Section Dom
 
   methods:
     - name: addSection
