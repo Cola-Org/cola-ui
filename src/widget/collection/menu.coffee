@@ -188,7 +188,7 @@ class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 		unless @_doms.iconDom
 			@_doms.iconDom = document.createElement("i")
 			@_dom.appendChild(@_doms.iconDom)
-		@_doms.iconDom.class = "#{@_icon or "dropdown"} icon"
+		@_doms.iconDom.className = "#{@_icon or "dropdown"} icon"
 
 class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
 	@CLASS_NAME: "item"
