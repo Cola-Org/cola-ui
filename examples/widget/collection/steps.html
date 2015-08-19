@@ -2,53 +2,52 @@
 <html>
 <head>
 	<meta charset="utf-8">
-
 	<title>Steps</title>
 	<script src="../../include-all.js"></script>
-
-
-	<style>
-		.row {
-			padding: 4px;
-		}
-
-	</style>
 </head>
 <body style="padding: 20px;">
-<div id="stepsDemo" c-widget="Steps">
+<div id="stepsDemo" c-widget="Steps" class="small">
 	<div c-widget="Step">
-		<i class="setting icon"></i>
-
-		<div class="title">Cola5</div>
-		<div class="description">展现中间件</div>
+		<i class="payment icon"></i>
+		<div class="title">提交订单</div>
+		<div class="description">2015-08-17 23:24:29</div>
 	</div>
-
-
 	<div c-widget="Step">
-		<i class="setting icon"></i>
-
+		<i class="money icon"></i>
 		<div class="content">
-			<div class="title">Cola6</div>
-			<div class="description">综合开发平台</div>
+			<div class="title">付款成功</div>
+			<div class="description">2015-08-17 23:25:00</div>
 		</div>
 	</div>
 	<div c-widget="Step">
-		<i class="setting icon"></i>
+		<i class="shipping icon"></i>
 
 		<div class="content">
-			<div class="title">Cola7</div>
-			<div class="description">综合开发平台</div>
+			<div class="title">商品出库</div>
+			<div class="description">2015-08-18 11:04:10</div>
 		</div>
 	</div>
 
+	<div c-widget="Step; active:true">
+		<i class="user icon"></i>
+
+		<div class="content">
+			<div class="title">等待收货</div>
+			<div class="description">2015-08-18 16:50:03</div>
+		</div>
+	</div>
 	<div c-widget="Step">
-		<i class="setting icon"></i>
+		<i class="checkmark icon"></i>
 
 		<div class="content">
-			<div class="title">Cola8</div>
-			<div class="description">综合开发平台</div>
+			<div class="title">完成</div>
+			<div class="description">2015-08-19 07:11:06</div>
 		</div>
 	</div>
+</div>
+
+<div class="ui segment">
+	<div id="configDemo"></div>
 
 </div>
 
@@ -63,111 +62,34 @@
 				complete: function () {
 					console.log("complete")
 				}
+			},
+			configDemo:{
+				$type: "Steps", class: "fluid",
+//			class: "ordered",
+//			class: "vertical",
+				steps: [
+					{
+						states: "completed",icon: "setting",
+						content: {
+							title: "Cola5"
+						}
+					},
+					{
+						states: "active",
+						content: {
+							title: "Cola6", description: "平台整合版本"
+						}
+					},
+					{
+						disabled: true,
+						content: {
+							title: "Cola7"
+						}
+					}
+				]
 			}
 		})
 	});
-	function createWidget(configs) {
-		configs.forEach(function (config) {
-			cola.widget({
-				$type: "Segment",
-				content: [
-					config
-				]
-			}).appendTo(document.body);
-		})
-	}
-	createWidget([
-		{
-			$type: "Steps",
-			steps: [
-				{
-					states: "completed", icon: "setting",
-					content: {
-						title: "Cola5"
-					}
-				},
-				{
-					states: "active", icon: "setting",
-					content: {
-						title: "Cola6", description: "平台整合版本"
-					}
-				},
-				{
-					disabled: true, icon: "setting",
-					content: {
-						title: "Cola7"
-					}
-				}
-			]
-		}, {
-			$type: "Steps", class: "vertical",
-			steps: [
-				{
-					states: "completed", icon: "setting",
-					content: {
-						title: "Cola5"
-					}
-				},
-				{
-					states: "active", icon: "setting",
-					content: {
-						title: "Cola6", description: "平台整合版本"
-					}
-				},
-				{
-					disabled: true, icon: "setting",
-					content: {
-						title: "Cola7"
-					}
-				}
-			]
-		}, {
-			$type: "Steps", class: "ordered",
-			steps: [
-				{
-					states: "completed",
-					content: {
-						title: "Cola5"
-					}
-				},
-				{
-					states: "active",
-					content: {
-						title: "Cola6", description: "平台整合版本"
-					}
-				},
-				{
-					disabled: true,
-					content: {
-						title: "Cola7"
-					}
-				}
-			]
-		}, {
-			$type: "Steps", class: "fluid",
-			steps: [
-				{
-					states: "completed",
-					content: {
-						title: "Cola5"
-					}
-				},
-				{
-					states: "active",
-					content: {
-						title: "Cola6", description: "平台整合版本"
-					}
-				},
-				{
-					disabled: true,
-					content: {
-						title: "Cola7"
-					}
-				}
-			]
-		}
-	]);
-
 
 </script>
 </body>

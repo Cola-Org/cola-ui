@@ -13,13 +13,15 @@ class cola.tab.AbstractTabButton extends cola.Widget
 				return
 
 		closeable:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
 		caption:
 			refreshDom: true
 
-		name: null
+		name:
+			refreshDom: true
 
 
 	getCaptionDom: ()->
@@ -113,7 +115,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 			closeDom = @getCloseDom()
 			@_dom.appendChild(closeDom) if closeDom.parentNode isnt @_dom
 		else if @_doms and @_doms.closeDom
-				$(@_doms.closeDom).remove()
+			$(@_doms.closeDom).remove()
 		return
 
 	_createCaptionDom: ()->

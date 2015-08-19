@@ -43,6 +43,7 @@ class cola.ListView extends cola.ItemsView
 		group:
 			refreshItems: true
 		groupCollapsible:
+			type:"boolean"
 			defaultValue: true
 		indexBar:
 			refreshItems: true

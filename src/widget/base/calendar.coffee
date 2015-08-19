@@ -26,8 +26,10 @@ do->
 		@ATTRIBUTES:
 			calendar: null
 			columnCount:
+				type: "number"
 				defaultValue: 1
 			rowCount:
+				type: "number"
 				defaultValue: 1
 			cellClassName: null
 			selectedCellClassName: ""

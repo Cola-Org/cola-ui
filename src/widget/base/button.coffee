@@ -72,10 +72,12 @@ class cola.Button extends cola.AbstractButton
 			enum: ["left", "right"]
 
 		focusable:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
 		disabled:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
@@ -196,11 +198,13 @@ class cola.ButtonGroup extends cola.AbstractButton
 	@CLASS_NAME: "buttons"
 	@ATTRIBUTES:
 		fluid:
+			type: "boolean"
 			refreshDom: true
 			attrName: "c-fuild"
 			defaultValue: false
 
 		mutuallyExclusive:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: true
 

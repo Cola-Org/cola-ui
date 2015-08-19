@@ -14,6 +14,7 @@ class Column extends cola.Element
 			reaonlyAfterCreate: true
 		caption: null
 		visible:
+			type:"boolean"
 			defaultValue: true
 		headerTemplate: null
 
@@ -190,10 +191,13 @@ class cola.AbstractTable extends cola.ItemsView
 			setter: cola.DataType.dataTypeSetter
 
 		showHeader:
+			type:"boolean"
 			defaultValue: true
-		showFooter: null
+		showFooter:
+			type:"boolean"
 
 		columnStrecthable:
+			type:"boolean"
 			defaultValue: true
 		selectedProperty:
 			defaultValue: "selected"

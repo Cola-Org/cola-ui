@@ -5,6 +5,7 @@ class cola.Progress extends cola.Widget
 	]
 	@ATTRIBUTES:
 		total:
+			type: "number"
 			defaultValue: 0
 			setter: (value)->
 				@_total = if isFinite(value) then parseFloat(value) else value
@@ -12,6 +13,7 @@ class cola.Progress extends cola.Widget
 				return
 
 		value:
+			type: "number"
 			defaultValue: 0
 			setter: (value)->
 				@_value = value
@@ -55,6 +57,7 @@ class cola.Progress extends cola.Widget
 				return
 
 		showActivity:
+			type: "boolean"
 			defaultValue: true
 			setter: (value)->
 				@_showActivity = !!value
@@ -62,6 +65,7 @@ class cola.Progress extends cola.Widget
 				return
 
 		limitValues:
+			type: "boolean"
 			defaultValue: true
 			setter: (value)->
 				@_limitValues = !!value
@@ -69,6 +73,7 @@ class cola.Progress extends cola.Widget
 				return
 
 		precision:
+			type: "number"
 			refreshDom: true
 			defaultValue: 1
 

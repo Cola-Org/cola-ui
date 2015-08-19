@@ -21,6 +21,7 @@ class cola.Layer extends cola.AbstractContainer
 			defaultValue: 300
 
 		visible:
+			type: "boolean"
 			readOnly: true
 			getter: () ->
 				return @isVisible()

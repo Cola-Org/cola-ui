@@ -35,6 +35,7 @@ class cola.Label extends cola.Widget
 			enum: ["left", "right"]
 
 		horizontal:
+			type: "boolean"
 			defaultValue: false
 			refreshDom: true
 

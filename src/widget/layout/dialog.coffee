@@ -23,12 +23,16 @@ class cola.Dialog extends cola.Layer
 				return @
 
 		modal:
+			type: "boolean"
 			defaultValue: true
 		closeable:
+			type: "boolean"
 			defaultValue: true
 		modalOpacity:
+			type: "number"
 			defaultValue: 0.6
 		dimmerClose:
+			type: "boolean"
 			defaultValue: false
 
 	getContentContainer: ()->

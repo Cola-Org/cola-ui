@@ -207,6 +207,7 @@ class cola.Widget extends cola.RenderableElement
 		display:
 			defaultValue: true
 			refreshDom: true
+			type: "boolean"
 
 		float:
 			refreshDom: true

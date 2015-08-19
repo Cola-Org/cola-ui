@@ -7,6 +7,7 @@ class cola.Sidebar extends cola.AbstractContainer
 		size:
 			defaultValue: 100
 		duration:
+			type:"number"
 			defaultValue: 200
 		transition:
 			defaultValue: "overlay"
@@ -15,6 +16,7 @@ class cola.Sidebar extends cola.AbstractContainer
 			defaultValue: "overlay"
 			enum: ["overlay", "push"]
 		closable:
+			type:"boolean"
 			defaultValue: true
 
 	@EVENTS:

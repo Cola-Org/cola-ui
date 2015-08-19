@@ -2,16 +2,19 @@ class cola.Rating extends cola.Widget
 	@CLASS_NAME: "rating"
 	@ATTRIBUTES:
 		rating:
+			type: "number"
 			defaultValue: 0
 			refreshDom: true
 
 		maxRating:
+			type: "number"
 			refreshDom: true
 			defaultValue: 1
 			setter: (value)->
 				@_maxRating = value
 				@_refreshRating = true
 		disabled:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 

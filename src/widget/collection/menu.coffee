@@ -4,6 +4,7 @@ class cola.menu.AbstractMenuItem extends cola.Widget
 	@ATTRIBUTES:
 		parent: null
 		active:
+			type: "boolean"
 			defaultValue: false
 			setter: (value)->
 				oldValue = @_active
@@ -258,6 +259,7 @@ class cola.Menu extends cola.Widget
 				@clearItems() if @["_items"]
 				@addItem(item) for item in value if value
 		showActivity:
+			type: "boolean"
 			defaultValue: true
 		rightItems:
 			setter: (value)->
@@ -266,19 +268,20 @@ class cola.Menu extends cola.Widget
 
 
 		centered:
+			type: "boolean"
 			defaultValue: false
 	@EVENTS:
 		itemClick: null
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+
 		@_items ?= []
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
 			@_rightItems ?= []
 			while childNode
 				if childNode.nodeType == 1
-					menuItem = cola.widget(child)
+					menuItem = cola.widget(childNode)
 					if menuItem then @addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return
