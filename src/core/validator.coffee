@@ -33,7 +33,9 @@ class cola.Validator extends cola.Element
 			if result
 				result = null
 			else
-				result = {type: @_messageType, text: @_message or @_getDefaultMessage(data)}
+				text = @_message
+				if !text? then text = @_getDefaultMessage(data)
+				result = {type: @_messageType, text: text}
 		else if result and typeof result is "string"
 			result = {type: @_messageType, text: result}
 		return result

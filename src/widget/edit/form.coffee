@@ -57,16 +57,19 @@ class cola.Form extends cola.Widget
 		return @_scope.get()
 
 	_refreshState: () ->
+		state = null
 		keyMessage = @_messageHolder.getKeyMessage()
 		type = keyMessage?.type
-		@set("state", type)
-
 		if type is "error" and !@_inline
 			errors = []
 			messages = @_messageHolder.findMessages(null, type)
 			if messages
-				errors.push(m.text) for m in messages
+				for m in messages
+					if m.text then errors.push(m.text)
 			@_$dom.form("add errors", errors)
+			if errors.length > 0 then state = type
+
+		@set("state", state)
 		return
 
 	_resetEntityMessages: () ->
@@ -94,7 +97,7 @@ class cola.Form extends cola.Widget
 			editorDom = editor._$dom.find("input, textarea, select")[0]
 			if editorDom
 				editorDom.id or= cola.uniqueId()
-				if message?.type is "error"
+				if message?.type is "error" and message.text
 					@_$dom.form("add prompt", editorDom.id, message.text)
 				else
 					@_$dom.form("remove prompt", {identifier: editorDom.id})

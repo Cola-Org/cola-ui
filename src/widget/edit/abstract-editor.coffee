@@ -66,6 +66,9 @@ class cola.AbstractEditor extends cola.Widget
 
 	_processDataMessage: (path, type, arg) ->
 		if type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+			keyMessage = arg.entity.getKeyMessage(arg.property)
+			@set("state", keyMessage?.type)
+
 			if @_formDom == undefined
 				if @_fieldDom
 					$formDom = $fly(@_fieldDom).closest(".ui.form")
@@ -74,7 +77,6 @@ class cola.AbstractEditor extends cola.Widget
 			if @_formDom
 				form = cola.widget(@_formDom)
 				if form and form instanceof cola.Form
-					keyMessage = arg.entity.getKeyMessage(arg.property)
 					form.setFieldMessages(@, keyMessage)
 		else
 			value = @_readBindingValue()
