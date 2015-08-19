@@ -23,6 +23,7 @@ class cola.Validator extends cola.Element
 			defaultValue: "error"
 			enum: ["error", "warning", "info"]
 		disabled: null
+		validateEmptyValue: null
 
 	_getDefaultMessage: (data) ->
 		return "\"#{data}\" is not a valid value."
@@ -38,11 +39,15 @@ class cola.Validator extends cola.Element
 		return result
 
 	validate: (data) ->
+		if not @_validateEmptyValue
+			return if (data? and data isnt "")
 		result = @_validate(data)
 		return @_parseValidResult(result, data)
 
 class cola.RequiredValidator extends cola.Validator
 	@ATTRIBUTES:
+		validateEmptyValue:
+			defaultValue: true
 		trim:
 			defaultValue: true
 
@@ -139,7 +144,8 @@ class cola.AsyncValidator extends cola.Validator
 			defaultValue: true
 
 	validate: (data, callback) ->
-		return if @_disabled
+		if not @_validateEmptyValue
+			return if (data? and data isnt "")
 		if @_async
 			result = @_validate(data, {
 				callback: (success, result) =>
@@ -196,6 +202,8 @@ class cola.AjaxValidator extends cola.AsyncValidator
 
 class cola.CustomValidator extends cola.AsyncValidator
 	@ATTRIBUTES:
+		validateEmptyValue:
+			defaultValue: true
 		func: null
 
 	constructor: (config) ->

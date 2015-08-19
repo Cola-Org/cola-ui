@@ -207,11 +207,12 @@ _onHashChange = () ->
 
 _onStateChange = (path) ->
 	path = trimPath(path)
-	i = path.indexOf("?")
+
+	i = path.indexOf("#")
 	if i > -1
-		path = path.substring(0, i)
+		path = path.substring(i + 1)
 	else
-		i = path.indexOf("#")
+		i = path.indexOf("?")
 		if i > -1
 			path = path.substring(0, i)
 
