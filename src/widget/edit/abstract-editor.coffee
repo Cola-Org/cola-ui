@@ -36,7 +36,7 @@ class cola.AbstractEditor extends cola.Widget
 			cola.util.addClass(dom, @_state)
 
 		fieldDom = dom.parentNode
-		if not jQuery.find.matchesSelector(fieldDom, ".field")
+		if fieldDom and not jQuery.find.matchesSelector(fieldDom, ".field")
 			fieldDom = null
 		@_fieldDom = fieldDom
 		return

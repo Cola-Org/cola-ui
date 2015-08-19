@@ -38,7 +38,7 @@ class cola.steps.Step extends cola.Widget
 			@_doms.description = node
 			description = cola.util.getTextChildData(node)
 			content = @_content or {}
-			if !content.description and description
+			if description and not content.description
 				@_content ?= {}
 				@_doms.descriptionDom = node
 				@_content.description = description
@@ -47,7 +47,7 @@ class cola.steps.Step extends cola.Widget
 
 		parseContent = (node)=>
 			content = cola.util.getTextChildData(node)
-			@_content = content if !@_content and content
+			@_content = content if not @_content and content
 			return
 
 		child = dom.firstChild
@@ -94,7 +94,7 @@ class cola.steps.Step extends cola.Widget
 			@_doms.iconDom.className = "#{icon} icon"
 			$dom.append(@_doms.iconDom)
 		else
-			$(@_doms.iconDom).remove()
+			$fly(@_doms.iconDom).remove()
 
 		if content
 			@_doms.contentDom ?= document.createElement("div")
@@ -106,21 +106,20 @@ class cola.steps.Step extends cola.Widget
 			else
 				if content.title
 					@_doms.titleDom ?= document.createElement("div")
-					$(@_doms.titleDom).addClass("title").text(content.title)
+					$fly(@_doms.titleDom).addClass("title").text(content.title)
 					$contentDom.append(@_doms.titleDom)
 
 				if content.description
 					@_doms.descriptionDom ?= document.createElement("div")
-					$(@_doms.descriptionDom).addClass("description").text(content.description)
+					$fly(@_doms.descriptionDom).addClass("description").text(content.description)
 					$contentDom.append(@_doms.descriptionDom)
 
 			$dom.append($contentDom)
 
 		classNamePool = @_classNamePool
 
-		states = @get("states")
-		classNamePool.add(states) if states
-		classNamePool.toggle("disabled", !!@_disabled)
+		if @_states then classNamePool.add(@_states)
+		classNamePool.toggle("disabled", @_disabled)
 
 	destroy: ()->
 		return if @_destroyed

@@ -73,17 +73,21 @@ class cola.Breadcrumb extends cola.Widget
 	@EVENTS:
 		sectionClick: null
 		change: null
+
 	_initDom: (dom)->
 		super(dom)
 		if @_sections?.length
 			for section in @_sections
 				@_rendSection(section)
 				if section.get("active") then active = section
-			if active then @_doChange(section)
+			if active then @_doChange(active)
+
 		activeSection = (targetDom)=>
 			@fire("sectionClick", @, {sectionDom: targetDom})
 			@_doChange(targetDom)
+
 		@get$Dom().delegate(">.section", "click", (event)-> activeSection(this, event))
+
 	_parseDom: (dom)->
 		return unless dom
 		child = dom.firstChild
@@ -96,7 +100,7 @@ class cola.Breadcrumb extends cola.Widget
 					if cola.util.hasClass(child, "active") then sectionConfig.active = true
 					section = new cola.breadcrumb.Section(sectionConfig)
 
-				@addSection(section) if section and section instanceof cola.breadcrumb.Section
+				@addSection(section) if section instanceof cola.breadcrumb.Section
 			child = child.nextSibling
 		return
 

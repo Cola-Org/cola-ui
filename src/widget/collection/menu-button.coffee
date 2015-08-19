@@ -1,4 +1,3 @@
-
 class cola.ButtonMenu extends cola.Menu
 	onItemClick: (event, item)->
 		@_parent?.onItemClick(event, item)
@@ -13,10 +12,8 @@ class cola.MenuButton extends cola.Button
 	@CLASS_NAME: "dropdown button"
 	@ATTRIBUTES:
 		menuItems:
-			setter: (value)->
-				@_menuItems = value
-				@_resetMenu(value)
-				return
+			setter: (value)-> @_resetMenu(value)
+			getter: ()-> @_menu?.get("items")
 	@EVENTS:
 		menuItemClick: null
 	_setDom: (dom, parseChild)->
@@ -41,10 +38,9 @@ class cola.MenuButton extends cola.Button
 		return
 
 	onItemClick: (event, item)->
-		arg =
+		@fire("menuItemClick", @,
 			item: item
-			event: event
-		@fire("menuItemClick", @, arg)
+			event: event)
 		return
 
 	_resetMenu: (menuItems)->
@@ -56,21 +52,11 @@ class cola.MenuButton extends cola.Button
 		@get$Dom().append(@_menu.getDom()) if @_dom
 		return
 
-	getDom: ()->
-		return null if @_destroyed
-		unless @_dom
-			super()
-
-		return @_dom
-
 	destroy: ()->
 		return if @_destroyed
-		if @_menu
-			@_menu.destroy()
-			delete @_menu
-			delete @_menuItems
+		@_menu?.destroy()
+		delete @_menu
 		super()
-
 		return
 
 	addMenuItem: (config)->
