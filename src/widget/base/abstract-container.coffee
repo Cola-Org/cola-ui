@@ -66,7 +66,7 @@ class cola.AbstractContainer extends cola.Widget
 		if element instanceof cola.Widget
 			targetList.push(element)
 			dom = element.getDom() if @_dom
-		else if element.nodeType == 1
+		else if element.nodeType
 			targetList.push(element)
 			dom = element
 

@@ -69,7 +69,10 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 				tagName: "span",
 				content: @_caption or ""
 			})
-			dom.appendChild(@_doms.captionDom)
+			if @_doms.iconDom
+				$fly( @_doms.iconDom).after(@_doms.captionDom)
+			else
+				$fly(dom).prepend(@_doms.captionDom)
 
 		return
 
@@ -132,6 +135,8 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 		$dom = @get$Dom()
 		$dom.find(">.ui.menu").removeClass("ui")
 		@_refreshIcon()
+		$fly(@_doms.captionDom).text(@_caption or "")
+
 		if @_subMenu
 			subMenuDom = @_subMenu.getDom()
 			if subMenuDom.parentNode isnt @_dom then @_dom.appendChild(subMenuDom)
