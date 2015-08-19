@@ -507,12 +507,11 @@ class cola.Entity
 				for validator in property._validators
 					if not validator._disabled
 						if validator instanceof cola.AsyncValidator and validator.get("async")
-							if data?
-								validator.validate(data, (message) =>
-									if message then @addMessage(prop, message)
-									return
-								)
-						else if (data? and data isnt "") or validator instanceof cola.RequiredValidator
+							validator.validate(data, (message) =>
+								if message then @addMessage(prop, message)
+								return
+							)
+						else
 							message = validator.validate(data)
 							if message
 								@_addMessage(prop, message)

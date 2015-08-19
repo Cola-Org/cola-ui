@@ -9,22 +9,23 @@
 				numberProp: 123.45,
 				dateProp: "2015-06-15",
 				size: 100,
-
 				person: {
 					name: "Tom",
 					age: 26
 				}
 			});
 
-			model.action.getPersonInfo = function() {
-				var person = model.get("person");
-				return person.get("name") + " is " + person.get("age") + " years old.";
-			};
-			model.action.showPersonInfo = function() {
-				return alert(model.action.getPersonInfo());
-			};
+			model.action({
+				getPersonInfo: function () {
+					var person = model.get("person");
+					return person.get("name") + " is " + person.get("age") + " years old.";
+				},
+				showPersonInfo: function () {
+					return alert(model.action.getPersonInfo());
+				}
+			});
 
-			cola.convertor.double = function(value) {
+			cola.convertor.double = function (value) {
 				return value * 2;
 			};
 		});
@@ -35,15 +36,18 @@
 	<input c-bind="strProp">
 	<label c-bind="strProp"></label>
 </p>
+
 <p>
 	<input c-bind="numberProp">
 	<label c-bind="numberProp | double | number:'#,##0.00'"></label>
 	<!--<label c-bind="numberProp>10?true:false"></label>-->
 </p>
+
 <p>
 	<input c-bind="dateProp" type="date">
 	<label c-bind="dateProp | date:'yyMMdd'"></label>
 </p>
+
 <p>
 	<input c-bind="person.name">
 	<input c-bind="person.age" type="number">
@@ -52,7 +56,8 @@
 </p>
 <p>
 	<input c-bind="size" type="number">
-	<div c-style="width:size;height:size" style="background:green"></div>
+
+<div c-style="width:size;height:size" c-display="size>50" style="background:green"></div>
 </p>
 </body>
 </html>

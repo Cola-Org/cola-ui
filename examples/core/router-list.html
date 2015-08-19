@@ -1,5 +1,5 @@
 <ul>
 	<li c-repeat="address in addresses">
-		<a c-href="'#/detail/' + address.city" c-text="address.city"></a>
+		<a c-href="'#/detail/' + address.city" c-bind="address.city"></a>
 	</li>
 </ul>

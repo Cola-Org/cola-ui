@@ -256,6 +256,13 @@ class cola.Element
 			value = elementAttrBinding.evaluate()
 
 		if attrConfig
+			if attrConfig.type is "boolean"
+				if value? and typeof value isnt "boolean"
+					value = value is "true"
+			else if attrConfig.type is "number"
+				if value? and typeof value isnt "number"
+					value = parseFloat(value) or 0
+
 			if attrConfig.enum and attrConfig.enum.indexOf(value) < 0
 				throw new cola.I18nException("cola.error.attributeEnumOutOfRange", attr, value)
 
