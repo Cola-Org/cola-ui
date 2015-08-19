@@ -12,18 +12,23 @@ class cola.RadioButton extends cola.Widget
 				if oldValue and @_dom and oldValue isnt value
 					$fly(@_dom).removeClass(oldValue)
 				return @
-		label: null
-		name: null
+		label:
+			refreshDom: true
+		name:
+			refreshDom: true
 		disabled:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 		checked:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 		value:
 			defaultValue: true
 			refreshDom: true
 		readOnly:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
@@ -41,7 +46,7 @@ class cola.RadioButton extends cola.Widget
 					@_label ?= cola.util.getTextChildData(child)
 				else if child.nodeName is "INPUT"
 					nameAttr = child.getAttribute("name")
-					@_name ?= nameAttr if nameAttr
+					if nameAttr then @_name ?= nameAttr
 					@_doms.input = child
 			child = child.nextSibling
 

@@ -14,6 +14,7 @@ class cola.Image extends cola.Widget
 				return
 
 		disabled:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 

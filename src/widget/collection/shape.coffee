@@ -11,6 +11,7 @@ class cola.shape.Side extends cola.Widget
 				return
 
 		active:
+			type: "boolean"
 			defaultValue: false
 
 	_createDom: ()->
@@ -61,6 +62,7 @@ class cola.Shape extends cola.Widget
 				return
 
 		currentIndex:
+			type: "number"
 			setter: (sides)->
 				@clear()
 				@addSide(config) for config in sides

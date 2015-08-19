@@ -18,6 +18,7 @@ class cola.steps.Step extends cola.Widget
 				return @
 
 		disabled:
+			type: "boolean"
 			defaultValue: false
 
 	_parseDom: (dom)->
@@ -140,6 +141,7 @@ class cola.Steps extends cola.Widget
 					@get$Dom().removeClass(oldValue)
 				@["_size"] = value
 				return
+
 		steps:
 			refreshDom: true
 			setter: (value)->
@@ -152,6 +154,7 @@ class cola.Steps extends cola.Widget
 				return
 
 		currentIndex:
+			type: "number"
 			setter: (value)->
 				@["_currentIndex"] = value
 				@setCurrent(value)
@@ -161,6 +164,7 @@ class cola.Steps extends cola.Widget
 				else
 					return -1
 		autoComplete:
+			type: "boolean"
 			defaultValue: true
 
 	@EVENTS:

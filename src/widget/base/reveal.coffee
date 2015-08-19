@@ -30,14 +30,17 @@ class cola.Reveal extends cola.Widget
 				return
 
 		active:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
 		instant:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 
 		disabled:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 

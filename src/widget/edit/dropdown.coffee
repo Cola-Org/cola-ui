@@ -51,6 +51,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		textProperty: null
 
 		openOnActive:
+			type: "boolean"
 			defaultValue: true
 		openMode:
 			enum: ["auto", "drop", "dialog", "layer", "half-layer"]

@@ -6,6 +6,7 @@ class cola.breadcrumb.Section extends cola.Widget
 		text:
 			refreshDom: true
 		active:
+			type: "boolean"
 			refreshDom: true
 			defaultValue: false
 		href:
@@ -61,6 +62,7 @@ class cola.Breadcrumb extends cola.Widget
 				return @
 
 		currentIndex:
+			type: "number"
 			setter: (value)->
 				@_currentIndex = value
 				@setCurrent(value)

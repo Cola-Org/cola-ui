@@ -8,6 +8,7 @@ class cola.AbstractEditor extends cola.Widget
 			setter: (bindStr) -> @_bindSetter(bindStr)
 		readOnly:
 			refreshDom: true
+			type: "boolean"
 			defaultValue: false
 		state:
 			setter: (state) ->

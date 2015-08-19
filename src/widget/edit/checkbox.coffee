@@ -3,8 +3,10 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	@INPUT_TYPE: "checkbox"
 
 	@ATTRIBUTES:
-		label: null
-		name: null
+		label:
+			refreshDom: true
+		name:
+			refreshDom: true
 		onValue:
 			defaultValue: true
 
@@ -13,10 +15,12 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 
 		disabled:
 			refreshDom: true
+			type: "boolean"
 			defaultValue: false
 
 		checked:
 			refreshDom: true
+			type: "boolean"
 			defaultValue: false
 			getter: ()-> return @_value == @_onValue
 			setter: (state)->
@@ -33,7 +37,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	@_modelValue: false
 	_parseDom: (dom)->
 		@_doms ?= {}
-		@_$dom = $(dom)
+		@_$dom ?= $(dom)
 
 		child = dom.firstChild
 		while child
@@ -92,7 +96,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 				}
 				{
 					tagName: "label"
-					content: @get("label") or ""
+					content: @_label or ""
 					contextKey: "label"
 				}
 			]
@@ -143,6 +147,7 @@ class cola.Checkbox extends cola.AbstractCheckbox
 		indeterminateValue: null
 
 		triState:
+			type: "boolean"
 			defaultValue: false
 
 	_getValue: ()->

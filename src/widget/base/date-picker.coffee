@@ -199,6 +199,7 @@ class cola.SlotList extends cola.AbstractSlotList
 	@CLASS_NAME: "list"
 	@ATTRIBUTES:
 		viewItemCount:
+			type: "number"
 			refreshDom: true
 			defalutValue: 3
 
@@ -230,6 +231,7 @@ class cola.SlotList extends cola.AbstractSlotList
 
 		defaultValue: null
 		currentIndex:
+			type: "number"
 			refreshDom: true
 			defaultValue: 0
 		formatter: null

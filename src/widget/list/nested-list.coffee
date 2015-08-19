@@ -29,10 +29,12 @@ class cola.NestedList extends cola.Widget
 				return
 
 		autoSplit:
+			type:"boolean"
 			defaultValue: true
 		navBarWidth:
 			defaultValue: 280
 		showTitleBar:
+			type:"boolean"
 			defaultValue: true
 		title: null
 

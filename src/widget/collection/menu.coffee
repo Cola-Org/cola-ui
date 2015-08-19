@@ -4,6 +4,7 @@ class cola.menu.AbstractMenuItem extends cola.Widget
 	@ATTRIBUTES:
 		parent: null
 		active:
+			type: "boolean"
 			defaultValue: false
 			setter: (value)->
 				oldValue = @_active
@@ -68,7 +69,10 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 				tagName: "span",
 				content: @_caption or ""
 			})
-			dom.appendChild(@_doms.captionDom)
+			if @_doms.iconDom
+				$fly( @_doms.iconDom).after(@_doms.captionDom)
+			else
+				$fly(dom).prepend(@_doms.captionDom)
 
 		return
 
@@ -131,6 +135,8 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 		$dom = @get$Dom()
 		$dom.find(">.ui.menu").removeClass("ui")
 		@_refreshIcon()
+		$fly(@_doms.captionDom).text(@_caption or "")
+
 		if @_subMenu
 			subMenuDom = @_subMenu.getDom()
 			if subMenuDom.parentNode isnt @_dom then @_dom.appendChild(subMenuDom)
@@ -258,6 +264,7 @@ class cola.Menu extends cola.Widget
 				@clearItems() if @["_items"]
 				@addItem(item) for item in value if value
 		showActivity:
+			type: "boolean"
 			defaultValue: true
 		rightItems:
 			setter: (value)->
@@ -266,19 +273,20 @@ class cola.Menu extends cola.Widget
 
 
 		centered:
+			type: "boolean"
 			defaultValue: false
 	@EVENTS:
 		itemClick: null
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+
 		@_items ?= []
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
 			@_rightItems ?= []
 			while childNode
 				if childNode.nodeType == 1
-					menuItem = cola.widget(child)
+					menuItem = cola.widget(childNode)
 					if menuItem then @addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return

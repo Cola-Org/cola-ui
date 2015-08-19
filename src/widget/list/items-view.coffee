@@ -3,6 +3,7 @@ _getEntityId = cola.Entity._getEntityId
 class cola.ItemsView extends cola.Widget
 	@ATTRIBUTES:
 		allowNoCurrent:
+			type:"boolean"
 			defaultValue: true
 		currentItem:
 			getter: () ->
@@ -15,9 +16,11 @@ class cola.ItemsView extends cola.Widget
 				@_setCurrentItemDom(currentItemDom)
 				return
 		highlightCurrentItem:
+			type:"boolean"
 			defaultValue: true
 
 		autoLoadPage:
+			type:"boolean"
 			defaultValue: true
 		changeCurrentitem: null
 
