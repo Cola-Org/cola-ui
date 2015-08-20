@@ -63,6 +63,13 @@ class cola.AjaxService extends cola.Element
 		parameter: null
 		ajaxOptions: null
 
+	constructor: (config) ->
+		if typeof config is "string"
+			config = {
+				url: config
+			}
+		super(config)
+
 	getUrl: () ->
 		return @_url
 

@@ -718,7 +718,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		return @_rootData
 
 	describe: (name, config) ->
-		@_rootDataType ?= new cola.EntityDataType()
+		@_getRootData()
 		if typeof name is "string"
 			property = @_rootDataType?.getProperty(name)
 			if config
