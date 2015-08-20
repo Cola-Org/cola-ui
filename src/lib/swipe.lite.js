@@ -20,7 +20,7 @@ function Swipe(container, options) {
 
 	// quit if no root element
 	if (!container) return;
-	var element = container.children[0], slides, slidePos, width, height, vertical = options.vertical,
+	var element = $fly(container).find("> .items-wrap")[0], slides, slidePos, width, height, vertical = options.vertical,
 		index = parseInt(options.startSlide, 10) || 0, speed = options.speed || 300;
 
 	function setup() {

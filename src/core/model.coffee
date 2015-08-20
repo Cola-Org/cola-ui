@@ -694,6 +694,10 @@ class cola.AbstractDataModel
 
 		if notifyChildren
 			notifyChildren2 = !(cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and !(cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
+
+			if type is cola.constants.MESSAGE_CURRENT_CHANGE
+				type = cola.constants.MESSAGE_REFRESH
+
 			for part, subNode of node
 				if subNode and (part == "**" or notifyChildren2) and part != "__processorMap" and part != "__path"
 					@_processDataMessage(subNode, path, type, arg, true)

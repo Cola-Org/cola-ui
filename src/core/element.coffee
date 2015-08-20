@@ -117,7 +117,7 @@ class cola.Element
 				destructor.call(@)
 
 		if @_elementAttrBindings
-			for elementAttrBinding of @_elementAttrBindings
+			for p, elementAttrBinding of @_elementAttrBindings
 				elementAttrBinding.destroy()
 
 		@fire("destroy", @)

@@ -2,6 +2,9 @@ class cola.Carousel extends cola.AbstractItemGroup
 	@CLASS_NAME: "carousel"
 
 	@ATTRIBUTES:
+		bind:
+			readonlyAfterCreate: true
+			setter: (bindStr) -> @_bindSetter(bindStr)
 		orientation:
 			defaultValue: "horizontal"
 			enum: ["horizontal", "vertical"]
@@ -9,35 +12,34 @@ class cola.Carousel extends cola.AbstractItemGroup
 		change: null
 
 	getContentContainer: ()->
-		@_doms ?= {}
 		@_createItemsWrap(dom) unless @_doms.wrap
 		return @_doms.wrap
 
 	_parseDom: (dom)->
-		child = dom.firstChild
-		@_doms ?= {}
-
 		parseItem = (node)=>
+			@_items = []
 			childNode = node.firstChild
 			while childNode
 				@addItem(childNode) if childNode.nodeType == 1
 				childNode = childNode.nextSibling
 			return
 
-
+		doms = @_doms
+		child = dom.firstChild
 		while child
 			if child.nodeType == 1
-				if !@_doms.wrap and cola.util.hasClass(child, "items-wrap")
-					@_doms.wrap = child
+				if cola.util.hasClass(child, "items-wrap")
+					doms.wrap = child
 					parseItem(child)
-				else if !_doms.indicators and cola.util.hasClass(child, "indicators")
-					_doms.indicators = child
+				else if !doms.indicators and cola.util.hasClass(child, "indicators")
+					doms.indicators = child
+				else if child.nodeName == "TEMPLATE"
+					@_regTemplate(child)
 			child = child.nextSibling
 
-		@_createIndicatorContainer(dom) unless @_doms.indicators
-		@_createItemsWrap(dom) unless @_doms.wrap
-
-		return null
+		@_createIndicatorContainer(dom) unless doms.indicators
+		@_createItemsWrap(dom) unless doms.wrap
+		return
 
 	_createIndicatorContainer: (dom)->
 		@_doms ?= {}
@@ -63,10 +65,26 @@ class cola.Carousel extends cola.AbstractItemGroup
 		@_createIndicatorContainer(dom) unless @_doms.indicators
 		@_createItemsWrap(dom) unless @_doms.wrap
 
+		template = @_getTemplate()
+		if template
+			if @_bindStr
+				$fly(template).attr("c-repeat", @_bindStr)
+			@_doms.wrap.appendChild(template)
+			cola.xRender(template, @_scope)
+
 		if @_items
 			@_itemsRender()
 			@refreshIndicators()
 
+#		setTimeout(()=>
+#			@_scroller = new Swipe(@_dom, {
+#				vertical: @_orientation == "vertical",
+#				disableScroll: true,
+#				callback: (pos)=>
+#					@setCurrentIndex(pos)
+#					return
+#			})
+#		, 0)
 		carousel = @
 		setTimeout(()->
 			carousel._scroller = new Swipe(carousel._dom, {
@@ -141,4 +159,16 @@ class cola.Carousel extends cola.AbstractItemGroup
 		@refreshIndicators()
 		return
 
+	_onItemsRefresh: (arg) -> @_itemDomsChanged()
+	_onItemInsert: (arg) -> @_itemDomsChanged()
+	_onItemRemove: (arg) -> @_itemDomsChanged()
 
+	_itemDomsChanged: () ->
+		setTimeout(()=>
+			@_parseDom(@_dom)
+			return
+		, 0)
+		return
+
+cola.Element.mixin(cola.Carousel, cola.TemplateSupport)
+cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin)
