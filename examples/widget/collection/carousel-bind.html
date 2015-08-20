@@ -21,15 +21,14 @@
 			});
 		});
 	</script>
-
 </head>
 <body style="padding: 20px;">
 <div c-widget="button; caption:setData; click:setData"></div>
 <div c-widget="Carousel; bind:item in items; height:400;">
 	<template>
-		<div>
+		<a href="#" style="display:block">
 			<img c-widget="image; src:{{item.image}}; class:centered;"/>
-		</div>
+		</a>
 	</template>
 </div>
 </body>
