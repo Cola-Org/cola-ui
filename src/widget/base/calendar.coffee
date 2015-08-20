@@ -568,6 +568,7 @@ do->
 			@_date = new Date(@_year, @_month, date)
 			@_monthDate = date
 			@_datePicker.setDate(date)
+			return @
 
 		prevMonth: ()->
 			year = @_year
@@ -578,6 +579,7 @@ do->
 				newMonth = if month == 0 then 11 else month - 1
 
 				@setState(newYear, newMonth)
+			return @
 
 		nextMonth: ()->
 			year = @_year
@@ -588,12 +590,14 @@ do->
 				newMonth = if  month == 11 then 0 else month + 1
 
 				@setState(newYear, newMonth)
+			return @
 
 		prevYear: ()->
 			year = @_year
 			month = @_month
 
 			@setState(year - 1, month) if year != undefined && month != undefined
+			return @
 
 		setYear: (newYear)->
 			year = @_year
@@ -605,6 +609,7 @@ do->
 			month = @_month
 
 			@setState(year + 1, month) if year != undefined && month != undefined
+			return @
 
 		_doRefreshDom: ()->
 			return unless @_dom

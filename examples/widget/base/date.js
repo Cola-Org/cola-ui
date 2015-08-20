@@ -30,7 +30,7 @@ var container = new cola.Segment({
 			userDate: "month",
 			click: function () {
 				cola.mobile.showDateTimePicker({
-					type: "month"
+					type: "month",value: new Date()
 				})
 			}
 		}, {

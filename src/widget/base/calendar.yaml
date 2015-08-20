@@ -1,0 +1,86 @@
+name: cola.Calendar
+stereotype: class
+label: cola日历控件
+super: cola.Widget
+attributes:
+  - name: date
+    label: 当前日期
+    type: Date
+    defaultValue: today
+events:
+  - name: refreshCellDom
+    description: 刷新日期单元格时触发此事件
+    arguments:
+      - name: self
+        description: 事件的发起者,即组件本身
+      - name: arg
+        properties:
+          cell:
+            type: HTMLElemnt
+            description: 当前单元格DOM
+          row:
+            type: number
+            description: 行号
+          column:
+            type: number
+            description: 列号
+  - name: change
+    description: 当控件日期发生改变时触发(用户通过交互选择日期时)
+    arguments:
+      - name: date
+        description: 改变后当前日期
+  - name: cellClick
+    description: 当日期单元格被单击时触发此事件
+      - name: arg
+        properties:
+          cell:
+            type: HTMLElemnt
+            description: 当前单元格DOM
+          row:
+            type: number
+            description: 行号
+          column:
+            type: number
+            description: 列号
+
+methods:
+  - name: setDate
+    label: 设置新日期
+    arguments:
+      - name: date
+        type: Date
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
+  - name: prevMonth
+    label: 控件翻页到上一个月
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
+  - name: nextMonth
+    label: 控件翻页到下一个月
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
+  - name: prevYear
+    label: 控件翻页到上一年本月
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
+  - name: nextYear
+    label: 控件翻页到下一年本月
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
+  - name: getDateCellDom
+    arguments:
+      - name: date
+        type: Date
+    return:
+      type: HTMLElement
+      description: 日期对应的单元格Dom

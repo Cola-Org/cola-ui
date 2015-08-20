@@ -1,6 +1,6 @@
 cola(function (model, param) {
 	model.set({
-		"history": model.wrapper({
+		"history": cola.data({
 			url: "items/search-history.json"
 		})
 	});

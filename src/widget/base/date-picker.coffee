@@ -150,51 +150,6 @@ class cola.slotPicker.ZyngaScroller extends cola.Element
 		return
 
 class cola.AbstractSlotList extends cola.RenderableElement
-	_resetDimension: ()->
-		return
-	_setDom: (dom)->
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		@_resetDimension()
-		return
-
-	getDom: ()->
-		return null if @_destroyed
-		unless @_dom
-			dom = @_dom = @_createDom()
-			@_setDom(dom)
-			arg =
-				dom: dom, returnValue: null
-			@fire("createDom", @, arg)
-
-		return @_dom
-
-	get$Dom: ()->
-		return null if @_destroyed
-		@_$dom ?= $(@getDom())
-
-		return @_$dom
-
-	refresh: ()->
-		return @ unless @_dom
-		@_refreshDom()
-
-		arg =
-			dom: @_dom, returnValue: null
-		@fire("refreshDom", @, arg)
-
-		return @
-
-	appendTo: (dom)->
-		$(dom).append(@_dom) if dom and @getDom()
-		return @
-
-	remove: ()->
-		@get$Dom().remove() if @_dom
-		return @
-
 class cola.SlotList extends cola.AbstractSlotList
 	@CLASS_NAME: "list"
 	@ATTRIBUTES:
@@ -212,7 +167,6 @@ class cola.SlotList extends cola.AbstractSlotList
 				this._itemChanged = true if this._dom
 
 		value:
-#			refreshDom: true
 			getter: ()->
 				items = @doGetItems()
 				currentIndex = @_currentIndex || 0;
@@ -236,7 +190,7 @@ class cola.SlotList extends cola.AbstractSlotList
 			defaultValue: 0
 		formatter: null
 	@EVENTS:
-		onValueChange: null
+		valueChange: null
 
 	doTouchStart: (touches, timeStamp)->
 		cola.slotPicker._activePicker = @
@@ -306,7 +260,7 @@ class cola.SlotList extends cola.AbstractSlotList
 			i++
 		return dom
 
-	_setDom: (dom)->
+	_initDom: (dom)->
 		list = @
 		items = @doGetItems()
 		defaultValue = @_defaultValue
@@ -330,7 +284,7 @@ class cola.SlotList extends cola.AbstractSlotList
 			if position == arg.top
 				list._currentIndex = Math.abs(itemIndex)
 				value = list.get("value")
-				list.fire("onValueChange", list, {
+				list.fire("valueChange", list, {
 					currentIndex: Math.abs(itemIndex),
 					value: value
 				})
@@ -483,7 +437,7 @@ class cola.MultiSlotPicker extends cola.AbstractSlotList
 					range: slotConfig.range
 					formatter: slotConfig.formatter
 					defaultValue: slotConfig.defaultValue
-					onValueChange: (self, arg)->
+					valueChange: (self, arg)->
 						value = arg.value
 
 						picker.setSlotValue(self._slotIndex, value)
@@ -493,7 +447,7 @@ class cola.MultiSlotPicker extends cola.AbstractSlotList
 					items: slotConfig.items
 					formatter: slotConfig.formatter
 					defaultValue: slotConfig.defaultValue
-					onValueChange: (self, arg)->
+					valueChange: (self, arg)->
 						value = arg.value
 
 						picker.setSlotValue(self._slotIndex, value)
@@ -858,12 +812,12 @@ cola.mobile.showDateTimePicker = (options)->
 	unless timerLayer
 		picker = new cola.mobile.DateTimePicker({type: options.type || "date"})
 		timerLayer = new cola.Layer({
-			animation: "slide down"
+			animation: "slide up"
 			vertical: true
 			horizontal: true
 			class: "date-timer"
 		})
-#		timerLayer.set("content",picker)
+		#		timerLayer.set("content",picker)
 		timerLayer._picker = picker
 
 		layerDom = timerLayer.getDom()

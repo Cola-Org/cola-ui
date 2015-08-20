@@ -144,6 +144,9 @@
       return:
         type: cola.ButtonGroup
         description: 组件本身
+      arguments:
+        - name: config
+          type: Object|cola.Button
       description: |
         <code>
         //例子代码

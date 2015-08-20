@@ -1,0 +1,74 @@
+- name: cola.AbstractSlotList
+  stereotype: class
+  label: cola 抽象的存储槽
+  super: cola.RenderableElement
+
+- name: cola.SlotList
+  stereotype: class
+  label: cola存储槽控件
+  super: cola.AbstractSlotList
+  attributes:
+    - name: viewItemCount
+      type: int
+      label: 可以显示几个Item
+    - name: items
+      type: Array
+      label: 列表中的数据
+    - name: value
+      type: Object
+      label: 列表当前选中的值。
+    - name: defaultValue
+      type: Object
+      label: 列表的默认值。
+    - name: currentIndex
+      type: Object
+      label: 列表的当前索引。
+    - name: formatter
+      label: 列表中的条目使用的格式化Function。
+      type: Function
+  events:
+    - name: valueChange
+      description:当列表的value发生变化的时候触发的事件。
+
+- name: cola.RangeSlotList
+  stereotype: class
+  super: cola.SlotList
+
+  attributes:
+    - name: range
+      label: 用户指定的范围，应该是一个只有两个元素的一维数组。
+      type: Array
+
+    - name: step
+      label: 使用的Step
+      type: int
+      defaultValue: 1
+
+- name: cola.MultiSlotPicker
+  stereotype: class
+  label: cola 多槽选择器
+  super: cola.AbstractSlotList
+
+- name: cola.DateTimePicker
+  stereotype: class
+  label: cola 日期选择器
+  super: cola.MultiSlotPicker
+  attributes:
+    - name: type
+      type: String
+      enum:
+        - year
+        - month
+        - date
+        - time
+        - datetime
+        - hours
+        - minutes
+        - dateHours
+        - dateMinutes
+      defaultValue: date
+
+
+
+
+

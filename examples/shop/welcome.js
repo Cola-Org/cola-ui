@@ -1,9 +1,9 @@
 cola(function (model) {
 	model.set({
-		"recommandedProducts": model.wrapper({
+		"recommandedProducts": cola.data({
 			url: "items/recommanded.json"
 		}),
-		"newProducts": model.wrapper({
+		"newProducts": cola.data({
 			url: "items/items.json"
 		})
 	});

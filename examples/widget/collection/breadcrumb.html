@@ -13,8 +13,11 @@
 <p></p>
 
 <div id="jsonExample"></div>
+<p></p>
+<div c-widget="Breadcrumb; sections:{{sections}}; currentIndex:1"></div>
 <script type="text/javascript">
 	cola(function (model) {
+		model.set("sections",["首页","全部商品","爆款单品"])
 		model.widgetConfig({
 			jsonExample: {
 				$type: "Breadcrumb",

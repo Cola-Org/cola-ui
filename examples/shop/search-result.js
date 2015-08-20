@@ -1,6 +1,6 @@
 cola(function (model, param) {
 	model.set({
-		"searchResult": model.wrapper({
+		"searchResult": cola.data({
 			url: "items/items.json?st=" + param.searchText
 		})
 	});
