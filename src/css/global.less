@@ -1,19 +1,46 @@
 @import "est/all.less";
 
+@small-px: 768;
+@medium-px: 1024;
+@large-px: 1440;
+@xlarge-px: 1920;
+
+@basePx: 16;
+@baseEm: 1;
+@small-width: (@small-px / @basePx);
+@medium-width: (@medium-px / @basePx);
+@large-width: (@large-px / @basePx);
+@xlarge-width: (@xlarge-px / @basePx);
+
+@small-max: unit(@small-width, em);
+@medium-max: unit(@medium-width, em);
+@large-max: unit(@large-width, em);
+@xlarge-max: unit(@xlarge-width, em);
+@breakPoint: (1 / @basePx);
+@small-min: 0em;
+
+@medium-min: unit((@small-width+@breakPoint), em);
+@large-min: unit((@medium-width+@breakPoint), em);
+@xlarge-min: unit((@large-width+@breakPoint), em);
+@xxlarge-min: unit((@xlarge-width+@breakPoint), em);
+@screen-and: ~"only screen and (max-width:";
+@screen-up-and: ~"only screen and (min-width:";
 @screen: ~"only screen";
+@screen-end-mark: ~")";
+@and: ~") and (max-width:";
 @small-up: @screen;
-@small-only: ~"only screen and (max-width: 40em)";
+@small-only: @screen-and@small-min@and@small-max@screen-end-mark;
 
-@medium-up: ~"only screen and (min-width:40.0625em)";
-@medium-only: ~"only screen and (min-width:40.0625em) and (max-width:58.5em)";
+@medium-up: @screen-up-and@medium-min@screen-end-mark;
+@medium-only: @screen-and@medium-min@and@medium-max@screen-end-mark;
 
-@large-up: ~"only screen and (min-width:58.5em)";
-@large-only: ~"only screen and (min-width:58.5em) and (max-width:90em)";
+@large-up: @screen-up-and@large-min@screen-end-mark;
+@large-only: @screen-and@large-min@and@large-max@screen-end-mark;
 
-@xlarge-up: ~"only screen and (min-width:90.0625em)";
-@xlarge-only: ~"only screen and (min-width:90.0625em) and (max-width:120em)";
+@xlarge-up: @screen-up-and@xlarge-min@screen-end-mark;
+@xlarge-only: @screen-and@xlarge-min@and@xlarge-max@screen-end-mark;
 
-@xxlarge-up: ~"only screen and (min-width:120.0625em)";
+@xxlarge-up: @screen-up-and@xxlarge-min@screen-end-mark;
 
 @total-columns: 12;
 @block-grid-elements: @total-columns;

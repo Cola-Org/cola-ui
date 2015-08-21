@@ -76,15 +76,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			@_itemsRender()
 			@refreshIndicators()
 
-#		setTimeout(()=>
-#			@_scroller = new Swipe(@_dom, {
-#				vertical: @_orientation == "vertical",
-#				disableScroll: true,
-#				callback: (pos)=>
-#					@setCurrentIndex(pos)
-#					return
-#			})
-#		, 0)
+		@setCurrentIndex(0)
 		carousel = @
 		setTimeout(()->
 			carousel._scroller = new Swipe(carousel._dom, {
@@ -149,6 +141,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		super()
 		@_scroller?.refresh()
 		@refreshIndicators()
+		@setCurrentIndex(0)
 		return @
 
 	_doRefreshDom: ()->

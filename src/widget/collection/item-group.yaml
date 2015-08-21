@@ -35,6 +35,9 @@ methods:
 
   - name: addItem
     label: 添加Item
+    return:
+      type: HTMLElement
+      description: 被删除Item的Dom
     arguments:
       - name: config
         type: object||HTMLElement
@@ -61,6 +64,9 @@ methods:
 
   - name: removeItem
     label: 移除指定Item
+    return:
+      type: HTMLElement
+      description: 被删除Item的Dom
     arguments:
       - name: item
         type: number||HTMLElement||cola.Widget

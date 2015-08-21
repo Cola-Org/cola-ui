@@ -63,7 +63,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		@_addItemToDom(item)
 		@setCurrentIndex(@_items.indexOf(item)) if active
 		@_doOnItemsChange()
-		return @
+		return item
 
 	clearItems: ()->
 		return @ if @_items.length == 0
@@ -89,7 +89,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		else
 			$(itemObj).remove()
 		@_doOnItemsChange()
-		return @
+		return itemObj
 
 	destroy: ()->
 		@clearItems()
