@@ -3,6 +3,9 @@ BindingFeature
 ###
 
 class cola._BindingFeature
+	init: () -> return
+
+class cola._ExpressionFeature extends cola._BindingFeature
 	constructor: (@expression) ->
 		if @expression
 			@path = @expression.path
@@ -10,9 +13,6 @@ class cola._BindingFeature
 				@path = "**"
 				@delay = true
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
-
-	init: () ->
-		return
 
 	evaluate: (domBinding, dataCtx) ->
 		dataCtx ?= {}
@@ -29,7 +29,23 @@ class cola._BindingFeature
 			@_refresh(domBinding)
 		return
 
-class cola._EventFeature extends cola._BindingFeature
+class cola._WatchFeature extends cola._BindingFeature
+	constructor: (@action, @path) ->
+		@watchingMoreMessage = true
+
+	_processMessage: (domBinding)->
+		@refresh(domBinding)
+		return
+
+	refresh: (domBinding) ->
+		action = domBinding.scope.action(@action)
+		if not action
+			throw new cola.Exception("No action named \"#{@action}\" found.")
+		action(domBinding.dom, domBinding.scope)
+		return
+
+
+class cola._EventFeature extends cola._ExpressionFeature
 	constructor: (@expression, @event) ->
 
 	init: (domBinding) ->
@@ -44,7 +60,7 @@ class cola._EventFeature extends cola._BindingFeature
 		)
 		return
 
-class cola._AliasFeature extends cola._BindingFeature
+class cola._AliasFeature extends cola._ExpressionFeature
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
@@ -64,13 +80,13 @@ class cola._AliasFeature extends cola._BindingFeature
 		domBinding.scope.data.setTargetData(data)
 		return
 
-class cola._RepeatFeature extends cola._BindingFeature
+class cola._RepeatFeature extends cola._ExpressionFeature
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
 
 	init: (domBinding) ->
-		domBinding.scope = scope =  new cola.ItemsScope(domBinding.scope, @expression)
+		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
 
 		scope.onItemsRefresh = () =>
 			@onItemsRefresh(domBinding)
@@ -249,7 +265,7 @@ class cola._RepeatFeature extends cola._BindingFeature
 			cola.util.removeUserData(dom, cola.constants.DOM_INITIALIZER_KEY)
 		return currentDom or dom
 
-class cola._DomFeature extends cola._BindingFeature
+class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
 		path = @path
 		if path and typeof path == "string"
@@ -375,8 +391,10 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 			if cola.util.isSimpleValue(optionValue)
 				$fly(option).removeAttr("value").text(optionValue)
 			else if optionValue instanceof cola.Entity
-				$fly(option).attr("value", optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
+				$fly(option).attr("value",
+					optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
 			else
-				$fly(option).attr("value", optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
+				$fly(option).attr("value",
+					optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
 			return
 		return

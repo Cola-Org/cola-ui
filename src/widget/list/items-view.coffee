@@ -199,6 +199,9 @@ class cola.ItemsView extends cola.Widget
 			itemId = _getEntityId(arg.current)
 			if itemId
 				currentItemDom = @_itemDomMap[itemId]
+				if not currentItemDom
+					@_refreshItems()
+					return
 		@_setCurrentItemDom(currentItemDom)
 		return
 
@@ -227,7 +230,7 @@ class cola.ItemsView extends cola.Widget
 
 		ret = @_getItems()
 		items = ret.items
-		isSameItems = (@_realOriginItems or @_realItems) is (ret.originItems or items)
+#		isSameItems = (@_realOriginItems or @_realItems) is (ret.originItems or items)
 		@_realOriginItems = ret.originItems
 
 		if @_convertItems and items
@@ -250,11 +253,18 @@ class cola.ItemsView extends cola.Widget
 
 			counter = 0
 			limit = 0
-			if not isSameItems and @_autoLoadPage and items instanceof cola.EntityList
-				limit = items.pageSize
+			if @_autoLoadPage and not @_realOriginItems and items instanceof cola.EntityList
+				limit = items.pageNo
 
 			lastItem = null
 			cola.each items, (item) =>
+				if limit
+					if items instanceof cola.EntityList
+						if item._page?.pageNo > limit then return false
+					else
+						counter++
+						if counter > limit then return false
+
 				lastItem = item
 				itemType = @_getItemType(item)
 
@@ -279,9 +289,7 @@ class cola.ItemsView extends cola.Widget
 					@_refreshItemDom(itemDom, item)
 					documentFragment ?= document.createDocumentFragment()
 					documentFragment.appendChild(itemDom)
-
-				counter++
-				return if limit then counter < limit else true
+				return
 
 			if nextItemDom
 				itemDom = nextItemDom

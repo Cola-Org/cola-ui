@@ -43,7 +43,7 @@ digestExpression = (text, p) ->
 			endBracket++
 		else
 			endBracket = 0
-			if c == 39 || c == 34    # `'` or `"`
+			if c == 39 or c == 34    # `'` or `"`
 				if quota
 					if quota == c then quota = false
 				else
@@ -102,7 +102,7 @@ splitExpression = (text, separator) ->
 			parts.push(cola.util.trim(part))
 			p = i + 1
 		else
-			if c == 39 || c == 34    # `'` or `"`
+			if c == 39 or c == 34    # `'` or `"`
 				if quota
 					if quota == c then quota = false
 				else
@@ -122,11 +122,19 @@ compileConvertor = (text) ->
 		name: parts[0]
 		params: []
 	}
-	if parts.length > 1
-		for part, i in parts
-			if i == 0 then continue
-			expr = new cola.Expression(part)
-			convertor.params.push(expr)
+	params = convertor.params
+
+	if convertor.name is "watch"
+		bindStr = parts[1]
+		return null unless bindStr
+		for path in bindStr.split(",")
+			params.push(cola.util.trim(path))
+	else
+		if parts.length > 1
+			for part, i in parts
+				if i == 0 then continue
+				expr = new cola.Expression(part)
+				params.push(expr)
 	return convertor
 
 class cola.Expression
@@ -148,11 +156,18 @@ class cola.Expression
 							@compile(part)
 							mainExprCompiled = true
 						else
-							@convertors.push(compileConvertor(part))
+							convertor = compileConvertor(part)
+							if convertor
+								if convertor.name is "watch"
+									@watch = convertor.params[0]
+								else
+									@convertors.push(convertor)
 
 		@compile(exprStr) unless mainExprCompiled
 
-		if supportConvertor and @convertors
+		if @watch
+			@path = @watch
+		else if supportConvertor and @convertors
 			subPath = null
 			for convertor in @convertors
 				for param in convertor.params

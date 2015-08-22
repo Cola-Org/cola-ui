@@ -17,7 +17,7 @@ cola.util.cacheDom = (ele) ->
 	if !doms.hiddenDiv
 		doms.hiddenDiv = $.xCreate(
 			tagName: "div"
-			id: "_d_hidden_div"
+			id: "_hidden_div"
 			style:
 				display: "none"
 		)

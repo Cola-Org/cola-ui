@@ -226,13 +226,14 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 						if typeof result == "function"
 							initializers ?= []
 							initializers.push(result)
-				else if attrName.substring(0, 2) == "on"
-					feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
-					features ?= []
-					features.push(feature)
 				else
-					feature = buildAttrFeature(dom, attrName, attrValue)
 					features ?= []
+					if attrName.substring(0, 2) == "on"
+						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
+					else if attrName == "watch"
+						feature = buildWatchFeature(scope, dom, attrValue)
+					else
+						feature = buildAttrFeature(dom, attrName, attrValue)
 					features.push(feature)
 
 	for customDomCompiler in cola._userDomCompiler.$
@@ -366,6 +367,23 @@ buildAttrFeature = (dom, attr, expr) ->
 			feature = new cola._SelectOptionsFeature(expression)
 		else
 			feature = new cola._DomAttrFeature(expression, attr, false)
+	return feature
+
+buildWatchFeature = (scope, dom, expr) ->
+	i = expr.indexOf(" on ")
+	if i > 0
+		action = expr.substring(0, i)
+		pathStr = expr.substring(i + 4)
+		if pathStr
+			paths = []
+			for path in pathStr.split(",")
+				path = cola.util.trim(path)
+				paths.push(path) if path
+			if paths.length
+				feature = new cola._WatchFeature(action, paths)
+
+	if not feature
+		throw new cola.Exception("\"#{expr}\" is not a valid watch expression.")
 	return feature
 
 buildEvent = (scope, dom, event, expr) ->
