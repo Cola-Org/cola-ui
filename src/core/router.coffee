@@ -64,7 +64,7 @@ cola.getCurrentRouter = () ->
 	return cola.router(currentRouteName)
 
 cola.setRoutePath = (path) ->
-	if path.charCodeAt(0) == 35 # `#`
+	if path and path.charCodeAt(0) == 35 # `#`
 		routerMode = "hash"
 		path = path.substring(1)
 
@@ -174,10 +174,9 @@ _switchRouter = (routerDef, path) ->
 				cssUrl: routerDef.cssUrl
 				data: routerDef.data
 				param: routerDef.param
-				callback: (success) ->
-					if success
-						routerDef.enter?(routerDef, model)
-						document.title = routerDef.title if routerDef.title
+				callback: () ->
+					routerDef.enter?(routerDef, model)
+					document.title = routerDef.title if routerDef.title
 					return
 			})
 	else
@@ -232,7 +231,8 @@ $ () ->
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->
-			cola.setRoutePath(@getAttribute("href"))
+			href = @getAttribute("href")
+			cola.setRoutePath(href) if href
 			return false
 		)
 

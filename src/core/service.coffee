@@ -93,8 +93,6 @@ class cola.AjaxService extends cola.Element
 class cola.Provider extends cola.AjaxService
 	@ATTRIBUTES:
 		pageSize: null
-		pageNo:
-			defaultValue: 1
 
 	_evalParamValue: (expr, context) ->
 		if expr.charCodeAt(0) == 58 # `:`
@@ -121,8 +119,9 @@ class cola.Provider extends cola.AjaxService
 					parameter[p] = v
 
 		data = {}
-		data.from = @_pageSize * (@_pageNo - 1) if @_pageSize > 1 and @_pageNo > 1
-		data.limit = @_pageSize if @_pageSize > 1
+		if @_pageSize > 1
+			data.from = 0
+			data.limit = @_pageSize
 		data.parameter = parameter if parameter?
 		options.data = data
 		return options

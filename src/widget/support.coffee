@@ -365,6 +365,7 @@ cola.DataItemsWidgetMixin =
 		return if @_bindStr == bindStr
 
 		@_bindStr = bindStr
+		@_itemsRetrieved = false
 
 		if bindStr and @_scope
 			expression = cola._compileExpression(bindStr, "repeat")

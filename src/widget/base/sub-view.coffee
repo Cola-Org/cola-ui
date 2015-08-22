@@ -52,7 +52,7 @@ class cola.SubView extends cola.Widget
 				cssUrl: @_cssUrl
 				param: @_param
 				callback: {
-					callback:(success, result) =>
+					complete:(success, result) =>
 						@_loading = false
 						if success
 							@fire("load", @)

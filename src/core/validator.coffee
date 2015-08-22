@@ -150,7 +150,7 @@ class cola.AsyncValidator extends cola.Validator
 			return if (data? and data isnt "")
 		if @_async
 			result = @_validate(data, {
-				callback: (success, result) =>
+				complete: (success, result) =>
 					if success
 						result = @_parseValidResult(result)
 					cola.callback(callback, success, result)

@@ -104,7 +104,7 @@ class cola.ItemsView extends cola.Widget
 	_onItemsWrapperScroll: () ->
 		realItems = @_realItems
 		if @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or !@_realOriginItems)
-			if realItems instanceof cola.EntityList and realItems.pageNo < realItems.pageCount
+			if realItems instanceof cola.EntityList and (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
 				itemsWrapper = @_doms.itemsWrapper
 				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
 					@_loadingNextPage = true
@@ -113,6 +113,9 @@ class cola.ItemsView extends cola.Widget
 						return
 					)
 		return
+
+	getItems: () ->
+		return @_realItems
 
 	_doRefreshDom: ()->
 		return unless @_dom
@@ -224,6 +227,7 @@ class cola.ItemsView extends cola.Widget
 
 		ret = @_getItems()
 		items = ret.items
+		isSameItems = (@_realOriginItems or @_realItems) is (ret.originItems or items)
 		@_realOriginItems = ret.originItems
 
 		if @_convertItems and items
@@ -243,6 +247,11 @@ class cola.ItemsView extends cola.Widget
 			@_currentItem = currentItem
 
 			@_itemsScope.resetItemScopeMap()
+
+			counter = 0
+			limit = 0
+			if not isSameItems and @_autoLoadPage and items instanceof cola.EntityList
+				limit = items.pageSize
 
 			lastItem = null
 			cola.each items, (item) =>
@@ -270,7 +279,9 @@ class cola.ItemsView extends cola.Widget
 					@_refreshItemDom(itemDom, item)
 					documentFragment ?= document.createDocumentFragment()
 					documentFragment.appendChild(itemDom)
-				return
+
+				counter++
+				return if limit then counter < limit else true
 
 			if nextItemDom
 				itemDom = nextItemDom
@@ -288,10 +299,10 @@ class cola.ItemsView extends cola.Widget
 			if documentFragment
 				itemsWrapper.appendChild(documentFragment)
 
-			if @_autoLoadPage and not @_loadingNextPage and (items == @_realOriginItems || !@_realOriginItems) and items instanceof cola.EntityList
+			if @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList
 				currentPageNo = lastItem?._page?.pageNo
-				if currentPageNo and currentPageNo < items.pageCount
-					if itemsWrapper.scrollHeight and (itemsWrapper.scrollTop + itemsWrapper.clientHeight) == itemsWrapper.scrollHeight
+				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
+					if itemsWrapper.scrollHeight and (itemsWrapper.scrollTop + itemsWrapper.clientHeight) < itemsWrapper.scrollHeight
 						setTimeout(() ->
 							items.loadPage(currentPageNo + 1, cola._EMPTY_FUNC)
 							return

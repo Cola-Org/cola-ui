@@ -244,7 +244,9 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 			aggregated = false
 
 	if aggregated
-		return new cola.EntityList(dataType, json)
+		entityList = new cola.EntityList(dataType)
+		entityList.fillData(json)
+		return entityList
 	else
 		if json instanceof Array
 			throw new cola.I18nException("cola.error.unmatchedDataType", "Object", "Array")

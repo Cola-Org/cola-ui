@@ -84,23 +84,24 @@ class cola.AsyncAction extends cola.Action
 			if @_executingMesssage
 				messageId = cola.AsyncAction.showExecutingMessage(@, @_executingMesssage)
 
-			innerCallback = (success, result) ->
-				if messageId
-					cola.AsyncAction.hideExecutingMessage(@, messageId)
+			innerCallback =
+				complete: (success, result) ->
+					if messageId
+						cola.AsyncAction.hideExecutingMessage(@, messageId)
 
-				if success
-					@set("result", result)
-					@fire("success", @, {result: result})
+					if success
+						@set("result", result)
+						@fire("success", @, {result: result})
 
-					if @_successMesssage
-						cola.Action.showSuccessMessage(@, @_successMesssage)
-				else
-					if @fire("failure", @, {exception: result}) == false
-						cola.Exception.removeException(result)
+						if @_successMesssage
+							cola.Action.showSuccessMessage(@, @_successMesssage)
+					else
+						if @fire("failure", @, {exception: result}) == false
+							cola.Exception.removeException(result)
 
-				if callback
-					cola.callback(callback, success, result)
-				@fire("afterExecute", @)
+					if callback
+						cola.callback(callback, success, result)
+					@fire("afterExecute", @)
 
 			if @getListeners("execute")
 				@fire("execute", @, {

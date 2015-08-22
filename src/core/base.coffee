@@ -323,9 +323,9 @@ cola.callback = (callback, success, result) ->
 		scope = callback.scope or @
 		if callback.delay
 			setTimeout(() ->
-				callback.callback.call(scope, success, result)
+				callback.complete.call(scope, success, result)
 				return
 			, callback.delay)
 			return
 		else
-			return callback.callback.call(scope, success, result)
+			return callback.complete.call(scope, success, result)

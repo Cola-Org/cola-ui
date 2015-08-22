@@ -88,8 +88,8 @@ class cola.Entity
 					context.providerInvokers.push(providerInvoker)
 				if loadMode == "auto"
 					@_data[prop] = providerInvoker
-					providerInvoker.invokeAsync({
-						callback: (success, result) =>
+					providerInvoker.invokeAsync(
+						complete: (success, result) =>
 							if @_data[prop] != providerInvoker then success = false
 							if success
 								result = @_set(prop, result)
@@ -101,7 +101,7 @@ class cola.Entity
 							else
 								@_set(prop, null)
 							return
-					})
+					)
 			return retValue
 
 		property = @dataType?.getProperty(prop)
@@ -124,7 +124,7 @@ class cola.Entity
 				if callback
 					providerInvoker = value
 					providerInvoker.invokeAsync(
-						callback: (success, result) =>
+						complete: (success, result) =>
 							if success
 								cola.callback(callback, true, @_data[prop])
 							else
@@ -150,6 +150,13 @@ class cola.Entity
 				@set(prop, config[prop])
 		return @
 
+	_jsonToEntity: (value, dataType, aggregated, provider) ->
+		result = cola.DataType.jsonToEntity(value, dataType, aggregated)
+		if result and provider
+			result.pageSize = provider._pageSize
+			result._providerInvoker = provider.getInvoker(@)
+		return result
+
 	_set: (prop, value) ->
 		oldValue = @_data[prop]
 
@@ -161,8 +168,11 @@ class cola.Entity
 			if value instanceof cola.Provider
 				changed = (oldValue != undefined)
 			else
-				if property?._dataType
+				if property
 					dataType = property._dataType
+					provider = property._provider
+
+				if dataType
 					if value?
 						if dataType instanceof cola.StringDataType and typeof value != "string" or dataType instanceof cola.BooleanDataType and typeof value != "boolean" or dataType instanceof cola.NumberDataType and typeof value != "number" or dataType instanceof cola.DateDataType and !(value instanceof Date)
 							value = dataType.parse(value)
@@ -173,7 +183,7 @@ class cola.Entity
 							else if value instanceof _EntityList
 								matched = value.dataType == dataType and property._aggregated
 							else
-								value = cola.DataType.jsonToEntity(value, @_dataType, property._aggregated)
+								value = @_jsonToEntity(value, dataType, property._aggregated, provider)
 
 							if !matched
 								expectedType = dataType.get("name")
@@ -190,13 +200,13 @@ class cola.Entity
 						if value.length > 0
 							item = value[0]
 							if cola.util.isSimpleValue(item) then convert = false
-						value = cola.DataType.jsonToEntity(value, null, true) if convert
+						value = @_jsonToEntity(value, null, true, provider) if convert
 					else if value.hasOwnProperty("$data")
-						value = cola.DataType.jsonToEntity(value, null, true)
+						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
 # do nothing
 					else
-						value = cola.DataType.jsonToEntity(value, null, false)
+						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value
 		else
 			changed = oldValue != value
@@ -274,7 +284,7 @@ class cola.Entity
 
 			if callback
 				@get(part1, loadMode, {
-					callback: (success, entity) ->
+					complete: (success, entity) ->
 						if success
 							if entity
 								if typeof entity._getText == "function"
@@ -303,7 +313,7 @@ class cola.Entity
 		if callback
 			dataType = @dataType
 			@_get(prop, loadMode, {
-				callback: (success, value) ->
+				complete: (success, value) ->
 					if success
 						if value?
 							property = dataType?.getProperty(prop)
@@ -355,6 +365,12 @@ class cola.Entity
 			entityList = @_get(prop, "never")
 			if !entityList?
 				entityList = new cola.EntityList(propertyDataType)
+
+				provider = property._provider
+				if provider
+					entityList.pageSize = provider._pageSize
+					entityList._providerInvoker = provider.getInvoker(@)
+
 				@_disableWriteObservers++
 				@_set(prop, entityList)
 				@_disableWriteObservers--
@@ -441,7 +457,7 @@ class cola.Entity
 		}
 		@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 		return @_get(property, {
-			callback: (success, result) =>
+			complete: (success, result) =>
 				cola.callback(callback, success, result)
 				@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 		})
@@ -710,12 +726,11 @@ class Page extends LinkedList
 	loadData: (callback) ->
 		providerInvoker = @entityList._providerInvoker
 		if providerInvoker
-			ajaxService = providerInvoker.ajaxService
-			ajaxService.set("pageNo", @pageNo)
-			providerInvoker = ajaxService.getInvoker()
+			pageSize = @entityList.pageSize
+			providerInvoker.invokerOptions.data.from = pageSize * (@pageNo - 1) if pageSize > 1 and @pageNo > 1
 			if callback
 				providerInvoker.invokeAsync(
-					callback: (success, result) =>
+					complete: (success, result) =>
 						if success then @initData(result)
 						cola.callback(callback, success, result)
 				)
@@ -727,7 +742,6 @@ class Page extends LinkedList
 class cola.EntityList extends LinkedList
 	current: null
 	entityCount: 0
-	totalEntityCount: 0
 
 # full, no-count, append
 	pageMode: "append"
@@ -737,19 +751,22 @@ class cola.EntityList extends LinkedList
 
 	_disableObserverCount: 0
 
+# totalEntityCount
 #_parent
 #_parentProperty
 #_providerInvoker
 
-	constructor: (dataType, array) ->
+	constructor: (dataType) ->
 		@id = cola.uniqueId()
 		@timestamp = cola.sequenceNo()
 		@dataType = dataType
 
-		if array
-			page = new Page(@, 1)
-			@_insertElement(page, "begin")
-			page.initData(array)
+	fillData: (array) ->
+		page = @_findPage(@pageNo)
+		page ?= new Page(@, @pageNo)
+		@_insertElement(page, "begin")
+		page.initData(array)
+		return
 
 	_setListener: (listener) ->
 		return if @_listener == listener
@@ -834,8 +851,10 @@ class cola.EntityList extends LinkedList
 		return
 
 	_findPage: (pageNo) ->
-		if pageNo < 1 then pageNo = 1
-		if pageNo > @pageCount then pageNo = @pageCount
+		if pageNo < 1 then return null
+		if pageNo > @pageCount
+			if @pageCountDetermined or pageNo > (@pageCount + 1)
+				return null
 
 		page = @_currentPage or @_first
 		if !page then return null
@@ -861,8 +880,10 @@ class cola.EntityList extends LinkedList
 		return null
 
 	_createPage: (pageNo) ->
-		if pageNo < 1 then pageNo = 1
-		if pageNo > @pageCount then pageNo = @pageCount
+		if pageNo < 1 then return null
+		if pageNo > @pageCount
+			if @pageCountDetermined or pageNo > (@pageCount + 1)
+				return null
 
 		insertMode = "end"
 		refPage = @_currentPage or @_first
@@ -884,6 +905,10 @@ class cola.EntityList extends LinkedList
 		@_insertElement(page, insertMode, refPage)
 		return page
 
+	hasNextPage: () ->
+		pageNo = @pageNo + 1
+		return not @pageCountDetermined or pageNo <= @pageCount
+
 	_loadPage: (pageNo, setCurrent, callback) ->
 		page = @_findPage(pageNo)
 		if page != @_currentPage
@@ -903,7 +928,7 @@ class cola.EntityList extends LinkedList
 				page = @_createPage(pageNo)
 				if callback
 					page.loadData(
-						callback: (success, result) =>
+						complete: (success, result) =>
 							if success
 								@_setCurrentPage(page)
 								if page.entityCount and @pageCount < pageNo
@@ -1117,11 +1142,11 @@ class cola.EntityList extends LinkedList
 				entityList: @
 			}
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-			page.loadData({
-				callback: (success, result)  =>
+			page.loadData(
+				complete: (success, result)  =>
 					cola.callback(callback, success, result)
 					@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-			})
+			)
 		else
 			page.loadData()
 		return
@@ -1134,9 +1159,22 @@ class cola.EntityList extends LinkedList
 		@_doFlush()
 		return @
 
-	each: (fn, deleted) ->
+	each: (fn, options) ->
 		page = @_first
 		return @ unless page
+
+		if options?
+			if typeof options == "boolean"
+				deleted = options
+			else
+				deleted = options.deleted
+				pageNo = options.pageNo
+				if not pageNo and options.currentPage
+					pageNo = @pageNo
+
+		if pageNo > 1
+			page = @_findPage(pageNo)
+			return @ unless page
 
 		next = page._first
 		i = 0
@@ -1145,7 +1183,7 @@ class cola.EntityList extends LinkedList
 				if deleted or next.state != _Entity.STATE_DELETED
 					if fn.call(@, next, i++) == false then break
 				next = next._next
-			else
+			else if not pageNo
 				page = page._next
 				next = page?._first
 		return @

@@ -94,9 +94,9 @@ cola.util.waitForAll = (funcs, callback) ->
 		id = cola.uniqueId()
 		procedures[id] = true
 
-		func({
+		func(
 			id: id
-			callback: (success) ->
+			complete: (success) ->
 				return if disabled
 				if success
 					if procedures[@id]
@@ -109,5 +109,5 @@ cola.util.waitForAll = (funcs, callback) ->
 					cola.callback(callback, false)
 					disabled = true
 				return
-		})
+		)
 	return

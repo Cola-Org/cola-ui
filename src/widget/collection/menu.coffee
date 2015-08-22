@@ -436,12 +436,10 @@ class cola.Menu extends cola.Widget
 			itemDom = menuItem.getDom()
 			if itemDom.parentNode isnt container
 				if @_rightMenuDom
-					$(@_rightMenuDom).before(menuItem.getDom())
+					$(@_rightMenuDom).before(itemDom)
 				else
-					container.appendChild(menuItem.getDom())
-
-
-		return @
+					container.appendChild(itemDom)
+		return itemDom
 
 	addRightItem: (config)->
 		menuItem = @_createItem(config)
@@ -462,7 +460,7 @@ class cola.Menu extends cola.Widget
 				container.appendChild(@_rightMenuDom)
 			@_rightMenuDom.appendChild(itemDom) if itemDom.parentNode isnt @_rightMenuDom
 
-		return @
+		return itemDom
 
 	clearItems: ()->
 		menuItems = @_items

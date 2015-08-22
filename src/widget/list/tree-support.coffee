@@ -119,7 +119,7 @@ class cola.CascadeBind extends cola.Element
 
 		if funcs.length and callback
 			cola.util.waitForAll(funcs, {
-				callback: (success, result) =>
+				complete: (success, result) =>
 					if success
 						hasChild = false
 						if @_recursive or isRoot
