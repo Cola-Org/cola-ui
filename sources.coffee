@@ -29,6 +29,7 @@ sources =
 			"src/widget/util.coffee"
 			"src/widget/fx.coffee"
 			"src/widget/support.coffee"
+			"src/widget/semantic-overrides.coffee"
 			"src/widget/widget.coffee"
 		]
 		base: [
