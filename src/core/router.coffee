@@ -38,11 +38,17 @@ cola.router = (name, config) ->
 		routerDef.pathParts = pathParts = []
 		if path
 			hasVariable = false
-			for part in path.split(/[\/\?\#]/)
+			for part in path.split("/")
 				if part.charCodeAt(0) == 58 # `:`
+					optional = part.charCodeAt(part.length - 1) == 63 # `?`
+					if optional
+						variable = part.substring(1, part.length - 1)
+					else
+						variable = part.substring(1)
 					hasVariable = true
 					pathParts.push({
-						variable: part.substring(1)
+						variable: variable
+						optional: optional
 					})
 				else
 					pathParts.push(part)
@@ -86,8 +92,8 @@ _findRouter = (path) ->
 
 	pathParts = if path then path.split(/[\/\?\#]/) else []
 	for routerDef in routerRegistry.elements
-		if routerDef.pathParts.length != pathParts.length
-			continue
+		gap = routerDef.pathParts.length - pathParts.length
+		if 1 < gap < 0 then continue
 
 		matching = true
 		param = {}
@@ -98,6 +104,9 @@ _findRouter = (path) ->
 					matching = false
 					break
 			else
+				if i >= pathParts.length and not defPart.optional
+					matching = false
+					break
 				param[defPart.variable] = pathParts[i]
 		if matching then break
 
