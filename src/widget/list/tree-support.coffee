@@ -18,7 +18,7 @@ class cola.CascadeBind extends cola.Element
 		child:
 			setter: (child) ->
 				if child and !(child instanceof cola.CascadeBind)
-					child = new cola.CascadeBind(@_widget, child)
+					child = new @constructor(@_widget, child)
 				@_child = child
 				return
 
@@ -119,7 +119,8 @@ class cola.CascadeBind extends cola.Element
 
 		if funcs.length and callback
 			cola.util.waitForAll(funcs, {
-				complete: (success, result) =>
+				scope: @
+				complete: (success, result) ->
 					if success
 						hasChild = false
 						if @_recursive or isRoot
@@ -134,7 +135,7 @@ class cola.CascadeBind extends cola.Element
 						if @_child and !isRoot
 							hasChild = true
 							dataCtx = {}
-							childItems = @child._expression.evaluate(parentNode._scope, "never", dataCtx)
+							childItems = @_child._expression.evaluate(parentNode._scope, "never", dataCtx)
 							originChildItems = dataCtx.originData
 
 						if hasChild
@@ -170,7 +171,7 @@ class cola.CascadeBind extends cola.Element
 						hasChild = items.length > 0
 					return true if hasChild
 			else
-				return
+				return true
 
 		if @_child
 			dataCtx = {}
@@ -183,7 +184,7 @@ class cola.CascadeBind extends cola.Element
 						hasChild = items.length > 0
 					return true if hasChild
 			else
-				return
+				return true
 		return false
 
 class cola.Node extends cola.Element
@@ -215,7 +216,7 @@ class cola.Node extends cola.Element
 						if !items then return false
 					if bind._child
 						dataCtx = {}
-						items = bind.child._expression.evaluate(@_scope, "never", dataCtx)
+						items = bind._child._expression.evaluate(@_scope, "never", dataCtx)
 						if dataCtx.unloaded then return
 						if !items then return false
 				return

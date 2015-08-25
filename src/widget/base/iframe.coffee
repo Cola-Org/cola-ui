@@ -34,9 +34,9 @@ class cola.IFrame extends cola.Widget
 				contextKey: "dimmer"
 			}
 			{
-				tagName: "iframe",
-				contextKey: "iframe",
-				scrolling: if cola.os.ios then "no" else "auto"
+				tagName: "iframe"
+				contextKey: "iframe"
+#				scrolling: if cola.os.ios then "no" else "auto"
 				frameBorder: 0
 			}
 		], frameDoms))

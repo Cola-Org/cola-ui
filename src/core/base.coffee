@@ -30,11 +30,11 @@ if window?
 			cola.browser.webkit = s[1] or -1
 			if (s = ua.match(/chrome\/([\d.]+)/)) then cola.browser.chrome = parseFloat(s[1]) or -1
 			else if (s = ua.match(/version\/([\d.]+).*safari/)) then cola.browser.safari = parseFloat(s[1]) or -1
+			if (s = ua.match(/qqbrowser\/([\d.]+)/)) then cola.browser.qqbrowser = parseFloat(s[1]) or -1
 		else if (s = ua.match(/msie ([\d.]+)/)) then cola.browser.ie = parseFloat(s[1]) or -1
 		else if (s = ua.match(/trident/)) then cola.browser.ie = 11
 		else if (s = ua.match(/firefox\/([\d.]+)/)) then cola.browser.mozilla = parseFloat(s[1]) or -1
 		else if (s = ua.match(/opera.([\d.]+)/)) then cola.browser.opera = parseFloat(s[1]) or -1
-		else if (s = ua.match(/qqbrowser\/([\d.]+)/)) then cola.browser.qqbrowser = parseFloat(s[1]) or -1
 
 		if (s = ua.match(/(iphone|ipad).*os\s([\d_]+)/))
 			cola.os.ios = parseFloat(s[2]) or -1
@@ -52,7 +52,7 @@ if window?
 		if cola.device.mobile and !cola.os.ios
 			theshold = 768
 			if cola.browser.qqbrowser
-				cola.device.pad = document.body.clientWidth >= theshold or document.body.clientHeight >= theshold
+				cola.device.pad = (window.screen.width / 2) >= theshold or (window.screen.height / 2) >= theshold
 			else
 				cola.device.pad = window.screen.width >= theshold or window.screen.height >= theshold
 			cola.device.phone = !cola.device.pad

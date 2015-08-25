@@ -373,7 +373,7 @@ class cola._SelectFeature extends cola._DomFeature
 
 class cola._DisplayFeature extends cola._DomFeature
 	_doRefresh: (domBinding, value)->
-		domBinding.$dom[if value then "show" else "hide"]()
+		domBinding.dom.style.display = if value then "" else "none"
 		return
 
 class cola._SelectOptionsFeature extends cola._DomFeature

@@ -367,6 +367,10 @@ class cola.Menu extends cola.Widget
 			item.set("active", true)
 		@_activeItem = item
 		if @_rendered then @_setActive(item.getDom())
+		return
+
+	getActiveItem: ()->
+		return @_activeItem
 
 	_setActive: (itemDom)->
 		if @_parent and @_parent instanceof cola.menu.DropdownMenuItem then return

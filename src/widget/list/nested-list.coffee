@@ -29,19 +29,26 @@ class cola.NestedList extends cola.Widget
 				return
 
 		autoSplit:
-			type:"boolean"
+			type: "boolean"
 			defaultValue: true
 		navBarWidth:
 			defaultValue: 280
 		showTitleBar:
-			type:"boolean"
+			type: "boolean"
 			defaultValue: true
 		title: null
+		layerIndex:
+			readOnly: true
+			getter: () -> @_layerIndex
+		splited:
+			readOnly: true
+			getter: () -> @_autoSplit and @_largeScreen
 
 	@EVENTS:
 		itemClick: null
 		renderItem: null
 		initLayer: null
+		topLayerChange: null
 
 	_initDom: (dom) ->
 		if @_autoSplit
@@ -92,6 +99,11 @@ class cola.NestedList extends cola.Widget
 				return
 			)
 			itemsScope._retrieveItems = () -> nestedList._bind.retrieveChildNodes(nestedList._rootNode)
+
+		@fire("topLayerChange", @, {
+			index: 0
+			list: layer
+		})
 		return
 
 	_parseDom: (dom)->
@@ -104,6 +116,20 @@ class cola.NestedList extends cola.Widget
 
 	_createLayer: (index) ->
 		highlightCurrentItem = (@_autoSplit and @_largeScreen and index == 0)
+		useLayer = index > (if @_autoSplit and @_largeScreen then 1 else 0)
+
+		hjson =
+			tagName: "div"
+			style:
+				height: "100%"
+			contextKey: "container"
+			"c-widget": if useLayer then "layer" else "widget"
+			content:
+				tagName: "div"
+				class: "v-box"
+				style:
+					height: "100%"
+
 		listConfig =
 			$type: "listView"
 			class: @_ui
@@ -116,50 +142,38 @@ class cola.NestedList extends cola.Widget
 			renderItem: (self, arg) => @_onRenderItem(self, arg)
 			itemClick: (self, arg) => @_onItemClick(self, arg)
 
-		useLayer = index > (if @_autoSplit and @_largeScreen then 1 else 0)
 		if @_showTitleBar
 			if useLayer
 				menuItemsConfig = [{
 					icon: "chevron left"
-					click: () => @_hideLayer(true)
+					click: () => @back()
 				}]
 			else
 				menuItemsConfig = undefined
 
-			hjson =
-				tagName: "div"
-				style:
-					height: "100%"
-				contextKey: "container"
-				"c-widget": if useLayer then "layer" else "widget"
-				content:
+			hjson.content.content = [
+				{
 					tagName: "div"
-					class: "v-box"
-					style:
-						height: "100%"
-					content: [
-						{
-							tagName: "div"
-							class: "box"
-							content:
-								tagName: "div"
-								contextKey: "titleBar"
-								"c-widget":
-									$type: "titleBar"
-									class: @_ui
-									items: menuItemsConfig
-						},
-						{
-							tagName: "div"
-							class: "flex-box"
-							content:
-								tagName: "div"
-								contextKey: "list"
-								"c-widget": listConfig
-						}
-					]
+					class: "box"
+					content:
+						tagName: "div"
+						contextKey: "titleBar"
+						"c-widget":
+							$type: "titleBar"
+							class: @_ui
+							items: menuItemsConfig
+				},
+				{
+					tagName: "div"
+					class: "flex-box"
+					content:
+						tagName: "div"
+						contextKey: "list"
+						"c-widget": listConfig
+				}
+			]
 		else
-			hjson = {
+			hjson.content.content = {
 				tagName: "div"
 				contextKey: "list"
 				"c-widget": listConfig
@@ -193,7 +207,7 @@ class cola.NestedList extends cola.Widget
 		return layer
 
 	_initLayer: (layer, parentNode, index) ->
-		layer.titleBar.set("title", if parentNode then parentNode.get("title") else @_title)
+		layer.titleBar?.set("title", if parentNode then parentNode.get("title") else @_title)
 		@fire("initLayer", @, {
 			parentNode: parentNode
 			parentItem: parentNode?._data
@@ -210,11 +224,10 @@ class cola.NestedList extends cola.Widget
 				@_hideLayer(i == @_layerIndex)
 			@_layerIndex = index - 1
 
-		nestedList = @
 		if index >= @_layers.length
-			layer = nestedList._createLayer(index)
-			nestedList._layers.push(layer)
-			layer.container.appendTo(nestedList._doms.detailContainer)
+			layer = @_createLayer(index)
+			@_layers.push(layer)
+			layer.container.appendTo(@_doms.detailContainer)
 		else
 			layer = @_layers[index]
 
@@ -222,12 +235,20 @@ class cola.NestedList extends cola.Widget
 		itemsScope = list._itemsScope
 		itemsScope.setParent(parentNode._scope)
 		parentNode._itemsScope = itemsScope
-		parentNode._bind.retrieveChildNodes(parentNode, () ->
+		parentNode._bind.retrieveChildNodes(parentNode, () =>
 			if parentNode._children
-				nestedList._initLayer(layer, parentNode, index)
-				layer.container.show() if layer.container instanceof cola.Layer
-				nestedList._layerIndex = index
-			callback?.call(nestedList, wrapper?)
+				@_initLayer(layer, parentNode, index)
+				if layer.container instanceof cola.Layer
+					layer.container.show()
+				@_layerIndex = index
+				layer.parentNode = parentNode
+				@fire("topLayerChange", @, {
+					parentNode: parentNode
+					parentItem: parentNode?._data
+					index: index
+					list: layer.list
+				})
+			callback?(wrapper?)
 			return
 		)
 		itemsScope._retrieveItems = () -> parentNode._bind.retrieveChildNodes(parentNode)
@@ -240,34 +261,47 @@ class cola.NestedList extends cola.Widget
 		if !animation then options.animation = "none"
 		if layer.container instanceof cola.Layer
 			layer.container.hide(options, () ->
-				layer.titleBar.set("rightItems", null)
+				layer.titleBar?.set("rightItems", null)
 				return
 			)
 		else
-			layer.titleBar.set("rightItems", null)
+			layer.titleBar?.set("rightItems", null)
+		delete layer.parentNode
 		@_layerIndex--
+
+		previousLayer = @_layers[@_layerIndex]
+		parentNode = previousLayer.parentNode
+		@fire("topLayerChange", @, {
+			parentNode: parentNode
+			parentItem: parentNode?._data
+			index: previousLayer
+			list: previousLayer.list
+		})
 		return
 
 	back: () ->
-		@_hideLayer(true)
-		return
+		if @_layerIndex > (if @_autoSplit and @_largeScreen then 1 else 0)
+			@_hideLayer(true)
+			return true
+		else
+			return false
 
 	_onItemClick: (self, arg) ->
 		node = arg.item
-		@fire("itemClick", @, {
+		retValue = @fire("itemClick", @, {
 			node: node
 			item: node._data
 			bind: node._bind
 		})
-
-		@_showLayer(self.get("userData") + 1, arg.item, (hasChild) ->
-			if !hasChild
-				@fire("leafItemClick", @, {
-					node: node
-					item: node._data
-				})
-			return
-		)
+		if retValue != false
+			@_showLayer(self.get("userData") + 1, arg.item, (hasChild) =>
+				if !hasChild
+					@fire("leafItemClick", @, {
+						node: node
+						item: node._data
+					})
+				return
+			)
 		return
 
 	_onRenderItem: (self, arg) ->

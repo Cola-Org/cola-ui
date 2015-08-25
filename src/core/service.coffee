@@ -73,14 +73,14 @@ class cola.AjaxService extends cola.Element
 	getUrl: () ->
 		return @_url
 
-	getInvokerOptions: () ->
+	getInvokerOptions: (context) ->
 		options = {}
 		ajaxOptions = @_ajaxOptions
 		if ajaxOptions
 			for p, v of ajaxOptions
 				options[p] = v
 
-		options.url = @getUrl()
+		options.url = @getUrl(context)
 		options.data = @_parameter
 		options.sendJson = @_sendJson
 		if options.sendJson and !options.method
@@ -103,8 +103,17 @@ class cola.Provider extends cola.AjaxService
 		else
 			return expr
 
+	getUrl: (context) ->
+		url = @_url
+		if url.indexOf(":") > -1
+			parts = []
+			for part in url.split("/")
+				parts.push(@_evalParamValue(part, context))
+			url = parts.join("/")
+		return url
+
 	getInvokerOptions: (context) ->
-		options = super()
+		options = super(context)
 		parameter = options.data
 
 		if parameter?

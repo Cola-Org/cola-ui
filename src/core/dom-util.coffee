@@ -164,8 +164,8 @@ if cola.browser.webkit
 		browser += " chrome"
 	else if cola.browser.safari
 		browser += " safari"
-	else if cola.browser.qqbrowser
-		browser += " qqbrowser"
+#	else if cola.browser.qqbrowser
+#		browser += " qqbrowser"
 else if cola.browser.ie
 	browser = "ie"
 else if cola.browser.mozilla

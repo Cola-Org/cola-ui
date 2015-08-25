@@ -42,7 +42,7 @@ class cola.Validator extends cola.Element
 
 	validate: (data) ->
 		if not @_validateEmptyValue
-			return if (data? and data isnt "")
+			return unless data? and data isnt ""
 		result = @_validate(data)
 		return @_parseValidResult(result, data)
 
@@ -147,7 +147,7 @@ class cola.AsyncValidator extends cola.Validator
 
 	validate: (data, callback) ->
 		if not @_validateEmptyValue
-			return if (data? and data isnt "")
+			return unless data? and data isnt ""
 		if @_async
 			result = @_validate(data, {
 				complete: (success, result) =>

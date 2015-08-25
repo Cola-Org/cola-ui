@@ -429,7 +429,7 @@ class cola.ItemsView extends cola.Widget
 			item: item
 			dom: itemDom
 		})
-		return false
+		return
 
 	_onItemDoubleClick: (evt) ->
 		itemDom = evt.currentTarget
