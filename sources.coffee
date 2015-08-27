@@ -55,7 +55,7 @@ sources =
 			"src/widget/edit/progress.coffee"
 			"src/widget/edit/radio.coffee"
 			"src/widget/edit/rating.coffee"
-			"src/widget/edit/selector.coffee"
+			"src/widget/edit/select.coffee"
 			"src/widget/edit/dropdown.coffee"
 			"src/widget/edit/form.coffee"
 		]
