@@ -9,19 +9,10 @@ else
 	cola = @cola
 #IMPORT_END
 
-class cola.DataType extends cola.Element
+class cola.DataType extends cola.Definition
 	@ATTRIBUTES:
 		name:
 			readOnlyAfterCreate: true
-
-	constructor: (config) ->
-		if config?.name
-			@_name = config.name
-			delete config.name
-			scope = config?.scope or cola.currentScope
-			if scope and DataType.autoRegister
-				scope.data.regDataType(@)
-		super(config)
 
 class cola.BaseDataType extends cola.DataType
 
@@ -86,10 +77,10 @@ class cola.EntityDataType extends cola.DataType
 					for property in properties
 						@addProperty(property)
 				else
-					for name, config of properties
+					for property, config of properties
 						if config
-							if not (property instanceof cola.Property)
-								config.name = name
+							if not (config instanceof cola.Property)
+								config.property = property
 							@addProperty(config)
 
 	@EVENTS:
@@ -111,41 +102,43 @@ class cola.EntityDataType extends cola.DataType
 
 	addProperty: (property) ->
 		if not (property instanceof cola.Property)
-			if typeof property.compute == "function"
+			if typeof property == "string"
+				property = new cola.BaseProperty(property: property)
+			else if typeof property.compute == "function"
 				property = new cola.ComputeProperty(property)
 			else
 				property = new cola.BaseProperty(property)
 		else if property._owner and property._owner != @
-			throw new cola.I18nException("cola.error.objectNotFree", "Property(#{property._name})", "DataType")
+			throw new cola.I18nException("cola.error.objectNotFree", "Property(#{property._property})", "DataType")
 
-		if @_properties.get(property._name)
-			@removeProperty(property._name)
+		if @_properties.get(property._property)
+			@removeProperty(property._property)
 
-		@_properties.add(property._name, property)
+		@_properties.add(property._property, property)
 		property._owner = @
 		return property
 
 	removeProperty: (property) ->
 		if property instanceof cola.Property
-			@_properties.remove(property._name)
+			@_properties.remove(property._property)
 		else
 			property = @_properties.remove(property)
 		delete property._owner
 		return property
 
-	getProperty: (name) ->
-		i = name.indexOf(".")
+	getProperty: (path) ->
+		i = path.indexOf(".")
 		if i > 0
-			part1 = name.substring(0, i)
-			part2 = name.substring(i + 1)
+			part1 = path.substring(0, i)
+			part2 = path.substring(i + 1)
 			prop = @_getProperty(part1)
 			if prop?._dataType
 				return prop?._dataType.getProperty(part2)
 		else
-			return @_getProperty(name)
+			return @_getProperty(path)
 
-	_getProperty: (name) ->
-		return @_properties.get(name)
+	_getProperty: (property) ->
+		return @_properties.get(property)
 
 	getProperties: () ->
 		return @_properties
@@ -165,10 +158,16 @@ cola.DataType.dataTypeSetter = (dataType) ->
 	@_dataType = dataType or null
 	return
 
-class cola.Property extends cola.Element
+class cola.Property extends cola.Definition
 	@ATTRIBUTES:
+		property:
+			readOnlyAfterCreate: true
 		name:
 			readOnlyAfterCreate: true
+			setter: (name) ->
+				@_name = name
+				@_property ?= name
+				return
 		owner:
 			readOnly: true
 		caption: null
@@ -194,7 +193,6 @@ class cola.BaseProperty extends cola.Property
 			readOnlyAfterCreate: true
 		validators:
 			setter: (validators) ->
-
 				addValidator = (validator) =>
 					if not (validator instanceof cola.Validator)
 						validator = cola.create("validator", validator, cola.Validator)
@@ -273,5 +271,3 @@ cola.DataType.defaultDataTypes = defaultDataTypes =
 	"entity": new cola.EntityDataType(name: "entity")
 
 defaultDataTypes["number"] = defaultDataTypes["int"]
-
-cola.DataType.autoRegister = true

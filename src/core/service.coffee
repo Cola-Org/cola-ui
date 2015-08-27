@@ -55,7 +55,7 @@ class cola.AjaxServiceInvoker
 		@callbacks.push(callback)
 		return @_internalInvoke(false)
 
-class cola.AjaxService extends cola.Element
+class cola.AjaxService extends cola.Definition
 	@ATTRIBUTES:
 		url: null
 		sendJson: null

@@ -545,8 +545,8 @@ class cola.Entity
 				@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
 			else
 				for property in @dataType.getProperties().elements
-					@_validate(property._name)
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._name})
+					@_validate(property._property)
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._property})
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage

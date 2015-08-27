@@ -16,7 +16,7 @@ cola.registerTypeResolver "validator", (config) ->
 	else if config?.action
 		return cola.ActionValidator
 
-class cola.Validator extends cola.Element
+class cola.Validator extends cola.Definition
 	@ATTRIBUTES:
 		message: null
 		messageType:

@@ -414,6 +414,16 @@ class cola.Element
 
 		return result
 
+class cola.Definition extends cola.Element
+	constructor: (config) ->
+		if config?.name
+			@_name = config.name
+			delete config.name
+			scope = config?.scope or cola.currentScope
+			if scope
+				scope.data.regDefinition(@)
+		super(config)
+
 ###
     Element Group
 ###

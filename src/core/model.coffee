@@ -39,19 +39,28 @@ class cola.AbstractModel
 		@data.set(path, data, context)
 		return @
 
-	describe: (name, config) ->
-		return @data.describe(name, config)
+	describe: (property, config) ->
+		return @data.describe(property, config)
 
 	dataType: (name) ->
 		if typeof name == "string"
-			return @data.getDataTypeByName(name)
+			dataType = @data.getDefinition(name)
+			return if dataType instanceof cola.DataType then dataType else null
 		else if name
 			if name instanceof Array
 				for dataType in name
-					@data.regDataType(dataType)
+					if not (dataType instanceof cola.DataType)
+						dataType = new cola.EntityDataType(dataType)
+					@data.regDefinition(dataType)
 			else
-				@data.regDataType(name)
+				dataType = name
+				if not (dataType instanceof cola.DataType)
+					dataType = new cola.EntityDataType(dataType)
+				@data.regDefinition(dataType)
 			return
+
+	getDefinition: (name) ->
+		return @data.getDefinition(name)
 
 	flushAsync: (name, callback) ->
 		@data.flushAsync(name, callback)
@@ -420,7 +429,7 @@ class cola.ItemsScope extends cola.SubScope
 				@refreshItems()
 				allProcessed = true
 			else
-				parent = arg.entity._parent
+				parent = arg.entity?._parent
 				if parent == @items or @isOriginItems(arg.parent)
 					@refreshItem(arg)
 
@@ -548,7 +557,7 @@ class cola.AbstractDataModel
 
 				rootDataType = rootData.dataType
 				property = rootDataType.getProperty(prop)
-				property ?= rootDataType.addProperty(name: prop)
+				property ?= rootDataType.addProperty(property: prop)
 
 				property.set("provider", provider) if provider
 				property.set("dataType", data.$dataType) if data.$dataType
@@ -717,68 +726,62 @@ class cola.DataModel extends cola.AbstractDataModel
 			)
 		return @_rootData
 
-	describe: (name, config) ->
+	describe: (property, config) ->
 		@_getRootData()
-		if typeof name is "string"
-			property = @_rootDataType?.getProperty(name)
+		if typeof property is "string"
+			propertyDef = @_rootDataType?.getProperty(property)
 			if config
-				if not property
-					property = @_rootDataType.addProperty(name: name)
+				if not propertyDef
+					propertyDef = @_rootDataType.addProperty(property: property)
+
 				if typeof config is "string"
-					dataType = @getDataTypeByName(config)
+					dataType = @getDefinition(config)
 					if not dataType
 						throw new cola.I18nException("cola.error.unrecognizedDataType", config)
-					property.set("dataType", dataType)
+					propertyDef.set("dataType", dataType)
 				else
-					property.set(config)
-			else
-				return property
-		else if name
-			config = name
+					propertyDef.set(config)
+		else if property
+			config = property
 			for propertyName, propertyConfig of config
 				@describe(propertyName, propertyConfig)
 		return
 
-	getPropertyDef: (path) ->
+	getProperty: (path) ->
 		return @_rootDataType?.getProperty(path)
 
 	getDataType: (path) ->
-		property = @getPropertyDef(path)
+		property = @getProperty(path)
 		dataType = property?.get("dataType")
 		return dataType
 
-	getDataTypeByName: (name) ->
-		dataType = @_dataTypeStore?[name]
-		dataType ?= cola.DataType.defaultDataTypes[name]
-		return dataType
+	getDefinition: (name) ->
+		definition = @_definitionStore?[name]
+		definition ?= cola.DataType.defaultDataTypes[name]
+		return definition
 
-	regDataType: (dataType) ->
-		if !(dataType instanceof cola.DataType)
-			dataType = new cola.EntityDataType(dataType)
-		else if dataType._model and dataType._model != @model
-			throw new cola.I18nException("cola.error.objectNotFree", "DataType(#{name})", "Model")
-
-		name = dataType._name
+	regDefinition: (definition) ->
+		name = definition._name
 		if !name
 			throw new cola.I18nException("cola.error.attributeValueRequired", "name")
 
-		store = @_dataTypeStore
+		if definition._scope and definition._scope != @model
+			throw new cola.I18nException("cola.error.objectNotFree", "DataType(#{definition._name})", "Model")
+
+		store = @_definitionStore
 		if !store?
-			@_dataTypeStore = store = {}
+			@_definitionStore = store = {}
+		else if store[name]
+			throw new cola.I18nException("cola.error.duplicateDefinitionName", cola.error.duplicateDefinitionName)
 
-		if store.hasOwnProperty(name)
-			@unregDataType(name)
-
-		store[name] = dataType
+		store[name] = definition
 		return @
 
-	unregDataType: (name) ->
-		if @_dataTypeStore
-			dataType = @_dataTypeStore[name]
-			delete @_dataTypeStore[name]
-			if dataType
-				delete dataType._model
-		return dataType
+	unregDefinition: (name) ->
+		if @_definitionStore
+			definition = @_definitionStore[name]
+			delete @_definitionStore[name]
+		return definition
 
 class cola.AliasDataModel extends cola.AbstractDataModel
 	constructor: (@model, @alias, @dataType) ->
@@ -810,11 +813,11 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			})
 		return
 
-	describe: (name, config) ->
-		if name == @alias
-			return super(name, config)
+	describe: (property, config) ->
+		if property == @alias
+			return super(property, config)
 		else
-			return @parent.describe(name, config)
+			return @parent.describe(property, config)
 
 	getDataType: (path) ->
 		i = path.indexOf(".")
@@ -831,14 +834,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		else
 			return @parent.getDataType(path)
 
-	getDataTypeByName: (name) ->
-		return @parent.getDataTypeByName(name)
+	getDefinition: (name) ->
+		return @parent.getDefinition(name)
 
-	regDataType: (dataType) ->
-		return @parent.regDataType(dataType)
+	regDefinition: (definition) ->
+		return @parent.regDefinition(definition)
 
-	unregDataType: (dataType) ->
-		return @parent.unregDataType(dataType)
+	unregDefinition: (definition) ->
+		return @parent.unregDefinition(definition)
 
 	_bind: (path, processor, nonCurrent) ->
 		hasNonCurrent = super(path, processor, nonCurrent)
@@ -904,14 +907,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	dataType: (path) ->
 		return @parent.dataType(path)
 
-	regDataType: (name, dataType) ->
-		@parent.regDataType(name, dataType)
+	regDefinition: (name, definition) ->
+		@parent.regDefinition(name, definition)
 		return @
 
-	unregDataType: (name) ->
-		return @parent.unregDataType(name)
+	unregDefinition: (name) ->
+		return @parent.unregDefinition(name)
 
-	flushAsync: (name, callback) ->
+	flushAsync: (path, callback) ->
 		alias = @alias
 		if path.substring(0, alias.length) == alias
 			c = path.charCodeAt(1)
@@ -921,10 +924,10 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			else if isNaN(c)
 				@_targetData?.flushAsync(callback)
 				return @
-		@parent.flushAsync(name, callback)
+		@parent.flushAsync(path, callback)
 		return @
 
-	flushSync: (name) ->
+	flushSync: (path) ->
 		alias = @alias
 		if path.substring(0, alias.length) == alias
 			c = path.charCodeAt(1)
@@ -932,7 +935,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 				return @_targetData?.flushSync(path.substring(alias.length + 1))
 			else if isNaN(c)
 				return @_targetData?.flushSync()
-		return @parent.flushSync(name)
+		return @parent.flushSync(path)
 
 	disableObservers: () ->
 		@parent.disableObservers()

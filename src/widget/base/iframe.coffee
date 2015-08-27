@@ -60,11 +60,13 @@ class cola.IFrame extends cola.Widget
 
 		return contentWindow
 
-	open: (path) ->
+	open: (path, callback) ->
+		if callback then @one("load", () -> cola.callback(callback, true))
 		@set("path", path)
 		return
 
-	reload: ()->
+	reload: (callback)->
+		if callback then @one("load", () -> cola.callback(callback, true))
 		@_replaceUrl(@_path)
 		return @
 

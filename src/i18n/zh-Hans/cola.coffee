@@ -11,6 +11,7 @@ cola.i18n(
 	"cola.error.invalidListener": "尝试向\"{0}\"绑定无效的事件监听器。"
 	"cola.error.objectNotFree": "\"{0}\"早已归属于另一个\"{1}\"。"
 	"cola.error.duplicateModelName": "Model\"{0}\"早已存在。"
+	"cola.error.duplicateDefinitionName": "Definition\"{0}\"早已存在。"
 	"cola.error.loadResourceFailed": "装载资源\"{0}\"失败。\"{1}\""
 
 	"cola.date.monthNames": "一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月"

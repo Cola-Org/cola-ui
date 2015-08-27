@@ -332,9 +332,9 @@ cola.DataWidgetMixin =
 		@_scope.set(@_bindStr, value)
 		return
 
-	_getBindingPropertyDef: () ->
+	_getBindingProperty: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
-		return @_scope.data.getPropertyDef(@_bindStr)
+		return @_scope.data.getProperty(@_bindStr)
 
 	_getBindingDataType: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable

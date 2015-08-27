@@ -271,7 +271,6 @@ class cola.Menu extends cola.Widget
 				@clearRightItems() if @["_rightItems"]
 				@addRightItem(item) for item in value if value
 
-
 		centered:
 			type: "boolean"
 			defaultValue: false
