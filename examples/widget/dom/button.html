@@ -62,22 +62,20 @@
 					}
 				},
 				btnSetName: {
+					$type: "button",
 					caption: "SetName",
 					click: function (self, arg) {
 						arg.model.set("address.city", "CHANGED");
 					}
 				}
 			});
-
-			cola.ready(function() {
-				var btnName = cola.widget("btnName");
-				btnName.set("caption", "####");
-			});
 		});
 	</script>
 
 </head>
 <body style="padding: 20px;">
+<div c-widget="button; caption:Test; icon:search"></div>
+
 <div id="btnName"></div>
 <div c-widget="#btnName; size:huge"></div>
 
@@ -85,7 +83,7 @@
 
 <div c-repeat="address in addresses" style="margin:4px">
 	<div id="btnCity" c-widget="button; caption:{{address.city}}"></div>
-	<div id="btnSetName" c-widget="button"></div>
+	<div id="btnSetName"></div>
 </div>
 
 <p></p>

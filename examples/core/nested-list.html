@@ -4,9 +4,11 @@
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			model.set("regions", cola.data({
-				url: "regions.json"
-			}));
+			model.describe("regions", {
+				provider: {
+					url: "regions.json"
+				}
+			});
 
 			model.action({
 				prev: function () {

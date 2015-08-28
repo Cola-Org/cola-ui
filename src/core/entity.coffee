@@ -445,8 +445,8 @@ class cola.Entity
 	getPath: getEntityPath
 
 	flushAsync: (property, callback) ->
-		propertyDef = @getPprovider(property)
-		if !propertyDef?.provider?
+		propertyDef = @dataType.getProperty(property)
+		if !propertyDef?._provider?
 			throw new cola.I18nException("cola.error.providerUndefined")
 
 		@_set(property, undefined)
@@ -463,8 +463,8 @@ class cola.Entity
 		})
 
 	flushSync = (property) ->
-		propertyDef = @getPprovider(property)
-		if !propertyDef?.provider?
+		propertyDef = @dataType.getProperty(property)
+		if !propertyDef?._provider?
 			throw new cola.I18nException("cola.error.providerUndefined")
 
 		@_set(property, undefined)
@@ -500,7 +500,7 @@ class cola.Entity
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			path = @getPath(true)
-			if (type is cola.constants.MESSAGE_DATA_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and arg.property
+			if (type == cola.constants.MESSAGE_DATA_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
 				if path
 					path = path.concat(arg.property)
 				else
