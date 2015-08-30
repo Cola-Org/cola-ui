@@ -20,6 +20,8 @@ class cola.AjaxServiceInvoker
 		return
 
 	_internalInvoke: (async = true) ->
+		ajaxService = @ajaxService
+
 		invokerOptions = @invokerOptions
 		retValue = undefined
 
@@ -29,14 +31,24 @@ class cola.AjaxServiceInvoker
 		options.async = async
 		options.success = (result) =>
 			@invokeCallback(true, result)
+			if ajaxService.getListeners("success")
+				ajaxService.fire("success", ajaxService, {options: options, result: result})
+			if ajaxService.getListeners("complete")
+				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result})
 			retValue = result
 			return
 		options.error = (error) =>
+			ajaxService.fire("error", ajaxService, {options: options, error: error})
+			ajaxService.fire("complete", ajaxService, {success: false, options: options, error: error})
 			@invokeCallback(false, error)
 			return
 
 		if options.sendJson
 			options.data = JSON.stringify(options.data)
+
+		if ajaxService.getListeners("beforeSend")
+			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
+				return
 
 		cola.ajax(options)
 		return retValue
@@ -62,6 +74,12 @@ class cola.AjaxService extends cola.Definition
 		method: null
 		parameter: null
 		ajaxOptions: null
+
+	@EVENTS:
+		beforeSend: null
+		complete: null
+		success: null
+		error: null
 
 	constructor: (config) ->
 		if typeof config is "string"

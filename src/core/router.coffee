@@ -236,7 +236,7 @@ $ () ->
 		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
 			if not location.hash
 				state = window.history.state
-				_onStateChange(state?.path or "")
+				if state then _onStateChange(state.path or "")
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->

@@ -86,6 +86,7 @@ class cola.Entity
 					context.unloaded = true
 					context.providerInvokers ?= []
 					context.providerInvokers.push(providerInvoker)
+
 				if loadMode == "auto"
 					@_data[prop] = providerInvoker
 					providerInvoker.invokeAsync(
@@ -96,10 +97,10 @@ class cola.Entity
 								retValue = result
 								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 									result._providerInvoker = providerInvoker
-								if callback
-									cola.callback(callback, success, result)
 							else
 								@_set(prop, null)
+							if callback
+								cola.callback(callback, success, result)
 							return
 					)
 			return retValue
@@ -119,6 +120,7 @@ class cola.Entity
 		else if value instanceof cola.Provider
 			value = loadData.call(@, value)
 		else if value instanceof cola.AjaxServiceInvoker
+			providerInvoker = value
 			if loadMode == "always"
 				value = providerInvoker.invokeSync()
 				if callback
@@ -132,6 +134,9 @@ class cola.Entity
 							return
 					)
 				value = undefined
+			else if loadMode == "auto"
+				if callback then providerInvoker.callbacks.push(callback)
+
 			if context
 				context.unloaded = true
 				context.providerInvokers ?= []
@@ -204,7 +209,6 @@ class cola.Entity
 					else if value.hasOwnProperty("$data")
 						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
-# do nothing
 					else
 						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value
@@ -419,8 +423,24 @@ class cola.Entity
 	getOldValue: (prop) ->
 		return @_oldData?[prop]
 
-	reset: () ->
+	reset: (prop) ->
+		if prop
+			@_set(prop, undefined)
+			@clearMessages(prop)
+		else
+			@disableObservers()
+			data = @_data
+			for prop, value of data
+				if value != undefined
+					delete data[prop]
+			@resetState()
+			@enableObservers()
+			@_notify(cola.constants.MESSAGE_REFRESH, {entity: @})
+		return @
+
+	resetState: () ->
 		delete @_oldData
+		@clearMessages()
 		@setState(_Entity.STATE_NONE)
 		return @
 
@@ -456,7 +476,7 @@ class cola.Entity
 			property: property
 		}
 		@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-		return @_get(property, {
+		return @_get(property, "auto", {
 			complete: (success, result) =>
 				cola.callback(callback, success, result)
 				@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
@@ -489,11 +509,11 @@ class cola.Entity
 					value._onPathChange()
 		return
 
-	disableObservers = () ->
+	disableObservers: () ->
 		if @_disableObserverCount < 0 then @_disableObserverCount = 1 else @_disableObserverCount++
 		return @
 
-	enableObservers = () ->
+	enableObservers: () ->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
 		return @
 
@@ -565,7 +585,12 @@ class cola.Entity
 		return topKeyChanged
 
 	clearMessages: (prop) ->
-		@_messageHolder?.clear(prop)
+		return @ unless @_messageHolder
+		if prop
+			hasPropMessage = @_messageHolder.getKeyMessage(prop)
+		topKeyChanged = @_messageHolder.clear(prop)
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
 	addMessage: (prop, message) ->
@@ -1117,11 +1142,11 @@ class cola.EntityList extends LinkedList
 		@timestamp = cola.sequenceNo()
 		return @
 
-	disableObservers = () ->
+	disableObservers: () ->
 		if @_disableObserverCount < 0 then @_disableObserverCount = 1 else @_disableObserverCount++
 		return @
 
-	enableObservers = () ->
+	enableObservers: () ->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
 		return @
 
@@ -1348,11 +1373,13 @@ class cola.Entity.MessageHolder
 						continue
 					if keyMessage.type is VALIDATION_ERROR
 						break
-			@keyMessage["$"] = keyMessage
+			topKeyChanged = @keyMessage["$"] != keyMessage
+			if topKeyChanged then @keyMessage["$"] = keyMessage
 		else
+			topKeyChanged = true
 			@keyMessage = {}
 			@propertyMessages = {}
-		return
+		return topKeyChanged
 
 	getMessages: (prop = "$") ->
 		return @propertyMessages[prop]
