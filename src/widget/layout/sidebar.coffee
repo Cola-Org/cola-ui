@@ -123,9 +123,11 @@ class cola.Drawer extends cola.AbstractContainer
 		sidebarDom = sidebar.getDom()
 		if sidebarDom.parentNode isnt @_dom then return
 		unless @_pusher
+			cola._ignoreNodeRemoved = true
 			$(@_dom).find("> .ui.sidebar").sidebar({
 				context: @_dom
 			})
+			cola._ignoreNodeRemoved = false
 			@_initPusher()
 
 		sidebar.show(callback)

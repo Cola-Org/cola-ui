@@ -274,6 +274,16 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$inputDom.attr("placeholder", @get("placeholder"))
 		$inputDom.prop("readOnly", @_finalReadOnly)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
+
+		dataType = @_dataType
+		if dataType and not @_inputType
+			inputType = "text"
+			align = "left"
+			if dataType instanceof cola.NumberDataType
+				inputType = "number"
+				align = "right"
+			$inputDom.prop("type", inputType).css("text-align", align)
+
 		@_refreshInputValue(@_value)
 		return
 
@@ -309,12 +319,15 @@ class cola.Input extends cola.AbstractInput
 	@EVENTS:
 		focus: null
 		blur: null
-		
+
 	_createEditorDom: ()->
-		return $.xCreate({
+		config =
 			tagName: "input",
 			type: @_inputType or "text"
-		})
+		if @_inputType == "number"
+			config.style =
+				"text-align": "right"
+		return $.xCreate(config)
 
 	_isEditorDom: (node)->
 		return node.nodeName is "INPUT"
@@ -338,12 +351,12 @@ class cola.Input extends cola.AbstractInput
 		).on("focus", ()=>
 			@_inputFocused = true
 			@_refreshInputValue(@_value)
-			@fire("focus",@)
+			@fire("focus", @)
 			return
 		).on("blur", ()=>
 			@_inputFocused = false
 			@_refreshInputValue(@_value)
-			@fire("blur",@)
+			@fire("blur", @)
 
 			if !@_value? or @_value is "" and @_bindInfo.isWriteable
 				propertyDef = @_getBindingProperty()
