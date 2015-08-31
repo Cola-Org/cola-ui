@@ -14,8 +14,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				@delay = true
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
 
-	evaluate: (domBinding, dataCtx) ->
-		dataCtx ?= {}
+	evaluate: (domBinding, dataCtx = {}) ->
 		return @expression.evaluate(domBinding.scope, "auto", dataCtx)
 
 	refresh: (domBinding, force) ->
@@ -61,6 +60,7 @@ class cola._I18nFeature extends cola._BindingFeature
 		return
 
 	refresh: (domBinding) ->
+		dataCtx = null
 		realArgs = []
 		for arg in @args
 			if arg instanceof cola.Expression
