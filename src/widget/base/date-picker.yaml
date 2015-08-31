@@ -28,7 +28,7 @@
       type: Function
   events:
     - name: valueChange
-      description:当列表的value发生变化的时候触发的事件。
+      description: 当列表的value发生变化的时候触发的事件。
 
 - name: cola.RangeSlotList
   stereotype: class
