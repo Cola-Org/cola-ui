@@ -230,6 +230,8 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 					features ?= []
 					if attrName.substring(0, 2) == "on"
 						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
+					else if attrName == "i18n"
+						feature = buildI18NFeature(scope, dom, attrValue)
 					else if attrName == "watch"
 						feature = buildWatchFeature(scope, dom, attrValue)
 					else
@@ -368,6 +370,24 @@ buildAttrFeature = (dom, attr, expr) ->
 		else
 			feature = new cola._DomAttrFeature(expression, attr, false)
 	return feature
+
+buildI18NFeature = (scope, dom, expr) ->
+	return unless expr
+	if expr.indexOf(";") > 0
+		parts = expr.split(";")
+		args = []
+		for part, i in parts
+			if i == 0
+				template = cola.util.trim(part)
+			else
+				part = cola.util.trim(part)
+				if part
+					part = cola._compileExpression(part)
+				args.push(part)
+		return new cola._I18nFeature(template, args)
+	else
+		$fly(dom).text(cola.i18n(cola.util.trim(expr)))
+		return
 
 buildWatchFeature = (scope, dom, expr) ->
 	i = expr.indexOf(" on ")
