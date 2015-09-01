@@ -188,7 +188,7 @@ class cola.UpdateAction extends cola.AjaxAction
 					invalidSubmitData = true
 
 			if invalidSubmitData
-				throw new cola.I18nException("cola.error.invalidSubmitData")
+				throw new cola.Exception("Invalid submit data.")
 
 			filter = cola.UpdateAction.FILTER[@_dataFilter]
 			data = if filter then filter(data) else data
@@ -211,7 +211,7 @@ class cola.UpdateAction extends cola.AjaxAction
 		@_timestamp = cola.sequenceNo()
 		data = @_getData()
 		if !data?
-			cola.UpdateAction.showNoDataMessage(cola.i18n("cola.warn.noDataToSubmit"))
+			cola.UpdateAction.showNoDataMessage("No data to submit.")
 			return
 		else
 			return super(callback)

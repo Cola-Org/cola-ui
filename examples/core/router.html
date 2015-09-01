@@ -3,17 +3,15 @@
 <head>
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
-		cola.router("$root", {
-			path: "/",
+		cola.route("/", {
 			redirectTo: "#/list"
 		});
-		cola.router("list", {
+		cola.route("/list", {
 			title: "List",
 			jsUrl: "$",
 			templateUrl: "router-list.html"
 		});
-		cola.router("detail", {
-			path: "/detail/:city",
+		cola.route("/detail/:city", {
 			title: "Detail",
 			jsUrl: "$",
 			templateUrl: "router-detail.html"

@@ -186,7 +186,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		originItems = scope.originData
 
 		if items and !(items instanceof cola.EntityList) and !(items instanceof Array)
-			throw new cola.I18nException("cola.error.repeatNeedCollection", @expression)
+			throw new cola.Exception("Expression \"#{@expression}\" must bind to EntityList or Array.")
 
 		if items != domBinding.items or (items and items.timestamp != domBinding.timestamp)
 			domBinding.items = items

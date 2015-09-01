@@ -167,7 +167,7 @@ class cola.Entity
 
 		property = @dataType?.getProperty(prop)
 		if property and property instanceof cola.ComputeProperty
-			throw new cola.I18nException("cola.error.setData", prop)
+			throw new cola.Exception("Cannot set value to ComputeProperty \"#{prop}\".")
 
 		if value?
 			if value instanceof cola.Provider
@@ -195,8 +195,7 @@ class cola.Entity
 								actualType = value.dataType?.get("name") or "undefined"
 								if property._aggregated then expectedType = "[#{expectedType}]"
 								if value instanceof cola.EntityList then actualType = "[#{actualType}]"
-								throw new cola.I18nException("cola.error.unmatchedDataType", expectedType,
-									actualType)
+								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
 				else if typeof value == "object" and value?
@@ -244,7 +243,7 @@ class cola.Entity
 
 			if value? and (value instanceof _Entity or value instanceof _EntityList)
 				if value._parent and value._parent != @
-					throw new cola.I18nException("cola.error.dataAttached", prop)
+					throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"#{prop}\"")
 
 				value._parent = @
 				value._parentProperty = prop
@@ -357,13 +356,12 @@ class cola.Entity
 
 	createChild: (prop, data) ->
 		if data and data instanceof Array
-			throw new cola.I18nException("cola.error.unmatchedDataType", "Object", "Array")
+			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 
 		property = @dataType?.getProperty(prop)
 		propertyDataType = property?._dataType
 		if propertyDataType and !(propertyDataType instanceof cola.EntityDataType)
-			throw new cola.I18nException("cola.error.unmatchedDataType", "cola.EntityDataType",
-				propertyDataType._name)
+			throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"#{propertyDataType._name}\".")
 
 		if property?._aggregated
 			entityList = @_get(prop, "never")
@@ -384,7 +382,7 @@ class cola.Entity
 
 	createBrother: (data) ->
 		if data and data instanceof Array
-			throw new cola.I18nException("cola.error.unmatchedDataType", "Object", "Array")
+			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 
 		brother = new _Entity(@dataType, data)
 		brother.setState(_Entity.STATE_NEW)
@@ -467,7 +465,7 @@ class cola.Entity
 	flushAsync: (property, callback) ->
 		propertyDef = @dataType.getProperty(property)
 		if !propertyDef?._provider?
-			throw new cola.I18nException("cola.error.providerUndefined")
+			throw new cola.Exception("Provider undefined.")
 
 		@_set(property, undefined)
 
@@ -485,7 +483,7 @@ class cola.Entity
 	flushSync = (property) ->
 		propertyDef = @dataType.getProperty(property)
 		if !propertyDef?._provider?
-			throw new cola.I18nException("cola.error.providerUndefined")
+			throw new cola.Exception("Provider undefined.")
 
 		@_set(property, undefined)
 		return @_get(property)
@@ -690,7 +688,7 @@ class Page extends LinkedList
 
 		if json.hasOwnProperty("$data") then json = rawJson.$data
 		if !(json instanceof Array)
-			throw new cola.I18nException("cola.error.unmatchedDataType", "Array", "Object")
+			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
 		dataType = entityList.dataType
 		for data in json
@@ -832,8 +830,7 @@ class cola.EntityList extends LinkedList
 		return
 
 	_findPrevious: (entity) ->
-		if entity and entity._parent != @
-			throw new cola.I18nException("cola.error.entityNotBelongToEntityList")
+		return if entity and entity._parent != @
 
 		if entity
 			page = entity._page
@@ -854,8 +851,7 @@ class cola.EntityList extends LinkedList
 		return
 
 	_findNext: (entity) ->
-		if entity and entity._parent != @
-			throw new cola.I18nException("cola.error.entityNotBelongToEntityList")
+		return if entity and entity._parent != @
 
 		if entity
 			page = entity._page
@@ -1000,9 +996,8 @@ class cola.EntityList extends LinkedList
 	insert: (entity, insertMode, refEntity) ->
 		if insertMode == "before" or insertMode == "after"
 			if refEntity and refEntity._parent != @
-				throw new cola.I18nException("cola.error.entityNotBelongToEntityList")
-
-			refEntity = @current
+				refEntity = null
+			refEntity ?= @current
 			if refEntity then page = refEntity._page
 		else if @pageMode == "append"
 			if insertMode == "end"
@@ -1018,7 +1013,7 @@ class cola.EntityList extends LinkedList
 
 		if entity instanceof _Entity
 			if entity._parent and entity._parent != @
-				throw new cola.I18nException("cola.error.dataAttached", @._parentProperty or "Unknown")
+				throw new cola.Exception("Entity is already belongs to another owner. \"#{@._parentProperty or "Unknown"}\".")
 		else
 			entity = new _Entity(@dataType, entity)
 			entity.setState(_Entity.STATE_NEW)
@@ -1045,8 +1040,7 @@ class cola.EntityList extends LinkedList
 			entity = @current
 			if !entity? then return undefined
 
-		if entity._parent != @
-			throw new cola.I18nException("cola.error.entityNotBelongToEntityList")
+		return undefined if entity._parent != @
 
 		if entity == @current
 			changeCurrent = true
@@ -1077,8 +1071,7 @@ class cola.EntityList extends LinkedList
 	setCurrent: (entity) ->
 		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
 
-		if entity and entity._parent != @
-			throw new cola.I18NException("cola.error.entityNotBelongToEntityList")
+		return @ if entity and entity._parent != @
 
 		oldCurrent = @current
 		oldCurrent._onPathChange() if oldCurrent
@@ -1157,7 +1150,7 @@ class cola.EntityList extends LinkedList
 
 	_doFlush: (callback) ->
 		if !@_providerInvoker?
-			throw new cola.I18nException("cola.error.providerUndefined")
+			throw new cola.Exception("Provider undefined.")
 		@_reset()
 		page = @_findPage(@pageNo)
 		if !page then @_createPage(@pageNo)
@@ -1298,7 +1291,7 @@ _Entity._setValue = _setValue = (entity, path, value, context) ->
 			else
 				entity[part2] = value
 		else
-			throw new cola.I18nException("cola.error.setData", path)
+			throw new cola.Exception("Cannot set value to EntityList \"#{path}\".")
 	else if typeof entity._set == "function"
 		entity._set(path, value)
 	else

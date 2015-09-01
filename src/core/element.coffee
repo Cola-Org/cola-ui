@@ -143,7 +143,7 @@ class cola.Element
 	_get: (attr, ignoreError) ->
 		if !@constructor.ATTRIBUTES.hasOwnProperty(attr)
 			if ignoreError then return
-			throw new cola.I18nException("cola.error.unrecognizedAttribute", attr)
+			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
 		attrConfig = @constructor.ATTRIBUTES[attr]
 		if attrConfig?.getter
@@ -166,7 +166,7 @@ class cola.Element
 					if i >= (paths.length - 2) then break
 
 				if !obj? and !ignoreError
-					throw new cola.I18nException("cola.error.invalidInstanceOfAttribute", path[0...i].join("."))
+					throw new cola.Exception("Cannot set attribute \"#{path[0...i].join(".")}\" of undefined.")
 
 				if obj instanceof cola.Element
 					obj._set(paths[paths.length - 1], value, ignoreError)
@@ -196,11 +196,11 @@ class cola.Element
 			if attrConfig
 				if attrConfig.readOnly
 					if ignoreError then return
-					throw new cola.I18nException("cola.error.attributereadOnly", attr)
+					throw new cola.Exception("Attribute \"#{attr}\" is readonly.")
 
 				if !@_constructing and attrConfig.readOnlyAfterCreate
 					if ignoreError then return
-					throw new cola.I18nException("cola.error.attributeReadOnlyAfterCreate", attr)
+					throw new cola.Exception("Attribute \"#{attr}\" cannot be changed after create.")
 		else if value
 			eventName = attr
 			i = eventName.indexOf(":")
@@ -228,7 +228,7 @@ class cola.Element
 						return
 
 			if ignoreError then return
-			throw new cola.I18nException("cola.error.unrecognizedAttribute", attr)
+			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
 		@_doSet(attr, attrConfig, value)
 
@@ -264,7 +264,7 @@ class cola.Element
 					value = parseFloat(value) or 0
 
 			if attrConfig.enum and attrConfig.enum.indexOf(value) < 0
-				throw new cola.I18nException("cola.error.attributeEnumOutOfRange", attr, value)
+				throw new cola.Exception("The value \"#{value}\" of attribute \"#{attr}\" is out of range.")
 
 			if attrConfig.setter
 				attrConfig.setter.call(@, value, attr )
@@ -292,7 +292,7 @@ class cola.Element
 		aliasMap = listenerRegistry.aliasMap
 		if listeners
 			if eventConfig?.singleListener and listeners.length
-				throw new cola.I18nException("cola.error.singleEventListener", eventName)
+				throw new cola.Exception("Multi listeners is not allowed for event \"#{eventName}\".")
 
 			if alias and aliasMap?[alias] > -1 then cola.off(eventName + ":" + alias)
 			listeners.push(listener)
@@ -314,10 +314,10 @@ class cola.Element
 			eventName = eventName.substring(0, i)
 
 		if !@constructor.EVENTS.hasOwnProperty(eventName)
-			throw new cola.I18nException("cola.error.unrecognizedEvent", eventName)
+			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 		if typeof listener != "function"
-			throw new cola.I18nException("cola.error.invalidListener", eventName)
+			throw new cola.Exception("Invalid event listener.")
 
 		@_on(eventName, listener, alias, once)
 		return @

@@ -1,6 +1,6 @@
 routerRegistry = null
 currentRoutePath = null
-currentRouteName = null
+currentRouter = null
 
 trimPath = (path) ->
 	if path
@@ -10,64 +10,55 @@ trimPath = (path) ->
 			path = path.substring(0, path.length - 1)
 	return path or ""
 
-# routerDef.path
-# routerDef.redirectTo
-# routerDef.enter
-# routerDef.leave
-# routerDef.title
-# routerDef.jsUrl
-# routerDef.templateUrl
-# routerDef.target
-# routerDef.model
-# routerDef.parentModel
+# router.path
+# router.redirectTo
+# router.enter
+# router.leave
+# router.title
+# router.jsUrl
+# router.templateUrl
+# router.target
+# router.model
+# router.parentModel
 
-cola.router = (name, config) ->
-	if config
-		routerRegistry ?= new cola.util.KeyedArray()
+cola.route = (path, router) ->
+	routerRegistry ?= new cola.util.KeyedArray()
 
-		if typeof config == "function"
-			routerDef = config
-		else
-			routerDef = {name: name}
-			routerDef[p] = v for p, v of config
+	if typeof router == "function"
+		router =
+			enter: router
 
-		routerDef.path ?= if name is cola.constants.DEFAULT_PATH then "" else name
-		routerDef.model ?= name
+	path = trimPath(path)
+	router.path = path
+	router.model ?= path or cola.constants.DEFAULT_PATH
 
-		path = trimPath(routerDef.path)
-		routerDef.pathParts = pathParts = []
-		if path
-			hasVariable = false
-			for part in path.split("/")
-				if part.charCodeAt(0) == 58 # `:`
-					optional = part.charCodeAt(part.length - 1) == 63 # `?`
-					if optional
-						variable = part.substring(1, part.length - 1)
-					else
-						variable = part.substring(1)
-					hasVariable = true
-					pathParts.push({
-						variable: variable
-						optional: optional
-					})
+	router.pathParts = pathParts = []
+	if path
+		hasVariable = false
+		for part in path.split("/")
+			if part.charCodeAt(0) == 58 # `:`
+				optional = part.charCodeAt(part.length - 1) == 63 # `?`
+				if optional
+					variable = part.substring(1, part.length - 1)
 				else
-					pathParts.push(part)
-			routerDef.hasVariable = hasVariable
+					variable = part.substring(1)
+				hasVariable = true
+				pathParts.push({
+					variable: variable
+					optional: optional
+				})
+			else
+				pathParts.push(part)
+		router.hasVariable = hasVariable
 
-		routerRegistry.add(name, routerDef)
-		return @
-	else
-		return routerRegistry?.get(name)
-
-cola.removeRouter = (name) ->
-	routerRegistry?.remove(name)
-	return
+	routerRegistry.add(path, router)
+	return @
 
 cola.getCurrentRoutePath = () ->
-	return currentRouteName
+	return currentRoutePath
 
 cola.getCurrentRouter = () ->
-	return cola.router(currentRouteName)
+	return currentRouter
 
 cola.setRoutePath = (path) ->
 	if path and path.charCodeAt(0) == 35 # `#`
@@ -91,13 +82,13 @@ _findRouter = (path) ->
 	path or= trimPath(cola.setting("defaultRouterPath"))
 
 	pathParts = if path then path.split(/[\/\?\#]/) else []
-	for routerDef in routerRegistry.elements
-		gap = routerDef.pathParts.length - pathParts.length
-		unless gap == 0 or gap == 1 and defPart.length > 0 and defPart[defPart.length - 1].optional then continue
+	for router in routerRegistry.elements
+		defPathParts = router.pathParts
+		gap = defPathParts.length - pathParts.length
+		unless gap == 0 or gap == 1 and defPathParts.length > 0 and defPathParts[defPathParts.length - 1].optional then continue
 
 		matching = true
 		param = {}
-		defPathParts = routerDef.pathParts
 		for defPart, i in defPathParts
 			if typeof defPart == "string"
 				if defPart != pathParts[i]
@@ -112,86 +103,79 @@ _findRouter = (path) ->
 		if matching then break
 
 	if matching
-		routerDef.param = param
-		return routerDef
+		router.param = param
+		return router
 	else
 		return null
 
-_switchRouter = (routerDef, path) ->
-	if typeof routerDef == "function"
-		routerDef()
-		return
-
-	if routerDef.redirectTo
-		cola.setRoutePath(routerDef.redirectTo)
+_switchRouter = (router, path) ->
+	if router.redirectTo
+		cola.setRoutePath(router.redirectTo)
 		return
 
 	eventArg = {
 		path: path
-		prev: currentRouteName
-		next: routerDef.name
+		prev: currentRouter
+		next: router
 	}
 	cola.fire("beforeRouterSwitch", cola, eventArg)
 
-	if currentRouteName
-		currentRouterDef = cola.router(currentRouteName)
-		currentRouteName = null
-		if currentRouterDef
-			oldModel = currentRouterDef.realModel
-			currentRouterDef.leave?(currentRouterDef, oldModel)
-			delete currentRouterDef.realModel
-			if currentRouterDef.destroyModel then oldModel?.destroy()
+	if currentRouter
+		oldModel = currentRouter.realModel
+		currentRouter.leave?(currentRouter, oldModel)
+		delete currentRouter.realModel
+		if currentRouter.destroyModel then oldModel?.destroy()
 
-	if routerDef.templateUrl
-		if routerDef.target
-			if routerDef.target.nodeType
-				target = routerDef.target
+	if router.templateUrl
+		if router.target
+			if router.target.nodeType
+				target = router.target
 			else
-				target = $(routerDef.target)[0]
+				target = $(router.target)[0]
 		if !target
 			target = document.getElementsByClassName(cola.constants.VIEW_PORT_CLASS)[0]
 			if !target
 				target = document.getElementsByClassName(cola.constants.VIEW_CLASS)[0]
 				if !target
 					target = document.body
-		routerDef.targetDom = target
+		router.targetDom = target
 		$fly(target).empty()
 
-	currentRouteName = routerDef?.name
+	currentRouter = router
 
-	if typeof routerDef.model == "string"
-		model = cola.model(routerDef.model)
-	else if routerDef.model instanceof cola.Model
-		model = routerDef.model
+	if typeof router.model == "string"
+		model = cola.model(router.model)
+	else if router.model instanceof cola.Model
+		model = router.model
 
 	if !model
-		parentModelName = routerDef.parentModel or cola.constants.DEFAULT_PATH
+		parentModelName = router.parentModel or cola.constants.DEFAULT_PATH
 		parentModel = cola.model(parentModelName)
 		if !parentModel then throw new cola.Exception("Parent Model \"#{parentModelName}\" is undefined.")
-		model = new cola.Model(routerDef.model, parentModel)
-		routerDef.destroyModel = true
+		model = new cola.Model(router.model, parentModel)
+		router.destroyModel = true
 	else
-		routerDef.destroyModel = false
+		router.destroyModel = false
 
-	routerDef.realModel = model
+	router.realModel = model
 
-	if routerDef.templateUrl
-		cola.loadSubView(routerDef.targetDom,
+	if router.templateUrl
+		cola.loadSubView(router.targetDom,
 			{
 				model: model
-				htmlUrl: routerDef.templateUrl
-				jsUrl: routerDef.jsUrl
-				cssUrl: routerDef.cssUrl
-				data: routerDef.data
-				param: routerDef.param
+				htmlUrl: router.templateUrl
+				jsUrl: router.jsUrl
+				cssUrl: router.cssUrl
+				data: router.data
+				param: router.param
 				callback: () ->
-					routerDef.enter?(routerDef, model)
-					document.title = routerDef.title if routerDef.title
+					router.enter?(router, model)
+					document.title = router.title if router.title
 					return
 			})
 	else
-		routerDef.enter?(routerDef, model)
-		document.title = routerDef.title if routerDef.title
+		router.enter?(router, model)
+		document.title = router.title if router.title
 
 	cola.fire("routerSwitch", cola, eventArg)
 	return
@@ -210,8 +194,8 @@ _onHashChange = () ->
 	return if path == currentRoutePath
 	currentRoutePath = path
 
-	routerDef = _findRouter(path)
-	_switchRouter(routerDef, path) if routerDef
+	router = _findRouter(path)
+	_switchRouter(router, path) if router
 	return
 
 _onStateChange = (path) ->
@@ -228,8 +212,8 @@ _onStateChange = (path) ->
 	return if path == currentRoutePath
 	currentRoutePath = path
 
-	routerDef = _findRouter(path)
-	_switchRouter(routerDef, path) if routerDef
+	router = _findRouter(path)
+	_switchRouter(router, path) if router
 	return
 
 $ () ->
@@ -237,7 +221,7 @@ $ () ->
 		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
 			if not location.hash
 				state = window.history.state
-				if state then _onStateChange(state.path or "")
+				_onStateChange(state?.path or "")
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->
@@ -247,10 +231,10 @@ $ () ->
 		)
 
 		path = _getHashPath() or trimPath(cola.setting("defaultRouterPath"))
-		routerDef = _findRouter(path)
-		if routerDef
+		router = _findRouter(path)
+		if router
 			currentRoutePath = path
-			_switchRouter(routerDef, path)
+			_switchRouter(router, path)
 		return
 	, 0)
 	return

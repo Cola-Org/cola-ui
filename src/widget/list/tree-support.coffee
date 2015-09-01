@@ -8,7 +8,7 @@ class cola.CascadeBind extends cola.Element
 				expression = cola._compileExpression(expression, "repeat")
 				if expression
 					if !expression.repeat
-						throw new cola.I18nException("cola.error.needRepeatBinding", bindStr)
+						throw new cola.Exception("\"#{bindStr}\" is not a repeat expression.")
 				else
 					delete @_alias
 				@_expression = expression

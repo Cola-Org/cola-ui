@@ -109,7 +109,7 @@ class cola.EntityDataType extends cola.DataType
 			else
 				property = new cola.BaseProperty(property)
 		else if property._owner and property._owner != @
-			throw new cola.I18nException("cola.error.objectNotFree", "Property(#{property._property})", "DataType")
+			throw new cola.Exception("Property(#{property._property}) is already belongs to anthor DataType.")
 
 		if @_properties.get(property._property)
 			@removeProperty(property._property)
@@ -152,7 +152,7 @@ cola.DataType.dataTypeSetter = (dataType) ->
 		else
 			dataType = cola.DataType.defaultDataTypes[name]
 		if not dataType
-			throw new cola.I18nException("cola.error.unrecognizedDataType", name)
+			throw new cola.Exception("Unrecognized DataType \"#{name}\".")
 	else if dataType? and not (dataType instanceof cola.DataType)
 		dataType = new cola.EntityDataType(dataType)
 	@_dataType = dataType or null
@@ -247,7 +247,7 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 		return entityList
 	else
 		if json instanceof Array
-			throw new cola.I18nException("cola.error.unmatchedDataType", "Object", "Array")
+			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 		return new cola.Entity(dataType, json)
 
 cola.DataType.jsonToData = (json, dataType, aggregated) ->

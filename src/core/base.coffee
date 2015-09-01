@@ -80,10 +80,10 @@ cola.on = (eventName, listener) ->
 
 	listenerRegistry = colaEventRegistry[eventName]
 	if !listenerRegistry
-		throw new cola.I18nException("cola.error.unrecognizedEvent", eventName)
+		throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 	if typeof listener != "function"
-		throw new cola.I18nException("cola.error.invalidListener", eventName)
+		throw new cola.Exception("Invalid event listener.")
 
 	listeners = listenerRegistry.listeners
 	aliasMap = listenerRegistry.aliasMap

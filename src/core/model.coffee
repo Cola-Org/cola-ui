@@ -18,7 +18,7 @@ cola.model = (name, model) ->
 	if arguments.length == 2
 		if model
 			if cola.model[name]
-				throw new cola.I18nException("cola.error.duplicateModelName", name)
+				throw new cola.Exception("Duplicated model name \"#{name}\".")
 			cola.model[name] = model
 		else
 			model = cola.removeModel(name)
@@ -521,7 +521,7 @@ class cola.AbstractDataModel
 							if aliasHolder.data
 								cola.Entity._setValue(aliasHolder.data, path.substring(i + 1), data, context)
 							else
-								throw new cola.I18nException("cola.error.setData", path)
+								throw new cola.Exception("Cannot set value to \"#{path}\"")
 							return @
 
 					if @model.parent
@@ -737,7 +737,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				if typeof config is "string"
 					dataType = @getDefinition(config)
 					if not dataType
-						throw new cola.I18nException("cola.error.unrecognizedDataType", config)
+						throw new cola.Exception("Unrecognized DataType \"#{config}\".")
 					propertyDef.set("dataType", dataType)
 				else
 					propertyDef.set(config)
@@ -762,17 +762,17 @@ class cola.DataModel extends cola.AbstractDataModel
 
 	regDefinition: (definition) ->
 		name = definition._name
-		if !name
-			throw new cola.I18nException("cola.error.attributeValueRequired", "name")
+		if not name
+			throw new cola.Exception("Attribute \"name\" cannot be emtpy.")
 
 		if definition._scope and definition._scope != @model
-			throw new cola.I18nException("cola.error.objectNotFree", "DataType(#{definition._name})", "Model")
+			throw new cola.Exception("DataType(#{definition._name}) is already belongs to anthor Model.")
 
 		store = @_definitionStore
 		if !store?
 			@_definitionStore = store = {}
 		else if store[name]
-			throw new cola.I18nException("cola.error.duplicateDefinitionName", cola.error.duplicateDefinitionName)
+			throw new cola.Exception("Duplicated Definition name \"#{name}\".")
 
 		store[name] = definition
 		return @
@@ -973,7 +973,7 @@ cola.data = (config) ->
 			name = dataType
 			dataType = cola.currentScope.dataType(name)
 			if !dataType
-				throw new cola.I18nException("cola.error.unrecognizedDataType", name)
+				throw new cola.Exception("Unrecognized DataType \"#{name}\".")
 		else if not (dataType instanceof cola.DataType)
 			dataType = new cola.EntityDataType(dataType)
 

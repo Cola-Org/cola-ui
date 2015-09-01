@@ -37,9 +37,6 @@ cola.util.parseStyleLikeString = (styleStr, headerProp) ->
 				style[headerProp] = part
 			else
 				style[part] = true
-
-	#	if invalid
-	#		throw new cola.I18nException("cola.error.invalidFormat", styleStr)
 	return style
 
 cola.util.parseFunctionArgs = (func) ->

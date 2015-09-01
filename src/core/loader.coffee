@@ -28,7 +28,7 @@ cola.loadSubView = (targetDom, context) ->
 					errorMessage = error.status + " " + error.statusText
 				else
 					errorMessage = error.message
-				throw new cola.I18nException("cola.error.loadResourceFailed", url, errorMessage)
+				throw new cola.Exception("Failed to load resource from [#{url}]. " + errorMessage)
 		return
 
 	$fly(targetDom).addClass("loading")

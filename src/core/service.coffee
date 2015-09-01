@@ -63,7 +63,7 @@ class cola.AjaxServiceInvoker
 
 	invokeSync: (callback) ->
 		if @invoking
-			throw new cola.I18nException("cola.error.getResultDuringAjax", @url)
+			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
 		@callbacks.push(callback)
 		return @_internalInvoke(false)
 

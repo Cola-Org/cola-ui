@@ -245,7 +245,7 @@ cola.DataWidgetMixin =
 
 			bindInfo.expression = expression = cola._compileExpression(bindStr)
 			if expression.repeat or expression.setAlias
-				throw new cola.I18nException("cola.error.needSimpleBinding", bindStr)
+				throw new cola.Exception("Expression \"#{bindStr}\" must be a simple expression.")
 			if (expression.type == "MemberExpression" or expression.type == "Identifier") and not expression.hasCallStatement and not expression.convertors
 				bindInfo.isWriteable = true
 				i = bindStr.lastIndexOf(".")
@@ -328,7 +328,7 @@ cola.DataWidgetMixin =
 	_writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
 		if !@_bindInfo.isWriteable
-			throw new cola.I18nException("cola.error.bindingNotWritable", @_bindStr)
+			throw new cola.Exception("Expression \"#{@_bindStr}\" is not writable.")
 		@_scope.set(@_bindStr, value)
 		return
 
@@ -370,7 +370,7 @@ cola.DataItemsWidgetMixin =
 		if bindStr and @_scope
 			expression = cola._compileExpression(bindStr, "repeat")
 			if !expression.repeat
-				throw new cola.I18nException("cola.error.needRepeatBinding", bindStr)
+				throw new cola.Exception("Expression \"#{bindStr}\" must be a repeat expression.")
 			@_alias = expression.alias
 		@_itemsScope.setExpression(expression)
 		return
