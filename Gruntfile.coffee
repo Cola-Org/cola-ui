@@ -15,8 +15,8 @@ module.exports = (grunt) ->
 					"dest/dev/cola.js": sources.coffee.core
 					"dest/dev/widget/widget.js": sources.coffee.widget
 					"dest/dev/widget/base.js": sources.coffee.base
-					"dest/dev/widget/edit.js": sources.coffee.edit
 					"dest/dev/widget/layout.js": sources.coffee.layout
+					"dest/dev/widget/edit.js": sources.coffee.edit
 					"dest/dev/widget/collection.js": sources.coffee.collection
 					"dest/dev/widget/list.js": sources.coffee.list
 
@@ -239,5 +239,5 @@ module.exports = (grunt) ->
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
-								 "less:build", "cola-ui-license", "concat",
-								 "copy:semantic", "rename", "uglify:build", "cssmin", "compress", "clean:workTemp"]
+	                             "less:build", "cola-ui-license", "concat",
+	                             "copy:semantic", "rename", "uglify:build", "cssmin", "compress", "clean:workTemp"]
