@@ -93,7 +93,7 @@ _findRouter = (path) ->
 	pathParts = if path then path.split(/[\/\?\#]/) else []
 	for routerDef in routerRegistry.elements
 		gap = routerDef.pathParts.length - pathParts.length
-		if 1 < gap < 0 then continue
+		unless gap == 0 or gap == 1 and defPart.length > 0 and defPart[defPart.length - 1].optional then continue
 
 		matching = true
 		param = {}
@@ -108,6 +108,7 @@ _findRouter = (path) ->
 					matching = false
 					break
 				param[defPart.variable] = pathParts[i]
+
 		if matching then break
 
 	if matching

@@ -14,8 +14,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				@delay = true
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
 
-	evaluate: (domBinding, dataCtx) ->
-		dataCtx ?= {}
+	evaluate: (domBinding, dataCtx = {}) ->
 		return @expression.evaluate(domBinding.scope, "auto", dataCtx)
 
 	refresh: (domBinding, force) ->
@@ -27,6 +26,50 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			)
 		else
 			@_refresh(domBinding)
+		return
+
+class cola._I18nFeature extends cola._BindingFeature
+	constructor: (@template, @args) ->
+		paths = {}
+		for arg in args
+			if arg instanceof cola.Expression
+				expression = arg
+				path = expression.path
+				if path
+					if path typeof "string"
+						paths[path] = true
+					else
+						paths[p] = true for p in path
+				else
+					if expression.hasCallStatement
+						paths = null
+						@path = "**"
+						@delay = true
+						break
+
+				if not @watchingMoreMessage
+					@watchingMoreMessage = expression.hasCallStatement or expression.convertors
+
+		if paths
+			path = []
+			path.push(p) for p of paths
+			if path.length then @path = path
+
+	_processMessage: (domBinding)->
+		@refresh(domBinding)
+		return
+
+	refresh: (domBinding) ->
+		dataCtx = null
+		realArgs = []
+		for arg in @args
+			if arg instanceof cola.Expression
+				dataCtx ?= {}
+				realArgs.push(arg.evaluate(domBinding.scope, "auto", dataCtx))
+			else
+				realArgs.push(arg)
+		text = cola.i18n.apply(cola, [@template].concat(realArgs))
+		$fly(domBinding.dom).text(if !text? then "" else text)
 		return
 
 class cola._WatchFeature extends cola._BindingFeature
@@ -43,7 +86,6 @@ class cola._WatchFeature extends cola._BindingFeature
 			throw new cola.Exception("No action named \"#{@action}\" found.")
 		action(domBinding.dom, domBinding.scope)
 		return
-
 
 class cola._EventFeature extends cola._ExpressionFeature
 	constructor: (@expression, @event) ->
