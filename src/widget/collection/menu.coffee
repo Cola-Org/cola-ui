@@ -1,6 +1,6 @@
 cola.menu ?= {}
 
-class cola.menu.AbstractMenuItem extends cola.Widget
+class cola.menu.AbstractMenuItem extends cola.AbstractContainer
 	@ATTRIBUTES:
 		parent: null
 		active:
@@ -70,7 +70,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 				content: @_caption or ""
 			})
 			if @_doms.iconDom
-				$fly( @_doms.iconDom).after(@_doms.captionDom)
+				$fly(@_doms.iconDom).after(@_doms.captionDom)
 			else
 				$fly(dom).prepend(@_doms.captionDom)
 
@@ -278,7 +278,6 @@ class cola.Menu extends cola.Widget
 		itemClick: null
 
 	_parseDom: (dom)->
-
 		@_items ?= []
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
@@ -341,21 +340,27 @@ class cola.Menu extends cola.Widget
 		$(dom).prepend($.xCreate({
 			tagName: "div"
 			class: "left-items"
-		})).hover(()=>
-			$dom = @get$Dom()
-			$dom.find(">.dropdown.item,.right.menu>.dropdown.item").each((index, item)=>
-				$item = $(item)
-				if $item.hasClass("c-dropdown") then return
-				$item.addClass("c-dropdown")
-				$item.find(".dropdown.item").addClass("c-dropdown")
-				$item.dropdown({
-					on: "hover"
-				})
-			)
+		})).hover(()-> menu._bindToSemantic()).delegate(">.item,.right.menu>.item", "click", ()-> menu._setActive(this))
+
+		setTimeout(()->
+			menu._bindToSemantic()
 			return
-		).delegate(">.item,.right.menu>.item", "click", ()-> menu._setActive(this))
+		, 300)
+		#TODO 通过监听dom树变化来实现
 		return
 
+	_bindToSemantic: ()->
+		$dom = @get$Dom()
+		$dom.find(">.dropdown.item,.right.menu>.dropdown.item").each((index, item)=>
+			$item = $(item)
+			if $item.hasClass("c-dropdown") then return
+			$item.addClass("c-dropdown")
+			$item.find(".dropdown.item").addClass("c-dropdown")
+			$item.dropdown({
+				on: "hover"
+			})
+		)
+		return
 	_setDom: (dom, parseChild)->
 		super(dom, parseChild)
 		if @_activeItem then @_setActive(@_activeItem.getDom())

@@ -139,7 +139,7 @@ sources =
 		css: [
 			"lib/semantic-ui/semantic.css"
 		]
-sources.coffee.widgetAll = _.union(sources.coffee.widget, sources.coffee.base, sources.coffee.edit,
-	sources.coffee.layout, sources.coffee.collection, sources.coffee.list)
+sources.coffee.widgetAll = _.union(sources.coffee.widget, sources.coffee.base,
+	sources.coffee.layout,sources.coffee.edit, sources.coffee.collection, sources.coffee.list)
 
 module?.exports = sources
