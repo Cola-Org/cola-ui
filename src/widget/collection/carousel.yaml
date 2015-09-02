@@ -10,6 +10,17 @@ attributes:
       - vertical
     defaultValue: horizontal
     description: 切换方向
+
+  - name: controls
+    type: boolean
+    defaultValue: true
+    description: 显示控制按钮
+
+  - name: pause
+    type: int
+    defaultValue: 2000
+    description: 循环间隔
+
 events:
   - name: change
     label: 当切换之后触发
@@ -37,8 +48,35 @@ methods:
     return:
       type: cola.Widget
       description: 组件本身
+
   - name: refreshIndicators
-    laebl: 刷新指示器
+    label: 刷新指示器
+    return:
+      type: cola.Widget
+      description: 组件本身
+
+  - name: play
+    label: 播放，开始自动循环播放
+    arguments:
+      - name: pause
+        type: int
+        description: 循环间隔
+    return:
+      type: cola.Widget
+      description: 组件本身
+
+  - name: pause
+    label: 间歇自动循环
+    return:
+      type: cola.Widget
+      description: 组件本身
+
+  - name: goTo
+    label: 切换到指定序号
+    arguments:
+      - name: index
+        type: int
+        description: 序号（从0开始计算）
     return:
       type: cola.Widget
       description: 组件本身

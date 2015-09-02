@@ -64,7 +64,7 @@ module.exports = (grunt) ->
 
 			docResources:
 				expand: true
-				cwd: "node_modules/grunt-cola-build"
+				cwd: "node_modules/grunt-cola-ui-build"
 				src: ["resources/**"]
 				dest: "doc"
 
