@@ -8,6 +8,11 @@ class cola.Carousel extends cola.AbstractItemGroup
 		orientation:
 			defaultValue: "horizontal"
 			enum: ["horizontal", "vertical"]
+		controls:
+			defaultValue: true
+		pause:
+			defaultValue: 2000
+
 	@EVENTS:
 		change: null
 
@@ -43,12 +48,19 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 	_createIndicatorContainer: (dom)->
 		@_doms ?= {}
+
 		@_doms.indicators = $.xCreate({
 			tagName: "div"
 			class: "indicators indicators-#{@_orientation}"
 			contextKey: "indicators"
 		})
+		carousel = @
 		dom.appendChild(@_doms.indicators)
+
+		$(@_doms.indicators).delegate(">span", "click", ()->
+			carousel.goTo($fly(@).index())
+		)
+
 		return null
 
 	_createItemsWrap: (dom)->
@@ -82,12 +94,29 @@ class cola.Carousel extends cola.AbstractItemGroup
 			carousel._scroller = new Swipe(carousel._dom, {
 				vertical: carousel._orientation == "vertical",
 				disableScroll: true,
+				continuous: true,
 				callback: (pos)->
 					carousel.setCurrentIndex(pos)
 					return
 			})
 		, 0)
-
+		if @_controls
+			dom.appendChild($.xCreate({
+				tagName: "div"
+				class: "controls"
+				content: [
+					{
+						tagName: "A"
+						class: "prev"
+						click: ()-> carousel.previous()
+					}
+					{
+						tagName: "A"
+						class: "next"
+						click: ()-> carousel.next()
+					}
+				]
+			}))
 		return
 
 	setCurrentIndex: (index)->
@@ -163,5 +192,21 @@ class cola.Carousel extends cola.AbstractItemGroup
 		, 0)
 		return
 
+	play: (pause)->
+		if @_interval then clearInterval(@_interval)
+		@next()
+		carousel = @
+		@_interval = setInterval(()->
+			carousel.next()
+		, pause or @_pause)
+		return @
+
+	pause: ()->
+		if @_interval then clearInterval(@_interval)
+		return @
+
+	goTo: (index = 0)-> @setCurrentIndex(index)
+
 cola.Element.mixin(cola.Carousel, cola.TemplateSupport)
 cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin)
+

@@ -2,7 +2,8 @@ function Swipe(container, options) {
 	options = options || {};
 
 	// utilities
-	var noop = function () {}; // simple no operation function
+	var noop = function () {
+	}; // simple no operation function
 	var offloadFn = function (fn) {
 		setTimeout(fn || noop, 0)
 	}; // offload a functions execution
@@ -13,7 +14,7 @@ function Swipe(container, options) {
 		touch: ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch,
 		transitions: (function (temp) {
 			var props = ['transformProperty', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'];
-			for (var i in props) if (temp.style[ props[i] ] !== undefined) return true;
+			for (var i in props) if (temp.style[props[i]] !== undefined) return true;
 			return false;
 		})(document.createElement('swipe'))
 	};
@@ -77,7 +78,7 @@ function Swipe(container, options) {
 
 	function next() {
 		if (index < slides.length - 1)
-			slide(index+1);
+			slide(index + 1);
 		else if (options.continuous)
 			slide(0);
 	}
@@ -87,8 +88,8 @@ function Swipe(container, options) {
 		if (index == to) return;
 
 		if (browser.transitions) {
-			var diff = Math.abs(index-to) - 1;
-			var direction = Math.abs(index-to) / (index-to); // 1:right -1:left
+			var diff = Math.abs(index - to) - 1;
+			var direction = Math.abs(index - to) / (index - to); // 1:right -1:left
 
 			while (diff--) move((to > index ? to : index) - diff - 1, width * direction, 0);
 
@@ -297,9 +298,15 @@ function Swipe(container, options) {
 
 						options.callback && options.callback(index, slides[index]);
 					} else {
-						move(index - 1, -width, speed);
-						move(index, 0, speed);
-						move(index + 1, width, speed);
+						if (index == (slides.length - 1)) {
+							slide(0);
+						} else if (index == 0) {
+							slide(slides.length - 1);
+						} else {
+							move(index - 1, -width, speed);
+							move(index, 0, speed);
+							move(index + 1, width, speed);
+						}
 					}
 				}
 			} else {
@@ -386,21 +393,21 @@ function Swipe(container, options) {
 		setup: function () {
 			setup();
 		},
-		refresh: function() {
+		refresh: function () {
 			setup();
 		},
 		getPos: function () {
 			// return current index position
 			return index;
 		},
-		setPos: function(pos) {
+		setPos: function (pos) {
 			index = pos;
 			setup();
 		},
-		prev: function() {
+		prev: function () {
 			prev();
 		},
-		next: function() {
+		next: function () {
 			next();
 		},
 		kill: function () {
