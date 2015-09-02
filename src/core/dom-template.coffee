@@ -227,7 +227,6 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 							initializers ?= []
 							initializers.push(result)
 				else
-					features ?= []
 					if attrName.substring(0, 2) == "on"
 						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
 					else if attrName == "i18n"
@@ -236,7 +235,10 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 						feature = buildWatchFeature(scope, dom, attrValue)
 					else
 						feature = buildAttrFeature(dom, attrName, attrValue)
-					features.push(feature)
+
+					if feature
+						features ?= []
+						features.push(feature)
 
 	for customDomCompiler in cola._userDomCompiler.$
 		result = customDomCompiler(scope, dom, context)
@@ -251,18 +253,6 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 		for removeAttr in removeAttrs
 			dom.removeAttribute(removeAttr)
 
-	if features?.length
-		if bindingType == "repeat"
-			domBinding = new cola._RepeatDomBinding(dom, scope, features)
-			scope = domBinding.scope
-			defaultPath = scope.data.alias
-		else if bindingType == "alias"
-			domBinding = new cola._AliasDomBinding(dom, scope, features)
-			scope = domBinding.scope
-			defaultPath = scope.data.alias
-		else
-			domBinding = new cola._DomBinding(dom, scope, features)
-
 	childContext = {}
 	for k, v of context
 		childContext[k] = v
@@ -274,8 +264,21 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 		child = _doRrenderDomTemplate(child, scope, childContext)
 		child = child.nextSibling
 
+	if features?.length
+		if bindingType == "repeat"
+			domBinding = new cola._RepeatDomBinding(dom, scope, features)
+			scope = domBinding.scope
+			defaultPath = scope.data.alias
+		else if bindingType == "alias"
+			domBinding = new cola._AliasDomBinding(dom, scope, features)
+			scope = domBinding.scope
+			defaultPath = scope.data.alias
+		else
+			domBinding = new cola._DomBinding(dom, scope, features)
+		domBinding = null if not domBinding.feature
+
 	if initializers
-		if context.inRepeatTemplate or domBinding instanceof cola._RepeatDomBinding
+		if context.inRepeatTemplate or (domBinding and domBinding instanceof cola._RepeatDomBinding)
 			cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers)
 		else
 			for initializer in initializers
@@ -372,22 +375,10 @@ buildAttrFeature = (dom, attr, expr) ->
 	return feature
 
 buildI18NFeature = (scope, dom, expr) ->
-	return unless expr
-	if expr.indexOf(";") > 0
-		parts = expr.split(";")
-		args = []
-		for part, i in parts
-			if i == 0
-				template = cola.util.trim(part)
-			else
-				part = cola.util.trim(part)
-				if part
-					part = cola._compileExpression(part)
-				args.push(part)
-		return new cola._I18nFeature(template, args)
-	else
-		$fly(dom).text(cola.i18n(cola.util.trim(expr)))
-		return
+	expr = cola.util.trim(expr)
+	if expr
+		$fly(dom).text(cola.i18n(expr))
+	return
 
 buildWatchFeature = (scope, dom, expr) ->
 	i = expr.indexOf(" on ")

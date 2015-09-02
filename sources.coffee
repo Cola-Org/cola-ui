@@ -16,7 +16,6 @@ sources =
 			"src/core/validator.coffee"
 			"src/core/data-type.coffee"
 			"src/core/entity.coffee"
-			"src/core/action.coffee"
 			"src/core/model.coffee"
 			"src/core/dom-util.coffee"
 			"src/core/loader.coffee"

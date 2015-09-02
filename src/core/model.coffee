@@ -1,6 +1,6 @@
 #IMPORT_BEGIN
 if exports?
-	cola = require("./action")
+	cola = require("./entity")
 	module?.exports = cola
 else
 	cola = @cola
@@ -25,6 +25,8 @@ cola.model = (name, model) ->
 		return model
 	else
 		return cola.model[name]
+
+cola.model.defaultActions = {}
 
 cola.removeModel = (name) ->
 	model = cola.model[name]
@@ -106,6 +108,10 @@ class cola.Model extends cola.AbstractModel
 						scope = scope.parent
 						break unless scope
 						store = scope.action
+
+					fn = cola.model.defaultActions[name]
+					if fn
+						return fn.action or fn
 				else if name and typeof name == "object"
 					config = name
 					for n, a of config
@@ -113,17 +119,7 @@ class cola.Model extends cola.AbstractModel
 				return null
 			else
 				if action
-					if typeof action == "function"
-						fn = action
-					else if !(action instanceof cola.Action)
-						config = action
-						action = cola.create("action", config, cola.Action)
-						fn = () ->
-							return action.execute.apply(action, arguments)
-						fn = fn.bind(store)
-						fn.action = action
-					fn.isWrapper = true
-					store[name] = fn
+					store[name] = action
 				else
 					delete store[name]
 				return @
@@ -277,12 +273,11 @@ class cola.ItemsScope extends cola.SubScope
 		@_setItems(items, originItems...)
 		return
 
-	retrieveItems: () ->
+	retrieveItems: (dataCtx = {}) ->
 		if @_retrieveItems
-			return @_retrieveItems()
+			return @_retrieveItems(dataCtx)
 
 		if @expression
-			dataCtx = {}
 			items = @expression.evaluate(@parent, "auto", dataCtx)
 			@_setItems(items, dataCtx.originData)
 		return
@@ -307,8 +302,8 @@ class cola.ItemsScope extends cola.SubScope
 			@targetPath = @expressionPath
 		return
 
-	refreshItems: () ->
-		@retrieveItems()
+	refreshItems: (dataCtx) ->
+		@retrieveItems(dataCtx)
 		@onItemsRefresh?()
 		return
 
@@ -685,9 +680,9 @@ class cola.AbstractDataModel
 			else
 				node = @bindingRegistry
 				anyPropNode = node["*"]
-				@_processDataMessage(anyPropNode, path, type, arg) if anyPropNode
+				@_processDataMessage(anyPropNode, null, type, arg) if anyPropNode
 				anyChildNode = node["**"]
-				@_processDataMessage(anyChildNode, path, type, arg) if anyChildNode
+				@_processDataMessage(anyChildNode, null, type, arg) if anyChildNode
 
 			@_processDataMessage(node, path, type, arg, true) if node
 		finally
@@ -697,7 +692,7 @@ class cola.AbstractDataModel
 	_processDataMessage: (node, path, type, arg, notifyChildren) ->
 		processorMap = node.__processorMap
 		for id, processor of processorMap
-			if !(processor.timestamp >= arg.timestamp) or processor.repeatNotification
+			if !processor.disabled and (!(processor.timestamp >= arg.timestamp) or processor.repeatNotification)
 				processor.timestamp = arg.timestamp
 				processor._processMessage(node.__path, path, type, arg)
 
@@ -1041,3 +1036,50 @@ class cola.ElementAttrBinding
 		else
 			@_refresh()
 		return
+
+cola.model.defaultActions.i18n = (key, params...) ->
+	return cola.i18n(key, params...)
+
+cola.submit = (options, callback) ->
+	originalOptions = options
+	options = {}
+	options[p] = v for p, v of originalOptions
+
+	data = options.data
+	if data
+		if !(data instanceof cola.Entity or data instanceof cola.EntityList)
+			throw new cola.Exception("Invalid submit data.")
+
+		if @dataFilter
+			filter = cola.submit.filter[@dataFilter]
+			data = if filter then filter(data) else data
+
+	if data or options.alwaysSubmit
+		if options.parameter
+			options.data =
+				data: data
+				parameter: options.parameter
+		else
+			options.data = data
+		cola.post(options, callback)
+		return true
+	else
+		return false
+
+cola.submit.filter =
+	"dirty": (data) ->
+		if data instanceof cola.EntityList
+			filtered = []
+			data.each (entity) ->
+				if entity.state != cola.Entity.STATE_NONE
+					filtered.push(entity)
+				return
+		else if data.state != cola.Entity.STATE_NONE
+			filtered = data
+		return filtered
+
+	"child-dirty": (data) ->
+		return data
+
+	"dirty-tree": (data) ->
+		return data

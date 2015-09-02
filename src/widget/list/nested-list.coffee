@@ -98,7 +98,7 @@ class cola.NestedList extends cola.Widget
 						nestedList._showLayer(1, children?[0])
 				return
 			)
-			itemsScope._retrieveItems = () -> nestedList._bind.retrieveChildNodes(nestedList._rootNode)
+			itemsScope._retrieveItems = (dataCtx) -> nestedList._bind.retrieveChildNodes(nestedList._rootNode, null, dataCtx)
 
 		@fire("topLayerChange", @, {
 			index: 0
@@ -251,7 +251,7 @@ class cola.NestedList extends cola.Widget
 			callback?(wrapper?)
 			return
 		)
-		itemsScope._retrieveItems = () -> parentNode._bind.retrieveChildNodes(parentNode)
+		itemsScope._retrieveItems = (dataCtx) -> parentNode._bind.retrieveChildNodes(parentNode, null, dataCtx)
 		return
 
 	_hideLayer: (animation) ->

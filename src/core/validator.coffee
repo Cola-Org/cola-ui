@@ -13,8 +13,6 @@ cola.registerTypeResolver "validator", (config) ->
 cola.registerTypeResolver "validator", (config) ->
 	if typeof config == "function"
 		return cola.CustomValidator
-	else if config?.action
-		return cola.ActionValidator
 
 class cola.Validator extends cola.Definition
 	@ATTRIBUTES:

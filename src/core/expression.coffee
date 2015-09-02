@@ -54,6 +54,30 @@ digestExpression = (text, p) ->
 cola._compileExpression = (exprStr, specialType) ->
 	if !exprStr then return null
 
+	if exprStr.charCodeAt(0) == 61 # `=`
+		exprStr = exprStr.substring(1)
+		isStatic = true
+
+	i = exprStr.indexOf(" on ")
+	if i > 0
+		pathStr = exprStr.substring(i + 4)
+		exprStr = exprStr.substring(0, i)
+
+		paths = []
+		for path in pathStr.split(",")
+			path = cola.util.trim(path)
+			continue unless path
+			if path.indexOf(".") > 0
+				parts = []
+				oldParts = path.split(".")
+				last = oldParts.length - 1
+				for part, j in oldParts
+					if j < last and part.charCodeAt(0) != 33 # `!`
+						part = "!" + part
+					parts.push(part)
+				path = parts.join(".")
+			paths.push(path)
+
 	if specialType == "repeat"
 		i = exprStr.indexOf(" in ")
 		if i > 0
@@ -65,13 +89,12 @@ cola._compileExpression = (exprStr, specialType) ->
 				exp.raw = aliasName + " in " + exp.raw
 				exp.repeat = true
 				exp.alias = aliasName
-				return exp
-			throw new cola.Exception("\"#{exprStr}\" is not a valid expression.")
+			if not exp
+				throw new cola.Exception("\"#{exprStr}\" is not a valid expression.")
 		else
 			exp = new cola.Expression(exprStr, true)
 			exp.repeat = true
 			exp.alias = "item"
-			return exp
 	else if specialType == "alias"
 		i = exprStr.indexOf(" as ")
 		if i > 0
@@ -83,10 +106,14 @@ cola._compileExpression = (exprStr, specialType) ->
 				exp.raw = exp.raw + " as " + aliasName
 				exp.setAlias = true
 				exp.alias = aliasName
-				return exp
-		throw new cola.Exception("\"#{exprStr}\" should be a alias expression.")
+		if not exp
+			throw new cola.Exception("\"#{exprStr}\" should be a alias expression.")
 	else
-		return new cola.Expression(exprStr, true)
+		exp = new cola.Expression(exprStr, true)
+
+	if isStatic then exp.isStatic = true
+	if paths then exp.path = paths
+	return exp
 
 splitExpression = (text, separator) ->
 	separatorCharCode = separator.charCodeAt(0)

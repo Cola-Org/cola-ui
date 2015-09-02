@@ -7,15 +7,15 @@ class cola._DomBinding
 	constructor: (dom, @scope, feature) ->
 		@dom = dom
 		@$dom = $(dom)
-		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
-		cola.util.onNodeRemoved(dom, _destroyDomBinding)
 
 		if feature
 			if feature instanceof Array
 				for f in feature
 					@addFeature(f)
-			else
-				@addFeature(feature)
+			else@addFeature(feature)
+
+		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
+		cola.util.onNodeRemoved(dom, _destroyDomBinding)
 
 	destroy: () ->
 		_feature = @feature
@@ -25,6 +25,7 @@ class cola._DomBinding
 					@unbindFeature(feature)
 			else
 				@unbindFeature(_feature)
+
 		delete @dom
 		delete @$dom
 		return
@@ -83,7 +84,12 @@ class cola._DomBinding
 	bind: (path, feature) ->
 		pipe = {
 			_processMessage: (bindingPath, path, type, arg) =>
-				feature._processMessage(@, bindingPath, path, type, arg)
+				if not feature.disabled
+					feature._processMessage(@, bindingPath, path, type, arg)
+					if feature.disabled then pipe.disabled = true
+				else
+					pipe.disabled = true
+				return
 		}
 		@scope.data.bind(path, pipe)
 		@[feature.id] = pipe

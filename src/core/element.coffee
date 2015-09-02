@@ -247,13 +247,16 @@ class cola.Element
 		if value instanceof cola.Expression and cola.currentScope
 			expression = value
 			scope = cola.currentScope
-			elementAttrBinding = new cola.ElementAttrBinding(@, attr, expression, scope)
+			if expression.isStatic
+				value = expression.evaluate(scope, "never")
+			else
+				elementAttrBinding = new cola.ElementAttrBinding(@, attr, expression, scope)
 
-			@_elementAttrBindings ?= {}
-			elementAttrBindings = @_elementAttrBindings
-			if elementAttrBindings
-				elementAttrBindings[attr] = elementAttrBinding
-			value = elementAttrBinding.evaluate()
+				@_elementAttrBindings ?= {}
+				elementAttrBindings = @_elementAttrBindings
+				if elementAttrBindings
+					elementAttrBindings[attr] = elementAttrBinding
+				value = elementAttrBinding.evaluate()
 
 		if attrConfig
 			if attrConfig.type is "boolean"

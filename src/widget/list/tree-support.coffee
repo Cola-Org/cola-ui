@@ -85,12 +85,12 @@ class cola.CascadeBind extends cola.Element
 			itemsScope._setItems.apply(itemsScope, args)
 		return
 
-	retrieveChildNodes: (parentNode, callback) ->
+	retrieveChildNodes: (parentNode, callback, dataCtx) ->
 		isRoot = !parentNode._parent
 		hasChild = false
 		funcs = []
 		if @_recursive or isRoot
-			dataCtx = {}
+			dataCtx ?= {}
 			items = @_expression.evaluate(parentNode._scope, "auto", dataCtx)
 			if items == undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
@@ -106,7 +106,7 @@ class cola.CascadeBind extends cola.Element
 						hasChild = recursiveItems.length > 0
 
 		if @_child and !isRoot
-			dataCtx = {}
+			dataCtx ?= {}
 			items = @_child._expression.evaluate(parentNode._scope, "auto", dataCtx)
 			if items == undefined and dataCtx.unloaded
 				childLoader = dataCtx.providerInvokers?[0]

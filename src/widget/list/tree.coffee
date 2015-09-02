@@ -122,7 +122,7 @@ class cola.Tree extends cola.ItemsView
 		if @_bind
 			@_itemsRetrieved = true
 			@_bind.retrieveChildNodes(@_rootNode)
-			itemsScope._retrieveItems = () => @_bind.retrieveChildNodes(@_rootNode)
+			itemsScope._retrieveItems = (dataCtx) => @_bind.retrieveChildNodes(@_rootNode, null, dataCtx)
 		return
 
 	_setCurrentNode: (node) ->
@@ -301,7 +301,7 @@ class cola.Tree extends cola.ItemsView
 		if !itemsScope
 			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope)
 			itemsScope.alias = node._alias
-			itemsScope._retrieveItems = () -> node._bind.retrieveChildNodes(node)
+			itemsScope._retrieveItems = (dataCtx) -> node._bind.retrieveChildNodes(node, null, dataCtx)
 			itemsScope.onItemsRefresh = () ->
 				itemDom = tree._itemDomMap[node._id]
 				tree._refreshChildNodes(itemDom, node) if itemDom

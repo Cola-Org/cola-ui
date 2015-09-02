@@ -8,68 +8,29 @@ class cola._BindingFeature
 class cola._ExpressionFeature extends cola._BindingFeature
 	constructor: (@expression) ->
 		if @expression
+			@isStatic = @expression.isStatic
 			@path = @expression.path
 			if !@path and @expression.hasCallStatement
 				@path = "**"
 				@delay = true
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
 
-	evaluate: (domBinding, dataCtx = {}) ->
+	evaluate: (domBinding, dataCtx) ->
 		return @expression.evaluate(domBinding.scope, "auto", dataCtx)
 
-	refresh: (domBinding, force) ->
+	refresh: (domBinding, force, dataCtx = {}) ->
 		return unless @_refresh
 		if @delay and !force
 			cola.util.delay(@, "refresh", 100, () ->
-				@_refresh(domBinding)
+				@_refresh(domBinding, dataCtx)
+				if @isStatic and !dataCtx.unloaded
+					@disabled = true
 				return
 			)
 		else
-			@_refresh(domBinding)
-		return
-
-class cola._I18nFeature extends cola._BindingFeature
-	constructor: (@template, @args) ->
-		paths = {}
-		for arg in args
-			if arg instanceof cola.Expression
-				expression = arg
-				path = expression.path
-				if path
-					if path typeof "string"
-						paths[path] = true
-					else
-						paths[p] = true for p in path
-				else
-					if expression.hasCallStatement
-						paths = null
-						@path = "**"
-						@delay = true
-						break
-
-				if not @watchingMoreMessage
-					@watchingMoreMessage = expression.hasCallStatement or expression.convertors
-
-		if paths
-			path = []
-			path.push(p) for p of paths
-			if path.length then @path = path
-
-	_processMessage: (domBinding)->
-		@refresh(domBinding)
-		return
-
-	refresh: (domBinding) ->
-		dataCtx = null
-		realArgs = []
-		for arg in @args
-			if arg instanceof cola.Expression
-				dataCtx ?= {}
-				realArgs.push(arg.evaluate(domBinding.scope, "auto", dataCtx))
-			else
-				realArgs.push(arg)
-		text = cola.i18n.apply(cola, [@template].concat(realArgs))
-		$fly(domBinding.dom).text(if !text? then "" else text)
+			@_refresh(domBinding, dataCtx)
+			if @isStatic and !dataCtx.unloaded
+				@disabled = true
 		return
 
 class cola._WatchFeature extends cola._BindingFeature
@@ -117,8 +78,8 @@ class cola._AliasFeature extends cola._ExpressionFeature
 			@refresh(domBinding)
 		return
 
-	_refresh: (domBinding)->
-		data = @evaluate(domBinding)
+	_refresh: (domBinding, dataCtx)->
+		data = @evaluate(domBinding, dataCtx)
 		domBinding.scope.data.setTargetData(data)
 		return
 
@@ -175,8 +136,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_refresh: (domBinding) ->
-		domBinding.scope.refreshItems()
+	_refresh: (domBinding, dataCtx) ->
+		domBinding.scope.refreshItems(dataCtx)
 		return
 
 	onItemsRefresh: (domBinding) ->
@@ -321,14 +282,14 @@ class cola._DomFeature extends cola._ExpressionFeature
 			@refresh(domBinding)
 		return
 
-	_refresh: (domBinding)->
+	_refresh: (domBinding, dataCtx)->
 		return if @ignoreMessage
-		value = @evaluate(domBinding)
-		@_doRefresh(domBinding, value)
+		value = @evaluate(domBinding, dataCtx)
+		@_doRender(domBinding, value)
 		return
 
 class cola._TextNodeFeature extends cola._DomFeature
-	_doRefresh: (domBinding, value) ->
+	_doRender: (domBinding, value) ->
 		$fly(domBinding.dom).text(if !value? then "" else value)
 		return
 
@@ -336,7 +297,7 @@ class cola._DomAttrFeature extends cola._DomFeature
 	constructor: (expression, @attr, @isStyle) ->
 		super(expression)
 
-	_doRefresh: (domBinding, value) ->
+	_doRender: (domBinding, value) ->
 		attr = @attr
 		if attr == "text"
 			domBinding.$dom.text(if !value? then "" else value)
@@ -352,7 +313,7 @@ class cola._DomClassFeature extends cola._DomFeature
 	constructor: (expression, @className) ->
 		super(expression)
 
-	_doRefresh: (domBinding, value) ->
+	_doRender: (domBinding, value) ->
 		domBinding.$dom[if value then "addClass" else "removeClass"](@className)
 		return
 
@@ -365,7 +326,7 @@ class cola._TextBoxFeature extends cola._DomFeature
 		super()
 		return
 
-	_doRefresh: (domBinding, value)->
+	_doRender: (domBinding, value)->
 		domBinding.dom.value = value or ""
 		return
 
@@ -379,7 +340,7 @@ class cola._CheckboxFeature extends cola._DomFeature
 		super()
 		return
 
-	_doRefresh: (domBinding, value)->
+	_doRender: (domBinding, value)->
 		checked = cola.DataType.defaultDataTypes.boolean.parse(value)
 		domBinding.dom.checked = checked
 		return
@@ -394,7 +355,7 @@ class cola._RadioFeature extends cola._DomFeature
 		super()
 		return
 
-	_doRefresh: (domBinding, value)->
+	_doRender: (domBinding, value)->
 		domBinding.dom.checked = (value == domBinding.dom.value)
 		return
 
@@ -409,17 +370,17 @@ class cola._SelectFeature extends cola._DomFeature
 		super()
 		return
 
-	_doRefresh: (domBinding, value)->
+	_doRender: (domBinding, value)->
 		domBinding.dom.value = value
 		return
 
 class cola._DisplayFeature extends cola._DomFeature
-	_doRefresh: (domBinding, value)->
+	_doRender: (domBinding, value)->
 		domBinding.dom.style.display = if value then "" else "none"
 		return
 
 class cola._SelectOptionsFeature extends cola._DomFeature
-	_doRefresh: (domBinding, optionValues)->
+	_doRender: (domBinding, optionValues)->
 		return unless optionValues instanceof Array or optionValues instanceof cola.EntityList
 
 		options = domBinding.dom.options
