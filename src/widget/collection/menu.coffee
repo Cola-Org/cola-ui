@@ -346,10 +346,10 @@ class cola.Menu extends cola.Widget
 			menu._bindToSemantic()
 			return
 		, 300)
-		#TODO 通过监听dom树变化来实现
 		return
 
 	_bindToSemantic: ()->
+		if @_parent instanceof cola.menu.MenuItem then return
 		$dom = @get$Dom()
 		$dom.find(">.dropdown.item,.right.menu>.dropdown.item").each((index, item)=>
 			$item = $(item)
@@ -585,8 +585,6 @@ cola.registerType("menu", "headerItem", cola.menu.HeaderMenuItem)
 
 cola.registerTypeResolver "menu", (config) ->
 	return cola.resolveType("widget", config)
-
-
 
 
 
