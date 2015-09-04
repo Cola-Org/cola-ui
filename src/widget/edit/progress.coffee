@@ -151,8 +151,6 @@ class cola.Progress extends cola.Widget
 		color = @get("color")
 		@_classNamePool.add(color) if color
 
-		attached = @get("attached")
-		@_classNamePool.add("#{attached} attached") if attached
 		return
 
 	_setDom: (dom, parseChild)->
