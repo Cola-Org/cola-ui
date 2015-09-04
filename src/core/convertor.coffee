@@ -30,7 +30,7 @@ _matchValue = (value, propFilter) ->
 			return (value + "").indexOf(propFilter.value) > -1
 
 cola.convertor["filter"] = (collection, criteria, params...) ->
-	if !collection || !criteria then return collection
+	return collection unless collection and criteria
 
 	if cola.util.isSimpleValue(criteria)
 		caseSensitive = params[0]
@@ -100,7 +100,7 @@ cola.convertor["filter"] = (collection, criteria, params...) ->
 		return collection
 
 _sortConvertor = (collection, comparator, caseSensitive) ->
-	if !collection then return collection
+	return null unless collection
 
 	if collection instanceof cola.EntityList
 		collection = collection.toArray()
@@ -184,12 +184,22 @@ _sortConvertor = (collection, comparator, caseSensitive) ->
 cola.convertor["orderBy"] = _sortConvertor
 cola.convertor["sort"] = _sortConvertor
 
+cola.convertor["top"] = (collection, top = 1) ->
+	return null unless collection
+	items = []
+	i = 0
+	cola.each collection, (item) ->
+		i++
+		items.push(item)
+		return i < top
+	return items
+
 cola.convertor["date"] = (date, format) ->
-	if !date? then return ""
+	return "" unless date?
 	if not (date instanceof XDate)
 		date = new XDate(date)
 	return date.toString(format)
 
 cola.convertor["number"] = (number, format) ->
-	if !number? then return ""
+	return "" unless number?
 	return formatNumber(format, number)

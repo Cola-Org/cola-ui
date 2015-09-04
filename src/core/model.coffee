@@ -818,8 +818,8 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		i = path.indexOf(".")
 		if i > 0
 			if path.substring(0, i) == @alias
-				if @dataType
-					property = @dataType?.getProperty(path.substring(i + 1))
+				if @_rootDataType
+					property = @_rootDataType?.getProperty(path.substring(i + 1))
 					dataType = property?.get("dataType")
 				return dataType
 			else
