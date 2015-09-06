@@ -1061,7 +1061,13 @@ cola.submit = (options, callback) ->
 				parameter: options.parameter
 		else
 			options.data = data
-		cola.post(options, callback)
+		jQuery.post(options.url, options.data).done((result)->
+			cola.callback(callback, true, result)
+			return
+		).fail((result)->
+			cola.callback(callback, true, result)
+			return
+		)
 		return true
 	else
 		return false

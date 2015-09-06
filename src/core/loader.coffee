@@ -73,7 +73,8 @@ cola.loadSubView = (targetDom, context) ->
 	if jsUrls
 		for jsUrl in jsUrls
 			_loadJs(context, jsUrl, {
-				complete: (success, result) -> resourceLoadCallback(success, (if success then context else result), jsUrl)
+				complete: (success, result) -> resourceLoadCallback(success, (if success then context else result),
+					jsUrl)
 			})
 
 	if cssUrls
@@ -111,37 +112,36 @@ _loadJs = (context, url, callback) ->
 		Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
 		cola.callback(callback, true)
 	else
-		$.ajax(
-			url: url
+		$.ajax(url, {
 			dataType: "text"
 			cache: true
-			success: (script) ->
-				scriptElement = $.xCreate(
-					tagName: "script"
-					language: "javascript"
-					type: "text/javascript"
-					charset: cola.setting("defaultCharset")
-				)
-				scriptElement.text = script
-				cola._suspendedInitFuncs = context.suspendedInitFuncs
+		}).done((script) ->
+			scriptElement = $.xCreate(
+				tagName: "script"
+				language: "javascript"
+				type: "text/javascript"
+				charset: cola.setting("defaultCharset")
+			)
+			scriptElement.text = script
+			cola._suspendedInitFuncs = context.suspendedInitFuncs
+			try
 				try
-					try
-						head = document.querySelector("head") or document.documentElement
-						head.appendChild(scriptElement)
-					finally
-						delete cola._suspendedInitFuncs
-						_jsCache[url] = context.suspendedInitFuncs
-					cola.callback(callback, true)
-				catch e
-					cola.callback(callback, false, e)
-				return
-			error: (xhr) ->
-				cola.callback(callback, false, {
-					xhr: xhr
-					status: xhr.status
-					statusText: xhr.statusText
-				})
-				return
+					head = document.querySelector("head") or document.documentElement
+					head.appendChild(scriptElement)
+				finally
+					delete cola._suspendedInitFuncs
+					_jsCache[url] = context.suspendedInitFuncs
+				cola.callback(callback, true)
+			catch e
+				cola.callback(callback, false, e)
+			return
+		).fail((xhr) ->
+			cola.callback(callback, false, {
+				xhr: xhr
+				status: xhr.status
+				statusText: xhr.statusText
+			})
+			return
 		)
 	return
 

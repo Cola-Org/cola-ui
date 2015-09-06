@@ -66,9 +66,6 @@ colaEventRegistry =
 	ready: {}
 	settingChange: {}
 	exception: {}
-	beforeAjaxRequest: {}
-	ajaxSuccess: {}
-	ajaxError: {}
 	beforeRouterSwitch: {}
 	routerSwitch: {}
 
@@ -271,7 +268,7 @@ class cola.RunnableException extends cola.Exception
 I18N
 ###
 
-defaultLocale = "zh"
+defaultLocale = "en"
 
 i18nStore = {}
 
