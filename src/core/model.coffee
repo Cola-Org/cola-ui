@@ -1037,6 +1037,9 @@ class cola.ElementAttrBinding
 			@_refresh()
 		return
 
+cola.model.defaultActions.not = (value) ->
+	return not value
+
 cola.model.defaultActions.i18n = (key, params...) ->
 	return cola.i18n(key, params...)
 

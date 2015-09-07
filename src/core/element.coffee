@@ -188,7 +188,7 @@ class cola.Element
 		if typeof value == "string" and @_scope
 			if value.charCodeAt(0) == 123 # `{`
 				parts = cola._compileText(value)
-				if parts.length > 0
+				if parts?.length > 0
 					value = parts[0]
 
 		if @constructor.ATTRIBUTES.hasOwnProperty(attr)
