@@ -91,7 +91,7 @@ class cola.CascadeBind extends cola.Element
 		funcs = []
 		if @_recursive or isRoot
 			dataCtx ?= {}
-			items = @_expression.evaluate(parentNode._scope, "auto", dataCtx)
+			items = @_expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items == undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
 				if recursiveLoader
@@ -107,7 +107,7 @@ class cola.CascadeBind extends cola.Element
 
 		if @_child and !isRoot
 			dataCtx ?= {}
-			items = @_child._expression.evaluate(parentNode._scope, "auto", dataCtx)
+			items = @_child._expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items == undefined and dataCtx.unloaded
 				childLoader = dataCtx.providerInvokers?[0]
 				if childLoader

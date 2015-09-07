@@ -62,9 +62,9 @@ class cola.Entity
 	hasValue: (prop) ->
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
 
-	get: (prop, loadMode = "auto", context) ->
+	get: (prop, loadMode = "async", context) ->
 		if typeof loadMode == "function"
-			loadMode = "auto"
+			loadMode = "async"
 			callback = loadMode
 
 		if prop.indexOf(".") > 0
@@ -76,33 +76,34 @@ class cola.Entity
 		loadData = (provider) ->
 			retValue = undefined
 			providerInvoker = provider.getInvoker(@)
-			if loadMode == "always"
+			if loadMode == "sync"
 				retValue = providerInvoker.invokeSync()
 				retValue = @_set(prop, retValue)
 				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
 					retValue._providerInvoker = providerInvoker
-			else
+			else if loadMode == "async"
 				if context
 					context.unloaded = true
 					context.providerInvokers ?= []
 					context.providerInvokers.push(providerInvoker)
 
-				if loadMode == "auto"
-					@_data[prop] = providerInvoker
-					providerInvoker.invokeAsync(
-						complete: (success, result) =>
-							if @_data[prop] != providerInvoker then success = false
-							if success
-								result = @_set(prop, result)
-								retValue = result
-								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
-									result._providerInvoker = providerInvoker
-							else
-								@_set(prop, null)
-							if callback
-								cola.callback(callback, success, result)
-							return
-					)
+				@_data[prop] = providerInvoker
+				providerInvoker.invokeAsync(
+					complete: (success, result) =>
+						if @_data[prop] != providerInvoker then success = false
+						if success
+							result = @_set(prop, result)
+							retValue = result
+							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+								result._providerInvoker = providerInvoker
+						else
+							@_set(prop, null)
+						if callback
+							cola.callback(callback, success, result)
+						return
+				)
+			else
+				cola.callback(callback, true, undefined)
 			return retValue
 
 		property = @dataType?.getProperty(prop)
@@ -113,35 +114,29 @@ class cola.Entity
 				if property instanceof cola.BaseProperty
 					provider = property.get("provider")
 					context?.unloaded = true
-					if provider and loadMode != "never"
+					if provider
 						value = loadData.call(@, provider)
+						callbackProcessed = true
 				else if property instanceof cola.ComputeProperty
 					value = property.compute(@)
 		else if value instanceof cola.Provider
 			value = loadData.call(@, value)
+			callbackProcessed = true
 		else if value instanceof cola.AjaxServiceInvoker
 			providerInvoker = value
-			if loadMode == "always"
+			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
-				if callback
-					providerInvoker = value
-					providerInvoker.invokeAsync(
-						complete: (success, result) =>
-							if success
-								cola.callback(callback, true, @_data[prop])
-							else
-								cola.callback(callback, false, result)
-							return
-					)
-				value = undefined
-			else if loadMode == "auto"
+				value = @_set(prop, value)
+			else if loadMode == "async"
 				if callback then providerInvoker.callbacks.push(callback)
+				callbackProcessed = true
 
 			if context
 				context.unloaded = true
 				context.providerInvokers ?= []
 				context.providerInvokers.push(providerInvoker)
-		else if callback
+
+		if callback and not callbackProcessed
 			cola.callback(callback, true, value)
 		return value
 
@@ -275,9 +270,9 @@ class cola.Entity
 				@validate(prop)
 		return value
 
-	getText: (prop, loadMode = "auto", callback, context) ->
+	getText: (prop, loadMode = "async", callback, context) ->
 		if typeof loadMode == "function"
-			loadMode = "auto"
+			loadMode = "async"
 			callback = loadMode
 
 		i = prop.lastIndexOf(".")
@@ -462,31 +457,30 @@ class cola.Entity
 
 	getPath: getEntityPath
 
-	flushAsync: (property, callback) ->
+	flush: (property, loadMode = "async") ->
 		propertyDef = @dataType.getProperty(property)
 		if !propertyDef?._provider?
 			throw new cola.Exception("Provider undefined.")
 
 		@_set(property, undefined)
+
+		if typeof loadMode is "function"
+			callback = loadMode
+			loadMode = "async"
 
 		notifyArg = {
 			entity: @
 			property: property
 		}
-		@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-		return @_get(property, "auto", {
+
+		if loadMode is "async"
+			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
+		return @_get(property, loadMode, {
 			complete: (success, result) =>
 				cola.callback(callback, success, result)
-				@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+				if loadMode is "async"
+					@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 		})
-
-	flushSync = (property) ->
-		propertyDef = @dataType.getProperty(property)
-		if !propertyDef?._provider?
-			throw new cola.Exception("Provider undefined.")
-
-		@_set(property, undefined)
-		return @_get(property)
 
 	_setListener: (listener) ->
 		return if @_listener == listener
@@ -930,7 +924,11 @@ class cola.EntityList extends LinkedList
 		pageNo = @pageNo + 1
 		return not @pageCountDetermined or pageNo <= @pageCount
 
-	_loadPage: (pageNo, setCurrent, callback) ->
+	_loadPage: (pageNo, setCurrent, loadMode = "async") ->
+		if typeof loadMode is "function"
+			callback = loadMode
+			loadMode = "async"
+
 		page = @_findPage(pageNo)
 		if page != @_currentPage
 			if page
@@ -944,10 +942,10 @@ class cola.EntityList extends LinkedList
 						entity = entity._next
 
 				cola.callback(callback, true)
-			else
+			else if loadMode isnt "never"
 				if setCurrent then @setCurrent(null)
 				page = @_createPage(pageNo)
-				if callback
+				if loadMode is "async"
 					page.loadData(
 						complete: (success, result) =>
 							if success
@@ -963,34 +961,34 @@ class cola.EntityList extends LinkedList
 					cola.callback(callback, true)
 		return @
 
-	loadPage: (pageNo, callback) ->
-		return @_loadPage(pageNo, false, callback)
+	loadPage: (pageNo, loadMode) ->
+		return @_loadPage(pageNo, false, loadMode)
 
-	gotoPage: (pageNo, callback) ->
+	gotoPage: (pageNo, loadMode) ->
 		if pageNo < 1
 			pageNo = 1
 		else if @pageCountDetermined and pageNo > @pageCount
 			pageNo = @pageCount
-		return @_loadPage(pageNo, true, callback)
+		return @_loadPage(pageNo, true, loadMode)
 
-	firstPage: (callback) ->
-		@gotoPage(1, callback)
+	firstPage: (loadMode) ->
+		@gotoPage(1, loadMode)
 		return @
 
-	previousPage: (callback) ->
+	previousPage: (loadMode) ->
 		pageNo = @pageNo - 1
 		if pageNo < 1 then pageNo = 1
-		@gotoPage(pageNo, callback)
+		@gotoPage(pageNo, loadMode)
 		return @
 
-	nextPage: (callback) ->
+	nextPage: (loadMode) ->
 		pageNo = @pageNo + 1
 		if @pageCountDetermined and pageNo > @pageCount then pageNo = @pageCount
-		@gotoPage(pageNo, callback)
+		@gotoPage(pageNo, loadMode)
 		return @
 
-	lastPage: (callback) ->
-		@gotoPage(@pageCount, callback)
+	lastPage: (loadMode) ->
+		@gotoPage(@pageCount, loadMode)
 		return @
 
 	insert: (entity, insertMode, refEntity) ->
@@ -1148,17 +1146,23 @@ class cola.EntityList extends LinkedList
 			@_listener?.onMessage(@getPath(true), type, arg)
 		return
 
-	_doFlush: (callback) ->
+	flush: (loadMode) ->
 		if !@_providerInvoker?
 			throw new cola.Exception("Provider undefined.")
+
+		if typeof loadMode is "function"
+			callback = loadMode
+			loadMode = "async"
+
 		@_reset()
 		page = @_findPage(@pageNo)
 		if !page then @_createPage(@pageNo)
 
-		if callback
+		if loadMode is "async"
 			notifyArg = {
 				entityList: @
 			}
+
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 			page.loadData(
 				complete: (success, result)  =>
@@ -1167,14 +1171,6 @@ class cola.EntityList extends LinkedList
 			)
 		else
 			page.loadData()
-		return
-
-	flushAsync: (callback) ->
-		@_doFlush(callback)
-		return @
-
-	flushSync: () ->
-		@_doFlush()
 		return @
 
 	each: (fn, options) ->

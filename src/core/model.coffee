@@ -64,12 +64,9 @@ class cola.AbstractModel
 	getDefinition: (name) ->
 		return @data.getDefinition(name)
 
-	flushAsync: (name, callback) ->
-		@data.flushAsync(name, callback)
+	flush: (name, loadMode) ->
+		@data.flush(name, loadMode)
 		return @
-
-	flushSync: (name) ->
-		return @data.flushSync(name)
 
 	disableObservers: () ->
 		@data.disableObservers()
@@ -278,7 +275,7 @@ class cola.ItemsScope extends cola.SubScope
 			return @_retrieveItems(dataCtx)
 
 		if @expression
-			items = @expression.evaluate(@parent, "auto", dataCtx)
+			items = @expression.evaluate(@parent, "async", dataCtx)
 			@_setItems(items, dataCtx.originData)
 		return
 
@@ -478,7 +475,7 @@ class cola.AbstractDataModel
 				aliasData = aliasHolder.data
 				if i > 0
 					if typeof loadMode == "function"
-						loadMode = "auto"
+						loadMode = "async"
 						callback = loadMode
 					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
 						context)
@@ -583,12 +580,9 @@ class cola.AbstractDataModel
 				rootData.set(prop, data, context)
 		return
 
-	flushAsync: (name, callback) ->
-		@_rootData?.flushAsync(name, callback)
+	flush: (name, loadMode) ->
+		@_rootData?.flush(name, loadMode)
 		return @
-
-	flushSync: (name) ->
-		return @_rootData?.flushSync(name)
 
 	bind: (path, processor) ->
 		if !@bindingRegistry
@@ -909,28 +903,18 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	unregDefinition: (name) ->
 		return @parent.unregDefinition(name)
 
-	flushAsync: (path, callback) ->
+	flush: (path, loadMode) ->
 		alias = @alias
 		if path.substring(0, alias.length) == alias
 			c = path.charCodeAt(1)
 			if c == 46 # `.`
-				@_targetData?.flushAsync(path.substring(alias.length + 1), callback)
+				@_targetData?.flush(path.substring(alias.length + 1), loadMode)
 				return @
 			else if isNaN(c)
-				@_targetData?.flushAsync(callback)
+				@_targetData?.flush(loadMode)
 				return @
-		@parent.flushAsync(path, callback)
+		@parent.flush(path, loadMode)
 		return @
-
-	flushSync: (path) ->
-		alias = @alias
-		if path.substring(0, alias.length) == alias
-			c = path.charCodeAt(1)
-			if c == 46 # `.`
-				return @_targetData?.flushSync(path.substring(alias.length + 1))
-			else if isNaN(c)
-				return @_targetData?.flushSync()
-		return @parent.flushSync(path)
 
 	disableObservers: () ->
 		@parent.disableObservers()
@@ -1014,7 +998,7 @@ class cola.ElementAttrBinding
 
 	evaluate: (dataCtx) ->
 		dataCtx ?= {}
-		return @expression.evaluate(@scope, "auto", dataCtx)
+		return @expression.evaluate(@scope, "async", dataCtx)
 
 	_refresh: () ->
 		value = @evaluate(@attr)

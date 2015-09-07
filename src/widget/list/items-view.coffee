@@ -491,7 +491,7 @@ class cola.ItemsView extends cola.Widget
 					if pullState == "down"
 						collection = @_realOriginItems or @_realItems
 						if collection instanceof cola.EntityList
-							collection.flushAsync(done)
+							collection.flush(done)
 						else
 							done()
 					else if pullState == "up"

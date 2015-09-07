@@ -16,7 +16,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
 
 	evaluate: (domBinding, dataCtx) ->
-		return @expression.evaluate(domBinding.scope, "auto", dataCtx)
+		return @expression.evaluate(domBinding.scope, "async", dataCtx)
 
 	refresh: (domBinding, force, dataCtx = {}) ->
 		return unless @_refresh

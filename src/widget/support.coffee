@@ -323,7 +323,7 @@ cola.DataWidgetMixin =
 	_readBindingValue: (dataCtx) ->
 		return unless @_bindInfo?.expression
 		dataCtx ?= {}
-		return @_bindInfo.expression.evaluate(@_scope, "auto", dataCtx)
+		return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
 
 	_writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
