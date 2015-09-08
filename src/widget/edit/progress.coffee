@@ -8,8 +8,8 @@ class cola.Progress extends cola.Widget
 			type: "number"
 			defaultValue: 0
 			setter: (value)->
-				@_total = if isFinite(value) then parseFloat(value) else value
-				@_setting("total", @_total) if @_dom
+				@_total = value
+				@_setting("total", value)
 				return
 
 		value:
@@ -17,18 +17,23 @@ class cola.Progress extends cola.Widget
 			defaultValue: 0
 			setter: (value)->
 				@_value = value
-				@progress(value) if @_dom
+				@progress(value)
 				return
 
-		labelFormat:
+		showProgress:
+			defaultValue: true
+			type: "boolean"
+
+		progressFormat:
 			enum: ["percent", "ratio"]
 			defaultValue: "percent"
 			setter: (value)->
-				@_labelFormat = value
-				@_setting("label", value) if @_dom
+				@_progressFormat = value
+				if @_dom then @_setting("label", value)
 				return
 
 		ratioText:
+			defaultValue: "{percent}%"
 			setter: (value)->
 				@_ratioText = value
 				@_settingText() if @_dom
@@ -50,7 +55,7 @@ class cola.Progress extends cola.Widget
 
 		autoSuccess:
 			defaultValue: true
-
+			type: "boolean"
 			setter: (value)->
 				@_autoSuccess = !!value
 				@_setting("autoSuccess", @_autoSuccess) if @_dom
@@ -124,6 +129,7 @@ class cola.Progress extends cola.Widget
 		)
 
 	_setting: (name, value)->
+		return unless @_dom
 		@get$Dom().progress("setting", name, value) if @_dom
 		return
 
@@ -162,14 +168,14 @@ class cola.Progress extends cola.Widget
 		@get$Dom().progress({
 			total: @get("total")
 			label: @_labelFormat
-			autoSuccess: !!@_autoSuccess
-			showActivity: !!@_showActivity
-			limitValues: !!@_limitValues
+			autoSuccess: @_autoSuccess
+			showActivity: @_showActivity
+			limitValues: @_limitValues
 			precision: @_precision
 			text: {
 				active: @_activeMessage or ""
 				success: @_successMessage or ""
-				ratio: @_ratioText or "{percent}%"
+				ratio: @_ratioText
 			}
 			onChange: (percent, value, total)->
 				arg =
@@ -225,7 +231,7 @@ class cola.Progress extends cola.Widget
 
 	progress: (progress)->
 		@_value = progress
-		@get$Dom().progress("set progress", progress) if @_dom
+		if @_dom then @get$Dom().progress("set progress", progress)
 		return @
 
 	complete: ()->
