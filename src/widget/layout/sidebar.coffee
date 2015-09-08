@@ -1,5 +1,5 @@
 class cola.Sidebar extends cola.AbstractLayer
-	@CLASS_NAME: "ui sidebar layer transition hidden"
+	@CLASS_NAME: "ui sidebar"
 	@ATTRIBUTES:
 		direction:
 			defaultValue: "left"
@@ -96,6 +96,7 @@ class cola.Sidebar extends cola.AbstractLayer
 			})
 			if @_dimmerClose
 				$(_dimmerDom).on("click", ()=> @hide())
+			$(_dimmerDom).css("position", "fixed")
 			container = @_context or @_dom.parentNode
 			container.appendChild(_dimmerDom)
 			@_doms.modalLayer = _dimmerDom
@@ -119,3 +120,5 @@ class cola.Sidebar extends cola.AbstractLayer
 					})
 			}
 		)
+	isVisible: ()->return if @_dom then @get$Dom().hasClass("visible") else false
+

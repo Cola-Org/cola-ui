@@ -11,7 +11,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		controls:
 			defaultValue: true
 		pause:
-			defaultValue: 2000
+			defaultValue: 3000
 
 	@EVENTS:
 		change: null
@@ -108,12 +108,16 @@ class cola.Carousel extends cola.AbstractItemGroup
 					{
 						tagName: "A"
 						class: "prev"
-						click: ()-> carousel.previous()
+						click: ()=>
+							@replay()
+							carousel.previous()
 					}
 					{
 						tagName: "A"
 						class: "next"
-						click: ()-> carousel.next()
+						click: ()=>
+							@replay()
+							carousel.next()
 					}
 				]
 			}))
@@ -159,11 +163,22 @@ class cola.Carousel extends cola.AbstractItemGroup
 		return @
 
 	next: ()->
-		@_scroller?.next()
+		if @_scroller
+			pos = @_scroller.getPos()
+			if pos == (@_items.length - 1)
+				@goTo(0)
+			else
+				@_scroller.next()
 		return @
 
 	previous: ()->
-		@_scroller?.prev()
+		if @_scroller
+			pos = @_scroller.getPos()
+			if pos == 0
+				@goTo(@_items.length - 1)
+			else
+				@_scroller.prev()
+
 		return @
 
 	refreshItems: ()->
@@ -194,18 +209,21 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 	play: (pause)->
 		if @_interval then clearInterval(@_interval)
-		@next()
 		carousel = @
+		if pause then @_pause = pause
 		@_interval = setInterval(()->
 			carousel.next()
-		, pause or @_pause)
+		, @_pause)
 		return @
-
+	replay: ()->
+		if @_interval then @play()
 	pause: ()->
 		if @_interval then clearInterval(@_interval)
 		return @
 
-	goTo: (index = 0)-> @setCurrentIndex(index)
+	goTo: (index = 0)->
+		@replay()
+		@setCurrentIndex(index)
 
 cola.Element.mixin(cola.Carousel, cola.TemplateSupport)
 cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin)

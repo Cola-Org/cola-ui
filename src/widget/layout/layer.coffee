@@ -39,7 +39,6 @@ class cola.AbstractLayer extends cola.AbstractContainer
 
 	hide: (options = {}, callback)->
 		return @ if !@_dom or !@isVisible()
-
 		if typeof options == "function"
 			callback = options
 			options = {}
