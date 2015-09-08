@@ -81,13 +81,19 @@ cola.loadSubView = (targetDom, context) ->
 		_loadCss(cssUrl) for cssUrl in cssUrls
 	return
 
-_compileResourceUrl = (jsUrl, htmlUrl, suffix) ->
-	if jsUrl == "$"
-		jsUrl = null
+_compileResourceUrl = (resUrl, htmlUrl, suffix) ->
+	if resUrl == "$"
+		defaultRes = true
+	else if resUrl.indexOf("$.") == 0
+		defaultRes = true
+		suffix = resUrl.substring(2)
+
+	if defaultRes
+		resUrl = null
 		if htmlUrl
 			i = htmlUrl.lastIndexOf(".")
-			jsUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
-	return jsUrl
+			resUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
+	return resUrl
 
 _loadHtml = (targetDom, url, data, callback) ->
 	$(targetDom).load(url, data,
