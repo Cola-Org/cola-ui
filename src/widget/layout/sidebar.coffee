@@ -1,63 +1,78 @@
-class cola.Sidebar extends cola.AbstractContainer
-	@CLASS_NAME: "ui sidebar"
+class cola.Sidebar extends cola.AbstractLayer
+	@CLASS_NAME: "ui sidebar layer transition hidden"
 	@ATTRIBUTES:
 		direction:
 			defaultValue: "left"
 			enum: ["left", "right", "top", "bottom"]
 		size:
 			defaultValue: 100
-		duration:
-			type:"number"
-			defaultValue: 200
-		transition:
-			defaultValue: "overlay"
-			enum: ["overlay", "push"]
-		mobileTransition:
-			defaultValue: "overlay"
-			enum: ["overlay", "push"]
-		closable:
-			type:"boolean"
+		modalOpacity:
+			type: "number"
+			defaultValue: 0.6
+		dimmerClose:
+			type: "boolean"
 			defaultValue: true
 
-	@EVENTS:
-		beforeShow: null
-		beforeHide: null
-		show: null
-		hide: null
+	_doTransition: (options, callback)->
+		if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
+		sidebar = @
+		@get$Dom().css({
+			zIndex: cola.floatWidget.zIndex()
+		})
+		onComplete = ->
+			if typeof callback == "function"
+				callback.call(sidebar)
+			if options.target is "show" then sidebar._onShow() else sidebar._onHide()
+			sidebar.fire(options.target, sidebar, {})
+			return null
 
-	isHidden: ()->
-		return false unless @_dom
-		return @get$Dom().sidebar("is", "hidden")
+		direction = @_direction
 
-	isVisible: ()->
-		return false unless @_dom
-		return @get$Dom().sidebar("is", "visible")
+
+		duration = options.duration or @_duration or 300
+
+		$dom = @get$Dom()
+		width = $dom.width()
+		height = $dom.height()
+
+		isHorizontal = direction is "left" or direction is "right"
+		if direction is "left"
+			x = -width
+			y = 0
+		else if direction is "right"
+			x = width
+			y = 0
+		else if direction is "top"
+			x = 0
+			y = -height
+		else
+			x = 0
+			y = height
+		isShow = options.target is "show"
+		if isShow then cola.Fx.translateElement(@_dom, x, y)
+		configs =
+			duration: duration
+			complete: ()=>
+				if not isShow then $dom.removeClass("visible").addClass("hidden")
+				_removeTranslateStyle(@_dom)
+				onComplete()
+
+		if isHorizontal
+			configs.x = if isShow then 0 else x
+			configs.y = 0
+		else
+			configs.y = if isShow then 0 else y
+			configs.x = 0
+
+		$dom.removeClass("hidden").addClass("visible").transit(configs)
+
+		return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
+		@_setSize()
 		@_classNamePool.add(@_direction || "left")
-
-	show: (callback)->
-		return  if @fire("beforeShow", @, {dom: @_dom}) is false
-		$dom = @get$Dom()
-		unless @_initialized
-			@_initialized = true
-			@_setSize()
-			$dom.sidebar('setting', {
-				duration: @_duration || 200
-				transition: @_transition
-				closable: false
-				mobileTransition: @_mobileTransition
-				onShow: ()=> @fire("show", @, {})
-				onHide: ()=> @fire("hide", @, {})
-			})
-		$dom.sidebar("show", callback)
-
-	hide: (callback)->
-		return if @fire("beforeHide", @, {dom: @_dom}) is false
-		@get$Dom().sidebar("hide", callback)
-
 	_setSize: ()->
 		unit = cola.constants.WIDGET_DIMENSION_UNIT
 		size = @get("size")
@@ -69,79 +84,38 @@ class cola.Sidebar extends cola.AbstractContainer
 
 		return
 
-class cola.Drawer extends cola.AbstractContainer
-	@CLASS_NAME: "ui drawer pushable"
-	getPusherDom: ()->
-		return unless @_dom
-		return $(@_dom).find("> .pusher")[0]
-	_initDom: (dom)->
-		super(dom)
-		pusher = @getPusherDom()
-		unless pusher then dom.appendChild($.xCreate({
-			tagName: "div"
-			class: "pusher"
-		}))
-		return
+	_showModalLayer: ()->
+		@_doms ?= {}
+		_dimmerDom = @_doms.modalLayer
 
-	_initPusher: ()->
-		@_pusher = @getPusherDom()
-		$(@_pusher).on("click", ()=>
-			@_hideSidebar()
-			event = window.event
-			if event
-				event.stopImmediatePropagation()
-				event.preventDefault()
-		)
-		return
-
-	_hideSidebar: ()->
-		child = @_dom.firstChild
-		while child
-			if child.nodeType == 1
-				widget = cola.widget(child)
-				if widget and widget instanceof cola.Sidebar and widget.isVisible()
-					widget.hide()
-
-			child = child.nextSibling
-
-	_getFirstSidebar: ()->
-		sideDom = $(@_dom).find("> .ui.sidebar")[0]
-		return unless sideDom
-		return cola.widget(sideDom)
-
-	showSidebar: (id, callback)->
-		if id
-			if typeof id == "function"
-				callback = id
-				sidebar = @_getFirstSidebar()
-			else
-				sidebar = cola.widget(id)
-		else
-			sidebar = @_getFirstSidebar()
-
-		return unless  sidebar
-		sidebarDom = sidebar.getDom()
-		if sidebarDom.parentNode isnt @_dom then return
-		unless @_pusher
-			cola._ignoreNodeRemoved = true
-			$(@_dom).find("> .ui.sidebar").sidebar({
-				context: @_dom
+		unless _dimmerDom
+			_dimmerDom = $.xCreate({
+				tagName: "Div"
+				class: "ui dimmer"
+				contextKey: "dimmer"
 			})
-			cola._ignoreNodeRemoved = false
-			@_initPusher()
+			if @_dimmerClose
+				$(_dimmerDom).on("click", ()=> @hide())
+			container = @_context or @_dom.parentNode
+			container.appendChild(_dimmerDom)
+			@_doms.modalLayer = _dimmerDom
 
-		sidebar.show(callback)
+		$(_dimmerDom).css({
+			opacity: 0
+			zIndex: cola.floatWidget.zIndex()
+		}).addClass("active").transit({opacity: @_modalOpacity})
 
-	hideSidebar: (id, callback)->
-		if id
-			if typeof id == "function"
-				callback = id
-				sidebar = @_getFirstSidebar()
-			else
-				sidebar = cola.widget(id)
-		else
-			sidebar = @_getFirstSidebar()
-		return unless sidebar
-		sidebar.hide(callback)
-		return @
+		return
 
+	_hideModalLayer: ()->
+		@_doms ?= {}
+		_dimmerDom = @_doms.modalLayer
+
+		$(_dimmerDom).transit({
+				opacity: 0
+				complete: ()->
+					$(_dimmerDom).removeClass("active").css({
+						zIndex: 0
+					})
+			}
+		)

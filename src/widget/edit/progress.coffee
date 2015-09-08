@@ -23,6 +23,7 @@ class cola.Progress extends cola.Widget
 		showProgress:
 			defaultValue: true
 			type: "boolean"
+			refreshDom: true
 
 		progressFormat:
 			enum: ["percent", "ratio"]
@@ -82,23 +83,6 @@ class cola.Progress extends cola.Widget
 			refreshDom: true
 			defaultValue: 1
 
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @["_size"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_size"] = value
-				return
-
-		color:
-			refreshDom: true
-			enum: ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"]
-			setter: (value)->
-				oldValue = @["_color"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_color"] = value
-				return
 
 	@EVENTS:
 		change: null
@@ -117,6 +101,7 @@ class cola.Progress extends cola.Widget
 					content: {
 						tagName: "div"
 						class: "progress"
+						contextKey: "progress"
 					}
 					contextKey: "bar"
 				}
@@ -151,11 +136,12 @@ class cola.Progress extends cola.Widget
 		else
 			$(@_doms.label).remove() if @_doms.label.parentNode
 
-		size = @get("size")
-		@_classNamePool.add(size) if size
-
-		color = @get("color")
-		@_classNamePool.add(color) if color
+		if @_showProgress
+			if @_doms.progress.parentNode isnt @_doms.bar
+				@_doms.bar.appendChild(@_doms.progress)
+		else
+			if @_doms.progress.parentNode
+				$(@_doms.progress).remove()
 
 		return
 
@@ -212,21 +198,20 @@ class cola.Progress extends cola.Widget
 
 		return
 
-
 	reset: ()->
-		@get$Dom().progress("reset") if @_dom
+		if @_dom then @get$Dom().progress("reset")
 		return @
 
 	success: (message = "")->
-		@get$Dom().progress("set success", message) if @_dom
+		if @_dom then @get$Dom().progress("set success", message)
 		return @
 
 	warning: (message)->
-		@get$Dom().progress("set warning", message) if @_dom
+		if @_dom then @get$Dom().progress("set warning", message)
 		return @
 
 	error: (message)->
-		@get$Dom().progress("set error", message) if @_dom
+		if @_dom then @get$Dom().progress("set error", message)
 		return @
 
 	progress: (progress)->
@@ -236,7 +221,7 @@ class cola.Progress extends cola.Widget
 
 	complete: ()->
 		@_value = @_total
-		@get$Dom().progress("complete") if @_dom
+		if @_dom then @get$Dom().progress("complete")
 		return @
 
 	destroy: ()->
@@ -247,7 +232,5 @@ class cola.Progress extends cola.Widget
 		delete @_doms
 
 		return
-#cola.Element.mixin(cola.Progress, cola.DataWidgetMixin)
-
 
 

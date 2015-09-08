@@ -2,21 +2,8 @@ _removeTranslateStyle = (element)->
 	for prefix in ['Moz', 'Webkit', 'O', 'ms']
 		element.style[prefix + "Transform"] = ""
 	element.style.transform = ""
-
-class cola.Layer extends cola.AbstractContainer
-	@CLASS_NAME: "layer transition hidden"
+class cola.AbstractLayer extends cola.AbstractContainer
 	@ATTRIBUTES:
-		animation:
-			defaultValue: "slide left"
-			enum: [
-				"scale", "drop", "browse right", "browse",
-				"slide left", "slide right", "slide up", "slide down",
-				"fade left", "fade right", "fade up", "fade down",
-				"fly left", "fly right", "fly up", "fly down",
-				"swing left", "swing right", "swing up", "swing down",
-				"horizontal flip", "vertical flip"
-			]
-
 		duration:
 			defaultValue: 300
 
@@ -32,13 +19,58 @@ class cola.Layer extends cola.AbstractContainer
 		beforeShow: null
 		beforeHide: null
 
-	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
 	_onShow: ()->
 	_onHide: ()->
-	_initDom: ()->
+	_transition: (options, callback)->
+		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
+		@_doTransition(options, callback)
+		return @
+	_doTransition: (options, callback)->
+	show: (options = {}, callback)->
+		return @ if !@_dom or @isVisible()
+		if typeof options == "function"
+			callback = options
+			options = {}
+
+		options.target = "show"
+
+		@_transition(options, callback)
+		return @
+
+	hide: (options = {}, callback)->
+		return @ if !@_dom or !@isVisible()
+
+		if typeof options == "function"
+			callback = options
+			options = {}
+
+		options.target = "hide"
+
+		@_transition(options, callback)
+		return @
+
+	toggle: ()->
+		return @[if @isVisible() then "hide" else "show"].apply(@, arguments)
+
+	isVisible: ()->
+		return  @get$Dom().transition("stop all").transition("is visible")
+
+class cola.Layer extends cola.AbstractLayer
+	@CLASS_NAME: "layer transition hidden"
+	@ATTRIBUTES:
+		animation:
+			defaultValue: "slide left"
+			enum: [
+				"scale", "drop", "browse right", "browse",
+				"slide left", "slide right", "slide up", "slide down",
+				"fade left", "fade right", "fade up", "fade down",
+				"fly left", "fly right", "fly up", "fly down",
+				"swing left", "swing right", "swing up", "swing down",
+				"horizontal flip", "vertical flip"
+			]
+	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
 	_doTransition: (options, callback)->
 		layer = @
-
 		onComplete = ->
 			if typeof callback == "function"
 				callback.call(layer)
@@ -92,39 +124,4 @@ class cola.Layer extends cola.AbstractContainer
 				configs.x = 0
 
 			$dom.removeClass("hidden").addClass("visible").transit(configs)
-
 		return
-
-	_transition: (options, callback)->
-		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
-		@_doTransition(options, callback)
-		return @
-
-	show: (options = {}, callback)->
-		return @ if !@_dom or @isVisible()
-		if typeof options == "function"
-			callback = options
-			options = {}
-
-		options.target = "show"
-
-		@_transition(options, callback)
-		return @
-
-	hide: (options = {}, callback)->
-		return @ if !@_dom or !@isVisible()
-
-		if typeof options == "function"
-			callback = options
-			options = {}
-
-		options.target = "hide"
-
-		@_transition(options, callback)
-		return @
-
-	toggle: ()->
-		return @[if @isVisible() then "hide" else "show"].apply(@, arguments)
-
-	isVisible: ()->
-		return  @get$Dom().transition("stop all").transition("is visible")

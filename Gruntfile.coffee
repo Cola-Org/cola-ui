@@ -6,6 +6,10 @@ module.exports = (grunt) ->
 			build: ["dest/work", "dest/publish"]
 			workTemp: ["dest/work/cola"]
 			dev: ["dest/dev"]
+			"core-widget": [
+				"dest/publish/cola-core.js"
+				"dest/publish/cola-widget.js"
+			]
 		coffee:
 			dev:
 				options:
@@ -240,4 +244,5 @@ module.exports = (grunt) ->
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 	                             "less:build", "cola-ui-license", "concat",
-	                             "copy:semantic", "rename", "uglify:build", "cssmin", "compress", "clean:workTemp"]
+	                             "clean:core-widget", "copy:semantic", "rename", "uglify:build", "cssmin", "compress",
+	                             "clean:workTemp"]

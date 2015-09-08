@@ -5,7 +5,14 @@
 	<meta charset="utf-8">
 	<title>Layer</title>
 	<script src="../../include-all.js"></script>
+	<style>
 
+		#layerExample {
+			left: auto;
+			width: 50%
+		}
+
+	</style>
 </head>
 <body style="padding: 20px;">
 <div id="showBtn"></div>
@@ -25,8 +32,9 @@
 				}
 			},
 			layerExample: {
+				modal: true,
 //				animation:"slide down",
-				class:"blue-background"
+				class: "blue-background"
 			}
 		});
 	})
