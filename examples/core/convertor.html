@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set({
+				strProp: "Shanghai",
+				numberProp: 123.45,
+				dateProp: "2015-06-15",
+				size: 100,
+				person: {
+					name: "Tom",
+					age: 26
+				}
+			});
+
+			cola.convertor.double = function (value) {
+				return value * 2;
+			};
+		});
+	</script>
+</head>
+<body style="padding:20px">
+<p>
+	<input c-bind="strProp">
+	<label c-bind="strProp"></label>
+</p>
+
+<p>
+	<input c-bind="numberProp">
+	<label c-bind="numberProp | double | number:'#,##0.00'"></label>
+	<!--<label c-bind="numberProp>10?true:false"></label>-->
+</p>
+
+<p>
+	<input c-bind="dateProp" type="date">
+	<label c-bind="dateProp | date:'yyMMdd'"></label>
+</p>
+<p>
+	<input c-bind="size" type="number">
+	<div c-style="width:size;height:size;display" c-display="size>50" style="background:green"></div>
+</p>
+</body>
+</html>

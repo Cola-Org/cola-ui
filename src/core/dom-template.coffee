@@ -98,8 +98,9 @@ cola.xRender = (template, model, context) ->
 		div.innerHTML = template
 		child = div.firstChild
 		while child
+			next = child.nextSibling
 			documentFragment.appendChild(child)
-			child = child.nextSibling
+			child = next
 	else
 		oldScope = cola.currentScope
 		cola.currentScope = model
