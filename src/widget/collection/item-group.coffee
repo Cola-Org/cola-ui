@@ -92,6 +92,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		return itemObj
 
 	destroy: ()->
+		cola.util.cancelDelay(@, "_refreshItems")
 		@clearItems()
 		delete @_items
 		super()

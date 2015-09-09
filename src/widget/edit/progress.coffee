@@ -74,7 +74,7 @@ class cola.Progress extends cola.Widget
 			type: "boolean"
 			defaultValue: true
 			setter: (value)->
-				@_limitValues = !!value
+				@_limitValues = value
 				@_setting("limitValues", @_limitValues) if @_dom
 				return
 

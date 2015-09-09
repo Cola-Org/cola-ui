@@ -298,15 +298,9 @@ function Swipe(container, options) {
 
 						options.callback && options.callback(index, slides[index]);
 					} else {
-						if (index == (slides.length - 1)) {
-							slide(0);
-						} else if (index == 0) {
-							slide(slides.length - 1);
-						} else {
 							move(index - 1, -width, speed);
 							move(index, 0, speed);
 							move(index + 1, width, speed);
-						}
 					}
 				}
 			} else {

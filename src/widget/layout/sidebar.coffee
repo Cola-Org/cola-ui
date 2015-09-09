@@ -3,9 +3,14 @@ class cola.Sidebar extends cola.AbstractLayer
 	@ATTRIBUTES:
 		direction:
 			defaultValue: "left"
+			refreshDom:true
 			enum: ["left", "right", "top", "bottom"]
+
 		size:
-			defaultValue: 100
+			type: "number"
+			defaultValue: 200
+			refreshDom:true
+
 		modalOpacity:
 			type: "number"
 			defaultValue: 0.6
@@ -33,7 +38,7 @@ class cola.Sidebar extends cola.AbstractLayer
 
 		$dom = @get$Dom()
 		width = $dom.width()
-		height = $dom.height()
+		height = $dom.height() || $dom.outerHeight()
 
 		isHorizontal = direction is "left" or direction is "right"
 		if direction is "left"

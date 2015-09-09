@@ -12,74 +12,78 @@
 
 
 <script type="text/javascript">
-			function createWidget(configs) {
-				configs.forEach(function (config) {
-					cola.widget({
-						$type: "Segment",
-						content: [
-							config
-						]
-					}).appendTo(document.body);
-				})
-			}
-
-			createWidget([
-				{
-					$type: "Rating", rating: 0, maxRating: 5
-				},
-
-				{
-					$type: "Rating", rating: 2, maxRating: 5
-				},
-				{
-					$type: "Rating", rating: 5, maxRating: 5
-				}
-				,
-				{
-					$type: "Rating", rating: 5, maxRating: 5, class: "star"
-				}
-				,
-				{
-					$type: "Rating", rating: 5, maxRating: 5, class: "heart"
-				}
-			]);
-			var ratingSample=new cola.Rating({
-				$type: "Rating", rating: 2, maxRating: 5
-			});
-			new cola.Segment({
-				content:[
-					{
-						$type: "Button", caption: "设置max:10",
-						click: function (self, arg) {
-							ratingSample.set("maxRating",10)
-						}
-					},
-					{
-						$type: "Button", caption: "清空",
-						click: function (self, arg) {
-							ratingSample.set("rating",0)
-						}
-					},
-					{
-						$type: "Button", caption: "关闭交互",
-						click: function (self, arg) {
-							ratingSample.set("interactive",false)
-						}
-					},
-					{
-						$type: "Button", caption: "禁用",
-						click: function (self, arg) {
-							ratingSample.disable();
-						}
-					},
-					{
-						$type: "Button", caption: "解禁",
-						click: function (self, arg) {
-							ratingSample.enable();
-						}
-					}
+	function createWidget(configs) {
+		configs.forEach(function (config) {
+			cola.widget({
+				$type: "Segment",
+				content: [
+					config
 				]
-			}).addChild(ratingSample).appendTo(document.body);
+			}).appendTo(document.body);
+		})
+	}
+
+	createWidget([
+		{
+			$type: "Rating", rating: 0, maxRating: 5
+		},
+
+		{
+			$type: "Rating", rating: 2, maxRating: 5
+		},
+		{
+			$type: "Rating", rating: 5, maxRating: 5
+		}
+		,
+		{
+			$type: "Rating", rating: 5, maxRating: 5, class: "star"
+		}
+		,
+		{
+			$type: "Rating", rating: 5, maxRating: 5, class: "heart"
+		}
+	]);
+	var ratingSample = new cola.Rating({
+		$type: "Rating", rating: 2, maxRating: 5
+	});
+	var container = new cola.Segment({
+		content: [
+			{
+				$type: "Button", caption: "设置max:10",
+				click: function (self, arg) {
+					ratingSample.set("maxRating", 10)
+				}
+			},
+			{
+				$type: "Button", caption: "清空",
+				click: function (self, arg) {
+					ratingSample.set("rating", 0)
+				}
+			},
+			{
+				$type: "Button", caption: "关闭交互",
+				click: function (self, arg) {
+					ratingSample.set("interactive", false)
+				}
+			},
+			{
+				$type: "Button", caption: "禁用",
+				click: function (self, arg) {
+					ratingSample.set("disabled",true);
+				}
+			},
+			{
+				$type: "Button", caption: "解禁",
+				click: function (self, arg) {
+					ratingSample.set("disabled",false);
+				}
+			}
+		]
+	});
+	container.getContentContainer().appendChild(ratingSample.getDom());
+
+
+	document.body.appendChild(container.getDom())
 
 
 </script>
