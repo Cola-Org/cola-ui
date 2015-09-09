@@ -85,7 +85,8 @@ class cola.Sidebar extends cola.AbstractLayer
 
 		direction = @_direction or "left"
 		style = if direction is "left" or direction is "right" then "width" else "height"
-		@get$Dom().css(style, size)
+		@get$Dom().css("cssText","#{style}: #{size}!important")
+
 
 		return
 
