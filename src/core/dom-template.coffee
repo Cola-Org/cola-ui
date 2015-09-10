@@ -230,8 +230,8 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 				else
 					if attrName.substring(0, 2) == "on"
 						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
-					else if attrName == "i18n"
-						feature = buildI18NFeature(scope, dom, attrValue)
+					else if attrName == "resource"
+						feature = buildResourceFeature(scope, dom, attrValue)
 					else if attrName == "watch"
 						feature = buildWatchFeature(scope, dom, attrValue)
 					else
@@ -375,7 +375,7 @@ buildAttrFeature = (dom, attr, expr) ->
 			feature = new cola._DomAttrFeature(expression, attr, false)
 	return feature
 
-buildI18NFeature = (scope, dom, expr) ->
+buildResourceFeature = (scope, dom, expr) ->
 	expr = cola.util.trim(expr)
 	if expr
 		$fly(dom).text(cola.resource(expr))
