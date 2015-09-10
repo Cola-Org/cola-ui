@@ -157,7 +157,7 @@ class cola.Checkbox extends cola.AbstractCheckbox
 
 	_refreshEditorDom: ()->
 		if @_triState and @_value isnt @_onValue and  @_value isnt @_offValue
-			@get$Dom().checkbox("indeterminate")
+			@get$Dom().checkbox('set indeterminate')
 			return
 		super()
 

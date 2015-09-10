@@ -1,3 +1,20 @@
+do()->
+	escape = (text)->
+		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+	isStyleFuncSupported = !!CSSStyleDeclaration.prototype.getPropertyValue
+	unless isStyleFuncSupported
+		CSSStyleDeclaration::getPropertyValue = (a)->return this.getAttribute(a)
+		CSSStyleDeclaration::setProperty = (styleName, value, priority)->
+			this.setAttribute(styleName, value)
+			priority = if typeof priority != 'undefined' then priority else ''
+			if priority != ''
+				rule = new RegExp(escape(styleName) + '\\s*:\\s*' + escape(value) +'(\\s*;)?', 'gmi')
+				this.cssText =
+					this.cssText.replace(rule, styleName + ': ' + value + ' !' + priority + ';')
+		CSSStyleDeclaration::removeProperty = (a)-> this.removeAttribute(a)
+		CSSStyleDeclaration::getPropertyPriority = (styleName)->
+			rule = new RegExp(escape(styleName) + '\\s*:\\s*[^\\s]*\\s*!important(\\s*;)?', 'gmi')
+			return if rule.test(this.cssText) then 'important' else ''
 cola.util.addClass = (dom, value, continuous)->
 	unless !!continuous
 		$(dom).addClass(value)
@@ -40,7 +57,16 @@ cola.util.hasClass = (dom, className)->
 	for name in names
 		return false if domClassName.indexOf(" #{name} ") < 0
 	return true
-
+cola.util.style = (dom, styleName, value, priority)->
+	style = dom.style
+	if typeof styleName != 'undefined'
+		if typeof  value != 'undefined'
+			priority = if typeof priority != 'undefined' then priority else ''
+			style.setProperty(styleName, value, priority)
+		else
+			style.getPropertyValue(styleName)
+	else
+		return style
 cola.util.getTextChildData = (dom)->
 	child = dom.firstChild
 	while child
