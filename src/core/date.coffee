@@ -10,8 +10,7 @@ else
 
 if XDate
 	$?(() ->
-		XDate.defaultLocale = cola.setting("locale") or defaultLocale
-		XDate.locales[defaultLocale] = localeStrings = {}
+		XDate.locales[''] = localeStrings = {}
 		localeStrings.monthNames = cola.resource("cola.date.monthNames").split(",") if cola.resource("cola.date.monthNames")
 		localeStrings.monthNamesShort = cola.resource("cola.date.monthNamesShort").split(",") if cola.resource("cola.date.monthNamesShort")
 		localeStrings.dayNames = cola.resource("cola.date.dayNames").split(",") if cola.resource("cola.date.dayNames")
