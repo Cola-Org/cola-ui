@@ -109,26 +109,26 @@ cola.xRender = (template, model, context) ->
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()
 				for node in template
-					if node.tagName
-						child = $.xCreate(node, context)
-					else
-						if node instanceof cola.Widget
-							widget = node
-						else
+					if node instanceof cola.Widget
+						widget = node
+					else if node.$type
 						widget = cola.widget(node, context.namespace)
+					if widget
 						child = widget.getDom()
 						child.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+					else
+						child = $.xCreate(node, context)
 					documentFragment.appendChild(child)
 			else
-				if template.tagName
-					dom = $.xCreate(template, context)
-				else
-					if template instanceof cola.Widget
-						widget = template
-					else
-						widget = cola.widget(template, context.namespace)
+				if template instanceof cola.Widget
+					widget = template
+				else if template.$type
+					widget = cola.widget(template, context.namespace)
+				if widget
 					dom = widget.getDom()
 					dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+				else
+					dom = $.xCreate(template, context)
 		finally
 			cola.currentScope = oldScope
 
@@ -378,7 +378,7 @@ buildAttrFeature = (dom, attr, expr) ->
 buildI18NFeature = (scope, dom, expr) ->
 	expr = cola.util.trim(expr)
 	if expr
-		$fly(dom).text(cola.i18n(expr))
+		$fly(dom).text(cola.resource(expr))
 	return
 
 buildWatchFeature = (scope, dom, expr) ->

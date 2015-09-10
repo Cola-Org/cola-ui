@@ -14,6 +14,7 @@
 	}
 
 	.child-nodes {
+		overflow: visible;
 		margin-left: @TreeNodeIndent !important;
 	}
 
@@ -25,15 +26,14 @@
 			float: left;
 			width: @TreeNodeMinHeight;
 			height: @TreeNodeMinHeight;
+			line-height: @TreeNodeMinHeight;
 			margin-right: @TreeNodePadding;
+			text-align: center;
 			&:before {
 				.transition-duration(0.3s);
 				.transition-property(transform);
 				font-family: Icons;
 				content: "\f105"; // Arrow Right
-				display: block;
-				text-align: center;
-				line-height: @TreeNodeMinHeight;
 			}
 		}
 
@@ -65,6 +65,31 @@
 		}
 		.ui.checkbox {
 			top: 0.25em;
+		}
+	}
+}
+
+@nodeHeight: @TreeNodePadding * 2 + @TreeNodeMinHeight;
+
+.ui.tree.navigator {
+	.node {
+		position: relative;
+		overflow: hidden;
+		padding-left: 1em;
+		> .expand-button {
+			float: none;
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0;
+			width: auto;
+			height: @nodeHeight;
+			line-height: @nodeHeight;
+			margin-right: 0;
+			&:before {
+				float: right;
+				margin-right: 1em;
+			}
 		}
 	}
 }

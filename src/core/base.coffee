@@ -184,7 +184,7 @@ cola.setting = (key, value) ->
 
 definedSetting = colaSetting? or global?.colaSetting
 if definedSetting
-	for key, value of definedSetting then cola.setting(key, value)
+	cola.setting(key, value) for key, value of definedSetting
 
 ###
 Exception
@@ -268,21 +268,18 @@ class cola.RunnableException extends cola.Exception
 I18N
 ###
 
-defaultLocale = "en"
-
-i18nStore = {}
+resourceStore = {}
 
 sprintf = (templ, params...) ->
 	for param, i in params
 		templ = templ.replace(new RegExp("\\{#{i}\\}", "g"), param)
 	return templ
 
-cola.i18n = (key, params...) ->
+cola.resource = (key, params...) ->
 	if typeof key == "string"
-# i18n(key, params...)
-# read i18n resource
-		locale = cola.setting("locale") or defaultLocale
-		templ = i18nStore[locale]?[key]
+		# resource(key, params...)
+		# read resource resource
+		templ = resourceStore[key]
 		if templ
 			if params.length
 				return sprintf.apply(@, [templ].concat(params))
@@ -291,21 +288,15 @@ cola.i18n = (key, params...) ->
 		else
 			return key
 	else
-# i18n(bundle, locale)
-# load i18n resources from bundle(json format)
+		# resource(bundle)
+		# load resource resources from bundle(json format)
 		bundle = key
-		locale = params[0] or defaultLocale
-		oldBundle = i18nStore[locale]
-		if oldBundle
-			for key, str of bundle
-				oldBundle[key] = str
-		else
-			i18nStore[locale] = oldBundle = bundle
+		resourceStore[key] = str for key, str of bundle
 		return
 
-class cola.I18nException extends cola.Exception
+class cola.ResourceException extends cola.Exception
 	constructor: (key, params...) ->
-		super(cola.i18n(key, params...))
+		super(cola.resource(key, params...))
 
 ###
 Mothods

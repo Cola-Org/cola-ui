@@ -63,7 +63,7 @@ class cola.Entity
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
 
 	get: (prop, loadMode = "async", context) ->
-		if typeof loadMode == "function"
+		if loadMode and typeof loadMode == "object"
 			loadMode = "async"
 			callback = loadMode
 
@@ -271,7 +271,7 @@ class cola.Entity
 		return value
 
 	getText: (prop, loadMode = "async", callback, context) ->
-		if typeof loadMode == "function"
+		if loadMode and typeof loadMode == "object"
 			loadMode = "async"
 			callback = loadMode
 
@@ -464,7 +464,7 @@ class cola.Entity
 
 		@_set(property, undefined)
 
-		if typeof loadMode is "function"
+		if loadMode and typeof loadMode == "object"
 			callback = loadMode
 			loadMode = "async"
 
@@ -925,7 +925,7 @@ class cola.EntityList extends LinkedList
 		return not @pageCountDetermined or pageNo <= @pageCount
 
 	_loadPage: (pageNo, setCurrent, loadMode = "async") ->
-		if typeof loadMode is "function"
+		if loadMode and typeof loadMode == "object"
 			callback = loadMode
 			loadMode = "async"
 
@@ -1150,7 +1150,7 @@ class cola.EntityList extends LinkedList
 		if !@_providerInvoker?
 			throw new cola.Exception("Provider undefined.")
 
-		if typeof loadMode is "function"
+		if loadMode and typeof loadMode == "object"
 			callback = loadMode
 			loadMode = "async"
 

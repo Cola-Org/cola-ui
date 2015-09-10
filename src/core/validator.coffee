@@ -52,7 +52,7 @@ class cola.RequiredValidator extends cola.Validator
 			defaultValue: true
 
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.required", data)
+		return cola.resource("cola.validator.error.required", data)
 
 	_validate: (data) ->
 		if not (typeof data is "string") then return data?
@@ -69,7 +69,7 @@ class cola.NumberValidator extends cola.Validator
 			defaultValue: true
 
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.number", data)
+		return cola.resource("cola.validator.error.number", data)
 
 	_validate: (data) ->
 		result = true
@@ -85,7 +85,7 @@ class cola.LengthValidator extends cola.Validator
 		max: null
 
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.length", data)
+		return cola.resource("cola.validator.error.length", data)
 
 	_validate: (data) ->
 		if typeof data is "string" or typeof data is "number"
@@ -106,7 +106,7 @@ class cola.RegExpValidator extends cola.Validator
 			enum: ["white", "black"]
 
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.regExp", data)
+		return cola.resource("cola.validator.error.regExp", data)
 
 	_validate: (data) ->
 		regExp = @_regExp
@@ -122,7 +122,7 @@ class cola.RegExpValidator extends cola.Validator
 
 class cola.EmailValidator extends cola.Validator
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.email", data)
+		return cola.resource("cola.validator.error.email", data)
 
 	_validate: (data) ->
 		if typeof data is "string"
@@ -131,7 +131,7 @@ class cola.EmailValidator extends cola.Validator
 
 class cola.UrlValidator extends cola.Validator
 	_getDefaultMessage: (data) ->
-		return cola.i18n("cola.validator.error.email", data)
+		return cola.resource("cola.validator.error.email", data)
 
 	_validate: (data) ->
 		if typeof data is "string"

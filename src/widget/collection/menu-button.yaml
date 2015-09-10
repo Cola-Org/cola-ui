@@ -5,7 +5,7 @@
   super: cola.Button
   attributes:
     - name: items
-      type: Array
+      type: array
       description: |
         此Items将在Menu的从左到右排列。
         此属性内容可通过以下方式定义。

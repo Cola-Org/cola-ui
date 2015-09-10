@@ -12,12 +12,12 @@ if XDate
 	$?(() ->
 		XDate.defaultLocale = cola.setting("locale") or defaultLocale
 		XDate.locales[defaultLocale] = localeStrings = {}
-		localeStrings.monthNames = cola.i18n("cola.date.monthNames").split(",") if cola.i18n("cola.date.monthNames")
-		localeStrings.monthNamesShort = cola.i18n("cola.date.monthNamesShort").split(",") if cola.i18n("cola.date.monthNamesShort")
-		localeStrings.dayNames = cola.i18n("cola.date.dayNames").split(",") if cola.i18n("cola.date.dayNames")
-		localeStrings.dayNamesShort = cola.i18n("cola.date.dayNamesShort").split(",") if cola.i18n("cola.date.dayNamesShort")
-		localeStrings.amDesignator = cola.i18n("cola.date.amDesignator") if cola.i18n("cola.date.amDesignator")
-		localeStrings.pmDesignator = cola.i18n("cola.date.pmDesignator") if cola.i18n("cola.date.pmDesignator")
+		localeStrings.monthNames = cola.resource("cola.date.monthNames").split(",") if cola.resource("cola.date.monthNames")
+		localeStrings.monthNamesShort = cola.resource("cola.date.monthNamesShort").split(",") if cola.resource("cola.date.monthNamesShort")
+		localeStrings.dayNames = cola.resource("cola.date.dayNames").split(",") if cola.resource("cola.date.dayNames")
+		localeStrings.dayNamesShort = cola.resource("cola.date.dayNamesShort").split(",") if cola.resource("cola.date.dayNamesShort")
+		localeStrings.amDesignator = cola.resource("cola.date.amDesignator") if cola.resource("cola.date.amDesignator")
+		localeStrings.pmDesignator = cola.resource("cola.date.pmDesignator") if cola.resource("cola.date.pmDesignator")
 		return
 	)
 

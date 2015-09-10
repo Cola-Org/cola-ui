@@ -474,7 +474,7 @@ class cola.AbstractDataModel
 			if aliasHolder
 				aliasData = aliasHolder.data
 				if i > 0
-					if typeof loadMode == "function"
+					if loadMode and typeof loadMode == "object"
 						loadMode = "async"
 						callback = loadMode
 					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
@@ -1021,12 +1021,6 @@ class cola.ElementAttrBinding
 			@_refresh()
 		return
 
-cola.model.defaultActions.not = (value) ->
-	return not value
-
-cola.model.defaultActions.i18n = (key, params...) ->
-	return cola.i18n(key, params...)
-
 cola.submit = (options, callback) ->
 	originalOptions = options
 	options = {}
@@ -1076,3 +1070,22 @@ cola.submit.filter =
 
 	"dirty-tree": (data) ->
 		return data
+
+cola.model.defaultActions.not = (value) ->
+	return not value
+
+cola.model.defaultActions.isEmpty = (value) ->
+	if value instanceof Array
+		return value.length is 0
+	else if value instanceof cola.EntityList
+		return value.entityCount is 0
+	else if typeof value is "string"
+		return value is ""
+	else
+		return !value
+
+cola.model.defaultActions.isNotEmpty = (value) ->
+	return not cola.model.defaultActions.isEmpty(value)
+
+cola.model.defaultActions.resource = (key, params...) ->
+	return cola.resource(key, params...)
