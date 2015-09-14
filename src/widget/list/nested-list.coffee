@@ -136,7 +136,6 @@ class cola.NestedList extends cola.Widget
 			highlightCurrentitem: true
 			allowNoCurrent: not highlightCurrentItem
 			highlightCurrentItem: highlightCurrentItem
-			width: "100%"
 			height: "100%"
 			userData: index
 			renderItem: (self, arg) => @_onRenderItem(self, arg)

@@ -53,12 +53,10 @@ class cola.AbstractModel
 				for dataType in name
 					if not (dataType instanceof cola.DataType)
 						dataType = new cola.EntityDataType(dataType)
-					@data.regDefinition(dataType)
 			else
 				dataType = name
 				if not (dataType instanceof cola.DataType)
 					dataType = new cola.EntityDataType(dataType)
-				@data.regDefinition(dataType)
 			return
 
 	getDefinition: (name) ->
@@ -474,7 +472,7 @@ class cola.AbstractDataModel
 			if aliasHolder
 				aliasData = aliasHolder.data
 				if i > 0
-					if loadMode and typeof loadMode == "object"
+					if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
 						loadMode = "async"
 						callback = loadMode
 					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,

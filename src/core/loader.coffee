@@ -2,7 +2,7 @@ cola.loadSubView = (targetDom, context) ->
 	loadingUrls = []
 	failed = false
 
-	resourceLoadCallback = (success, context, url) ->
+	resourceLoadCallback = (success, result, url) ->
 		if success
 			if not failed
 				i = loadingUrls.indexOf(url)
@@ -22,7 +22,7 @@ cola.loadSubView = (targetDom, context) ->
 					cola.callback(context.callback, true)
 		else
 			failed = true
-			error = context
+			error = result
 			if cola.callback(context.callback, false, error) != false
 				if error.xhr
 					errorMessage = error.status + " " + error.statusText
@@ -57,28 +57,48 @@ cola.loadSubView = (targetDom, context) ->
 		if context.cssUrl instanceof Array
 			for cssUrl in context.cssUrl
 				cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
-				if cssUrl then cssUrls.push(cssUrl)
+				if cssUrl
+					loadingUrls.push(cssUrl)
+					cssUrls.push(cssUrl)
 		else
 			cssUrl = _compileResourceUrl(context.cssUrl, htmlUrl, ".css")
-			if cssUrl then cssUrls.push(cssUrl)
+			if cssUrl
+				loadingUrls.push(cssUrl)
+				cssUrls.push(cssUrl)
 
 	# load
 	context.suspendedInitFuncs = []
 
 	if htmlUrl
 		_loadHtml(targetDom, htmlUrl, undefined, {
-			complete: (success, result) -> resourceLoadCallback(success, (if success then context else result), htmlUrl)
+			complete: (success, result) -> resourceLoadCallback(success, result, htmlUrl)
 		})
 
 	if jsUrls
 		for jsUrl in jsUrls
 			_loadJs(context, jsUrl, {
-				complete: (success, result) -> resourceLoadCallback(success, (if success then context else result),
-					jsUrl)
+				complete: (success, result) -> resourceLoadCallback(success, result, jsUrl)
 			})
 
 	if cssUrls
-		_loadCss(cssUrl) for cssUrl in cssUrls
+		for cssUrl in cssUrls
+			_loadCss(cssUrl, {
+				complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
+			})
+	return
+
+cola.unloadSubView = (targetDom, context) ->
+	$fly(targetDom).empty()
+
+	htmlUrl = context.htmlUrl
+	if context.cssUrl
+		if context.cssUrl instanceof Array
+			for cssUrl in context.cssUrl
+				cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
+				if cssUrl then _unloadCss(cssUrl)
+		else
+			cssUrl = _compileResourceUrl(context.cssUrl, htmlUrl, ".css")
+			if cssUrl then _unloadCss(cssUrl)
 	return
 
 _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
@@ -153,7 +173,7 @@ _loadJs = (context, url, callback) ->
 
 _cssCache = {}
 
-_loadCss = (url) ->
+_loadCss = (url, callback) ->
 	if not _cssCache[url]
 		linkElement = $.xCreate(
 			tagName: "link"
@@ -162,7 +182,24 @@ _loadCss = (url) ->
 			charset: cola.setting("defaultCharset")
 			href: url
 		)
+
+		$(linkElement).on("load", () ->
+			cola.callback(callback, true)
+			return
+		).on("error", () ->
+			cola.callback(callback, false)
+			return
+		)
+
 		head = document.querySelector("head") or document.documentElement
 		head.appendChild(linkElement)
-		_cssCache[url] = true
+		_cssCache[url] = linkElement
+	else
+		cola.callback(callback, true)
+	return
+
+_unloadCss = (url) ->
+	if _cssCache[url]
+		$fly(_cssCache[url]).remove()
+		delete _cssCache[url]
 	return

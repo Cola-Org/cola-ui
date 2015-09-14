@@ -137,7 +137,6 @@ class cola.RenderableElement extends cola.Element
 	get$Dom: ()-># 将获得jQuery或zepto 实例
 		return null if @_destroyed
 		@_$dom ?= $(@getDom())
-
 		return @_$dom
 
 	refresh: ()->

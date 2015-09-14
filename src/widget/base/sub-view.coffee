@@ -16,12 +16,20 @@ class cola.SubView extends cola.Widget
 		param:
 			readOnlyAfterCreate: true
 
+		showLoadingContent: null
+		showDimmer:
+			defaultValue: true
+
 	@EVENTS:
 		load: null
 		loadError: null
 		unload: null
 
 	_initDom: (dom)->
+		$dom = $fly(dom)
+		if $dom.find(">.content").length is 0
+			$dom.xAppend(class: "content")
+
 		if @_url
 			@load(
 				url: @_url
@@ -44,7 +52,24 @@ class cola.SubView extends cola.Widget
 		@_param = options.param
 
 		@_loading = true
-		cola.loadSubView(@_dom,
+		$dom = $(@_dom)
+		$content = $dom.find(">.content")
+
+		if not @_showLoadingContent
+			$content.css("visibility", "hidden")
+
+		if @_showDimmer
+			$dimmer = $dom.find(">.ui.dimmer")
+			if $dimmer.length is 0
+				$dom.xAppend(
+					class: "ui inverted dimmer"
+					content:
+						class: "ui loader"
+				)
+				$dimmer = $dom.find(">.ui.dimmer")
+			$dimmer.addClass("active")
+
+		cola.loadSubView($content[0],
 			{
 				model: model
 				htmlUrl: @_url
@@ -53,6 +78,12 @@ class cola.SubView extends cola.Widget
 				param: @_param
 				callback: {
 					complete:(success, result) =>
+						if not @_showLoadingContent
+							$dom.find(">.content").css("visibility", "")
+
+						if @_showDimmer
+							$dom.find(">.ui.dimmer").removeClass("active")
+
 						@_loading = false
 						if success
 							@fire("load", @)
@@ -74,17 +105,22 @@ class cola.SubView extends cola.Widget
 		return
 
 	unload: () ->
-		dom = @_dom
+		return unless @_dom
+
+		cola.unloadSubView($fly(@_dom).find(">.content")[0], {
+			cssUrl: @_cssUrl
+		})
 
 		delete @_url
 		delete @_jsUrl
 		delete @_cssUrl
 		delete @_param
 
+		dom = @_dom
 		model = cola.util.userData(dom, "_model")
 		model?.destroy()
 		cola.util.removeUserData(dom, "_model")
-		$fly(dom).empty()
+
 		@fire("unload", @)
 		return
 

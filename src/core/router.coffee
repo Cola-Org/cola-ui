@@ -70,7 +70,10 @@ cola.setRoutePath = (path) ->
 			path = "/" + path
 		window.location.hash = path if window.location.hash != path
 	else
-		window.history.pushState({
+		window.history.pushState(null, null, path)
+		if location.pathname isnt path # 处理 ../ ./ 的情况
+			path = location.pathname + location.search + location.hash
+		window.history.replaceState({
 			path: path
 		}, null, path)
 		_onStateChange(path)
@@ -123,6 +126,10 @@ _switchRouter = (router, path) ->
 	if currentRouter
 		oldModel = currentRouter.realModel
 		currentRouter.leave?(currentRouter, oldModel)
+		if currentRouter.targetDom
+			cola.unloadSubView(currentRouter.targetDom, {
+				cssUrl: currentRouter.cssUrl
+			})
 		delete currentRouter.realModel
 		if currentRouter.destroyModel then oldModel?.destroy()
 
@@ -160,19 +167,18 @@ _switchRouter = (router, path) ->
 	router.realModel = model
 
 	if router.templateUrl
-		cola.loadSubView(router.targetDom,
-			{
-				model: model
-				htmlUrl: router.templateUrl
-				jsUrl: router.jsUrl
-				cssUrl: router.cssUrl
-				data: router.data
-				param: router.param
-				callback: () ->
-					router.enter?(router, model)
-					document.title = router.title if router.title
-					return
-			})
+		cola.loadSubView(router.targetDom, {
+			model: model
+			htmlUrl: router.templateUrl
+			jsUrl: router.jsUrl
+			cssUrl: router.cssUrl
+			data: router.data
+			param: router.param
+			callback: () ->
+				router.enter?(router, model)
+				document.title = router.title if router.title
+				return
+		})
 	else
 		router.enter?(router, model)
 		document.title = router.title if router.title
