@@ -60,7 +60,7 @@ cola.getCurrentRoutePath = () ->
 cola.getCurrentRouter = () ->
 	return currentRouter
 
-cola.setRoutePath = (path) ->
+cola.setRoutePath = (path, replace) ->
 	if path and path.charCodeAt(0) == 35 # `#`
 		routerMode = "hash"
 		path = path.substring(1)
@@ -70,7 +70,11 @@ cola.setRoutePath = (path) ->
 			path = "/" + path
 		window.location.hash = path if window.location.hash != path
 	else
-		window.history.pushState(null, null, path)
+		if replace
+			window.history.replaceState(null, null, path)
+		else
+			window.history.pushState(null, null, path)
+
 		if location.pathname isnt path # 处理 ../ ./ 的情况
 			path = location.pathname + location.search + location.hash
 		window.history.replaceState({
@@ -121,7 +125,7 @@ _switchRouter = (router, path) ->
 		prev: currentRouter
 		next: router
 	}
-	cola.fire("beforeRouterSwitch", cola, eventArg)
+	if cola.fire("beforeRouterSwitch", cola, eventArg) is false then return
 
 	if currentRouter
 		oldModel = currentRouter.realModel

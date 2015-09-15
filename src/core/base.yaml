@@ -10,7 +10,7 @@ properties:
     label: Cola的版本号
 
 methods:
-  - name: on(eventName,listener)
+  - name: on
     type: cola
     label: 绑定一个Cola的全局事件
     description: |
@@ -27,7 +27,7 @@ methods:
         type: function
         label: 事件监听器方法
 
-  - name: off(eventName)
+  - name: off
     type: cola
     label: 根据事件名解绑一个Cola全局事件下的监听器
     description: |
@@ -43,7 +43,7 @@ methods:
           如果我们不在事件名中定义别名，那么此方法会解绑该事件下的所有监听器。
           如果我们在事件名中定义了别名，那么此方法只会解绑与该别名匹配的监听器。
 
-  - name: off(eventName,listener)
+  - name: off
     type: cola
     label: 解绑一个Cola全局事件下的监听器
     arguments:
@@ -54,7 +54,7 @@ methods:
         type: function
         label: 要解绑的监听器方法
 
-  - name: cola.getListeners(eventName)
+  - name: getListeners
     type: [function]
     label: 返回某Cola的全局事件下的所有事件监听器，如果没有绑定任何监听器则返回null。
     arguments:
@@ -62,17 +62,17 @@ methods:
         type: string
         label: 事件名，此处不支持使用事件别名
 
-  - name: ready(listener)
+  - name: ready
     type: array[function]
     label: 为Cola绑定一个ready事件的监听器。
     description: |
-      此方法相当于cola.on("ready", ...)的快捷方式。请参考 <a href="base.html#method:cola.on(eventName,listener)">cola.on(eventName,listener)</a>
+      此方法相当于cola.on("ready", ...)的快捷方式。请参考 <a href="base.html#method:cola.on">cola.on(eventName,listener)</a>
     arguments:
       - name: listener
         type: function
         label: 事件监听器方法
 
-  - name: setting(key)
+  - name: setting
     type: any
     label: 读取一个设置项
     description: |
@@ -82,7 +82,7 @@ methods:
       - name: key
         type: string
 
-  - name: setting(key,value)
+  - name: setting
     type: cola
     label: 改写一个Cola设置项
     arguments:
@@ -93,7 +93,7 @@ methods:
         type: any
         label: 设置项的值
 
-  - name: setting(config)
+  - name: setting
     type: cola
     label: 写入一批Cola设置项
     arguments:
@@ -109,7 +109,7 @@ methods:
         type: string
         label: 设置项的名称
 
-  - name: resource(bundle)
+  - name: resource
     type: cola
     label: 设置一批资源项
     description: |
@@ -127,7 +127,7 @@ methods:
         type: string
         label: 资源项的名称
 
-  - name: resource(key,param...)
+  - name: resource
     type: cola
     label: 根据名称获得一个资源项，同时利用传入的参数对资源进行格式化处理
     description: |
@@ -143,6 +143,23 @@ methods:
       - name: param
         type: any
         label: 参数
+
+  - name: tag
+    type: [cola.Element]
+    label: 根据给定的标签返回所有拥有此标签的对象。
+    description: |
+      此方法返回的数组并不是一个单纯的数组，首先我们可以完全按照数组的方式来使用它。
+      然后在即基础上这个数据拥有几个额外的方法，使得我们可以方便的对其中的所有对象执行统一的操作。这三个额外的方法包括：
+      <ul>
+        <li><a href="cola.Element.html#method:set">set()</a></li>
+        <li><a href="cola.Element.html#method:on">on()</a></li>
+        <li><a href="cola.Element.html#method:off">off()</a></li>
+      </ul>
+      以上这些方法的使用方法可以完全参照cola.Element中同名方法的描述。
+    arguments:
+      - name: tag
+        type: string
+        label: 要查找的标签
 
 events:
   - name: ready

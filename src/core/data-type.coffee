@@ -242,13 +242,13 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 			aggregated = false
 
 	if aggregated
-		entityList = new cola.EntityList(dataType)
+		entityList = new cola.EntityList(null, dataType)
 		entityList.fillData(json)
 		return entityList
 	else
 		if json instanceof Array
 			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
-		return new cola.Entity(dataType, json)
+		return new cola.Entity(json, dataType)
 
 cola.DataType.jsonToData = (json, dataType, aggregated) ->
 	if dataType instanceof cola.StringDataType and typeof json != "string" or dataType instanceof cola.BooleanDataType and typeof json != "boolean" or dataType instanceof cola.NumberDataType and typeof json != "number" or dataType instanceof cola.DateDataType and !(json instanceof Date)

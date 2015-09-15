@@ -1,64 +1,154 @@
 name: cola.Element
 stereotype: class
 label: cola的基本对象类型
+description: |
+  cola.Element是Cola中一种非常基础的抽象类。DataType、PropertyDef、控件等对象都是Element的子类。
+  Element的主要作用有两个：
+  <li>为对象提供可声明的属性。</li>
+  <li>为对象提供统一的事件处理机制。</li>
+  请参考： <a href="../docs/element">Element</a>
 
 constructors:
   - arguments:
       - name: config
-        type: object
-
-methods:
-  - name: set
-    type: cola.Element
-    arguments:
-      - name: key
-        type: string | object
-      - name: value
-        type: object
-        optional: true
-
-  - name: get
-    type: any
-    arguments:
-      - name: key
-        type: string
-
-  - name: _bind
-    type: cola.Element
-    arguments:
-      - name: eventName
-        type: string
-      - name: listener
-        type: function
-
-  - name: _unbind
-    type: cola.Element
-    arguments:
-      - name: eventName
-        type: string
-      - name: listener
-        type: function
-
-  - name: getListeners
-    type: function[]
-    arguments:
-      - name: eventName
-        type: string
-
-  - name: fire
-    type: boolean
-    arguments:
-      - name: eventName
-        type: string
-      - name: params
-        type: any[]
-
-events:
-  - name: excpetion
-    arguments:
-      - name: excpetion
+        type: json
+        label: JSON格式的配置参数
+        description: 此对象中的属性配置会被自动设置到对象的属性中。相当于以此参数调用了一次set()方法。
 
 attributes:
   - name: tag
-    label: 标签
-    type: string | string[]
+    type: string
+    label: 一个或一组标签
+    description: 为对象定义一个或一组以空格分割标签，将来我们可以通过<a href="base.html#method:cola.tag">cola.tag()</a>方法方便的获得所有带有此标签的对象。
+
+  - name: userData
+    type: any
+    label: 用户自定义数据。定义在此属性中的数据Cola不会对其做任何处理。
+
+methods:
+  - name: get
+    type: any
+    label: 根据名称获取一个Attribute的值
+    description: |
+        注意设置或读取Attribute时，我们不但可以直接使用属性名也可以利用路径对属性值记性钻取式的读写。
+        请参考： <a href="../docs/element">Element</a>
+    arguments:
+      - name: key
+        type: string
+        label: Attribute名或路径
+
+  - name: set
+    type: cola.Element
+    label: 设置一个对象Attribute的值
+    description: |
+        注意设置或读取Attribute时，我们不但可以直接使用属性名也可以利用路径对属性值记性钻取式的读写。
+        请参考： <a href="../docs/element">Element</a>
+    arguments:
+      - name: key
+        type: string
+        label: Attribute名或路径
+      - name: value
+        type: any
+        label: 值
+
+  - name: set
+    type: cola.Element
+    label: 批量的设置一组对象Attribute的值
+    arguments:
+      - name: config
+        type: json
+        label: 用于保存一批属性值的JSON配置对象
+
+  - name: on
+    type: cola.Element
+    label: 绑定一个事件
+    description: |
+          <code>
+          button.on("click", function() { ... });
+          </code>
+    arguments:
+      - name: eventName
+        type: string
+        label: 事件名
+        description: |
+          利用事件名称，我们可以为某个事件监听器定义别名。例如 click:temp 表示我们要为ready事件绑定事件，同时指定改事件监听器的别名为temp。
+      - name: listener
+        type: function
+        label: 事件监听器方法
+      - name: once
+        type: boolean
+        optional: true
+        label: 声明该事件监听器是否是一次性的，即在触发一次之后自动解除绑定。
+        description: |
+          实际使用时可以利用下面的方法简化这种使用方式 <a href="../docs/element#method:one">Element</a>
+
+  - name: one
+    type: cola.Element
+    label: 绑定一个一次性事件
+    description: |
+          <code>
+          button.one("click", function() { ... });
+          </code>
+    arguments:
+      - name: eventName
+        type: string
+        label: 事件名
+      - name: listener
+        type: function
+        label: 事件监听器方法
+
+  - name: off
+    type: cola.Element
+    label: 根据事件名解绑一个事件监听器
+    description: |
+      <code>
+      button.off("click"); // 解绑ready事件下的所有监听器
+      button.off("click:temp"); // 解绑ready事件下别名为temp的监听器
+      </code>
+    arguments:
+      - name: eventName
+        label: 事件名
+        description: |
+          如果我们不在事件名中定义别名，那么此方法会解绑该事件下的所有监听器。
+          如果我们在事件名中定义了别名，那么此方法只会解绑与该别名匹配的监听器。
+
+  - name: off
+    type: cola.Element
+    label: 解绑事件监听器
+    arguments:
+      - name: eventName
+        type: string
+        label: 事件名，此处不支持使用事件别名
+      - name: listener
+        type: function
+        label: 要解绑的监听器方法
+
+  - name: getListeners
+    type: [function]
+    label: 返回某事件下的所有事件监听器，如果没有绑定任何监听器则返回null。
+    arguments:
+      - name: eventName
+        type: string
+        label: 事件名，此处不支持使用事件别名
+
+events:
+  - name: attributeChange
+    type: event
+    label: 当某个Attribute的值被改写时触发的事件
+    arguments:
+      - name: self
+        type: cola
+        label: 触发事件的对象本身
+      - name: arg
+        properties:
+          - name: attribute
+            type: string
+            label: 被改写的attribute
+
+  - name: destroy
+    type: event
+    label: 当对象被销毁时触发的事件
+    arguments:
+      - name: self
+        type: cola
+        label: 触发事件的对象本身
