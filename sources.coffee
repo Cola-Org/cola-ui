@@ -115,6 +115,7 @@ sources =
 			"src/css/calendar.less"
 			"src/css/stack.less"
 			"src/css/radio.less"
+			"src/css/sidebar.less"
 		]
 	lib:
 		js: [

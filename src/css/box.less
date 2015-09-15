@@ -3,7 +3,7 @@
 @base-flex: 0 1 auto;
 @center-flex: 1 1 auto;
 
-.mobile{
+.mobile {
 	.v-box, .h-box {
 		display: -webkit-box;
 		display: -moz-box;
@@ -16,13 +16,15 @@
 		}
 	}
 }
-.desktop{
+
+.desktop {
 	.v-box, .h-box {
 		display: -ms-flexbox;
 		display: -webkit-flex;
 		display: flex;
 	}
 }
+
 .v-box, .h-box {
 	position: relative;
 	-webkit-flex-wrap: nowrap;
@@ -40,6 +42,9 @@
 	-webkit-align-items: flex-start;
 	-ms-flex-align: start;
 	align-items: flex-start;
+	> .box, > .flex-box {
+		overflow: auto;
+	}
 	.box {
 		-webkit-flex: @base-flex;
 		-ms-flex: @base-flex;
