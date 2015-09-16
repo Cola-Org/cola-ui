@@ -1,205 +1,109 @@
-
-cola.shape ?= {}
-class cola.shape.Side extends cola.Widget
+class cola.Shape extends cola.AbstractItemGroup
+	@CLASS_NAME: "shape"
 	@ATTRIBUTES:
-		content:
-			refreshDom: true
-			setter: (value)->
-				@["_content"]?.destroy?()
-				@["_content"] = value
-				@_refreshContent() if @_dom
-				return
-
-		active:
-			type: "boolean"
-			defaultValue: false
-
-	_createDom: ()->
-		dom = document.createElement("div")
-		dom.className = "side"
-		return dom
-
-	_refreshContent: ()->
-		content = @_content
-		dom=null
-		if content instanceof cola.Widget
-			dom=content.getDom()
-		else if content.constructor == Object.prototype.constructor
-			if content.$type
-				content = @_content = cola.widget(content)
-				content.appendTo(@_dom)
-			else
-				@get$Dom().append($.xCreate(content))
-		else if content.nodeType == 1
-			@get$Dom().append(content)
-
-		return
-
-	getDom: ()->
-		return if @_destroyed
-		unless @_dom
-			super()
-			@_refreshContent() if @_content
-
-		return @_dom
-
-	destroy: ()->
-		unless @_destroyed
-			delete @_dom
-			delete @_$dom
-			delete @_content
-			super()
-		@_destroyed = true
-		return
-
-class cola.Shape extends cola.Widget
-	@CLASS_NAME: "ui shape"
-	@ATTRIBUTES:
-		sides:
-			setter: (sides)->
-				@clear()
-				@addSide(config) for config in sides
-				return
-
-		currentIndex:
-			type: "number"
-			setter: (sides)->
-				@clear()
-				@addSide(config) for config in sides
-				return
+		bind:
+			readonlyAfterCreate: true
+			setter: (bindStr) -> @_bindSetter(bindStr)
 
 	@EVENTS:
 		beforeChange: null
 		afterChange: null
 
-	addSide: (config)->
-		@_sides ?= []
-		side = null
+	@directions: ["up", "down", "left", "right", "over", "back"]
+	getContentContainer: ()->
+		@_createItemsWrap(dom) unless @_doms.wrap
+		return @_doms.wrap
 
-		if config instanceof cola.Widget
-			side = new cola.shape.Side({
-				content: config
-			})
-		else if config.constructor == Object.prototype.constructor
-			if config.$type or config.tagName
-				side = new cola.shape.Side({
-					content: config
-				})
-			else if config.tagName
-				side = new cola.shape.Side(config)
+	_createItemsWrap: (dom)->
+		@_doms ?= {}
+		@_doms.wrap = $.xCreate({
+			tagName: "div"
+			class: "sides"
+		})
+		dom.appendChild(@_doms.wrap)
+		return null
 
-		@_sides.push(side) if side
-		if @_dom and side
-			$(@_doms.sides).append(side.getDom())
+	setCurrentIndex: (index)->
+		@_currentIndex = index
+		return unless @_dom
+		currentDom = @_current
+		if @_doms
+			sides = $(@_doms.wrap).find(".side")
+			if currentDom
+				oldIndex = sides.index(currentDom)
+				console.log(oldIndex)
+				if index == oldIndex then return
+			sides.removeClass("active")
+			targetDom = sides.eq(index).addClass("active")
 
 		return @
 
-	removeSide: (side)->
-		index = side
-
-		if side instanceof cola.shape.Side
-			index = @_sides.indexOf(side)
-
-		if index > -1
-			@_sides.splice(index, 1)
-			side.remove()
+	_parseDom: (dom)->
+		parseItem = (node)=>
+			@_items = []
+			childNode = node.firstChild
+			while childNode
+				@addItem(childNode) if childNode.nodeType == 1
+				$fly(childNode).addClass("side")
+				childNode = childNode.nextSibling
+			return
+		@_doms ?= {}
+		doms = @_doms
+		child = dom.firstChild
+		while child
+			if child.nodeType == 1
+				if cola.util.hasClass(child, "sides")
+					doms.wrap = child
+					parseItem(child)
+				else if child.nodeName == "TEMPLATE"
+					@_regTemplate(child)
+			child = child.nextSibling
 
 		return
 
-	clear: ()->
-		return unless @_sides
-		side.destroy() for side in @_sides
-		@_sides = []
-		$(@_doms.sides).empty()
-		return @
+	_initDom: (dom)->
+		@_createItemsWrap(dom) unless @_doms.wrap
 
-	_createDom: ()->
-		return $.xCreate({
-			tagName: "div"
-			class: @constructor.CLASS_NAME
-			content: [
-				{
-					tagName: "div"
-					class: "sides"
-					contextKey: "sides"
-				}
-			]
-		}, @_doms)
+		template = @_getTemplate()
+		if template
+			if @_bindStr
+				$fly(template).attr("c-repeat", @_bindStr)
+			@_doms.wrap.appendChild(template)
+			cola.xRender(template, @_scope)
 
-	getDom: ()->
-		return null if @_destroyed
-		unless @_dom
-			@_doms ?= {}
-			super()
-
-			$sidesDom = $(@_doms.sides)
-			if @_sides
-				current = null
-
-				for side in @_sides
-					$sidesDom.append(side.getDom())
-					current = side if !!side.get("active")
-
-				current ?= @_sides[0]
-				current.get$Dom().addClass("active")
-
-			@get$Dom().shape({
-				beforeChange: ()=>
-					@fire("beforeChange", @, {current: @_current})
+		if @_items
+			@_itemsRender()
+		shape = @
+		setTimeout(()->
+			$(dom).shape({
+				beforeChange: ()->
+					shape.fire("beforeChange", shape, {current: shape._current})
 					return
-
-				onChange: ()=>
-					@_current = null
-					for side in @_sides
-						side.get$Dom().hasClass("active")
-						@_current = side
-						break
-
-					@fire("afterChange", @, {current: @_current})
+				onChange: (activeDom)->
+					shape._current = activeDom
+					shape.fire("afterChange", shape, {current: activeDom})
 					return
-
 			})
+		, 0)
+		@setCurrentIndex(0)
 
+		return
 
-		return @_dom
-
-	getSide: (index)->
-		return @_sides?[index]
-
-	getSideDom: (index)->
-		return @_sides?[index]?.getDom()
-
-	flipUp: ()->
-		@get$Dom().shape("flip up")
-		return @
-
-	flipDown: ()->
-		@get$Dom().shape("flip down")
-		return @
-
-	flipRight: ()->
-		@get$Dom().shape("flip right")
-		return @
-
-	flipLeft: ()->
-		@get$Dom().shape("flip left")
-		return @
-
-	flipOver: ()->
-		@get$Dom().shape("flip over")
-		return @
-
-	flipBack: ()->
-		@get$Dom().shape("flip back")
-		return @
-
-	flip: (flip)->
-		@get$Dom().shape("flip #{flip}")
+	flip: (direction = "right")->
+		if @constructor.directions.indexOf(direction) >= 0
+			cola._ignoreNodeRemoved = true
+			$dom = @get$Dom()
+			unless $dom.shape("is animating")
+				$dom.shape("flip #{direction}")
+			cola._ignoreNodeRemoved = false
 		return @
 
 	setNextSide: (selector)->
+		return unless @_dom
 		@get$Dom().shape("set next side", selector)
 		return @
 
 
+cola.Element.mixin(cola.Shape, cola.TemplateSupport)
+cola.Element.mixin(cola.Shape, cola.DataItemsWidgetMixin)
 

@@ -77,6 +77,9 @@ class cola.RenderableElement extends cola.Element
 		cola.util.onNodeRemoved(dom, _destroyRenderableElement)
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
+		arg =
+			dom: dom, returnValue: null
+		@fire("createDom", @, arg)
 		@_refreshDom()
 		@_rendered = true
 		return
@@ -128,9 +131,7 @@ class cola.RenderableElement extends cola.Element
 		unless @_dom
 			dom = @_createDom()
 			@_setDom(dom)
-			arg =
-				dom: dom, returnValue: null
-			@fire("createDom", @, arg)
+
 
 		return @_dom
 

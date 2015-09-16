@@ -18,15 +18,6 @@ class cola.Rating extends cola.Widget
 			refreshDom: true
 			defaultValue: false
 
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @["_size"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_size"] = value
-				return
-
 	@EVENTS:
 		rate: null
 	_fireRate: ()->

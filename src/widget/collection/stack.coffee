@@ -4,41 +4,59 @@ class cola.Stack extends cola.Widget
 	@EVENTS:
 		change: null
 	@duration: 200
-	_createDom: ()->
+
+	_initDom: (dom)->
 		@_doms ?= {}
-		dom = $.xCreate({
-			content: [{
-				tagName: "div"
-				class: "items-wrap"
-				contextKey: "itemsWrap"
-				content: [
-					{
-						tagName: "div"
-						class: "item black prev"
-						contextKey: "prevItem"
-					}
-					{
-						tagName: "div"
-						class: "item blue current"
-						contextKey: "currentItem"
-						style: {
-							display: "block"
-						}
-					}
-					{
-						tagName: "div"
-						class: "item green next"
-						contextKey: "nextItem"
-					}
-				]
-			}]
-		}, @_doms)
+		itemsWrap = @getItemsWrap()
+
+		unless @_doms.prevItem
+			@_doms.prevItem = $.xCreate({class: "prev item"})
+			$fly(itemsWrap).prepend(@_doms.prevItem)
+		unless @_doms.currentItem
+			@_doms.currentItem = $.xCreate({class: "current item"})
+			$fly(@_doms.prevItem).after(@_doms.currentItem)
+
+		unless @_doms.nextItem
+			@_doms.nextItem = $.xCreate({class: "next item"})
+			$fly(@_doms.currentItem).after(@_doms.nextItem)
 
 		@_prevItem = @_doms.prevItem
 		@_currentItem = @_doms.currentItem
 		@_nextItem = @_doms.nextItem
 
-		return dom
+		$fly(@_currentItem).css({display: "block"})
+	_parseDom: (dom)->
+		parseItem = (node)=>
+			@_items = []
+			childNode = node.firstChild
+			while childNode
+				if childNode.nodeType == 1
+					if $fly(childNode).hasClass("prev")
+						@_doms.prevItem = childNode
+					else if $fly(childNode).hasClass("current")
+						@_doms.currentItem = childNode
+					else if $fly(childNode).hasClass("next")
+						@_doms.nextItem = childNode
+				childNode = childNode.nextSibling
+			return
+
+		doms = @_doms
+		child = dom.firstChild
+		while child
+			if child.nodeType == 1
+				if cola.util.hasClass(child, "items-wrap")
+					doms.wrap = child
+					parseItem(child)
+			child = child.nextSibling
+
+	getItemContainer: (key)-> @["_#{key}Item"]
+	getItemsWrap: ()->
+		unless @_doms.itemsWrap
+			wrap = $.xCreate({class: "items-wrap"})
+			@_doms.itemsWrap = wrap
+			@_dom.appendChild(wrap)
+		return @_doms.itemsWrap
+
 	_setDom: (dom, parseChild)->
 		super(dom, parseChild)
 		stack = @
@@ -214,6 +232,7 @@ class cola.Stack extends cola.Widget
 			current: @_currentItem
 			prev: @_prevItem
 			next: @_nextItem
+			action: "over"
 		})
 
 		return null
@@ -231,5 +250,6 @@ class cola.Stack extends cola.Widget
 			current: @_currentItem
 			prev: @_prevItem
 			next: @_nextItem
+			action: "back"
 		})
 		return null

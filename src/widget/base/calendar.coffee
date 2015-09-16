@@ -163,9 +163,7 @@ do->
 			return
 		getDateCellDom: (date)->
 			value = new XDate(date).toString("yyyy-M-d")
-			ddd = $(@_dom).find("td[c-date='#{value}']")
-			console.log(ddd)
-			return ddd
+			return $(@_dom).find("td[c-date='#{value}']")
 
 		doRefreshCell: (cell, row, column) ->
 			state = @_state
