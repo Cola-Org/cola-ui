@@ -33,6 +33,7 @@ class cola.MenuButton extends cola.Button
 				menu = cola.widget(child)
 				if menu and menu instanceof cola.Menu
 					@_menu = menu
+					menu._parent = @
 					break
 			child = child.nextSibling
 		return
@@ -74,3 +75,8 @@ class cola.MenuButton extends cola.Button
 	getMenuItem: (index)->
 		return @_menu?.getItem(index)
 
+cola.registerType("menuButton", "_default", cola.ButtonMenu)
+cola.registerType("menuButton", "menu", cola.ButtonMenu)
+
+cola.registerTypeResolver "menuButton", (config) ->
+	return cola.resolveType("widget", config)

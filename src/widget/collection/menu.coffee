@@ -47,6 +47,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 		items:
 			setter: (value)-> @_resetSubMenu(value)
 			getter: ()->return @_subMenu?.get("items")
+
 	_parseDom: (dom)->
 		child = dom.firstChild
 		@_doms ?= {}
@@ -285,7 +286,11 @@ class cola.Menu extends cola.Widget
 			while childNode
 				if childNode.nodeType == 1
 					menuItem = cola.widget(childNode)
-					if menuItem then @addRightItem(menuItem)
+					if menuItem
+						@addRightItem(menuItem)
+					else if cola.util.hasClass(childNode, "item")
+						menuItem = new cola.menu.MenuItem({dom: childNode})
+						@addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return
 
@@ -299,6 +304,9 @@ class cola.Menu extends cola.Widget
 					else if !@_rightMenuDom and cola.util.hasClass(childNode, "right menu")
 						@_rightMenuDom = childNode
 						parseRightMenu(childNode)
+					else if cola.util.hasClass(childNode, "item")
+						menuItem = new cola.menu.MenuItem({dom: childNode})
+						@addItem(menuItem)
 				childNode = childNode.nextSibling
 			return
 		container = $(dom).find(">.container")
@@ -408,7 +416,7 @@ class cola.Menu extends cola.Widget
 			event: event
 		@fire("itemClick", @, arg)
 		return unless parentMenu
-		if parentMenu instanceof cola.menu.AbstractMenuItem or parentMenu instanceof cola.Menu
+		if parentMenu instanceof cola.menu.AbstractMenuItem or parentMenu instanceof cola.Menu or parentMenu instanceof cola.Button
 			parentMenu.onItemClick(event, item)
 
 		return
