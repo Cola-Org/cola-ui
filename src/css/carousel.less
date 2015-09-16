@@ -98,6 +98,26 @@
 		-webkit-box-orient: vertical;
 		-moz-box-orient: vertical;
 	}
+	.controls {
+		a {
+			margin-top: 0px;
+			margin-left: -16px;
+			&.prev {
+				top: 0.75em;
+				left: 50%;
+				bottom: auto;
+				background-position: 0 -32px;
+			}
+			&.next {
+				top: auto;
+				left: 50%;
+				bottom: 0.75em;
+				margin-left: -18px;
+				background-position: -32px -32px;
+			}
+		}
+	}
+
 }
 
 .carousel-color(@color) {
