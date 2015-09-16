@@ -49,7 +49,7 @@ class cola.Entity
 #_providerInvoker
 #_disableWriteObservers
 
-	constructor: (dataType, data) ->
+	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
 		@timestamp = cola.sequenceNo()
 		@dataType = dataType
@@ -270,74 +270,6 @@ class cola.Entity
 				@validate(prop)
 		return value
 
-	getText: (prop, loadMode = "async", callback, context) ->
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
-			loadMode = "async"
-			callback = loadMode
-
-		i = prop.lastIndexOf(".")
-		if i > 0
-			part1 = prop.substring(0, i)
-			part2 = prop.substring(i + 1)
-
-			if callback
-				@get(part1, loadMode, {
-					complete: (success, entity) ->
-						if success
-							if entity
-								if typeof entity._getText == "function"
-									entity._getText(part2, loadMode, callback)
-								else
-									text = entity[path]
-									cola.callback(callback, true, (if text? then text + "" else ""))
-							else
-								cola.callback(callback, true, "")
-						else
-							cola.callback(callback, false, entity)
-						return
-				}, context)
-			else
-				entity = @get(part1, loadMode, null, context)
-				if entity
-					if typeof entity._getText == "function"
-						return entity._getText(part2, null, null, context)
-					else
-						text = entity[path] + ""
-						return if text? then text + "" else ""
-		else
-			return @_getText(prop, loadMode, callback, context)
-
-	_getText: (prop, loadMode, callback, context) ->
-		if callback
-			dataType = @dataType
-			@_get(prop, loadMode, {
-				complete: (success, value) ->
-					if success
-						if value?
-							property = dataType?.getProperty(prop)
-							propertyDataType = property?._dataType
-							if propertyDataType
-								text = propertyDataType.toText(value, property._format)
-							else
-								text = if value? then value + "" else ""
-						cola.callback(callback, true, text or "")
-					else
-						cola.callback(callback, false, value)
-					return
-			}, context)
-			return ""
-		else
-			value = @_get(prop, loadMode, null, context)
-			if value?
-				property = @dataType?.getProperty(prop)
-				propertyDataType = property?._dataType
-				if propertyDataType
-					return propertyDataType.toText(value, property._format)
-				else
-					return if value? then value + "" else ""
-			else
-				return ""
-
 	remove: () ->
 		if @_parent
 			if @_parent instanceof _EntityList
@@ -361,7 +293,7 @@ class cola.Entity
 		if property?._aggregated
 			entityList = @_get(prop, "never")
 			if !entityList?
-				entityList = new cola.EntityList(propertyDataType)
+				entityList = new cola.EntityList(null, propertyDataType)
 
 				provider = property._provider
 				if provider
@@ -379,7 +311,7 @@ class cola.Entity
 		if data and data instanceof Array
 			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 
-		brother = new _Entity(@dataType, data)
+		brother = new _Entity(data, @dataType)
 		brother.setState(_Entity.STATE_NEW)
 		parent = @_parent
 		if parent and parent instanceof _EntityList
@@ -509,6 +441,10 @@ class cola.Entity
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
 		return @
 
+	notifyObservers: () ->
+		@_notify(cola.constants.MESSAGE_REFRESH, { entity: @ })
+		return @
+
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			path = @getPath(true)
@@ -563,7 +499,7 @@ class cola.Entity
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
-		return keyMessage
+		return not (keyMessage?.type is VALIDATION_ERROR)
 
 	_addMessage: (prop, message) ->
 		messageHolder = @_messageHolder
@@ -575,15 +511,6 @@ class cola.Entity
 		else
 			if messageHolder.add(prop, message) then topKeyChanged = true
 		return topKeyChanged
-
-	clearMessages: (prop) ->
-		return @ unless @_messageHolder
-		if prop
-			hasPropMessage = @_messageHolder.getKeyMessage(prop)
-		topKeyChanged = @_messageHolder.clear(prop)
-		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
-		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
-		return @
 
 	addMessage: (prop, message) ->
 		if arguments.length is 1
@@ -599,6 +526,18 @@ class cola.Entity
 
 	getKeyMessage: (prop) ->
 		return @_messageHolder?.getKeyMessage(prop)
+
+	getMessages: (prop) ->
+		return @_messageHolder?.getMessages(prop)
+
+	clearMessages: (prop) ->
+		return @ unless @_messageHolder
+		if prop
+			hasPropMessage = @_messageHolder.getKeyMessage(prop)
+		topKeyChanged = @_messageHolder.clear(prop)
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+		return @
 
 	findMessages: (prop, type) ->
 		return @_messageHolder?.findMessages(prop, type)
@@ -686,7 +625,7 @@ class Page extends LinkedList
 
 		dataType = entityList.dataType
 		for data in json
-			entity = new _Entity(dataType, data)
+			entity = new _Entity(data, dataType)
 			@_insertElement(entity)
 
 		entityList.totalEntityCount = rawJson.$entityCount if rawJson.$entityCount?
@@ -760,7 +699,6 @@ class cola.EntityList extends LinkedList
 	current: null
 	entityCount: 0
 
-# full, no-count, append
 	pageMode: "append"
 	pageSize: 0
 	pageNo: 1
@@ -773,10 +711,11 @@ class cola.EntityList extends LinkedList
 #_parentProperty
 #_providerInvoker
 
-	constructor: (dataType) ->
+	constructor: (array, dataType) ->
 		@id = cola.uniqueId()
 		@timestamp = cola.sequenceNo()
 		@dataType = dataType
+		if array then @fillData(array)
 
 	fillData: (array) ->
 		page = @_findPage(@pageNo)
@@ -1013,7 +952,7 @@ class cola.EntityList extends LinkedList
 			if entity._parent and entity._parent != @
 				throw new cola.Exception("Entity is already belongs to another owner. \"#{@._parentProperty or "Unknown"}\".")
 		else
-			entity = new _Entity(@dataType, entity)
+			entity = new _Entity(entity, @dataType)
 			entity.setState(_Entity.STATE_NEW)
 
 		page.dontAutoSetCurrent = true
@@ -1139,6 +1078,10 @@ class cola.EntityList extends LinkedList
 
 	enableObservers: () ->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
+		return @
+
+	notifyObservers: () ->
+		@_notify(cola.constants.MESSAGE_REFRESH, { entityList: @ })
 		return @
 
 	_notify: (type, arg) ->

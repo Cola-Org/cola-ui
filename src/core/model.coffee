@@ -74,6 +74,18 @@ class cola.AbstractModel
 		@data.enableObservers()
 		return @
 
+	notifyObservers: () ->
+		@data.notifyObservers()
+		return @
+
+	watch: (path, fn) ->
+		@.data.bind(path, {
+			_processMessage: (bindingPath, path, type, arg) ->
+				fn(path, type, arg)
+				return
+		})
+		return @
+
 class cola.Model extends cola.AbstractModel
 	constructor: (name, parent) ->
 		if name instanceof cola.Model
@@ -647,12 +659,13 @@ class cola.AbstractDataModel
 		if @disableObserverCount < 1 then @disableObserverCount = 0 else @disableObserverCount--
 		return @
 
-	isObserversDisabled: () ->
-		return @disableObserverCount > 0
+	notifyObservers: () ->
+		@_rootData?.notifyObservers()
+		return @
 
 	_onDataMessage: (path, type, arg = {}) ->
 		return unless @bindingRegistry
-		return if @isObserversDisabled()
+		return if @disableObserverCount > 0
 
 		oldScope = cola.currentScope
 		cola.currentScope = @
@@ -704,7 +717,7 @@ class cola.DataModel extends cola.AbstractDataModel
 	_getRootData: () ->
 		if !@_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
-			@_rootData = rootData = new cola.Entity(@_rootDataType)
+			@_rootData = rootData = new cola.Entity(null, @_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
 			rootData._setListener(
@@ -922,8 +935,9 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		@parent.enableObservers()
 		return @
 
-	isObserversDisabled: () ->
-		return @parent.isObserversDisabled()
+	notifyObservers: () ->
+		@parent.notifyObservers()
+		return @
 
 ###
 Root Model
@@ -1068,6 +1082,9 @@ cola.submit.filter =
 
 	"dirty-tree": (data) ->
 		return data
+
+cola.model.defaultActions.is = (value) ->
+	return !!value
 
 cola.model.defaultActions.not = (value) ->
 	return not value

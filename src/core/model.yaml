@@ -1,0 +1,92 @@
+name: cola.Model
+stereotype: class
+label: cola的视图模型对象
+
+methods:
+  - name: get
+    type: any
+    label: 从Model中读取一个数据项
+    description: |
+      当一个数据项的值是懒装载的，那么在我们通过get()方法尝试从此数据项中读取内容时，Cola会利用loadMode参数的值来确定要如何来装载尚未装载的数据。
+    arguments:
+      - name: name
+        type: string
+        label: 数据项名或路径
+      - name: loadMode
+        type: string | function | Object
+        defaultValue: async
+        optional: true
+        label: 懒加载属性的装载模式，默认值为async。
+        description: |
+          该装载模式目前有四种可能的取值：
+          <ul>
+            <li>async - 异步装载模式</li>
+            <li>sync - 同步装载模式</li>
+            <li>never - 不装载</li>
+            <li>
+            传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
+            回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
+            </li>
+          </ul>
+
+  - name: set
+    type: cola.Model
+    label: 向Model中设置一个数据项
+    arguments:
+      - name: name
+        type: string
+        label: 数据项名或路径
+      - name: value
+        type: any
+        label: 数据
+
+  - name: set
+    type: cola.Model
+    label: 向Model中设置一批数据项
+    arguments:
+      - name: data
+        type: JSON
+        label: 以JSON方式定义的一批数据项
+
+  - name: describe
+    type: cola.Model
+    label: 描述Model中的一个数据项
+    arguments:
+      - name: name
+        type: string
+        label: 数据项名，此处不支持数据路径
+      - name: config
+        type: json
+        label: 以JSON形式定义的
+
+  - name: describe
+    type: cola.Model
+    label: 描述Model中的一个数据项
+    arguments:
+      - name: name
+        type: string
+        label: 数据项名，此处不支持数据路径
+      - name: dataType
+        type: string
+        label:
+
+  - name: disableObservers
+    type: cola.Entity
+    label: 将禁止Entity向观察者发送消息
+    description: |
+      此方法最常见的使用场景是在将要对数据进行批量的操作之前，先调用 disableObservers() 禁止消息发送。
+      这样界面就无法得到数据被改变的通知，也就不会随着操作进行大量重复而无意义的重渲染。
+      当批量的操作完成之后，再调用 enableObservers() 重新允许消息发送。
+      此时也可以调用 notifyObservers() 方法通知所有观察者进行重渲染。
+      需要注意的是 disableObservers() 和 enableObservers() 内部是使用计数器来管理的，
+      这意味着当你连续调用了两次 disableObservers() 之后，必须也要调用两次 enableObservers() 才能冲洗恢复消息发送。
+
+  - name: enableObservers
+    type: cola.Entity
+    label: 允许Entity向观察者发送消息
+    description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+
+  - name: notifyObservers
+    type: cola.Entity
+    label: 通知观察者数据已更改
+    description: 参考 <a href="#method:disableObservers">disableObservers()</a>

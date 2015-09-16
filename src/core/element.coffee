@@ -448,8 +448,8 @@ cola.Element.createGroup = (elements, model) ->
 	elements.set = (attr, value) ->
 		element.set(attr, value) for element in elements
 		return @
-	elements.on = (eventName, listener) ->
-		element.on(eventName, listener) for element in elements
+	elements.on = (eventName, listener, once) ->
+		element.on(eventName, listener, once) for element in elements
 		return @
 	elements.off = (eventName: string) ->
 		element.off(eventName) for element in elements

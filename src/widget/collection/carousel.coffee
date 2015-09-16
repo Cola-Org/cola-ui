@@ -140,7 +140,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 	refreshIndicators: ()->
 		itemsCount = @_items?.length
-		return unless @_doms.indicators
+		return unless @_doms?.indicators
 		indicatorCount = @_doms.indicators.children.length
 
 		if indicatorCount < itemsCount
