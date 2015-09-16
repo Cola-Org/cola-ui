@@ -1,9 +1,10 @@
+@import (reference) "global";
+
 .ui.carousel {
 	overflow: hidden;
 	position: relative;
 	> .items-wrap {
-		display: -webkit-box;
-		display: -moz-box;
+		.display(box);
 		position: relative;
 		height: 100%;
 		> * {
@@ -18,59 +19,41 @@
 		z-index: 1;
 		vertical-align: middle;
 		text-align: center;
-		display: -webkit-box;
-		display: -moz-box;
-		-webkit-box-pack: center;
-		-moz-box-pack: center;
-		-webkit-box-align: center;
-		-moz-box-align: center;
+		.display(box);
+		.box-pack(center);
+		.box-align(center);
 		> span {
 			cursor: pointer;
 			display: block;
 			box-sizing: border-box;
-			width: 10px;
-			height: 10px;
-			-webkit-border-radius: 50%;
-			-moz-border-radius: 50%;
-			border-radius: 50%;
-			border: transparent solid 2px;
+			width: 0.6em;
+			height: 0.6em;
+			.border-radius(50%);
 			background-clip: content-box;
-			margin: 2px;
-			-webkit-transition-duration: 0.6s;
-			-moz-transition-duration: 0.6s;
-			-ms-transition-duration: 0.6s;
-			-o-transition-duration: 0.6s;
-			transition-duration: 0.6s;
-			-webkit-transition-property: background-color, border-color, color, -webkit-box-shadow, -webkit-transform;
-			-moz-transition-property: background-color, border-color, color, -moz-box-shadow, -moz-transform;
-			transition-property: background-color, border-color, color, box-shadow, transform;
-			-webkit-transition-property: background-color, border;
-			-moz-transition-property: background-color, border;
-			-ms-transition-property: background-color, border;
-			-o-transition-property: background-color, border;
-			transition-property: background-color, border;
-
-			background-color: rgba(136, 136, 136, 0.5);
+			margin: 0.25em;
+			.transition-duration(0.6s);
+			.transition-property(background-color, border-color, color, -webkit-box-shadow, -webkit-transform);
+			background-color: #fff;
+			border: 1px solid rgba(0, 0, 0, 0.2);
 		}
 		> span.active {
-			border-color: #15a4fa;
-			background-color: #15a4fa;
+			border-color: @blue;
+			background-color: @blue;
 		}
 	}
 
 	.controls {
 		a {
 			width: 32px;
+			height: 32px;
 			display: block;
 			top: 50%;
-			height: 32px;
 			cursor: pointer;
 			position: absolute;
 			z-index: 1;
 			margin-top: -16px;
 			opacity: 0.5;
-			-webkit-transition: opacity 0.35s linear 0s;
-			transition: opacity 0.35s linear 0s;
+			.transition(opacity 0.35s linear 0s);
 			background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OUI4MUYyNzJEQUUxMTFFNEI0Q0REOUU2MTU3MEVEMTYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OUI4MUYyNzNEQUUxMTFFNEI0Q0REOUU2MTU3MEVEMTYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5QjgxRjI3MERBRTExMUU0QjRDREQ5RTYxNTcwRUQxNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5QjgxRjI3MURBRTExMUU0QjRDREQ5RTYxNTcwRUQxNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Por3U54AAAU1SURBVHja7FrPS1xXFHZm4cZJhECzULEI2qJTF135YIhYtYtKDWQrhPSfcFNCQCnFpVm0/4BZGoS0CEmhLUpMSxZZtGnTKminUogWcaLJQojT7zTfNTfDe/edOzNvsnjvwsdz7j0/vne877577nm5arXaluaWb0t5y2mEMEuKuFwBLgFDQBeDdwr8A/wOrAEruVzuscJeOJlczofLKDAYwuU3YF3LJRfjbBqXz4GAXX8Bj4AycAScA3qBD4F3KfMT8CWcf9PMACTFJcpZF7BafdX+BeaBgRidAWCO8lXqd0UFIAxKLnNKLvMaLmHKAfAUeAksAAXP4HVQ7yXtBPUGIIRLhyeXQhyXWoUS8ALYB0YbWVxEn3bEXsk3AK3iYgv1AQcUfL8ZK6zYoT2x26cNQCu5mME8sAGcxE4Tf8cB7Yr9fFwAWs3FDFzjYnHD02CvUu4G7V9TBMCLi5ZDFBcT8U2gDLR7GJJntAJcV8i20/4m/UUFwYuL+CaHkgfvN7hIxwQjMuthZJwLyh4wrNSZpZ9JRwAmfbiIb3IQLuMe/A2XCfmxyB/dSuUpOtwF+j2cdtPPoiMAXlxot59chNOULxf58RB4olS8zEVk2+fmLf0n9BcVADWXkCBsk9tlHy7yxyFwW6EwQwdbQE+dq/Ayn9moAMjYcp22e8hNOM4o5G/LvcuroBPYixEewWUJ+AMYw956t8430T5w3jF+njL+Wd0rTmPkuETOrib33Jn6dFgCUAEuxkT3Z1yuArIr+7HeRwDtHeCZY/wZZep6BIQbOV4lZ1e7+P+9Z4tg9hrMNkLp3gqnPhnK0uHsQCQ7EssORdN8LJ76wkhWGsuqw1k6rJabABaBh8ChzEbikH2LlMknzHfS4lGxeFQsHpNaHnGPQJ7nALLfN5mfnLg8tk6RJK8uMg+XtgV8wROk0ybeeBiPX60TJDlH+MCbhyMx6eOWscrkYZZpZJR8N2XK1NmgjbYGkSiPKCMlbhlPmDy0exBup84JbZQauPnEeYQpBtYWNGiAfGBtP4M69RPnUSvcxS3jPpOHRqevSUCe0rZWr2U8agVXuW8ebYJTg1HaXPXQaRkPW2Cai8ZCE50aLND2tEK2pTzswQdMHgoJOC7Q9gOFrOHRkQCPjloeZrNQZJLxNXCsfDePEJp2TNsBfUU1w+Mr4HkCG6nntH3GwwTgCq9LSkNSe9sgZpQ6SzW+wpoZu5XgbvLWG744Fe4CO8ppZIojvxAn7NPo7tBX1Pg9Dx6NYIe+zmbAEHPruCaFh2Xm4J8QZfZpihKP6CuqDcbwkK2wpg4xTFkXj0F7Bsjr4WZM1EwxZJulaNPfw74XlHHZuElfUeMuHr2sAeyxGhRlo58yFeo4eeStZOPIETE5SPwWOAA+Buzy+C77DijjOnQ8isnSXDzKnGUFFkHDynL9HCtQthzHw5A55ZFSWJNjplWu5GPMsmrbFseOKRtVrDgXkyG6eEi7D3wKXAC+A+wqdQ/7LlDmvsPOax6cEn8DK45pdZ11uLjFZZiyUeMr9BU1HsfDYMr+WqXm65Aphf4Zj7e2+kag5W8j8wis8SR1IMH37wB9rDlk1j143AE+41tliH/f8eCxbj8CRe6R5xL878/RR9EhY3jMe9gdIbTy8zaPt7YHV+QCLclJsmwwOw/IToSyM8HsVDjNdYF6K0ONV2SaUxlquEKlrQ4LgXEmGZLtvdf2+qNn+bz1TyYfkg1+38QbD+PxETBNHrKr6+SY1AY3yUO+B/hBwyMrj2fl8ZS3/wQYACJrrTvr6HLMAAAAAElFTkSuQmCC');
 			&.prev {
 				left: 0.75em;
@@ -83,9 +66,7 @@
 				opacity: 1;
 			}
 		}
-
 	}
-
 }
 
 .ui.carousel-horizontal {
@@ -97,7 +78,7 @@
 		left: 0;
 		bottom: 0px;
 		width: 100%;
-		height: 24px;
+		height: 1.5em;
 		-webkit-box-orient: horizontal;
 		-moz-box-orient: horizontal;
 	}
@@ -112,21 +93,32 @@
 	> .indicators {
 		right: 0;
 		top: 0;
-		width: 24px;
+		width: 1.5em;
 		height: 100%;
 		-webkit-box-orient: vertical;
 		-moz-box-orient: vertical;
 	}
 }
 
-.ui.carousel-inverse {
-	> .indicators {
-		> span {
-			background-color: rgba(136, 136, 136, 0.5);
-		}
-		> span.active {
-			border-color: #15a4fa;
-			background-color: #fa6b15;
+.carousel-color(@color) {
+	.ui.carousel.@{color} {
+		> .indicators > span.active {
+			border-color: @@color !important;
+			background-color: @@color !important;
 		}
 	}
 }
+
+.carousel-color(red);
+.carousel-color(orange);
+.carousel-color(yellow);
+.carousel-color(olive);
+.carousel-color(green);
+.carousel-color(teal);
+.carousel-color(blue);
+.carousel-color(violet);
+.carousel-color(purple);
+.carousel-color(pink);
+.carousel-color(brown);
+.carousel-color(grey);
+.carousel-color(black);
