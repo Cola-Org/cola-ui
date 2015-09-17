@@ -528,7 +528,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   background: #ffffff;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4285em;
   color: rgba(0, 0, 0, 0.87);
@@ -544,7 +544,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   line-height: 1.2857em;
   margin: calc(2rem -  0.14285em ) 0em 1rem;
   font-weight: bold;
@@ -691,7 +691,7 @@ input::selection {
   vertical-align: baseline;
   background: #e0e1e2 none;
   color: rgba(0, 0, 0, 0.6);
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   margin: 0em 0.25em 0em 0em;
   padding: 0.78571429em 1.5em 0.78571429em;
   text-transform: none;
@@ -3045,7 +3045,7 @@ input::selection {
 
 .ui.pink.buttons .button,
 .ui.pink.button {
-  background-color: #e03997;
+  background-color: #ff4081;
   color: #ffffff;
   text-shadow: none;
   background-image: none;
@@ -3057,21 +3057,21 @@ input::selection {
 
 .ui.pink.buttons .button:hover,
 .ui.pink.button:hover {
-  background-color: #e61a8d;
+  background-color: #ff2670;
   color: #ffffff;
   text-shadow: none;
 }
 
 .ui.pink.buttons .button:focus,
 .ui.pink.button:focus {
-  background-color: #e10f85;
+  background-color: #ff1766;
   color: #ffffff;
   text-shadow: none;
 }
 
 .ui.pink.buttons .button:active,
 .ui.pink.button:active {
-  background-color: #c71f7e;
+  background-color: #ff0d5f;
   color: #ffffff;
   text-shadow: none;
 }
@@ -3080,7 +3080,7 @@ input::selection {
 .ui.pink.buttons .active.button:active,
 .ui.pink.active.button,
 .ui.pink.button .active.button:active {
-  background-color: #ea158d;
+  background-color: #ff2670;
   color: #ffffff;
   text-shadow: none;
 }
@@ -3089,35 +3089,35 @@ input::selection {
 
 .ui.basic.pink.buttons .button,
 .ui.basic.pink.button {
-  box-shadow: 0px 0px 0px 1px #e03997 inset !important;
-  color: #e03997 !important;
+  box-shadow: 0px 0px 0px 1px #ff4081 inset !important;
+  color: #ff4081 !important;
 }
 
 .ui.basic.pink.buttons .button:hover,
 .ui.basic.pink.button:hover {
   background: transparent !important;
-  box-shadow: 0px 0px 0px 1px #e61a8d inset !important;
-  color: #e61a8d !important;
+  box-shadow: 0px 0px 0px 1px #ff2670 inset !important;
+  color: #ff2670 !important;
 }
 
 .ui.basic.pink.buttons .button:focus,
 .ui.basic.pink.button:focus {
   background: transparent !important;
-  box-shadow: 0px 0px 0px 1px #e10f85 inset !important;
-  color: #e61a8d !important;
+  box-shadow: 0px 0px 0px 1px #ff1766 inset !important;
+  color: #ff2670 !important;
 }
 
 .ui.basic.pink.buttons .active.button,
 .ui.basic.pink.active.button {
   background: transparent !important;
-  box-shadow: 0px 0px 0px 1px #ea158d inset !important;
-  color: #c71f7e !important;
+  box-shadow: 0px 0px 0px 1px #ff2670 inset !important;
+  color: #ff0d5f !important;
 }
 
 .ui.basic.pink.buttons .button:active,
 .ui.basic.pink.button:active {
-  box-shadow: 0px 0px 0px 1px #c71f7e inset !important;
-  color: #c71f7e !important;
+  box-shadow: 0px 0px 0px 1px #ff0d5f inset !important;
+  color: #ff0d5f !important;
 }
 
 .ui.buttons:not(.vertical) > .basic.pink.button:not(:first-child) {
@@ -3129,8 +3129,8 @@ input::selection {
 .ui.inverted.pink.buttons .button,
 .ui.inverted.pink.button {
   background-color: transparent;
-  box-shadow: 0px 0px 0px 2px #ff8edf inset !important;
-  color: #ff8edf;
+  box-shadow: 0px 0px 0px 2px #ff80ab inset !important;
+  color: #ff80ab;
 }
 
 .ui.inverted.pink.buttons .button:hover,
@@ -3147,22 +3147,22 @@ input::selection {
 
 .ui.inverted.pink.buttons .button:hover,
 .ui.inverted.pink.button:hover {
-  background-color: #ff74d8;
+  background-color: #ff669a;
 }
 
 .ui.inverted.pink.buttons .button:focus,
 .ui.inverted.pink.button:focus {
-  background-color: #ff65d3;
+  background-color: #ff5790;
 }
 
 .ui.inverted.pink.buttons .active.button,
 .ui.inverted.pink.active.button {
-  background-color: #ff74d8;
+  background-color: #ff669a;
 }
 
 .ui.inverted.pink.buttons .button:active,
 .ui.inverted.pink.button:active {
-  background-color: #ff5bd1;
+  background-color: #ff4d89;
 }
 
 /* Inverted Basic */
@@ -3178,29 +3178,29 @@ input::selection {
 .ui.inverted.pink.basic.buttons .button:hover,
 .ui.inverted.pink.buttons .basic.button:hover,
 .ui.inverted.pink.basic.button:hover {
-  box-shadow: 0px 0px 0px 2px #ff74d8 inset !important;
-  color: #ff8edf !important;
+  box-shadow: 0px 0px 0px 2px #ff669a inset !important;
+  color: #ff80ab !important;
 }
 
 .ui.inverted.pink.basic.buttons .button:focus,
 .ui.inverted.pink.basic.buttons .button:focus,
 .ui.inverted.pink.basic.button:focus {
-  box-shadow: 0px 0px 0px 2px #ff65d3 inset !important;
-  color: #ff8edf !important;
+  box-shadow: 0px 0px 0px 2px #ff5790 inset !important;
+  color: #ff80ab !important;
 }
 
 .ui.inverted.pink.basic.buttons .active.button,
 .ui.inverted.pink.buttons .basic.active.button,
 .ui.inverted.pink.basic.active.button {
-  box-shadow: 0px 0px 0px 2px #ff74d8 inset !important;
-  color: #ff8edf !important;
+  box-shadow: 0px 0px 0px 2px #ff669a inset !important;
+  color: #ff80ab !important;
 }
 
 .ui.inverted.pink.basic.buttons .button:active,
 .ui.inverted.pink.buttons .basic.button:active,
 .ui.inverted.pink.basic.button:active {
-  box-shadow: 0px 0px 0px 2px #ff5bd1 inset !important;
-  color: #ff8edf !important;
+  box-shadow: 0px 0px 0px 2px #ff4d89 inset !important;
+  color: #ff80ab !important;
 }
 
 /*--- Violet ---*/
@@ -4581,7 +4581,7 @@ input::selection {
 /* Text Container */
 
 .ui.text.container {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   max-width: 700px !important;
   line-height: 1.5;
 }
@@ -6181,7 +6181,7 @@ i.flag.zimbabwe:before {
   border: none;
   margin: calc(2rem -  0.14285em ) 0em 1rem;
   padding: 0em 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-weight: bold;
   line-height: 1.2857em;
   text-transform: none;
@@ -6734,25 +6734,25 @@ a.ui.inverted.purple.header:hover {
 /*--- Pink ---*/
 
 .ui.pink.header {
-  color: #e03997 !important;
+  color: #ff4081 !important;
 }
 
 a.ui.pink.header:hover {
-  color: #e61a8d !important;
+  color: #ff2670 !important;
 }
 
 .ui.pink.dividing.header {
-  border-bottom: 2px solid #e03997;
+  border-bottom: 2px solid #ff4081;
 }
 
 /* Inverted */
 
 .ui.inverted.pink.header {
-  color: #ff8edf !important;
+  color: #ff80ab !important;
 }
 
 a.ui.inverted.pink.header:hover {
-  color: #ff74d8 !important;
+  color: #ff669a !important;
 }
 
 /*--- Brown ---*/
@@ -6997,7 +6997,7 @@ a.ui.inverted.grey.header:hover {
 
 @font-face {
   font-family: 'Icons';
-  src: url("themes/default/assets/fonts/Helvetica Neue, Arial, Hiragino Sans GB, Lato, Microsoft YaHei.eot");
+  src: url("themes/default/assets/fonts/icons.eot");
   src: url("themes/default/assets/fonts/icons.eot?#iefix") format('embedded-opentype'), url("themes/default/assets/fonts/icons.woff2") format('woff2'), url("themes/default/assets/fonts/icons.woff") format('woff'), url("themes/default/assets/fonts/icons.ttf") format('truetype'), url("themes/default/assets/fonts/icons.svg#icons") format('svg');
   font-style: normal;
   font-weight: normal;
@@ -7355,16 +7355,16 @@ i.inverted.circular.purple.icon {
 /* Pink */
 
 i.pink.icon {
-  color: #e03997 !important;
+  color: #ff4081 !important;
 }
 
 i.inverted.pink.icon {
-  color: #ff8edf !important;
+  color: #ff80ab !important;
 }
 
 i.inverted.bordered.pink.icon,
 i.inverted.circular.pink.icon {
-  background-color: #e03997 !important;
+  background-color: #ff4081 !important;
   color: #ffffff !important;
 }
 
@@ -10641,7 +10641,7 @@ img.ui.bordered.image {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   text-align: left;
   line-height: 1.2142em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   padding: 0.67861429em 1em;
   background: #ffffff;
   border: 1px solid rgba(34, 36, 38, 0.15);
@@ -11196,7 +11196,7 @@ img.ui.bordered.image {
   padding: 0.5833em 0.833em;
   color: rgba(0, 0, 0, 0.6);
   text-transform: none;
-  font-weight: bold;
+  font-weight: normal;
   border: 0px solid transparent;
   border-radius: 0.28571429rem;
   -webkit-transition: background 0.1s ease;
@@ -12137,8 +12137,8 @@ a.ui.basic.purple.label:hover {
 
 .ui.pink.labels .label,
 .ui.pink.label {
-  background-color: #e03997 !important;
-  border-color: #e03997 !important;
+  background-color: #ff4081 !important;
+  border-color: #ff4081 !important;
   color: #ffffff !important;
 }
 
@@ -12146,8 +12146,8 @@ a.ui.basic.purple.label:hover {
 
 .ui.pink.labels .label:hover,
 a.ui.pink.label:hover {
-  background-color: #e61a8d !important;
-  border-color: #e61a8d !important;
+  background-color: #ff2670 !important;
+  border-color: #ff2670 !important;
   color: #ffffff !important;
 }
 
@@ -12161,22 +12161,22 @@ a.ui.pink.label:hover {
 /* Ribbon */
 
 .ui.pink.ribbon.label {
-  border-color: #c71f7e !important;
+  border-color: #ff0d5f !important;
 }
 
 /* Basic */
 
 .ui.basic.pink.label {
   background-color: #ffffff !important;
-  color: #e03997 !important;
-  border-color: #e03997 !important;
+  color: #ff4081 !important;
+  border-color: #ff4081 !important;
 }
 
 .ui.basic.pink.labels a.label:hover,
 a.ui.basic.pink.label:hover {
   background-color: #ffffff !important;
-  color: #e61a8d !important;
-  border-color: #e61a8d !important;
+  color: #ff2670 !important;
+  border-color: #ff2670 !important;
 }
 
 /*--- Brown ---*/
@@ -12781,7 +12781,7 @@ ol.ui.list ol li,
 .ui.list > .item .header {
   display: block;
   margin: 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
 }
@@ -15063,11 +15063,11 @@ ol.ui.horizontal.list li:before,
 /* Pink */
 
 .ui.pink.segment:not(.inverted) {
-  border-top: 2px solid #e03997;
+  border-top: 2px solid #ff4081;
 }
 
 .ui.inverted.pink.segment {
-  background-color: #e03997 !important;
+  background-color: #ff4081 !important;
   color: #ffffff !important;
 }
 
@@ -15399,7 +15399,7 @@ ol.ui.horizontal.list li:before,
 /* Title */
 
 .ui.steps .step .title {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1.14285714em;
   font-weight: bold;
 }
@@ -16173,7 +16173,7 @@ ol.ui.horizontal.list li:before,
 .ui.form input[type="time"],
 .ui.form input[type="text"],
 .ui.form input[type="url"] {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   margin: 0em;
   outline: none;
   -webkit-appearance: none;
@@ -18851,7 +18851,7 @@ ol.ui.horizontal.list li:before,
 .ui.grid > .pink.row,
 .ui.grid > .pink.column,
 .ui.grid > .row > .pink.column {
-  background-color: #e03997 !important;
+  background-color: #ff4081 !important;
   color: #ffffff;
 }
 
@@ -19556,7 +19556,7 @@ ol.ui.horizontal.list li:before,
   display: -ms-flexbox;
   display: flex;
   margin: 1rem 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   background: #ffffff;
   font-weight: normal;
   border: 1px solid rgba(34, 36, 38, 0.15);
@@ -20995,8 +20995,8 @@ Floated Menu / Item
 
 .ui.menu .pink.active.item,
 .ui.pink.menu .active.item {
-  border-color: #e03997 !important;
-  color: #e03997 !important;
+  border-color: #ff4081 !important;
+  color: #ff4081 !important;
 }
 
 .ui.menu .brown.active.item,
@@ -21281,7 +21281,7 @@ Floated Menu / Item
 
 .ui.inverted.menu .pink.active.item,
 .ui.inverted.pink.menu {
-  background-color: #e03997;
+  background-color: #ff4081;
 }
 
 .ui.inverted.pink.menu .item:before {
@@ -21789,7 +21789,7 @@ Floated Menu / Item
 
 .ui.message .header {
   display: block;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-weight: bold;
   margin: -0.14285em 0em 0rem 0em;
 }
@@ -22220,12 +22220,12 @@ Floated Menu / Item
 }
 
 .ui.pink.message {
-  background-color: #ffe3fb;
-  color: #e03997;
+  background-color: #ffe6f0;
+  color: #ff4081;
 }
 
 .ui.pink.message .header {
-  color: #dd238b;
+  color: #ff2670;
 }
 
 .ui.brown.message {
@@ -23019,11 +23019,11 @@ Floated Menu / Item
 /* Pink */
 
 .ui.pink.table {
-  border-top: 0.2em solid #e03997;
+  border-top: 0.2em solid #ff4081;
 }
 
 .ui.inverted.pink.table {
-  background-color: #e03997 !important;
+  background-color: #ff4081 !important;
   color: #ffffff !important;
 }
 
@@ -23976,7 +23976,7 @@ Floated Menu / Item
 .ui.card > .content > .header {
   display: block;
   margin: '';
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   color: rgba(0, 0, 0, 0.85);
 }
 
@@ -24441,13 +24441,13 @@ a.ui.card:hover,
 .ui.pink.cards > .card,
 .ui.cards > .pink.card,
 .ui.pink.card {
-  box-shadow: 0px 0px 0px 1px #d4d4d5, 0px 2px 0px 0px #e03997, 0px 1px 3px 0px #d4d4d5;
+  box-shadow: 0px 0px 0px 1px #d4d4d5, 0px 2px 0px 0px #ff4081, 0px 1px 3px 0px #d4d4d5;
 }
 
 .ui.pink.cards > .card:hover,
 .ui.cards > .pink.card:hover,
 .ui.pink.card:hover {
-  box-shadow: 0px 0px 0px 1px #d4d4d5, 0px 2px 0px 0px #e61a8d, 0px 1px 3px 0px #bcbdbd;
+  box-shadow: 0px 0px 0px 1px #d4d4d5, 0px 2px 0px 0px #ff2670, 0px 1px 3px 0px #bcbdbd;
 }
 
 /* Brown */
@@ -25594,7 +25594,7 @@ a.ui.card:hover,
 .ui.items > .item > .content > .header {
   display: inline-block;
   margin: -0.21425em 0em 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.85);
 }
@@ -26076,7 +26076,7 @@ a.ui.card:hover,
 
 .ui.statistics .statistic > .value,
 .ui.statistic > .value {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 4rem;
   font-weight: normal;
   line-height: 1em;
@@ -26091,7 +26091,7 @@ a.ui.card:hover,
 
 .ui.statistics .statistic > .label,
 .ui.statistic > .label {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1em;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
@@ -26377,7 +26377,7 @@ a.ui.card:hover,
 .ui.pink.statistics .statistic > .value,
 .ui.statistics .pink.statistic > .value,
 .ui.pink.statistic > .value {
-  color: #e03997;
+  color: #ff4081;
 }
 
 .ui.brown.statistics .statistic > .value,
@@ -26463,7 +26463,7 @@ a.ui.card:hover,
 .ui.inverted.pink.statistics .statistic > .value,
 .ui.statistics .inverted.pink.statistic > .value,
 .ui.inverted.pink.statistic > .value {
-  color: #ff8edf;
+  color: #ff80ab;
 }
 
 .ui.inverted.brown.statistics .statistic > .value,
@@ -26645,7 +26645,7 @@ a.ui.card:hover,
 
 .ui.accordion .title:not(.ui) {
   padding: 0.5em 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1em;
   color: rgba(0, 0, 0, 0.87);
 }
@@ -27667,7 +27667,7 @@ body.dimmable > .dimmer {
   -webkit-filter: blur(0px) grayscale(0);
   filter: blur(0px) grayscale(0);
   -webkit-transition: 800ms -webkit-filter ease, 800ms filter ease;
-  transition: 800ms filter ease;
+  transition: 800ms -webkit-filter ease, 800ms filter ease;
 }
 
 .blurring.dimmed.dimmable > :not(.dimmer) {
@@ -29528,7 +29528,7 @@ select.ui.dropdown {
 
 .ui.modal > .header {
   display: block;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   background: #ffffff;
   margin: 0em;
   padding: 1.25rem 1.5rem;
@@ -30193,7 +30193,7 @@ a.ui.nag {
 
 .ui.popup > .header {
   padding: 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1.125em;
   line-height: 1.2;
   font-weight: bold;
@@ -31022,11 +31022,11 @@ a.ui.nag {
 /* Pink */
 
 .ui.pink.progress .bar {
-  background-color: #e03997;
+  background-color: #ff4081;
 }
 
 .ui.pink.inverted.progress .bar {
-  background-color: #ff8edf;
+  background-color: #ff80ab;
 }
 
 /* Brown */
@@ -31515,7 +31515,7 @@ a.ui.nag {
 
 .ui.search > .results .result .title {
   margin: -0.14285em 0em 0em;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-weight: bold;
   font-size: 1em;
   color: rgba(0, 0, 0, 0.85);
@@ -31541,7 +31541,7 @@ a.ui.nag {
 }
 
 .ui.search > .results > .message .header {
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1rem;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
@@ -31714,7 +31714,7 @@ a.ui.nag {
 .ui.category.search > .results .category > .name {
   width: 100px;
   background: transparent;
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Lato', 'Microsoft YaHei', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', "Helvetica Neue", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   font-size: 1em;
   float: 1em;
   float: left;
