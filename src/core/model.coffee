@@ -46,7 +46,7 @@ class cola.AbstractModel
 
 	dataType: (name) ->
 		if typeof name == "string"
-			dataType = @data.getDefinition(name)
+			dataType = @data.definition(name)
 			return if dataType instanceof cola.DataType then dataType else null
 		else if name
 			if name instanceof Array
@@ -59,8 +59,8 @@ class cola.AbstractModel
 					dataType = new cola.EntityDataType(dataType)
 			return
 
-	getDefinition: (name) ->
-		return @data.getDefinition(name)
+	definition: (name) ->
+		return @data.definition(name)
 
 	flush: (name, loadMode) ->
 		@data.flush(name, loadMode)
@@ -735,7 +735,7 @@ class cola.DataModel extends cola.AbstractDataModel
 					propertyDef = @_rootDataType.addProperty(property: property)
 
 				if typeof config is "string"
-					dataType = @getDefinition(config)
+					dataType = @definition(config)
 					if not dataType
 						throw new cola.Exception("Unrecognized DataType \"#{config}\".")
 					propertyDef.set("dataType", dataType)
@@ -755,7 +755,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		dataType = property?.get("dataType")
 		return dataType
 
-	getDefinition: (name) ->
+	definition: (name) ->
 		definition = @_definitionStore?[name]
 		definition ?= cola.DataType.defaultDataTypes[name]
 		return definition
@@ -834,8 +834,8 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		else
 			return @parent.getDataType(path)
 
-	getDefinition: (name) ->
-		return @parent.getDefinition(name)
+	definition: (name) ->
+		return @parent.definition(name)
 
 	regDefinition: (definition) ->
 		return @parent.regDefinition(definition)

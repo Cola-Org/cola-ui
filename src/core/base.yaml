@@ -163,7 +163,6 @@ methods:
 
 events:
   - name: ready
-    type: event
     label: 当Cola完成页面初始化之后触发的事件
     arguments:
       - name: self

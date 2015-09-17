@@ -418,6 +418,10 @@ class cola.Element
 		return result
 
 class cola.Definition extends cola.Element
+	@ATTRIBUTES:
+		name:
+			readOnlyAfterCreate: true
+
 	constructor: (config) ->
 		if config?.name
 			@_name = config.name

@@ -111,14 +111,11 @@ class cola.Entity
 		value = @_data[prop]
 		if value == undefined
 			if property
-				if property instanceof cola.BaseProperty
-					provider = property.get("provider")
-					context?.unloaded = true
-					if provider
-						value = loadData.call(@, provider)
-						callbackProcessed = true
-				else if property instanceof cola.ComputeProperty
-					value = property.compute(@)
+				provider = property.get("provider")
+				context?.unloaded = true
+				if provider
+					value = loadData.call(@, provider)
+					callbackProcessed = true
 		else if value instanceof cola.Provider
 			value = loadData.call(@, value)
 			callbackProcessed = true
@@ -161,9 +158,6 @@ class cola.Entity
 		oldValue = @_data[prop]
 
 		property = @dataType?.getProperty(prop)
-		if property and property instanceof cola.ComputeProperty
-			throw new cola.Exception("Cannot set value to ComputeProperty \"#{prop}\".")
-
 		if value?
 			if value instanceof cola.Provider
 				changed = (oldValue != undefined)
@@ -210,7 +204,7 @@ class cola.Entity
 			changed = oldValue != value
 
 		if changed
-			if property and property instanceof cola.BaseProperty
+			if property
 				if property._validators and property._rejectInvalidValue
 					messages = null
 					for validator in property._validators
@@ -462,7 +456,7 @@ class cola.Entity
 
 	_validate: (prop) ->
 		property = @dataType.getProperty(prop)
-		if property and property instanceof cola.BaseProperty
+		if property
 			if property._validators
 				data = @_data[prop]
 				if data and (data instanceof cola.Provider or data instanceof cola.AjaxServiceInvoker)

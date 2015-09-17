@@ -163,7 +163,6 @@ class cola.AsyncValidator extends cola.Validator
 class cola.AjaxValidator extends cola.AsyncValidator
 	@ATTRIBUTES:
 		url: null
-		sendJson: null
 		method: null
 		ajaxOptions: null
 		data: null
@@ -188,11 +187,7 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		options.async = !!callback
 		options.url = @_url
 		options.data = sendData
-		options.sendJson = @_sendJson
 		options.method = @_method
-
-		if options.sendJson and !options.method
-			options.method = "post"
 
 		invoker = new cola.AjaxServiceInvoker(@, options)
 		if callback
@@ -202,6 +197,8 @@ class cola.AjaxValidator extends cola.AsyncValidator
 
 class cola.CustomValidator extends cola.AsyncValidator
 	@ATTRIBUTES:
+		async:
+			defaultValue: false
 		validateEmptyValue:
 			defaultValue: true
 		func: null
@@ -217,7 +214,7 @@ class cola.CustomValidator extends cola.AsyncValidator
 			super(config)
 
 	_validate: (data, callback) ->
-		if callback
+		if @_async and callback
 			if @_func
 				@_func(data, callback)
 			else

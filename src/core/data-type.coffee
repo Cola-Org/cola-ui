@@ -10,9 +10,6 @@ else
 #IMPORT_END
 
 class cola.DataType extends cola.Definition
-	@ATTRIBUTES:
-		name:
-			readOnlyAfterCreate: true
 
 class cola.BaseDataType extends cola.DataType
 
@@ -68,8 +65,6 @@ EntityDataType
 
 class cola.EntityDataType extends cola.DataType
 	@ATTRIBUTES:
-		readOnly: null
-
 		properties:
 			setter: (properties) ->
 				@_properties.clear()
@@ -103,11 +98,9 @@ class cola.EntityDataType extends cola.DataType
 	addProperty: (property) ->
 		if not (property instanceof cola.Property)
 			if typeof property == "string"
-				property = new cola.BaseProperty(property: property)
-			else if typeof property.compute == "function"
-				property = new cola.ComputeProperty(property)
+				property = new cola.Property(property: property)
 			else
-				property = new cola.BaseProperty(property)
+				property = new cola.Property(property)
 		else if property._owner and property._owner != @
 			throw new cola.Exception("Property(#{property._property}) is already belongs to anthor DataType.")
 
@@ -163,7 +156,6 @@ class cola.Property extends cola.Definition
 		property:
 			readOnlyAfterCreate: true
 		name:
-			readOnlyAfterCreate: true
 			setter: (name) ->
 				@_name = name
 				@_property ?= name
@@ -175,11 +167,6 @@ class cola.Property extends cola.Definition
 			setter: cola.DataType.dataTypeSetter
 		description: null
 
-	constructor: (config) ->
-		super(config)
-
-class cola.BaseProperty extends cola.Property
-	@ATTRIBUTES:
 		provider:
 			setter: (provider) ->
 				if provider? and !(provider instanceof cola.Provider)
@@ -187,7 +174,6 @@ class cola.BaseProperty extends cola.Property
 				@_provider = provider
 				return
 		defaultValue: null
-		readOnly: null
 		required: null
 		aggregated:
 			readOnlyAfterCreate: true
@@ -219,18 +205,6 @@ class cola.BaseProperty extends cola.Property
 		write: null
 		beforeLoad: null
 		loaded: null
-
-class cola.ComputeProperty extends cola.Property
-	@ATTRIBUTES:
-		delay: null
-		watchingDataPath: null
-
-	@EVENTS:
-		compute:
-			singleListener: true
-
-	compute: (entity) ->
-		return @fire("compute", @, {entity: entity})
 
 cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 	if aggregated == undefined
@@ -270,4 +244,4 @@ cola.DataType.defaultDataTypes = defaultDataTypes =
 	"json": new cola.JSONDataType(name: "json")
 	"entity": new cola.EntityDataType(name: "entity")
 
-defaultDataTypes["number"] = defaultDataTypes["int"]
+defaultDataTypes["number"] = defaultDataTypes["float"]

@@ -1,0 +1,270 @@
+- name: cola.Validator
+  stereotype: class
+  abstract: true
+  super: cola.Definition
+  label: 各种数据校验器的抽象类
+  description: |
+    Validators通常都是在定义cola.Property的validators属性时通过JSON形式的配置对象创建的。
+    由于Validator有很多种实现类，因此当我们利用JSON来定义Validator时Cola会根据JSON中的$type属性来确定具体应该创建哪种Validator。
+    $type与Validator实现类的类名有直接的关系。例如：cola.RequiredValidator对应的$type为required；cola.LengthValidator对应的$type为length。
+
+    另外，在定义Validator时还有两个额外的简化规则：
+    <ul>
+      <li>直接使用string，此时该string会被认为是数据校验器的$type。Cola会直接根据此$type创建一个新的校验器。</li>
+      <li>使用funciton，Cola会认为您将要定义一个<a href="cola.CustomValidator.html">cola.CustomValidator</a>，
+      并将此function作为CustomValidator的func。</li>
+    </ul>
+
+    例如：
+    <code>
+    property.set("validators", [
+      "required",
+      {
+        $type: "length",
+        max: 10
+      }
+    ]);
+    </code>
+    上面的代码创建了两个校验器，一个是cola.RequiredValidator， 另一个是required；cola.LengthValidator。
+
+  attributes:
+    - name：message
+      type: string
+      label: 当校验不通过时默认使用的提示信息
+
+    - name：messageType
+      type: any
+      defaultValue: error
+      label: 当校验不通过时默认使用的消息类型
+      description: |
+        消息类型有三种取值：
+        <ul>
+          <li>info  - 提示。</li>
+          <li>warning - 警告。</li>
+          <li>error - 错误。</li>
+        </ul>
+
+    - name：disabled
+      type: boolean
+      label: 是否禁用此校验器
+
+    - name：validateEmptyValue
+      type: boolean
+      label: 是否校验空数据
+
+  methods:
+    - name: validate
+      type: json
+      label: 校验数据
+      description: |
+        如果校验通过，此方法不会返回任何内容。否则此方法会返回一个JSON对象，该JSON对象中包含以下两个属性：
+        此方法的返回值是一个JSON对象
+        <ul>
+          <li>message - 校验信息。</li>
+          <li>messageType  - 校验信息的类型，即error、warning、info三种取值之一。</li>
+        </ul>
+      arguments:
+        - name: value
+          type: any
+          label: 要校验的数据
+
+- name: cola.RequiredValidator
+  stereotype: class
+  super: cola.Validator
+  label: 必填项校验器
+
+  attributes:
+    - name：validateEmptyValue
+      type: boolean
+      defaultValue: true
+      label: 是否校验空数据
+
+- name: cola.NumberValidator
+  stereotype: class
+  super: cola.Validator
+  label: 必填项校验器
+
+  attributes:
+    - name：min
+      type: number
+      defaultValue: null
+      label: 最小值。某认为为null，表示忽略对最小值的校验。
+
+    - name：minInclude
+      type: boolean
+      defaultValue: true
+      label: 如果被校验的值刚好等于最小值是否输入合法值
+
+    - name：max
+      type: number
+      label: 最大值。某认为为null，表示忽略对最大值的校验。
+
+    - name：maxInclude
+      type: boolean
+      defaultValue: true
+      label: 如果被校验的值刚好等于最大值是否输入合法值
+
+- name: cola.LengthValidator
+  stereotype: class
+  super: cola.Validator
+  label: 长度校验器
+
+  attributes:
+    - name：min
+      type: number
+      defaultValue: null
+      label: 最小长度。某认为为null，表示忽略对最小长度的校验。
+
+    - name：max
+      type: number
+      label: 最大长度。某认为为null，表示忽略对最大长度的校验。
+
+- name: cola.RegExpValidator
+  stereotype: class
+  super: cola.Validator
+  label: 正则校验器，即通过正则表达式来判断数值是否合法。
+
+  attributes:
+    - name：regExp
+      type: string
+      label: 正则表达式
+
+    - name：mode
+      type: string
+      defualtValue: white
+      label: 校验模式
+      description: |
+        可选的模式有两种：
+        <ul>
+          <li>white - 白名单模式。即匹配正则表达式的值将被认为是合法值。</li>
+          <li>black - 黑名单模式。即匹配正则表达式的值将被认为是不合法的值。</li>
+        </ul>
+
+- name: cola.EmailValidator
+  stereotype: class
+  super: cola.Validator
+  label: Email校验器
+
+- name: cola.UrlValidator
+  stereotype: class
+  super: cola.Validator
+  label: 网址校验器
+
+- name: cola.AsyncValidator
+  stereotype: class
+  abstract: true
+  super: cola.Validator
+  label: 异步校验器的抽象类
+
+  attributes:
+    - name：async
+      type: boolean
+      defualtValue: true
+      label: 是否以异步的方式执行Ajax操作
+
+  methods:
+    - name: validate
+      type: boolean || string || json
+      label: 校验数据
+      description: |
+        如果是以异步方式执行，此方法的行为将与默认的方式有所不同。我们无法通过返回值获得校验的结果。必须通过回调方法来获得
+      arguments:
+        - name: value
+          type: any
+          label: 要校验的数据
+        - name: callback
+          type: function || object
+          label: 回调方法
+
+- name: cola.AjaxValidator
+  stereotype: class
+  super: cola.AsyncValidator
+  label: Ajax校验器，即利用Ajax将数据给Server端的逻辑进行远程校验。
+
+  attributes:
+    - name：url
+      type: string
+      label: Ajax的URL
+
+    - name：method
+      type: string
+      defualtValue: GET
+      label: Ajax的请求模式
+      description: |
+        可选的模式包括两种：GET和SET
+
+    - name：ajaxOptions
+      type: json
+      label: 传递给内部jQuery.ajax方法的选项
+
+    - name：data
+      type: any
+      label: 将要传递给Server端的数据
+      description: |
+        通常如果不指定此参数，那么发送给Server端的将是要校验的数据。
+        如果定义了此属性（通常我们应该将其定义成一个JSON对象），那么在校验器执行之前Cola会遍历data的所有子属性，并将其中值为":data"子属性替换成要校验的数据。
+
+- name: cola.AjaxValidator
+  stereotype: class
+  super: cola.AsyncValidator
+  label: Ajax校验器，即利用Ajax将数据给Server端的逻辑进行远程校验。
+
+  attributes:
+    - name：url
+      type: string
+      label: Ajax的URL
+
+    - name：method
+      type: string
+      defualtValue: GET
+      label: Ajax的请求模式
+      description: |
+        可选的模式包括两种：GET和SET
+
+    - name：ajaxOptions
+      type: json
+      label: 传递给内部jQuery.ajax方法的选项
+
+    - name：data
+      type: any
+      label: 将要传递给Server端的数据
+      description: |
+        通常如果不指定此参数，那么发送给Server端的将是要校验的数据。
+        如果定义了此属性（通常我们应该将其定义成一个JSON对象），那么在校验器执行之前Cola会遍历data的所有子属性，并将其中值为":data"子属性替换成要校验的数据。
+
+- name: cola.CustomValidator
+  stereotype: class
+  super: cola.AsyncValidator
+  label: 自定义校验器。
+
+  attributes:
+    - name：validateEmptyValue
+      type: boolean
+      defaultValue: true
+      label: 是否校验空数据
+
+    - name：async
+      type: boolean
+      defualtValue: false
+      label: 是否以异步的方式执行Ajax操作
+
+    - name: func
+      type: function
+      label: 自定义的校验方法
+      description: |
+        此方法在同步模式和异步模式下的定义方式有所不同。在同步模式下校验结果直接通过方法的返回值传递给系统，而在异步模式下校验结果需通过回调方法传递给系统。
+        例如:
+        <code>
+        function(value, callback) {
+          $.ajax({
+            url: "/xxxx/xxx",
+            data: value,
+            success: function(message) {
+              cola.callback(callback, true, message);
+            },
+            error: function(xhr, status, ex) {
+              cola.callback(callback, false, ex);
+            }
+          });
+        }
+        </code>

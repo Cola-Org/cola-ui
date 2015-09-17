@@ -71,7 +71,6 @@ class cola.AjaxServiceInvoker
 class cola.AjaxService extends cola.Definition
 	@ATTRIBUTES:
 		url: null
-		sendJson: null
 		method: null
 		parameter: null
 		ajaxOptions: null
@@ -101,9 +100,6 @@ class cola.AjaxService extends cola.Definition
 
 		options.url = @getUrl(context)
 		options.data = @_parameter
-		options.sendJson = @_sendJson
-		if options.sendJson and !options.method
-			options.method = "post"
 		return options
 
 	getInvoker: (context) ->
@@ -153,8 +149,3 @@ class cola.Provider extends cola.AjaxService
 		data.parameter = parameter if parameter?
 		options.data = data
 		return options
-
-class cola.Resolver extends cola.AjaxService
-	@ATTRIBUTES:
-		sendJson:
-			defaultValue: true

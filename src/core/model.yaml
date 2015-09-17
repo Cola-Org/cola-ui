@@ -70,6 +70,16 @@ methods:
         type: string
         label:
 
+  - name: definition
+    type: cola.Definition
+    label: 根据名称获得一个数据描述对象的实例
+    decription: |
+      参考：<a href="cola.Definition.html#name">cola.Definition的name属性</a>。
+    arguments:
+      - name: name
+        type: string
+        label: 数据描述对象的名称
+
   - name: disableObservers
     type: cola.Entity
     label: 将禁止Entity向观察者发送消息
