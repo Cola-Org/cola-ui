@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<script src="../../include-all.js"></script>
+	<style>
+	</style>
+	<script type="text/javascript">
+
+		cola(function (model) {
+			model.describe({
+				id: {
+					validators: ["required", "email"]
+				},
+				num: {
+					dataType: "int",
+					validators: [{
+						$type: "number",
+						min: 1,
+						max: 100
+					}]
+				}
+			});
+
+			model.widgetConfig({});
+		});
+	</script>
+</head>
+<body style="padding:20px;">
+
+<div id="form1" >
+	<div class="field">
+		<div c-widget="input; bind:id; postOnInput"></div>
+	</div>
+	<div class="field">
+		<div c-widget="input; bind:num"></div>
+	</div>
+	<span c-bind="id"></span>
+
+</div>
+
+</body>
+</html>

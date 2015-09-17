@@ -13,6 +13,7 @@ class cola.Rating extends cola.Widget
 			setter: (value)->
 				@_maxRating = value
 				@_refreshRating = true
+
 		disabled:
 			type: "boolean"
 			refreshDom: true

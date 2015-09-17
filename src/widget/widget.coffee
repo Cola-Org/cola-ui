@@ -59,7 +59,9 @@ _destroyRenderableElement = (node, data) ->
 ###
 class cola.RenderableElement extends cola.Element
 	@TAG_NAME: "DIV"
-
+	@EVENTS:
+		initDom: null
+		refreshDom: null
 	constructor: (config)->
 		if config
 			dom = config.dom
@@ -79,7 +81,7 @@ class cola.RenderableElement extends cola.Element
 		@_initDom(dom)
 		arg =
 			dom: dom, returnValue: null
-		@fire("createDom", @, arg)
+		@fire("initDom", @, arg)
 		@_refreshDom()
 		@_rendered = true
 		return
@@ -258,8 +260,6 @@ class cola.Widget extends cola.RenderableElement
 			refreshDom: true
 
 	@EVENTS:
-		createDom: null
-		refreshDom: null
 		click:
 			$event: "click"
 		dblClick:

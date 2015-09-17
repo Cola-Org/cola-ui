@@ -106,6 +106,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 			defaultValue: "right"
 			enum: ["left", "right"]
 
+
 	destroy: ()->
 		unless @_destroyed
 			super()
@@ -316,6 +317,9 @@ class cola.Input extends cola.AbstractInput
 		inputFormat: null
 		inputType:
 			defaultValue: "text"
+		postOnInput:
+			type: "boolean"
+			defaultValue: false
 	@EVENTS:
 		focus: null
 		blur: null
@@ -334,8 +338,8 @@ class cola.Input extends cola.AbstractInput
 
 	_initDom: (dom)->
 		super(dom)
-		$(@_doms.input).on("change", ()=>
-			readOnly = !!@get("readOnly")
+		doPost = ()=>
+			readOnly = @_readOnly
 			if !readOnly
 				value = $(@_doms.input).val()
 				dataType = @_dataType
@@ -347,6 +351,10 @@ class cola.Input extends cola.AbstractInput
 							value = inputFormat + "||" + value
 					value = dataType.parse(value)
 				@set("value", value)
+			return
+
+		$(@_doms.input).on("change", ()=>
+			doPost()
 			return
 		).on("focus", ()=>
 			@_inputFocused = true
@@ -363,6 +371,9 @@ class cola.Input extends cola.AbstractInput
 				if propertyDef?._required and propertyDef._validators
 					entity = @_scope.get(@_bindInfo.entityPath)
 					entity.validate(@_bindInfo.property) if entity
+			return
+		).on("input", ()=>
+			if @_postOnInput then doPost()
 			return
 		)
 		return

@@ -49,7 +49,18 @@ class cola.Dialog extends cola.Layer
 			if @[key]?.length
 				@_render(el, container) for el in @[key]
 		return
-
+	_transitionStart: ()->
+		$dom = @get$Dom()
+		if @_currentAnimation == "show"
+			width = $dom.width()
+			height = $dom.height()
+			pWidth = $(window).width()
+			pHeight = $(window).height()
+			$dom.css({
+				left: (pWidth - width) / 2
+				top: (pHeight - height) / 2
+				zIndex: cola.floatWidget.zIndex()
+			})
 	_createCloseButton: ()->
 		dom = @_closeBtn = $.xCreate({
 			tagName: "div"
@@ -86,21 +97,10 @@ class cola.Dialog extends cola.Layer
 
 	_transition: (options, callback)->
 		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
-		$dom = @get$Dom()
 		isShow = options.target is "show"
+		if isShow then @_currentAnimation = "show" else @_currentAnimation = "hide"
 		if @get("modal")
 			if isShow then @_showModalLayer() else @_hideModalLayer()
-		if isShow
-			width = $dom.width()
-			height = $dom.height()
-			parentNode = @_context or @_dom.parentNode
-			pWidth = $(parentNode).width()
-			pHeight = $(parentNode).height()
-			$dom.css({
-				left: (pWidth - width) / 2
-				top: (pHeight - height) / 2
-				zIndex: cola.floatWidget.zIndex()
-			})
 
 		options.animation = options.animation or @_animation or "scale"
 
@@ -172,8 +172,8 @@ class cola.Dialog extends cola.Layer
 			})
 			if @_dimmerClose
 				$(_dimmerDom).on("click", ()=> @hide())
-			container = @_context or @_dom.parentNode
-			container.appendChild(_dimmerDom)
+			#			container = @_context or @_dom.parentNode
+			document.body.appendChild(_dimmerDom)
 			@_doms.modalLayer = _dimmerDom
 
 		$(_dimmerDom).css({

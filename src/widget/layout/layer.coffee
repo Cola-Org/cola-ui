@@ -68,6 +68,8 @@ class cola.Layer extends cola.AbstractLayer
 				"horizontal flip", "vertical flip"
 			]
 	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
+	_transitionStart: ()->
+
 	_doTransition: (options, callback)->
 		layer = @
 		onComplete = ->
@@ -89,6 +91,7 @@ class cola.Layer extends cola.AbstractLayer
 				duration: duration
 				onComplete: onComplete
 				queue: true
+				onStart: ()=> @_transitionStart()
 			})
 		else
 			$dom = @get$Dom()
@@ -123,4 +126,5 @@ class cola.Layer extends cola.AbstractLayer
 				configs.x = 0
 
 			$dom.removeClass("hidden").addClass("visible").transit(configs)
+			@_transitionStart()
 		return
