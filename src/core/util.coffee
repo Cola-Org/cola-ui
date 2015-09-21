@@ -18,6 +18,21 @@ cola.util.isSimpleValue = (value) ->
 	type = typeof value
 	return type != "object" and type != "function" or type instanceof Date
 
+cola.util.concatUrl = (parts...) ->
+	last = parts.length - 1
+	for part, i in parts
+		changed = false
+		if i > 0 and part.charCodeAt(0) is 47 # `/`
+			part = part.substring(1)
+			changed = true
+
+		if i < last and part.charCodeAt(part.length - 1) is 47 # `/`
+			part = part.substring(0, part.length - 1)
+			changed = true
+
+		if changed then parts[i] = part
+	return parts.join("/")
+
 cola.util.parseStyleLikeString = (styleStr, headerProp) ->
 	return false unless styleStr
 
