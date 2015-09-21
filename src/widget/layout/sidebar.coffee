@@ -11,6 +11,9 @@ class cola.Sidebar extends cola.AbstractLayer
 			defaultValue: 200
 			refreshDom: true
 
+		modal:
+			type: "boolean"
+			defaultValue: true
 		modalOpacity:
 			type: "number"
 			defaultValue: 0.6
@@ -19,7 +22,8 @@ class cola.Sidebar extends cola.AbstractLayer
 			defaultValue: true
 
 	_doTransition: (options, callback)->
-		if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
+		if @get("modal")
+			if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
 		sidebar = @
 		@get$Dom().css({
 			zIndex: cola.floatWidget.zIndex()

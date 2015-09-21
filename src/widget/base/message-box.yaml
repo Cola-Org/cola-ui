@@ -1,7 +1,7 @@
 name: cola
 stereotype: namespace
 methods:
-  - name: cola.alert
+  - name: alert
     label: cola 消息框
     arguments:
       - name: msg
@@ -19,7 +19,7 @@ methods:
         <li>level: 提示等级(info,warning,error)</li>
         <li>onHide: 隐藏时触发的回调</li>
       </ul>
-  - name: cola.confirm
+  - name: confirm
     label: cola 确认框
     arguments:
       - name: msg
