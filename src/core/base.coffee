@@ -280,7 +280,7 @@ cola.resource = (key, params...) ->
 		# resource(key, params...)
 		# read resource resource
 		templ = resourceStore[key]
-		if templ
+		if templ?
 			if params.length
 				return sprintf.apply(@, [templ].concat(params))
 			else

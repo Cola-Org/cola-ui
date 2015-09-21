@@ -41,3 +41,20 @@ methods:
           初始化方法，此方法会由Cola自动调用。该方法可以接受两个传入参数：
           <li>model - 本次渲染对应的Model对象的实例。如果指定了modelName参数，那么此处传入的将是与modelName名称一致的Model，否则将传入由Cola自动分配的Model。</li>
           <li>param - 此参数通常只在配合Router功能使用时才有效，其中会包含相应Router的参数。详见<a href="../docs/router">Router(路由)</a></li>
+
+name: cola
+stereotype: namespace
+methods:
+  - name: xRender
+    label:
+    description:
+    arguments:
+      - name: template
+        type: json
+        description:
+      - name: model
+        type: cola.Model
+        description:
+      - name: context
+        type: json
+        description:

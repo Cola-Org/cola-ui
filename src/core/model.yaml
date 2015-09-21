@@ -51,6 +51,10 @@ methods:
   - name: describe
     type: cola.Model
     label: 描述Model中的一个数据项
+    decription: |
+      我们可以把描述一个数据项的过程看做是定义一个DataType中的Property，事实上Cola内部的实现机制也就是这样的。
+      所以此方法第二种参数可传递的JSON配置对象其实也就是一个Property的配置对象。
+      参考：<a href="cola.Property.html">cola.Property</a>。
     arguments:
       - name: name
         type: string
@@ -61,14 +65,16 @@ methods:
 
   - name: describe
     type: cola.Model
-    label: 描述Model中的一个数据项
+    label: 定义Model中的一个数据项的数据类型
+    decription: |
+      当我们直接向此方法的第二个参数传递一个字符串时，Cola会将此字符串理解成DataType的name，并将找到的DataType设置为该Property的数据类型。
     arguments:
       - name: name
         type: string
         label: 数据项名，此处不支持数据路径
       - name: dataType
         type: string
-        label:
+        label: DataType的name
 
   - name: definition
     type: cola.Definition
@@ -100,3 +106,59 @@ methods:
     type: cola.Entity
     label: 通知观察者数据已更改
     description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+
+  - name: action
+    type: cola.Model
+    label: 声明一个Action
+    description: |
+      Action其实就是一个Function，将Function声明为一个Action的目的是为了供dom模板来调用。
+
+      定义Action其实还有一个更加简单的方法，例如下面的两段代码作用是相同的：
+      <code>
+      model.action("showMessage", function() {
+        ... ...
+      });
+      </code>
+      和
+      <code>
+      model.action.showMessage = function() {
+        ... ...
+      };
+      </code>
+    arguments:
+      - name: name
+        type: string
+        label: Action的name
+      - name: action
+        type: function
+        label: Action方法
+
+  - name: action
+    type: cola.Model
+    label: 声明一组Action
+    description: |
+      例如:
+      <code>
+      model.action({
+        showMessage: function() {
+          ... ...
+        },
+        buyNow: function() {
+          ... ...
+        }
+      });
+      </code>
+    arguments:
+      - name: config
+        type: json
+        label: 以JSON方法定义的一组Action方法
+
+  - name: action
+    type: function
+    label: 根据名称查找一个Action
+    description: |
+      此方法不仅可用于查找本Model中的Action，当某个名称的Action在本Model中无法找到时Cola会进一步到父Model中查找。
+    arguments:
+      - name: name
+        type: string
+        label: Action的name

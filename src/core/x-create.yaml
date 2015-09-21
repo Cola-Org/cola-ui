@@ -1,0 +1,67 @@
+name: $
+stereotype: namespace
+
+methods:
+  - name: xCreate
+    type: jQuery
+    label: 利用JSON快速创建DOM
+    description: |
+      xCreate方法的目的是通过JSON来定义HTML，以方便开发者在Javascript中创建DOM。
+    arguments:
+      - name: config
+        type: json
+        label:
+        description:
+
+      - name: context
+        type: json
+        labe:
+        description:
+
+  - name: xAppend
+    type: jQuery
+    label:
+    description:
+
+    arguments:
+      - name: config
+        type: json
+        label:
+        description:
+
+      - name: context
+        type: json
+        labe:
+        description:
+
+  - name: xInsertBefore
+    type: jQuery
+    label:
+    description:
+
+    arguments:
+      - name: config
+        type: json
+        label:
+        description:
+
+      - name: context
+        type: json
+        labe:
+        description:
+
+  - name: xInsertAfter
+    type: jQuery
+    label:
+    description:
+
+    arguments:
+      - name: config
+        type: json
+        label:
+        description:
+
+      - name: context
+        type: json
+        labe:
+        description:

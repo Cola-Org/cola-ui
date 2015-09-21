@@ -70,16 +70,25 @@ cola.setRoutePath = (path, replace) ->
 			path = "/" + path
 		window.location.hash = path if window.location.hash != path
 	else
-		if replace
-			window.history.replaceState(null, null, path)
+		pathRoot = cola.setting("routerContextPath")
+		if pathRoot and path.charCodeAt(0) is 47 # `/`
+			realPath = cola.util.concatUrl(pathRoot, path)
 		else
-			window.history.pushState(null, null, path)
+			realPath = path
 
-		if location.pathname isnt path # 处理 ../ ./ 的情况
-			path = location.pathname + location.search + location.hash
+		if replace
+			window.history.replaceState(null, null, realPath)
+		else
+			window.history.pushState(null, null, realPath)
+
+		if location.pathname isnt realPath # 处理 ../ ./ 的情况
+			realPath = location.pathname + location.search + location.hash
+			if pathRoot and realPath.indexOf(pathRoot) is 0
+				path = realPath.substring(pathRoot.length)
+
 		window.history.replaceState({
 			path: path
-		}, null, path)
+		}, null, realPath)
 		_onStateChange(path)
 	return
 

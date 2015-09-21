@@ -79,11 +79,16 @@ class cola.AbstractModel
 		return @
 
 	watch: (path, fn) ->
-		@.data.bind(path, {
+		processor = {
 			_processMessage: (bindingPath, path, type, arg) ->
 				fn(path, type, arg)
 				return
-		})
+		}
+		if path instanceof Array
+			for p in path
+				@data.bind(p, processor)
+		else
+			@data.bind(path, processor)
 		return @
 
 class cola.Model extends cola.AbstractModel
@@ -1101,6 +1106,15 @@ cola.model.defaultActions.isEmpty = (value) ->
 
 cola.model.defaultActions.isNotEmpty = (value) ->
 	return not cola.model.defaultActions.isEmpty(value)
+
+cola.model.defaultActions.len = (value) ->
+	if not value
+		return 0
+	if value instanceof Array
+		return value.length
+	if  value instanceof cola.EntityList
+		return value.entityCount
+	return 0
 
 cola.model.defaultActions.resource = (key, params...) ->
 	return cola.resource(key, params...)
