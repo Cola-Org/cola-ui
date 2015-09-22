@@ -12,12 +12,16 @@
       defaultValue: 0
       description: 当前进度值
 
-    - name: labelFormat
+    - name: progressFormat
       type: string
       enum:
         - percent
         - ratio
       description: 进度显示标签格式
+    - name: showProgress
+      type: boolean
+      defaultValue: true
+      description: 显示进度
 
     - name: ratioText
       type: string
@@ -60,34 +64,6 @@
       type: number
       description: 小数点精确计算进步
 
-    - name: size
-      label: 尺寸
-      type: string
-      enum:
-        - mini
-        - tiny
-        - small
-        - medium
-        - large
-        - big
-        - huge
-        - massive
-      defaultValue: medium
-
-    - name: color
-      label: 颜色
-      type: string
-      enum:
-        - black
-        - yellow
-        - green
-        - blue
-        - orange
-        - purple
-        - red
-        - pink
-        - teal
-      defaultValue: ""
 
   methods:
     - name: reset
@@ -123,3 +99,69 @@
 
     - name: complete
       label: 完成
+  events:
+    - name: change
+      description: 当进度值发生改变时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: value
+              type: number
+              description: 当前值
+            - name: total
+              type: number
+              description: 总值
+    - name: success
+      description: 当进度正常结束时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: value
+              type: number
+              description: 当前值
+            - name: total
+              type: number
+              description: 总值
+    - name: active
+      description: 当进度值从0发生改变时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: value
+              type: number
+              description: 当前值
+            - name: total
+              type: number
+              description: 总值
+    - name: error
+      description: 当进度值发生错误时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: value
+              type: number
+              description: 当前值
+            - name: total
+              type: number
+              description: 总值
+    - name: warning
+      description: 当进度值发生警告时触发此事件
+      arguments:
+        - name: self
+          label: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: value
+              type: number
+              description: 当前值
+            - name: total
+              type: number
+              description: 总值

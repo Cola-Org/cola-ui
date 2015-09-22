@@ -104,6 +104,10 @@
         - text
       description: 规定Input类型
 
+    - name: postOnInput
+      type: boolean
+      description: 输入时触发post提交
+
   events:
     - name: focus
       description: 当控件获得控制焦点时触发的事件。

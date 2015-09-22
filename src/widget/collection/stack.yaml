@@ -19,6 +19,9 @@ events:
           - name: next
             type: HTMLElement
             description: 下一个容器
+          - name: action
+            type: string
+            description: 动作<over>|<back>
 methods:
   - name: next
     type: cola.Widget
