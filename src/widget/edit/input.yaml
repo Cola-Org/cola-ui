@@ -113,4 +113,47 @@
       description: 当控件获得控制焦点时触发的事件。
     - name: blur
       description: 当控件失去控制焦点时触发的事件
-
+    - name: keyDown
+      label: 当控件拥有焦点并且有按键被按下时触发的事件。
+      arguments:
+        - name: self
+          description: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: keyCode
+              type: int
+              description: 按键对应的keyCode
+            - name: shiftKey
+              type: boolean
+              description: Shift键是否按下。
+            - name: ctrlKey
+              type: boolean
+              description: Ctrl键是否按下。
+            - name: altKey
+              type: boolean
+              description: Alt键是否按下。
+            - name: event
+              type: Event
+              description: DHTML中的事件event参数。
+    - name: keyPress
+      label: 当控件拥有焦点并且有ASCII码的按键被按下时触发的事件。
+      arguments:
+        - name: self
+          description: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: keyCode
+              type: int
+              description: 按键对应的keyCode
+            - name: shiftKey
+              type: boolean
+              description: Shift键是否按下。
+            - name: ctrlKey
+              type: boolean
+              description: Ctrl键是否按下。
+            - name: altKey
+              type: boolean
+              description: Alt键是否按下。
+            - name: event
+              type: Event
+              description: DHTML中的事件event参数。
