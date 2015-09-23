@@ -142,10 +142,15 @@ class cola.Provider extends cola.AjaxService
 						v = @_evalParamValue(v, context)
 					parameter[p] = v
 
-		data = {}
 		if @_pageSize > 1
-			data.from = 0
-			data.limit = @_pageSize
-		data.parameter = parameter if parameter?
-		options.data = data
+			if not parameter?
+				parameter = {}
+			else if not (parameter instanceof Object)
+				parameter = {
+					parameter: parameter
+				}
+			parameter.from = 0
+			parameter.limit = @_pageSize
+
+		options.data = parameter
 		return options

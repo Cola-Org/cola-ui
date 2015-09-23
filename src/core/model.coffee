@@ -431,7 +431,7 @@ class cola.ItemsScope extends cola.SubScope
 				@refreshItems()
 				allProcessed = true
 
-		else if type == cola.constants.MESSAGE_DATA_CHANGE # or type == cola.constants.MESSAGE_STATE_CHANGE
+		else if type == cola.constants.MESSAGE_PROPERTY_CHANGE # or type == cola.constants.MESSAGE_STATE_CHANGE
 			if @isRootOfTarget(path, targetPath)
 				@refreshItems()
 				allProcessed = true
@@ -585,7 +585,7 @@ class cola.AbstractDataModel
 						return
 				}
 				@bind(aliasHolder.bindingPath, aliasHolder)
-				@_onDataMessage([prop], cola.constants.MESSAGE_DATA_CHANGE, {
+				@_onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: rootData
 					property: prop
 					oldValue: oldAliasData
@@ -810,7 +810,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			@_targetPath = data.getPath()
 
 		if !silence
-			@_onDataMessage([@alias], cola.constants.MESSAGE_DATA_CHANGE, {
+			@_onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
 				value: data

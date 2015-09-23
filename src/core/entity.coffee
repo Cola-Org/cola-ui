@@ -242,7 +242,7 @@ class cola.Entity
 
 			@timestamp = cola.sequenceNo()
 			if @_disableWriteObservers == 0
-				@_notify(cola.constants.MESSAGE_DATA_CHANGE, {
+				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @
 					property: prop
 					value: value
@@ -354,7 +354,7 @@ class cola.Entity
 					delete data[prop]
 			@resetState()
 			@enableObservers()
-			@_notify(cola.constants.MESSAGE_REFRESH, {entity: @})
+			@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	resetState: () ->
@@ -395,7 +395,7 @@ class cola.Entity
 			loadMode = "async"
 
 		notifyArg = {
-			entity: @
+			data: @
 			property: property
 		}
 
@@ -436,13 +436,13 @@ class cola.Entity
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { entity: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			path = @getPath(true)
-			if (type == cola.constants.MESSAGE_DATA_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
+			if (type == cola.constants.MESSAGE_PROPERTY_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
 				if path
 					path = path.concat(arg.property)
 				else
@@ -630,7 +630,7 @@ class Page extends LinkedList
 		entityList.entityCount += json.length
 
 		entityList._notify(cola.constants.MESSAGE_REFRESH, {
-			entityList: entityList
+			data: entityList
 		})
 		return
 
@@ -1075,7 +1075,7 @@ class cola.EntityList extends LinkedList
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { entityList: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
@@ -1097,7 +1097,7 @@ class cola.EntityList extends LinkedList
 
 		if loadMode is "async"
 			notifyArg = {
-				entityList: @
+				data: @
 			}
 
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)

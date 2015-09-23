@@ -109,6 +109,7 @@ cola.xRender = (template, model, context) ->
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()
 				for node in template
+					widget = null
 					if node instanceof cola.Widget
 						widget = node
 					else if node.$type
