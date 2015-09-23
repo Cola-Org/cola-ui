@@ -9,7 +9,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 				oldValue = @["_icon"]
 				@["_icon"] = value
 				if oldValue and oldValue isnt value and @_dom and @_doms?.icon
-					$(@_doms.icon).removeClass(oldValue)
+					$fly(@_doms.icon).removeClass(oldValue)
 				return
 
 		closeable:
@@ -22,7 +22,6 @@ class cola.tab.AbstractTabButton extends cola.Widget
 
 		name:
 			refreshDom: true
-
 
 	getCaptionDom: ()->
 		@_doms ?= {}
@@ -54,10 +53,10 @@ class cola.tab.AbstractTabButton extends cola.Widget
 			captionDom = @getCaptionDom()
 			@_doms.icon ?= document.createElement("i")
 			dom = @_doms.icon
-			$(dom).addClass("#{@_icon} icon")
+			$fly(dom).addClass("#{@_icon} icon")
 			captionDom.appendChild(dom) if dom.parentNode isnt captionDom
 		else
-			$(@_doms.iconDom).remove() if @_doms.iconDom
+			$fly(@_doms.iconDom).remove() if @_doms.iconDom
 
 		return
 
@@ -147,19 +146,9 @@ class cola.tab.AbstractTabButton extends cola.Widget
 
 class cola.TabButton extends cola.tab.AbstractTabButton
 	@ATTRIBUTES:
-		control:
-			setter: (control)->
-				old = @_control
-				if old
-					if old.nodeType == 1
-						$(old).remove()
-					else if old instanceof cola.Widget
-						old.destroy()
-				if control.nodeType == 1
-					widget = cola.widget(control)
-
-				@_control = widget or control
-				return
+		content:
+			setter: (value)->
+				@_content = cola.xRender(value, @_scope)
 		contentContainer: null
 		parent: null
 
@@ -177,24 +166,13 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 		@destroy()
 		@fire("afterClose", @, arg)
 		return @
-
-	getControlDom: ()->
-		control = @_control
-		unless control.nodeType == 1
-			if control instanceof cola.Widget
-				dom = control.getDom()
-			else if control.constructor == Object.prototype.constructor
-				if control.$type
-					control = @_control = cola.widget(control)
-					dom = control.getDom()
-				else
-					dom = @_control = $.xCreate(control)
-		return dom or control
+	getContentDom: ()->
+		return @_content
 
 	destroy: ()->
 		return if @_destroyed
 		super()
-		delete @_control
+		delete @_content
 		delete @_contentContainer
 		delete @_parent
 		return @
@@ -232,7 +210,7 @@ class cola.Tab extends cola.Widget
 				return @
 	@EVENTS:
 		beforeChange: null
-		afterChange: null
+		change: null
 
 	_tabContentRender: (tab)->
 		contentsContainer = @getContentsContainer()
@@ -246,8 +224,8 @@ class cola.Tab extends cola.Widget
 		})
 		contentsContainer.appendChild(container)
 		tab.set("contentContainer", container)
-		controlDom = tab.getControlDom()
-		container.appendChild(controlDom) if controlDom
+		contentDom = tab.getContentDom()
+		container.appendChild(contentDom) if contentDom
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
@@ -264,9 +242,7 @@ class cola.Tab extends cola.Widget
 			oldTab: oldTab
 			newTab: newTab
 
-		@fire("beforeChange", @, arg)
-
-		return false if arg.processDefault is false
+		return false if @fire("beforeChange", @, arg) is false
 
 		if oldTab
 			oldTab.get$Dom().removeClass("active")
@@ -283,11 +259,11 @@ class cola.Tab extends cola.Widget
 
 		@_currentTab = newTab
 
-		@fire("afterChange", @, arg)
+		@fire("change", @, arg)
 		return true
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
+	_initDom: (dom)->
+		super(dom)
 
 		activeExclusive = (targetDom)=>
 			tab = cola.widget(targetDom)
@@ -363,8 +339,8 @@ class cola.Tab extends cola.Widget
 
 			if name and _contents[name]
 				item = _contents[name]
-				control = item.children[0]
-				tab.set("control", _contents[name])
+				content = item.children[0]
+				tab.set("content", _contents[name])
 				tab.set("contentContainer", item)
 
 		return
@@ -377,7 +353,7 @@ class cola.Tab extends cola.Widget
 				class: "tab-bar"
 			})
 			@_dom.appendChild(dom)
-		return @_doms.tabs
+		return @_doms.tabBar
 
 	getTabsContainer: ()->
 		@_doms ?= {}
@@ -407,6 +383,8 @@ class cola.Tab extends cola.Widget
 
 	addTab: (tab)->
 		@_tabs ?= []
+		if tab.constructor == Object::constructor
+			tab = new cola.TabButton(tab)
 		return @ if @_tabs.indexOf(tab) > -1
 		@_tabs.push(tab)
 		tab.set("parent", @)
@@ -425,6 +403,7 @@ class cola.Tab extends cola.Widget
 			return index
 		return null
 
+
 	removeTab: (tab)->
 		index = -1
 		if typeof tab is "number"
@@ -442,9 +421,9 @@ class cola.Tab extends cola.Widget
 				newIndex = if index == (@_tabs.length - 1) then index - 1 else index + 1
 				return false unless @setCurrentTab(newIndex)
 			@_tabs.splice(index, 1)
-			obj.remove()
 			contentContainer = obj.get("contentContainer")
-			$(contentContainer).remove() if contentContainer?.parentNode is @_doms.tabs
+			obj.remove()
+			$(contentContainer).remove() if contentContainer?.parentNode is @_doms.contents
 		return true
 
 	clear: ()->

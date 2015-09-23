@@ -20,8 +20,10 @@
   events:
     - name: beforePost
       description: 当编辑器确认其中的编辑内容之前触发的事件。
+
     - name: post
       description: 当编辑器确认了其中的编辑内容之后触发的事件。
+
     - name: beforeChange
       description: 当编辑器中的值要发生改变时触发此事件
       arguments:
@@ -29,12 +31,13 @@
           label: 事件的发起者,即组件本身
         - name: arg
           properties:
-            oldValue:
+            - name: oldValue
               type: any
               description: 旧值
-            newCurrent:
+            - name: newCurrent
               type: any
               description: 新值
+
     - name: change
       description: 当编辑器中的值发生改变时触发此事件
       arguments:
@@ -42,10 +45,10 @@
           label: 事件的发起者,即组件本身
         - name: arg
           properties:
-            oldValue:
+            - name: oldValue
               type: any
               description: 旧值
-            newCurrent:
+            - name: newCurrent
               type: any
               description: 新值
 

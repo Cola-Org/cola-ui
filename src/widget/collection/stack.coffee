@@ -3,6 +3,7 @@ class cola.Stack extends cola.Widget
 	@CLASS_NAME: "stack"
 	@EVENTS:
 		change: null
+		beforeChange: null
 	@duration: 200
 
 	_initDom: (dom)->
@@ -124,29 +125,8 @@ class cola.Stack extends cola.Widget
 		return unless @_touchStart
 		duration = @constructor.duration
 		width = @_currentItem.clientWidth
-		if @_moveTotal < 8 then return
-		if @_distanceX > width / 3
-			if @_touchDirection == "left"
-				$(@_currentItem).transit({
-					x: -1 * width
-					duration: duration
-				})
-				$(@_nextItem).transit({
-					x: 0
-					duration: duration
-				})
-				@_doNext()
-			else
-				$(@_currentItem).transit({
-					x: width
-					duration: duration
-				})
-				$(@_prevItem).transit({
-					x: 0
-					duration: duration
-				})
-				@_doPrev()
-		else
+		@_touchStart = false
+		restore = ()=>
 			$(@_currentItem).transit({
 				x: 0
 				duration: duration
@@ -162,12 +142,60 @@ class cola.Stack extends cola.Widget
 					x: -1 * width
 					duration: duration
 				})
-		@_touchStart = false
+			return
+
+		if @_moveTotal < 8
+			restore()
+			return
+		arg =
+			current: @_currentItem
+			prev: @_prevItem
+			next: @_nextItem
+			action: "over"
+		if @_distanceX > width / 3
+			if @_touchDirection == "left"
+				if @fire("beforeChange", @, arg) is false
+					restore()
+					return
+				$(@_currentItem).transit({
+					x: -1 * width
+					duration: duration
+				})
+				$(@_nextItem).transit({
+					x: 0
+					duration: duration
+				})
+				@_doNext()
+			else
+				arg.action = "back"
+				if @fire("beforeChange", @, arg) is false
+					restore()
+					return
+				$(@_currentItem).transit({
+					x: width
+					duration: duration
+				})
+				$(@_prevItem).transit({
+					x: 0
+					duration: duration
+				})
+				@_doPrev()
+		else
+			restore()
+
 
 		return
 
 	next: ()->
 		if @_animating then return
+		arg =
+			current: @_currentItem
+			prev: @_prevItem
+			next: @_nextItem
+			action: "over"
+		if @fire("beforeChange", @, arg) is false then return
+
+
 		@_animating = true
 		width = @_currentItem.clientWidth
 		stack = @
@@ -194,6 +222,13 @@ class cola.Stack extends cola.Widget
 		return @
 	prev: ()->
 		if @_animating then return
+		arg =
+			current: @_currentItem
+			prev: @_prevItem
+			next: @_nextItem
+			action: "back"
+		if @fire("beforeChange", @, arg) is false then return
+
 		@_animating = true
 		width = @_currentItem.clientWidth
 		stack = @

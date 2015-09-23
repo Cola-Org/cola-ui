@@ -10,10 +10,10 @@ events:
         description: 事件的发起者,即组件本身
       - name: arg
         properties:
-          newItem:
+          - name: newItem
             type: cola.Widget|HTMLElemnt
             description: 要切换到Item
-          oldItem:
+          - name: oldItem
             type: cola.Widget|HTMLElemnt
             description: 当前的Item
   - name: change
@@ -23,9 +23,9 @@ events:
         description: 事件的发起者,即组件本身
       - name: arg
         properties:
-          newItem:
+          - name: newItem
             type: cola.Widget|HTMLElemnt
             description: 切换后当前Item
-          oldItem:
+          - name: oldItem
             type: cola.Widget|HTMLElemnt
             description: 切换前的当前Item
