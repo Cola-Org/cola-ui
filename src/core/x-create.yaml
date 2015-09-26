@@ -4,22 +4,22 @@ stereotype: namespace
 methods:
   - name: xCreate
     type: HTMLElement || [HTMLElement]
-    label: ÀûÓÃJSON¿ìËÙ´´½¨DOM
+    label: åˆ©ç”¨JSONå¿«é€Ÿåˆ›å»ºDOM
     description: |
-      xCreate·½·¨µÄÄ¿µÄÊÇÍ¨¹ýJSONÀ´¶¨ÒåHTML£¬ÒÔ·½±ã¿ª·¢ÕßÔÚJavascriptÖÐ´´½¨DOM¡£
-      ²Î¿¼£º<a href="/docs/x-create">xCreate</a>
+      xCreateæ–¹æ³•çš„ç›®çš„æ˜¯é€šè¿‡JSONæ¥å®šä¹‰HTMLï¼Œä»¥æ–¹ä¾¿å¼€å‘è€…åœ¨Javascriptä¸­åˆ›å»ºDOMã€‚
+      å‚è€ƒï¼š<a href="/docs/x-create">xCreate</a>
     arguments:
       - name: config
         type: json || [json] || string
-        label: ÒÔJSON»òJSONÊý×éÐÎÊ½¶¨ÒåµÄDOMÔªËØ
+        label: ä»¥JSONæˆ–JSONæ•°ç»„å½¢å¼å®šä¹‰çš„DOMå…ƒç´ 
         description: |
-          Èç¹ûÖ±½Ó´«ÈëÒ»¶Î×Ö·û´®£¬xCreate²¢²»»á½«Æä½âÊÍ³ÉHTML£¬¶øÊÇ»á°ÑËüÔ­ÑùµÄäÖÈ¾³ÉDOMµÄTextNode¡£
+          å¦‚æžœç›´æŽ¥ä¼ å…¥ä¸€æ®µå­—ç¬¦ä¸²ï¼ŒxCreateå¹¶ä¸ä¼šå°†å…¶è§£é‡ŠæˆHTMLï¼Œè€Œæ˜¯ä¼šæŠŠå®ƒåŽŸæ ·çš„æ¸²æŸ“æˆDOMçš„TextNodeã€‚
       - name: context
         type: json
         optional: true
-        labe: ÉÏÏÂÎÄ¶ÔÏó£¬ÓÃÓÚ±£´æÄÇÐ©¶¨ÒåÁËcontextKeyµÄDOMÔªËØ¡£
+        labe: ä¸Šä¸‹æ–‡å¯¹è±¡ï¼Œç”¨äºŽä¿å­˜é‚£äº›å®šä¹‰äº†contextKeyçš„DOMå…ƒç´ ã€‚
         description: |
-          ¼ÙÉèÎÒÃÇÔÚ¶¨ÒåJSONµÄÊ±ºòÔÚÄ³Ð©¶ÔÏóÖÐÖ²ÈëÒ»Ð©contextKeyµÄÊôÐÔ¶¨Òå£¬ÄÇÃ´xCreeat»á½«´øÓÐcontextKeyµÄÏàÓ¦µÄDOM×Ó¶ÔÏóµÄÊµÀý±£´æÔÚcontextÖÐ¡£ÀýÈç£º
+          å‡è®¾æˆ‘ä»¬åœ¨å®šä¹‰JSONçš„æ—¶å€™åœ¨æŸäº›å¯¹è±¡ä¸­æ¤å…¥ä¸€äº›contextKeyçš„å±žæ€§å®šä¹‰ï¼Œé‚£ä¹ˆxCreeatä¼šå°†å¸¦æœ‰contextKeyçš„ç›¸åº”çš„DOMå­å¯¹è±¡çš„å®žä¾‹ä¿å­˜åœ¨contextä¸­ã€‚ä¾‹å¦‚ï¼š
           <code>
           var context = {};
           $.xCreate({
@@ -29,14 +29,14 @@ methods:
               contextKey: "icon"
             }
           }, context);
-          // ´ËÊ±context.icon¼´ÎªÉÏÃæ´´½¨µÄ<i>ÔªËØ
+          // æ­¤æ—¶context.iconå³ä¸ºä¸Šé¢åˆ›å»ºçš„<i>å…ƒç´ 
           </code>
 
   - name: xAppend
     type: jQuery
-    label: jQueryÀ©Õ¹£¬¸ù¾ÝJSON´´½¨DOMÔªËØ²¢Ìí¼Óµ½µ±Ç°jQuery°ü×°µÄDOMÖÐ¡£
+    label: jQueryæ‰©å±•ï¼Œæ ¹æ®JSONåˆ›å»ºDOMå…ƒç´ å¹¶æ·»åŠ åˆ°å½“å‰jQueryåŒ…è£…çš„DOMä¸­ã€‚
     description: |
-      ÀýÈç£º
+      ä¾‹å¦‚ï¼š
       <code>
       $(body).xAppend({
         tagName: "button",
@@ -47,36 +47,36 @@ methods:
     arguments:
       - name: config
         type: json || [json] || string
-        label: ÒÔJSON»òJSONÊý×éÐÎÊ½¶¨ÒåµÄDOMÔªËØ¡£
+        label: ä»¥JSONæˆ–JSONæ•°ç»„å½¢å¼å®šä¹‰çš„DOMå…ƒç´ ã€‚
       - name: context
         type: json
         optional: true
-        labe: ÉÏÏÂÎÄ¶ÔÏó£¬ÓÃÓÚ±£´æÄÇÐ©¶¨ÒåÁËcontextKeyµÄDOMÔªËØ¡£
+        labe: ä¸Šä¸‹æ–‡å¯¹è±¡ï¼Œç”¨äºŽä¿å­˜é‚£äº›å®šä¹‰äº†contextKeyçš„DOMå…ƒç´ ã€‚
 
   - name: xInsertBefore
     type: jQuery
-    label: jQueryÀ©Õ¹£¬¸ù¾ÝJSON´´½¨DOMÔªËØ²¢Ìí¼Óµ½µ±Ç°jQuery°ü×°µÄDOMÖ®Ç°¡£
+    label: jQueryæ‰©å±•ï¼Œæ ¹æ®JSONåˆ›å»ºDOMå…ƒç´ å¹¶æ·»åŠ åˆ°å½“å‰jQueryåŒ…è£…çš„DOMä¹‹å‰ã€‚
     description:
 
     arguments:
       - name: config
         type: json || [json] || string
-        label: ÒÔJSON»òJSONÊý×éÐÎÊ½¶¨ÒåµÄDOMÔªËØ¡£
+        label: ä»¥JSONæˆ–JSONæ•°ç»„å½¢å¼å®šä¹‰çš„DOMå…ƒç´ ã€‚
       - name: context
         type: json
         optional: true
-        labe: ÉÏÏÂÎÄ¶ÔÏó£¬ÓÃÓÚ±£´æÄÇÐ©¶¨ÒåÁËcontextKeyµÄDOMÔªËØ¡£
+        labe: ä¸Šä¸‹æ–‡å¯¹è±¡ï¼Œç”¨äºŽä¿å­˜é‚£äº›å®šä¹‰äº†contextKeyçš„DOMå…ƒç´ ã€‚
 
   - name: xInsertAfter
     type: jQuery
-    label: jQueryÀ©Õ¹£¬¸ù¾ÝJSON´´½¨DOMÔªËØ²¢Ìí¼Óµ½µ±Ç°jQuery°ü×°µÄDOMÖ®ºó¡£
+    label: jQueryæ‰©å±•ï¼Œæ ¹æ®JSONåˆ›å»ºDOMå…ƒç´ å¹¶æ·»åŠ åˆ°å½“å‰jQueryåŒ…è£…çš„DOMä¹‹åŽã€‚
     description:
 
     arguments:
       - name: config
         type: json || [json] || string
-        label: ÒÔJSON»òJSONÊý×éÐÎÊ½¶¨ÒåµÄDOMÔªËØ¡£
+        label: ä»¥JSONæˆ–JSONæ•°ç»„å½¢å¼å®šä¹‰çš„DOMå…ƒç´ ã€‚
       - name: context
         type: json
         optional: true
-        labe: ÉÏÏÂÎÄ¶ÔÏó£¬ÓÃÓÚ±£´æÄÇÐ©¶¨ÒåÁËcontextKeyµÄDOMÔªËØ¡£
+        labe: ä¸Šä¸‹æ–‡å¯¹è±¡ï¼Œç”¨äºŽä¿å­˜é‚£äº›å®šä¹‰äº†contextKeyçš„DOMå…ƒç´ ã€‚

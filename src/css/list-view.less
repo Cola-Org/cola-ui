@@ -25,14 +25,14 @@
 		padding: 0;
 	}
 
-	.item {
+	.list.item {
 		padding: @listViewItemVerticalPadding @listViewItemHorizontalPadding;
 	}
-	.group {
+	.list.group {
 		margin: 0;
 		padding: 0;
 	}
-	.group-header {
+	.list.group-header {
 		color: @listViewGroupColor;
 		background: @listViewGroupBackground;
 		border-bottom: 1px solid @listViewGroupBorderColor;
@@ -60,7 +60,7 @@
 	.item-slide-pane {
 		position: absolute;
 		overflow: hidden;
-		z-index: 1;
+		z-index: 1100;
 		.box-sizing(border-box);
 
 		&.transition {
@@ -70,7 +70,7 @@
 	}
 
 	&.has-index-bar {
-		.group-header {
+		.list.group-header {
 			&.collapsible:before {
 				margin-right: 2.2em;
 			}
@@ -85,7 +85,7 @@
 		opacity: 0.9;
 		pointer-events: none;
 
-		> .group-header:before {
+		> .list.group-header:before {
 			display: none;
 		}
 	}
@@ -119,10 +119,10 @@
 }
 
 .ui.list-view.striped {
-	.item:nth-child(2n):not(.current) {
+	.list.item:nth-child(2n):not(.current) {
 		background: @itemsViewItemStripedBackground;
 	}
-	.group-header {
+	.list.group-header {
 		background: darken(@listViewGroupBackground, 8%);
 		&:active {
 			background: darken(@listViewGroupActiveBackground, 8%);
@@ -131,39 +131,39 @@
 }
 
 .ui.list-view.impact {
-	.item {
+	.list.item {
 		padding: 0.125em !important;
 	}
 }
 
 .ui.list-view {
-	.item:hover:not(.current), .item:active:not(.current) {
+	.list.item:hover:not(.current) {
 		background: @itemsViewHoverBackground;
 	}
-	.item.current {
+	.list.item.current {
 		background: @itemsViewCurrentBackground;
 		color: @itemsViewCurrentColor;
 	}
 }
 
 .ui.list-view.striped.inverted {
-	.item:nth-child(2n):not(.current) {
+	.list.item:nth-child(2n):not(.current) {
 		background: @listViewInvertedStripedBackground;
 	}
 }
 .ui.list-view.inverted {
 	background: @itemsViewInvertedBackground;
-	.item {
+	.list.item {
 		color: @itemsViewInvertedTextColor;
 		background: @itemsViewInvertedBackground;
-		&:hover:not(.current), &:active:not(.current) {
+		&:hover:not(.current) {
 			background: @itemsViewInvertedHoverBackground;
 		}
 		&.current {
 			background: @itemsViewInvertedCurrentBackground;
 		}
 	}
-	.group-header {
+	.list.group-header {
 		color: @itemsViewInvertedTextColor;
 		background: lighten(@itemsViewInvertedBackground, 12%);
 		border-bottom: 1px solid lighten(@itemsViewInvertedBackground, 24%);
@@ -187,10 +187,10 @@
 
 .ui.list-view.basic {
 	background: none;
-	.item {
+	.list.item {
 		color: inherit;
 		background: none;
-		&:hover:not(.current), &:active:not(.current) {
+		&:hover:not(.current) {
 			background: none;
 		}
 		&.current {
@@ -198,7 +198,7 @@
 			color: inherit;
 		}
 	}
-	.group-header {
+	.list.group-header {
 		color: inherit;
 		background: none;
 		border-bottom: none;
@@ -222,10 +222,10 @@
 
 .list-view-light-color(@color) {
 	.ui.list-view.light-@{color} {
-		.item:hover:not(.current), .item:active:not(.current) {
+		.list.item:hover:not(.current) {
 			background: fade(@@color, 10%);
 		}
-		.item.current {
+		.list.item.current {
 			background: fade(@@color, 20%);
 		}
 	}
@@ -247,10 +247,10 @@
 
 .list-view-color(@color) {
 	.ui.list-view.@{color} {
-		.item:hover:not(.current), .item:active:not(.current) {
+		.list.item:hover:not(.current) {
 			background: fade(@@color, 12%);
 		}
-		.item.current {
+		.list.item.current {
 			background: @@color;
 			color: @invertedSelectedTextColor;
 		}

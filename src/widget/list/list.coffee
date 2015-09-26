@@ -43,7 +43,7 @@ class cola.ListView extends cola.ItemsView
 		group:
 			refreshItems: true
 		groupCollapsible:
-			type:"boolean"
+			type: "boolean"
 			defaultValue: true
 		indexBar:
 			refreshItems: true
@@ -217,13 +217,13 @@ class cola.ListView extends cola.ItemsView
 			itemDom.setAttribute("c-bind", "$default")
 
 		if itemType == "group"
-			klass = "group"
+			klass = "list group"
 		else if itemType == "group-header"
-			klass = "group-header"
+			klass = "list group-header"
 			if @_groupCollapsible
 				klass += " collapsible"
 		else
-			klass = "item " + itemType
+			klass = "list item " + itemType
 
 		itemDom._itemType = itemType
 
@@ -504,6 +504,7 @@ class cola.ListView extends cola.ItemsView
 				class: "index-bar"
 				mousedown: (evt) -> goIndex(evt.target, true)
 				mouseup: clearCurrent
+				touchstart: (evt) -> goIndex(evt.target, true)
 				touchmove: (evt) ->
 					touch = evt.originalEvent.touches[0]
 					target = document.elementFromPoint(touch.pageX, touch.pageY);
@@ -543,31 +544,30 @@ class cola.ListView extends cola.ItemsView
 		return
 
 	_initItemSlide: () ->
-		return unless @_itemSlide and @_itemSlide != "none"
-
-		itemsWrapper = @_doms.itemsWrapper
-		list = @
-		$fly(itemsWrapper)
-		.on("touchstart", (evt) -> list._onItemsWrapperTouchStart(evt))
-		.on("touchmove", (evt) -> list._onItemsWrapperTouchMove(evt))
-		.on("touchend", (evt) -> list._onItemsWrapperTouchEnd(evt))
-
 		leftSlidePaneTemplate = @_getTemplate("slide-left-pane")
 		rightSlidePaneTemplate = @_getTemplate("slide-right-pane")
 		return unless leftSlidePaneTemplate or rightSlidePaneTemplate
 
-		itemScope = new cola.ItemScope(@_itemsScope, @_alias)
+		itemsWrapper = @_doms.itemsWrapper
+		if @_itemSlide and @_itemSlide != "none"
+			$fly(itemsWrapper)
+			.on("touchstart", (evt) => @_onItemsWrapperTouchStart(evt))
+			.on("touchmove", (evt) => @_onItemsWrapperTouchMove(evt))
+			.on("touchend", (evt) => @_onItemsWrapperTouchEnd(evt))
 
+		itemScope = new cola.ItemScope(@_itemsScope, @_alias)
 		@_templateContext.defaultPath = @_alias
-		if @_leftItemSlide and leftSlidePaneTemplate
-			$fly(leftSlidePaneTemplate).addClass("item-slide-pane").css("left", "100%")
+
+		if leftSlidePaneTemplate
+			$fly(leftSlidePaneTemplate).addClass("item-slide-pane").css("right", "100%")
 			cola.xRender(leftSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(leftSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
 			itemsWrapper.appendChild(leftSlidePaneTemplate)
 			cola._ignoreNodeRemoved = false
-		if @_rightItemSlide and rightSlidePaneTemplate
-			$fly(rightSlidePaneTemplate).addClass("item-slide-pane").css("right", "100%")
+
+		if rightSlidePaneTemplate
+			$fly(rightSlidePaneTemplate).addClass("item-slide-pane").css("left", "100%")
 			cola.xRender(rightSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(rightSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
@@ -581,33 +581,6 @@ class cola.ListView extends cola.ItemsView
 			touches = evt.originalEvent.changedTouches
 		return touches[0]
 
-	_onTouchStart: (evt) ->
-		return unless @_itemSlidePane
-
-		slidePane = @_itemSlidePane
-		dom = evt.target
-		while dom
-			if dom == slidePane
-				inSlidPane = true
-				break
-			dom = dom.parentNode
-
-		@_itemSlideState = "prevent"
-		if inSlidPane
-			list = @
-			$fly(slidePane).one("touchend", () ->
-				setTimeout(() ->
-					list._hideItemSlidePane(true)
-					return
-				, 50);
-				return
-			)
-			return
-		else
-			@_hideItemSlidePane(true)
-			evt.stopImmediatePropagation()
-			return false
-
 	_onItemsWrapperTouchStart: (evt) ->
 		@_start = new Date
 
@@ -615,7 +588,7 @@ class cola.ListView extends cola.ItemsView
 
 		itemDom = @_findItemDom(evt.target)
 		if itemDom
-			return if itemDom.offsetWidth < @_doms.itemsWrapper.clientWidth * 0.6	# 此逻辑用于判断List当前是否不处于“行模式”
+			return if itemDom.offsetWidth < @_doms.itemsWrapper.clientWidth * 0.6 # 此逻辑用于判断List当前是否不处于“行模式”
 			item = cola.util.userData(itemDom, "item")
 		return unless item
 
@@ -637,6 +610,51 @@ class cola.ListView extends cola.ItemsView
 		@_touchStartY = touch.pageY
 		@_touchTimestamp = new Date()
 		return
+
+	_initItemSlidePane: (itemDom, direction) ->
+		item = cola.util.userData(itemDom, "item")
+		if direction != @_itemSlideDirection
+			oldSlidePane = @_itemSlidePane
+			if oldSlidePane
+				$fly(oldSlidePane).hide()
+				if !SAFE_SLIDE_EFFECT
+					$fly(oldSlidePane).css("transform", "")
+
+			@_itemSlideDirection = direction
+
+			@_itemSlidePane = slidePane = @_getTemplate("slide-" + direction + "-pane")
+			if slidePane
+				itemScope = cola.util.userData(slidePane, "scope")
+				itemScope.data.setTargetData(item)
+
+				if @getListeners("itemSlidePaneInit")
+					@fire("itemSlidePaneInit", @, {
+						item: item
+						direction: direction
+						slidePane: slidePane
+					})
+
+				if direction == "right" and @_maxDistanceAdjust == undefined and @_indexBar
+					indexBar = @_doms.indexBar
+					if indexBar
+						@_maxDistanceAdjust = indexBar.offsetWidth + parseInt($fly(indexBar).css("right"))
+					else
+						@_maxDistanceAdjust = 0
+
+				$fly(slidePane).css({
+#					height: itemDom.offsetHeight
+					top: itemDom.offsetTop
+					"pointer-events": "none"
+				}).show()
+
+				@_maxSlideDistance = slidePane.offsetWidth
+				if direction == "right"
+					@_maxSlideDistance += (@_maxDistanceAdjust or 0)
+			else
+				@_maxSlideDistance = itemDom.offsetWidth
+		else
+			slidePane = @_itemSlidePane
+		return slidePane
 
 	_onItemsWrapperTouchMove: (evt) ->
 		return unless @_itemSlide
@@ -660,7 +678,7 @@ class cola.ListView extends cola.ItemsView
 
 				# Chrome下会出现文字渲染重叠的现象
 				if cola.browser.chrome
-					itemDom.style.opacity = 0.9999
+					itemDom.style.opacity = 0.999
 			else
 				@_itemSlideState = "ignore"
 				return
@@ -669,60 +687,18 @@ class cola.ListView extends cola.ItemsView
 		@_touchLastTimstamp = timestamp
 
 		if distanceX < 0
-			direction = "left"
+			direction = "right"
 			factor = -1
 		else
-			direction = "right"
+			direction = "left"
 			factor = 1
 
-		item = cola.util.userData(itemDom, "item")
 		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 			slideDom = itemDom.firstChild
 		else
 			slideDom = itemDom
 
-		if direction != @_itemSlideDirection
-			oldSlidePane = @_itemSlidePane
-			if oldSlidePane
-				$fly(oldSlidePane).hide()
-				if !SAFE_SLIDE_EFFECT
-					$fly(oldSlidePane).css("transform", "")
-
-			@_itemSlideDirection = direction
-
-			@_itemSlidePane = slidePane = @_getTemplate("slide-" + direction + "-pane")
-			if slidePane
-				itemScope = cola.util.userData(slidePane, "scope")
-				itemScope.data.setTargetData(item)
-
-				if @getListeners("itemSlidePaneInit")
-					@fire("itemSlidePaneInit", @, {
-						item: item
-						direction: direction
-						slidePane: slidePane
-					})
-
-				if direction == "left" and @_maxDistanceAdjust == undefined and @_indexBar
-					indexBar = @_doms.indexBar
-					if indexBar
-						@_maxDistanceAdjust = indexBar.offsetWidth + parseInt($fly(indexBar).css("right"))
-					else
-						@_maxDistanceAdjust = 0
-
-				$fly(slidePane).css({
-					height: itemDom.offsetHeight
-					top: itemDom.offsetTop
-					"pointer-events": "none"
-				}).show()
-
-				@_maxSlideDistance = slidePane.offsetWidth
-				if direction == "left"
-					@_maxSlideDistance += (@_maxDistanceAdjust or 0)
-			else
-				@_maxSlideDistance = itemDom.offsetWidth
-		else
-			slidePane = @_itemSlidePane
-
+		slidePane = @_initItemSlidePane(itemDom, direction)
 		if slidePane
 			if Math.abs(distanceX) <= @_maxSlideDistance
 				@_currentSlideDistance = distanceX
@@ -734,13 +710,14 @@ class cola.ListView extends cola.ItemsView
 				$fly(slideDom).css("transform", translate)
 				$fly(slidePane).css("transform", translate)
 
-		if @getListeners("itemSlideStep")
-			@fire("itemSlideStep", @, {
-				event: evt
-				item: item
-				distance: distanceX
-				speed: @_touchMoveSpeed
-			})
+			if @getListeners("itemSlideStep")
+				item = cola.util.userData(itemDom, "item")
+				@fire("itemSlideStep", @, {
+					event: evt
+					item: item
+					distance: distanceX
+					speed: @_touchMoveSpeed
+				})
 
 		evt.stopImmediatePropagation()
 		return false
@@ -781,14 +758,13 @@ class cola.ListView extends cola.ItemsView
 			})
 
 		direction = @_itemSlideDirection
-		factor = if direction == "left" then -1 else 1
 
 		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 			slideDom = itemDom.firstChild
 		else
 			slideDom = itemDom
 
-		if direction == "left"
+		if direction == "right"
 			if !SAFE_SLIDE_EFFECT
 				$(slideDom).transit({
 					x: 0
@@ -803,25 +779,37 @@ class cola.ListView extends cola.ItemsView
 		if opened
 			slidePane = @_itemSlidePane
 			if slidePane
-				@get$Dom().on("touchstart", (evt) => @_onTouchStart(evt))
-
-				$slidePane = $(slidePane)
-				@_currentSlideDistance = maxDistance * factor
-				if openAnimate or SAFE_SLIDE_EFFECT
-					$slidePane.show().transit({
-						x: maxDistance * factor
-						duration: SLIDE_ANIMATION_SPEED
-						complete: () =>
-							$slidePane.css("pointer-events", "")
-							@_onItemSlidePaneShow(direction, slidePane, itemDom)
-							return
-					})
-				else
-					@_onItemSlidePaneShow(direction, slidePane, itemDom)
+				@_showItemSlidePane(itemDom, direction, slidePane, openAnimate)
 			else
 				@_itemSlideState = "closed"
 		else
 			@_hideItemSlidePane(false)
+		return
+
+	_showItemSlidePane: (itemDom, direction, slidePane, openAnimate) ->
+		$fly(@_doms.itemsWrapper).dimmer({
+			opacity: 0.0001
+			duration: 0
+			closable: false
+		}).dimmer("show").find(">.ui.dimmer").on("touchstart", () =>
+			if @_itemSlideState is "waiting"
+				@hideItemSlidePane()
+			return
+		);
+
+		$slidePane = $(slidePane)
+		if openAnimate or SAFE_SLIDE_EFFECT
+			factor = if direction == "right" then -1 else 1
+			$slidePane.show().transit({
+				x: @_maxSlideDistance * factor
+				duration: SLIDE_ANIMATION_SPEED
+				complete: () =>
+					$slidePane.css("pointer-events", "")
+					@_onItemSlidePaneShow(direction, slidePane, itemDom)
+					return
+			})
+		else
+			@_onItemSlidePaneShow(direction, slidePane, itemDom)
 		return
 
 	_hideItemSlidePane: (opened) ->
@@ -831,7 +819,7 @@ class cola.ListView extends cola.ItemsView
 		slidePane = @_itemSlidePane
 		direction = @_itemSlideDirection
 
-		if direction == "right"
+		if direction == "left"
 			if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 				slideDom = itemDom.firstChild
 			else
@@ -840,6 +828,8 @@ class cola.ListView extends cola.ItemsView
 				x: 0
 				duration: SLIDE_ANIMATION_SPEED
 			})
+
+		$fly(@_doms.itemsWrapper).dimmer("hide");
 
 		if slidePane
 			$(slidePane).transit({
@@ -866,9 +856,9 @@ class cola.ListView extends cola.ItemsView
 		return
 
 	_onItemSlidePaneHide: (opened, direction, slidePane, itemDom) ->
+		@_itemSlideDirection = null
 		@_itemSlideState = "closed"
 		@_slideItemDom = null
-		$fly(@_dom).off("touchstart")
 
 		if opened
 			@fire("itemSlidePaneHide", @, {
@@ -876,4 +866,17 @@ class cola.ListView extends cola.ItemsView
 				direction: direction
 				slidePane: slidePane
 			})
+		return
+
+	showItemSlidePane: (item, direction) ->
+		entityId = cola.Entity._getEntityId(item)
+		itemDom = @_itemDomMap[entityId]
+		slidePane = @_initItemSlidePane(itemDom, direction)
+		if slidePane
+			@_slideItemDom = itemDom
+			@_showItemSlidePane(itemDom, direction, slidePane, true)
+		return
+
+	hideItemSlidePane: () ->
+		@_hideItemSlidePane(true)
 		return

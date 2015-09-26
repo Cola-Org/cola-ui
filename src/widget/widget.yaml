@@ -1,7 +1,7 @@
 - name: cola.RenderableElement
   stereotype: class
-  label: cola可渲染元素
   super: cola.Element
+  label: cola可渲染元素
 
   constructors:
     - arguments:

@@ -89,8 +89,8 @@ class cola.ItemsView extends cola.Widget
 
 		$itemsWrapper = $fly(@_doms.itemsWrapper)
 		$itemsWrapper.addClass("items")
-		.delegate(".item", "click", (evt) => @_onItemClick(evt))
-		.delegate(".item", "dblclick", (evt) => @_onItemDoubleClick(evt))
+		.delegate(".list.item", "click", (evt) => @_onItemClick(evt))
+		.delegate(".list.item", "dblclick", (evt) => @_onItemDoubleClick(evt))
 
 		if @_onItemsWrapperScroll
 			$itemsWrapper.on("scroll", (evt) =>
@@ -124,17 +124,6 @@ class cola.ItemsView extends cola.Widget
 			delete @_refreshItemsScheduled
 			@_refreshItems()
 		return
-
-	_createNewItem: (itemType, item) ->
-		template = @_getTemplate(itemType)
-		if template
-			itemDom = @_cloneTemplate(template)
-		else
-			itemDom = document.createElement("li")
-			itemDom.setAttribute("c-bind", "$default")
-		$fly(itemDom).addClass("item " + itemType)
-		itemDom._itemType = itemType
-		return itemDom
 
 	_getItemType: (item) ->
 		if item?.isDataWrapper

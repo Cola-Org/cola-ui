@@ -127,6 +127,9 @@ class cola.Entity
 			else if loadMode == "async"
 				if callback then providerInvoker.callbacks.push(callback)
 				callbackProcessed = true
+				value = undefined
+			else
+				value = undefined
 
 			if context
 				context.unloaded = true
@@ -614,7 +617,7 @@ class Page extends LinkedList
 		entityList = @entityList
 
 		if json.hasOwnProperty("$data") then json = rawJson.$data
-		if !(json instanceof Array)
+		if not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
 		dataType = entityList.dataType

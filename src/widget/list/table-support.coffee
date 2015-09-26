@@ -372,3 +372,10 @@ class cola.AbstractTable extends cola.ItemsView
 			child = next
 		@_createInnerDom(dom)
 		return
+
+	_createNewItem: (itemType, item) ->
+		template = @_getTemplate(itemType)
+		itemDom = @_cloneTemplate(template)
+		$fly(itemDom).addClass("table item " + itemType)
+		itemDom._itemType = itemType
+		return itemDom
