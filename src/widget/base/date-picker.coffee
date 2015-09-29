@@ -827,14 +827,14 @@ cola.mobile.showDateTimePicker = (options)->
 			content: [
 				{
 					class: "ui button"
-					content: "取消"
+					content: cola.resource("cola.message.deny") or "取消"
 					click: ()->
 						cola.commonDimmer.hide()
 						timerLayer.hide()
 				}
 				{
 					class: "ui positive button"
-					content: "确定"
+					content: cola.resource("cola.message.approve") or "确认"
 					click: ()->
 						cola.commonDimmer.hide()
 						timerLayer.hide()

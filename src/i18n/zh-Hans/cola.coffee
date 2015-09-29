@@ -12,4 +12,13 @@ cola.resource(
 	"cola.validator.error.email": "Email格式不正确。"
 	"cola.validator.error.url": "Url格式不正确。"
 	"cola.validator.error.regExp": "格式不正确。"
+
+	"cola.messageBox.info.title": "消息"
+	"cola.messageBox.warning.title": "警告"
+	"cola.messageBox.error.title": "错误"
+	"cola.messageBox.question.title": "确认框"
+
+	"cola.message.approve": "确认"
+	"cola.message.deny": "取消"
+
 )

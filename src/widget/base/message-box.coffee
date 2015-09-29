@@ -21,16 +21,16 @@ do()->
 		animation: if cola.device.phone then "slide up" else "scale"
 		settings:
 			info:
-				title: "消息"
+				title: cola.resource("cola.messageBox.info.title") or "消息"
 				icon: "blue info icon"
 			warning:
-				title: "警告"
+				title: cola.resource("cola.messageBox.warning.title") or "警告"
 				icon: "yellow warning sign icon"
 			error:
-				title: "错误"
+				title: cola.resource("cola.messageBox.error.title") or "错误"
 				icon: "red warning sign icon"
 			question:
-				title: "确认框"
+				title: cola.resource("cola.messageBox.question.title") or "确认框"
 				icon: "black help circle icon"
 		class: "standard"
 		level:
@@ -111,7 +111,7 @@ do()->
 			if oldClassName isnt className
 				$dom.removeClass(oldClassName) if oldClassName
 				$dom.addClass(className).attr("_class", className)
-			
+
 			doms = messageBox._doms
 			isAlert = options.mode is "alert"
 			$(doms.actions).toggleClass("hidden", isAlert)
@@ -132,7 +132,7 @@ do()->
 				contextKey: "messageBox"
 				content: {
 					class: "content-container "
-					contextKey:"contentContainer"
+					contextKey: "contentContainer"
 					content: [
 						{
 							tagName: "div"
@@ -190,7 +190,7 @@ do()->
 				{
 					tagName: "div"
 					contextKey: "no"
-					content: "取消"
+					content: cola.resource("cola.message.deny") or "取消"
 					click: messageBox._doDeny
 					class: "ui button"
 				}
@@ -206,7 +206,7 @@ do()->
 						}
 						{
 							tagName: "span"
-							content: "确认"
+							content: cola.resource("cola.message.approve") or "确认"
 							contextKey: "yesCaption"
 						}
 					]
@@ -256,4 +256,4 @@ do()->
 		return @
 
 	messageBox.getDom() if cola.os.mobile
-	cola.MessageBox=messageBox
+	cola.MessageBox = messageBox
