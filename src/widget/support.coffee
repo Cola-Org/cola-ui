@@ -71,6 +71,9 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 	constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
 	config.$constr = context.constr = constr
 
+	if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender
+		cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
+
 	return (scope, dom) ->
 		context.constr = oldParentConstr
 		config.dom = dom

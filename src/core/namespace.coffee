@@ -24,6 +24,7 @@ cola.constants = {
 	REPEAT_TEMPLATE_KEY: "_template"
 	REPEAT_TAIL_KEY: "_tail"
 	DOM_ELEMENT_KEY: "_element"
+	DOM_SKIP_CHILDREN: "_skipChildren"
 
 	NOT_WHITE_REG: /\S+/g
 	CLASS_REG: /[\t\r\n\f]/g

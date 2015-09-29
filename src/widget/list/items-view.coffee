@@ -46,6 +46,11 @@ class cola.ItemsView extends cola.Widget
 		filterItem:
 			singleListener: true
 
+	destroy: () ->
+		super()
+		delete @_emptyItemDom
+		return
+
 	_doSet: (attr, attrConfig, value) ->
 		if attrConfig?.refreshItems
 			attrConfig.refreshDom = true
@@ -136,6 +141,8 @@ class cola.ItemsView extends cola.Widget
 
 	_onItemInsert: (arg) ->
 		if @_realItems == @_realOriginItems
+			@_refreshEmptyItemDom()
+
 			item = arg.entity
 			itemType = @_getItemType(item)
 			itemsWrapper = @_doms.itemsWrapper
@@ -173,6 +180,8 @@ class cola.ItemsView extends cola.Widget
 			if itemDom
 				$fly(itemDom).remove()
 				@_currentItemDom = null if itemDom == @_currentItemDom
+
+		@_refreshEmptyItemDom()
 		return
 
 	_setCurrentItemDom: (currentItemDom) ->
@@ -207,6 +216,21 @@ class cola.ItemsView extends cola.Widget
 			else
 				items = cola.convertor.filter(items, @_filterCriteria)
 		return items
+
+	_refreshEmptyItemDom: () ->
+		emptyItemDom = @_emptyItemDom = @_getTemplate("empty-item")
+		if emptyItemDom
+			items = @_realItems
+			if items instanceof cola.EntityList and items.entityCount is 0 or items instanceof Array and items.length is 0
+				$fly(emptyItemDom).show()
+				itemsWrapper = @_doms.itemsWrapper
+				if emptyItemDom.parentNode isnt itemsWrapper
+					$fly(emptyItemDom).addClass("protected")
+					cola.xRender(emptyItemDom, @_scope)
+					itemsWrapper.appendChild(emptyItemDom)
+			else
+				$fly(emptyItemDom).hide()
+		return
 
 	_refreshItems: () ->
 		if !@_dom
@@ -245,6 +269,8 @@ class cola.ItemsView extends cola.Widget
 			if @_autoLoadPage and not @_realOriginItems and items instanceof cola.EntityList
 				limit = items.pageNo
 
+			@_refreshEmptyItemDom()
+
 			lastItem = null
 			cola.each items, (item) =>
 				if limit
@@ -263,7 +289,8 @@ class cola.ItemsView extends cola.Widget
 							break
 						else
 							_nextItemDom = nextItemDom.nextSibling
-							itemsWrapper.removeChild(nextItemDom)
+							if not cola.util.hasClass(nextItemDom, "protected")
+								itemsWrapper.removeChild(nextItemDom)
 							nextItemDom = _nextItemDom
 					itemDom = nextItemDom
 					if nextItemDom
@@ -284,7 +311,7 @@ class cola.ItemsView extends cola.Widget
 				itemDom = nextItemDom
 				while itemDom
 					nextItemDom = itemDom.nextSibling
-					if $fly(itemDom).hasClass("item")
+					if not cola.util.hasClass(itemDom, "protected")
 						itemsWrapper.removeChild(itemDom)
 						delete @_itemDomMap[itemDom._itemId] if itemDom._itemId
 					itemDom = nextItemDom
@@ -296,7 +323,7 @@ class cola.ItemsView extends cola.Widget
 			if documentFragment
 				itemsWrapper.appendChild(documentFragment)
 
-			if @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList
+			if @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
 				currentPageNo = lastItem?._page?.pageNo
 				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
 					if itemsWrapper.scrollHeight and (itemsWrapper.scrollTop + itemsWrapper.clientHeight) < itemsWrapper.scrollHeight

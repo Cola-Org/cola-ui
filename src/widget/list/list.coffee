@@ -559,7 +559,7 @@ class cola.ListView extends cola.ItemsView
 		@_templateContext.defaultPath = @_alias
 
 		if leftSlidePaneTemplate
-			$fly(leftSlidePaneTemplate).addClass("item-slide-pane").css("right", "100%")
+			$fly(leftSlidePaneTemplate).addClass("item-slide-pane protected").css("right", "100%")
 			cola.xRender(leftSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(leftSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
@@ -567,7 +567,7 @@ class cola.ListView extends cola.ItemsView
 			cola._ignoreNodeRemoved = false
 
 		if rightSlidePaneTemplate
-			$fly(rightSlidePaneTemplate).addClass("item-slide-pane").css("left", "100%")
+			$fly(rightSlidePaneTemplate).addClass("item-slide-pane protected").css("left", "100%")
 			cola.xRender(rightSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(rightSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
@@ -812,7 +812,7 @@ class cola.ListView extends cola.ItemsView
 			@_onItemSlidePaneShow(direction, slidePane, itemDom)
 		return
 
-	_hideItemSlidePane: (opened) ->
+	_hideItemSlidePane: (opened, animation) ->
 		@_itemSlideState = "closing"
 
 		itemDom = @_slideItemDom
@@ -834,7 +834,7 @@ class cola.ListView extends cola.ItemsView
 		if slidePane
 			$(slidePane).transit({
 				x: 0
-				duration: SLIDE_ANIMATION_SPEED
+				duration: if animation then SLIDE_ANIMATION_SPEED else 0
 				complete: () =>
 					$fly(slidePane).hide()
 					delete @_itemSlidePane
@@ -877,6 +877,6 @@ class cola.ListView extends cola.ItemsView
 			@_showItemSlidePane(itemDom, direction, slidePane, true)
 		return
 
-	hideItemSlidePane: () ->
-		@_hideItemSlidePane(true)
+	hideItemSlidePane: (animation) ->
+		@_hideItemSlidePane(true, animation)
 		return

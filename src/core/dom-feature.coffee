@@ -10,9 +10,9 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		if @expression
 			@isStatic = @expression.isStatic
 			@path = @expression.path
-			if !@path and @expression.hasCallStatement
+			if not @path and @expression.hasCallStatement
 				@path = "**"
-				@delay = true
+				if not @isStatic then @delay = true
 			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
 
 	evaluate: (domBinding, dataCtx) ->
@@ -21,7 +21,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 	refresh: (domBinding, force, dataCtx = {}) ->
 		return unless @_refresh
 		if @delay and !force
-			cola.util.delay(@, "refresh", 100, () ->
+			cola.util.delay(domBinding, "refresh", 100, () =>
 				@_refresh(domBinding, dataCtx)
 				if @isStatic and !dataCtx.unloaded
 					@disabled = true
@@ -100,8 +100,13 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				itemId = cola.Entity._getEntityId(arg.current)
 				if itemId
 					currentItemDomBinding = domBinding.itemDomBindingMap[itemId]
-					$fly(currentItemDomBinding.dom).addClass(cola.constants.COLLECTION_CURRENT_CLASS) if currentItemDomBinding
-			domBinding.currentItemDom = currentItemDomBinding.dom
+					if (currentItemDomBinding)
+						currentItemDom = currentItemDomBinding.dom
+						$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+					else
+						@onItemsRefresh(domBinding)
+						return
+			domBinding.currentItemDom = currentItemDom
 			return
 		scope.onItemInsert = (arg) =>
 			headDom = domBinding.dom

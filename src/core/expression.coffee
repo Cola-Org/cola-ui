@@ -186,14 +186,14 @@ class cola.Expression
 							convertor = compileConvertor(part)
 							if convertor
 								if convertor.name is "watch"
-									@watch = convertor.params[0]
+									@watchPath = convertor.params[0]
 								else
 									@convertors.push(convertor)
 
 		@compile(exprStr) unless mainExprCompiled
 
-		if @watch
-			@path = @watch
+		if @watchPath
+			@path = @watchPath
 		else if supportConvertor and @convertors
 			subPath = null
 			for convertor in @convertors

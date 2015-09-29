@@ -120,6 +120,8 @@ class cola.Entity
 			value = loadData.call(@, value)
 			callbackProcessed = true
 		else if value instanceof cola.AjaxServiceInvoker
+			value = undefined
+
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
@@ -631,6 +633,7 @@ class Page extends LinkedList
 			entityList.pageCountDetermined = true
 
 		entityList.entityCount += json.length
+		entityList.timestamp = cola.sequenceNo()
 
 		entityList._notify(cola.constants.MESSAGE_REFRESH, {
 			data: entityList
@@ -741,6 +744,7 @@ class cola.EntityList extends LinkedList
 	_setCurrentPage: (page) ->
 		@_currentPage = page
 		@pageNo = page?.pageNo or 1
+		@timestamp = cola.sequenceNo()
 		return
 
 	_onPathChange: () ->

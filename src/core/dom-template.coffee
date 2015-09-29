@@ -255,16 +255,19 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 		for removeAttr in removeAttrs
 			dom.removeAttribute(removeAttr)
 
-	childContext = {}
-	for k, v of context
-		childContext[k] = v
-	childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType == "repeat"
-	childContext.defaultPath = defaultPath if defaultPath
+	if not cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN)
+		childContext = {}
+		for k, v of context
+			childContext[k] = v
+		childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType == "repeat"
+		childContext.defaultPath = defaultPath if defaultPath
 
-	child = dom.firstChild
-	while child
-		child = _doRrenderDomTemplate(child, scope, childContext)
-		child = child.nextSibling
+		child = dom.firstChild
+		while child
+			child = _doRrenderDomTemplate(child, scope, childContext)
+			child = child.nextSibling
+	else
+		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
 
 	if features?.length
 		if bindingType == "repeat"
