@@ -11,7 +11,7 @@ else
 if XDate
 	$?(() ->
 		XDate.locales[''] = localeStrings = {}
-		localeStrings.monthNames = cola.resource("cola.date.monthNames").split(",") if cola.resource("cola.date.monthNames")
+		localeStrings.monthNames = cola.resource("cola.date.monthNames", 6).split(",") if cola.resource("cola.date.monthNames")
 		localeStrings.monthNamesShort = cola.resource("cola.date.monthNamesShort").split(",") if cola.resource("cola.date.monthNamesShort")
 		localeStrings.dayNames = cola.resource("cola.date.dayNames").split(",") if cola.resource("cola.date.dayNames")
 		localeStrings.dayNamesShort = cola.resource("cola.date.dayNamesShort").split(",") if cola.resource("cola.date.dayNamesShort")

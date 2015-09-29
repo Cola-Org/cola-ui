@@ -18,26 +18,30 @@ do()->
 			$(cola.commonDimmer._dom).removeClass("active")
 
 	messageBox =
-		animation: if cola.device.phone then "slide up" else "scale"
+
 		settings:
 			info:
-				title: cola.resource("cola.messageBox.info.title") or "消息"
+				title: cola.resource("cola.messageBox.info.title")
 				icon: "blue info icon"
 			warning:
-				title: cola.resource("cola.messageBox.warning.title") or "警告"
+				title: cola.resource("cola.messageBox.warning.title")
 				icon: "yellow warning sign icon"
 			error:
-				title: cola.resource("cola.messageBox.error.title") or "错误"
+				title: cola.resource("cola.messageBox.error.title")
 				icon: "red warning sign icon"
 			question:
-				title: cola.resource("cola.messageBox.question.title") or "确认框"
+				title: cola.resource("cola.messageBox.question.title")
 				icon: "black help circle icon"
 		class: "standard"
+		dialogMode: true
 		level:
 			WARNING: "warning"
 			ERROR: "error"
 			INFO: "info"
 			QUESTION: "question"
+
+		_getAnimation: ()->
+			return  if messageBox.dialogMode then "scale" else "slide up"
 
 		_executeCallback: (name)->
 			_eventName = "_on#{name}"
@@ -51,13 +55,13 @@ do()->
 			return
 
 		_doShow: ()->
-			animation = messageBox.animation
+			animation = messageBox._getAnimation()
 			css = {
 				zIndex: cola.floatWidget.zIndex()
 			}
 			$dom = $(messageBox._dom)
 
-			unless cola.device.phone
+			if messageBox.dialogMode
 				width = $dom.width()
 				height = $dom.height()
 
@@ -73,19 +77,19 @@ do()->
 			cola.commonDimmer.show()
 
 		_doApprove: ()->
-			messageBox._executeCallback("approve")
+			messageBox._executeCallback("Approve")
 			messageBox._doHide()
 			return
 
 		_doDeny: ()->
-			messageBox._executeCallback("deny")
+			messageBox._executeCallback("Deny")
 			messageBox._doHide()
 			return
 
 		_doHide: ()->
-			$(messageBox._dom).transition(messageBox.animation)
+			$(messageBox._dom).transition(messageBox._settings.animation)
 			cola.commonDimmer.hide()
-			messageBox._executeCallback("hide")
+			messageBox._executeCallback("Hide")
 			return
 
 		getDom: ()->
@@ -122,13 +126,19 @@ do()->
 			doms.icon.className = options.icon
 			messageBox._doShow()
 			return @
-
+	_getClassName: ()->
+		return if messageBox.dialogMode then "desktop" else "mobile layer"
 	createMessageBoxDom = ()->
+		messageBox._settings = {
+			dialogMode: messageBox.dialogMode
+			className: if messageBox.dialogMode then "desktop" else "mobile layer"
+			animation: if messageBox.dialogMode then "scale" else "slide up"
+		}
 		doms = {}
 		dom = $.xCreate(
 			{
 				tagName: "Div"
-				class: "ui #{if cola.device.phone then "mobile layer" else "desktop"} message-box transition hidden"
+				class: "ui #{messageBox._settings.className} message-box transition hidden"
 				contextKey: "messageBox"
 				content: {
 					class: "content-container "
@@ -184,13 +194,13 @@ do()->
 			}, doms)
 		actionsDom = $.xCreate({
 			tagName: "div"
-			class: "actions #{if cola.device.phone then "ui buttons two fluid top attached" else ""}"
+			class: "actions #{if messageBox._settings.dialogMode then "" else  "ui buttons two fluid top attached"}"
 			contextKey: "actions"
 			content: [
 				{
 					tagName: "div"
 					contextKey: "no"
-					content: cola.resource("cola.message.deny") or "取消"
+					content: cola.resource("cola.message.deny")
 					click: messageBox._doDeny
 					class: "ui button"
 				}
@@ -206,7 +216,7 @@ do()->
 						}
 						{
 							tagName: "span"
-							content: cola.resource("cola.message.approve") or "确认"
+							content: cola.resource("cola.message.approve")
 							contextKey: "yesCaption"
 						}
 					]
@@ -214,7 +224,7 @@ do()->
 			]
 		}, doms)
 
-		if cola.device.phone then $(doms.content).before(actionsDom) else doms.contentContainer.appendChild(actionsDom)
+		if messageBox._settings.dialogMode then doms.contentContainer.appendChild(actionsDom) else $(doms.content).before(actionsDom)
 		bodyNode = window.document.body
 		if bodyNode then bodyNode.appendChild(dom) else
 			$(window).on("load", ()->
@@ -224,7 +234,6 @@ do()->
 		messageBox._doms = doms
 
 		return dom
-
 
 	cola.alert = (msg, options)->
 		settings = {}
@@ -237,7 +246,6 @@ do()->
 		settings.mode = "alert"
 		messageBox.show(settings)
 		return @
-
 
 	cola.confirm = (msg, options)->
 		settings = {}
