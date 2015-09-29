@@ -80,7 +80,7 @@ class cola.Tree extends cola.ItemsView
 			tagName: "ul"
 			content:
 				tagName: "div"
-				class: "node"
+				class: "tree node"
 				content: [
 					{
 						tagName: "div"
@@ -91,7 +91,7 @@ class cola.Tree extends cola.ItemsView
 			tagName: "ul"
 			content:
 				tagName: "div"
-				class: "node"
+				class: "tree node"
 				content: [
 					{
 						tagName: "div"
@@ -159,10 +159,13 @@ class cola.Tree extends cola.ItemsView
 		return itemType or "default"
 
 	_createNewItem: (itemType, node) ->
-		itemDom = super(itemType, node)
+		template = @_getTemplate(itemType)
+		itemDom = @_cloneTemplate(template)
+		$fly(itemDom).addClass("tree item " + itemType)
+		itemDom._itemType = itemType
 
 		nodeDom = itemDom.firstChild
-		if nodeDom?.className == "node"
+		if nodeDom and cola.util.hasClass(nodeDom, "node")
 			template = @_getTemplate("node-" + itemType, "node-normal")
 			if template
 				if template instanceof Array

@@ -38,6 +38,8 @@ class cola.AjaxServiceInvoker
 				return
 
 		jQuery.ajax(options).done( (result) =>
+			result = ajaxService.translateResult(result, options)
+
 			@invokeCallback(true, result)
 			if ajaxService.getListeners("success")
 				ajaxService.fire("success", ajaxService, {options: options, result: result})
@@ -49,7 +51,7 @@ class cola.AjaxServiceInvoker
 			error = xhr.responseJSON
 			@invokeCallback(false, error)
 			ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
-			ajaxService.fire("complete", ajaxService, {success: false, options: options, xhr: xhr, error: error})
+			ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
 			return
 		)
 		return retValue
@@ -105,9 +107,13 @@ class cola.AjaxService extends cola.Definition
 	getInvoker: (context) ->
 		return new cola.AjaxServiceInvoker(@, @getInvokerOptions(context))
 
+	translateResult: (result, invokerOptions) ->
+		return result
+
 class cola.Provider extends cola.AjaxService
 	@ATTRIBUTES:
 		pageSize: null
+		detectEnd: null
 
 	_evalParamValue: (expr, context) ->
 		if expr.charCodeAt(0) == 58 # `:`
@@ -142,10 +148,26 @@ class cola.Provider extends cola.AjaxService
 						v = @_evalParamValue(v, context)
 					parameter[p] = v
 
-		data = {}
 		if @_pageSize > 1
-			data.from = 0
-			data.limit = @_pageSize
-		data.parameter = parameter if parameter?
-		options.data = data
+			if not parameter?
+				parameter = {}
+			else if not (parameter instanceof Object)
+				parameter = {
+					parameter: parameter
+				}
+			parameter.from = 0
+			parameter.limit = @_pageSize + (if @_detectEnd then 1 else 0)
+
+		options.data = parameter
 		return options
+
+	translateResult: (result, invokerOptions) ->
+		if @_detectEnd and result instanceof Array
+			if result.length >= @_pageSize
+				result.pop()
+			else
+				result = {
+					$entityCount: (invokerOptions.data.from or 0) + result.length
+					$data: result
+				}
+		return result

@@ -9,7 +9,7 @@
 @TreeNodeIndent: 2.25em;
 
 .ui.tree {
-	.item {
+	.tree.item {
 		padding: 0;
 	}
 
@@ -18,7 +18,7 @@
 		margin-left: @TreeNodeIndent !important;
 	}
 
-	.node {
+	.tree.node {
 		min-height: @TreeNodeMinHeight + @TreeNodePadding * 2;
 		padding: @TreeNodePadding;
 		line-height: @TreeNodeMinHeight;
@@ -53,7 +53,7 @@
 	.child-nodes {
 		margin-left: @TreeNodeImpactIndent !important;
 	}
-	.node {
+	.tree.node {
 		min-height: @TreeNodeImpactMinHeight + @TreeNodePadding * 2;
 		line-height: @TreeNodeImpactMinHeight;
 		> .expand-button {
@@ -72,7 +72,7 @@
 @nodeHeight: @TreeNodePadding * 2 + @TreeNodeMinHeight;
 
 .ui.tree.navigator {
-	.node {
+	.tree.node {
 		position: relative;
 		overflow: hidden;
 		padding-left: 1em;
@@ -95,13 +95,13 @@
 }
 
 .ui.tree {
-	.item:not(.current) {
-		> .node:hover, > .node:active {
+	.tree.item:not(.current) {
+		> .tree.node:hover {
 			background: @itemsViewHoverBackground;
 		}
 	}
-	.item.current {
-		> .node {
+	.tree.item.current {
+		> .tree.node {
 			background: @itemsViewCurrentBackground;
 			color: @itemsViewCurrentColor;
 		}
@@ -110,16 +110,16 @@
 
 .ui.tree.inverted {
 	background: @itemsViewInvertedBackground;
-	.item {
+	.tree.item {
 		color: @itemsViewInvertedTextColor;
 		background: @itemsViewInvertedBackground;
 		&:not(.current) {
-			> .node:hover, > .node:active {
+			> .tree.node:hover {
 				background: @itemsViewInvertedHoverBackground
 			}
 		}
 		&.current {
-			> .node {
+			> .tree.node {
 				background: @itemsViewInvertedCurrentBackground;
 			}
 		}
@@ -128,16 +128,16 @@
 
 .ui.tree.basic {
 	background: none;
-	.item:not(.current) {
+	.tree.item:not(.current) {
 		color: inherit;
 		background: none;
-		> .node, > .node:hover > .node:active {
+		> .tree.node, > .tree.node:hover {
 			color: inherit;
 			background: none;
 		}
 	}
-	.item.current {
-		> .node {
+	.tree.item.current {
+		> .tree.node {
 			color: inherit;
 			background: none;
 		}
@@ -146,13 +146,13 @@
 
 .tree-light-color(@color) {
 	.ui.tree.light-@{color} {
-		.item:not(.current) {
-			> .node:hover, > .node:active {
+		.tree.item:not(.current) {
+			> .tree.node:hover {
 				background: fade(@@color, 10%);
 			}
 		}
-		.item.current {
-			> .node {
+		.tree.item.current {
+			> .tree.node {
 				background: fade(@@color, 20%);
 			}
 		}
@@ -175,13 +175,13 @@
 
 .tree-color(@color) {
 	.ui.tree.@{color} {
-		.item:not(.current) {
-			> .node:hover, > .node:active {
+		.tree.item:not(.current) {
+			> .tree.node:hover {
 				background: fade(@@color, 12%);
 			}
 		}
-		.item.current {
-			> .node {
+		.tree.item.current {
+			> .tree.node {
 				background: @@color;
 				color: @invertedSelectedTextColor;
 			}

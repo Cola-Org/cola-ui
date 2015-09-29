@@ -202,4 +202,5 @@ cola.convertor["date"] = (date, format) ->
 
 cola.convertor["number"] = (number, format) ->
 	return "" unless number?
+	return number if isNaN(number)
 	return formatNumber(format, number)

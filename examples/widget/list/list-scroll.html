@@ -6,15 +6,18 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			var items = [];
-			var i = 0;
-			for (var attr in document.body) {
+//			var items = [];
+//			var i = 0;
+//			for (var attr in document.body) {
 //				if (++i > 30) break;
-				items.push({
-					name: attr
-				});
-			}
-			model.set("items", items);
+//				items.push({
+//					name: attr
+//				});
+//			}
+//			model.set("items", items);
+			model.describe("items", {
+				provider: "languages.json"
+			});
 
 			model.widgetConfig({
 				listScroll: {
@@ -30,16 +33,19 @@
 					height: "100%",
 					columns: "row 2 4",
 //					highlightCurrentItem: false,
-					getGroupString: function (self, arg) {
+					getGroupString: function (arg) {
 						var name = arg.item.get("name");
 						if (name) arg.result = name.charAt(0).toUpperCase();
 					},
-					pullStep: function (self, arg) {
+					pullStep: function (arg) {
 						$("#divPullDown").text((arg.distance < arg.theshold) ? "继续下拉以刷新" : "释放以刷新");
 					},
-					pullComplete: function (self, arg) {
+					pullComplete: function (arg) {
 						$("#divPullDown").text("正在刷新...");
 						setTimeout(arg.done, 1000);
+					},
+					itemClick: function(self, arg) {
+//						self.showItemSlidePane(arg.item, "right");
 					}
 				}
 			});
@@ -63,7 +69,7 @@
 			<span c-bind="group.name"></span>
 		</li>
 	</template>
-	<template name="slide-left-pane">
+	<template name="slide-right-pane">
 		<li style="margin-top:6px">
 			<div style="display:table-cell">
 				<div c-widget="button; caption:Like; class:positive" style="margin:1px"></div>
@@ -73,7 +79,7 @@
 			</div>
 		</li>
 	</template>
-	<template name="slide-right-pane">
+	<template name="slide-left-pane">
 		<li style="margin-top:6px">
 			<div style="display:table-cell;padding-left:6px">
 				<div c-widget="button; caption:Warn; class:warn" style="margin:1px"></div>
@@ -84,6 +90,11 @@
 		<div style="height:120px">
 			<div id="divPullDown" style="position:absolute;left:0;right:0;bottom:16px"></div>
 		</div>
+	</template>
+	<template name="empty-item">
+		<li style="pading:6px">
+			AAAAAAAAAAAAAAAAAAAAAAAAA
+		</li>
 	</template>
 </div>
 

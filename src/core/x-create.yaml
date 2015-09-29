@@ -3,65 +3,80 @@ stereotype: namespace
 
 methods:
   - name: xCreate
-    type: jQuery
-    label: ����JSON���ٴ���DOM
+    type: HTMLElement || [HTMLElement]
+    label: 利用JSON快速创建DOM
     description: |
-      xCreate������Ŀ����ͨ��JSON������HTML���Է��㿪������Javascript�д���DOM��
+      xCreate方法的目的是通过JSON来定义HTML，以方便开发者在Javascript中创建DOM。
+      参考：<a href="/docs/x-create">xCreate</a>
     arguments:
       - name: config
-        type: json
-        label:
-        description:
-
+        type: json || [json] || string
+        label: 以JSON或JSON数组形式定义的DOM元素
+        description: |
+          如果直接传入一段字符串，xCreate并不会将其解释成HTML，而是会把它原样的渲染成DOM的TextNode。
       - name: context
         type: json
-        labe:
-        description:
+        optional: true
+        labe: 上下文对象，用于保存那些定义了contextKey的DOM元素。
+        description: |
+          假设我们在定义JSON的时候在某些对象中植入一些contextKey的属性定义，那么xCreeat会将带有contextKey的相应的DOM子对象的实例保存在context中。例如：
+          <code>
+          var context = {};
+          $.xCreate({
+            tagName: "div",
+            context: {
+              tagName: "i",
+              contextKey: "icon"
+            }
+          }, context);
+          // 此时context.icon即为上面创建的<i>元素
+          </code>
 
   - name: xAppend
     type: jQuery
-    label:
-    description:
+    label: jQuery扩展，根据JSON创建DOM元素并添加到当前jQuery包装的DOM中。
+    description: |
+      例如：
+      <code>
+      $(body).xAppend({
+        tagName: "button",
+        context: "Test"
+      });
+      </code>
 
     arguments:
       - name: config
-        type: json
-        label:
-        description:
-
+        type: json || [json] || string
+        label: 以JSON或JSON数组形式定义的DOM元素。
       - name: context
         type: json
-        labe:
-        description:
+        optional: true
+        labe: 上下文对象，用于保存那些定义了contextKey的DOM元素。
 
   - name: xInsertBefore
     type: jQuery
-    label:
+    label: jQuery扩展，根据JSON创建DOM元素并添加到当前jQuery包装的DOM之前。
     description:
 
     arguments:
       - name: config
-        type: json
-        label:
-        description:
-
+        type: json || [json] || string
+        label: 以JSON或JSON数组形式定义的DOM元素。
       - name: context
         type: json
-        labe:
-        description:
+        optional: true
+        labe: 上下文对象，用于保存那些定义了contextKey的DOM元素。
 
   - name: xInsertAfter
     type: jQuery
-    label:
+    label: jQuery扩展，根据JSON创建DOM元素并添加到当前jQuery包装的DOM之后。
     description:
 
     arguments:
       - name: config
-        type: json
-        label:
-        description:
-
+        type: json || [json] || string
+        label: 以JSON或JSON数组形式定义的DOM元素。
       - name: context
         type: json
-        labe:
-        description:
+        optional: true
+        labe: 上下文对象，用于保存那些定义了contextKey的DOM元素。

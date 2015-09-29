@@ -97,32 +97,32 @@
 }
 
 .ui.widget-table.striped {
-	.item:nth-child(2n):not(.current) {
+	.table.item:nth-child(2n):not(.current) {
 		background: @itemsViewItemStripedBackground;
 	}
 }
 
 .ui.widget-table {
-	.item:hover:not(.current), .item:active:not(.current) {
+	.table.item:hover:not(.current) {
 		background: @itemsViewHoverBackground;
 	}
-	.item.current {
+	.table.item.current {
 		background: @itemsViewCurrentBackground;
 	}
 }
 
 .ui.widget-table.striped.inverted {
-	.item:nth-child(2n):not(.current) {
+	.table.item:nth-child(2n):not(.current) {
 		background: @tableInvertedStripedBackground;
 	}
 }
 
 .ui.widget-table.inverted {
 	background: @itemsViewInvertedBackground;
-	.item {
+	.table.item {
 		color: @itemsViewInvertedTextColor;
 		background: @itemsViewInvertedBackground;
-		&:hover:not(.current), &:active:not(.current) {
+		&:hover:not(.current) {
 			background: @itemsViewInvertedHoverBackground;
 		}
 		&.current {
@@ -150,10 +150,10 @@
 
 .ui.widget-table.basic {
 	background: none;
-	.item {
+	.table.item {
 		color: inherit;
 		background: none;
-		&:hover:not(.current), &:active:not(.current) {
+		&:hover:not(.current) {
 			background: none;
 		}
 		&.current {
@@ -165,10 +165,10 @@
 
 .table-light-color(@color) {
 	.ui.widget-table.light-@{color} {
-		.item:hover:not(.current), .item:active:not(.current) {
+		.table.item:hover:not(.current) {
 			background: fade(@@color, 10%);
 		}
-		.item.current {
+		.table.item.current {
 			background: fade(@@color, 20%);
 		}
 	}
@@ -190,10 +190,10 @@
 
 .table-color(@color) {
 	.ui.widget-table.@{color} {
-		.item:hover:not(.current), .item:active:not(.current) {
+		.table.item:hover:not(.current) {
 			background: fade(@@color, 12%);
 		}
-		.item.current {
+		.table.item.current {
 			background: @@color;
 			color: @invertedSelectedTextColor;
 		}

@@ -251,9 +251,7 @@ $ () ->
 
 		path = _getHashPath() or trimPath(cola.setting("defaultRouterPath"))
 		router = _findRouter(path)
-		if router
-			currentRoutePath = path
-			_switchRouter(router, path)
+		if router then cola.setRoutePath(path, true)
 		return
 	, 0)
 	return

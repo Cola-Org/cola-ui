@@ -13,6 +13,9 @@ class cola.AbstractLayer extends cola.AbstractContainer
 			getter: () ->
 				return @isVisible()
 
+		lazyRender:
+			type: "boolean"
+
 	@EVENTS:
 		show: null
 		hide: null
@@ -28,6 +31,11 @@ class cola.AbstractLayer extends cola.AbstractContainer
 	_doTransition: (options, callback)->
 	show: (options = {}, callback)->
 		return @ if !@_dom or @isVisible()
+
+		if @_lazyRender and not @_contentRendered
+			@_contentRendered = true
+			cola.xRender(@_dom, @_scope)
+
 		if typeof options == "function"
 			callback = options
 			options = {}

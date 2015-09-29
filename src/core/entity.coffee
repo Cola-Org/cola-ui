@@ -120,6 +120,8 @@ class cola.Entity
 			value = loadData.call(@, value)
 			callbackProcessed = true
 		else if value instanceof cola.AjaxServiceInvoker
+			value = undefined
+
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
@@ -127,6 +129,9 @@ class cola.Entity
 			else if loadMode == "async"
 				if callback then providerInvoker.callbacks.push(callback)
 				callbackProcessed = true
+				value = undefined
+			else
+				value = undefined
 
 			if context
 				context.unloaded = true
@@ -242,7 +247,7 @@ class cola.Entity
 
 			@timestamp = cola.sequenceNo()
 			if @_disableWriteObservers == 0
-				@_notify(cola.constants.MESSAGE_DATA_CHANGE, {
+				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @
 					property: prop
 					value: value
@@ -354,7 +359,7 @@ class cola.Entity
 					delete data[prop]
 			@resetState()
 			@enableObservers()
-			@_notify(cola.constants.MESSAGE_REFRESH, {entity: @})
+			@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	resetState: () ->
@@ -395,7 +400,7 @@ class cola.Entity
 			loadMode = "async"
 
 		notifyArg = {
-			entity: @
+			data: @
 			property: property
 		}
 
@@ -436,13 +441,13 @@ class cola.Entity
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { entity: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			path = @getPath(true)
-			if (type == cola.constants.MESSAGE_DATA_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
+			if (type == cola.constants.MESSAGE_PROPERTY_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
 				if path
 					path = path.concat(arg.property)
 				else
@@ -614,7 +619,7 @@ class Page extends LinkedList
 		entityList = @entityList
 
 		if json.hasOwnProperty("$data") then json = rawJson.$data
-		if !(json instanceof Array)
+		if not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
 		dataType = entityList.dataType
@@ -628,9 +633,10 @@ class Page extends LinkedList
 			entityList.pageCountDetermined = true
 
 		entityList.entityCount += json.length
+		entityList.timestamp = cola.sequenceNo()
 
 		entityList._notify(cola.constants.MESSAGE_REFRESH, {
-			entityList: entityList
+			data: entityList
 		})
 		return
 
@@ -738,6 +744,7 @@ class cola.EntityList extends LinkedList
 	_setCurrentPage: (page) ->
 		@_currentPage = page
 		@pageNo = page?.pageNo or 1
+		@timestamp = cola.sequenceNo()
 		return
 
 	_onPathChange: () ->
@@ -1075,7 +1082,7 @@ class cola.EntityList extends LinkedList
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { entityList: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
@@ -1097,7 +1104,7 @@ class cola.EntityList extends LinkedList
 
 		if loadMode is "async"
 			notifyArg = {
-				entityList: @
+				data: @
 			}
 
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)

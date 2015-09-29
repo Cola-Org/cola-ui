@@ -59,6 +59,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		opened:
 			readOnly: true
 
+		dropdownLayer: null
 		dropdownWidth: null
 		dropdownHeight: null
 
@@ -68,6 +69,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		close: null
 
 	_initDom: (dom) ->
+		super(dom)
 		$fly(@_doms.input).xInsertAfter({
 			tagName: "div"
 			class: "value-content"
@@ -137,12 +139,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$inputDom.attr("placeholder", @get("placeholder"))
 		$inputDom.prop("readOnly", @_finalReadOnly or @_isEditorReadOnly())
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
-		@_setValueContent(@_currentItem)
+		@_setValueContent()
 		return
 
-	_setValueContent: (item) ->
+	_setValueContent: () ->
 		input = @_doms.input
 		input.value = ""
+		item = @_currentItem
+		if not item? and not @_textProperty
+			item = @_value
+
 		if item
 			input.placeholder = ""
 
@@ -167,6 +173,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			$fly(valueContent).show()
 		else
 			input.placeholder = @_placeholder or ""
+			$fly(@_doms.valueContent).hide()
 		return
 
 	_initValueContent: (valueContent, context) ->
@@ -195,56 +202,74 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return openMode
 
 	_getContainer: () ->
-		return @_container if @_container
+		if @_dropdownLayer
+			layer = @_dropdownLayer
+			if not (layer instanceof cola.Widget)
+				layer = cola.widget(layer)
+				if layer instanceof cola.Widget
+					@set("dropdownLayer", layer)
+				else
+					layer = null
+			if layer
+				layer.on("beforeHide", () =>
+					$fly(@_dom).removeClass("opened")
+					return
+				, true).on("hide", () =>
+					@_opened = false
+					return
+				, true);
+			return layer
+		else
+			return @_container if @_container
 
-		@_finalOpenMode = openMode = @_getFinalOpenMode()
+			@_finalOpenMode = openMode = @_getFinalOpenMode()
 
-		config =
-			class: "drop-container"
-			dom: $.xCreate(
-				tagName: "div"
-				content: @_getDropdownContent()
-			)
-			beforeHide: () =>
-				$fly(@_dom).removeClass("opened")
-				return
-			hide: () =>
-				@_opened = false
-				return
-
-		config.width = @_dropdownWidth if @_dropdownWidth
-		config.height = @_dropdownHeight if @_dropdownHeight
-
-		if openMode is "drop"
-			config.duration = 200
-			config.dropdown = @
-			config.ui = config.ui + " " + @_ui
-			container = new DropBox(config)
-		else if openMode is "layer"
-			ctx = {}
-			titleContent = cola.xRender({
-				tagName: "div"
-				class: "box"
-				content:
+			config =
+				class: "drop-container"
+				dom: $.xCreate(
 					tagName: "div"
-					"c-widget":
-						$type: "titleBar"
-						items: [
-							icon: "chevron left"
-							click: () => @close()
-						]
-			}, @_scope, ctx)
-			$fly(config.dom.firstChild.firstChild).before(titleContent)
-			container = new cola.Layer(config)
-		else if openMode is "dialog"
-			config.modalOpacity = 0.05
-			config.closeable = false
-			config.dimmerClose = true
-			container = new cola.Dialog(config)
-		@_container = container
+					content: @_getDropdownContent()
+				)
+				beforeHide: () =>
+					$fly(@_dom).removeClass("opened")
+					return
+				hide: () =>
+					@_opened = false
+					return
 
-		container.appendTo(document.body)
-		return container
+			config.width = @_dropdownWidth if @_dropdownWidth
+			config.height = @_dropdownHeight if @_dropdownHeight
+
+			if openMode is "drop"
+				config.duration = 200
+				config.dropdown = @
+				config.ui = config.ui + " " + @_ui
+				container = new DropBox(config)
+			else if openMode is "layer"
+				ctx = {}
+				titleContent = cola.xRender({
+					tagName: "div"
+					class: "box"
+					content:
+						tagName: "div"
+						"c-widget":
+							$type: "titleBar"
+							items: [
+								icon: "chevron left"
+								click: () => @close()
+							]
+				}, @_scope, ctx)
+				$fly(config.dom.firstChild.firstChild).before(titleContent)
+				container = new cola.Layer(config)
+			else if openMode is "dialog"
+				config.modalOpacity = 0.05
+				config.closeable = false
+				config.dimmerClose = true
+				container = new cola.Dialog(config)
+			@_container = container
+
+			container.appendTo(document.body)
+			return container
 
 	open: (callback) ->
 		return if @fire("beforeOpen", @) == false
@@ -451,7 +476,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 	open: () ->
 		super()
 		list = @_list
-		if @_currentItem != list.get("currentItem")
+		if list and @_currentItem isnt list.get("currentItem")
 			list.set("currentItem", @_currentItem)
 
 		if @_opened and @_filterable
