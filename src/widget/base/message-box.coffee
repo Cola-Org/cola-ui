@@ -106,14 +106,13 @@ do()->
 			messageBox._onHide = options.onHide
 			$dom.removeClass("warning error info question").addClass(level);
 
-			oldUI = $dom.attr("_ui")
-			ui = options.ui or messageBox.ui
-			if oldUI isnt ui
-				$dom.removeClass(oldUI) if oldUI
-				$dom.addClass(ui).attr("_ui", ui)
+			oldClassName = $dom.attr("_class")
+			className = options.class or messageBox.class
+			if oldClassName isnt className
+				$dom.removeClass(oldClassName) if oldClassName
+				$dom.addClass(className).attr("_class", className)
 			
 			doms = messageBox._doms
-
 			isAlert = options.mode is "alert"
 			$(doms.actions).toggleClass("hidden", isAlert)
 			$(doms.close).toggleClass("hidden", !isAlert)

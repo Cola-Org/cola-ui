@@ -9,8 +9,8 @@
 				cola(function (model) {
 					model.action({
 						uiClick: function (self) {
-
 							window.messageBoxUi = self.get("caption")
+							console.log(messageBoxUi);
 						}
 					});
 					model.widgetConfig({
@@ -40,6 +40,7 @@
 									class: window.messageBoxUi
 								})
 							}
+
 						},
 						desktopError: {
 							color: "red",
