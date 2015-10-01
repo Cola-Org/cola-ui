@@ -120,8 +120,6 @@ class cola.Entity
 			value = loadData.call(@, value)
 			callbackProcessed = true
 		else if value instanceof cola.AjaxServiceInvoker
-			value = undefined
-
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()

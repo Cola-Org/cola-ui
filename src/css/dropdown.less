@@ -3,6 +3,12 @@
 @borderRadius: @defaultBorderRadius;
 @downBorderColor: rgba(0, 0, 0, 0.3);
 
+.ui.input.select {
+	> .editor.placeholder:not(:active) {
+		color: #999999;
+	}
+}
+
 .ui.input.drop {
 	> .icon {
 		pointer-events: inherit !important;

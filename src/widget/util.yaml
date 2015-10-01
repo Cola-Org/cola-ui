@@ -1,5 +1,6 @@
 name: cola.util
 stereotype: namespace
+
 methods:
   - name: addClass
     label: 为dom添加class，支持semantic连写模式

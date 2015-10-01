@@ -1,3 +1,66 @@
 name: cola.util.KeyedArray
 stereotype: class
 label: KeyedArray
+description: |
+  KeyedArray的作用类似于一个有序的Map表，他可以以有序的方式管理一组键值对。
+
+properties:
+  - name: size
+    type: number
+    label: 集合中的元素数
+
+methods:
+  - name: add
+    type: cola.util.KeyedArray
+    label: 添加一个键值对
+    arguments:
+      - name: key
+        type: string
+        label: 键值
+      - name: element
+        type: any
+        label: 值
+
+  - name: remove
+    type: any
+    label: 删除一个键值对
+    arguments:
+      - name: key
+        type: string || number
+        label: 键值或序号（从0开始）
+
+  - name: get
+    type: any
+    label: 返回一个值
+    arguments:
+      - name: key
+        type: string || number
+        label: 键值或序号（从0开始）
+
+  - name: getIndex
+    type: number
+    label: 根据键值返回其在集合中的序号（从0开始）
+    arguments:
+      - name: key
+        type: string
+        label: 键值
+
+  - name: clear
+    type: cola.util.KeyedArray
+    label: 清空集合
+
+  - name: elements
+    type: [any]
+    label: 返回包含所有值的数组
+
+  - name: each
+    type: cola.util.KeyedArray
+    label: 迭代所有键值对
+    arguments:
+      - name: fn
+        type: function
+        label: 迭代方法
+        description: |
+          此方法支持两个传入参数，第一个参数是当前迭代的值，第二个是当前迭代的键值。
+          如果我们在某此回调时返回了false，那么迭代过程会就此终止，类似于在循环体中使用了break。其他任何返回值或不定义返回值，迭代过程都将继续执行。
+
