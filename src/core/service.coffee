@@ -140,13 +140,17 @@ class cola.Provider extends cola.AjaxService
 		if parameter?
 			if typeof parameter is "string"
 				parameter = @_evalParamValue(parameter, context)
-			else if typeof parameter is "object"
-				oldParameter = parameter
-				parameter = {}
-				for p, v of oldParameter
-					if typeof v is "string"
-						v = @_evalParamValue(v, context)
-					parameter[p] = v
+			else
+				if typeof parameter is "function"
+					parameter = parameter(@);
+
+				if typeof parameter is "object"
+					oldParameter = parameter
+					parameter = {}
+					for p, v of oldParameter
+						if typeof v is "string"
+							v = @_evalParamValue(v, context)
+						parameter[p] = v
 
 		if @_pageSize > 1
 			if not parameter?

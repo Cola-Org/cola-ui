@@ -373,8 +373,7 @@ class cola.Widget extends cola.RenderableElement
 			$dom.on(eventConfig.$event, (evt)=>
 				arg =
 					dom: @_dom, event: evt, returnValue: null
-				@fire(eventName, @, arg)
-				return
+				return @fire(eventName, @, arg)
 			)
 			@_bindedEvents[eventName] = true
 			return
