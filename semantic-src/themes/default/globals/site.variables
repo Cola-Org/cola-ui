@@ -6,7 +6,7 @@
        Fonts
 --------------------*/
 
-@fontName          : 'Lato';
+@fontName          : 'Open Sans';
 @fontSmoothing     : antialiased;
 
 @headerFont        : @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
@@ -184,7 +184,7 @@
 @blue             : #2185D0;
 @violet           : #6435C9;
 @purple           : #A333C8;
-@pink             : #E03997;
+@pink             : #ff4081;
 @brown            : #A5673F;
 @grey             : #767676;
 @black            : #1B1C1D;
@@ -199,7 +199,7 @@
 @lightBlue        : #54C8FF;
 @lightViolet      : #A291FB;
 @lightPurple      : #DC73FF;
-@lightPink        : #FF8EDF;
+@lightPink        : #ff6898;
 @lightBrown       : #D67C1C;
 @lightGrey        : #DCDDDE;
 @lightBlack       : #545454;

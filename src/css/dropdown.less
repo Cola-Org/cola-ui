@@ -4,7 +4,7 @@
 @downBorderColor: rgba(0, 0, 0, 0.3);
 
 .ui.input.select {
-	> .editor.placeholder:not(:active) {
+	> .editor.placeholder:not(:focus) {
 		color: #999999;
 	}
 }
@@ -53,10 +53,10 @@
 
 .ui.drop-box {
 	position: absolute;
-	display: none;
 	overflow: auto;
 	border: 1px solid @downBorderColor;
 	min-height: 1em;
+	width: auto;
 
 	&.direction-down {
 		border-radius: 0 0 @borderRadius @borderRadius;

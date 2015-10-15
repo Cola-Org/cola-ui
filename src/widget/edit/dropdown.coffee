@@ -296,16 +296,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				$flexContent.height("")
 
 				$containerDom = container.get$Dom()
-				$containerDom.show()
+				$containerDom.removeClass("hidden")
 				containerHeight = $containerDom.height()
 
 				clientHeight = document.body.clientHeight
 				if containerHeight > (clientHeight - dropdownDialogMargin * 2)
 					height = $flexContent.height() - (containerHeight - (clientHeight - dropdownDialogMargin * 2))
-					$containerDom.hide()
+					$containerDom.addClass("hidden")
 					$flexContent.height(height)
 				else
-					$containerDom.hide()
+					$containerDom.addClass("hidden")
 
 				container.show(doCallback)
 			@_opened = true
@@ -340,7 +340,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
 class DropBox extends cola.Layer
-	@CLASS_NAME: "drop-box"
+	@CLASS_NAME: "drop-box transition"
 	@ATTRIBUTES:
 		dropdown: null
 
@@ -348,13 +348,13 @@ class DropBox extends cola.Layer
 		$dom = @get$Dom()
 		dropdownDom = @_dropdown._doms.input
 
-		$dom.css("height", "").show()
+		$dom.css("height", "").removeClass("hidden")
 		boxWidth = $dom.width()
 		boxHeight = $dom.height()
-		$dom.hide()
+		$dom.addClass("hidden")
 
 		rect = dropdownDom.getBoundingClientRect()
-		clientWidth = document.body.clientWidth
+		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
 		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight
 		if bottomSpace >= boxHeight
@@ -385,8 +385,9 @@ class DropBox extends cola.Layer
 		.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
 		.css("left", left).css("top", top)
 		.css("min-width", dropdownDom.offsetWidth)
+		.css("max-width",document.body.clientWidth)
 
-		@_animation = "slide " + direction
+		@_animation = "fade"
 		super(options, callback)
 		return
 
