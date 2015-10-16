@@ -30,7 +30,7 @@ function Swipe(container, options) {
 
 	// quit if no root element
 	if (!container) return;
-	var element = container.children[0];
+	var element = $fly(container).find("> .items-wrap")[0];
 	var slides, slidePos, width, length;
 	options = options || {};
 	var index = parseInt(options.startSlide, 10) || 0;
