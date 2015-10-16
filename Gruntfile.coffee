@@ -244,5 +244,6 @@ module.exports = (grunt) ->
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 	                             "less:build", "cola-ui-license", "concat",
-	                             "clean:core-widget", "copy:semantic", "rename", "uglify:build", "cssmin", "compress",
+	                             "clean:core-widget", "copy:semantic", "rename",
+								 #"uglify:build", "cssmin", "compress",
 	                             "clean:workTemp"]

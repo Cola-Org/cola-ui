@@ -11,34 +11,37 @@ class cola.util.KeyedArray
 
 	constructor: () ->
 		@elements = []
+		@keys = []
 		@keyMap = {}
 
 	add: (key, element) ->
 		if @keyMap.hasOwnProperty(key)
 			i = @elements.indexOf(element)
-			if i > -1 then @elements.splice(i, 1)
+			if i > -1
+				@elements.splice(i, 1)
+				@keys.splice(i, 1)
 		@keyMap[key] = element
 		@size = @elements.push(element)
+		@keys.push(key)
 		return @
 
 	remove: (key) ->
 		if typeof key == "number"
 			i = key
+			key = @keys[i]
 			element = @elements[i]
 			@elements.splice(i, 1)
+			@keys.splice(i, 1)
 			@size = @elements.length
-			if element
-				for key of @keyMap
-					if @keyMap[key] == element
-						delete @keyMap[key]
-						break
+			delete @keyMap[key]
 		else
 			element = @keyMap[key]
 			delete @keyMap[key]
 			if element
-				i = @elements.indexOf(element)
+				i = @keys.indexOf(key)
 				if i > -1
 					@elements.splice(i, 1)
+					@keys.splice(i, 1)
 					@size = @elements.length
 		return element
 
@@ -49,13 +52,13 @@ class cola.util.KeyedArray
 			return @keyMap[key]
 
 	getIndex: (key) ->
-		element = @keyMap[key]
-		if element
-			return @elements.indexOf(element)
+		if @keyMap.hasOwnProperty(key)
+			return @keys.indexOf(key)
 		return -1
 
 	clear: () ->
 		@elements = []
+		@keys = []
 		@keyMap = {}
 		@size = 0
 		return
@@ -64,7 +67,8 @@ class cola.util.KeyedArray
 		return @elements
 
 	each: (fn) ->
-		for element in @elements
-			if fn.call(this, element) == false
+		keys = @keys
+		for element, i in @elements
+			if fn.call(this, element, keys[i]) == false
 				break
 		return

@@ -1,0 +1,38 @@
+name: cola.util
+stereotype: namespace
+label: Cola中各种工具方法的命名空间
+
+methods:
+  - name: trim
+    type: string
+    label: 取出字符串两端的空字符
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: capitalize
+    type: string
+    label: 将一个字符串的首字符转换成大写
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: isSimpleValue
+    type: boolean
+    label: 判断一个值是否简单数据类型
+    description: |
+      即该值为string、number、boolean、Date，而不是object、array或其他的prototype实例。
+    arguments:
+      - name: value
+        type: any
+        label: 值
+
+  - name: concatUrl
+    type: string
+    label: 将一组url片段连接成一个url，该方法可以自动处理连接时的“/”分割符，避免遗漏或重复。
+    arguments:
+      - name: part...
+        type: string
+        label: url片段

@@ -20,5 +20,4 @@ cola.resource(
 
 	"cola.message.approve": "确认"
 	"cola.message.deny": "取消"
-
 )

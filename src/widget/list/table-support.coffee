@@ -229,6 +229,12 @@ class cola.AbstractTable extends cola.ItemsView
 		@_columnMap = {}
 		super(config)
 
+	_getItems: () ->
+		if @_items
+			return {items: @_items}
+		else
+			return super()
+
 	_regColumn: (column) ->
 		if column._name
 			@_columnMap[column._name] = column

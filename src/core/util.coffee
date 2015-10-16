@@ -18,6 +18,12 @@ cola.util.isSimpleValue = (value) ->
 	type = typeof value
 	return type != "object" and type != "function" or type instanceof Date
 
+cola.util.each = (array, fn) ->
+	for item, i in array
+		if fn(item, i) is false
+			break
+	return
+
 cola.util.concatUrl = (parts...) ->
 	last = parts.length - 1
 	for part, i in parts

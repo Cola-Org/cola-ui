@@ -1,5 +1,5 @@
 class cola.Select extends cola.AbstractInput
-	@CLASS_NAME: "input"
+	@CLASS_NAME: "input select"
 	@ATTRIBUTES:
 		options:
 			setter: (options) ->
@@ -27,12 +27,20 @@ class cola.Select extends cola.AbstractInput
 					skipSetIcon = true
 					break
 				child = child.nextSibling
-			if !skipSetIcon
+			if not skipSetIcon
 				@set("icon", "dropdown")
 		return
 
 	_initDom: (dom) ->
 		@_refreshSelectOptions(@_doms.input) if @_options
+
+		$(@_doms.input).on("change", ()=>
+			readOnly = @_readOnly
+			if !readOnly
+				value = $(@_doms.input).val()
+				@set("value", value)
+			return
+		)
 		return
 
 	_refreshSelectOptions: (select) ->
@@ -42,13 +50,30 @@ class cola.Select extends cola.AbstractInput
 		else
 			options.length = @_options.length
 
-		cola.each @_options, (optionValue, i) ->
+		cola.each @_options, (optionValue, i) =>
 			option = options[i]
 			if cola.util.isSimpleValue(optionValue)
-				$fly(option).removeAttr("value").text(optionValue)
+				value = null
+				text = optionValue
 			else if optionValue instanceof cola.Entity
-				$fly(option).attr("value", optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
+				value =  optionValue.get("value") or optionValue.get("key") or ""
+				text = optionValue.get("text") or optionValue.get("name")
 			else
-				$fly(option).attr("value", optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
+				value =  optionValue.value or optionValue.key or ""
+				text = optionValue.text or optionValue.name
+
+			$option = $fly(option)
+			if !value?
+				$option.removeAttr("value")
+			else
+				$option.attr("value", value)
+				if value is "" and not text
+					text = @_placeholder
+			$option.text(text or "")
 			return
+		return
+
+	_refreshInputValue: (value) ->
+		super(value)
+		cola.util.toggleClass(@_doms.input, "placeholder", !value? or value is "")
 		return

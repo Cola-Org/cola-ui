@@ -102,7 +102,7 @@ class cola.ListView extends cola.ItemsView
 
 	_getItems: () ->
 		if @_items
-			return @_items
+			return {items: @_items}
 		else
 			return super()
 

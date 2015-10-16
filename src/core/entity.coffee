@@ -64,8 +64,8 @@ class cola.Entity
 
 	get: (prop, loadMode = "async", context) ->
 		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
-			loadMode = "async"
 			callback = loadMode
+			loadMode = "async"
 
 		if prop.indexOf(".") > 0
 			return _evalDataPath(@, prop, false, loadMode, callback, context)
@@ -120,8 +120,6 @@ class cola.Entity
 			value = loadData.call(@, value)
 			callbackProcessed = true
 		else if value instanceof cola.AjaxServiceInvoker
-			value = undefined
-
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
@@ -1347,5 +1345,5 @@ cola.each = (collection, fn) ->
 		if typeof collection.each == "function"
 			collection.each(fn)
 		else
-			collection.forEach(fn)
+			cola.util.each(collection, fn)
 	return

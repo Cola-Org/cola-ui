@@ -6,6 +6,8 @@
 	<title>弹出框</title>
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
+//				cola.MessageBox.animation = "scale";
+
 				cola(function (model) {
 					model.action({
 						uiClick: function (self) {
@@ -53,7 +55,7 @@
 						},
 						desktopConfirm: {
 							click: function () {
-								cola.confirm("Hello World !!")
+								cola.confirm("Hello World !!", function() {alert(1)})
 							}
 						}
 					});

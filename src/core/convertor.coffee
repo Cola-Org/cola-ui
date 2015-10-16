@@ -106,7 +106,11 @@ _sortConvertor = (collection, comparator, caseSensitive) ->
 		collection = collection.toArray()
 
 	if comparator
-		if typeof comparator == "string"
+		if comparator == "$none"
+			return collection
+		else if comparator == "$reverse"
+			return collection.reverse();
+		else if typeof comparator == "string"
 			comparatorProps = []
 			for part in comparator.split(",")
 				c = part.charCodeAt(0)
@@ -163,8 +167,6 @@ _sortConvertor = (collection, comparator, caseSensitive) ->
 						if result != 0
 							return if comparatorProp.desc then (0 - result) else result
 				return 0
-	else if comparator == "$none"
-		return collection
 	else
 		comparator = (item1, item2) ->
 			result = 0
@@ -186,6 +188,7 @@ cola.convertor["sort"] = _sortConvertor
 
 cola.convertor["top"] = (collection, top = 1) ->
 	return null unless collection
+	return collection if top < 0
 	items = []
 	i = 0
 	cola.each collection, (item) ->
