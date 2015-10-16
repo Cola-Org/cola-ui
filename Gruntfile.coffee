@@ -66,11 +66,11 @@ module.exports = (grunt) ->
 				src: ["themes/**", "semantic.css"]
 				dest: "dest/publish"
 
-			docResources:
+			apiResources:
 				expand: true
 				cwd: "node_modules/grunt-cola-ui-build"
 				src: ["resources/**"]
-				dest: "doc"
+				dest: "api"
 
 		mochaTest:
 			test:
@@ -100,12 +100,12 @@ module.exports = (grunt) ->
 					}
 				]
 		yaml:
-			doc:
+			api:
 				files: [
 					expand: true
 					cwd: "src"
 					src: ["**/*.yaml"]
-					dest: "doc"
+					dest: "api"
 				]
 		watch:
 			coffee:
@@ -123,15 +123,15 @@ module.exports = (grunt) ->
 					port: 9001
 					base: "."
 		yamlToDoc:
-			doc:
+			api:
 				options:
-					output: "doc"
+					output: "api"
 				files: [
 					{
 						expand: true
 						cwd: "src"
 						src: ["**/*.yaml"]
-						dest: "doc"
+						dest: "api"
 					}
 				]
 
@@ -239,7 +239,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
 	grunt.registerTask "test", ["mochaTask", "qunitTask"]
 	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
-	grunt.registerTask "doc", ["yamlToDoc", "copy:docResources"]
+	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
