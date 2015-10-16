@@ -135,7 +135,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 				catch e
 			if @_scroller
 				pos = @_scroller.getPos()
-				if pos isnt index then @_scroller.setPos(index)
+				if pos isnt index then @_scroller.slide(index)
 		return @
 
 	refreshIndicators: ()->
@@ -215,8 +215,10 @@ class cola.Carousel extends cola.AbstractItemGroup
 			carousel.next()
 		, @_pause)
 		return @
+
 	replay: ()->
 		if @_interval then @play()
+
 	pause: ()->
 		if @_interval then clearInterval(@_interval)
 		return @
