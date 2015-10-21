@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="../../include-all.js"></script>
+	<style>
+		#accordionDemo {
+			padding: 0px;
+			list-style: none;
+		}
+
+		#accordionDemo li > .title {
+			background-color: rgba(0, 0, 0, 0.2);
+		}
+
+		#accordionDemo li > .content {
+			padding: 0;
+		}
+
+		#accordionDemo li > .content .menu-item {
+			background-color: rgba(0, 0, 0, 0.1);
+			line-height: 1.85em;
+			padding-left: 2em;
+			color: #fff;
+			margin-bottom: 1px;
+		}
+	</style>
+	<script type="text/javascript">cola(function (model) {
+		model.set("menus", [
+			{
+				title: "系统维护",
+				menus: [
+					{
+						title: "数据字典"
+					},
+					{
+						title: "用户管理"
+					},
+					{
+						title: "权限配置"
+					}
+				]
+			},
+			{
+				title: "产品维护",
+				menus: [
+					{
+						title: "产品录入"
+					},
+					{
+						title: "产品信息查询"
+					},
+					{
+						title: "产品申报"
+					}
+				]
+			},
+			{
+				title: "人员信息管理",
+				menus: [
+					{
+						title: "身份信息录入"
+					},
+					{
+						title: "信息查询"
+					},
+					{
+						title: "在岗人员信息"
+					}
+				]
+			}
+		])
+		$("#accordionDemo").accordion({})
+	});</script>
+</head>
+<body>
+
+<ul id="accordionDemo" class="ui accordion teal-background inverted">
+	<li c-repeat="menuGroup in menus">
+		<div class="title"><i class="dropdown icon"></i><span c-bind="menuGroup.title"></span></div>
+		<div class="content">
+			<div c-repeat="menu in menuGroup.menus" class="menu-item"><span c-bind="menu.title" class="caption"></span>
+			</div>
+		</div>
+	</li>
+</ul>
+
+</body>
+</html>
