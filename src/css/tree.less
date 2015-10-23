@@ -29,15 +29,15 @@
 			line-height: @TreeNodeMinHeight;
 			margin-right: @TreeNodePadding;
 			text-align: center;
+			.transition-duration(0.3s);
+			.transition-property(transform);
 			&:before {
-				.transition-duration(0.3s);
-				.transition-property(transform);
 				font-family: Icons;
 				content: "\f105"; // Arrow Right
 			}
 		}
 
-		&.expanded > .expand-button:before {
+		&.expanded > .expand-button {
 			.rotate(90deg);
 		}
 		&.leaf > .expand-button {

@@ -153,7 +153,7 @@ class cola.NestedList extends cola.Widget
 			hjson.content.content = [
 				{
 					tagName: "div"
-					class: "box"
+					class: "box title-box"
 					content:
 						tagName: "div"
 						contextKey: "titleBar"
@@ -164,7 +164,7 @@ class cola.NestedList extends cola.Widget
 				},
 				{
 					tagName: "div"
-					class: "flex-box"
+					class: "flex-box list-box"
 					content:
 						tagName: "div"
 						contextKey: "list"

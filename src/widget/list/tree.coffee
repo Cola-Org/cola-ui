@@ -143,7 +143,8 @@ class cola.Tree extends cola.ItemsView
 
 		if node
 			itemDom = @_itemDomMap[node._id]
-			$fly(itemDom).addClass("current") if itemDom
+			if itemDom and @_highlightCurrentItem
+				$fly(itemDom).addClass("current")
 
 		@fire("currentNodeChange", @, eventArg)
 		return
@@ -212,7 +213,7 @@ class cola.Tree extends cola.ItemsView
 			nodeDom = itemDom.firstChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
 
-		if node == @_currentNode
+		if node == @_currentNode and @_highlightCurrentItem
 			$fly(itemDom).addClass("current")
 		return nodeScope
 

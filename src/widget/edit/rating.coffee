@@ -23,7 +23,7 @@ class cola.Rating extends cola.Widget
 		rate: null
 	_fireRate: ()->
 		cola.util.cancelDelay(@, "_fireRate")
-		@fire("rate", @, {rating: @_rating})
+		return @fire("rate", @, {rating: @_rating})
 	_doRefreshRating: ()->
 		@_refreshRating = false
 		rating = @get("rating")

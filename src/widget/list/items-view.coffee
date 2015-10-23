@@ -15,14 +15,16 @@ class cola.ItemsView extends cola.Widget
 					currentItemDom = @_itemDomMap[_getEntityId(currentItem)]
 				@_setCurrentItemDom(currentItemDom)
 				return
+
 		highlightCurrentItem:
 			type:"boolean"
-			defaultValue: true
 
 		autoLoadPage:
 			type:"boolean"
 			defaultValue: true
-		changeCurrentitem: null
+
+		changeCurrentitem:
+			type:"boolean"
 
 		pullDown:
 			readOnlyAfterCreate: true
