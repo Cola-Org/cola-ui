@@ -2,7 +2,7 @@ DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd"
 DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
 DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
-
+isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 class cola.AbstractInput extends cola.AbstractEditor
 	@CLASS_NAME: "input"
 	@SEMANTIC_CLASS: [
@@ -391,7 +391,10 @@ class cola.Input extends cola.AbstractInput
 				ctrlKey: event.ctrlKey
 				altlKey: event.altlKey
 				event: event
-			@fire("keyPress", @, arg)
+			if @fire("keyPress", @, arg)== false then return
+
+			if event.keyCode==13 && isIE11 then doPost()
+
 		)
 		return
 
