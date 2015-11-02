@@ -22,7 +22,7 @@ $.ajax = (url, settings) ->
 		if typeof data is "object"
 			if data instanceof cola.Entity or data instanceof cola.EntityList
 				data = data.toJSON()
-			else
+			else if not (data instanceof FormData)
 				rawData = data
 				data = {}
 				for p, v of rawData

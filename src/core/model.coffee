@@ -1088,6 +1088,16 @@ cola.submit.filter =
 	"dirty-tree": (data) ->
 		return data
 
+
+cola.model.defaultActions["default"] = (value, defaultValue) ->
+	return value or defaultValue
+
+cola.model.defaultActions["int"] = (value) ->
+	return parseInt(value, 10) or 0
+
+cola.model.defaultActions["float"] = (value) ->
+	return parseFloat(value) or 0
+
 cola.model.defaultActions.is = (value) ->
 	return !!value
 

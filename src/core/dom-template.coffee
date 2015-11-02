@@ -90,6 +90,9 @@ $.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) 
 cola.xRender = (template, model, context) ->
 	return unless template
 
+	oldScope = cola.currentScope
+	model = model or oldScope
+
 	if template.nodeType
 		dom = template
 	else if typeof template == "string"
@@ -102,7 +105,6 @@ cola.xRender = (template, model, context) ->
 			documentFragment.appendChild(child)
 			child = next
 	else
-		oldScope = cola.currentScope
 		cola.currentScope = model
 		try
 			context ?= {}
