@@ -64,6 +64,8 @@ cola.setRoutePath = (path, replace) ->
 	if path and path.charCodeAt(0) == 35 # `#`
 		routerMode = "hash"
 		path = path.substring(1)
+	else
+		routerMode = cola.setting("routerMode") or "hash"
 
 	if routerMode is "hash"
 		if path.charCodeAt(0) != 47 # `/`
@@ -254,9 +256,14 @@ $ () ->
 			return false
 		)
 
-		path = _getHashPath() or trimPath(cola.setting("defaultRouterPath"))
-		router = _findRouter(path)
-		if router then cola.setRoutePath(path, true)
+		path = _getHashPath()
+		if path
+			router = _findRouter(path)
+			if router then _switchRouter(router, path)
+		else
+			path = trimPath(cola.setting("defaultRouterPath"))
+			router = _findRouter(path)
+			if router then cola.setRoutePath(path, true)
 		return
 	, 0)
 	return
