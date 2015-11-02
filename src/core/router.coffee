@@ -210,6 +210,8 @@ _getHashPath = () ->
 	return path or ""
 
 _onHashChange = () ->
+	return if (cola.setting("routerMode") or "hash") isnt "hash"
+
 	path = _getHashPath()
 	return if path == currentRoutePath
 	currentRoutePath = path
@@ -219,6 +221,8 @@ _onHashChange = () ->
 	return
 
 _onStateChange = (path) ->
+	return if cola.setting("routerMode") isnt "state"
+
 	path = trimPath(path)
 
 	i = path.indexOf("#")
