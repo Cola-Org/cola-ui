@@ -7,7 +7,6 @@ class cola.Sidebar extends cola.AbstractLayer
 			enum: ["left", "right", "top", "bottom"]
 
 		size:
-			type: "number"
 			defaultValue: 200
 			refreshDom: true
 
