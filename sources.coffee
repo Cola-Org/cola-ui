@@ -7,6 +7,7 @@ sources =
 			"src/core/keyed-array.coffee"
 			"src/core/util.coffee"
 			"src/core/base.coffee"
+			"src/i18n/en/cola.coffee"
 			"src/core/ajax.coffee"
 			"src/core/element.coffee"
 			"src/core/date.coffee"

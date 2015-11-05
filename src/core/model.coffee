@@ -17,20 +17,21 @@ _RESERVE_NAMES =
 cola.model = (name, model) ->
 	if arguments.length == 2
 		if model
-			if cola.model[name]
+			if cola.model.models[name]
 				throw new cola.Exception("Duplicated model name \"#{name}\".")
-			cola.model[name] = model
+			cola.model.models[name] = model
 		else
 			model = cola.removeModel(name)
 		return model
 	else
-		return cola.model[name]
+		return cola.model.models[name]
 
+cola.model.models = {}
 cola.model.defaultActions = {}
 
 cola.removeModel = (name) ->
-	model = cola.model[name]
-	delete cola.model[name]
+	model = cola.model.models[name]
+	delete cola.model.models[name]
 	return model
 
 class cola.AbstractModel

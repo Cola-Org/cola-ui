@@ -54,7 +54,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			type: "boolean"
 			defaultValue: true
 		openMode:
-			enum: ["auto", "drop", "dialog", "layer", "half-layer"]
+			enum: ["auto", "drop", "dialog", "layer", "sidebar"]
 			defaultValue: "auto"
 		opened:
 			readOnly: true
@@ -246,6 +246,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				config.ui = config.ui + " " + @_ui
 				container = new DropBox(config)
 			else if openMode is "layer"
+				if openMode is "Sidebar"
+					config.animation = "slide up"
+					config.height = "50%"
+
 				ctx = {}
 				titleContent = cola.xRender({
 					tagName: "div"
@@ -261,6 +265,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				}, @_scope, ctx)
 				$fly(config.dom.firstChild.firstChild).before(titleContent)
 				container = new cola.Layer(config)
+			else if openMode is "sidebar"
+				config.direction = "bottom"
+				config.size = document.body.clientHeight / 2
+				$fly(config.dom.firstChild.firstChild).before(titleContent)
+				container = new cola.Sidebar(config)
 			else if openMode is "dialog"
 				config.modalOpacity = 0.05
 				config.closeable = false
@@ -290,6 +299,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			if container instanceof DropBox
 				container.show(@, doCallback)
 			else if container instanceof cola.Layer
+				container.show(doCallback)
+			else if container instanceof cola.Sidebar
 				container.show(doCallback)
 			else if container instanceof cola.Dialog
 				$flexContent = $(@_doms.flexContent)
@@ -444,11 +455,12 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 		"filterable-list":
 			tagName: "div"
+			class: "v-box",
 			style: "height:100%"
 			content: [
 				{
 					tagName: "div"
-					class: "filter-container"
+					class: "box filter-container"
 					content:
 						tagName: "div"
 						contextKey: "filterInput"
@@ -457,12 +469,12 @@ class cola.Dropdown extends cola.AbstractDropdown
 				{
 					tagName: "div"
 					contextKey: "flexContent"
-					class: "list-container"
+					class: "flex-box list-container"
+					style: "min-height:2em"
 					content:
 						tagName: "div"
 						contextKey: "list"
 						"c-widget": "listView"
-						style: "height:100%;overflow:auto"
 				}
 			]
 

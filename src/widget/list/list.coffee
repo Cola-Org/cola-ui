@@ -559,7 +559,11 @@ class cola.ListView extends cola.ItemsView
 		@_templateContext.defaultPath = @_alias
 
 		if leftSlidePaneTemplate
-			$fly(leftSlidePaneTemplate).addClass("item-slide-pane protected").css("right", "100%")
+			$fly(leftSlidePaneTemplate).addClass("item-slide-pane protected").css("left", "100%").click(()=>
+				if @_itemSlideState is "waiting"
+					@hideItemSlidePane()
+				return
+			)
 			cola.xRender(leftSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(leftSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
@@ -567,7 +571,11 @@ class cola.ListView extends cola.ItemsView
 			cola._ignoreNodeRemoved = false
 
 		if rightSlidePaneTemplate
-			$fly(rightSlidePaneTemplate).addClass("item-slide-pane protected").css("left", "100%")
+			$fly(rightSlidePaneTemplate).addClass("item-slide-pane protected").css("right", "100%").click(()=>
+				if @_itemSlideState is "waiting"
+					@hideItemSlidePane()
+				return
+			)
 			cola.xRender(rightSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(rightSlidePaneTemplate, "scope", itemScope)
 			cola._ignoreNodeRemoved = true
@@ -634,7 +642,7 @@ class cola.ListView extends cola.ItemsView
 						slidePane: slidePane
 					})
 
-				if direction == "right" and @_maxDistanceAdjust == undefined and @_indexBar
+				if direction == "left" and @_maxDistanceAdjust == undefined and @_indexBar
 					indexBar = @_doms.indexBar
 					if indexBar
 						@_maxDistanceAdjust = indexBar.offsetWidth + parseInt($fly(indexBar).css("right"))
@@ -642,13 +650,13 @@ class cola.ListView extends cola.ItemsView
 						@_maxDistanceAdjust = 0
 
 				$fly(slidePane).css({
-#					height: itemDom.offsetHeight
+					height: itemDom.offsetHeight
 					top: itemDom.offsetTop
 					"pointer-events": "none"
 				}).show()
 
 				@_maxSlideDistance = slidePane.offsetWidth
-				if direction == "right"
+				if direction == "left"
 					@_maxSlideDistance += (@_maxDistanceAdjust or 0)
 			else
 				@_maxSlideDistance = itemDom.offsetWidth
@@ -686,12 +694,12 @@ class cola.ListView extends cola.ItemsView
 		@_touchMoveSpeed = distanceX / (timestamp - @_touchLastTimstamp)
 		@_touchLastTimstamp = timestamp
 
-		if distanceX < 0
+		if distanceX > 0
 			direction = "right"
-			factor = -1
+			factor = 1
 		else
 			direction = "left"
-			factor = 1
+			factor = -1
 
 		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 			slideDom = itemDom.firstChild
@@ -764,7 +772,7 @@ class cola.ListView extends cola.ItemsView
 		else
 			slideDom = itemDom
 
-		if direction == "right"
+		if direction == "left"
 			if !SAFE_SLIDE_EFFECT
 				$(slideDom).transit({
 					x: 0
@@ -791,7 +799,7 @@ class cola.ListView extends cola.ItemsView
 			opacity: 0.0001
 			duration: 0
 			closable: false
-		}).dimmer("show").find(">.ui.dimmer").on("touchstart", () =>
+		}).dimmer("show").find(">.ui.dimmer").on("touchstart.hide", () =>
 			if @_itemSlideState is "waiting"
 				@hideItemSlidePane()
 			return
@@ -799,7 +807,7 @@ class cola.ListView extends cola.ItemsView
 
 		$slidePane = $(slidePane)
 		if openAnimate or SAFE_SLIDE_EFFECT
-			factor = if direction == "right" then -1 else 1
+			factor = if direction == "left" then -1 else 1
 			$slidePane.show().transit({
 				x: @_maxSlideDistance * factor
 				duration: SLIDE_ANIMATION_SPEED
@@ -809,6 +817,7 @@ class cola.ListView extends cola.ItemsView
 					return
 			})
 		else
+			$slidePane.css("pointer-events", "")
 			@_onItemSlidePaneShow(direction, slidePane, itemDom)
 		return
 
@@ -819,7 +828,7 @@ class cola.ListView extends cola.ItemsView
 		slidePane = @_itemSlidePane
 		direction = @_itemSlideDirection
 
-		if direction == "left"
+		if direction == "right"
 			if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 				slideDom = itemDom.firstChild
 			else

@@ -498,27 +498,27 @@ class cola.ItemsView extends cola.Widget
 					theshold: theshold
 				})
 			pullComplete: (evt, pullPane, pullState, done) =>
-				if @getListeners("pullComplete")
-					@fire("pullComplete", @, {
+				if @fire("pullComplete", @, {
 						event: evt
 						pullPane: pullPane
 						direction: pullState
 						done: done
-					})
-				else
-					if pullState == "down"
-						collection = @_realOriginItems or @_realItems
-						if collection instanceof cola.EntityList
-							collection.flush(done)
-						else
-							done()
-					else if pullState == "up"
-						collection = @_realItems
-						if collection instanceof cola.EntityList
-							collection.nextPage(done)
-						else
-							done()
+					}) is false
 					return
+
+				if pullState == "down"
+					collection = @_realOriginItems or @_realItems
+					if collection instanceof cola.EntityList
+						collection.flush(done)
+					else
+						done()
+				else if pullState == "up"
+					collection = @_realItems
+					if collection instanceof cola.EntityList
+						collection.nextPage(done)
+					else
+						done()
+				return
 			pullCancel: (evt, pullPane, pullState) =>
 				@fire("pullCancel", @, {
 					event: evt

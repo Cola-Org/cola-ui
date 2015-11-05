@@ -105,7 +105,7 @@ class cola.Tree extends cola.ItemsView
 							triState: true
 					}
 				]
-		"node-normal":
+		"node":
 			tagName: "span"
 			"c-bind": "$default"
 
@@ -167,7 +167,7 @@ class cola.Tree extends cola.ItemsView
 
 		nodeDom = itemDom.firstChild
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
-			template = @_getTemplate("node-" + itemType, "node-normal")
+			template = @_getTemplate("node-" + itemType, "node")
 			if template
 				if template instanceof Array
 					span = document.createElement("span")
