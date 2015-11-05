@@ -180,7 +180,6 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 class cola.Tab extends cola.Widget
 	@CLASS_NAME: "c-tab"
 	@TAG_NAME: "div"
-	@CHILDREN_TYPE_NAMESPACE: "tab"
 	@ATTRIBUTES:
 		direction:
 			refreshDom: true
@@ -431,3 +430,4 @@ class cola.Tab extends cola.Widget
 		return @ if tabs.length < 1
 		tab.destroy() for tab in tabs
 		@_tabs = []
+

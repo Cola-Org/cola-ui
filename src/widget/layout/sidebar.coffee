@@ -7,7 +7,6 @@ class cola.Sidebar extends cola.AbstractLayer
 			enum: ["left", "right", "top", "bottom"]
 
 		size:
-			type: "number"
 			defaultValue: 200
 			refreshDom: true
 
@@ -89,7 +88,7 @@ class cola.Sidebar extends cola.AbstractLayer
 
 		direction = @_direction or "left"
 		style = if direction is "left" or direction is "right" then "width" else "height"
-#		@get$Dom().css("cssText", "#{style}: #{size}!important")
+		#		@get$Dom().css("cssText", "#{style}: #{size}!important")
 		cola.util.style(@_dom, style, size, "important");
 
 		return
