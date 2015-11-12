@@ -197,7 +197,7 @@ class cola.SubScope extends cola.AbstractModel
 
 class cola.AliasScope extends cola.SubScope
 	constructor: (@parent, expression) ->
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement and not expression.convertors
+		if expression and typeof expression.path == "string" and not expression.hasCallStatement
 			dataType = @parent.data.getDataType(expression.path)
 
 		@data = new cola.AliasDataModel(@, expression.alias, dataType)
@@ -277,7 +277,7 @@ class cola.ItemsScope extends cola.SubScope
 			@alias = "item"
 			@expressionPath = []
 
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement and not expression.convertors
+		if expression and typeof expression.path == "string" and not expression.hasCallStatement
 			@dataType = @parent.data.getDataType(expression.path)
 		return
 
@@ -296,11 +296,15 @@ class cola.ItemsScope extends cola.SubScope
 
 	_setItems: (items, originItems...) ->
 		@items = items
+
 		if originItems and originItems.length == 1
-			@originItems = originItems[0]
+			@originItems = originItems[0] if originItems[0]
 		else
 			@originItems = originItems
 			@originItems._multiItems = true
+
+		if not @originItems and items instanceof Array
+			@originItems = items.$origin
 
 		targetPath = null
 		if originItems
@@ -378,24 +382,22 @@ class cola.ItemsScope extends cola.SubScope
 				item = item._parent
 		return null
 
-	isRootOfTarget: (changedPath, targetPath) ->
-		if !targetPath then return false
+	isRootOfTarget: (changedPath, targetPaths) ->
+		if !targetPaths then return false
 		if !changedPath then return true
-		if targetPath instanceof Array
-			targetPaths = targetPath
-			for targetPath in targetPaths
-				isRoot = true
-				for part, i in changedPath
-					if part != targetPath[i]
-						isRoot = false
-						break
-				if isRoot then return true
-			return false
-		else
+		for targetPath in targetPaths
+			isRoot = true
 			for part, i in changedPath
-				if part != targetPath[i]
-					return false
-			return true
+				targetPart = targetPath[i]
+				if part != targetPart
+					if targetPart == "**" then continue
+					else if targetPart == "*"
+						if i == changedPath.length - 1 then continue
+					isRoot = false
+					break
+
+			if isRoot then return true
+		return false
 
 	repeatNotification: true
 
@@ -988,7 +990,7 @@ class cola.ElementAttrBinding
 		@path = path = @expression.path
 		if !path and @expression.hasCallStatement
 			@path = path = "**"
-			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
+			@watchingMoreMessage = @expression.hasCallStatement
 
 		if path
 			if typeof path == "string"

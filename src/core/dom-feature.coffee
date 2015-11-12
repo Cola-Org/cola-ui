@@ -13,7 +13,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			if not @path and @expression.hasCallStatement
 				@path = "**"
 				if not @isStatic then @delay = true
-			@watchingMoreMessage = @expression.hasCallStatement or @expression.convertors
+			@watchingMoreMessage = @expression.hasCallStatement
 
 	evaluate: (domBinding, dataCtx) ->
 		return @expression.evaluate(domBinding.scope, "async", dataCtx)

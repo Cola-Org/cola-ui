@@ -142,75 +142,22 @@ splitExpression = (text, separator) ->
 		parts.push(cola.util.trim(part))
 	return parts
 
-compileConvertor = (text) ->
-	parts = splitExpression(text, ":")
-	parts ?= [text]
-	convertor = {
-		name: parts[0]
-		params: []
-	}
-	params = convertor.params
-
-	if convertor.name is "watch"
-		bindStr = parts[1]
-		return null unless bindStr
-		for path in bindStr.split(",")
-			params.push(cola.util.trim(path))
-	else
-		if parts.length > 1
-			for part, i in parts
-				if i == 0 then continue
-				expr = new cola.Expression(part)
-				params.push(expr)
-	return convertor
-
 class cola.Expression
 	#path
 	#hasCallStatement
-	#convertors
 
-	constructor: (exprStr, supportConvertor) ->
+	constructor: (exprStr) ->
 		@raw = exprStr
 
-		if supportConvertor
-			i = exprStr.indexOf("|")
-			if 0 < i < (exprStr.length - 1)
-				parts = splitExpression(exprStr, "|")
-				if parts?.length > 1
-					@convertors = []
-					for part, i in parts
-						if i == 0
-							@compile(part)
-							mainExprCompiled = true
-						else
-							convertor = compileConvertor(part)
-							if convertor
-								if convertor.name is "watch"
-									@watchPath = convertor.params[0]
-								else
-									@convertors.push(convertor)
-
-		@compile(exprStr) unless mainExprCompiled
-
-		if @watchPath
-			@path = @watchPath
-		else if supportConvertor and @convertors
-			subPath = null
-			for convertor in @convertors
-				for param in convertor.params
-					if param instanceof cola.Expression and param.path
-						subPath ?= []
-						subPath = subPath.concat(param.path)
-
-			if subPath
-				if !@path
-					@path = subPath
-				else if typeof @path == "string"
-					@path = [@path].concat(subPath)
-				else
-					@path = @path.concat(subPath)
+		i = exprStr.indexOf(" on ")
+		if 0 < i < (exprStr.length - 1)
+			exprStr = exprStr.substring(0, i)
+			@watchPath = exprStr.substring(i + 4)
+		@compile(exprStr)
+		@path = @watchPath if @watchPath
 
 	compile: (exprStr) ->
+
 		stringifyMemberExpression = (node, parts, context) ->
 			type = node.type
 			if type == "Identifier"
@@ -295,20 +242,6 @@ class cola.Expression
 
 		if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 			dataCtx?.path = retValue.getPath()
-
-		if @convertors
-			dataCtx?.originData = retValue
-
-			for convertorDef in @convertors
-				convertor = cola.convertor[convertorDef.name]
-				if convertor
-					args = [retValue]
-					for paramExpr in convertorDef.params
-						paramValue = paramExpr.evaluate(scope, "never")
-						args.push(paramValue)
-					retValue = convertor.apply(null, args)
-				else
-					throw new cola.Exception("Unknown convert \"#{convertorDef.name}\".")
 		return retValue
 
 	toString: () ->

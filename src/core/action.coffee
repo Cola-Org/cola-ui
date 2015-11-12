@@ -98,6 +98,7 @@ cola.defaultAction.filter = (collection, criteria, params...) ->
 					propFilter.value = propFilter.value.toLowerCase()
 
 		filtered = []
+		filtered.$origin = collection.$origin or collection
 		cola.each collection, (item) ->
 			matches = false
 
@@ -131,6 +132,7 @@ cola.defaultAction.filter = (collection, criteria, params...) ->
 		return filtered
 	else if typeof criteria == "function"
 		filtered = []
+		filtered.$origin = collection.$origin or collection
 		cola.each collection, (item) ->
 			filtered.push(item) if criteria(item, params...)
 			return
@@ -138,16 +140,17 @@ cola.defaultAction.filter = (collection, criteria, params...) ->
 	else
 		return collection
 
-_sortConvertor = (collection, comparator, caseSensitive) ->
+cola.defaultAction.sort = (collection, comparator, caseSensitive) ->
 	return null unless collection
+	return collection if not comparator? or comparator == "$none"
 
 	if collection instanceof cola.EntityList
+		origin = collection
 		collection = collection.toArray()
+		collection.$origin = origin
 
 	if comparator
-		if comparator == "$none"
-			return collection
-		else if comparator == "$reverse"
+		if comparator == "$reverse"
 			return collection.reverse();
 		else if typeof comparator == "string"
 			comparatorProps = []
@@ -222,12 +225,12 @@ _sortConvertor = (collection, comparator, caseSensitive) ->
 		return comparator(item1, item2)
 	return collection.sort(comparatorFunc)
 
-cola.defaultAction.sort = _sortConvertor
-
 cola.defaultAction.top = (collection, top = 1) ->
 	return null unless collection
 	return collection if top < 0
 	items = []
+	items.$origin = collection.$origin or collection
+
 	i = 0
 	cola.each collection, (item) ->
 		i++
