@@ -15,17 +15,7 @@
 				}
 			});
 
-			model.action({
-				getPersonInfo: function () {
-					var person = model.get("person");
-					return person.get("name") + " is " + person.get("age") + " years old.";
-				},
-				showPersonInfo: function () {
-					return alert(model.action.getPersonInfo());
-				}
-			});
-
-			cola.convertor.double = function (value) {
+			cola.defaultAction.double = function (value) {
 				return value * 2;
 			};
 		});
@@ -39,25 +29,17 @@
 
 <p>
 	<input c-bind="numberProp">
-	<label c-bind="numberProp | double | number:'#,##0.00'"></label>
+	<label c-bind="formatNumber(double(numberProp),'#,##0.00')"></label>
 	<!--<label c-bind="numberProp>10?true:false"></label>-->
 </p>
 
 <p>
 	<input c-bind="dateProp" type="date">
-	<label c-bind="dateProp | date:'yyMMdd'"></label>
-</p>
-
-<p>
-	<input c-bind="person.name">
-	<input c-bind="person.age" type="number">
-	<label c-bind="getPersonInfo()"></label>
-	<button c-onclick="showPersonInfo()">Alert</button>
+	<label c-bind="formatDate(dateProp,'yyMMdd')"></label>
 </p>
 <p>
 	<input c-bind="size" type="number">
-
-	<div c-style="width:size;height:size" c-display="size>50" style="background:green"></div>
+<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>
 </p>
 </body>
 </html>

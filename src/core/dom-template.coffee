@@ -147,10 +147,10 @@ cola.xRender = (template, model, context) ->
 	return dom
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
-	_doRrenderDomTemplate(dom, scope, context)
+	_doRenderDomTemplate(dom, scope, context)
 	return
 
-_doRrenderDomTemplate = (dom, scope, context) ->
+_doRenderDomTemplate = (dom, scope, context) ->
 	return dom if dom.nodeType == 8
 	return dom if dom.nodeType == 1 and
 		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)
@@ -164,7 +164,7 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 	else if dom.nodeType == 11 # #documentFragment
 		child = dom.firstChild
 		while child
-			child = _doRrenderDomTemplate(child, scope, context)
+			child = _doRenderDomTemplate(child, scope, context)
 			child = child.nextSibling
 		return dom
 
@@ -267,7 +267,7 @@ _doRrenderDomTemplate = (dom, scope, context) ->
 
 		child = dom.firstChild
 		while child
-			child = _doRrenderDomTemplate(child, scope, childContext)
+			child = _doRenderDomTemplate(child, scope, childContext)
 			child = child.nextSibling
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
@@ -376,6 +376,8 @@ buildAttrFeature = (dom, attr, expr) ->
 	if expression
 		if attr == "display"
 			feature = new cola._DisplayFeature(expression)
+		else if attr == "classname"
+			feature = new cola._DomAttrFeature(expression, "class", false)
 		else if attr == "options" and dom.nodeName == "SELECT"
 			feature = new cola._SelectOptionsFeature(expression)
 		else

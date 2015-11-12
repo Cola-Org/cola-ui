@@ -1,21 +1,60 @@
 #IMPORT_BEGIN
 if exports?
-	cola = require("./entity")
+	cola = require("./model")
 	module?.exports = cola
 else
 	cola = @cola
 #IMPORT_END
 
-cola.convertor = {}
+cola.defaultAction = {}
 
-cola.convertor["upper"] = (value) ->
+cola.defaultAction["default"] = (value, defaultValue = "") ->
+	return value or defaultValue
+
+cola.defaultAction["int"] = (value) ->
+	return parseInt(value, 10) or 0
+
+cola.defaultAction["float"] = (value) ->
+	return parseFloat(value) or 0
+
+cola.defaultAction.is = (value) ->
+	return !!value
+
+cola.defaultAction.bool = cola.defaultAction.is
+
+cola.defaultAction.not = (value) ->
+	return not value
+
+cola.defaultAction.isEmpty = (value) ->
+	if value instanceof Array
+		return value.length is 0
+	else if value instanceof cola.EntityList
+		return value.entityCount is 0
+	else if typeof value is "string"
+		return value is ""
+	else
+		return !value
+
+cola.defaultAction.isNotEmpty = (value) ->
+	return not cola.defaultAction.isEmpty(value)
+
+cola.defaultAction.len = (value) ->
+	if not value
+		return 0
+	if value instanceof Array
+		return value.length
+	if  value instanceof cola.EntityList
+		return value.entityCount
+	return 0
+
+cola.defaultAction["upper"] = (value) ->
 	return value?.toUpperCase()
 
-cola.convertor["lower"] = (value) ->
+cola.defaultAction["lower"] = (value) ->
 	return value?.toLowerCase()
 
-cola.convertor["default"] = (value, defaultValue = "") ->
-	return if value? then value else defaultValue
+cola.defaultAction.resource = (key, params...) ->
+	return cola.resource(key, params...)
 
 _matchValue = (value, propFilter) ->
 	if propFilter.strict
@@ -29,7 +68,7 @@ _matchValue = (value, propFilter) ->
 		else
 			return (value + "").indexOf(propFilter.value) > -1
 
-cola.convertor["filter"] = (collection, criteria, params...) ->
+cola.defaultAction.filter = (collection, criteria, params...) ->
 	return collection unless collection and criteria
 
 	if cola.util.isSimpleValue(criteria)
@@ -183,10 +222,9 @@ _sortConvertor = (collection, comparator, caseSensitive) ->
 		return comparator(item1, item2)
 	return collection.sort(comparatorFunc)
 
-cola.convertor["orderBy"] = _sortConvertor
-cola.convertor["sort"] = _sortConvertor
+cola.defaultAction.sort = _sortConvertor
 
-cola.convertor["top"] = (collection, top = 1) ->
+cola.defaultAction.top = (collection, top = 1) ->
 	return null unless collection
 	return collection if top < 0
 	items = []
@@ -197,13 +235,13 @@ cola.convertor["top"] = (collection, top = 1) ->
 		return i < top
 	return items
 
-cola.convertor["date"] = (date, format) ->
+cola.defaultAction.formatDate = (date, format) ->
 	return "" unless date?
 	if not (date instanceof XDate)
 		date = new XDate(date)
 	return date.toString(format)
 
-cola.convertor["number"] = (number, format) ->
+cola.defaultAction.formatNumber = (number, format) ->
 	return "" unless number?
 	return number if isNaN(number)
 	return formatNumber(format, number)

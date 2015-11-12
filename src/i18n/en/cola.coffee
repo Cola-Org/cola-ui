@@ -6,12 +6,12 @@ cola.resource(
 	"cola.date.amDesignator": "AM"
 	"cola.date.pmDesignator": "PM"
 
-	"cola.validator.error.required": "不能为空。"
-	"cola.validator.error.length": "长度不在正确的范围内。"
-	"cola.validator.error.number": "数值不在正确的范围内。"
-	"cola.validator.error.email": "Email格式不正确。"
-	"cola.validator.error.url": "Url格式不正确。"
-	"cola.validator.error.regExp": "格式不正确。"
+	"cola.validator.error.required": "Cannot be empty."
+	"cola.validator.error.length": "Length is not within the correct range."
+	"cola.validator.error.number": "Value is not within the correct range."
+	"cola.validator.error.email": "Email format is incorrect."
+	"cola.validator.error.url": "URL format is incorrect."
+	"cola.validator.error.regExp": "Format is incorrect."
 
 	"cola.messageBox.info.title": "Information"
 	"cola.messageBox.warning.title": "Warning"

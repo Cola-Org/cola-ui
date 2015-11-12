@@ -78,7 +78,7 @@
 				<li c-repeat="product in category.products">
 					<span c-bind="category.name"></span>
 					<span c-bind="product.name"></span>
-					<span c-bind="product.price | number:'$#,##0.00'"></span>
+					<span c-bind="formatNumber(product.price,'$#,##0.00')"></span>
 					<button c-onclick="setName(product)">SetName</button>
 					<button c-onclick="changePrice(product)">Change Price</button>
 					<button c-onclick="delete(product)">Delete</button>

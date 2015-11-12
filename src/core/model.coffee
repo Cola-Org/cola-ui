@@ -27,7 +27,6 @@ cola.model = (name, model) ->
 		return cola.model.models[name]
 
 cola.model.models = {}
-cola.model.defaultActions = {}
 
 cola.removeModel = (name) ->
 	model = cola.model.models[name]
@@ -122,7 +121,7 @@ class cola.Model extends cola.AbstractModel
 						break unless scope
 						store = scope.action
 
-					fn = cola.model.defaultActions[name]
+					fn = cola.defaultAction[name]
 					if fn
 						return fn.action or fn
 				else if name and typeof name == "object"
@@ -1088,44 +1087,3 @@ cola.submit.filter =
 
 	"dirty-tree": (data) ->
 		return data
-
-
-cola.model.defaultActions["default"] = (value, defaultValue) ->
-	return value or defaultValue
-
-cola.model.defaultActions["int"] = (value) ->
-	return parseInt(value, 10) or 0
-
-cola.model.defaultActions["float"] = (value) ->
-	return parseFloat(value) or 0
-
-cola.model.defaultActions.is = (value) ->
-	return !!value
-
-cola.model.defaultActions.not = (value) ->
-	return not value
-
-cola.model.defaultActions.isEmpty = (value) ->
-	if value instanceof Array
-		return value.length is 0
-	else if value instanceof cola.EntityList
-		return value.entityCount is 0
-	else if typeof value is "string"
-		return value is ""
-	else
-		return !value
-
-cola.model.defaultActions.isNotEmpty = (value) ->
-	return not cola.model.defaultActions.isEmpty(value)
-
-cola.model.defaultActions.len = (value) ->
-	if not value
-		return 0
-	if value instanceof Array
-		return value.length
-	if  value instanceof cola.EntityList
-		return value.entityCount
-	return 0
-
-cola.model.defaultActions.resource = (key, params...) ->
-	return cola.resource(key, params...)
