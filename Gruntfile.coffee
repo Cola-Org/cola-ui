@@ -1,14 +1,16 @@
 sources = require "./sources"
+
 module.exports = (grunt) ->
+	pkg = grunt.file.readJSON "package.json"
 	grunt.initConfig
-		pkg: grunt.file.readJSON "package.json"
+		pkg: pkg
 		clean:
-			build: ["dest/work", "dest/publish"]
+			build: ["dest/work", "dist"]
 			workTemp: ["dest/work/cola"]
 			dev: ["dest/dev"]
 			"core-widget": [
-				"dest/publish/cola-core.js"
-				"dest/publish/cola-widget.js"
+				"dist/cola-core.js"
+				"dist/cola-widget.js"
 			]
 		coffee:
 			dev:
@@ -29,7 +31,7 @@ module.exports = (grunt) ->
 					sourceMap: false
 					join: true
 				files:
-					"dest/publish/cola-core.js": [
+					"dist/cola-core.js": [
 						"dest/work/cola/coffee/cola.coffee"
 					]
 			"cola-widget":
@@ -37,7 +39,7 @@ module.exports = (grunt) ->
 					sourceMap: false
 					join: true
 				files:
-					"dest/publish/cola-widget.js": [
+					"dist/cola-widget.js": [
 						"dest/work/cola/coffee/widget.coffee"
 					]
 		less:
@@ -52,7 +54,7 @@ module.exports = (grunt) ->
 					sourceMap: false
 					join: true
 				files:
-					"dest/publish/cola.css": sources.less.cola
+					"dist/cola.css": sources.less.cola
 		copy:
 			libs:
 				expand: true
@@ -63,8 +65,8 @@ module.exports = (grunt) ->
 			semantic:
 				expand: true
 				cwd: "src/lib/semantic-ui"
-				src: ["themes/**", "semantic.css","semantic.js"]
-				dest: "dest/publish"
+				src: ["themes/**", "semantic.css", "semantic.js"]
+				dest: "dist"
 
 			apiResources:
 				expand: true
@@ -93,9 +95,9 @@ module.exports = (grunt) ->
 				files: [
 					{
 						expand: true,
-						cwd: 'dest/publish',
+						cwd: 'dist',
 						src: '**/*.js'
-						dest: 'dest/publish/min'
+						dest: 'dist'
 						ext: '.min.js'
 					}
 				]
@@ -145,7 +147,7 @@ module.exports = (grunt) ->
 		"cola-ui-license":
 			options:
 				license: """
-/*! Cola UI - v1.0.0
+/*! Cola UI - #{pkg.version}
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -154,31 +156,32 @@ module.exports = (grunt) ->
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
+
 """
-			js:
+			build:
 				files:
-					"dest/publish/cola-core.js": "dest/publish/cola-core.js"
-					"dest/publish/cola-widget.js": "dest/publish/cola-widget.js"
+					"dist/cola-core.js": "dist/cola-core.js"
+					"dist/cola-widget.js": "dist/cola-widget.js"
+					"dist/cola.css": "dist/cola.css"
 		concat:
 			"3rd":
 				files:
-					"dest/publish/3rd.js": sources.lib.js
+					"dist/3rd.js": sources.lib.js
 
 			cola:
 				files:
-					"dest/publish/cola.js": ["dest/publish/cola-core.js", "dest/publish/cola-widget.js"]
+					"dist/cola.js": ["dist/cola-core.js", "dist/cola-widget.js"]
 
 		cssmin:
 			target:
 				files: [
 					{
 						expand: true
-						cwd: 'dest/publish'
+						cwd: 'dist'
 						src: ['cola.css', 'semantic.css']
-						dest: 'dest/publish/min'
+						dest: 'dist'
 						ext: '.min.css'
 					}
-
 				]
 		compress:
 			js:
@@ -187,7 +190,7 @@ module.exports = (grunt) ->
 				files: [
 					{
 						expand: true
-						cwd: "dest/publish"
+						cwd: "dist"
 						src: [
 							'cola.js'
 							'cola-widget.js'
@@ -195,7 +198,7 @@ module.exports = (grunt) ->
 							'3rd.js'
 							'semantic.js'
 						]
-						dest: 'dest/publish/gzip'
+						dest: 'dist/gzip'
 						ext: '.gz.js'
 					}
 				]
@@ -205,12 +208,12 @@ module.exports = (grunt) ->
 				files: [
 					{
 						expand: true
-						cwd: "dest/publish"
+						cwd: "dist"
 						src: [
 							'cola.css'
 							'semantic.css'
 						]
-						dest: 'dest/publish/gzip'
+						dest: 'dist/gzip'
 						ext: '.gz.css'
 					}
 				]
@@ -239,7 +242,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
-	                             "less:build", "cola-ui-license", "concat",
-	                             "clean:core-widget", "copy:semantic",
-#								 "uglify:build", "cssmin",
-	                             "clean:workTemp"]
+								 "less:build", "cola-ui-license", "concat",
+								 "clean:core-widget", "copy:semantic",
+								 "uglify:build", "cssmin",
+								 "clean:workTemp"]
