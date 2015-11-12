@@ -133,14 +133,18 @@ sources =
 			"src/lib/easy-scroller.js"
 
 			"src/lib/fastclick.js"
-			"src/lib/semantic-ui/semantic.js"
+#			"src/lib/semantic-ui/semantic.js"
 			"src/lib/hammer.js"
 			"src/lib/jquery.hammer.js"
 		]
 		css: [
-			"lib/semantic-ui/semantic.css"
+#			"lib/semantic-ui/semantic.css"
 		]
+	semantic:
+		js: ["src/lib/semantic-ui/semantic.js"]
+		css: ["lib/semantic-ui/semantic.css"]
+
 sources.coffee.widgetAll = _.union(sources.coffee.widget, sources.coffee.base,
-	sources.coffee.layout,sources.coffee.edit, sources.coffee.collection, sources.coffee.list)
+	sources.coffee.layout, sources.coffee.edit, sources.coffee.collection, sources.coffee.list)
 
 module?.exports = sources
