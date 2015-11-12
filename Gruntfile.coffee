@@ -63,7 +63,7 @@ module.exports = (grunt) ->
 			semantic:
 				expand: true
 				cwd: "src/lib/semantic-ui"
-				src: ["themes/**", "semantic.css"]
+				src: ["themes/**", "semantic.css","semantic.js"]
 				dest: "dest/publish"
 
 			apiResources:
@@ -163,27 +163,22 @@ module.exports = (grunt) ->
 			"3rd":
 				files:
 					"dest/publish/3rd.js": sources.lib.js
+
 			cola:
 				files:
 					"dest/publish/cola.js": ["dest/publish/cola-core.js", "dest/publish/cola-widget.js"]
-		rename:
-			main:
-				files: [
-					{
-						src: ['dest/publish/semantic.css']
-						dest: 'dest/publish/3rd.css'
-					}
-				]
+
 		cssmin:
 			target:
 				files: [
 					{
 						expand: true
 						cwd: 'dest/publish'
-						src: ['cola.css', '3rd.css']
+						src: ['cola.css', 'semantic.css']
 						dest: 'dest/publish/min'
 						ext: '.min.css'
 					}
+
 				]
 		compress:
 			js:
@@ -198,6 +193,7 @@ module.exports = (grunt) ->
 							'cola-widget.js'
 							'cola-core.js'
 							'3rd.js'
+							'semantic.js'
 						]
 						dest: 'dest/publish/gzip'
 						ext: '.gz.js'
@@ -212,7 +208,7 @@ module.exports = (grunt) ->
 						cwd: "dest/publish"
 						src: [
 							'cola.css'
-							'3rd.css'
+							'semantic.css'
 						]
 						dest: 'dest/publish/gzip'
 						ext: '.gz.css'
@@ -244,6 +240,6 @@ module.exports = (grunt) ->
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 	                             "less:build", "cola-ui-license", "concat",
-	                             "clean:core-widget", "copy:semantic", "rename",
-								 #"uglify:build", "cssmin", "compress",
+	                             "clean:core-widget", "copy:semantic",
+#								 "uglify:build", "cssmin",
 	                             "clean:workTemp"]
