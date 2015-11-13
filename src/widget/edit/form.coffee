@@ -100,7 +100,7 @@ class cola.Form extends cola.Widget
 				if message?.type is "error" and message.text
 					@_$dom.form("add prompt", editorDom.id, message.text)
 				else
-					@_$dom.form("remove prompt", {identifier: editorDom.id})
+					@_$dom.form("remove prompt", editorDom.id)
 		else
 			@_resetEntityMessages()
 			@_refreshState()

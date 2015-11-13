@@ -126,7 +126,7 @@ class cola.EmailValidator extends cola.Validator
 
 	_validate: (data) ->
 		if typeof data is "string"
-			return !!data.match(/^[a-z]([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
+			return !!data.match(/^([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
 		return true
 
 class cola.UrlValidator extends cola.Validator
