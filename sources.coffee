@@ -134,8 +134,8 @@ sources =
 
 			"src/lib/fastclick.js"
 #			"src/lib/semantic-ui/semantic.js"
-			"src/lib/hammer.js"
-			"src/lib/jquery.hammer.js"
+#			"src/lib/hammer.js"
+#			"src/lib/jquery.hammer.js"
 		]
 		css: [
 #			"lib/semantic-ui/semantic.css"
