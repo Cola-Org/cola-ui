@@ -428,7 +428,7 @@ do->
 				cal.nextYear()
 			)
 		_createDom: ()->
-			allWeeks = cola.resource("cola.date.dayNamesShort") or "日,一,二,三,四,五,六"
+			allWeeks = cola.resource("cola.date.dayNamesShort")
 			weeks = allWeeks.split(",")
 			cal = this
 			@_doms ?= {}

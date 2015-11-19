@@ -18,3 +18,13 @@
 群号:309407648
 
 ![](http://cola-ui.com/images/qq.png)
+
+## 相关命令
+打包cola-ui
+```
+grunt build
+```
+生成客户端API
+```
+grunt api -force
+```
