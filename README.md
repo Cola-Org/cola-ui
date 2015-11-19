@@ -20,7 +20,7 @@
 ![](http://cola-ui.com/images/qq.png)
 
 ## 相关命令
-如果为安装过grunt-cli,请先全局安装
+如未安装过grunt-cli,请先全局安装
 ```
  npm install -g grunt-cli 
 ```
