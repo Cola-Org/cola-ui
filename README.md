@@ -20,6 +20,15 @@
 ![](http://cola-ui.com/images/qq.png)
 
 ## 相关命令
+如果为安装过grunt-cli,请先全局安装
+```
+ npm install -g grunt-cli 
+```
+在cola-ui目录下执行npm install 安装node 资源
+```
+ npm install
+```
+
 打包cola-ui
 ```
 grunt build
