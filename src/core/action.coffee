@@ -47,10 +47,10 @@ cola.defaultAction.len = (value) ->
 		return value.entityCount
 	return 0
 
-cola.defaultAction["upper"] = (value) ->
+cola.defaultAction["upperCase"] = (value) ->
 	return value?.toUpperCase()
 
-cola.defaultAction["lower"] = (value) ->
+cola.defaultAction["lowerCase"] = (value) ->
 	return value?.toLowerCase()
 
 cola.defaultAction.resource = (key, params...) ->

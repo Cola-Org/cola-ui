@@ -3430,7 +3430,7 @@ template {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
-  min-width: 360px;
+  min-width: 300px;
 }
 .ui.message-box.desktop .content-container .close-btn {
   cursor: pointer;

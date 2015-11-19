@@ -77,7 +77,7 @@ cola.setRoutePath = (path, replace) ->
 			realPath = cola.util.concatUrl(pathRoot, path)
 		else
 			realPath = path
-		realPath += location.search
+#		realPath += location.search
 
 		if replace
 			window.history.replaceState(null, null, realPath)
@@ -263,7 +263,7 @@ $ () ->
 		else
 			path = trimPath(cola.setting("defaultRouterPath"))
 			router = _findRouter(path)
-			if router then cola.setRoutePath(path, true)
+			if router then cola.setRoutePath(path + location.search, true)
 		return
 	, 0)
 	return
