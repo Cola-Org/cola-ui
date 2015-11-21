@@ -67,7 +67,11 @@ class cola.Form extends cola.Widget
 				for m in messages
 					if m.text then errors.push(m.text)
 			@_$dom.form("add errors", errors)
-			if errors.length > 0 then state = type
+			if errors.length > 0
+				@_$dom.form("add errors", errors)
+				state = type
+			else
+				@_$dom.find(".error.message").empty()
 
 		@set("state", state)
 		return
