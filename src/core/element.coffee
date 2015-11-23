@@ -455,7 +455,7 @@ cola.Element.createGroup = (elements, model) ->
 	elements.on = (eventName, listener, once) ->
 		element.on(eventName, listener, once) for element in elements
 		return @
-	elements.off = (eventName: string) ->
+	elements.off = (eventName) ->
 		element.off(eventName) for element in elements
 		return @
 	return elements
