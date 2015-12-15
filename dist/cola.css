@@ -162,6 +162,7 @@ template {
 }
 .desktop .v-box,
 .desktop .h-box {
+  display: -webkit-box;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
@@ -3430,7 +3431,7 @@ template {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
-  min-width: 300px;
+  min-width: 360px;
 }
 .ui.message-box.desktop .content-container .close-btn {
   cursor: pointer;

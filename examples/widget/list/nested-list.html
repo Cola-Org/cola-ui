@@ -33,6 +33,10 @@
 			model.action({
 				remove: function (entity) {
 					entity.remove();
+				},
+				test: function() {
+					var nestedList = cola.widget("nestedList");
+					console.dir(nestedList.getCurrentLayerItems());
 				}
 			});
 
@@ -60,6 +64,7 @@
 	</script>
 </head>
 <body style="padding:0px;margin:0;">
+<div c-widget="button; caption:Test; click:test"></div>
 <div id="nestedList" style="height:100%">
 	<template name="default">
 		<li style="padding:16px">

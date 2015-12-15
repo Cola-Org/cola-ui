@@ -318,4 +318,11 @@ class cola.NestedList extends cola.Widget
 			})
 		return
 
+	getLayerItems: (index) ->
+		layer = @_layers[index]
+		return layer?.list._realItems
+
+	getCurrentLayerItems: () ->
+		return @getLayerItems(@_layerIndex)
+
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)

@@ -1643,7 +1643,7 @@
         if (ele._scope && !ele._model) {
           scope = ele._scope;
           while (scope) {
-            if (scope instanceof cola.Model) {
+            if (scope instanceof cola.Scope) {
               ele._model = scope;
               break;
             }
@@ -1673,9 +1673,8 @@
       }
       return this;
     };
-    elements.off = function(arg1) {
-      var element, len2, o, string;
-      string = arg1.eventName;
+    elements.off = function(eventName) {
+      var element, len2, o;
       for (o = 0, len2 = elements.length; o < len2; o++) {
         element = elements[o];
         element.off(eventName);
@@ -5249,23 +5248,23 @@
     return model;
   };
 
-  cola.AbstractModel = (function() {
-    function AbstractModel() {}
+  cola.Scope = (function() {
+    function Scope() {}
 
-    AbstractModel.prototype.get = function(path, loadMode, context) {
+    Scope.prototype.get = function(path, loadMode, context) {
       return this.data.get(path, loadMode, context);
     };
 
-    AbstractModel.prototype.set = function(path, data, context) {
+    Scope.prototype.set = function(path, data, context) {
       this.data.set(path, data, context);
       return this;
     };
 
-    AbstractModel.prototype.describe = function(property, config) {
+    Scope.prototype.describe = function(property, config) {
       return this.data.describe(property, config);
     };
 
-    AbstractModel.prototype.dataType = function(name) {
+    Scope.prototype.dataType = function(name) {
       var dataType, l, len1;
       if (typeof name === "string") {
         dataType = this.data.definition(name);
@@ -5291,31 +5290,31 @@
       }
     };
 
-    AbstractModel.prototype.definition = function(name) {
+    Scope.prototype.definition = function(name) {
       return this.data.definition(name);
     };
 
-    AbstractModel.prototype.flush = function(name, loadMode) {
+    Scope.prototype.flush = function(name, loadMode) {
       this.data.flush(name, loadMode);
       return this;
     };
 
-    AbstractModel.prototype.disableObservers = function() {
+    Scope.prototype.disableObservers = function() {
       this.data.disableObservers();
       return this;
     };
 
-    AbstractModel.prototype.enableObservers = function() {
+    Scope.prototype.enableObservers = function() {
       this.data.enableObservers();
       return this;
     };
 
-    AbstractModel.prototype.notifyObservers = function() {
+    Scope.prototype.notifyObservers = function() {
       this.data.notifyObservers();
       return this;
     };
 
-    AbstractModel.prototype.watch = function(path, fn) {
+    Scope.prototype.watch = function(path, fn) {
       var l, len1, p, processor;
       processor = {
         _processMessage: function(bindingPath, path, type, arg) {
@@ -5333,7 +5332,7 @@
       return this;
     };
 
-    return AbstractModel;
+    return Scope;
 
   })();
 
@@ -5342,7 +5341,7 @@
 
     function Model(name, parent) {
       var parentName;
-      if (name instanceof cola.Model) {
+      if (name instanceof cola.Scope) {
         parent = name;
         name = void 0;
       }
@@ -5410,7 +5409,7 @@
 
     return Model;
 
-  })(cola.AbstractModel);
+  })(cola.Scope);
 
   cola.SubScope = (function(superClass) {
     extend(SubScope, superClass);
@@ -5497,7 +5496,7 @@
 
     return SubScope;
 
-  })(cola.AbstractModel);
+  })(cola.Scope);
 
   cola.AliasScope = (function(superClass) {
     extend(AliasScope, superClass);
@@ -6834,11 +6833,11 @@
     return 0;
   };
 
-  cola.defaultAction["upper"] = function(value) {
+  cola.defaultAction["upperCase"] = function(value) {
     return value != null ? value.toUpperCase() : void 0;
   };
 
-  cola.defaultAction["lower"] = function(value) {
+  cola.defaultAction["lowerCase"] = function(value) {
     return value != null ? value.toLowerCase() : void 0;
   };
 
@@ -7243,9 +7242,11 @@
     if (id) {
       store = cola.util.userDataStore[id];
       if (store) {
+        value = store[key];
         delete store[key];
       }
     }
+    return value;
   };
 
   ON_NODE_REMOVED_KEY = "__onNodeRemoved";
@@ -7647,7 +7648,7 @@
   };
 
   cola.route = function(path, router) {
-    var hasVariable, l, len1, optional, part, pathParts, ref, variable;
+    var hasVariable, i, l, len1, len2, name, o, optional, part, parts, pathParts, ref, variable;
     if (routerRegistry == null) {
       routerRegistry = new cola.util.KeyedArray();
     }
@@ -7658,15 +7659,21 @@
     }
     path = trimPath(path);
     router.path = path;
-    if (router.model == null) {
-      router.model = path || cola.constants.DEFAULT_PATH;
+    if (!router.name) {
+      name = path || cola.constants.DEFAULT_PATH;
+      parts = name.split("/");
+      for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
+        part = parts[i];
+        parts[i] = cola.util.capitalize(part);
+      }
+      router.name = parts.join("");
     }
     router.pathParts = pathParts = [];
     if (path) {
       hasVariable = false;
       ref = path.split("/");
-      for (l = 0, len1 = ref.length; l < len1; l++) {
-        part = ref[l];
+      for (o = 0, len2 = ref.length; o < len2; o++) {
+        part = ref[o];
         if (part.charCodeAt(0) === 58) {
           optional = part.charCodeAt(part.length - 1) === 63;
           if (optional) {
@@ -7781,8 +7788,18 @@
     }
   };
 
+  cola.createRouterModel = function(router) {
+    var parentModel, parentModelName;
+    parentModelName = router.parentModel || cola.constants.DEFAULT_PATH;
+    parentModel = cola.model(parentModelName);
+    if (!parentModel) {
+      throw new cola.Exception("Parent Model \"" + parentModelName + "\" is undefined.");
+    }
+    return new cola.Model(router.name, parentModel);
+  };
+
   _switchRouter = function(router, path) {
-    var eventArg, model, oldModel, parentModel, parentModelName, target;
+    var eventArg, model, oldModel, target;
     if (router.redirectTo) {
       cola.setRoutePath(router.redirectTo);
       return;
@@ -7796,17 +7813,14 @@
       return;
     }
     if (currentRouter) {
-      oldModel = currentRouter.realModel;
       if (typeof currentRouter.leave === "function") {
-        currentRouter.leave(currentRouter, oldModel);
+        currentRouter.leave(currentRouter);
       }
       if (currentRouter.targetDom) {
         cola.unloadSubView(currentRouter.targetDom, {
           cssUrl: currentRouter.cssUrl
         });
-      }
-      delete currentRouter.realModel;
-      if (currentRouter.destroyModel) {
+        oldModel = cola.util.removeUserData(currentRouter.targetDom, "_model");
         if (oldModel != null) {
           oldModel.destroy();
         }
@@ -7833,24 +7847,9 @@
       $fly(target).empty();
     }
     currentRouter = router;
-    if (typeof router.model === "string") {
-      model = cola.model(router.model);
-    } else if (router.model instanceof cola.Model) {
-      model = router.model;
-    }
-    if (!model) {
-      parentModelName = router.parentModel || cola.constants.DEFAULT_PATH;
-      parentModel = cola.model(parentModelName);
-      if (!parentModel) {
-        throw new cola.Exception("Parent Model \"" + parentModelName + "\" is undefined.");
-      }
-      model = new cola.Model(router.model, parentModel);
-      router.destroyModel = true;
-    } else {
-      router.destroyModel = false;
-    }
-    router.realModel = model;
     if (router.templateUrl) {
+      model = cola.createRouterModel(router);
+      cola.util.userData(router.targetDom, "_model", model);
       cola.loadSubView(router.targetDom, {
         model: model,
         htmlUrl: router.templateUrl,
@@ -7869,12 +7868,13 @@
       });
     } else {
       if (typeof router.enter === "function") {
-        router.enter(router, model);
+        router.enter(router, null);
       }
       if (router.title) {
         document.title = router.title;
       }
     }
+    eventArg.nextModel = model;
     cola.fire("routerSwitch", cola, eventArg);
   };
 
@@ -8912,6 +8912,8 @@
         fn = arg;
       } else if (typeof arg === "string") {
         modelName = arg;
+      } else if (arg instanceof cola.Scope) {
+        model = arg;
       } else if ((arg != null ? arg.nodeType : void 0) || typeof arg === "object" && arg.length > 0) {
         targetDom = arg;
       }
@@ -8949,12 +8951,14 @@
     if (cola._suspendedInitFuncs) {
       cola._suspendedInitFuncs.push(init);
     } else {
-      if (modelName == null) {
-        modelName = cola.constants.DEFAULT_PATH;
-      }
-      model = cola.model(modelName);
-      if (model == null) {
-        model = new cola.Model(modelName);
+      if (!model) {
+        if (modelName == null) {
+          modelName = cola.constants.DEFAULT_PATH;
+        }
+        model = cola.model(modelName);
+        if (model == null) {
+          model = new cola.Model(modelName);
+        }
       }
       if (cola._mainInitFuncs) {
         cola._mainInitFuncs.push({
@@ -12900,14 +12904,14 @@
         content: [
           {
             "class": "ui button",
-            content: cola.resource("cola.message.deny") || "取消",
+            content: cola.resource("cola.message.deny"),
             click: function() {
               cola.commonDimmer.hide();
               return timerLayer.hide();
             }
           }, {
             "class": "ui positive button",
-            content: cola.resource("cola.message.approve") || "确认",
+            content: cola.resource("cola.message.approve"),
             click: function() {
               cola.commonDimmer.hide();
               timerLayer.hide();
@@ -13522,7 +13526,7 @@
 
       Calendar.prototype._createDom = function() {
         var allWeeks, cal, dom, picker, weeks;
-        allWeeks = cola.resource("cola.date.dayNamesShort") || "日,一,二,三,四,五,六";
+        allWeeks = cola.resource("cola.date.dayNamesShort");
         weeks = allWeeks.split(",");
         cal = this;
         if (this._doms == null) {
@@ -13917,7 +13921,7 @@
       },
       showLoadingContent: null,
       showDimmer: {
-        defaultValue: true
+        defaultValue: false
       }
     };
 
@@ -16837,7 +16841,6 @@
       },
       dataType: {
         setter: function(dataType) {
-          this._dataTypeDefined = !!dataType;
           return cola.DataType.dataTypeSetter.call(this, dataType);
         }
       },
@@ -16959,8 +16962,12 @@
     };
 
     AbstractInput.prototype._bindSetter = function(bindStr) {
+      var dataType;
       AbstractInput.__super__._bindSetter.call(this, bindStr);
-      cola.DataType.dataTypeSetter.call(this, this._getBindingDataType());
+      dataType = this._getBindingDataType();
+      if (dataType) {
+        cola.DataType.dataTypeSetter.call(this, dataType);
+      }
     };
 
     AbstractInput.prototype._parseDom = function(dom) {
@@ -19158,7 +19165,10 @@
         }
         this._$dom.form("add errors", errors);
         if (errors.length > 0) {
+          this._$dom.form("add errors", errors);
           state = type;
+        } else {
+          this._$dom.find(".error.message").empty();
         }
       }
       this.set("state", state);
