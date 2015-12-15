@@ -18,7 +18,7 @@ class cola.SubView extends cola.Widget
 
 		showLoadingContent: null
 		showDimmer:
-			defaultValue: true
+			defaultValue: false
 
 	@EVENTS:
 		load: null

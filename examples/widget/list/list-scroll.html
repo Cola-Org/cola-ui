@@ -6,24 +6,24 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-//			var items = [];
-//			var i = 0;
-//			for (var attr in document.body) {
+			var items = [];
+			var i = 0;
+			for (var attr in document.body) {
 //				if (++i > 30) break;
-//				items.push({
-//					name: attr
-//				});
-//			}
-//			model.set("items", items);
-			model.describe("items", {
-				provider: "languages.json"
-			});
+				items.push({
+					name: attr
+				});
+			}
+			model.set("items", items);
+//			model.describe("items", {
+//				provider: "languages.json"
+//			});
 
 			model.widgetConfig({
 				listScroll: {
 					$type: "listView",
 					class: "striped",
-					bind: "item in items | sort:'name'",
+					bind: "item in sort(items,'name')",
 					allowNoCurrent: false,
 					group: true,
 					indexBar: true,

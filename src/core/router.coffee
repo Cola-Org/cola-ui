@@ -11,6 +11,7 @@ trimPath = (path) ->
 	return path or ""
 
 # router.path
+# router.name
 # router.redirectTo
 # router.enter
 # router.leave
@@ -18,7 +19,6 @@ trimPath = (path) ->
 # router.jsUrl
 # router.templateUrl
 # router.target
-# router.model
 # router.parentModel
 
 cola.route = (path, router) ->
@@ -30,7 +30,11 @@ cola.route = (path, router) ->
 
 	path = trimPath(path)
 	router.path = path
-	router.model ?= path or cola.constants.DEFAULT_PATH
+	if not router.name
+		name = path or cola.constants.DEFAULT_PATH
+		parts = name.split("/")
+		parts[i] = cola.util.capitalize(part) for part, i in parts
+		router.name = parts.join("");
 
 	router.pathParts = pathParts = []
 	if path
@@ -127,6 +131,12 @@ _findRouter = (path) ->
 	else
 		return null
 
+cola.createRouterModel = (router) ->
+	parentModelName = router.parentModel or cola.constants.DEFAULT_PATH
+	parentModel = cola.model(parentModelName)
+	if !parentModel then throw new cola.Exception("Parent Model \"#{parentModelName}\" is undefined.")
+	return new cola.Model(router.name, parentModel)
+
 _switchRouter = (router, path) ->
 	if router.redirectTo
 		cola.setRoutePath(router.redirectTo)
@@ -140,14 +150,13 @@ _switchRouter = (router, path) ->
 	if cola.fire("beforeRouterSwitch", cola, eventArg) is false then return
 
 	if currentRouter
-		oldModel = currentRouter.realModel
-		currentRouter.leave?(currentRouter, oldModel)
+		currentRouter.leave?(currentRouter)
 		if currentRouter.targetDom
 			cola.unloadSubView(currentRouter.targetDom, {
 				cssUrl: currentRouter.cssUrl
 			})
-		delete currentRouter.realModel
-		if currentRouter.destroyModel then oldModel?.destroy()
+			oldModel = cola.util.removeUserData(currentRouter.targetDom, "_model")
+			oldModel?.destroy()
 
 	if router.templateUrl
 		if router.target
@@ -166,23 +175,9 @@ _switchRouter = (router, path) ->
 
 	currentRouter = router
 
-	if typeof router.model == "string"
-		model = cola.model(router.model)
-	else if router.model instanceof cola.Model
-		model = router.model
-
-	if !model
-		parentModelName = router.parentModel or cola.constants.DEFAULT_PATH
-		parentModel = cola.model(parentModelName)
-		if !parentModel then throw new cola.Exception("Parent Model \"#{parentModelName}\" is undefined.")
-		model = new cola.Model(router.model, parentModel)
-		router.destroyModel = true
-	else
-		router.destroyModel = false
-
-	router.realModel = model
-
 	if router.templateUrl
+		model = cola.createRouterModel(router)
+		cola.util.userData(router.targetDom, "_model", model)
 		cola.loadSubView(router.targetDom, {
 			model: model
 			htmlUrl: router.templateUrl
@@ -196,9 +191,10 @@ _switchRouter = (router, path) ->
 				return
 		})
 	else
-		router.enter?(router, model)
+		router.enter?(router, null)
 		document.title = router.title if router.title
 
+	eventArg.nextModel = model
 	cola.fire("routerSwitch", cola, eventArg)
 	return
 

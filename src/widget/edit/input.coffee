@@ -21,7 +21,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 		dataType:
 			setter: (dataType) ->
-				@_dataTypeDefined = !!dataType
 				return cola.DataType.dataTypeSetter.call(@, dataType)
 
 		size:
@@ -118,7 +117,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	_bindSetter: (bindStr) ->
 		super(bindStr)
-		cola.DataType.dataTypeSetter.call(@, @_getBindingDataType())
+		dataType = @_getBindingDataType()
+		if dataType then cola.DataType.dataTypeSetter.call(@, dataType)
 		return
 
 	_parseDom: (dom)->

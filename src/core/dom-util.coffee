@@ -85,8 +85,9 @@ cola.util.removeUserData = (node, key) ->
 	if id
 		store = cola.util.userDataStore[id]
 		if store
+			value = store[key]
 			delete store[key]
-	return
+	return value
 
 ON_NODE_REMOVED_KEY = "__onNodeRemoved"
 

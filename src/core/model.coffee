@@ -33,7 +33,7 @@ cola.removeModel = (name) ->
 	delete cola.model.models[name]
 	return model
 
-class cola.AbstractModel
+class cola.Scope
 	get: (path, loadMode, context) ->
 		return @data.get(path, loadMode, context)
 
@@ -91,9 +91,9 @@ class cola.AbstractModel
 			@data.bind(path, processor)
 		return @
 
-class cola.Model extends cola.AbstractModel
+class cola.Model extends cola.Scope
 	constructor: (name, parent) ->
-		if name instanceof cola.Model
+		if name instanceof cola.Scope
 			parent = name
 			name = undefined
 
@@ -141,7 +141,7 @@ class cola.Model extends cola.AbstractModel
 		@data.destroy?()
 		return
 
-class cola.SubScope extends cola.AbstractModel
+class cola.SubScope extends cola.Scope
 
 	watchPath: (path) ->
 		return if @_watchAllMessages or @_watchPath == path

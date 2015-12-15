@@ -58,7 +58,7 @@
 					return (s) ? s.toUpperCase() : "";
 				},
 				sum: function () {
-					sum = 0;
+					var sum = 0;
 					model.get("items").each(function (item) {
 						sum += parseInt(item.get("int"));
 					});

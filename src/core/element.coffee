@@ -441,7 +441,7 @@ cola.Element.createGroup = (elements, model) ->
 			if ele._scope && !ele._model
 				scope = ele._scope
 				while scope
-					if scope instanceof cola.Model
+					if scope instanceof cola.Scope
 						ele._model = scope
 						break
 					scope = scope.parent
