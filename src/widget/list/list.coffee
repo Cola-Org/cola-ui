@@ -21,6 +21,8 @@ class cola.ListView extends cola.ItemsView
 				@_set("bind", undefined)
 				@_items = items
 				return
+			getter: () ->
+				return @_realItems or @_items
 
 		bind:
 			refreshItems: true

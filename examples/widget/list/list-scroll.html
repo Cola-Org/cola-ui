@@ -19,6 +19,10 @@
 //				provider: "languages.json"
 //			});
 
+			console.dir(model.get("items").find({
+				name: "attributes"
+			}));
+
 			model.widgetConfig({
 				listScroll: {
 					$type: "listView",

@@ -216,6 +216,17 @@ class cola.NestedList extends cola.Widget
 		})
 		return
 
+	_getLayerInfo: (layer) ->
+		return {
+		index: layer.index
+			parentNode: layer.parentNode
+			parentItem: layer.parentNode?._data
+			title: parentNode.get("title")
+			titleBar: layer.titleBar
+			list: layer.list
+			items: layer.list.get("items")
+		}
+
 	_showLayer: (index, parentNode, callback) ->
 		if index <= @_layerIndex
 			i = index
@@ -241,12 +252,7 @@ class cola.NestedList extends cola.Widget
 					layer.container.show()
 				@_layerIndex = index
 				layer.parentNode = parentNode
-				@fire("topLayerChange", @, {
-					parentNode: parentNode
-					parentItem: parentNode?._data
-					index: index
-					list: layer.list
-				})
+				@fire("topLayerChange", @, @_getLayerInfo(layer))
 			callback?(wrapper?)
 			return
 		)
@@ -269,13 +275,7 @@ class cola.NestedList extends cola.Widget
 		@_layerIndex--
 
 		previousLayer = @_layers[@_layerIndex]
-		parentNode = previousLayer.parentNode
-		@fire("topLayerChange", @, {
-			parentNode: parentNode
-			parentItem: parentNode?._data
-			index: previousLayer
-			list: previousLayer.list
-		})
+		@fire("topLayerChange", @, @_getLayerInfo(previousLayer))
 		return
 
 	back: () ->
@@ -318,11 +318,11 @@ class cola.NestedList extends cola.Widget
 			})
 		return
 
-	getLayerItems: (index) ->
+	getLayer: (index) ->
 		layer = @_layers[index]
-		return layer?.list._realItems
+		return if layer then @_initLayer(layer) else null
 
-	getCurrentLayerItems: () ->
-		return @getLayerItems(@_layerIndex)
+	getTopLayer: () ->
+		return @getLayer(@_layerIndex)
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)

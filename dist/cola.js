@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeRemovedListener, _Entity, _EntityList, _RESERVE_NAMES, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getHashPath, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _onHashChange, _onStateChange, _removeNodeData, _setValue, _switchRouter, _toJSON, _unloadCss, alertException, appendChild, browser, buildAliasFeature, buildAttrFeature, buildBindFeature, buildClassFeature, buildContent, buildEvent, buildRepeatFeature, buildResourceFeature, buildStyleFeature, buildWatchFeature, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getEntityPath, key, oldIE, originalAjax, os, preprocessClass, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeRemovedListener, _Entity, _EntityList, _RESERVE_NAMES, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _onHashChange, _onStateChange, _removeNodeData, _setValue, _switchRouter, _toJSON, _unloadCss, alertException, appendChild, browser, buildAliasFeature, buildAttrFeature, buildBindFeature, buildClassFeature, buildContent, buildEvent, buildRepeatFeature, buildResourceFeature, buildStyleFeature, buildWatchFeature, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, key, oldIE, originalAjax, os, preprocessClass, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -3322,7 +3322,7 @@
 
   defaultDataTypes["number"] = defaultDataTypes["float"];
 
-  getEntityPath = function(markNoncurrent) {
+  _getEntityPath = function(markNoncurrent) {
     var lastEntity, parent, part, path, self;
     if (!markNoncurrent && this._pathCache) {
       return this._pathCache;
@@ -3357,6 +3357,261 @@
       this._pathCache = path;
     }
     return path;
+  };
+
+  _matchValue = function(value, propFilter) {
+    if (propFilter.strict) {
+      if (!propFilter.caseSensitive && typeof propFilter.value === "string") {
+        return (value + "").toLowerCase() === propFilter.value;
+      } else {
+        return value === propFilter.value;
+      }
+    } else {
+      if (!propFilter.caseSensitive) {
+        return (value + "").toLowerCase().indexOf(propFilter.value) > -1;
+      } else {
+        return (value + "").indexOf(propFilter.value) > -1;
+      }
+    }
+  };
+
+  cola._filterCollection = function(collection, criteria, caseSensitive, strict) {
+    var filtered, prop, propFilter;
+    if (!(collection && criteria)) {
+      return collection;
+    }
+    if (cola.util.isSimpleValue(criteria)) {
+      if (!caseSensitive) {
+        criteria = (criteria + "").toLowerCase();
+      }
+      criteria = {
+        "$": {
+          value: criteria,
+          caseSensitive: caseSensitive,
+          strict: strict
+        }
+      };
+    }
+    if (typeof criteria === "object") {
+      for (prop in criteria) {
+        propFilter = criteria[prop];
+        if (typeof propFilter === "string") {
+          criteria[prop] = {
+            value: propFilter.toLowerCase(),
+            caseSensitive: caseSensitive,
+            strict: strict
+          };
+        } else {
+          if (propFilter.caseSensitive == null) {
+            propFilter.caseSensitive = caseSensitive;
+          }
+          if (!propFilter.caseSensitive && typeof propFilter.value === "string") {
+            propFilter.value = propFilter.value.toLowerCase();
+          }
+          if (propFilter.strict == null) {
+            propFilter.strict = strict;
+          }
+          if (!propFilter.strict) {
+            propFilter.value = propFilter.value ? propFilter.value + "" : "";
+          }
+        }
+      }
+      filtered = [];
+      filtered.$origin = collection.$origin || collection;
+      cola.each(collection, function(item) {
+        var data, matches, p, v;
+        matches = false;
+        if (cola.util.isSimpleValue(item)) {
+          if (criteria.$) {
+            matches = _matchValue(v, criteria.$);
+          }
+        } else {
+          for (prop in criteria) {
+            propFilter = criteria[prop];
+            if (prop === "$") {
+              if (item instanceof cola.Entity) {
+                data = item._data;
+              } else {
+                data = item;
+              }
+              for (p in data) {
+                v = data[p];
+                if (_matchValue(v, propFilter)) {
+                  matches = true;
+                  break;
+                }
+              }
+              if (matches) {
+                break;
+              }
+            } else if (item instanceof cola.Entity) {
+              if (_matchValue(item.get(prop), propFilter)) {
+                matches = true;
+                break;
+              }
+            } else {
+              if (_matchValue(item[prop], propFilter)) {
+                matches = true;
+                break;
+              }
+            }
+          }
+        }
+        if (matches) {
+          filtered.push(item);
+        }
+      });
+      return filtered;
+    } else if (typeof criteria === "function") {
+      filtered = [];
+      filtered.$origin = collection.$origin || collection;
+      cola.each(collection, function(item) {
+        if (criteria(item, caseSensitive, strict)) {
+          filtered.push(item);
+        }
+      });
+      return filtered;
+    } else {
+      return collection;
+    }
+  };
+
+  cola._sortCollection = function(collection, comparator, caseSensitive) {
+    var c, comparatorFunc, comparatorProps, l, len1, origin, part, prop, propDesc, ref;
+    if (!collection) {
+      return null;
+    }
+    if ((comparator == null) || comparator === "$none") {
+      return collection;
+    }
+    if (collection instanceof cola.EntityList) {
+      origin = collection;
+      collection = collection.toArray();
+      collection.$origin = origin;
+    }
+    if (comparator) {
+      if (comparator === "$reverse") {
+        return collection.reverse();
+      } else if (typeof comparator === "string") {
+        comparatorProps = [];
+        ref = comparator.split(",");
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          part = ref[l];
+          c = part.charCodeAt(0);
+          propDesc = false;
+          if (c === 43) {
+            prop = part.substring(1);
+          } else if (c === 45) {
+            prop = part.substring(1);
+            propDesc = true;
+          } else {
+            prop = part;
+          }
+          comparatorProps.push({
+            prop: prop,
+            desc: propDesc
+          });
+        }
+        comparator = function(item1, item2) {
+          var comparatorProp, len2, o, result, value1, value2;
+          for (o = 0, len2 = comparatorProps.length; o < len2; o++) {
+            comparatorProp = comparatorProps[o];
+            value1 = null;
+            value2 = null;
+            prop = comparatorProp.prop;
+            if (prop) {
+              if (prop === "$random") {
+                return Math.random() * 2 - 1;
+              } else {
+                if (item1 instanceof cola.Entity) {
+                  value1 = item1.get(prop);
+                } else if (cola.util.isSimpleValue(item1)) {
+                  value1 = item1;
+                } else {
+                  value1 = item1[prop];
+                }
+                if (!caseSensitive && typeof value1 === "string") {
+                  value1 = value1.toLowerCase();
+                }
+                if (item2 instanceof cola.Entity) {
+                  value2 = item2.get(prop);
+                } else if (cola.util.isSimpleValue(item2)) {
+                  value2 = item2;
+                } else {
+                  value2 = item2[prop];
+                }
+                if (!caseSensitive && typeof value2 === "string") {
+                  value2 = value2.toLowerCase();
+                }
+                result = 0;
+                if (value1 == null) {
+                  result = -1;
+                } else if (value2 == null) {
+                  result = 1;
+                } else if (value1 > value2) {
+                  result = 1;
+                } else if (value1 < value2) {
+                  result = -1;
+                }
+                if (result !== 0) {
+                  if (comparatorProp.desc) {
+                    return 0 - result;
+                  } else {
+                    return result;
+                  }
+                }
+              }
+            } else {
+              result = 0;
+              if (item1 == null) {
+                result = -1;
+              } else if (item2 == null) {
+                result = 1;
+              } else if (item1 > item2) {
+                result = 1;
+              } else if (item1 < item2) {
+                result = -1;
+              }
+              if (result !== 0) {
+                if (comparatorProp.desc) {
+                  return 0 - result;
+                } else {
+                  return result;
+                }
+              }
+            }
+          }
+          return 0;
+        };
+      }
+    } else {
+      comparator = function(item1, item2) {
+        var result;
+        result = 0;
+        if (!caseSensitive) {
+          if (typeof item1 === "string") {
+            item1 = item1.toLowerCase();
+          }
+          if (typeof item2 === "string") {
+            item2 = item2.toLowerCase();
+          }
+        }
+        if (item1 == null) {
+          result = -1;
+        } else if (item2 == null) {
+          result = 1;
+        } else if (item1 > item2) {
+          result = 1;
+        } else if (item1 < item2) {
+          result = -1;
+        }
+        return result;
+      };
+    }
+    comparatorFunc = function(item1, item2) {
+      return comparator(item1, item2);
+    };
+    return collection.sort(comparatorFunc);
   };
 
   cola.Entity = (function() {
@@ -3832,7 +4087,7 @@
       return dataType;
     };
 
-    Entity.prototype.getPath = getEntityPath;
+    Entity.prototype.getPath = _getEntityPath;
 
     Entity.prototype.flush = function(property, loadMode) {
       var callback, notifyArg, propertyDef;
@@ -4916,7 +5171,7 @@
       return this;
     };
 
-    EntityList.prototype.getPath = getEntityPath;
+    EntityList.prototype.getPath = _getEntityPath;
 
     EntityList.prototype.toJSON = function(options) {
       var array, deleted, next, page;
@@ -4959,6 +5214,102 @@
         }
       }
       return array;
+    };
+
+    EntityList.prototype.filter = function(criteria) {
+      return cola._filterCollection(this, criteria);
+    };
+
+    EntityList.prototype.where = function(criteria) {
+      return cola._filterCollection(this, criteria, true, true);
+    };
+
+    EntityList.prototype.find = function(criteria) {
+      var filtered, prop, propFilter, result;
+      if (!criteria) {
+        return null;
+      }
+      if (cola.util.isSimpleValue(criteria)) {
+        criteria = {
+          "$": {
+            value: criteria,
+            caseSensitive: true,
+            strict: true
+          }
+        };
+      }
+      result = null;
+      if (typeof criteria === "object") {
+        for (prop in criteria) {
+          propFilter = criteria[prop];
+          if (typeof propFilter === "string") {
+            criteria[prop] = {
+              value: propFilter.toLowerCase(),
+              caseSensitive: true,
+              strict: true
+            };
+          } else {
+            if (propFilter.caseSensitive == null) {
+              propFilter.caseSensitive = true;
+            }
+            if (propFilter.strict == null) {
+              propFilter.strict = true;
+            }
+          }
+        }
+        cola.each(this, function(item) {
+          var data, matches, p, v;
+          matches = false;
+          if (cola.util.isSimpleValue(item)) {
+            if (criteria.$) {
+              matches = _matchValue(v, criteria.$);
+            }
+          } else {
+            for (prop in criteria) {
+              propFilter = criteria[prop];
+              if (prop === "$") {
+                if (item instanceof cola.Entity) {
+                  data = item._data;
+                } else {
+                  data = item;
+                }
+                for (p in data) {
+                  v = data[p];
+                  if (_matchValue(v, propFilter)) {
+                    matches = true;
+                    break;
+                  }
+                }
+                if (matches) {
+                  break;
+                }
+              } else if (item instanceof cola.Entity) {
+                if (_matchValue(item.get(prop), propFilter)) {
+                  matches = true;
+                  break;
+                }
+              } else {
+                if (_matchValue(item[prop], propFilter)) {
+                  matches = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (matches) {
+            result = item;
+          }
+        });
+      } else if (typeof criteria === "function") {
+        filtered = [];
+        filtered.$origin = collection.$origin || collection;
+        cola.each(collection, function(item) {
+          if (criteria(item)) {
+            result = item;
+          }
+        });
+      }
+      return result;
     };
 
     return EntityList;
@@ -6863,243 +7214,9 @@
     }
   };
 
-  cola.defaultAction.filter = function() {
-    var caseSensitive, collection, criteria, filtered, params, prop, propFilter;
-    collection = arguments[0], criteria = arguments[1], params = 3 <= arguments.length ? slice.call(arguments, 2) : [];
-    if (!(collection && criteria)) {
-      return collection;
-    }
-    if (cola.util.isSimpleValue(criteria)) {
-      caseSensitive = params[0];
-      if (!caseSensitive) {
-        criteria = (criteria + "").toLowerCase();
-      }
-      criteria = {
-        "$": {
-          value: criteria,
-          caseSensitive: caseSensitive,
-          strict: params[1]
-        }
-      };
-    }
-    if (typeof criteria === "object") {
-      for (prop in criteria) {
-        propFilter = criteria[prop];
-        if (typeof propFilter === "string") {
-          criteria[prop] = {
-            value: propFilter.toLowerCase()
-          };
-        } else {
-          if (cola.util.isSimpleValue(propFilter)) {
-            criteria[prop] = {
-              value: propFilter
-            };
-          }
-          if (!propFilter.strict) {
-            propFilter.value = propFilter.value ? propFilter.value + "" : "";
-          }
-          if (!propFilter.caseSensitive && typeof propFilter.value === "string") {
-            propFilter.value = propFilter.value.toLowerCase();
-          }
-        }
-      }
-      filtered = [];
-      filtered.$origin = collection.$origin || collection;
-      cola.each(collection, function(item) {
-        var data, matches, p, v;
-        matches = false;
-        if (cola.util.isSimpleValue(item)) {
-          if (criteria.$) {
-            matches = _matchValue(v, criteria.$);
-          }
-        } else {
-          for (prop in criteria) {
-            propFilter = criteria[prop];
-            if (prop === "$") {
-              if (item instanceof cola.Entity) {
-                data = item._data;
-              } else {
-                data = item;
-              }
-              for (p in data) {
-                v = data[p];
-                if (_matchValue(v, propFilter)) {
-                  matches = true;
-                  break;
-                }
-              }
-              if (matches) {
-                break;
-              }
-            } else if (item instanceof cola.Entity) {
-              if (_matchValue(item.get(prop), propFilter)) {
-                matches = true;
-                break;
-              }
-            } else {
-              if (_matchValue(item[prop], propFilter)) {
-                matches = true;
-                break;
-              }
-            }
-          }
-        }
-        if (matches) {
-          filtered.push(item);
-        }
-      });
-      return filtered;
-    } else if (typeof criteria === "function") {
-      filtered = [];
-      filtered.$origin = collection.$origin || collection;
-      cola.each(collection, function(item) {
-        if (criteria.apply(null, [item].concat(slice.call(params)))) {
-          filtered.push(item);
-        }
-      });
-      return filtered;
-    } else {
-      return collection;
-    }
-  };
+  cola.defaultAction.filter = cola._filterCollection;
 
-  cola.defaultAction.sort = function(collection, comparator, caseSensitive) {
-    var c, comparatorFunc, comparatorProps, l, len1, origin, part, prop, propDesc, ref;
-    if (!collection) {
-      return null;
-    }
-    if ((comparator == null) || comparator === "$none") {
-      return collection;
-    }
-    if (collection instanceof cola.EntityList) {
-      origin = collection;
-      collection = collection.toArray();
-      collection.$origin = origin;
-    }
-    if (comparator) {
-      if (comparator === "$reverse") {
-        return collection.reverse();
-      } else if (typeof comparator === "string") {
-        comparatorProps = [];
-        ref = comparator.split(",");
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          part = ref[l];
-          c = part.charCodeAt(0);
-          propDesc = false;
-          if (c === 43) {
-            prop = part.substring(1);
-          } else if (c === 45) {
-            prop = part.substring(1);
-            propDesc = true;
-          } else {
-            prop = part;
-          }
-          comparatorProps.push({
-            prop: prop,
-            desc: propDesc
-          });
-        }
-        comparator = function(item1, item2) {
-          var comparatorProp, len2, o, result, value1, value2;
-          for (o = 0, len2 = comparatorProps.length; o < len2; o++) {
-            comparatorProp = comparatorProps[o];
-            value1 = null;
-            value2 = null;
-            prop = comparatorProp.prop;
-            if (prop) {
-              if (prop === "$random") {
-                return Math.random() * 2 - 1;
-              } else {
-                if (item1 instanceof cola.Entity) {
-                  value1 = item1.get(prop);
-                } else if (cola.util.isSimpleValue(item1)) {
-                  value1 = item1;
-                } else {
-                  value1 = item1[prop];
-                }
-                if (!caseSensitive && typeof value1 === "string") {
-                  value1 = value1.toLowerCase();
-                }
-                if (item2 instanceof cola.Entity) {
-                  value2 = item2.get(prop);
-                } else if (cola.util.isSimpleValue(item2)) {
-                  value2 = item2;
-                } else {
-                  value2 = item2[prop];
-                }
-                if (!caseSensitive && typeof value2 === "string") {
-                  value2 = value2.toLowerCase();
-                }
-                result = 0;
-                if (value1 == null) {
-                  result = -1;
-                } else if (value2 == null) {
-                  result = 1;
-                } else if (value1 > value2) {
-                  result = 1;
-                } else if (value1 < value2) {
-                  result = -1;
-                }
-                if (result !== 0) {
-                  if (comparatorProp.desc) {
-                    return 0 - result;
-                  } else {
-                    return result;
-                  }
-                }
-              }
-            } else {
-              result = 0;
-              if (item1 == null) {
-                result = -1;
-              } else if (item2 == null) {
-                result = 1;
-              } else if (item1 > item2) {
-                result = 1;
-              } else if (item1 < item2) {
-                result = -1;
-              }
-              if (result !== 0) {
-                if (comparatorProp.desc) {
-                  return 0 - result;
-                } else {
-                  return result;
-                }
-              }
-            }
-          }
-          return 0;
-        };
-      }
-    } else {
-      comparator = function(item1, item2) {
-        var result;
-        result = 0;
-        if (!caseSensitive) {
-          if (typeof item1 === "string") {
-            item1 = item1.toLowerCase();
-          }
-          if (typeof item2 === "string") {
-            item2 = item2.toLowerCase();
-          }
-        }
-        if (item1 == null) {
-          result = -1;
-        } else if (item2 == null) {
-          result = 1;
-        } else if (item1 > item2) {
-          result = 1;
-        } else if (item1 < item2) {
-          result = -1;
-        }
-        return result;
-      };
-    }
-    comparatorFunc = function(item1, item2) {
-      return comparator(item1, item2);
-    };
-    return collection.sort(comparatorFunc);
-  };
+  cola.defaultAction.sort = cola._sortCollection;
 
   cola.defaultAction.top = function(collection, top) {
     var i, items;
@@ -23375,6 +23492,9 @@
           }
           this._set("bind", void 0);
           this._items = items;
+        },
+        getter: function() {
+          return this._realItems || this._items;
         }
       },
       bind: {
@@ -25098,6 +25218,20 @@
       });
     };
 
+    NestedList.prototype._getLayerInfo = function(layer) {
+      var ref;
+      return {
+        index: layer.index({
+          parentNode: layer.parentNode,
+          parentItem: (ref = layer.parentNode) != null ? ref._data : void 0,
+          title: parentNode.get("title"),
+          titleBar: layer.titleBar,
+          list: layer.list,
+          items: layer.list.get("items")
+        })
+      };
+    };
+
     NestedList.prototype._showLayer = function(index, parentNode, callback) {
       var i, itemsScope, layer, list;
       if (index <= this._layerIndex) {
@@ -25127,12 +25261,7 @@
             }
             _this._layerIndex = index;
             layer.parentNode = parentNode;
-            _this.fire("topLayerChange", _this, {
-              parentNode: parentNode,
-              parentItem: parentNode != null ? parentNode._data : void 0,
-              index: index,
-              list: layer.list
-            });
+            _this.fire("topLayerChange", _this, _this._getLayerInfo(layer));
           }
           if (typeof callback === "function") {
             callback(typeof wrapper !== "undefined" && wrapper !== null);
@@ -25145,7 +25274,7 @@
     };
 
     NestedList.prototype._hideLayer = function(animation) {
-      var layer, options, parentNode, previousLayer, ref;
+      var layer, options, previousLayer, ref;
       layer = this._layers[this._layerIndex];
       delete layer.list._itemsScope._retrieveItems;
       options = {};
@@ -25167,13 +25296,7 @@
       delete layer.parentNode;
       this._layerIndex--;
       previousLayer = this._layers[this._layerIndex];
-      parentNode = previousLayer.parentNode;
-      this.fire("topLayerChange", this, {
-        parentNode: parentNode,
-        parentItem: parentNode != null ? parentNode._data : void 0,
-        index: previousLayer,
-        list: previousLayer.list
-      });
+      this.fire("topLayerChange", this, this._getLayerInfo(previousLayer));
     };
 
     NestedList.prototype.back = function() {
@@ -25222,6 +25345,20 @@
           dom: arg.dom
         });
       }
+    };
+
+    NestedList.prototype.getLayer = function(index) {
+      var layer;
+      layer = this._layers[index];
+      if (layer) {
+        return this._initLayer(layer);
+      } else {
+        return null;
+      }
+    };
+
+    NestedList.prototype.getTopLayer = function() {
+      return this.getLayer(this._layerIndex);
     };
 
     return NestedList;
