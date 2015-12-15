@@ -22551,6 +22551,7 @@
     };
 
     ItemsView.EVENTS = {
+      getItemTemplate: null,
       renderItem: null,
       itemClick: null,
       itemDoubleClick: null,
@@ -22681,7 +22682,13 @@
     };
 
     ItemsView.prototype._getItemType = function(item) {
-      var ref;
+      var ref, type;
+      type = this.fire("getItemTemplate", this, {
+        item: item
+      });
+      if (type) {
+        return type;
+      }
       if (item != null ? item.isDataWrapper : void 0) {
         return ((ref = item._data) != null ? ref._itemType : void 0) || "default";
       } else {
@@ -25009,6 +25016,7 @@
     };
 
     NestedList.EVENTS = {
+      getItemTemplate: null,
       itemClick: null,
       renderItem: null,
       initLayer: null,
@@ -25117,6 +25125,11 @@
         highlightCurrentItem: highlightCurrentItem,
         height: "100%",
         userData: index,
+        getItemTemplate: (function(_this) {
+          return function(self, arg) {
+            return _this._onGetItemTemplate(self, arg);
+          };
+        })(this),
         renderItem: (function(_this) {
           return function(self, arg) {
             return _this._onRenderItem(self, arg);
@@ -25219,16 +25232,15 @@
     };
 
     NestedList.prototype._getLayerInfo = function(layer) {
-      var ref;
+      var ref, ref1;
       return {
-        index: layer.index({
-          parentNode: layer.parentNode,
-          parentItem: (ref = layer.parentNode) != null ? ref._data : void 0,
-          title: parentNode.get("title"),
-          titleBar: layer.titleBar,
-          list: layer.list,
-          items: layer.list.get("items")
-        })
+        index: layer.index,
+        parentNode: layer.parentNode,
+        parentItem: (ref = layer.parentNode) != null ? ref._data : void 0,
+        title: (ref1 = layer.parentNode) != null ? ref1.get("title") : void 0,
+        titleBar: layer.titleBar,
+        list: layer.list,
+        items: layer.list.get("items")
       };
     };
 
@@ -25306,6 +25318,14 @@
       } else {
         return false;
       }
+    };
+
+    NestedList.prototype._onGetItemTemplate = function(self, arg) {
+      var node;
+      node = arg.item;
+      return this.fire("getItemTemplate", this, {
+        item: node._data
+      });
     };
 
     NestedList.prototype._onItemClick = function(self, arg) {

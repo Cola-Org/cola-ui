@@ -35,6 +35,7 @@ class cola.ItemsView extends cola.Widget
 			refreshItems: true
 
 	@EVENTS:
+		getItemTemplate: null
 		renderItem: null
 		itemClick: null
 		itemDoubleClick: null
@@ -133,6 +134,9 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_getItemType: (item) ->
+		type = @fire("getItemTemplate", @, { item: item })
+		return type if type
+		
 		if item?.isDataWrapper
 			return item._data?._itemType or "default"
 		else

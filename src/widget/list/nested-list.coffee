@@ -45,6 +45,7 @@ class cola.NestedList extends cola.Widget
 			getter: () -> @_autoSplit and @_largeScreen
 
 	@EVENTS:
+		getItemTemplate: null
 		itemClick: null
 		renderItem: null
 		initLayer: null
@@ -138,6 +139,7 @@ class cola.NestedList extends cola.Widget
 			highlightCurrentItem: highlightCurrentItem
 			height: "100%"
 			userData: index
+			getItemTemplate: (self, arg) => @_onGetItemTemplate(self, arg)
 			renderItem: (self, arg) => @_onRenderItem(self, arg)
 			itemClick: (self, arg) => @_onItemClick(self, arg)
 
@@ -218,10 +220,10 @@ class cola.NestedList extends cola.Widget
 
 	_getLayerInfo: (layer) ->
 		return {
-		index: layer.index
+			index: layer.index
 			parentNode: layer.parentNode
 			parentItem: layer.parentNode?._data
-			title: parentNode.get("title")
+			title: layer.parentNode?.get("title")
 			titleBar: layer.titleBar
 			list: layer.list
 			items: layer.list.get("items")
@@ -284,6 +286,10 @@ class cola.NestedList extends cola.Widget
 			return true
 		else
 			return false
+
+	_onGetItemTemplate: (self, arg) ->
+		node = arg.item
+		return @fire("getItemTemplate", @, { item: node._data })
 
 	_onItemClick: (self, arg) ->
 		node = arg.item
