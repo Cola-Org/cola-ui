@@ -9,6 +9,8 @@ class cola.SubView extends cola.Widget
 			readOnlyAfterCreate: true
 		cssUrl:
 			readOnlyAfterCreate: true
+		parentModel: null
+		modelName: null
 		model:
 			readOnly: true
 			getter: () ->
@@ -43,13 +45,24 @@ class cola.SubView extends cola.Widget
 		dom = @_dom
 		@unload()
 
-		model = new cola.Model(@_scope)
-		cola.util.userData(dom, "_model", model)
-
+		@_parentModel = options.parentModel
+		@_modelName = options.modelName
 		@_url = options.url
 		@_jsUrl = options.jsUrl
 		@_cssUrl = options.cssUrl
 		@_param = options.param
+
+		if @_parentModel instanceof cola.Scope
+			parentModel = @_parentModel
+		else
+			parentModelName = @_parentModel or cola.constants.DEFAULT_PATH
+			parentModel = cola.model(parentModelName)
+
+		if @_modelName
+			model = new cola.Model(@_modelName, parentModel or @_scope)
+		else
+			model = new cola.Model(parentModel or @_scope)
+		cola.util.userData(dom, "_model", model)
 
 		@_loading = true
 		$dom = $(@_dom)

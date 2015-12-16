@@ -384,8 +384,9 @@ class cola.Element
 		return @_eventRegistry?[eventName]?.listeners
 
 	fire: (eventName, self, arg) ->
-		return true unless @_eventRegistry
+		return unless @_eventRegistry
 
+		result = undefined
 		listenerRegistry = @_eventRegistry[eventName]
 		if listenerRegistry
 			listeners = listenerRegistry.listeners

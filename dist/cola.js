@@ -1547,8 +1547,9 @@
     Element.prototype.fire = function(eventName, self, arg) {
       var argsMode, l, len1, len2, listener, listenerRegistry, listeners, o, onceListeners, result, retValue;
       if (!this._eventRegistry) {
-        return true;
+        return;
       }
+      result = void 0;
       listenerRegistry = this._eventRegistry[eventName];
       if (listenerRegistry) {
         listeners = listenerRegistry.listeners;
@@ -7781,7 +7782,9 @@
       parts = name.split("/");
       for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
         part = parts[i];
-        parts[i] = cola.util.capitalize(part);
+        if (i > 0) {
+          parts[i] = cola.util.capitalize(part);
+        }
       }
       router.name = parts.join("");
     }
@@ -7907,8 +7910,12 @@
 
   cola.createRouterModel = function(router) {
     var parentModel, parentModelName;
-    parentModelName = router.parentModel || cola.constants.DEFAULT_PATH;
-    parentModel = cola.model(parentModelName);
+    if (router.parentModel instanceof cola.Scope) {
+      parentModel = router.parentModel;
+    } else {
+      parentModelName = router.parentModel || cola.constants.DEFAULT_PATH;
+      parentModel = cola.model(parentModelName);
+    }
     if (!parentModel) {
       throw new cola.Exception("Parent Model \"" + parentModelName + "\" is undefined.");
     }
@@ -11014,17 +11021,17 @@
     Widget.prototype.fire = function(eventName, self, arg) {
       var eventConfig;
       if (!this._eventRegistry) {
-        return true;
+        return;
       }
       eventConfig = this.constructor.EVENTS[eventName];
       if (this.constructor.ATTRIBUTES.hasOwnProperty("disabled") && this.get("disabled") && eventConfig && (eventConfig.$event || eventConfig.hammerEvent)) {
-        return true;
+        return;
       }
       if (!this["_hasFireTapEvent"]) {
         this["_hasFireTapEvent"] = eventName === "tap";
       }
       if (eventName === "click" && this["_hasFireTapEvent"]) {
-        return true;
+        return;
       }
       return Widget.__super__.fire.call(this, eventName, self, arg);
     };
@@ -14023,6 +14030,8 @@
       cssUrl: {
         readOnlyAfterCreate: true
       },
+      parentModel: null,
+      modelName: null,
       model: {
         readOnly: true,
         getter: function() {
@@ -14067,15 +14076,27 @@
     };
 
     SubView.prototype.load = function(options, callback) {
-      var $content, $dimmer, $dom, dom, model;
+      var $content, $dimmer, $dom, dom, model, parentModel, parentModelName;
       dom = this._dom;
       this.unload();
-      model = new cola.Model(this._scope);
-      cola.util.userData(dom, "_model", model);
+      this._parentModel = options.parentModel;
+      this._modelName = options.modelName;
       this._url = options.url;
       this._jsUrl = options.jsUrl;
       this._cssUrl = options.cssUrl;
       this._param = options.param;
+      if (this._parentModel instanceof cola.Scope) {
+        parentModel = this._parentModel;
+      } else {
+        parentModelName = this._parentModel || cola.constants.DEFAULT_PATH;
+        parentModel = cola.model(parentModelName);
+      }
+      if (this._modelName) {
+        model = new cola.Model(this._modelName, parentModel || this._scope);
+      } else {
+        model = new cola.Model(parentModel || this._scope);
+      }
+      cola.util.userData(dom, "_model", model);
       this._loading = true;
       $dom = $(this._dom);
       $content = $dom.find(">.content");

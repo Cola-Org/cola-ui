@@ -33,7 +33,9 @@ cola.route = (path, router) ->
 	if not router.name
 		name = path or cola.constants.DEFAULT_PATH
 		parts = name.split("/")
-		parts[i] = cola.util.capitalize(part) for part, i in parts
+		for part, i in parts
+			if i > 0
+				parts[i] = cola.util.capitalize(part)
 		router.name = parts.join("");
 
 	router.pathParts = pathParts = []
@@ -132,8 +134,11 @@ _findRouter = (path) ->
 		return null
 
 cola.createRouterModel = (router) ->
-	parentModelName = router.parentModel or cola.constants.DEFAULT_PATH
-	parentModel = cola.model(parentModelName)
+	if router.parentModel instanceof cola.Scope
+		parentModel = router.parentModel
+	else
+		parentModelName = router.parentModel or cola.constants.DEFAULT_PATH
+		parentModel = cola.model(parentModelName)
 	if !parentModel then throw new cola.Exception("Parent Model \"#{parentModelName}\" is undefined.")
 	return new cola.Model(router.name, parentModel)
 
