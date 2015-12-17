@@ -109,15 +109,39 @@ class cola.ItemsView extends cola.Widget
 		@_$dom = $(dom)
 		return
 
+	_showLoadingTip: () ->
+		$loaderContainer = @_$loaderContainer
+		if not $loaderContainer
+			$itemsWrapper = $fly(@_doms.itemsWrapper)
+			$itemsWrapper.xAppend(
+				class: "loader-container protected"
+				content:
+					class: "ui loader"
+			)
+			@_$loaderContainer = $loaderContainer = $itemsWrapper.find(">.loader-container");
+		else
+			$loaderContainer.remove()
+			$loaderContainer.appendTo(@_doms.itemsWrapper)
+
+		$loaderContainer.addClass("active")
+		return
+
+	_hideLoadingTip: () ->
+		@_$loaderContainer?.removeClass("active")
+		return
+
 	_onItemsWrapperScroll: () ->
 		realItems = @_realItems
-		if @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or !@_realOriginItems)
-			if realItems instanceof cola.EntityList and (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
+		if @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
+			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and  (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
 				itemsWrapper = @_doms.itemsWrapper
 				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
 					@_loadingNextPage = true
+					@_showLoadingTip()
+					$fly(itemsWrapper).find(">.tail-padding").remove()
 					realItems.loadPage(realItems.pageNo + 1, () =>
 						@_loadingNextPage = false
+						@_hideLoadingTip()
 						return
 					)
 		return
@@ -188,6 +212,14 @@ class cola.ItemsView extends cola.Widget
 				@_currentItemDom = null if itemDom == @_currentItemDom
 
 		@_refreshEmptyItemDom()
+		return
+
+	_onItemsLoadingStart: (arg) ->
+		@_showLoadingTip()
+		return
+
+	_onItemsLoadingEnd: (arg) ->
+		@_hideLoadingTip()
 		return
 
 	_setCurrentItemDom: (currentItemDom) ->
@@ -271,20 +303,20 @@ class cola.ItemsView extends cola.Widget
 			@_itemsScope.resetItemScopeMap()
 
 			counter = 0
-			limit = 0
-			if @_autoLoadPage and not @_realOriginItems and items instanceof cola.EntityList
-				limit = items.pageNo
+#			limit = 0
+#			if @_autoLoadPage and not @_realOriginItems and items instanceof cola.EntityList
+#				limit = items.pageNo
 
 			@_refreshEmptyItemDom()
 
 			lastItem = null
 			cola.each items, (item) =>
-				if limit
-					if items instanceof cola.EntityList
-						if item._page?.pageNo > limit then return false
-					else
-						counter++
-						if counter > limit then return false
+#				if limit
+#					if items instanceof cola.EntityList
+#						if item._page?.pageNo > limit then return false
+#					else
+#						counter++
+#						if counter > limit then return false
 
 				lastItem = item
 				itemType = @_getItemType(item)
@@ -332,11 +364,14 @@ class cola.ItemsView extends cola.Widget
 			if @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
 				currentPageNo = lastItem?._page?.pageNo
 				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
-					if itemsWrapper.scrollHeight and (itemsWrapper.scrollTop + itemsWrapper.clientHeight) < itemsWrapper.scrollHeight
-						setTimeout(() ->
-							items.loadPage(currentPageNo + 1, cola._EMPTY_FUNC)
+					if itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
+						@_showLoadingTip()
+						items.loadPage(currentPageNo + 1, () =>
+							@_hideLoadingTip()
 							return
-						, 0)
+						)
+				else
+					$fly(itemsWrapper).xAppend( class: "tail-padding" )
 
 		if @_pullAction == undefined
 			@_pullAction = null

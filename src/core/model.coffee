@@ -338,6 +338,14 @@ class cola.ItemsScope extends cola.SubScope
 		@onItemRemove?(arg)
 		return
 
+	itemsLoadingStart: (arg) ->
+		arg.itemsScope = @
+		@onItemsLoadingStart?(arg)
+
+	itemsLoadingEnd: (arg) ->
+		arg.itemsScope = @
+		@onItemsLoadingEnd?(arg)
+
 	changeCurrentItem: (arg) ->
 		arg.itemsScope = @
 		@onCurrentItemChange?(arg)
@@ -469,6 +477,12 @@ class cola.ItemsScope extends cola.SubScope
 					if i > -1 then items.splice(i, 1)
 				@removeItem(arg)
 				allProcessed = true
+
+		else if type == cola.constants.MESSAGE_LOADING_START
+			if @isRootOfTarget(path, targetPath) then @itemsLoadingStart(arg)
+
+		else if type == cola.constants.MESSAGE_LOADING_END
+			if @isRootOfTarget(path, targetPath) then @itemsLoadingEnd(arg)
 
 		return allProcessed
 

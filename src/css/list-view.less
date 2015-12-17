@@ -116,6 +116,22 @@
 			}
 		}
 	}
+
+	.loader-container {
+		height: 5em;
+		position: relative;
+		display: none;
+		&.active {
+			display: block;
+			>.ui.loader {
+				display: block;
+			}
+		}
+	}
+
+	.tail-padding {
+		height: 5em;
+	}
 }
 
 .ui.list-view.striped {

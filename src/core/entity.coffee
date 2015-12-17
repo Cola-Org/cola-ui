@@ -259,8 +259,17 @@ class cola.Entity
 					context.providerInvokers.push(providerInvoker)
 
 				@_data[prop] = providerInvoker
+				notifyArg = {
+					data: @
+					property: prop
+				}
+				if loadMode is "async"
+					@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 				providerInvoker.invokeAsync(
 					complete: (success, result) =>
+						if loadMode is "async"
+							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+
 						if @_data[prop] != providerInvoker then success = false
 						if success
 							result = @_set(prop, result)
@@ -568,18 +577,10 @@ class cola.Entity
 			callback = loadMode
 			loadMode = "async"
 
-		notifyArg = {
-			data: @
-			property: property
-		}
-
-		if loadMode is "async"
-			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 		return @_get(property, loadMode, {
 			complete: (success, result) =>
 				cola.callback(callback, success, result)
-				if loadMode is "async"
-					@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+				return
 		})
 
 	_setListener: (listener) ->
@@ -1275,7 +1276,6 @@ class cola.EntityList extends LinkedList
 			notifyArg = {
 				data: @
 			}
-
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 			page.loadData(
 				complete: (success, result)  =>

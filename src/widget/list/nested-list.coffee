@@ -326,7 +326,7 @@ class cola.NestedList extends cola.Widget
 
 	getLayer: (index) ->
 		layer = @_layers[index]
-		return if layer then @_initLayer(layer) else null
+		return if layer then @_getLayerInfo(layer) else null
 
 	getTopLayer: () ->
 		return @getLayer(@_layerIndex)
