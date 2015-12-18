@@ -45,6 +45,7 @@ class cola.NestedList extends cola.Widget
 			getter: () -> @_autoSplit and @_largeScreen
 
 	@EVENTS:
+		getItemTemplate: null
 		itemClick: null
 		renderItem: null
 		initLayer: null
@@ -138,6 +139,7 @@ class cola.NestedList extends cola.Widget
 			highlightCurrentItem: highlightCurrentItem
 			height: "100%"
 			userData: index
+			getItemTemplate: (self, arg) => @_onGetItemTemplate(self, arg)
 			renderItem: (self, arg) => @_onRenderItem(self, arg)
 			itemClick: (self, arg) => @_onItemClick(self, arg)
 
@@ -216,6 +218,17 @@ class cola.NestedList extends cola.Widget
 		})
 		return
 
+	_getLayerInfo: (layer) ->
+		return {
+			index: layer.index
+			parentNode: layer.parentNode
+			parentItem: layer.parentNode?._data
+			title: layer.parentNode?.get("title")
+			titleBar: layer.titleBar
+			list: layer.list
+			items: layer.list.get("items")
+		}
+
 	_showLayer: (index, parentNode, callback) ->
 		if index <= @_layerIndex
 			i = index
@@ -241,12 +254,7 @@ class cola.NestedList extends cola.Widget
 					layer.container.show()
 				@_layerIndex = index
 				layer.parentNode = parentNode
-				@fire("topLayerChange", @, {
-					parentNode: parentNode
-					parentItem: parentNode?._data
-					index: index
-					list: layer.list
-				})
+				@fire("topLayerChange", @, @_getLayerInfo(layer))
 			callback?(wrapper?)
 			return
 		)
@@ -269,13 +277,7 @@ class cola.NestedList extends cola.Widget
 		@_layerIndex--
 
 		previousLayer = @_layers[@_layerIndex]
-		parentNode = previousLayer.parentNode
-		@fire("topLayerChange", @, {
-			parentNode: parentNode
-			parentItem: parentNode?._data
-			index: previousLayer
-			list: previousLayer.list
-		})
+		@fire("topLayerChange", @, @_getLayerInfo(previousLayer))
 		return
 
 	back: () ->
@@ -284,6 +286,10 @@ class cola.NestedList extends cola.Widget
 			return true
 		else
 			return false
+
+	_onGetItemTemplate: (self, arg) ->
+		node = arg.item
+		return @fire("getItemTemplate", @, { item: node._data })
 
 	_onItemClick: (self, arg) ->
 		node = arg.item
@@ -317,5 +323,12 @@ class cola.NestedList extends cola.Widget
 				dom: arg.dom
 			})
 		return
+
+	getLayer: (index) ->
+		layer = @_layers[index]
+		return if layer then @_getLayerInfo(layer) else null
+
+	getTopLayer: () ->
+		return @getLayer(@_layerIndex)
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)

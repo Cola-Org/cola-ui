@@ -384,8 +384,9 @@ class cola.Element
 		return @_eventRegistry?[eventName]?.listeners
 
 	fire: (eventName, self, arg) ->
-		return true unless @_eventRegistry
+		return unless @_eventRegistry
 
+		result = undefined
 		listenerRegistry = @_eventRegistry[eventName]
 		if listenerRegistry
 			listeners = listenerRegistry.listeners
@@ -441,7 +442,7 @@ cola.Element.createGroup = (elements, model) ->
 			if ele._scope && !ele._model
 				scope = ele._scope
 				while scope
-					if scope instanceof cola.Model
+					if scope instanceof cola.Scope
 						ele._model = scope
 						break
 					scope = scope.parent

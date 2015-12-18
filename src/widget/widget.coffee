@@ -338,14 +338,14 @@ class cola.Widget extends cola.RenderableElement
 		return @
 
 	fire: (eventName, self, arg) ->
-		return true unless @_eventRegistry
+		return unless @_eventRegistry
 
 		eventConfig = @constructor.EVENTS[eventName]
 
-		return true if @constructor.ATTRIBUTES.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
+		return if @constructor.ATTRIBUTES.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
 
 		@["_hasFireTapEvent"] = eventName is "tap" if !@["_hasFireTapEvent"]
-		return true if eventName is "click" and @["_hasFireTapEvent"]
+		return if eventName is "click" and @["_hasFireTapEvent"]
 
 		return super(eventName, self, arg)
 

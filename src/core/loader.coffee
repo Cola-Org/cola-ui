@@ -71,7 +71,8 @@ cola.loadSubView = (targetDom, context) ->
 
 	if htmlUrl
 		_loadHtml(targetDom, htmlUrl, undefined, {
-			complete: (success, result) -> resourceLoadCallback(success, result, htmlUrl)
+			complete: (success, result) ->
+				resourceLoadCallback(success, result, htmlUrl)
 		})
 
 	if jsUrls

@@ -33,7 +33,7 @@ cola.removeModel = (name) ->
 	delete cola.model.models[name]
 	return model
 
-class cola.AbstractModel
+class cola.Scope
 	get: (path, loadMode, context) ->
 		return @data.get(path, loadMode, context)
 
@@ -91,9 +91,9 @@ class cola.AbstractModel
 			@data.bind(path, processor)
 		return @
 
-class cola.Model extends cola.AbstractModel
+class cola.Model extends cola.Scope
 	constructor: (name, parent) ->
-		if name instanceof cola.Model
+		if name instanceof cola.Scope
 			parent = name
 			name = undefined
 
@@ -141,7 +141,7 @@ class cola.Model extends cola.AbstractModel
 		@data.destroy?()
 		return
 
-class cola.SubScope extends cola.AbstractModel
+class cola.SubScope extends cola.Scope
 
 	watchPath: (path) ->
 		return if @_watchAllMessages or @_watchPath == path
@@ -338,6 +338,14 @@ class cola.ItemsScope extends cola.SubScope
 		@onItemRemove?(arg)
 		return
 
+	itemsLoadingStart: (arg) ->
+		arg.itemsScope = @
+		@onItemsLoadingStart?(arg)
+
+	itemsLoadingEnd: (arg) ->
+		arg.itemsScope = @
+		@onItemsLoadingEnd?(arg)
+
 	changeCurrentItem: (arg) ->
 		arg.itemsScope = @
 		@onCurrentItemChange?(arg)
@@ -469,6 +477,12 @@ class cola.ItemsScope extends cola.SubScope
 					if i > -1 then items.splice(i, 1)
 				@removeItem(arg)
 				allProcessed = true
+
+		else if type == cola.constants.MESSAGE_LOADING_START
+			if @isRootOfTarget(path, targetPath) then @itemsLoadingStart(arg)
+
+		else if type == cola.constants.MESSAGE_LOADING_END
+			if @isRootOfTarget(path, targetPath) then @itemsLoadingEnd(arg)
 
 		return allProcessed
 

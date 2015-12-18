@@ -385,6 +385,8 @@ cola.DataItemsWidgetMixin =
 		itemsScope.onItemRefresh = (arg) => @_onItemRefresh(arg)
 		itemsScope.onItemInsert = (arg) => @_onItemInsert(arg)
 		itemsScope.onItemRemove = (arg) => @_onItemRemove(arg)
+		itemsScope.onItemsLoadingStart = (arg) => @_onItemsLoadingStart(arg)
+		itemsScope.onItemsLoadingEnd = (arg) => @_onItemsLoadingEnd(arg)
 		if @_onCurrentItemChange
 			itemsScope.onCurrentItemChange = (arg) => @_onCurrentItemChange(arg)
 

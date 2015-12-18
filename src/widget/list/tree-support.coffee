@@ -51,6 +51,7 @@ class cola.CascadeBind extends cola.Element
 				nodeMap[node._id] = node
 				nodes.push(node)
 				return
+
 		if childItems
 			cola.each childItems, (item) =>
 				if nodeCache

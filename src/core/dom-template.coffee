@@ -12,6 +12,8 @@ cola._rootFunc = () ->
 			fn = arg
 		else if typeof arg == "string"
 			modelName = arg
+		else if arg instanceof cola.Scope
+			model = arg
 		else if arg?.nodeType or typeof arg == "object" and arg.length > 0
 			targetDom = arg
 
@@ -39,9 +41,10 @@ cola._rootFunc = () ->
 	if cola._suspendedInitFuncs
 		cola._suspendedInitFuncs.push(init)
 	else
-		modelName ?= cola.constants.DEFAULT_PATH
-		model = cola.model(modelName)
-		model ?= new cola.Model(modelName)
+		if not model
+			modelName ?= cola.constants.DEFAULT_PATH
+			model = cola.model(modelName)
+			model ?= new cola.Model(modelName)
 
 		if cola._mainInitFuncs
 			cola._mainInitFuncs.push(
