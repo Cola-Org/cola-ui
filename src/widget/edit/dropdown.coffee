@@ -494,12 +494,12 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 		if @_opened and @_filterable
 			inputDom = @_doms.input
-			$fly(inputDom).on("input.filter", () => @_onInput(inputDom.value))
+			$fly(inputDom).on("input.filterItem", () => @_onInput(inputDom.value))
 		return
 
 	close: (selectedValue) ->
 		if @_filterable
-			$fly(@_doms.input).off("input.filter")
+			$fly(@_doms.input).off("input.filterItem")
 		return super(selectedValue)
 
 	_onInput: (value) ->
