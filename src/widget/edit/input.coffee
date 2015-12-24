@@ -3,6 +3,7 @@ DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
 DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
+
 class cola.AbstractInput extends cola.AbstractEditor
 	@CLASS_NAME: "input"
 	@SEMANTIC_CLASS: [

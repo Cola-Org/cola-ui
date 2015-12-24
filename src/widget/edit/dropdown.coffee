@@ -25,28 +25,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		currentItem:
 			readOnly: true
 
-		value:
-			refreshDom: true
-			setter: (value) ->
-				cola.AbstractInput.ATTRIBUTES.value.setter.apply(@, arguments)
-				return if @_skipFindCurrentItem
-
-				if !@_itemsIndex
-					if @_items and value and @_valueProperty
-						@_itemsIndex = index = {}
-						valueProperty = @_valueProperty
-						cola.each @_items, (item) ->
-							if item instanceof cola.Entity
-								key = item.get(valueProperty)
-							else
-								key = item[valueProperty]
-							index[key + ""] = item
-							return
-						currentItem = index[value + ""]
-				else
-					currentItem = @_itemsIndex[value + ""]
-				@_currentItem = currentItem
-				return
 		valueProperty: null
 		textProperty: null
 
@@ -141,6 +119,26 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
+
+	_setValue: (value) ->
+		if not @_skipFindCurrentItem
+			if !@_itemsIndex
+				if @_items and value and @_valueProperty
+					@_itemsIndex = index = {}
+					valueProperty = @_valueProperty
+					cola.each @_items, (item) ->
+						if item instanceof cola.Entity
+							key = item.get(valueProperty)
+						else
+							key = item[valueProperty]
+						index[key + ""] = item
+						return
+					currentItem = index[value + ""]
+			else
+				currentItem = @_itemsIndex[value + ""]
+			@_currentItem = currentItem
+
+		return super(value)
 
 	_setValueContent: () ->
 		input = @_doms.input

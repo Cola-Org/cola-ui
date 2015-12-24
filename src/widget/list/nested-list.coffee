@@ -226,7 +226,7 @@ class cola.NestedList extends cola.Widget
 			title: layer.parentNode?.get("title")
 			titleBar: layer.titleBar
 			list: layer.list
-			items: layer.list.get("items")
+			nodes: layer.list.get("items")
 		}
 
 	_showLayer: (index, parentNode, callback) ->
