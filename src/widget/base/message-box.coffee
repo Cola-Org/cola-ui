@@ -18,20 +18,23 @@ do()->
 			$(cola.commonDimmer._dom).removeClass("active")
 
 	messageBox =
-
 		settings:
 			info:
-				title: cola.resource("cola.messageBox.info.title")
+				title: "Information"
+				i18n: "cola.messageBox.info.title"
 				icon: "blue info icon"
 			warning:
-				title: cola.resource("cola.messageBox.warning.title")
+				title: "Warning"
 				icon: "yellow warning sign icon"
+				i18n: "cola.messageBox.warning.title"
 			error:
-				title: cola.resource("cola.messageBox.error.title")
+				title: "Error"
 				icon: "red warning sign icon"
+				i18n: "cola.messageBox.error.title"
 			question:
-				title: cola.resource("cola.messageBox.question.title")
+				title: "Question"
 				icon: "black help circle icon"
+				i18n: "cola.messageBox.question.title"
 		class: "standard"
 		dialogMode: true
 		level:
@@ -102,7 +105,7 @@ do()->
 			level = options.level || messageBox.level.INFO
 
 			$dom = $(dom)
-			options.title ?= settings[level].title
+			options.title ?= cola.resource(settings[level].i18n)
 			options.icon ?= settings[level].icon
 
 			messageBox._onDeny = options.onDeny
