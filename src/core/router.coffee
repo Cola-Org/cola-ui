@@ -33,10 +33,13 @@ cola.route = (path, router) ->
 	if not router.name
 		name = path or cola.constants.DEFAULT_PATH
 		parts = name.split("/")
+		nameParts = []
 		for part, i in parts
-			if i > 0
-				parts[i] = cola.util.capitalize(part)
-		router.name = parts.join("");
+			if part.charCodeAt(0) == 58 # `:`
+				continue
+			if nameParts.length > 0
+				nameParts.push(cola.util.capitalize(part))
+		router.name = nameParts.join("");
 
 	router.pathParts = pathParts = []
 	if path

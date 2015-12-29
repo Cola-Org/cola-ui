@@ -184,17 +184,26 @@ _loadCss = (url, callback) ->
 			href: url
 		)
 
-		$(linkElement).on("load", () ->
-			cola.callback(callback, true)
-			return
-		).on("error", () ->
-			cola.callback(callback, false)
-			return
-		)
+		if not (cola.os.android and cola.os.version < 4.4)
+			$(linkElement).one("load", () ->
+				cola.callback(callback, true)
+				return
+			).on("readystatechange", (evt) ->
+				if evt.target?.readyState is "complete"
+					cola.callback(callback, true)
+					$fly(this).off("readystatechange")
+				return
+			).one("error", () ->
+				cola.callback(callback, false)
+				return
+			)
 
 		head = document.querySelector("head") or document.documentElement
 		head.appendChild(linkElement)
 		_cssCache[url] = linkElement
+
+		if cola.os.android and cola.os.version < 4.4
+			cola.callback(callback, true)
 	else
 		cola.callback(callback, true)
 	return
