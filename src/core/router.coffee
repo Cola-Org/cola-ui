@@ -37,8 +37,7 @@ cola.route = (path, router) ->
 		for part, i in parts
 			if part.charCodeAt(0) == 58 # `:`
 				continue
-			if nameParts.length > 0
-				nameParts.push(cola.util.capitalize(part))
+			nameParts.push(if nameParts.length > 0 then cola.util.capitalize(part) else part)
 		router.name = nameParts.join("");
 
 	router.pathParts = pathParts = []
