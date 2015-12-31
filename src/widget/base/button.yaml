@@ -90,7 +90,6 @@
     - name: states
       label: 状态
       enum:
-        - disabled
         - loading
         - active
         - ""

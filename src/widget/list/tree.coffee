@@ -71,6 +71,8 @@ class cola.Tree extends cola.ItemsView
 					@_scope.set(alias, @_currentNode?._data)
 				return
 
+		autoCollapse: null
+
 	@EVENTS:
 		beforeCurrentNodeChange: null
 		currentNodeChange: null
@@ -327,6 +329,11 @@ class cola.Tree extends cola.ItemsView
 			else
 				$fly(nodeDom).addClass("leaf")
 			node._hasExpanded = true
+
+			if tree._autoCollapse and node._parent?._children
+				for brotherNode in node._parent._children
+					if brotherNode isnt node and brotherNode._expanded
+						tree.collapse(brotherNode)
 			return
 		)
 		return
