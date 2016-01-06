@@ -23,7 +23,7 @@ class cola.ItemsView extends cola.Widget
 			type:"boolean"
 			defaultValue: true
 
-		changeCurrentitem:
+		changeCurrentItem:
 			type:"boolean"
 
 		pullDown:
@@ -476,7 +476,7 @@ class cola.ItemsView extends cola.Widget
 		item = cola.util.userData(itemDom, "item")
 		if itemDom._itemType == "default"
 			if item
-				if @_changeCurrentitem and item._parent instanceof cola.EntityList
+				if @_changeCurrentItem and item._parent instanceof cola.EntityList
 					item._parent.setCurrent(item)
 				else
 					@_setCurrentItemDom(itemDom)

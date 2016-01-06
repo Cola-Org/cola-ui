@@ -109,6 +109,13 @@
 				{name: "Pascal"}
 			]);
 
+			setTimeout(function() {
+				model.set("items", [
+					{ k: "1", v: "A"},
+					{ k: "2", v: "B"}
+				]);
+			}, 300);
+
 			model.action({
 				pickValue: function(self) {
 					dropdown = cola.findDropDown(self);
@@ -119,12 +126,21 @@
 			});
 
 			model.widgetConfig({
+				button1: {
+					$type: "button",
+					caption: "Test",
+					click: function() {
+						model.set("selected", null);
+					}
+				},
 				dropdown1: {
 					$type: "dropdown",
 					filterable: false,
-					openMode: "dialog",
-					items: "{{language in languages}}",
-					valueProperty: "name"
+					openMode: "layer",
+					items: "{{item in items}}",
+					valueProperty: "k",
+					textProperty: "v",
+					bind: "selected"
 				},
 				dropdown2: {
 					$type: "dropdown",
@@ -162,6 +178,8 @@
 	</script>
 </head>
 <body style="padding:20px;">
+
+<div id="button1"></div>
 
 <div id="dropdown1"></div>
 

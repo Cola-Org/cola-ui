@@ -1,0 +1,27 @@
+name: cola.ListView
+stereotype: class
+super: cola.ItemsView
+label: 列表
+
+attributes:
+  - name: items
+    type: [any] || cola.EntityList
+    label: 列表中要显示的数据。
+    description: 此属性不要与bind属性同时使用。
+
+  - name: bind
+    type: string
+    label: 绑定表达式。
+    description: 此属性不要与items属性同时使用。
+
+  - name: textProperty
+    type: string
+    label: 作为内容显示在列表中的数据属性名。
+    description: |
+      此属性通常只在未自定义行模板时需要使用。
+      不过在特殊情况下，即使定义了行模板也可以继续使textProperty发挥作用。你可以在行模板中使用`$default`这样的特殊表达式来代表textProperty的值。例如：
+      <code>
+      <template>
+        <span c-bind="$default"></span>
+      </template>
+      </code>

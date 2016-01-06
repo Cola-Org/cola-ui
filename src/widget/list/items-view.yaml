@@ -1,0 +1,237 @@
+name: cola.ItemsView
+stereotype: class
+super: cola.Widget
+label: 集合型控件的抽象类
+
+attributes:
+  - name: allowNoCurrent
+    type: boolean
+    defaultValue: true
+    label: 是否允许集合型控件没有当前列表元素。
+
+  - name: currentItem
+    type: cola.Entity || any
+    label: 当前列表元素所对应的列表数据项。
+
+  - name: highlightCurrentItem
+    type: boolean
+    label: 是否高亮显示当前的列表元素。
+
+  - name: autoLoadPage
+    type: boolean
+    label: 是否自动装载下一页记录。
+    description: |
+      此功能需要配合cola.Provider的pageSize属性来使用。
+      即当需要时ColaUI会自动利用绑定的cola.EntityList对应的cola.Provider的翻页功能来装载新一页的数据。
+
+  - name: changeCurrentitem
+    type: boolean
+    label: 是否在用户点击某个列表元素时自动将其设置为新的当前元素。
+
+  - name: pullDown
+    type: boolean
+    label: 是否启动下拉手势。
+    description: |
+      此功能通常用于实现列表的下拉刷新功能。
+
+  - name: pullUp
+    type: boolean
+    label: 是否启动上拉手势。
+
+  - name: filterCriteria
+    type: string || JSON || [JSON]
+    label: 过滤条件。
+    description: |
+      此属性值的具体定义形式请参考此链接中的隐式Action里的filter方法 <a href="../docs/action">docs/action</a>。
+      另外，您也可以任意的为filterCriteria定义个内容，只要filterCriteria的内容不为空。此控件在尝试渲染集合中的每一个元素时就会触发filterItem事件，您可以在该事件中利用代码逻辑来确定要显示哪些列表项。
+
+events:
+  - name: getItemTemplate
+    label: 当列表控件尝试确定每一个列表项的模板时触发的事件。
+    description: |
+      该事件的返回值即为要使用的模板的名称，如果此事件返回空则表示使用默认的名为“default”的模板。
+    type: string
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+
+  - name: renderItem
+    label: 当列表控件尝试渲染每一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: itemScope
+            type: cola.Scope
+            description: 当前列表元素对应的scope。
+
+  - name: itemClick
+    label: 当用户点击某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: itemDoubleClick
+    label: 当用户双击某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: itemPress
+    label: 当用户长按某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: pullStart
+    label: 当列表的即将进入下拉或上拉状态时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: pullPane
+            type: HTMLElement
+            description: 下拉或上拉区对应的DOM元素。
+          - name: direction
+            enum:
+              - down
+              - up
+            description: 下拉或上拉。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: pullStep
+    label: 当列表已经进入下拉或上拉状态，用户在继续拖动列表时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: pullPane
+            type: HTMLElement
+            description: 下拉或上拉区对应的DOM元素。
+          - name: direction
+            enum:
+              - down
+              - up
+            description: 下拉或上拉。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+          - name: distence
+            type: int
+            description: 拖动的距离。
+          - name: theshold
+            type: int
+            description: 最终将要触发下拉或上拉操作的阈值。即只要用户继续拖动列表当距离达到或超过这个阈值时再释放，将真正的触发下拉或上拉操作。
+
+  - name: pullComplete
+    label: 当列表触发下拉或上拉操作时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: pullPane
+            type: HTMLElement
+            description: 下拉或上拉区对应的DOM元素。
+          - name: direction
+            enum:
+              - down
+              - up
+            description: 下拉或上拉。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: pullCancel
+    label: 当列表已经进入下拉或上拉状态，但最终因为没有继续拖动到阈值而取消时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: pullPane
+            type: HTMLElement
+            description: 下拉或上拉区对应的DOM元素。
+          - name: direction
+            enum:
+              - down
+              - up
+            description: 下拉或上拉。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: filterItem
+    label: 当列表尝试对每一个列表项进行过滤决定其是否需要显示时触发的事件。
+    description: 此事件的返回值为逻辑值，表示是否允许当前的列表项显示。
+    type: boolean
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          name: item
+          type: cola.Entity || any
+          description: 当前要过滤的列表项数据。
+        - name: filterCriteria
+          type: string || JSON || [JSON]
+          label: 过滤条件。即用户定义在控件的filterCriteria属性中的值。

@@ -17,12 +17,12 @@ cola.defaultAction["int"] = (value) ->
 cola.defaultAction["float"] = (value) ->
 	return parseFloat(value) or 0
 
-cola.defaultAction.is = (value) ->
+cola.defaultAction["is"] = (value) ->
 	return !!value
 
-cola.defaultAction.bool = cola.defaultAction.is
+cola.defaultAction["bool"] = cola.defaultAction.is
 
-cola.defaultAction.not = (value) ->
+cola.defaultAction["not"] = (value) ->
 	return not value
 
 cola.defaultAction.isEmpty = (value) ->
@@ -72,7 +72,7 @@ cola.defaultAction.filter = cola._filterCollection
 
 cola.defaultAction.sort = cola._sortCollection
 
-cola.defaultAction.top = (collection, top = 1) ->
+cola.defaultAction["top"] = (collection, top = 1) ->
 	return null unless collection
 	return collection if top < 0
 	items = []

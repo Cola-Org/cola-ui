@@ -1,3 +1,5 @@
 .idea
+/dest
+/dist
 /node_modules
 /doc

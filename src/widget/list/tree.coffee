@@ -72,6 +72,7 @@ class cola.Tree extends cola.ItemsView
 				return
 
 		autoCollapse: null
+		autoExpand: null
 
 	@EVENTS:
 		beforeCurrentNodeChange: null
@@ -115,6 +116,19 @@ class cola.Tree extends cola.ItemsView
 		super(dom)
 		$fly(@_doms.itemsWrapper)
 		.delegate(".expand-button", "click", (evt) => @_expandButtonClick(evt))
+		.delegate(".tree.item", "click", (evt) =>
+			if @_autoExpand
+				itemDom = @_findItemDom(evt.currentTarget)
+				return unless itemDom
+				node = cola.util.userData(itemDom, "item")
+				return unless node
+
+				if node.get("expanded")
+					@collapse(node)
+				else if node.get("hasChild") isnt false
+					@expand(node)
+				return
+		)
 
 		itemsScope = @_itemsScope
 		@_rootNode = new TreeNode(@_bind)
@@ -328,11 +342,12 @@ class cola.Tree extends cola.ItemsView
 					$nodesWrapper.slideDown(150)
 			else
 				$fly(nodeDom).addClass("leaf")
+			node._expanded = true
 			node._hasExpanded = true
 
 			if tree._autoCollapse and node._parent?._children
 				for brotherNode in node._parent._children
-					if brotherNode isnt node and brotherNode._expanded
+					if brotherNode isnt node and brotherNode.get("expanded")
 						tree.collapse(brotherNode)
 			return
 		)
@@ -354,6 +369,8 @@ class cola.Tree extends cola.ItemsView
 		$nodesWrapper = $fly(itemDom.lastChild)
 		if $nodesWrapper.hasClass("child-nodes")
 			$nodesWrapper.slideUp(150)
+
+		node._expanded = false
 		return
 
 	_onItemRemove: (arg) ->
