@@ -5,10 +5,10 @@ cola.registerTypeResolver "table.column", (config) ->
 	return
 
 cola.registerTypeResolver "table.column", (config) ->
-	if config.columns?.length then return GroupColumn
-	return DataColumn
+	if config.columns?.length then return cola.TableGroupColumn
+	return cola.TableDataColumn
 
-class Column extends cola.Element
+class cola.TableColumn extends cola.Element
 	@ATTRIBUTES:
 		name:
 			reaonlyAfterCreate: true
@@ -31,7 +31,7 @@ class Column extends cola.Element
 		table._regColumn(@) if table
 		return
 
-class GroupColumn extends Column
+class cola.TableGroupColumn extends cola.TableColumn
 	@ATTRIBUTES:
 		columns:
 			setter: (columnConfigs) ->
@@ -45,7 +45,7 @@ class GroupColumn extends Column
 				column._setTable(table)
 		return
 
-class ContentColumn extends Column
+class cola.TableContentColumn extends cola.TableColumn
 	@ATTRIBUTES:
 		width:
 			defaultValue: 80
@@ -59,7 +59,7 @@ class ContentColumn extends Column
 		renderCell: null
 		renderFooter: null
 
-class DataColumn extends ContentColumn
+class cola.TableDataColumn extends cola.TableContentColumn
 	@ATTRIBUTES:
 		dataType:
 			readOnlyAfterCreate: true
@@ -67,7 +67,7 @@ class DataColumn extends ContentColumn
 		bind: null
 		template: null
 
-class SelectColumn extends ContentColumn
+class cola.TableSelectColumn extends cola.TableContentColumn
 	@ATTRIBUTES:
 		width:
 			defaultValue: "34px"
@@ -158,10 +158,10 @@ _columnsSetter = (table, columnConfigs) ->
 	if columnConfigs
 		for columnConfig in columnConfigs
 			continue unless columnConfig
-			if columnConfig instanceof Column
+			if columnConfig instanceof cola.TableColumn
 				column = columnConfig
 			else
-				column = cola.create("table.column", columnConfig, Column)
+				column = cola.create("table.column", columnConfig, cola.TableColumn)
 			column._setTable(table)
 			columns.push(column)
 	@_columns = columns
@@ -254,7 +254,7 @@ class cola.AbstractTable extends cola.ItemsView
 			info =
 				level: deepth
 				column: column
-			if column instanceof GroupColumn
+			if column instanceof cola.TableGroupColumn
 				if column._columns
 					info.columns = cols = []
 					for col in column._columns
@@ -298,7 +298,7 @@ class cola.AbstractTable extends cola.ItemsView
 				info.index = context.dataColumns.length
 				context.dataColumns.push(info)
 
-				if column instanceof SelectColumn
+				if column instanceof cola.TableSelectColumn
 					context.selectColumns ?= []
 					context.selectColumns.push(info)
 

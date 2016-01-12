@@ -1,4 +1,4 @@
-class NestedListNode extends cola.Node
+class cola.NestedListNode extends cola.Node
 	@ATTRIBUTES:
 		title:
 			readOnly: true
@@ -11,8 +11,8 @@ class NestedListNode extends cola.Node
 						title = @_data[prop]
 				return title or "#Unknown"
 
-class NestedListBind extends cola.CascadeBind
-	@NODE_TYPE = NestedListNode
+class cola.NestedListBind extends cola.CascadeBind
+	@NODE_TYPE = cola.NestedListNode
 	@ATTRIBUTES:
 		titleProperty: null
 
@@ -22,8 +22,8 @@ class cola.NestedList extends cola.Widget
 	@ATTRIBUTES:
 		bind:
 			setter: (bind) ->
-				if bind and !(bind instanceof NestedListBind)
-					bind = new NestedListBind(@, bind)
+				if bind and !(bind instanceof cola.NestedListBind)
+					bind = new cola.NestedListBind(@, bind)
 				@_bind = bind
 				@_rootNode.set("bind", bind) if @_rootNode
 				return
@@ -32,7 +32,7 @@ class cola.NestedList extends cola.Widget
 			type: "boolean"
 			defaultValue: true
 		navBarWidth:
-			defaultValue: 280
+			defaultValue: "280px"
 		showTitleBar:
 			type: "boolean"
 			defaultValue: true
@@ -69,13 +69,21 @@ class cola.NestedList extends cola.Widget
 				{
 					tagName: "div"
 					class: "nav"
-					style: "width:#{@_navBarWidth}px;float:left;height:100%;overflow:hidden"
+					style:
+						width: @_navBarWidth
+						height: 100%
+						float: left
+						overflow: "hidden"
 					content: layer.container
 				}
 				{
 					tagName: "div"
 					class: "detail"
-					style: "margin-left:#{@_navBarWidth}px;height:100%;position:relative;overflow:hidden"
+					style:
+					margin-left: @_navBarWidth
+						height: 100%
+						position: "relative"
+						overflow: "hidden"
 					contextKey: "detailContainer"
 				}
 			], @_doms)
@@ -84,7 +92,7 @@ class cola.NestedList extends cola.Widget
 			layer.container.appendTo(dom)
 
 		itemsScope = layer.list._itemsScope
-		@_rootNode = new NestedListNode(@_bind)
+		@_rootNode = new cola.NestedListNode(@_bind)
 		@_rootNode._scope = @_scope
 		@_rootNode._itemsScope = itemsScope
 
@@ -103,7 +111,6 @@ class cola.NestedList extends cola.Widget
 
 		@fire("topLayerChange", @, {
 			index: 0
-			list: layer
 		})
 		return
 

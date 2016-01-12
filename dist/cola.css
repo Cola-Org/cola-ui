@@ -2237,6 +2237,20 @@ template {
 .ui.list-view > .index-bar > .index.current {
   background: #e1e6eb;
 }
+.ui.list-view .loader-container {
+  height: 5em;
+  position: relative;
+  display: none;
+}
+.ui.list-view .loader-container.active {
+  display: block;
+}
+.ui.list-view .loader-container.active > .ui.loader {
+  display: block;
+}
+.ui.list-view .tail-padding {
+  height: 5em;
+}
 .ui.list-view.striped .list.item:nth-child(2n):not(.current) {
   background: #f7f7f7;
 }
@@ -2517,6 +2531,7 @@ template {
 
 .ui.nested-list {
   position: relative;
+  overflow-x: hidden;
 }
 .ui.nested-list .box.title-box {
   overflow: hidden;
@@ -2603,10 +2618,9 @@ template {
 .ui.tree.navigator .tree.node > .expand-button {
   float: none;
   position: absolute;
-  left: 0;
   right: 0;
   top: 0;
-  width: auto;
+  width: 2.7em;
   height: 2.7em;
   line-height: 2.7em;
   margin-right: 0;

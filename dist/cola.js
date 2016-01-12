@@ -3666,7 +3666,7 @@
     Entity.prototype._get = function(prop, loadMode, callback, context) {
       var callbackProcessed, loadData, property, provider, providerInvoker, ref;
       loadData = function(provider) {
-        var providerInvoker, retValue;
+        var notifyArg, providerInvoker, retValue;
         retValue = void 0;
         providerInvoker = provider.getInvoker(this);
         if (loadMode === "sync") {
@@ -3684,9 +3684,19 @@
             context.providerInvokers.push(providerInvoker);
           }
           this._data[prop] = providerInvoker;
+          notifyArg = {
+            data: this,
+            property: prop
+          };
+          if (loadMode === "async") {
+            this._notify(cola.constants.MESSAGE_LOADING_START, notifyArg);
+          }
           providerInvoker.invokeAsync({
             complete: (function(_this) {
               return function(success, result) {
+                if (loadMode === "async") {
+                  _this._notify(cola.constants.MESSAGE_LOADING_END, notifyArg);
+                }
                 if (_this._data[prop] !== providerInvoker) {
                   success = false;
                 }
@@ -4091,7 +4101,7 @@
     Entity.prototype.getPath = _getEntityPath;
 
     Entity.prototype.flush = function(property, loadMode) {
-      var callback, notifyArg, propertyDef;
+      var callback, propertyDef;
       if (loadMode == null) {
         loadMode = "async";
       }
@@ -4104,20 +4114,10 @@
         callback = loadMode;
         loadMode = "async";
       }
-      notifyArg = {
-        data: this,
-        property: property
-      };
-      if (loadMode === "async") {
-        this._notify(cola.constants.MESSAGE_LOADING_START, notifyArg);
-      }
       return this._get(property, loadMode, {
         complete: (function(_this) {
           return function(success, result) {
             cola.callback(callback, success, result);
-            if (loadMode === "async") {
-              return _this._notify(cola.constants.MESSAGE_LOADING_END, notifyArg);
-            }
           };
         })(this)
       });
@@ -6054,6 +6054,16 @@
       }
     };
 
+    ItemsScope.prototype.itemsLoadingStart = function(arg) {
+      arg.itemsScope = this;
+      return typeof this.onItemsLoadingStart === "function" ? this.onItemsLoadingStart(arg) : void 0;
+    };
+
+    ItemsScope.prototype.itemsLoadingEnd = function(arg) {
+      arg.itemsScope = this;
+      return typeof this.onItemsLoadingEnd === "function" ? this.onItemsLoadingEnd(arg) : void 0;
+    };
+
     ItemsScope.prototype.changeCurrentItem = function(arg) {
       arg.itemsScope = this;
       if (typeof this.onCurrentItemChange === "function") {
@@ -6244,6 +6254,14 @@
           }
           this.removeItem(arg);
           allProcessed = true;
+        }
+      } else if (type === cola.constants.MESSAGE_LOADING_START) {
+        if (this.isRootOfTarget(path, targetPath)) {
+          this.itemsLoadingStart(arg);
+        }
+      } else if (type === cola.constants.MESSAGE_LOADING_END) {
+        if (this.isRootOfTarget(path, targetPath)) {
+          this.itemsLoadingEnd(arg);
         }
       }
       return allProcessed;
@@ -7146,13 +7164,13 @@
     return parseFloat(value) || 0;
   };
 
-  cola.defaultAction.is = function(value) {
+  cola.defaultAction["is"] = function(value) {
     return !!value;
   };
 
-  cola.defaultAction.bool = cola.defaultAction.is;
+  cola.defaultAction["bool"] = cola.defaultAction.is;
 
-  cola.defaultAction.not = function(value) {
+  cola.defaultAction["not"] = function(value) {
     return !value;
   };
 
@@ -7219,7 +7237,7 @@
 
   cola.defaultAction.sort = cola._sortCollection;
 
-  cola.defaultAction.top = function(collection, top) {
+  cola.defaultAction["top"] = function(collection, top) {
     var i, items;
     if (top == null) {
       top = 1;
@@ -7727,14 +7745,25 @@
         charset: cola.setting("defaultCharset"),
         href: url
       });
-      $(linkElement).on("load", function() {
-        cola.callback(callback, true);
-      }).on("error", function() {
-        cola.callback(callback, false);
-      });
+      if (!(cola.os.android && cola.os.version < 4.4)) {
+        $(linkElement).one("load", function() {
+          cola.callback(callback, true);
+        }).on("readystatechange", function(evt) {
+          var ref;
+          if (((ref = evt.target) != null ? ref.readyState : void 0) === "complete") {
+            cola.callback(callback, true);
+            $fly(this).off("readystatechange");
+          }
+        }).one("error", function() {
+          cola.callback(callback, false);
+        });
+      }
       head = document.querySelector("head") || document.documentElement;
       head.appendChild(linkElement);
       _cssCache[url] = linkElement;
+      if (cola.os.android && cola.os.version < 4.4) {
+        cola.callback(callback, true);
+      }
     } else {
       cola.callback(callback, true);
     }
@@ -7766,7 +7795,7 @@
   };
 
   cola.route = function(path, router) {
-    var hasVariable, i, l, len1, len2, name, o, optional, part, parts, pathParts, ref, variable;
+    var hasVariable, i, l, len1, len2, name, nameParts, o, optional, part, parts, pathParts, ref, variable;
     if (routerRegistry == null) {
       routerRegistry = new cola.util.KeyedArray();
     }
@@ -7780,13 +7809,15 @@
     if (!router.name) {
       name = path || cola.constants.DEFAULT_PATH;
       parts = name.split("/");
+      nameParts = [];
       for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
         part = parts[i];
-        if (i > 0) {
-          parts[i] = cola.util.capitalize(part);
+        if (part.charCodeAt(0) === 58) {
+          continue;
         }
+        nameParts.push(nameParts.length > 0 ? cola.util.capitalize(part) : part);
       }
-      router.name = parts.join("");
+      router.name = nameParts.join("");
     }
     router.pathParts = pathParts = [];
     if (path) {
@@ -10480,6 +10511,16 @@
       itemsScope.onItemRemove = (function(_this) {
         return function(arg) {
           return _this._onItemRemove(arg);
+        };
+      })(this);
+      itemsScope.onItemsLoadingStart = (function(_this) {
+        return function(arg) {
+          return _this._onItemsLoadingStart(arg);
+        };
+      })(this);
+      itemsScope.onItemsLoadingEnd = (function(_this) {
+        return function(arg) {
+          return _this._onItemsLoadingEnd(arg);
         };
       })(this);
       if (this._onCurrentItemChange) {
@@ -14637,20 +14678,24 @@
     messageBox = {
       settings: {
         info: {
-          title: cola.resource("cola.messageBox.info.title"),
+          title: "Information",
+          i18n: "cola.messageBox.info.title",
           icon: "blue info icon"
         },
         warning: {
-          title: cola.resource("cola.messageBox.warning.title"),
-          icon: "yellow warning sign icon"
+          title: "Warning",
+          icon: "yellow warning sign icon",
+          i18n: "cola.messageBox.warning.title"
         },
         error: {
-          title: cola.resource("cola.messageBox.error.title"),
-          icon: "red warning sign icon"
+          title: "Error",
+          icon: "red warning sign icon",
+          i18n: "cola.messageBox.error.title"
         },
         question: {
-          title: cola.resource("cola.messageBox.question.title"),
-          icon: "black help circle icon"
+          title: "Question",
+          icon: "black help circle icon",
+          i18n: "cola.messageBox.question.title"
         }
       },
       "class": "standard",
@@ -14728,7 +14773,7 @@
         level = options.level || messageBox.level.INFO;
         $dom = $(dom);
         if (options.title == null) {
-          options.title = settings[level].title;
+          options.title = cola.resource(settings[level].i18n);
         }
         if (options.icon == null) {
           options.icon = settings[level].icon;
@@ -18492,35 +18537,6 @@
       currentItem: {
         readOnly: true
       },
-      value: {
-        refreshDom: true,
-        setter: function(value) {
-          var currentItem, index, valueProperty;
-          cola.AbstractInput.ATTRIBUTES.value.setter.apply(this, arguments);
-          if (this._skipFindCurrentItem) {
-            return;
-          }
-          if (!this._itemsIndex) {
-            if (this._items && value && this._valueProperty) {
-              this._itemsIndex = index = {};
-              valueProperty = this._valueProperty;
-              cola.each(this._items, function(item) {
-                var key;
-                if (item instanceof cola.Entity) {
-                  key = item.get(valueProperty);
-                } else {
-                  key = item[valueProperty];
-                }
-                index[key + ""] = item;
-              });
-              currentItem = index[value + ""];
-            }
-          } else {
-            currentItem = this._itemsIndex[value + ""];
-          }
-          this._currentItem = currentItem;
-        }
-      },
       valueProperty: null,
       textProperty: null,
       openOnActive: {
@@ -18642,6 +18658,32 @@
         ref.set("disabled", this._finalReadOnly);
       }
       this._setValueContent();
+    };
+
+    AbstractDropdown.prototype._setValue = function(value) {
+      var currentItem, index, valueProperty;
+      if (!this._skipFindCurrentItem) {
+        if (!this._itemsIndex) {
+          if (this._items && value && this._valueProperty) {
+            this._itemsIndex = index = {};
+            valueProperty = this._valueProperty;
+            cola.each(this._items, function(item) {
+              var key;
+              if (item instanceof cola.Entity) {
+                key = item.get(valueProperty);
+              } else {
+                key = item[valueProperty];
+              }
+              index[key + ""] = item;
+            });
+            currentItem = index[value + ""];
+          }
+        } else {
+          currentItem = this._itemsIndex[value + ""];
+        }
+        this._currentItem = currentItem;
+      }
+      return AbstractDropdown.__super__._setValue.call(this, value);
     };
 
     AbstractDropdown.prototype._setValueContent = function() {
@@ -19076,7 +19118,7 @@
       }
       if (this._opened && this._filterable) {
         inputDom = this._doms.input;
-        $fly(inputDom).on("input.filter", (function(_this) {
+        $fly(inputDom).on("input.filterItem", (function(_this) {
           return function() {
             return _this._onInput(inputDom.value);
           };
@@ -19086,7 +19128,7 @@
 
     Dropdown.prototype.close = function(selectedValue) {
       if (this._filterable) {
-        $fly(this._doms.input).off("input.filter");
+        $fly(this._doms.input).off("input.filterItem");
       }
       return Dropdown.__super__.close.call(this, selectedValue);
     };
@@ -22557,7 +22599,7 @@
         type: "boolean",
         defaultValue: true
       },
-      changeCurrentitem: {
+      changeCurrentItem: {
         type: "boolean"
       },
       pullDown: {
@@ -22669,17 +22711,46 @@
       this._$dom = $(dom);
     };
 
+    ItemsView.prototype._showLoadingTip = function() {
+      var $itemsWrapper, $loaderContainer;
+      $loaderContainer = this._$loaderContainer;
+      if (!$loaderContainer) {
+        $itemsWrapper = $fly(this._doms.itemsWrapper);
+        $itemsWrapper.xAppend({
+          "class": "loader-container protected",
+          content: {
+            "class": "ui loader"
+          }
+        });
+        this._$loaderContainer = $loaderContainer = $itemsWrapper.find(">.loader-container");
+      } else {
+        $loaderContainer.remove();
+        $loaderContainer.appendTo(this._doms.itemsWrapper);
+      }
+      $loaderContainer.addClass("active");
+    };
+
+    ItemsView.prototype._hideLoadingTip = function() {
+      var ref;
+      if ((ref = this._$loaderContainer) != null) {
+        ref.removeClass("active");
+      }
+    };
+
     ItemsView.prototype._onItemsWrapperScroll = function() {
       var itemsWrapper, realItems;
       realItems = this._realItems;
       if (this._autoLoadPage && !this._loadingNextPage && (realItems === this._realOriginItems || !this._realOriginItems)) {
-        if (realItems instanceof cola.EntityList && (realItems.pageNo < realItems.pageCount || !realItems.pageCountDetermined)) {
+        if (realItems instanceof cola.EntityList && realItems.pageSize > 0 && (realItems.pageNo < realItems.pageCount || !realItems.pageCountDetermined)) {
           itemsWrapper = this._doms.itemsWrapper;
           if (itemsWrapper.scrollTop + itemsWrapper.clientHeight === itemsWrapper.scrollHeight) {
             this._loadingNextPage = true;
+            this._showLoadingTip();
+            $fly(itemsWrapper).find(">.tail-padding").remove();
             realItems.loadPage(realItems.pageNo + 1, (function(_this) {
               return function() {
                 _this._loadingNextPage = false;
+                _this._hideLoadingTip();
               };
             })(this));
           }
@@ -22774,6 +22845,14 @@
       this._refreshEmptyItemDom();
     };
 
+    ItemsView.prototype._onItemsLoadingStart = function(arg) {
+      this._showLoadingTip();
+    };
+
+    ItemsView.prototype._onItemsLoadingEnd = function(arg) {
+      this._hideLoadingTip();
+    };
+
     ItemsView.prototype._setCurrentItemDom = function(currentItemDom) {
       if (this._currentItemDom) {
         $fly(this._currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS);
@@ -22847,7 +22926,7 @@
     };
 
     ItemsView.prototype._doRefreshItems = function(itemsWrapper) {
-      var counter, currentItem, currentPageNo, documentFragment, hasPullAction, itemDom, items, lastItem, limit, nextItemDom, pullDownPane, pullUpPane, ref, ret;
+      var counter, currentItem, currentPageNo, documentFragment, hasPullAction, itemDom, items, lastItem, nextItemDom, pullDownPane, pullUpPane, ref, ret;
       if (this._itemDomMap == null) {
         this._itemDomMap = {};
       }
@@ -22872,27 +22951,11 @@
         this._currentItem = currentItem;
         this._itemsScope.resetItemScopeMap();
         counter = 0;
-        limit = 0;
-        if (this._autoLoadPage && !this._realOriginItems && items instanceof cola.EntityList) {
-          limit = items.pageNo;
-        }
         this._refreshEmptyItemDom();
         lastItem = null;
         cola.each(items, (function(_this) {
           return function(item) {
-            var _nextItemDom, itemDom, itemType, ref;
-            if (limit) {
-              if (items instanceof cola.EntityList) {
-                if (((ref = item._page) != null ? ref.pageNo : void 0) > limit) {
-                  return false;
-                }
-              } else {
-                counter++;
-                if (counter > limit) {
-                  return false;
-                }
-              }
-            }
+            var _nextItemDom, itemDom, itemType;
             lastItem = item;
             itemType = _this._getItemType(item);
             if (nextItemDom) {
@@ -22949,11 +23012,18 @@
         if (this._autoLoadPage && !this._loadingNextPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
           currentPageNo = lastItem != null ? (ref = lastItem._page) != null ? ref.pageNo : void 0 : void 0;
           if (currentPageNo && (currentPageNo < items.pageCount || !items.pageCountDetermined)) {
-            if (itemsWrapper.scrollHeight && (itemsWrapper.scrollTop + itemsWrapper.clientHeight) < itemsWrapper.scrollHeight) {
-              setTimeout(function() {
-                items.loadPage(currentPageNo + 1, cola._EMPTY_FUNC);
-              }, 0);
+            if (itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {
+              this._showLoadingTip();
+              items.loadPage(currentPageNo + 1, (function(_this) {
+                return function() {
+                  _this._hideLoadingTip();
+                };
+              })(this));
             }
+          } else {
+            $fly(itemsWrapper).xAppend({
+              "class": "tail-padding"
+            });
           }
         }
       }
@@ -23101,7 +23171,7 @@
       item = cola.util.userData(itemDom, "item");
       if (itemDom._itemType === "default") {
         if (item) {
-          if (this._changeCurrentitem && item._parent instanceof cola.EntityList) {
+          if (this._changeCurrentItem && item._parent instanceof cola.EntityList) {
             item._parent.setCurrent(item);
           } else {
             this._setCurrentItemDom(itemDom);
@@ -25261,7 +25331,7 @@
         title: (ref1 = layer.parentNode) != null ? ref1.get("title") : void 0,
         titleBar: layer.titleBar,
         list: layer.list,
-        items: layer.list.get("items")
+        nodes: layer.list.get("items")
       };
     };
 
@@ -25392,7 +25462,7 @@
       var layer;
       layer = this._layers[index];
       if (layer) {
-        return this._initLayer(layer);
+        return this._getLayerInfo(layer);
       } else {
         return null;
       }
@@ -25529,7 +25599,9 @@
             this._scope.set(alias, (ref = this._currentNode) != null ? ref._data : void 0);
           }
         }
-      }
+      },
+      autoCollapse: null,
+      autoExpand: null
     };
 
     Tree.EVENTS = {
@@ -25583,6 +25655,25 @@
       $fly(this._doms.itemsWrapper).delegate(".expand-button", "click", (function(_this) {
         return function(evt) {
           return _this._expandButtonClick(evt);
+        };
+      })(this)).delegate(".tree.item", "click", (function(_this) {
+        return function(evt) {
+          var itemDom, node;
+          if (_this._autoExpand) {
+            itemDom = _this._findItemDom(evt.currentTarget);
+            if (!itemDom) {
+              return;
+            }
+            node = cola.util.userData(itemDom, "item");
+            if (!node) {
+              return;
+            }
+            if (node.get("expanded")) {
+              _this.collapse(node);
+            } else if (node.get("hasChild") !== false) {
+              _this.expand(node);
+            }
+          }
         };
       })(this));
       itemsScope = this._itemsScope;
@@ -25844,7 +25935,7 @@
       nodeDom = itemDom.firstChild;
       $fly(nodeDom).addClass("expanding");
       node._bind.retrieveChildNodes(node, function() {
-        var $nodesWrapper;
+        var $nodesWrapper, brotherNode, l, len1, ref, ref1;
         $fly(nodeDom).removeClass("expanding");
         if (node._children) {
           tree._refreshChildNodes(itemDom, node, true);
@@ -25856,7 +25947,17 @@
         } else {
           $fly(nodeDom).addClass("leaf");
         }
+        node._expanded = true;
         node._hasExpanded = true;
+        if (tree._autoCollapse && ((ref = node._parent) != null ? ref._children : void 0)) {
+          ref1 = node._parent._children;
+          for (l = 0, len1 = ref1.length; l < len1; l++) {
+            brotherNode = ref1[l];
+            if (brotherNode !== node && brotherNode.get("expanded")) {
+              tree.collapse(brotherNode);
+            }
+          }
+        }
       });
     };
 
@@ -25881,6 +25982,7 @@
       if ($nodesWrapper.hasClass("child-nodes")) {
         $nodesWrapper.slideUp(150);
       }
+      node._expanded = false;
     };
 
     Tree.prototype._onItemRemove = function(arg) {

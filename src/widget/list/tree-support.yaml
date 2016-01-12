@@ -1,0 +1,48 @@
+- name: cola.CascadeBind
+  stereotype: class
+  super: cola.Element
+  label: 用于实现级联式绑定的声明对象
+
+  attributes:
+    - name: expression
+      type: string
+      label: 绑定表达式。
+
+    - name: recursive
+      type: boolean
+      label: 是否递归绑定到自身
+
+    - name: child
+      type: cola.CascadeBind
+      label: 下一级的绑定声明
+
+    - name: hasChildProperty
+      type: string
+      label: 用于判断某个节点之下是否还存在下一级子节点的属性名，通过该属性取得的应该是一个逻辑值。
+
+- name: cola.Node
+  stereotype: class
+  super: cola.Element
+  label: 树状数据结构的节点对象
+
+  attributes:
+    - name: bind
+      type: cola.CascadeBind
+      readOnly: true
+      label: 如果你节点是根据某种绑定机制自动产生的，那么此属性中将保留该绑定的声明对象。
+
+    - name: data
+      type: any
+      label: 该节点对应的数据
+
+    - name: hasChild
+      type: boolean
+      label: 该节点是否拥有下一级的子节点
+
+    - name: parent
+      type: cola.Node
+      label: 父节点
+
+    - name: children
+      type: [cola.Node]
+      label: 子节点的数组

@@ -1,0 +1,4 @@
+- name: cola.Table
+  stereotype: class
+  super: cola.ItemsView
+  label: 表格控件

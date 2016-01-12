@@ -1,4 +1,4 @@
-class TreeNode extends cola.Node
+class cola.TreeNode extends cola.Node
 	@ATTRIBUTES:
 		expanded:
 			getter: () ->
@@ -35,8 +35,8 @@ class TreeNode extends cola.Node
 						@_data[prop] = checked
 				return
 
-class TreeNodeBind extends cola.CascadeBind
-	@NODE_TYPE: TreeNode
+class cola.TreeNodeBind extends cola.CascadeBind
+	@NODE_TYPE: cola.TreeNode
 
 	@ATTRIBUTES:
 		textProperty: null
@@ -52,8 +52,8 @@ class cola.Tree extends cola.ItemsView
 		bind:
 			refreshItems: true
 			setter: (bind) ->
-				if bind and !(bind instanceof TreeNodeBind)
-					bind = new TreeNodeBind(@, bind)
+				if bind and !(bind instanceof cola.TreeNodeBind)
+					bind = new cola.TreeNodeBind(@, bind)
 
 				@_bind = bind
 
@@ -131,7 +131,7 @@ class cola.Tree extends cola.ItemsView
 		)
 
 		itemsScope = @_itemsScope
-		@_rootNode = new TreeNode(@_bind)
+		@_rootNode = new cola.TreeNode(@_bind)
 		@_rootNode._scope = @_scope
 		@_rootNode._itemsScope = itemsScope
 

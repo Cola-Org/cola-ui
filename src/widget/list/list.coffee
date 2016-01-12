@@ -725,6 +725,7 @@ class cola.ListView extends cola.ItemsView
 				@fire("itemSlideStep", @, {
 					event: evt
 					item: item
+					direction: direction
 					distance: distanceX
 					speed: @_touchMoveSpeed
 				})
@@ -754,20 +755,22 @@ class cola.ListView extends cola.ItemsView
 		if cola.browser.chrome
 			itemDom.style.opacity = ""
 
+		direction = @_itemSlideDirection
 		if opened
 			@fire("itemSlideComplete", @, {
 				event: evt
 				item: cola.util.userData(itemDom, "item")
+				direction: direction
 				distance: @_currentSlideDistance
 				speed: @_touchMoveSpeed
 			})
 		else
 			@fire("itemSlideCancel", @, {
+				direction: direction
 				event: evt
 				item: cola.util.userData(itemDom, "item")
 			})
 
-		direction = @_itemSlideDirection
 
 		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
 			slideDom = itemDom.firstChild

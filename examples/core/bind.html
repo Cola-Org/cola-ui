@@ -15,9 +15,11 @@
 				}
 			});
 
-			cola.defaultAction.double = function (value) {
-				return value * 2;
-			};
+			cola.action({
+				double: function (value) {
+					return value * 2;
+				}
+			});
 		});
 	</script>
 </head>
@@ -29,8 +31,7 @@
 
 <p>
 	<input c-bind="numberProp">
-	<label c-bind="formatNumber(double(numberProp),'#,##0.00')"></label>
-	<!--<label c-bind="numberProp>10?true:false"></label>-->
+	<label c-bind="double(numberProp)"></label>
 </p>
 
 <p>

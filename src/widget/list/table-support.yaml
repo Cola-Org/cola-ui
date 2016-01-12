@@ -1,0 +1,98 @@
+- name: cola.TableColumn
+  stereotype: class
+  super: cola.Element
+  abstract: true
+  label: 表格列的抽象类
+
+  attributes:
+    - name: name
+      type: string
+      label: 列的名称
+
+    - name: caption
+      type: string
+      label: 列的标题
+
+    - name: visible
+      type: boolean
+      defaultValue: true
+      label: 是否可见
+
+    - name: headerTemplate
+      type: string
+      label: 列的标题栏使用的渲染模板
+
+  events:
+    - name: renderHeader
+      label: 当表格渲染该列的标题栏时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableColumn
+          label: 列本身
+        - name: arg
+          properties:
+            - name: dom
+              type: HTMLElement
+              label: 标题栏对应的DOM元素。
+
+- name: cola.TableGroupColumn
+  stereotype: class
+  super: cola.TableColumn
+  label: 组合列
+
+  attributes:
+    - name: columns
+      type: [cola.TableColumn]
+      label:
+
+- name: cola.TableContentColumn
+  stereotype: class
+  super: cola.TableColumn
+  abstract: true
+  label: 带有内容的表格列的抽象类
+
+  attributes:
+    - name: width
+      type: int
+      label:
+
+    - name: align
+      enum:
+        - left
+        - center
+        - right
+      label:
+
+    - name: valign
+      enum:
+        - top
+        - center
+        - bottom
+      label:
+
+    - name: footerTemplate
+      type: string
+      label:
+
+- name: cola.TableDataColumn
+  stereotype: class
+  super: cola.TableContentColumn
+  label: 普通的表格列
+
+  attributes:
+    - name: dataType
+      type: string
+      label:
+
+    - name: bind
+      type: string
+      label:
+
+    - name: template
+      type: string
+      label:
+
+- name: cola.TableSelectColumn
+  stereotype: class
+  super: cola.TableContentColumn
+  label: 选择列
