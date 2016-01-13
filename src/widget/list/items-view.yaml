@@ -17,6 +17,10 @@ attributes:
     type: boolean
     label: 是否高亮显示当前的列表元素。
 
+  - name: currentPageOnly
+    type: boolean
+    label: 是否只显示当前页的数据
+
   - name: autoLoadPage
     type: boolean
     label: 是否自动装载下一页记录。

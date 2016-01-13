@@ -17,14 +17,17 @@ class cola.ItemsView extends cola.Widget
 				return
 
 		highlightCurrentItem:
-			type:"boolean"
+			type: "boolean"
+
+		currentPageOnly:
+			type: "boolean"
 
 		autoLoadPage:
-			type:"boolean"
+			type: "boolean"
 			defaultValue: true
 
 		changeCurrentItem:
-			type:"boolean"
+			type: "boolean"
 
 		pullDown:
 			readOnlyAfterCreate: true
@@ -132,7 +135,7 @@ class cola.ItemsView extends cola.Widget
 
 	_onItemsWrapperScroll: () ->
 		realItems = @_realItems
-		if @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
+		if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
 			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and  (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
 				itemsWrapper = @_doms.itemsWrapper
 				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
@@ -302,22 +305,10 @@ class cola.ItemsView extends cola.Widget
 
 			@_itemsScope.resetItemScopeMap()
 
-			counter = 0
-#			limit = 0
-#			if @_autoLoadPage and not @_realOriginItems and items instanceof cola.EntityList
-#				limit = items.pageNo
-
 			@_refreshEmptyItemDom()
 
 			lastItem = null
-			cola.each items, (item) =>
-#				if limit
-#					if items instanceof cola.EntityList
-#						if item._page?.pageNo > limit then return false
-#					else
-#						counter++
-#						if counter > limit then return false
-
+			cola.each(items, (item) =>
 				lastItem = item
 				itemType = @_getItemType(item)
 
@@ -344,6 +335,7 @@ class cola.ItemsView extends cola.Widget
 					documentFragment ?= document.createDocumentFragment()
 					documentFragment.appendChild(itemDom)
 				return
+			, { currentPage: @_currentPageOnly })
 
 			if nextItemDom
 				itemDom = nextItemDom
@@ -361,7 +353,7 @@ class cola.ItemsView extends cola.Widget
 			if documentFragment
 				itemsWrapper.appendChild(documentFragment)
 
-			if @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
+			if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
 				currentPageNo = lastItem?._page?.pageNo
 				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
 					if itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0

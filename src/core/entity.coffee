@@ -1578,7 +1578,7 @@ class cola.Entity.MessageHolder
 Functions
 ###
 
-cola.each = (collection, fn) ->
+cola.each = (collection, fn, options) ->
 	if collection instanceof cola.EntityList
 		collection.each(fn)
 	else if collection instanceof Array
