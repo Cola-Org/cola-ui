@@ -2,3 +2,122 @@
   stereotype: class
   super: cola.ItemsView
   label: 表格控件
+
+  attributes:
+    - name: items
+      type: cola.EntityList || [any]
+      label: 表格数据
+      description: 此属性不要与bind属性同时使用。
+
+    - name: bind
+      type: string
+      label: 绑定表达式。
+      description: 此属性不要与items属性同时使用。
+
+    - name: columns
+      type: [JSON] || [cola.TableColumn]
+      label: 表格中的列的声明
+      description: |
+        此属性在设置时我们通常会使用JSON数组来定义表格列，这样更加方便。而在读取时你得到的总是cola.TableColumn的数组。
+
+    - name: dataType
+      type: boolean
+      label: 数据类型
+      description: |
+        表格对应的数据类型很多时候可以根据绑定的数据源来自定决定，但某些时候我们可能也会需要自行定义。
+        定义dataType对于表格而言并不是必须的，定义dataType可以是表格具有自动创建表格列的功能，同时也可以为手工定义的表格列自动绑定相应的数据类型。
+
+    - name: showHeader
+      type: boolean
+      defaultValue: true
+      label: 是否显示表格标题栏
+
+    - name: showFooter
+      type: boolean
+      label: 是否显示表格汇总栏
+
+    - name: columnStrecthable
+      type: boolean
+      defaultValue: true
+      label: 是否自动调整各表格列的宽度
+
+    - name: selectedProperty
+      type: boolean
+      label: 当需要启动表格的多选功能时以数据对象的哪个属性来保存数据的多选状态。
+      description: |
+        要使用表格的多选，通常需要在表格中添加一个选择列。
+
+  events:
+    - name: renderRow
+      label: 当表格渲染某一行时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: item
+              type: cola.Entity || any
+              label: 要渲染的行对应的数据。
+            - name: dom
+              type: HTMLElement
+              label: 要渲染的行对应的DOM元素。
+
+    - name: renderCell
+      label: 当表格渲染某一单元格时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: item
+              type: cola.Entity || any
+              label: 要渲染的单元格对应的数据。
+            - name: column
+              type: cola.TableContentColumn
+              label: 要渲染的单元格对应的列。
+            - name: dom
+              type: HTMLElement
+              label: 要渲染的单元格对应的DOM元素。
+
+    - name: renderHeaderCell
+      label: 当表格渲染标题单元格时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: column
+              type: cola.TableContentColumn
+              label: 要渲染的单元格对应的列。
+            - name: dom
+              type: HTMLElement
+              label: 要渲染的单元格对应的DOM元素。
+
+    - name: renderFooterCell
+      label: 当表格渲染汇总栏单元格时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: column
+              type: cola.TableContentColumn
+              label: 要渲染的单元格对应的列。
+            - name: dom
+              type: HTMLElement
+              label: 要渲染的单元格对应的DOM元素。
+
+  method:
+    - name: getColumn
+      type: cola.TableColumn
+      label: 根据名称获得一个列的实例
+      description: |
+          此方法不仅可以获得顶层的列，也可以获得定义在组合列中的第二层或更深层的列中。
+      arguments:
+        - name: name
+          type: string
+          label: 列的名称

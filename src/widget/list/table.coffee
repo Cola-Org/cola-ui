@@ -14,6 +14,14 @@ class cola.Table extends cola.AbstractTable
 		return
 
 	_doRefreshItems: () ->
+		if not @_columnsInfo.dataColumns.length and @_dataType and @_dataType instanceof cola.EntityDataType
+			columnConfigs = []
+			for propertyDef in @_dataType.getProperties().elements
+				columnConfigs.push(
+					bind: propertyDef._property
+				)
+			@set("columns", columnConfigs)
+
 		colgroup = @_doms.colgroup
 		nextCol = colgroup.firstChild
 		for colInfo, i in @_columnsInfo.dataColumns
@@ -164,8 +172,8 @@ class cola.Table extends cola.AbstractTable
 			if column.fire("renderHeader", column, {dom: dom}) == false
 				return
 
-		if @getListeners("renderHeader")
-			if @fire("renderHeader", @, {column: column, dom: dom}) == false
+		if @getListeners("renderHeaderCell")
+			if @fire("renderHeaderCell", @, {column: column, dom: dom}) == false
 				return
 
 		if isNew
@@ -236,8 +244,8 @@ class cola.Table extends cola.AbstractTable
 			if column.fire("renderFooter", column, {dom: dom}) == false
 				return
 
-		if @getListeners("renderFooter")
-			if @fire("renderFooter", @, {column: column, dom: dom}) == false
+		if @getListeners("renderFooterCell")
+			if @fire("renderFooterCell", @, {column: column, dom: dom}) == false
 				return
 
 		if isNew
@@ -259,7 +267,7 @@ class cola.Table extends cola.AbstractTable
 		itemType = itemDom._itemType
 
 		if @getListeners("renderRow")
-			if @fire("renderRow", @, {item: item, dom: itemDom}) == false
+			if @fire("renderRow", @, {item: item, dom: itemDom, scope: itemScope}) == false
 				return
 
 		if itemType == "default"

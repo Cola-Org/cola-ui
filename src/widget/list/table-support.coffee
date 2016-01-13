@@ -205,8 +205,8 @@ class cola.AbstractTable extends cola.ItemsView
 	@EVENTS:
 		renderRow: null
 		renderCell: null
-		renderHeader: null
-		renderFooter: null
+		renderHeaderCell: null
+		renderFooterCell: null
 
 	@TEMPLATES:
 		"default":
