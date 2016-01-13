@@ -71,8 +71,8 @@ class cola.NestedList extends cola.Widget
 					class: "nav"
 					style:
 						width: @_navBarWidth
-						height: 100%
-						float: left
+						height: "100%"
+						float: "left"
 						overflow: "hidden"
 					content: layer.container
 				}
@@ -80,8 +80,8 @@ class cola.NestedList extends cola.Widget
 					tagName: "div"
 					class: "detail"
 					style:
-					margin-left: @_navBarWidth
-						height: 100%
+						marginLeft: @_navBarWidth
+						height: "100%"
 						position: "relative"
 						overflow: "hidden"
 					contextKey: "detailContainer"
