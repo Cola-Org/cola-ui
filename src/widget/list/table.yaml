@@ -15,7 +15,7 @@
       description: 此属性不要与items属性同时使用。
 
     - name: columns
-      type: [JSON] || [cola.TableColumn]
+      type: [JSON]
       label: 表格中的列的声明
       description: |
         此属性在设置时我们通常会使用JSON数组来定义表格列，这样更加方便。而在读取时你得到的总是cola.TableColumn的数组。

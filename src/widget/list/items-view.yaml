@@ -233,9 +233,9 @@ events:
         label: 控件本身
       - name: arg
         properties:
-          name: item
-          type: cola.Entity || any
-          description: 当前要过滤的列表项数据。
-        - name: filterCriteria
-          type: string || JSON || [JSON]
-          label: 过滤条件。即用户定义在控件的filterCriteria属性中的值。
+          - name: item
+            type: cola.Entity || any
+            description: 当前要过滤的列表项数据。
+          - name: filterCriteria
+            type: string || JSON || [JSON]
+            label: 过滤条件。即用户定义在控件的filterCriteria属性中的值。

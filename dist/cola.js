@@ -9626,7 +9626,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, Column, ContentColumn, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DataColumn, DropBox, GroupColumn, LIST_SIZE_PREFIXS, NestedListBind, NestedListNode, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, SelectColumn, TEMP_TEMPLATE, TreeNode, TreeNodeBind, _columnsSetter, _createGroupArray, _destroyRenderableElement, _findWidgetConfig, _getEntityId, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, slotAttributeGetter, slotAttributeSetter,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, _columnsSetter, _createGroupArray, _destroyRenderableElement, _findWidgetConfig, _getEntityId, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -24446,6 +24446,7 @@
           this.fire("itemSlideStep", this, {
             event: evt,
             item: item,
+            direction: direction,
             distance: distanceX,
             speed: this._touchMoveSpeed
           });
@@ -24479,20 +24480,22 @@
       if (cola.browser.chrome) {
         itemDom.style.opacity = "";
       }
+      direction = this._itemSlideDirection;
       if (opened) {
         this.fire("itemSlideComplete", this, {
           event: evt,
           item: cola.util.userData(itemDom, "item"),
+          direction: direction,
           distance: this._currentSlideDistance,
           speed: this._touchMoveSpeed
         });
       } else {
         this.fire("itemSlideCancel", this, {
+          direction: direction,
           event: evt,
           item: cola.util.userData(itemDom, "item")
         });
       }
-      direction = this._itemSlideDirection;
       if (itemDom.firstChild && itemDom.firstChild === itemDom.lastChild) {
         slideDom = itemDom.firstChild;
       } else {
@@ -24637,7 +24640,6 @@
     extend(CascadeBind, superClass);
 
     CascadeBind.ATTRIBUTES = {
-      name: null,
       expression: {
         setter: function(expression) {
           expression = cola._compileExpression(expression, "repeat");
@@ -25013,7 +25015,7 @@
     }
   };
 
-  NestedListNode = (function(superClass) {
+  cola.NestedListNode = (function(superClass) {
     extend(NestedListNode, superClass);
 
     function NestedListNode() {
@@ -25042,14 +25044,14 @@
 
   })(cola.Node);
 
-  NestedListBind = (function(superClass) {
+  cola.NestedListBind = (function(superClass) {
     extend(NestedListBind, superClass);
 
     function NestedListBind() {
       return NestedListBind.__super__.constructor.apply(this, arguments);
     }
 
-    NestedListBind.NODE_TYPE = NestedListNode;
+    NestedListBind.NODE_TYPE = cola.NestedListNode;
 
     NestedListBind.ATTRIBUTES = {
       titleProperty: null
@@ -25071,8 +25073,8 @@
     NestedList.ATTRIBUTES = {
       bind: {
         setter: function(bind) {
-          if (bind && !(bind instanceof NestedListBind)) {
-            bind = new NestedListBind(this, bind);
+          if (bind && !(bind instanceof cola.NestedListBind)) {
+            bind = new cola.NestedListBind(this, bind);
           }
           this._bind = bind;
           if (this._rootNode) {
@@ -25085,7 +25087,7 @@
         defaultValue: true
       },
       navBarWidth: {
-        defaultValue: 280
+        defaultValue: "280px"
       },
       showTitleBar: {
         type: "boolean",
@@ -25135,12 +25137,22 @@
           {
             tagName: "div",
             "class": "nav",
-            style: "width:" + this._navBarWidth + "px;float:left;height:100%;overflow:hidden",
+            style: {
+              width: this._navBarWidth,
+              height: "100%",
+              float: "left",
+              overflow: "hidden"
+            },
             content: layer.container
           }, {
             tagName: "div",
             "class": "detail",
-            style: "margin-left:" + this._navBarWidth + "px;height:100%;position:relative;overflow:hidden",
+            style: {
+              marginLeft: this._navBarWidth,
+              height: "100%",
+              position: "relative",
+              overflow: "hidden"
+            },
             contextKey: "detailContainer"
           }
         ], this._doms);
@@ -25149,7 +25161,7 @@
         layer.container.appendTo(dom);
       }
       itemsScope = layer.list._itemsScope;
-      this._rootNode = new NestedListNode(this._bind);
+      this._rootNode = new cola.NestedListNode(this._bind);
       this._rootNode._scope = this._scope;
       this._rootNode._itemsScope = itemsScope;
       if (this._bind) {
@@ -25170,8 +25182,7 @@
         };
       }
       this.fire("topLayerChange", this, {
-        index: 0,
-        list: layer
+        index: 0
       });
     };
 
@@ -25478,7 +25489,7 @@
 
   cola.Element.mixin(cola.NestedList, cola.TemplateSupport);
 
-  TreeNode = (function(superClass) {
+  cola.TreeNode = (function(superClass) {
     extend(TreeNode, superClass);
 
     function TreeNode() {
@@ -25541,14 +25552,14 @@
 
   })(cola.Node);
 
-  TreeNodeBind = (function(superClass) {
+  cola.TreeNodeBind = (function(superClass) {
     extend(TreeNodeBind, superClass);
 
     function TreeNodeBind() {
       return TreeNodeBind.__super__.constructor.apply(this, arguments);
     }
 
-    TreeNodeBind.NODE_TYPE = TreeNode;
+    TreeNodeBind.NODE_TYPE = cola.TreeNode;
 
     TreeNodeBind.ATTRIBUTES = {
       textProperty: null,
@@ -25576,8 +25587,8 @@
       bind: {
         refreshItems: true,
         setter: function(bind) {
-          if (bind && !(bind instanceof TreeNodeBind)) {
-            bind = new TreeNodeBind(this, bind);
+          if (bind && !(bind instanceof cola.TreeNodeBind)) {
+            bind = new cola.TreeNodeBind(this, bind);
           }
           this._bind = bind;
           if (bind) {
@@ -25677,7 +25688,7 @@
         };
       })(this));
       itemsScope = this._itemsScope;
-      this._rootNode = new TreeNode(this._bind);
+      this._rootNode = new cola.TreeNode(this._bind);
       this._rootNode._scope = this._scope;
       this._rootNode._itemsScope = itemsScope;
       if (this._bind) {
@@ -26138,15 +26149,15 @@
   cola.registerTypeResolver("table.column", function(config) {
     var ref;
     if ((ref = config.columns) != null ? ref.length : void 0) {
-      return GroupColumn;
+      return cola.TableGroupColumn;
     }
-    return DataColumn;
+    return cola.TableDataColumn;
   });
 
-  Column = (function(superClass) {
-    extend(Column, superClass);
+  cola.TableColumn = (function(superClass) {
+    extend(TableColumn, superClass);
 
-    Column.ATTRIBUTES = {
+    TableColumn.ATTRIBUTES = {
       name: {
         reaonlyAfterCreate: true
       },
@@ -26158,18 +26169,18 @@
       headerTemplate: null
     };
 
-    Column.EVENTS = {
+    TableColumn.EVENTS = {
       renderHeader: null
     };
 
-    function Column(config) {
-      Column.__super__.constructor.call(this, config);
+    function TableColumn(config) {
+      TableColumn.__super__.constructor.call(this, config);
       if (!this._name) {
         this._name = cola.uniqueId();
       }
     }
 
-    Column.prototype._setTable = function(table) {
+    TableColumn.prototype._setTable = function(table) {
       if (this._table) {
         this._table._unregColumn(this);
       }
@@ -26179,18 +26190,18 @@
       }
     };
 
-    return Column;
+    return TableColumn;
 
   })(cola.Element);
 
-  GroupColumn = (function(superClass) {
-    extend(GroupColumn, superClass);
+  cola.TableGroupColumn = (function(superClass) {
+    extend(TableGroupColumn, superClass);
 
-    function GroupColumn() {
-      return GroupColumn.__super__.constructor.apply(this, arguments);
+    function TableGroupColumn() {
+      return TableGroupColumn.__super__.constructor.apply(this, arguments);
     }
 
-    GroupColumn.ATTRIBUTES = {
+    TableGroupColumn.ATTRIBUTES = {
       columns: {
         setter: function(columnConfigs) {
           _columnsSetter.call(this, this._table, columnConfigs);
@@ -26198,9 +26209,9 @@
       }
     };
 
-    GroupColumn.prototype._setTable = function(table) {
+    TableGroupColumn.prototype._setTable = function(table) {
       var column, l, len1, ref;
-      GroupColumn.__super__._setTable.call(this, table);
+      TableGroupColumn.__super__._setTable.call(this, table);
       if (this._columns) {
         ref = this._columns;
         for (l = 0, len1 = ref.length; l < len1; l++) {
@@ -26210,18 +26221,18 @@
       }
     };
 
-    return GroupColumn;
+    return TableGroupColumn;
 
-  })(Column);
+  })(cola.TableColumn);
 
-  ContentColumn = (function(superClass) {
-    extend(ContentColumn, superClass);
+  cola.TableContentColumn = (function(superClass) {
+    extend(TableContentColumn, superClass);
 
-    function ContentColumn() {
-      return ContentColumn.__super__.constructor.apply(this, arguments);
+    function TableContentColumn() {
+      return TableContentColumn.__super__.constructor.apply(this, arguments);
     }
 
-    ContentColumn.ATTRIBUTES = {
+    TableContentColumn.ATTRIBUTES = {
       width: {
         defaultValue: 80
       },
@@ -26234,23 +26245,23 @@
       footerTemplate: null
     };
 
-    ContentColumn.EVENTS = {
+    TableContentColumn.EVENTS = {
       renderCell: null,
       renderFooter: null
     };
 
-    return ContentColumn;
+    return TableContentColumn;
 
-  })(Column);
+  })(cola.TableColumn);
 
-  DataColumn = (function(superClass) {
-    extend(DataColumn, superClass);
+  cola.TableDataColumn = (function(superClass) {
+    extend(TableDataColumn, superClass);
 
-    function DataColumn() {
-      return DataColumn.__super__.constructor.apply(this, arguments);
+    function TableDataColumn() {
+      return TableDataColumn.__super__.constructor.apply(this, arguments);
     }
 
-    DataColumn.ATTRIBUTES = {
+    TableDataColumn.ATTRIBUTES = {
       dataType: {
         readOnlyAfterCreate: true,
         setter: cola.DataType.dataTypeSetter
@@ -26259,18 +26270,18 @@
       template: null
     };
 
-    return DataColumn;
+    return TableDataColumn;
 
-  })(ContentColumn);
+  })(cola.TableContentColumn);
 
-  SelectColumn = (function(superClass) {
-    extend(SelectColumn, superClass);
+  cola.TableSelectColumn = (function(superClass) {
+    extend(TableSelectColumn, superClass);
 
-    function SelectColumn() {
-      return SelectColumn.__super__.constructor.apply(this, arguments);
+    function TableSelectColumn() {
+      return TableSelectColumn.__super__.constructor.apply(this, arguments);
     }
 
-    SelectColumn.ATTRIBUTES = {
+    TableSelectColumn.ATTRIBUTES = {
       width: {
         defaultValue: "34px"
       },
@@ -26279,7 +26290,7 @@
       }
     };
 
-    SelectColumn.prototype.renderHeader = function(dom, item) {
+    TableSelectColumn.prototype.renderHeader = function(dom, item) {
       var checkbox;
       if (!dom.firstChild) {
         this._headerCheckbox = checkbox = new cola.Checkbox({
@@ -26295,7 +26306,7 @@
       }
     };
 
-    SelectColumn.prototype.renderCell = function(dom, item) {
+    TableSelectColumn.prototype.renderCell = function(dom, item) {
       var checkbox;
       if (!dom.firstChild) {
         checkbox = new cola.Checkbox({
@@ -26313,7 +26324,7 @@
       }
     };
 
-    SelectColumn.prototype.refreshHeaderCheckbox = function() {
+    TableSelectColumn.prototype.refreshHeaderCheckbox = function() {
       if (!this._headerCheckbox) {
         return;
       }
@@ -26347,7 +26358,7 @@
       });
     };
 
-    SelectColumn.prototype.selectAll = function(selected) {
+    TableSelectColumn.prototype.selectAll = function(selected) {
       var selectedProperty, table;
       table = this._table;
       selectedProperty = table._selectedProperty;
@@ -26373,9 +26384,9 @@
       }
     };
 
-    return SelectColumn;
+    return TableSelectColumn;
 
-  })(ContentColumn);
+  })(cola.TableContentColumn);
 
   _columnsSetter = function(table, columnConfigs) {
     var column, columnConfig, columns, l, len1, len2, n, ref;
@@ -26393,10 +26404,10 @@
         if (!columnConfig) {
           continue;
         }
-        if (columnConfig instanceof Column) {
+        if (columnConfig instanceof cola.TableColumn) {
           column = columnConfig;
         } else {
-          column = cola.create("table.column", columnConfig, Column);
+          column = cola.create("table.column", columnConfig, cola.TableColumn);
         }
         column._setTable(table);
         columns.push(column);
@@ -26453,8 +26464,8 @@
     AbstractTable.EVENTS = {
       renderRow: null,
       renderCell: null,
-      renderHeader: null,
-      renderFooter: null
+      renderHeaderCell: null,
+      renderFooterCell: null
     };
 
     AbstractTable.TEMPLATES = {
@@ -26520,7 +26531,7 @@
           level: deepth,
           column: column
         };
-        if (column instanceof GroupColumn) {
+        if (column instanceof cola.TableGroupColumn) {
           if (column._columns) {
             info.columns = cols = [];
             ref = column._columns;
@@ -26580,7 +26591,7 @@
           }
           info.index = context.dataColumns.length;
           context.dataColumns.push(info);
-          if (column instanceof SelectColumn) {
+          if (column instanceof cola.TableSelectColumn) {
             if (context.selectColumns == null) {
               context.selectColumns = [];
             }
@@ -26729,12 +26740,23 @@
     };
 
     Table.prototype._doRefreshItems = function() {
-      var col, colInfo, colgroup, column, i, l, len1, nextCol, ref, tbody, tfoot, thead;
+      var col, colInfo, colgroup, column, columnConfigs, i, l, len1, len2, n, nextCol, propertyDef, ref, ref1, tbody, tfoot, thead;
+      if (!this._columnsInfo.dataColumns.length && this._dataType && this._dataType instanceof cola.EntityDataType) {
+        columnConfigs = [];
+        ref = this._dataType.getProperties().elements;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          propertyDef = ref[l];
+          columnConfigs.push({
+            bind: propertyDef._property
+          });
+        }
+        this.set("columns", columnConfigs);
+      }
       colgroup = this._doms.colgroup;
       nextCol = colgroup.firstChild;
-      ref = this._columnsInfo.dataColumns;
-      for (i = l = 0, len1 = ref.length; l < len1; i = ++l) {
-        colInfo = ref[i];
+      ref1 = this._columnsInfo.dataColumns;
+      for (i = n = 0, len2 = ref1.length; n < len2; i = ++n) {
+        colInfo = ref1[i];
         col = nextCol;
         if (!col) {
           col = document.createElement("col");
@@ -26912,8 +26934,8 @@
           return;
         }
       }
-      if (this.getListeners("renderHeader")) {
-        if (this.fire("renderHeader", this, {
+      if (this.getListeners("renderHeaderCell")) {
+        if (this.fire("renderHeaderCell", this, {
           column: column,
           dom: dom
         }) === false) {
@@ -27004,8 +27026,8 @@
           return;
         }
       }
-      if (this.getListeners("renderFooter")) {
-        if (this.fire("renderFooter", this, {
+      if (this.getListeners("renderFooterCell")) {
+        if (this.fire("renderFooterCell", this, {
           column: column,
           dom: dom
         }) === false) {
@@ -27038,7 +27060,8 @@
       if (this.getListeners("renderRow")) {
         if (this.fire("renderRow", this, {
           item: item,
-          dom: itemDom
+          dom: itemDom,
+          scope: itemScope
         }) === false) {
           return;
         }

@@ -5,7 +5,7 @@ label: 列表
 
 attributes:
   - name: items
-    type: [any] || cola.EntityList
+    type: cola.EntityList || [any]
     label: 列表中要显示的数据。
     description: 此属性不要与bind属性同时使用。
 
