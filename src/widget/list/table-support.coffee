@@ -1,7 +1,7 @@
 cola.registerTypeResolver "table.column", (config) ->
 	return unless config and config.$type
 	type = config.$type.toLowerCase()
-	if type == "select" then return SelectColumn
+	if type == "select" then return cola.TableSelectColumn
 	return
 
 cola.registerTypeResolver "table.column", (config) ->
