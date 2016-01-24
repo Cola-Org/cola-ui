@@ -84,6 +84,13 @@ cola.util.eachNodeChild = (node, fn)->
 		child = child.nextSibling
 
 	return cola.util
+cola.util.hasContent = (dom)->
+	child = dom.firstChild
+	while child
+		if child.nodeType == 3 or child.nodeType == 1
+			return true
+		child = child.nextSibling
+	return false
 
 
 cola.util.getScrollerRender = (element)->

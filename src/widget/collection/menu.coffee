@@ -232,7 +232,9 @@ class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
 		control = @_control
 		return unless control
 		if control instanceof cola.RenderableElement
+			cola._ignoreNodeRemoved = true
 			dom.appendChild(control.getDom())
+			cola._ignoreNodeRemoved = false
 		else if control.nodeType == 1
 			dom.appendChild(control)
 		return
@@ -277,9 +279,7 @@ class cola.Menu extends cola.Widget
 			defaultValue: false
 	@EVENTS:
 		itemClick: null
-
-	_parseDom: (dom)->
-		@_items ?= []
+	_parseItems: (node)->
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
 			@_rightItems ?= []
@@ -293,29 +293,29 @@ class cola.Menu extends cola.Widget
 						@addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return
+		childNode = node.firstChild
+		while childNode
+			if childNode.nodeType == 1
+				menuItem = cola.widget(childNode)
+				if menuItem
+					@addItem(menuItem)
+				else if !@_rightMenuDom and cola.util.hasClass(childNode, "right menu")
+					@_rightMenuDom = childNode
+					parseRightMenu(childNode)
+				else if cola.util.hasClass(childNode, "item")
+					menuItem = new cola.menu.MenuItem({dom: childNode})
+					@addItem(menuItem)
+			childNode = childNode.nextSibling
 
-		parseItems = (node)=>
-			childNode = node.firstChild
-			while childNode
-				if childNode.nodeType == 1
-					menuItem = cola.widget(childNode)
-					if menuItem
-						@addItem(menuItem)
-					else if !@_rightMenuDom and cola.util.hasClass(childNode, "right menu")
-						@_rightMenuDom = childNode
-						parseRightMenu(childNode)
-					else if cola.util.hasClass(childNode, "item")
-						menuItem = new cola.menu.MenuItem({dom: childNode})
-						@addItem(menuItem)
-				childNode = childNode.nextSibling
-			return
+	_parseDom: (dom)->
+		@_items ?= []
 		container = $(dom).find(">.container")
 		if container.length
 			@_centered = true
 			@_containerDom = container[0]
-			parseItems(@_containerDom)
+			@_parseItems(@_containerDom)
 		else
-			parseItems(dom)
+			@_parseItems(dom)
 		return
 
 	_doRefreshDom: ()->
@@ -421,7 +421,7 @@ class cola.Menu extends cola.Widget
 
 		return
 
-	_createItem: (config)->
+	_createItem: (config, floatRight)->
 		menuItem = null
 		if config.constructor == Object.prototype.constructor
 			if config.$type
@@ -458,7 +458,7 @@ class cola.Menu extends cola.Widget
 		return itemDom
 
 	addRightItem: (config)->
-		menuItem = @_createItem(config)
+		menuItem = @_createItem(config, true)
 		return @ unless menuItem
 		menuItem._parent = @
 		@_rightItems ?= []
