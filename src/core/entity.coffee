@@ -799,7 +799,8 @@ class Page extends LinkedList
 
 		entityList.totalEntityCount = rawJson.$entityCount if rawJson.$entityCount?
 		if entityList.totalEntityCount?
-			entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+			if entityList.pageSize
+				entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
 			entityList.pageCountDetermined = true
 
 		entityList.entityCount += json.length

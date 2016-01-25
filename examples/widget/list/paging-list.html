@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+//			var items = [];
+//			var i = 0;
+//			for (var attr in document.body) {
+////				if (++i > 30) break;
+//				items.push({
+//					name: attr
+//				});
+//			}
+			model.describe("items", {
+				provider: {
+					url: "languages.json",
+					pageSize: 10
+				}
+			});
+
+			model.widgetConfig({
+				listScroll: {
+					$type: "listView",
+					class: "striped",
+					bind: "item in items",
+					allowNoCurrent: false,
+//					group: true,
+//					indexBar: true,
+					pullDown: true,
+					pullUp: true,
+					itemSlide: "both",
+					height: "100%",
+					columns: "row 2 4",
+//					highlightCurrentItem: false,
+//					getGroupString: function (arg) {
+//						var name = arg.item.get("name");
+//						if (name) arg.result = name.charAt(0).toUpperCase();
+//					},
+//					pullStep: function (arg) {
+//						$("#divPullDown").text((arg.distance < arg.theshold) ? "继续下拉以刷新" : "释放以刷新");
+//					},
+//					pullComplete: function (arg) {
+//						$("#divPullDown").text("正在刷新...");
+//						setTimeout(arg.done, 1000);
+//					},
+//					itemClick: function(self, arg) {
+//						self.showItemSlidePane(arg.item, "right");
+//					}
+				}
+			});
+		});
+	</script>
+	<style>
+	</style>
+</head>
+<body style="padding:0px;margin:0;">
+
+<!--<div id="divLog" style="height:150px;display:none"></div>-->
+
+<div id="listScroll">
+	<template name="default">
+		<li>
+			<div c-bind="item.name"></div>
+		</li>
+	</template>
+</div>
+
+</body>
+</html>

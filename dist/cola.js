@@ -798,7 +798,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -835,8 +835,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -5553,7 +5553,7 @@
   Functions
    */
 
-  cola.each = function(collection, fn) {
+  cola.each = function(collection, fn, options) {
     if (collection instanceof cola.EntityList) {
       collection.each(fn);
     } else if (collection instanceof Array) {
@@ -7701,7 +7701,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7719,8 +7719,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -14000,7 +14000,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14008,8 +14008,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -20243,7 +20243,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20256,8 +20256,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -22595,6 +22595,9 @@
       highlightCurrentItem: {
         type: "boolean"
       },
+      currentPageOnly: {
+        type: "boolean"
+      },
       autoLoadPage: {
         type: "boolean",
         defaultValue: true
@@ -22740,7 +22743,7 @@
     ItemsView.prototype._onItemsWrapperScroll = function() {
       var itemsWrapper, realItems;
       realItems = this._realItems;
-      if (this._autoLoadPage && !this._loadingNextPage && (realItems === this._realOriginItems || !this._realOriginItems)) {
+      if (!this._currentPageOnly && this._autoLoadPage && !this._loadingNextPage && (realItems === this._realOriginItems || !this._realOriginItems)) {
         if (realItems instanceof cola.EntityList && realItems.pageSize > 0 && (realItems.pageNo < realItems.pageCount || !realItems.pageCountDetermined)) {
           itemsWrapper = this._doms.itemsWrapper;
           if (itemsWrapper.scrollTop + itemsWrapper.clientHeight === itemsWrapper.scrollHeight) {
@@ -22926,7 +22929,7 @@
     };
 
     ItemsView.prototype._doRefreshItems = function(itemsWrapper) {
-      var counter, currentItem, currentPageNo, documentFragment, hasPullAction, itemDom, items, lastItem, nextItemDom, pullDownPane, pullUpPane, ref, ret;
+      var currentItem, currentPageNo, documentFragment, hasPullAction, itemDom, items, lastItem, nextItemDom, pullDownPane, pullUpPane, ref, ret;
       if (this._itemDomMap == null) {
         this._itemDomMap = {};
       }
@@ -22950,7 +22953,6 @@
         }
         this._currentItem = currentItem;
         this._itemsScope.resetItemScopeMap();
-        counter = 0;
         this._refreshEmptyItemDom();
         lastItem = null;
         cola.each(items, (function(_this) {
@@ -22988,7 +22990,9 @@
               documentFragment.appendChild(itemDom);
             }
           };
-        })(this));
+        })(this), {
+          currentPage: this._currentPageOnly
+        });
         if (nextItemDom) {
           itemDom = nextItemDom;
           while (itemDom) {
@@ -23009,7 +23013,7 @@
         if (documentFragment) {
           itemsWrapper.appendChild(documentFragment);
         }
-        if (this._autoLoadPage && !this._loadingNextPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
+        if (!this._currentPageOnly && this._autoLoadPage && !this._loadingNextPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
           currentPageNo = lastItem != null ? (ref = lastItem._page) != null ? ref.pageNo : void 0 : void 0;
           if (currentPageNo && (currentPageNo < items.pageCount || !items.pageCountDetermined)) {
             if (itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {

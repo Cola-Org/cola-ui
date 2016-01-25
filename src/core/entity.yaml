@@ -248,6 +248,29 @@
 - name: cola.EntityList
   stereotype: class
   label: 数据实体集合
+  description: |
+    关于EntityList的分页功能，此处需要特别做些说明。EntityList除了有一个pageCount属性之外，还有一个叫pageCountDetermined的属性。
+    Provider返回集合型数据时有3种方式来支持分页：
+    <ul>
+    <li>
+    返回一个JSON而不是Array。
+    JSON中的$data用来放当前页的数据，它是一个数组，
+    再通过这个JSON中的$totalEntityCount属性来声明集合的总记录数（不是指当前页的记录数）。
+    完成第一次的数据装载之后，EntityList就已经得到了确定的pageCount和totalEntityCount，同时pageCountDetermined也将变成true。
+    </li>
+    <li>
+    如果设置了Provider的detectEnd属性为true，那么Provider会自动尝试向后端多请求一条记录。
+    比如我们设置pageSize为10，当前加载第3页，那么Provider实际向后端发出的请求中的from和limit参数将是20和11。
+    此时后端只需要直接向前台返回数组即可，前台根据获得的结果是否足够11条，来确定是否还存在下一页。
+    在还没有加载到最后一页之前，EntityList并不知道确定的pageCount和totalEntityCount，pageCountDetermined的值也是false。
+    当装载到最后一页时才能确定pageCount和totalEntityCount，并且将pageCountDetermined变为true。
+    </li>
+    <li>
+    如果不设置Provider的detectEnd属性为true，那么Provider不会通过多请求一条记录的方式来提前判断是否存在下一页。
+    因此在最后一页的记录数刚好等于pageSize时，EntityList仍会以为存在下一页数据。这在部分场景下并不会存在问题。
+    只有当装载某一页数据时记录数小于pageSize时，才能确定pageCount和totalEntityCount，并且将pageCountDetermined变为true。
+    </li>
+    </ul>
 
   constructors:
     - arguments:
