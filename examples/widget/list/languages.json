@@ -1,5 +1,5 @@
 {
-	"$totalEntityCount": 100,
+	"$entityCount": 20,
 	"$data": [
 		{
 			"name": "Javascript"
@@ -27,6 +27,9 @@
 		},
 		{
 			"name": "Pascal"
+		},
+		{
+			"name": "Go"
 		}
 	]
 }

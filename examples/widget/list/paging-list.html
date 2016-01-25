@@ -6,6 +6,8 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
+			var sn = 0;
+
 //			var items = [];
 //			var i = 0;
 //			for (var attr in document.body) {
@@ -24,7 +26,7 @@
 			model.widgetConfig({
 				listScroll: {
 					$type: "listView",
-					class: "striped",
+//					class: "striped",
 					bind: "item in items",
 					allowNoCurrent: false,
 //					group: true,
@@ -33,7 +35,8 @@
 					pullUp: true,
 					itemSlide: "both",
 					height: "100%",
-					columns: "row 2 4",
+					currentPageOnly: true
+//					columns: "row 2 4",
 //					highlightCurrentItem: false,
 //					getGroupString: function (arg) {
 //						var name = arg.item.get("name");
@@ -49,6 +52,27 @@
 //					itemClick: function(self, arg) {
 //						self.showItemSlidePane(arg.item, "right");
 //					}
+				},
+				buttonPrev: {
+					$type: "button",
+					caption: "Prev Page",
+					click: function() {
+						model.get("items").previousPage();
+					}
+				},
+				buttonNext: {
+					$type: "button",
+					caption: "Next Page",
+					click: function() {
+						model.get("items").nextPage();
+					}
+				},
+				buttonSet: {
+					$type: "button",
+					caption: "Set",
+					click: function() {
+						model.set("items.name", ++sn);
+					}
 				}
 			});
 		});
@@ -56,16 +80,21 @@
 	<style>
 	</style>
 </head>
-<body style="padding:0px;margin:0;">
+<body style="padding:0px;margin:0;" class="v-box">
 
-<!--<div id="divLog" style="height:150px;display:none"></div>-->
-
-<div id="listScroll">
-	<template name="default">
-		<li>
-			<div c-bind="item.name"></div>
-		</li>
-	</template>
+<div class="box">
+	<div id="buttonPrev"></div>
+	<div id="buttonNext"></div>
+	<div id="buttonSet"></div>
+</div>
+<div class="flex-box">
+	<div id="listScroll">
+		<template name="default">
+			<li>
+				<div c-bind="item.name"></div>
+			</li>
+		</template>
+	</div>
 </div>
 
 </body>

@@ -206,7 +206,7 @@ class cola.Property extends cola.Definition
 		beforeLoad: null
 		loaded: null
 
-cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
+cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 	if aggregated == undefined
 		if json instanceof Array
 			aggregated = true
@@ -217,6 +217,7 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 
 	if aggregated
 		entityList = new cola.EntityList(null, dataType)
+		if pageSize then entityList.pageSize = pageSize
 		entityList.fillData(json)
 		return entityList
 	else
@@ -224,11 +225,11 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated) ->
 			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 		return new cola.Entity(json, dataType)
 
-cola.DataType.jsonToData = (json, dataType, aggregated) ->
+cola.DataType.jsonToData = (json, dataType, aggregated, pageSize) ->
 	if dataType instanceof cola.StringDataType and typeof json != "string" or dataType instanceof cola.BooleanDataType and typeof json != "boolean" or dataType instanceof cola.NumberDataType and typeof json != "number" or dataType instanceof cola.DateDataType and !(json instanceof Date)
 		result = dataType.parse(json)
 	else if dataType instanceof cola.EntityDataType
-		result = cola.DataType.jsonToEntity(json, dataType, aggregated)
+		result = cola.DataType.jsonToEntity(json, dataType, aggregated, pageSize)
 	else if dataType and typeof json == "object"
 		result = dataType.parse(json)
 	else

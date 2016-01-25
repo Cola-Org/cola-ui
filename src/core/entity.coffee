@@ -331,9 +331,8 @@ class cola.Entity
 		return @
 
 	_jsonToEntity: (value, dataType, aggregated, provider) ->
-		result = cola.DataType.jsonToEntity(value, dataType, aggregated)
+		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider._pageSize)
 		if result and provider
-			result.pageSize = provider._pageSize
 			result._providerInvoker = provider.getInvoker(@)
 		return result
 
@@ -1311,9 +1310,11 @@ class cola.EntityList extends LinkedList
 				if deleted or next.state != _Entity.STATE_DELETED
 					if fn.call(@, next, i++) == false then break
 				next = next._next
-			else if not pageNo
+			else if page and not pageNo
 				page = page._next
 				next = page?._first
+			else
+				break
 		return @
 
 	getPath: _getEntityPath
@@ -1581,7 +1582,7 @@ Functions
 
 cola.each = (collection, fn, options) ->
 	if collection instanceof cola.EntityList
-		collection.each(fn)
+		collection.each(fn, options)
 	else if collection instanceof Array
 		if typeof collection.each == "function"
 			collection.each(fn)
