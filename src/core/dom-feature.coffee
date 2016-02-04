@@ -295,7 +295,7 @@ class cola._DomFeature extends cola._ExpressionFeature
 
 class cola._TextNodeFeature extends cola._DomFeature
 	_doRender: (domBinding, value) ->
-		$fly(domBinding.dom).text(if !value? then "" else value)
+		cola.util.setText(domBinding.dom, if value? then value else "")
 		return
 
 class cola._DomAttrFeature extends cola._DomFeature
@@ -305,13 +305,13 @@ class cola._DomAttrFeature extends cola._DomFeature
 	_doRender: (domBinding, value) ->
 		attr = @attr
 		if attr == "text"
-			domBinding.$dom.text(if !value? then "" else value)
+			cola.util.setText(domBinding.dom, if value? then value else "")
 		else if attr == "html"
-			domBinding.$dom.html(if !value? then "" else value)
+			domBinding.$dom.html(if value? then value else "")
 		else if @isStyle
 			domBinding.$dom.css(attr, value)
 		else
-			domBinding.$dom.attr(attr, if !value? then "" else value)
+			domBinding.$dom.attr(attr, if value? then value else "")
 		return
 
 class cola._DomClassFeature extends cola._DomFeature

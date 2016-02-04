@@ -331,7 +331,7 @@ class cola.Entity
 		return @
 
 	_jsonToEntity: (value, dataType, aggregated, provider) ->
-		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider._pageSize)
+		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider?._pageSize)
 		if result and provider
 			result._providerInvoker = provider.getInvoker(@)
 		return result

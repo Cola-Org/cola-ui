@@ -16,18 +16,18 @@ function includeAll(root) {
 	writeScriptlet("lib/number-formatter.js");
 	writeScriptlet("lib/xdate.js");
 	writeScriptlet("lib/swipe.lite.js");
-	writeScriptlet("lib/jquery-2.1.3.js");
+	writeScriptlet("lib/jquery-1.11.0.js");
 	writeScriptlet("lib/jquery.transit.js");
 
 	writeScriptlet("lib/jsep.js");
 	writeScriptlet("lib/animate.js");
 	writeScriptlet("lib/scroller.js");
-	writeScriptlet("lib/easy-scroller.js");
+	//writeScriptlet("lib/easy-scroller.js");
 
 	writeScriptlet("lib/fastclick.js");
 	writeScriptlet("lib/semantic-ui/semantic.js");
-	writeScriptlet("lib/hammer.js");
-	writeScriptlet("lib/jquery.hammer.js");
+	//writeScriptlet("lib/hammer.js");
+	//writeScriptlet("lib/jquery.hammer.js");
 
 	writeScriptlet("cola.js");
 	writeScriptlet("widget/widget.js");
