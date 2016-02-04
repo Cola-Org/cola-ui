@@ -1,4 +1,5 @@
 _ = require "underscore"
+
 sources =
 	coffee:
 		core: [
@@ -118,12 +119,12 @@ sources =
 			"src/css/radio.less"
 			"src/css/sidebar.less"
 		]
+
 	lib:
 		js: [
 			"src/lib/number-formatter.js"
 			"src/lib/xdate.js"
 			"src/lib/swipe.lite.js"
-#			"src/lib/jquery-2.1.3.js"
 			"src/lib/jquery.transit.js"
 
 			"src/lib/jsep.js"
@@ -133,13 +134,8 @@ sources =
 			"src/lib/easy-scroller.js"
 
 			"src/lib/fastclick.js"
-#			"src/lib/semantic-ui/semantic.js"
-#			"src/lib/hammer.js"
-#			"src/lib/jquery.hammer.js"
 		]
-		css: [
-#			"lib/semantic-ui/semantic.css"
-		]
+
 	semantic:
 		js: ["src/lib/semantic-ui/semantic.js"]
 		css: ["lib/semantic-ui/semantic.css"]
