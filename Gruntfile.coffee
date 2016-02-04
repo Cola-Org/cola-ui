@@ -5,48 +5,26 @@ module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: pkg
 		clean:
-			build: ["dest/work", "dist"]
-			workTemp: ["dest/work/cola"]
-			dev: ["dest/dev"]
+			build: ["dist"]
+			workTemp: ["dist/work"]
 		coffee:
-			dev:
+			dist:
 				options:
 					sourceMap: false
 					join: true
 				files:
-					"dest/dev/cola.js": sources.coffee.core
-
-			"cola-core":
-				options:
-					sourceMap: false
-					join: true
-				files:
-					"dist/cola-core.js": [
-						"dest/work/cola/coffee/cola.coffee"
-					]
+					"dist/cola-dorado7.js": sources.coffee.core
 		copy:
 			libs:
 				expand: true
 				cwd: "src"
 				src: ["lib/**"]
-				dest: "dest/dev"
+				dest: "dist"
 		watch:
 			coffee:
 				files: ["src/**/*.coffee"]
-				tasks: "coffee:dev"
-			libs:
-				files: ["src/lib/**"]
-				tasks: "copy:libs"
-		connect:
-			testServer:
-				options:
-					port: 9001
-					base: "."
+				tasks: "coffee:dist"
 
-		"cola-ui-clean":
-			core:
-				files:
-					"dest/work/cola/coffee/cola.coffee": sources.coffee.core
 		"cola-ui-license":
 			options:
 				license: """
@@ -63,7 +41,8 @@ module.exports = (grunt) ->
 """
 			build:
 				files:
-					"dist/cola-core.js": "dist/cola-core.js"
+					"dist/cola-dorado7.js": "dist/cola-dorado7.js"
+
 		concat:
 			"3rd":
 				files:
@@ -78,8 +57,8 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-concat"
 	grunt.loadNpmTasks 'grunt-contrib-rename'
 
-	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "copy:libs"]
+	grunt.registerTask "compile", ["clean:dev", "coffee:dist", "copy:libs"]
 	grunt.registerTask "all", ["clean", "coffee", "copy"]
 	grunt.registerTask "w", ["watch"]
-	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core",
-								 "cola-ui-license", "concat", "clean:workTemp"]
+	grunt.registerTask "build", ["clean:build","coffee:dist",
+								 "cola-ui-license", "concat", "copy:libs", "clean:workTemp"]

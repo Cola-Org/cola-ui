@@ -1,10 +1,7 @@
-_ = require "underscore"
 sources =
 	coffee:
 		core: [
 			"src/core/namespace.coffee"
-			"src/core/x-create.coffee"
-			"src/core/keyed-array.coffee"
 			"src/core/util.coffee"
 			"src/core/base.coffee"
 			"src/i18n/en/cola.coffee"
@@ -13,9 +10,8 @@ sources =
 			"src/core/date.coffee"
 			"src/core/expression.coffee"
 			"src/core/service.coffee"
-			"src/core/validator.coffee"
-			"src/core/data-type.coffee"
-			"src/core/entity.coffee"
+			"src/core/dorado/data-type.coffee"
+			"src/core/dorado/entity.coffee"
 			"src/core/model.coffee"
 			"src/core/action.coffee"
 			"src/core/dom-util.coffee"
