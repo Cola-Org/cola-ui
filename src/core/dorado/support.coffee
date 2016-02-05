@@ -1,0 +1,1 @@
+cola.getDoradoView = () -> view or window["viewMain"]
