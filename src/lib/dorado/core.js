@@ -8806,6 +8806,8 @@ jQuery.fn.xCreate = function(template, arg, options) {
  */
 
 (function($) {
+	
+	if (!jQuery.ui || !jQuery.ui.draggable) return;
 
 	/**
 	 * @name jQuery#draggable

@@ -52,7 +52,6 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-watch"
 	grunt.loadNpmTasks "grunt-contrib-copy"
 	grunt.loadNpmTasks "grunt-contrib-clean"
-	grunt.loadNpmTasks "grunt-contrib-connect"
 	grunt.loadNpmTasks "grunt-cola-ui-build"
 	grunt.loadNpmTasks "grunt-contrib-concat"
 	grunt.loadNpmTasks 'grunt-contrib-rename'

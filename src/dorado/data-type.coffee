@@ -1,15 +1,16 @@
 # DataType
 
 cola.DataType = dorado.DataType
+cola.EntityDataType = dorado.EntityDataType
 
-cola.DataType.ATTRIBUTES.properties =
+cola.EntityDataType::ATTRIBUTES.properties =
 	path: "propertyDefs"
 
 # Property
 
 cola.Property = dorado.PropertyDef
 
-cola.Property.ATTRIBUTES.caption =
+cola.Property::ATTRIBUTES.caption =
 	path: "label"
 
 # Definitions

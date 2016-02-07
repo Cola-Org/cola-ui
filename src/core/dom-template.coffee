@@ -70,26 +70,6 @@ $ () ->
 cola._userDomCompiler =
 	$: []
 
-$.xCreate.templateProcessors.push (template) ->
-	if template instanceof cola.Widget
-		dom = template.getDom()
-		dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-		return dom
-	return
-
-$.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
-	return unless attrValue
-	if typeof attrValue == "string"
-		$dom.attr(attrName, attrValue)
-	else if context
-		configKey = cola.uniqueId()
-		$dom.attr("widget-config", configKey)
-		widgetConfigs = context.widgetConfigs
-		if !widgetConfigs
-			context.widgetConfigs = widgetConfigs = {}
-		widgetConfigs[configKey] = attrValue
-	return
-
 cola.xRender = (template, model, context) ->
 	return unless template
 
@@ -114,27 +94,17 @@ cola.xRender = (template, model, context) ->
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()
 				for node in template
-					widget = null
-					if node instanceof cola.Widget
-						widget = node
-					else if node.$type
-						widget = cola.widget(node, context.namespace)
-					if widget
-						child = widget.getDom()
-						child.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-					else
-						child = $.xCreate(node, context)
-					documentFragment.appendChild(child)
+					child = null
+					for processor in cola.xRender.nodeProcessors
+						child = processor(node, context)
+						if child then break
+					if child then child = $.xCreate(node, context)
+					documentFragment.appendChild(child) if child
 			else
-				if template instanceof cola.Widget
-					widget = template
-				else if template.$type
-					widget = cola.widget(template, context.namespace)
-				if widget
-					dom = widget.getDom()
-					dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-				else
-					dom = $.xCreate(template, context)
+				for processor in cola.xRender.nodeProcessors
+					dom = processor(template, context)
+					if dom then break
+				if dom then dom = $.xCreate(template, context)
 		finally
 			cola.currentScope = oldScope
 
@@ -148,6 +118,8 @@ cola.xRender = (template, model, context) ->
 		else
 			dom = documentFragment
 	return dom
+
+cola.xRender.nodeProcessors = []
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
 	_doRenderDomTemplate(dom, scope, context)

@@ -10,8 +10,11 @@ sources =
 			"src/core/date.coffee"
 			"src/core/expression.coffee"
 			"src/core/service.coffee"
-			"src/core/dorado/data-type.coffee"
-			"src/core/dorado/entity.coffee"
+
+			"src/dorado/support.coffee"
+			"src/dorado/data-type.coffee"
+			"src/dorado/entity.coffee"
+
 			"src/core/model.coffee"
 			"src/core/action.coffee"
 			"src/core/dom-util.coffee"
