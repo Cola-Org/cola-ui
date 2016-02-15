@@ -921,19 +921,9 @@ dorado.DataPipe.MONITOR = {
 			 * @param {Object|Object[]} data 要转换的数据。
 			 * @return {dorado.EntityList} 转换后得到的集合。
 			 */
-			parse: function (data) {
+			parse: function (data, alwaysTransferEntity) {
 				if (data != null) {
-					var elementDataType = this.getElementDataType("always");
-					if (elementDataType && elementDataType._code) {
-						var array = [];
-						if (!(data instanceof Array)) data = [data];
-						for (var i = 0; i < data.length; i++) {
-							array.push(elementDataType.parse(data[i]));
-						}
-						return array;
-					} else {
-						return (data instanceof dorado.EntityList) ? data : new dorado.EntityList(data, this._dataTypeRepository, this);
-					}
+					return (data instanceof dorado.EntityList) ? data : new dorado.EntityList(data, this._dataTypeRepository, this, alwaysTransferEntity);
 				} else {
 					return null;
 				}
@@ -1328,7 +1318,7 @@ dorado.DataPipe.MONITOR = {
 			 * @param {Object} data 要转换的数据
 			 * @return {dorado.Entity} 转换后得到的实体。
 			 */
-			parse: function (data) {
+			parse: function (data, alwaysTransferEntity) {
 				if (data != null) {
 					if (data instanceof dorado.Entity) {
 						return data
@@ -1336,6 +1326,7 @@ dorado.DataPipe.MONITOR = {
 						var oldProcessDefaultValue = SHOULD_PROCESS_DEFAULT_VALUE;
 						SHOULD_PROCESS_DEFAULT_VALUE = false;
 						var entity = new dorado.Entity(data, this._dataTypeRepository, this);
+						entity.alwaysTransferEntity = true;
 						SHOULD_PROCESS_DEFAULT_VALUE = oldProcessDefaultValue;
                         return entity;
 					}
@@ -2435,9 +2426,18 @@ dorado.DataPipe.MONITOR = {
 	root.register(new AggregationDataType("Array"));
 	
 	var EntityDataType = dorado.EntityDataType;
-	root.register(new EntityDataType("Bean"));
-	root.register(new EntityDataType("Map"));
-	root.register(new EntityDataType("Entity"));
+	root.register(new EntityDataType({
+		name: "Bean",
+		acceptUnknownProperty: true
+	}));
+	root.register(new EntityDataType({
+		name: "Map",
+		acceptUnknownProperty: true
+	}));
+	root.register(new EntityDataType({
+		name: "Entity",
+		acceptUnknownProperty: true
+	}));
 })();
 
 /*
@@ -3203,6 +3203,11 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			 * @type int
 			 */
 			this.timestamp = dorado.Core.getTimestamp();
+			
+			if (dataTypeRepository instanceof dorado.DataType) {
+				dataType = dataTypeRepository;
+				dataTypeRepository = null;
+			}
 
 			/**
 			 * 该实体对象中的数据类型所属的数据类型管理器。
@@ -3374,23 +3379,29 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			function transferAndReplaceIf(entity, propertyDef, value, replaceValue) {
 				if (value && typeof (value instanceof dorado.Entity || value instanceof dorado.EntityList) && value.parent == entity) return value;
 				
-				var dataType = propertyDef.get("dataType");
-				if (dataType == null) return value;
+				var dataType = (propertyDef) ? propertyDef.get("dataType") : null;
+				if (dataType == null && !entity.alwaysTransferEntity) return value;
 
 				var originValue = value; 
-				value = dataType.parse(originValue, propertyDef.get("typeFormat"));
-				replaceValue = replaceValue &&
-					((value instanceof dorado.Entity || value instanceof dorado.EntityList) && value.parent !== entity);
+				if (dataType) {
+					value = dataType.parse(originValue, (propertyDef) ? propertyDef.get("typeFormat") : null);
+				}
+				else if (value) {
+					value = dorado.DataTypeRepository.ROOT.get((value instanceof Array) ? "[Entity]" : "Entity").parse(value, true);
+				}
 
-				if ((value instanceof dorado.Entity || value instanceof dorado.EntityList) && value.parent != this) {
+				if ((value instanceof dorado.Entity || value instanceof dorado.EntityList) && value.parent != entity) {
 					value.parent = entity;
 					value.timestamp = dorado.Core.getTimestamp();
 					value.parentProperty = property;
 					value._setObserver(entity._observer);
 				}
+				else {
+					replaceValue = false;
+				}
 
 				if (replaceValue) {
-					var oldValue = entity._data[propertyDef._name];
+					var oldValue = entity._data[property];
 					if (oldValue !== value)  {
 						if (oldValue && oldValue.isDataPipeWrapper) {
 							oldValue = oldValue.value;
@@ -3401,15 +3412,15 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 							oldValue._setObserver(null);
 						}
 
-						entity._data[propertyDef._name] = value;
+						entity._data[property] = value;
 					}
 					
 					var eventArg = {};
 					if (value instanceof dorado.Entity) {
 						eventArg.entity = value;
-						dataType.fireEvent("onEntityLoad", dataType, eventArg);
+						if (dataType) dataType.fireEvent("onEntityLoad", dataType, eventArg);
 					}
-					else if (value instanceof dorado.EntityList) {
+					else if (dataType && value instanceof dorado.EntityList) {
 						var elementDataType = dataType.get("elementDataType");
 						if (elementDataType) {
 							for (var it = value.iterator(); it.hasNext();) {
@@ -3555,19 +3566,17 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 						}
 					}
 				}
-			} else if (propertyDef) {
-				if (value === null) {
-					if (dorado.Entity.ALWAYS_RETURN_VALID_ENTITY_LIST) {
-						var aggregationDataType = propertyDef.get("dataType");
-						if (aggregationDataType instanceof dorado.AggregationDataType) {
-							value = transferAndReplaceIf(this, propertyDef, [], false);
-							value.isNull = true;
-							this._data[property] = value;
-						}
+			} else if (value === null && propertyDef) {
+				if (dorado.Entity.ALWAYS_RETURN_VALID_ENTITY_LIST) {
+					var aggregationDataType = propertyDef.get("dataType");
+					if (aggregationDataType instanceof dorado.AggregationDataType) {
+						value = transferAndReplaceIf(this, propertyDef, [], false);
+						value.isNull = true;
+						this._data[property] = value;
 					}
-				} else {
-					value = transferAndReplaceIf(this, propertyDef, value, true);
 				}
+			} else if ((value instanceof Object || value instanceof Array) && !(value instanceof Date)) {
+				value = transferAndReplaceIf(this, propertyDef, value, true);
 			}
 
 			if (propertyDef && propertyDef.getListenerCount("onGet")) {
@@ -3626,8 +3635,8 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 				var propertyDef = this.getPropertyDef(property);
 				result = this._get(property, propertyDef, null, loadMode);
 			} else {
-				var properties = property.split('.');
-				for (var i = 0; i < properties.length; i++) {
+				var properties = property.split('.'), len = properties.length;
+				for (var i = 0; i < len; i++) {
 					property = properties[i];
 					if (i == 0) {
 						var propertyDef = this.getPropertyDef(property);
@@ -3635,6 +3644,15 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 					} else {
 						if (!result) break;
 						result = (result instanceof dorado.Entity) ? result.get(property) : result[property];
+					}
+					
+					if (i < len - 1) {
+						if (result instanceof dorado.EntityList) {
+							result = result.current;
+						}
+						else if (result instanceof Array) {
+							result = result[0];
+						}
 					}
 				}
 			}
@@ -4060,6 +4078,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			var subEntity = this.get(property1);
 			if (subEntity == null && create) subEntity = this.createChild(property1);
 			if (subEntity != null) {
+				if (subEntity instanceof dorado.EntityList) subEntity = subEntity.current;
 				return subEntity[method].apply(subEntity, [property2].concat(args));
 			}
 		},
@@ -5286,7 +5305,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 		 */
 		// =====
 		
-		constructor: function(data, dataTypeRepository, dataType) {
+		constructor: function(data, dataTypeRepository, dataType, alwaysTransferEntity) {
 			
 			/**
 			 * 集合中当前数据实体。
@@ -5304,6 +5323,11 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			 * @type int
 			 */
 			this.timestamp = dorado.Core.getTimestamp();
+			
+			if (dataTypeRepository instanceof dorado.DataType) {
+				dataType = dataTypeRepository;
+				dataTypeRepository = null;
+			}
 			
 			/**
 			 * 该集合中的数据类型所属的数据类型管理器。
@@ -5355,6 +5379,8 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			 * @type int
 			 */
 			this.entityCount = 0;
+			
+			this.alwaysTransferEntity = alwaysTransferEntity;
 			
 			this._pages = new dorado.util.KeyedList();
 			this._keyMap = {};
@@ -5881,7 +5907,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			if (parent != null && parent instanceof dorado.EntityList && parent.parent!=null && parent.parent instanceof dorado.Entity){
 				var parentProperty = parent.parentProperty;
 				var parentPropertyDef = parent.parent.getPropertyDef(parentProperty);
-				if (parentPropertyDef._required){
+				if (parentPropertyDef && parentPropertyDef._required){
 					if (mode == "insert" || (mode == "remove" && parent.entityCount == 0)){
 						var propertyInfoMap = parent.parent._propertyInfoMap, propertyInfo = propertyInfoMap[parentProperty];
 						if (propertyInfo) propertyInfoMap[parentProperty] = propertyInfo = {};
@@ -5917,6 +5943,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 				}
 			} else {
 				entity = new dorado.Entity(entity, this.dataTypeRepository, this.elementDataType);
+				child.alwaysTransferEntity = this.alwaysTransferEntity;
 			}
 			
 			if (insertMode == "before" || insertMode == "after") {
@@ -6023,6 +6050,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 				throw new ResourceException("dorado.data.EntityPropertyExpected", property);
 			}
 			var child = new dorado.Entity(null, this.dataTypeRepository, elementDataType);
+			child.alwaysTransferEntity = this.alwaysTransferEntity;
 			if (data) child.set(data);
 			if (!detached) this.insert(child);
 			return child;
@@ -6072,11 +6100,13 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 					
 					if (elementDataType != null) {
 						entity = elementDataType.parse(json);
+						entity.alwaysTransferEntity = this.alwaysTransferEntity;
 					} else {
 						var oldProcessDefaultValue = SHOULD_PROCESS_DEFAULT_VALUE;
 						SHOULD_PROCESS_DEFAULT_VALUE = false;
 						try {
 							entity = new dorado.Entity(json, (this.dataType) ? this.dataType.get("dataTypeRepository") : null);
+							entity.alwaysTransferEntity = this.alwaysTransferEntity;
 						}
 						finally {
 							SHOULD_PROCESS_DEFAULT_VALUE = oldProcessDefaultValue;
@@ -6382,6 +6412,7 @@ var SHOULD_PROCESS_DEFAULT_VALUE = true;
 			if (this.isNull) return null;
 			
 			var cloned = new dorado.EntityList(null, this.dataTypeRepository, this.dataType);
+			cloned.alwaysTransferEntity = this.alwaysTransferEntity;
 			for (var it = this.iterator(); it.hasNext();) {
 				var entity = it.next();
 				if (deep) entity = dorado.Core.clone(entity, deep);

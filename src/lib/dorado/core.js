@@ -6606,257 +6606,6 @@ window.$map = function(obj) {
 			return null;
 		},
 		
-		/**
-		 * 根据以JSON形式定义的组件的模板信息快速的创建DOM元素。
-		 * @param {Object|Object[]} template JSON形式定义的组件的模板信息。
-		 * @param {Object} [arg] JSON形式定义的模板参数。
-		 * @param {Object} [context] 用于在创建过程中搜集子元素引用的上下文对象。
-		 * 对于那些模板信息中带有contextKey属性的子元素，本方法会自动将相应的子元素的引用添加到context的属性中。
-		 * @return {HTMLElement|HTMLElement[]} 新创建的HTML元素或HTML元素的数组。
-		 *
-		 * @example
-		 * // 创建一个按钮
-		 * $DomUtils.xCreate({
-		 * 	tagName: "button",
-		 * 	content: "Click Me",	// 定义按钮的标题
-		 * 	style: {	// 定义按钮的style
-		 * 		border: "1px black solid",
-		 * 		backgroundColor: "white"
-		 * 	},
-		 * 	onclick: function() {	// 定义onclick事件
-		 * 		alert("Button clicked.");
-		 * 	}
-		 * });
-		 * 
-		 * @example
-		 * // 创建一个按钮
-		 * $DomUtils.xCreate({
-		 * 	tagName: "DIV",
-		 * 	contentText: "<Input>"	// contentText属性类似于content，但contentText中的文本内容不会被识别成为HTML
-		 * });
-		 *
-		 * @example
-		 * // 创建两个DIV, 同时将两个DIV注册到上下文中
-		 * var context = {};
-		 * $DomUtils.xCreate([
-		 * 	{
-		 * 		tagName: "div",
-		 * 		content: "Content of DIV1",
-		 * 		contextKey: "div1"
-		 * 	},
-		 * 	{
-		 * 		tagName: "div",
-		 * 		content: "Content of DIV2",
-		 * 		contextKey: "div2"
-		 * 	}
-		 * ], null, context);
-		 * var div1 = context.div1;
-		 * var div2 = context.div2;
-		 *
-		 * @example
-		 * // 一个表格
-		 * $DomUtils.xCreate(
-		 * 	{
-		 * 		tagName: "table",
-		 * 		content: [
-		 * 			{
-		 * 				tagName: "tr",
-		 * 				content: [
-		 * 					{
-		 * 						tagName: "td"
-		 * 						content: "1.1"
-		 * 					},
-		 * 					{
-		 * 						tagName: "td"
-		 * 						content: "1.2"
-		 * 					}
-		 * 				]
-		 * 			},
-		 * 			{
-		 * 				tagName: "tr",
-		 * 				content: [
-		 * 					{
-		 * 						tagName: "td"
-		 * 						content: "2.1"
-		 * 					},
-		 * 					{
-		 * 						tagName: "td"
-		 * 						content: "2.2"
-		 * 					}
-		 * 				]
-		 * 			}
-		 * 		]
-		 * 	}
-		 * );
-		 *
-		 * @example
-		 * // 使用带参数的模板
-		 * var template = function(arg) {
-		 * 	return [ {
-		 * 		tagName : "button",
-		 * 		content : arg.buttonText1
-		 * 	}, {
-		 * 		tagName : "button",
-		 * 		content : arg.buttonText2
-		 * 	} ]
-		 * };
-		 * var arg = {
-		 * 	buttonText1 : "Button 1",
-		 * 	buttonText2 : "Button 2"
-		 * };
-		 * $DomUtils.xCreate(template, arg);
-		 */
-		xCreate: function(template, arg, context) {
-		
-			function setAttrs(el, attrs, jqEl) {
-				//attrName is not global. modified by frank
-				var $el = jQuery(el);
-				for (var attrName in attrs) {
-					var attrValue = attrs[attrName];
-					switch (attrName) {
-						case "style":
-							if (attrValue.constructor == String) {
-								$el.attr("style", attrValue);
-							} else {
-								for (var styleName in attrValue) {
-									var v = attrValue[styleName];
-									if (styleName.match(/^width$|^height$|^top$|^left$|^right$|^bottom$/)) {
-										if (isFinite(v)) v += "px";
-									}
-									el.style[styleName] = v;
-								}
-							}
-							break;
-							
-						case "outerWidth":
-							jqEl.outerWidth(attrValue);
-							break;
-							
-						case "outerHeight":
-							jqEl.outerHeight(attrValue);
-							break;
-							
-						case "tagName":
-						case "content":
-						case "contentText":
-							continue;
-							
-						case "contextKey":
-							if (context instanceof Object && attrValue && typeof attrValue == "string") {
-								context[attrValue] = el;
-							}
-							continue;
-						
-						case "data":
-							$el.data(attrValue);
-							break;
-							
-						default:
-							if (attrName.substr(0, 2) == "on") { // event?
-								var event = attrName.substr(2);
-								if (typeof attrValue != "function") attrValue = new Function(attrValue);
-								jqEl.bind(event, attrValue);
-							} else {
-								el[attrName] = attrValue;
-							}
-					}
-				}
-				return el;
-			}
-			
-			function setText(el, content, jqEl, isText) {
-				var isHtml = /(<\S[^><]*>)|(&.+;)/g;
-				if (isText !== true && content.match(isHtml) != null && el.tagName.toUpperCase() != "TEXTAREA") {
-					el.innerHTML = content;
-				} else {
-					if (dorado.Browser.mozilla) {
-						el.innerHTML = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/\n/g, "<br />\n");
-					}
-					else {
-						el.innerText = content;
-					}
-				}
-				return el;
-			}
-			
-			function appendChild(parentEl, el) {
-				if (/* dorado.Core.msie && */parentEl.nodeName.toUpperCase() == "TABLE" &&
-				el.nodeName.toUpperCase() == "TR") {
-					var tbody;
-					if (parentEl && parentEl.tBodies[0]) {
-						tbody = parentEl.tBodies[0];
-						
-					} else {
-						tbody = parentEl.appendChild(document.createElement("tbody"));
-					}
-					parentEl = tbody;
-				}
-				parentEl.appendChild(el);
-			}
-			
-			if (typeof template == "function") {
-				template = template(arg || window);
-			}
-			
-			if (template instanceof Array) {
-				var elements = [];
-				for (var i = 0; i < template.length; i++) {
-					elements.push(this.xCreate(template[i], arg, context));
-				}
-				return elements;
-			}
-			
-			var tagName = template.tagName || "DIV";
-			tagName = tagName.toUpperCase();
-			var content = template.content;
-			
-			var el;
-			if (dorado.Core.msie && tagName == "INPUT" && template.type) {
-				el = document.createElement("<" + tagName + " type=\"" + template.type + "\"/>");
-				
-			} else {
-				el = document.createElement(tagName);
-			}
-			var jqEl = jQuery(el);
-			el = setAttrs(el, template, jqEl);
-			
-			if (content != null) {
-				if (content.constructor == String) {
-					if (content.charAt(0) == '^') {
-						appendChild(el, document.createElement(content.substring(1)));
-					} else {
-						el = setText(el, content, jqEl);
-					}
-				} else {
-					if (content instanceof Array) {
-						for (var i = 0; i < content.length; i++) {
-							var c = content[i];
-							if (c.constructor == String) {
-								if (c.charAt(0) == '^') {
-									appendChild(el, document.createElement(c.substring(1)));
-								} else {
-									appendChild(el, document.createTextNode(c));
-								}
-							} else {
-								appendChild(el, this.xCreate(c, arg, context));
-							}
-						}
-					} else if (content.nodeType) {
-						appendChild(el, content);
-					} else {
-						appendChild(el, this.xCreate(content, arg, context));
-					}
-				}
-			}
-			else {
-				var contentText = template.contentText;
-				if (contentText != null && contentText.constructor == String) {
-					el = setText(el, contentText, jqEl, true);
-				}
-			}
-			return el;
-		},
-		
 		BLANK_IMG: dorado.Setting["common.contextPath"] + "dorado/client/resources/blank.gif",
 		
 		setImgSrc: function(img, src) {
@@ -7358,6 +7107,251 @@ window.$map = function(obj) {
 	}
 	
 })();
+/*
+ * This file is part of Dorado 7.x (http://dorado7.bsdn.org).
+ * 
+ * Copyright (c) 2002-2012 BSTEK Corp. All rights reserved.
+ * 
+ * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html) 
+ * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
+ * 
+ * If you are unsure which license is appropriate for your use, please contact the sales department
+ * at http://www.bstek.com/contact.
+ */
+
+/**
+ * 根据以JSON形式定义的组件的模板信息快速的创建DOM元素。
+ * @param {Object|Object[]} template JSON形式定义的组件的模板信息。
+ * @param {Object} [arg] JSON形式定义的模板参数。
+ * @param {Object} [context] 用于在创建过程中搜集子元素引用的上下文对象。
+ * 对于那些模板信息中带有contextKey属性的子元素，本方法会自动将相应的子元素的引用添加到context的属性中。
+ * @return {HTMLElement|HTMLElement[]} 新创建的HTML元素或HTML元素的数组。
+ *
+ * @example
+ * // 创建一个按钮
+ * $DomUtils.xCreate({
+ * 	tagName: "button",
+ * 	content: "Click Me",	// 定义按钮的标题
+ * 	style: {	// 定义按钮的style
+ * 		border: "1px black solid",
+ * 		backgroundColor: "white"
+ * 	},
+ * 	onclick: function() {	// 定义onclick事件
+ * 		alert("Button clicked.");
+ * 	}
+ * });
+ * 
+ * @example
+ * // 创建一个按钮
+ * $DomUtils.xCreate({
+ * 	tagName: "DIV",
+ * 	contentText: "<Input>"	// contentText属性类似于content，但contentText中的文本内容不会被识别成为HTML
+ * });
+ *
+ * @example
+ * // 创建两个DIV, 同时将两个DIV注册到上下文中
+ * var context = {};
+ * $DomUtils.xCreate([
+ * 	{
+ * 		tagName: "div",
+ * 		content: "Content of DIV1",
+ * 		contextKey: "div1"
+ * 	},
+ * 	{
+ * 		tagName: "div",
+ * 		content: "Content of DIV2",
+ * 		contextKey: "div2"
+ * 	}
+ * ], null, context);
+ * var div1 = context.div1;
+ * var div2 = context.div2;
+ *
+ * @example
+ * // 一个表格
+ * $DomUtils.xCreate(
+ * 	{
+ * 		tagName: "table",
+ * 		content: [
+ * 			{
+ * 				tagName: "tr",
+ * 				content: [
+ * 					{
+ * 						tagName: "td"
+ * 						content: "1.1"
+ * 					},
+ * 					{
+ * 						tagName: "td"
+ * 						content: "1.2"
+ * 					}
+ * 				]
+ * 			},
+ * 			{
+ * 				tagName: "tr",
+ * 				content: [
+ * 					{
+ * 						tagName: "td"
+ * 						content: "2.1"
+ * 					},
+ * 					{
+ * 						tagName: "td"
+ * 						content: "2.2"
+ * 					}
+ * 				]
+ * 			}
+ * 		]
+ * 	}
+ * );
+ *
+ * @example
+ * // 使用带参数的模板
+ * var template = function(arg) {
+ * 	return [ {
+ * 		tagName : "button",
+ * 		content : arg.buttonText1
+ * 	}, {
+ * 		tagName : "button",
+ * 		content : arg.buttonText2
+ * 	} ]
+ * };
+ * var arg = {
+ * 	buttonText1 : "Button 1",
+ * 	buttonText2 : "Button 2"
+ * };
+ * $DomUtils.xCreate(template, arg);
+ */
+dorado.util.Dom.xCreate = function(template, arg, context) {
+
+	function setAttrs(el, attrs, jqEl) {
+		//attrName is not global. modified by frank
+		var $el = jQuery(el);
+		for (var attrName in attrs) {
+			var attrValue = attrs[attrName];
+			switch (attrName) {
+				case "style":
+					if (attrValue.constructor == String) {
+						$el.attr("style", attrValue);
+					} else {
+						for (var styleName in attrValue) {
+							$el.css(styleName, attrValue[styleName]);
+						}
+					}
+					break;
+					
+				case "tagName":
+				case "content":
+					continue;
+					
+				case "contextKey":
+					if (context instanceof Object && attrValue && typeof attrValue == "string") {
+						context[attrValue] = el;
+					}
+					continue;
+					
+				default:
+					if (attrName.substr(0, 2) == "on") { // event?
+						var event = attrName.substr(2);
+						if (typeof attrValue != "function") attrValue = new Function(attrValue);
+						jqEl.bind(event, attrValue);
+					} else {
+						el[attrName] = attrValue;
+					}
+			}
+		}
+		return el;
+	}
+	
+	function setText(el, content, jqEl, isText) {
+		var isHtml = /(<\S[^><]*>)|(&.+;)/g;
+		if (isText !== true && content.match(isHtml) != null && el.tagName.toUpperCase() != "TEXTAREA") {
+			el.innerHTML = content;
+		} else {
+			if (dorado.Browser.mozilla) {
+				el.innerHTML = content.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/\n/g, "<br />\n");
+			}
+			else {
+				el.innerText = content;
+			}
+		}
+		return el;
+	}
+	
+	function appendChild(parentEl, el) {
+		if (/* dorado.Core.msie && */parentEl.nodeName.toUpperCase() == "TABLE" &&
+		el.nodeName.toUpperCase() == "TR") {
+			var tbody;
+			if (parentEl && parentEl.tBodies[0]) {
+				tbody = parentEl.tBodies[0];
+				
+			} else {
+				tbody = parentEl.appendChild(document.createElement("tbody"));
+			}
+			parentEl = tbody;
+		}
+		parentEl.appendChild(el);
+	}
+	
+	if (typeof template == "function") {
+		template = template(arg || window);
+	}
+	
+	if (template instanceof Array) {
+		var elements = [];
+		for (var i = 0; i < template.length; i++) {
+			elements.push(this.xCreate(template[i], arg, context));
+		}
+		return elements;
+	}
+	
+	var tagName = template.tagName || "DIV";
+	tagName = tagName.toUpperCase();
+	var content = template.content;
+	
+	var el;
+	if (dorado.Core.msie && tagName == "INPUT" && template.type) {
+		el = document.createElement("<" + tagName + " type=\"" + template.type + "\"/>");
+		
+	} else {
+		el = document.createElement(tagName);
+	}
+	var jqEl = jQuery(el);
+	el = setAttrs(el, template, jqEl);
+	
+	if (content != null) {
+		if (content.constructor == String) {
+			if (content.charAt(0) == '^') {
+				appendChild(el, document.createElement(content.substring(1)));
+			} else {
+				el = setText(el, content, jqEl);
+			}
+		} else {
+			if (content instanceof Array) {
+				for (var i = 0; i < content.length; i++) {
+					var c = content[i];
+					if (c.constructor == String) {
+						if (c.charAt(0) == '^') {
+							appendChild(el, document.createElement(c.substring(1)));
+						} else {
+							appendChild(el, document.createTextNode(c));
+						}
+					} else {
+						appendChild(el, this.xCreate(c, arg, context));
+					}
+				}
+			} else if (content.nodeType) {
+				appendChild(el, content);
+			} else {
+				appendChild(el, this.xCreate(content, arg, context));
+			}
+		}
+	}
+	else {
+		var contentText = template.contentText;
+		if (contentText != null && contentText.constructor == String) {
+			el = setText(el, contentText, jqEl, true);
+		}
+	}
+	return el;
+};
 /*
  * This file is part of Dorado 7.x (http://dorado7.bsdn.org).
  * 
@@ -7907,57 +7901,87 @@ jQuery.fn.unshadow = function(options) {
  * at http://www.bstek.com/contact.
  */
 
-/**
- * @name jQuery#xCreate
- * @function
- * @param {Object|Array} template JSON形式定义的组件的模板信息。
- * @param {Object} [arg] JSON形式定义的模板参数。
- * @param {Object} [options] 执行选项。
- * @param {boolean} [options.insertBefore] 是否已插入而不是追加的方式将新创建的元素添加到父对象中。xCreate默认是以appendChild的模式添加新元素的。
- * @param {HTMLElement} [options.refNode] 当使用insertBefore方式添加新元素时，应将新元素插入到哪一个原有的子元素之前。如果不定义此参数，则将插入所有子元素之前。
- * @param {boolean} [options.returnNewElements] 指定此方法是否返回新创建的元素，否则方法返回的是调用者自身。
- * @param {Object} [options.context] 上下文对象，见{@link dorado.util.Dom.xCreate}中的context参数。
- * @return {jQuery} jQuery对象或新创建的元素。
- * @description 根据以JSON形式定义的组件的模板信息快速的插入批量元素。<br>
- * 更多的例子请参考{@link dorado.Dom.xCreate}的文档。
- * @see dorado.util.Dom.xCreate
- *
- * @example
- * // 创建并插入一个按钮
- * jQuery("body").xCreate({
- * 	tagName: "button",
- * 	content: "Click Me",	// 定义按钮的标题
- * 	style: {	// 定义按钮的style
- * 		border: "1px black solid",
- * 		backgroundColor: "white"
- * 	}
- * 	onclick: function() {	// 定义onclick事件
- * 		alert("Button clicked.");
- * 	}
- * });
- */
-jQuery.fn.xCreate = function(template, arg, options) {
-	var parentEl = this[0];
-	var element = $DomUtils.xCreate(template, arg, (options ? options.context : null));
-	if (element) {
-		var insertBef = false, returnNewElements = false, refNode = null;
-		if (options instanceof Object) {
-			insertBef = options.insertBefore;
-			refNode = (options.refNode) ? options.refNode : parentEl.firstChild;
-			returnNewElements = options.returnNewElements;
+(function($) {
+
+	function createNodeForAppend(template, context) {
+		var element, fragment, result, _i, _len;
+		result = xCreate(template, context);
+		if (!result) {
+			return null;
 		}
-		
-		var elements = (element instanceof Array) ? element : [element];
-		for (var i = 0; i < elements.length; i++) {
-			if (insertBef && refNode) {
-				parentEl.insertBefore(elements[i], refNode);
-			} else {
-				parentEl.appendChild(elements[i]);
+		if (result instanceof Array) {
+			fragment = document.createDocumentFragment();
+			for (_i = 0, _len = result.length; _i < _len; _i++) {
+				element = result[_i];
+				fragment.appendChild(element);
 			}
+			result = fragment;
 		}
-	}
-	return returnNewElements ? jQuery(elements) : this;
-};
+		return result;
+	};
+	
+	/**
+	 * @name jQuery#xCreate
+	 * @function
+	 * @param {Object|Array}
+	 *            template JSON形式定义的组件的模板信息。
+	 * @param {Object}
+	 *            [arg] JSON形式定义的模板参数。
+	 * @param {Object}
+	 *            [options] 执行选项。
+	 * @param {boolean}
+	 *            [options.insertBefore]
+	 *            是否已插入而不是追加的方式将新创建的元素添加到父对象中。xCreate默认是以appendChild的模式添加新元素的。
+	 * @param {HTMLElement}
+	 *            [options.refNode]
+	 *            当使用insertBefore方式添加新元素时，应将新元素插入到哪一个原有的子元素之前。如果不定义此参数，则将插入所有子元素之前。
+	 * @param {boolean}
+	 *            [options.returnNewElements] 指定此方法是否返回新创建的元素，否则方法返回的是调用者自身。
+	 * @param {Object}
+	 *            [options.context] 上下文对象，见{@link dorado.util.Dom.xCreate}中的context参数。
+	 * @return {jQuery} jQuery对象或新创建的元素。
+	 * @description 根据以JSON形式定义的组件的模板信息快速的插入批量元素。<br>
+	 *              更多的例子请参考{@link dorado.Dom.xCreate}的文档。
+	 * @see dorado.util.Dom.xCreate
+	 * 
+	 * @example // 创建并插入一个按钮 jQuery("body").xCreate({ tagName: "button", content:
+	 *          "Click Me", // 定义按钮的标题 style: { // 定义按钮的style border: "1px black
+	 *          solid", backgroundColor: "white" } onclick: function() { //
+	 *          定义onclick事件 alert("Button clicked."); } });
+	 */
+	$.fn.xCreate = function(template, context, options) {
+		var result;
+		result = createNodeForAppend(template, context);
+		if (!result) {
+			return null;
+		}
+		this.append(result);
+		return (options && options.returnNewElements) ? $(result) : this;
+	};
+	
+	$.fn.xAppend = $.fn.xCreate;
+	
+	$.fn.xInsertBefore = function(template, context, options) {
+		var result;
+		result = createNodeForAppend(template, context);
+		if (!result) {
+			return null;
+		}
+		this.before(result);
+		return (options && options.returnNewElements) ? $(result) : this;
+	};
+	
+	$.fn.xInsertAfter = function(template, context, options) {
+		var result;
+		result = createNodeForAppend(template, context);
+		if (!result) {
+			return null;
+		}
+		this.after(result);
+		return (options && options.returnNewElements) ? $(result) : this;
+	};
+	
+})(jQuery);
 
 /*
  * This file is part of Dorado 7.x (http://dorado7.bsdn.org).

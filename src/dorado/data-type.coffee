@@ -3,8 +3,13 @@
 cola.DataType = dorado.DataType
 cola.EntityDataType = dorado.EntityDataType
 
+cola.EntityDataType::ATTRIBUTES.acceptUnknownProperty =
+	defaultValue: true
+
 cola.EntityDataType::ATTRIBUTES.properties =
 	path: "propertyDefs"
+
+cola.EntityDataType::getProperty = cola.EntityDataType::getPropertyDef
 
 # Property
 

@@ -16,6 +16,9 @@ sources =
 			"src/dorado/entity.coffee"
 
 			"src/core/model.coffee"
+
+			"src/dorado/model.coffee"
+
 			"src/core/action.coffee"
 			"src/core/dom-util.coffee"
 			"src/core/loader.coffee"

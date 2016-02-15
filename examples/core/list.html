@@ -24,7 +24,8 @@
 					model.get("addresses").previous();
 				},
 				next: function () {
-					model.get("addresses").next();
+					var addresses = model.get("addresses");
+					addresses.next();
 				},
 				each: function () {
 					model.get("addresses").each(function (address) {

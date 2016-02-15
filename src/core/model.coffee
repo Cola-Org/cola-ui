@@ -735,10 +735,13 @@ class cola.AbstractDataModel
 
 class cola.DataModel extends cola.AbstractDataModel
 
+	_createRootData: (rootDataType) ->
+		return new cola.Entity(null, rootDataType)
+
 	_getRootData: () ->
 		if !@_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
-			@_rootData = rootData = new cola.Entity(null, @_rootDataType)
+			@_rootData = rootData = @_createRootData(@_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
 			rootData._setListener(

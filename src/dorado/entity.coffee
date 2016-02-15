@@ -79,16 +79,34 @@ _Entity_setListener = (listener) ->
 # Entity
 
 cola.Entity = dorado.Entity
-
 cola.Entity::_setListener = _Entity_setListener
 cola.Entity::getPath = _Entity_getEntityPath
 
-cola.Entity::hasValue = (property) ->
-	return @.get(property) isnt undefined
+cola.Entity::hasValue = (property) -> @.get(property) isnt undefined
+
+
+cola.Entity._getEntityId = (entity) ->
+	return null unless entity
+	if entity instanceof cola.Entity
+		return entity.entityId
+	else if typeof entity == "object"
+		entity._id ?= cola.uniqueId()
+		return entity._id
 
 # EntityList
 
 cola.EntityList = dorado.EntityList
+dorado.EntityList::_setListener = _Entity_setListener
+dorado.EntityList::getPath = _Entity_getEntityPath
 
-cola.EntityList::_setListener = _Entity_setListener
-cola.EntityList::getPath = _Entity_getEntityPath
+# Functions
+
+cola.each = (collection, fn, options) ->
+	if collection instanceof cola.EntityList
+		collection.each(fn, options)
+	else if collection instanceof Array
+		if typeof collection.each == "function"
+			collection.each(fn)
+		else
+			cola.util.each(collection, fn)
+	return
