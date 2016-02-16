@@ -21,12 +21,11 @@ $.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) 
 cola.xRender.nodeProcessors.push (node, context) ->
 	if node instanceof cola.Widget
 		widget = node
-	else if template.$type
+	else if node.$type
 		widget = cola.widget(node, context.namespace)
 	if widget
 		dom = widget.getDom()
 		dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-	return domW
 
 cola.Model::widgetConfig = (id, config) ->
 	if arguments.length == 1
