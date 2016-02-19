@@ -165,6 +165,11 @@
               context[attrValue] = el;
             }
             break;
+          case "data":
+            if (context instanceof Object && attrValue && typeof attrValue === "string") {
+              context[attrValue] = el;
+            }
+            break;
           default:
             if (typeof attrValue === "function") {
               $el.bind(attrName, attrValue);
@@ -2278,6 +2283,9 @@
           return;
         }
       }
+      if (this._beforeSend) {
+        this._beforeSend(options);
+      }
       jQuery.ajax(options).done((function(_this) {
         return function(result) {
           result = ajaxService.translateResult(result, options);
@@ -2397,6 +2405,75 @@
 
   })(cola.Definition);
 
+  cola.ProviderInvoker = (function(superClass) {
+    extend(ProviderInvoker, superClass);
+
+    function ProviderInvoker() {
+      return ProviderInvoker.__super__.constructor.apply(this, arguments);
+    }
+
+    ProviderInvoker.prototype._replaceSysParams = function(options) {
+      var changed, data, l, len1, match, matches, name, p, url, v;
+      url = options.url;
+      matches = url.match(/{:\$[\w-]+}/g);
+      if (matches) {
+        for (l = 0, len1 = matches.length; l < len1; l++) {
+          match = matches[l];
+          name = match.substring(3, match.length - 1);
+          if (name) {
+            url = url.replace(match, this[name] || "");
+            changed = true;
+          }
+        }
+      }
+      data = options.data;
+      if (data) {
+        for (p in data) {
+          v = data[p];
+          if (typeof v === "string") {
+            if (v.charCodeAt(0) === 58 && v.charCodeAt(1) === 36) {
+              data[p] = this[v.substring(2)];
+              changed = true;
+            } else if (v.match(/^{:\$[\w-]+}$/)) {
+              data[p] = this[v.substring(3, v.length - 1)];
+              changed = true;
+            }
+          }
+        }
+      }
+      return changed;
+    };
+
+    ProviderInvoker.prototype.applyPagingParameters = function(options) {
+      if (!this._replaceSysParams(options)) {
+        if (options.data == null) {
+          options.data = {};
+        }
+        if (cola.setting("pagingParamStyle") === "from") {
+          options.data.from = this.from;
+          options.data.limit = this.limit;
+        } else {
+          options.data.pageSize = this.pageSize;
+          options.data.pageNo = this.pageNo;
+        }
+      }
+    };
+
+    ProviderInvoker.prototype._beforeSend = function(options) {
+      if (!this.pageNo >= 1) {
+        this.pageNo = 1;
+      }
+      if (this.pageSize > 1 && this.pageNo > 1) {
+        this.from = this.pageSize * (this.pageNo - 1);
+      }
+      this.limit = this.pageSize + (this.detectEnd ? 1 : 0);
+      this.applyPagingParameters(options);
+    };
+
+    return ProviderInvoker;
+
+  })(cola.AjaxServiceInvoker);
+
   cola.Provider = (function(superClass) {
     extend(Provider, superClass);
 
@@ -2409,31 +2486,47 @@
       detectEnd: null
     };
 
+    Provider.prototype.getUrl = function(context) {
+      var expr, l, len1, match, matches, url;
+      url = this._url;
+      matches = url.match(/{:[\w-]+}/g);
+      if (matches) {
+        for (l = 0, len1 = matches.length; l < len1; l++) {
+          match = matches[l];
+          expr = match.substring(2, match.length - 1);
+          if (expr) {
+            url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") || "");
+          }
+        }
+      }
+      return url;
+    };
+
+    Provider.prototype.getInvoker = function(context) {
+      var provider;
+      provider = new cola.ProviderInvoker(this, this.getInvokerOptions(context));
+      provider.pageSize = this._pageSize;
+      provider.detectEnd = this._detectEnd;
+      return provider;
+    };
+
     Provider.prototype._evalParamValue = function(expr, context) {
-      if (expr.charCodeAt(0) === 58) {
+      if (expr.charCodeAt(0) === 58 && expr.charCodeAt(1) !== 36) {
         if (context) {
           return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
         } else {
           return null;
         }
-      } else {
-        return expr;
-      }
-    };
-
-    Provider.prototype.getUrl = function(context) {
-      var l, len1, part, parts, ref, url;
-      url = this._url;
-      if (url.indexOf(":") > -1) {
-        parts = [];
-        ref = url.split("/");
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          part = ref[l];
-          parts.push(this._evalParamValue(part, context));
+      } else if (context && expr.charCodeAt(0) === 123) {
+        if (expr.match(/^{:[\w-]+}$/)) {
+          if (context) {
+            return cola.Entity._evalDataPath(context, expr.substring(2, expr.length - 1), true, "never");
+          } else {
+            return null;
+          }
         }
-        url = parts.join("/");
       }
-      return url;
+      return expr;
     };
 
     Provider.prototype.getInvokerOptions = function(context) {
@@ -2460,16 +2553,12 @@
           }
         }
       }
-      if (this._pageSize > 1) {
-        if (parameter == null) {
-          parameter = {};
-        } else if (!(parameter instanceof Object)) {
-          parameter = {
-            parameter: parameter
-          };
-        }
-        parameter.from = 0;
-        parameter.limit = this._pageSize + (this._detectEnd ? 1 : 0);
+      if (parameter == null) {
+        parameter = {};
+      } else if (!(parameter instanceof Object)) {
+        parameter = {
+          parameter: parameter
+        };
       }
       options.data = parameter;
       return options;
@@ -3259,7 +3348,7 @@
 
   })(cola.Definition);
 
-  cola.DataType.jsonToEntity = function(json, dataType, aggregated) {
+  cola.DataType.jsonToEntity = function(json, dataType, aggregated, pageSize) {
     var entityList;
     if (aggregated === void 0) {
       if (json instanceof Array) {
@@ -3272,6 +3361,9 @@
     }
     if (aggregated) {
       entityList = new cola.EntityList(null, dataType);
+      if (pageSize) {
+        entityList.pageSize = pageSize;
+      }
       entityList.fillData(json);
       return entityList;
     } else {
@@ -3282,12 +3374,12 @@
     }
   };
 
-  cola.DataType.jsonToData = function(json, dataType, aggregated) {
+  cola.DataType.jsonToData = function(json, dataType, aggregated, pageSize) {
     var result;
     if (dataType instanceof cola.StringDataType && typeof json !== "string" || dataType instanceof cola.BooleanDataType && typeof json !== "boolean" || dataType instanceof cola.NumberDataType && typeof json !== "number" || dataType instanceof cola.DateDataType && !(json instanceof Date)) {
       result = dataType.parse(json);
     } else if (dataType instanceof cola.EntityDataType) {
-      result = cola.DataType.jsonToEntity(json, dataType, aggregated);
+      result = cola.DataType.jsonToEntity(json, dataType, aggregated, pageSize);
     } else if (dataType && typeof json === "object") {
       result = dataType.parse(json);
     } else {
@@ -3782,9 +3874,8 @@
 
     Entity.prototype._jsonToEntity = function(value, dataType, aggregated, provider) {
       var result;
-      result = cola.DataType.jsonToEntity(value, dataType, aggregated);
+      result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider != null ? provider._pageSize : void 0);
       if (result && provider) {
-        result.pageSize = provider._pageSize;
         result._providerInvoker = provider.getInvoker(this);
       }
       return result;
@@ -4490,7 +4581,9 @@
         entityList.totalEntityCount = rawJson.$entityCount;
       }
       if (entityList.totalEntityCount != null) {
-        entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize);
+        if (entityList.pageSize) {
+          entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize);
+        }
         entityList.pageCountDetermined = true;
       }
       entityList.entityCount += json.length;
@@ -4546,13 +4639,10 @@
     };
 
     Page.prototype.loadData = function(callback) {
-      var pageSize, providerInvoker, result;
+      var providerInvoker, result;
       providerInvoker = this.entityList._providerInvoker;
       if (providerInvoker) {
-        pageSize = this.entityList.pageSize;
-        if (pageSize > 1 && this.pageNo > 1) {
-          providerInvoker.invokerOptions.data.from = pageSize * (this.pageNo - 1);
-        }
+        providerInvoker.pageSize = this.entityList.pageSize;
         if (callback) {
           providerInvoker.invokeAsync({
             complete: (function(_this) {
@@ -5164,9 +5254,11 @@
             }
           }
           next = next._next;
-        } else if (!pageNo) {
+        } else if (page && !pageNo) {
           page = page._next;
           next = page != null ? page._first : void 0;
+        } else {
+          break;
         }
       }
       return this;
@@ -5555,7 +5647,7 @@
 
   cola.each = function(collection, fn, options) {
     if (collection instanceof cola.EntityList) {
-      collection.each(fn);
+      collection.each(fn, options);
     } else if (collection instanceof Array) {
       if (typeof collection.each === "function") {
         collection.each(fn);
@@ -6635,13 +6727,17 @@
       return DataModel.__super__.constructor.apply(this, arguments);
     }
 
+    DataModel.prototype._createRootData = function(rootDataType) {
+      return new cola.Entity(null, rootDataType);
+    };
+
     DataModel.prototype._getRootData = function() {
       var dataModel, rootData;
       if (this._rootData == null) {
         if (this._rootDataType == null) {
           this._rootDataType = new cola.EntityDataType();
         }
-        this._rootData = rootData = new cola.Entity(null, this._rootDataType);
+        this._rootData = rootData = this._createRootData(this._rootDataType);
         rootData.state = cola.Entity.STATE_NEW;
         dataModel = this;
         rootData._setListener({
@@ -7286,6 +7382,17 @@
   this.$fly = function(dom) {
     _$[0] = dom;
     return _$;
+  };
+
+  cola.util.setText = function(dom, text) {
+    if (text == null) {
+      text = "";
+    }
+    if (cola.browser.mozilla) {
+      dom.innerHTML = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+    } else {
+      dom.innerText = text;
+    }
   };
 
   doms = {};
@@ -8551,7 +8658,7 @@
     }
 
     _TextNodeFeature.prototype._doRender = function(domBinding, value) {
-      $fly(domBinding.dom).text(value == null ? "" : value);
+      cola.util.setText(domBinding.dom, value != null ? value : "");
     };
 
     return _TextNodeFeature;
@@ -8571,13 +8678,13 @@
       var attr;
       attr = this.attr;
       if (attr === "text") {
-        domBinding.$dom.text(value == null ? "" : value);
+        cola.util.setText(domBinding.dom, value != null ? value : "");
       } else if (attr === "html") {
-        domBinding.$dom.html(value == null ? "" : value);
+        domBinding.$dom.html(value != null ? value : "");
       } else if (this.isStyle) {
         domBinding.$dom.css(attr, value);
       } else {
-        domBinding.$dom.attr(attr, value == null ? "" : value);
+        domBinding.$dom.attr(attr, value != null ? value : "");
       }
     };
 
@@ -9146,35 +9253,8 @@
     $: []
   };
 
-  $.xCreate.templateProcessors.push(function(template) {
-    var dom;
-    if (template instanceof cola.Widget) {
-      dom = template.getDom();
-      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-      return dom;
-    }
-  });
-
-  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
-    var configKey, widgetConfigs;
-    if (!attrValue) {
-      return;
-    }
-    if (typeof attrValue === "string") {
-      $dom.attr(attrName, attrValue);
-    } else if (context) {
-      configKey = cola.uniqueId();
-      $dom.attr("widget-config", configKey);
-      widgetConfigs = context.widgetConfigs;
-      if (!widgetConfigs) {
-        context.widgetConfigs = widgetConfigs = {};
-      }
-      widgetConfigs[configKey] = attrValue;
-    }
-  };
-
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, next, node, oldScope, widget;
+    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
     if (!template) {
       return;
     }
@@ -9202,30 +9282,32 @@
           documentFragment = document.createDocumentFragment();
           for (l = 0, len1 = template.length; l < len1; l++) {
             node = template[l];
-            widget = null;
-            if (node instanceof cola.Widget) {
-              widget = node;
-            } else if (node.$type) {
-              widget = cola.widget(node, context.namespace);
+            child = null;
+            ref = cola.xRender.nodeProcessors;
+            for (o = 0, len2 = ref.length; o < len2; o++) {
+              processor = ref[o];
+              child = processor(node, context);
+              if (child) {
+                break;
+              }
             }
-            if (widget) {
-              child = widget.getDom();
-              child.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-            } else {
+            if (child) {
               child = $.xCreate(node, context);
             }
-            documentFragment.appendChild(child);
+            if (child) {
+              documentFragment.appendChild(child);
+            }
           }
         } else {
-          if (template instanceof cola.Widget) {
-            widget = template;
-          } else if (template.$type) {
-            widget = cola.widget(template, context.namespace);
+          ref1 = cola.xRender.nodeProcessors;
+          for (q = 0, len3 = ref1.length; q < len3; q++) {
+            processor = ref1[q];
+            dom = processor(template, context);
+            if (dom) {
+              break;
+            }
           }
-          if (widget) {
-            dom = widget.getDom();
-            dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-          } else {
+          if (dom) {
             dom = $.xCreate(template, context);
           }
         }
@@ -9245,6 +9327,8 @@
     }
     return dom;
   };
+
+  cola.xRender.nodeProcessors = [];
 
   cola._renderDomTemplate = function(dom, scope, context) {
     if (context == null) {
@@ -9766,6 +9850,18 @@
     return cola.util;
   };
 
+  cola.util.hasContent = function(dom) {
+    var child;
+    child = dom.firstChild;
+    while (child) {
+      if (child.nodeType === 3 || child.nodeType === 1) {
+        return true;
+      }
+      child = child.nextSibling;
+    }
+    return false;
+  };
+
   cola.util.getScrollerRender = function(element) {
     var helperElem, perspectiveProperty, transformProperty;
     helperElem = document.createElement("div");
@@ -9923,6 +10019,46 @@
       cancelTranslateElement: cancelTranslateElement
     };
   })();
+
+  $.xCreate.templateProcessors.push(function(template) {
+    var dom;
+    if (template instanceof cola.Widget) {
+      dom = template.getDom();
+      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+      return dom;
+    }
+  });
+
+  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
+    var configKey, widgetConfigs;
+    if (!attrValue) {
+      return;
+    }
+    if (typeof attrValue === "string") {
+      $dom.attr(attrName, attrValue);
+    } else if (context) {
+      configKey = cola.uniqueId();
+      $dom.attr("widget-config", configKey);
+      widgetConfigs = context.widgetConfigs;
+      if (!widgetConfigs) {
+        context.widgetConfigs = widgetConfigs = {};
+      }
+      widgetConfigs[configKey] = attrValue;
+    }
+  };
+
+  cola.xRender.nodeProcessors.push(function(node, context) {
+    var dom, widget;
+    if (node instanceof cola.Widget) {
+      widget = node;
+    } else if (node.$type) {
+      widget = cola.widget(node, context.namespace);
+    }
+    if (widget) {
+      dom = widget.getDom();
+      return dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+    }
+  });
 
   cola.Model.prototype.widgetConfig = function(id, config) {
     var k, ref, v;
@@ -20790,7 +20926,9 @@
         return;
       }
       if (control instanceof cola.RenderableElement) {
+        cola._ignoreNodeRemoved = true;
         dom.appendChild(control.getDom());
+        cola._ignoreNodeRemoved = false;
       } else if (control.nodeType === 1) {
         dom.appendChild(control);
       }
@@ -20895,11 +21033,8 @@
       itemClick: null
     };
 
-    Menu.prototype._parseDom = function(dom) {
-      var container, parseItems, parseRightMenu;
-      if (this._items == null) {
-        this._items = [];
-      }
+    Menu.prototype._parseItems = function(node) {
+      var childNode, menuItem, parseRightMenu, results;
       parseRightMenu = (function(_this) {
         return function(node) {
           var childNode, menuItem;
@@ -20923,36 +21058,40 @@
           }
         };
       })(this);
-      parseItems = (function(_this) {
-        return function(node) {
-          var childNode, menuItem;
-          childNode = node.firstChild;
-          while (childNode) {
-            if (childNode.nodeType === 1) {
-              menuItem = cola.widget(childNode);
-              if (menuItem) {
-                _this.addItem(menuItem);
-              } else if (!_this._rightMenuDom && cola.util.hasClass(childNode, "right menu")) {
-                _this._rightMenuDom = childNode;
-                parseRightMenu(childNode);
-              } else if (cola.util.hasClass(childNode, "item")) {
-                menuItem = new cola.menu.MenuItem({
-                  dom: childNode
-                });
-                _this.addItem(menuItem);
-              }
-            }
-            childNode = childNode.nextSibling;
+      childNode = node.firstChild;
+      results = [];
+      while (childNode) {
+        if (childNode.nodeType === 1) {
+          menuItem = cola.widget(childNode);
+          if (menuItem) {
+            this.addItem(menuItem);
+          } else if (!this._rightMenuDom && cola.util.hasClass(childNode, "right menu")) {
+            this._rightMenuDom = childNode;
+            parseRightMenu(childNode);
+          } else if (cola.util.hasClass(childNode, "item")) {
+            menuItem = new cola.menu.MenuItem({
+              dom: childNode
+            });
+            this.addItem(menuItem);
           }
-        };
-      })(this);
+        }
+        results.push(childNode = childNode.nextSibling);
+      }
+      return results;
+    };
+
+    Menu.prototype._parseDom = function(dom) {
+      var container;
+      if (this._items == null) {
+        this._items = [];
+      }
       container = $(dom).find(">.container");
       if (container.length) {
         this._centered = true;
         this._containerDom = container[0];
-        parseItems(this._containerDom);
+        this._parseItems(this._containerDom);
       } else {
-        parseItems(dom);
+        this._parseItems(dom);
       }
     };
 
@@ -21106,7 +21245,7 @@
       }
     };
 
-    Menu.prototype._createItem = function(config) {
+    Menu.prototype._createItem = function(config, floatRight) {
       var menuItem;
       menuItem = null;
       if (config.constructor === Object.prototype.constructor) {
@@ -21160,7 +21299,7 @@
 
     Menu.prototype.addRightItem = function(config) {
       var active, container, itemDom, menuItem;
-      menuItem = this._createItem(config);
+      menuItem = this._createItem(config, true);
       if (!menuItem) {
         return this;
       }
@@ -26146,7 +26285,7 @@
     }
     type = config.$type.toLowerCase();
     if (type === "select") {
-      return SelectColumn;
+      return cola.TableSelectColumn;
     }
   });
 

@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta name="theme-color" content="#FF0000">
 	<meta charset="utf-8"/>
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
@@ -18,7 +19,7 @@
 //			}
 			model.describe("items", {
 				provider: {
-					url: "languages.json",
+					url: "languages{:$pageNo}.json",
 					pageSize: 10
 				}
 			});

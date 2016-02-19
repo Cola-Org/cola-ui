@@ -37,6 +37,8 @@ class cola.AjaxServiceInvoker
 			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
 				return
 
+		if @_beforeSend then @_beforeSend(options)
+
 		jQuery.ajax(options).done( (result) =>
 			result = ajaxService.translateResult(result, options)
 
@@ -110,28 +112,90 @@ class cola.AjaxService extends cola.Definition
 	translateResult: (result, invokerOptions) ->
 		return result
 
+class cola.ProviderInvoker extends cola.AjaxServiceInvoker
+
+	#pageSize
+	#pageNo
+	#detectEnd
+
+	_replaceSysParams: (options) ->
+		url = options.originUrl or options.url
+		matches = url.match(/{:\$[\w-]+}/g)
+		if matches
+			options.originUrl = url unless options.originUrl
+			for match in matches
+				name = match.substring(3, match.length - 1)
+				if name
+					url = url.replace(match, @[name] or "")
+					options.url = url
+					changed = true
+
+		data = options.originData or options.data
+		if data
+			for p, v of data
+				if typeof v is "string"
+					if v.charCodeAt(0) is 58 and v.charCodeAt(1) is 36 # `:`, `$`
+						options.originData = $.extend(data, null) unless options.originData
+						data[p] = @[v.substring(2)]
+						changed = true
+					else if v.match(/^{:\$[\w-]+}$/)
+						options.originData = $.extend(data, null) unless options.originData
+						data[p] = @[v.substring(3, v.length - 1)]
+						changed = true
+		return changed
+
+	applyPagingParameters: (options) ->
+		if not @_replaceSysParams(options)
+			if not options.data? then options.data = {}
+			if cola.setting("pagingParamStyle") is "from"
+				options.data.from = @from
+				options.data.limit = @limit
+			else
+				options.data.pageSize = @pageSize
+				options.data.pageNo = @pageNo
+		return
+
+	_beforeSend: (options) ->
+		if not @pageNo >= 1 then @pageNo = 1
+		@from = @pageSize * (@pageNo - 1) if @pageSize > 1 and @pageNo > 1
+		@limit = @pageSize + (if @detectEnd then 1 else 0)
+		@applyPagingParameters(options)
+		return
+
 class cola.Provider extends cola.AjaxService
 	@ATTRIBUTES:
 		pageSize: null
 		detectEnd: null
 
+	getUrl: (context) ->
+		url = @_url
+		matches = url.match(/{:[\w-]+}/g)
+		if matches
+			for match in matches
+				expr = match.substring(2, match.length - 1)
+				if expr
+					url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") or "")
+		return url
+
+	getInvoker: (context) ->
+		provider = new cola.ProviderInvoker(@, @getInvokerOptions(context))
+		provider.pageSize = @_pageSize
+		provider.detectEnd = @_detectEnd
+		return provider
+
 	_evalParamValue: (expr, context) ->
-		if expr.charCodeAt(0) == 58 # `:`
+		if expr.charCodeAt(0) is 58 and expr.charCodeAt(1) isnt 36 # `:`, `$`
 			if context
 				return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
 			else
 				return null
-		else
-			return expr
-
-	getUrl: (context) ->
-		url = @_url
-		if url.indexOf(":") > -1
-			parts = []
-			for part in url.split("/")
-				parts.push(@_evalParamValue(part, context))
-			url = parts.join("/")
-		return url
+		else if context and expr.charCodeAt(0) is 123 # `{`
+			if expr.match(/^{:[\w-]+}$/)
+				if context
+					return cola.Entity._evalDataPath(context, expr.substring(2, expr.length - 1), true, "never");
+				else
+					return null
+		return expr
 
 	getInvokerOptions: (context) ->
 		options = super(context)
@@ -152,15 +216,12 @@ class cola.Provider extends cola.AjaxService
 							v = @_evalParamValue(v, context)
 						parameter[p] = v
 
-		if @_pageSize > 1
-			if not parameter?
-				parameter = {}
-			else if not (parameter instanceof Object)
-				parameter = {
-					parameter: parameter
-				}
-			parameter.from = 0
-			parameter.limit = @_pageSize + (if @_detectEnd then 1 else 0)
+		if not parameter?
+			parameter = {}
+		else if not (parameter instanceof Object)
+			parameter = {
+				parameter: parameter
+			}
 
 		options.data = parameter
 		return options
