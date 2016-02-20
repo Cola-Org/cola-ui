@@ -2414,27 +2414,37 @@
 
     ProviderInvoker.prototype._replaceSysParams = function(options) {
       var changed, data, l, len1, match, matches, name, p, url, v;
-      url = options.url;
+      url = options.originUrl || options.url;
       matches = url.match(/{:\$[\w-]+}/g);
       if (matches) {
+        if (!options.originUrl) {
+          options.originUrl = url;
+        }
         for (l = 0, len1 = matches.length; l < len1; l++) {
           match = matches[l];
           name = match.substring(3, match.length - 1);
           if (name) {
             url = url.replace(match, this[name] || "");
+            options.url = url;
             changed = true;
           }
         }
       }
-      data = options.data;
+      data = options.originData || options.data;
       if (data) {
         for (p in data) {
           v = data[p];
           if (typeof v === "string") {
             if (v.charCodeAt(0) === 58 && v.charCodeAt(1) === 36) {
+              if (!options.originData) {
+                options.originData = $.extend(data, null);
+              }
               data[p] = this[v.substring(2)];
               changed = true;
             } else if (v.match(/^{:\$[\w-]+}$/)) {
+              if (!options.originData) {
+                options.originData = $.extend(data, null);
+              }
               data[p] = this[v.substring(3, v.length - 1)];
               changed = true;
             }
@@ -4643,6 +4653,7 @@
       providerInvoker = this.entityList._providerInvoker;
       if (providerInvoker) {
         providerInvoker.pageSize = this.entityList.pageSize;
+        providerInvoker.pageNo = this.pageNo;
         if (callback) {
           providerInvoker.invokeAsync({
             complete: (function(_this) {
@@ -27534,7 +27545,7 @@
           icon: "angle double left",
           click: function() {
             var ref;
-            return (ref = pager._getBindItems()) != null ? ref.loadPage(1) : void 0;
+            return (ref = pager._getBindItems()) != null ? ref.firstPage() : void 0;
           }
         },
         prevPage: {
@@ -27542,9 +27553,7 @@
           click: function() {
             var data;
             data = pager._getBindItems();
-            if ((data != null ? data.pageNo : void 0) > 1) {
-              return data.loadPage(data.pageNo - 1);
-            }
+            return data.previousPage();
           }
         },
         goto: {
@@ -27604,12 +27613,9 @@
         nextPage: {
           icon: "angle right",
           click: function() {
-            var data, pageCount;
+            var data;
             data = pager._getBindItems();
-            pageCount = _getPageCount();
-            if (data && data.pageNo < pageCount) {
-              return data.loadPage(data.pageNo + 1);
-            }
+            return data.nextPage();
           }
         },
         lastPage: {
@@ -27617,9 +27623,7 @@
           click: function() {
             var data;
             data = pager._getBindItems();
-            if (data) {
-              return data.loadPage(_getPageCount());
-            }
+            return data != null ? data.lastPage() : void 0;
           }
         }
       };
@@ -27711,6 +27715,9 @@
                   };
                   menuItem = new cola.menu.ControlMenuItem(itemConfig);
                   this.addItem(menuItem);
+                } else if (pageCode === "info") {
+                  propName = "info";
+                  menuItem = childNode;
                 }
                 this._pagerItemMap[propName] = menuItem;
               }
@@ -27790,8 +27797,11 @@
       return menuItem;
     };
 
-    Pager.prototype.pagerItemsRefresh = function(pager) {
-      var data, gotoInput, pageCount, ref, ref1, ref2, ref3, ref4, ref5;
+    Pager.prototype.pagerItemsRefresh = function(pager) {};
+
+    Pager.prototype._onItemsRefresh = function() {
+      var data, gotoInput, infoItem, infoItemDom, pageCount, pager, ref, ref1, ref2, ref3, ref4, ref5;
+      pager = this;
       data = pager._getBindItems();
       if (data) {
         this._pageNo = data.pageNo;
@@ -27808,19 +27818,20 @@
         if ((ref3 = pager._pagerItemMap["lastPage"]) != null) {
           ref3.get$Dom().toggleClass("disabled", pageCount === data.pageNo);
         }
+        infoItem = pager._pagerItemMap["info"];
+        if (infoItem && data.pageCountDetermined) {
+          if (infoItem.nodeType === 1) {
+            infoItemDom = infoItem;
+          } else {
+            infoItemDom = infoItem.getDom();
+          }
+          $(infoItemDom).text("第" + data.pageNo + "页/共" + data.pageCount + "页");
+        }
         gotoInput = (ref4 = pager._pagerItemMap["goto"]) != null ? ref4.get("control") : void 0;
         if (gotoInput) {
           return (ref5 = cola.widget(gotoInput)) != null ? ref5.set("value", data.pageNo) : void 0;
         }
       }
-    };
-
-    Pager.prototype._onItemsRefresh = function() {
-      return setTimeout((function(_this) {
-        return function() {
-          return _this.pagerItemsRefresh(_this);
-        };
-      })(this), 100);
     };
 
     Pager.prototype._onItemRefresh = function(arg) {};

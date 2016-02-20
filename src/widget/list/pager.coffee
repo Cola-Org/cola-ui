@@ -22,13 +22,13 @@ class cola.Pager extends cola.Menu
 		@_pagerItemConfig =
 			firstPage:
 				icon: "angle double left"
-				click: ()-> pager._getBindItems()?.loadPage(1)
+				click: ()-> pager._getBindItems()?.firstPage()
 
 			prevPage:
 				icon: "angle left"
 				click: ()->
 					data = pager._getBindItems()
-					if data?.pageNo > 1 then data.loadPage(data.pageNo - 1)
+					data.previousPage()
 
 			goto:
 				$type: "input"
@@ -72,14 +72,13 @@ class cola.Pager extends cola.Menu
 				icon: "angle right"
 				click: ()->
 					data = pager._getBindItems()
-					pageCount = _getPageCount()
-					if data and data.pageNo < pageCount then data.loadPage(data.pageNo + 1)
-
+					data.nextPage()
 			lastPage:
 				icon: "angle double right"
 				click: ()->
 					data = pager._getBindItems()
-					if data then data.loadPage(_getPageCount())
+					data?.lastPage()
+
 
 		super(config)
 
@@ -133,6 +132,7 @@ class cola.Pager extends cola.Menu
 									@addItem(menuItem)
 									beforeChild = itemDom
 								@_pagerItemMap[pageItemKey] = menuItem
+
 						else
 							propName = _pageCodeMap[pageCode]
 							if propName
@@ -147,6 +147,9 @@ class cola.Pager extends cola.Menu
 								itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
 								menuItem = new cola.menu.ControlMenuItem(itemConfig)
 								@addItem(menuItem)
+							else if pageCode is "info"
+								propName = "info"
+								menuItem = childNode
 							@_pagerItemMap[propName] = menuItem
 					else
 						menuItem = new cola.menu.MenuItem({dom: childNode})
@@ -192,6 +195,9 @@ class cola.Pager extends cola.Menu
 			menuItem = config
 		return menuItem
 	pagerItemsRefresh: (pager) ->
+
+	_onItemsRefresh: ()->
+		pager = @
 		data = pager._getBindItems()
 		if data
 			@_pageNo = data.pageNo
@@ -200,27 +206,23 @@ class cola.Pager extends cola.Menu
 			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			pager._pagerItemMap["nextPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
 			pager._pagerItemMap["lastPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
+			infoItem = pager._pagerItemMap["info"]
+			if infoItem and data.pageCountDetermined
+				if infoItem.nodeType is 1
+					infoItemDom = infoItem
+				else
+					infoItemDom = infoItem.getDom()
+				$(infoItemDom).text("第#{data.pageNo}页/共#{data.pageCount}页")
+
 			gotoInput = pager._pagerItemMap["goto"]?.get("control")
 			if gotoInput
 				cola.widget(gotoInput)?.set("value", data.pageNo)
-	_onItemsRefresh: ()->
-		setTimeout(()=>
-			@pagerItemsRefresh(@)
-		, 100)
+
 	_onItemRefresh: (arg)->
 	_onItemInsert: (arg) ->
 	_onItemRemove: (arg) ->
 	_onItemsLoadingStart: (arg)->
 	_onItemsLoadingEnd: (arg)->
 	_onCurrentItemChange: (arg)->
-#		if arg.current and @_itemDomMap
-#			itemId = _getEntityId(arg.current)
-#			if itemId
-#				currentItemDom = @_itemDomMap[itemId]
-#				if not currentItemDom
-#					@_refreshItems()
-#					return
-#		@_setCurrentItemDom(currentItemDom)
-		return
 
 cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)

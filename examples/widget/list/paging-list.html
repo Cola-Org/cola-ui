@@ -83,10 +83,12 @@
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
 
-<div class="box">
-	<div id="buttonPrev"></div>
-	<div id="buttonNext"></div>
-	<div id="buttonSet"></div>
+<div c-widget="pager; bind:items">
+	<a page-code="|<" class="item"></a>
+	<a page-code="<" class="item"></a>
+	<div page-code="info" class="item"></div>
+	<a page-code=">" class="item"></a>
+	<a page-code=">|" class="item"></a>
 </div>
 <div class="flex-box">
 	<div id="listScroll">
