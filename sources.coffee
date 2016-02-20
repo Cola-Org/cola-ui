@@ -88,6 +88,7 @@ sources =
 			"src/widget/list/tree.coffee"
 			"src/widget/list/table-support.coffee"
 			"src/widget/list/table.coffee"
+			"src/widget/list/pager.coffee"
 		]
 	less:
 		cola: [
@@ -118,6 +119,7 @@ sources =
 			"src/css/stack.less"
 			"src/css/radio.less"
 			"src/css/sidebar.less"
+			"src/css/pager.less"
 		]
 
 	lib:

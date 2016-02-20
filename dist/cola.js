@@ -803,7 +803,7 @@
     }
 
     Exception.processException = function(ex) {
-      var error1, ex2, scope;
+      var ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -840,8 +840,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (error1) {
-          ex2 = error1;
+        } catch (_error) {
+          ex2 = _error;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -7808,7 +7808,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, error1, head, scriptElement;
+        var e, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7826,8 +7826,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (error1) {
-          e = error1;
+        } catch (_error) {
+          e = _error;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -9710,7 +9710,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, _columnsSetter, _createGroupArray, _destroyRenderableElement, _findWidgetConfig, _getEntityId, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, slotAttributeGetter, slotAttributeSetter,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, _columnsSetter, _createGroupArray, _destroyRenderableElement, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -14136,7 +14136,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e, error;
+      var contentWindow, e;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14144,8 +14144,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (error) {
-        e = error;
+      } catch (_error) {
+        e = _error;
       }
       return contentWindow;
     };
@@ -20379,7 +20379,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, error, pos;
+      var activeSpan, e, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20392,8 +20392,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (error) {
-            e = error;
+          } catch (_error) {
+            e = _error;
           }
         }
         if (this._scroller) {
@@ -27494,5 +27494,351 @@
     return Table;
 
   })(cola.AbstractTable);
+
+  _pagesItems = ["firstPage", "prevPage", "goto", "nextPage", "lastPage"];
+
+  _pageCodeMap = {
+    "|<": "firstPage",
+    "<": "prevPage",
+    ">": "nextPage",
+    ">|": "lastPage"
+  };
+
+  cola.Pager = (function(superClass) {
+    extend(Pager, superClass);
+
+    Pager.ATTRIBUTES = {
+      bind: {
+        setter: function(bindStr) {
+          return this._bindSetter(bindStr);
+        }
+      }
+    };
+
+    Pager.prototype._getBindItems = function() {
+      var ref;
+      return (ref = this._getItems()) != null ? ref.items : void 0;
+    };
+
+    function Pager(config) {
+      var _getPageCount, pager;
+      this._pagerItemMap = {};
+      pager = this;
+      _getPageCount = function() {
+        var data;
+        data = pager._getBindItems();
+        return parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize);
+      };
+      this._pagerItemConfig = {
+        firstPage: {
+          icon: "angle double left",
+          click: function() {
+            var ref;
+            return (ref = pager._getBindItems()) != null ? ref.loadPage(1) : void 0;
+          }
+        },
+        prevPage: {
+          icon: "angle left",
+          click: function() {
+            var data;
+            data = pager._getBindItems();
+            if ((data != null ? data.pageNo : void 0) > 1) {
+              return data.loadPage(data.pageNo - 1);
+            }
+          }
+        },
+        goto: {
+          $type: "input",
+          "class": "goto",
+          inputType: "number",
+          keyDown: function(self, arg) {
+            var k;
+            k = arg.keyCode;
+            if (k === 190) {
+              return event.preventDefault();
+            }
+          },
+          change: function(self, arg) {
+            var button, data, pageCount, pageNo, value;
+            value = arg.value;
+            if (value) {
+              value = parseInt(value);
+            }
+            if (value === this._targetPageNo) {
+              return;
+            }
+            data = pager._getBindItems();
+            if (data) {
+              pageNo = data.pageNo;
+              pageCount = _getPageCount();
+              if (value > pageCount || value < 1) {
+                if (value > pageCount) {
+                  value = pageCount;
+                }
+                if (value < 1) {
+                  value = 1;
+                }
+                setTimeout(function() {
+                  return self.get$Dom().find("input").val(value);
+                }, 10);
+              }
+              button = self.get("actionButton");
+              setTimeout(function() {
+                return button.set("disabled", value === pageNo);
+              }, 100);
+              return pager._targetPageNo = value;
+            }
+          },
+          actionButton: {
+            $type: "Button",
+            caption: "Go",
+            click: function() {
+              var data;
+              if (pager._targetPageNo) {
+                data = pager._getBindItems();
+                return data != null ? data.loadPage(pager._targetPageNo) : void 0;
+              }
+            }
+          }
+        },
+        nextPage: {
+          icon: "angle right",
+          click: function() {
+            var data, pageCount;
+            data = pager._getBindItems();
+            pageCount = _getPageCount();
+            if (data && data.pageNo < pageCount) {
+              return data.loadPage(data.pageNo + 1);
+            }
+          }
+        },
+        lastPage: {
+          icon: "angle double right",
+          click: function() {
+            var data;
+            data = pager._getBindItems();
+            if (data) {
+              return data.loadPage(_getPageCount());
+            }
+          }
+        }
+      };
+      Pager.__super__.constructor.call(this, config);
+    }
+
+    Pager.prototype._parseItems = function(node) {
+      var beforeChild, childNode, itemConfig, itemDom, l, len1, menuItem, pageCode, pageItem, pageItemKey, parseRightMenu, propName, results;
+      parseRightMenu = (function(_this) {
+        return function(node) {
+          var childNode, menuItem;
+          childNode = node.firstChild;
+          if (_this._rightItems == null) {
+            _this._rightItems = [];
+          }
+          while (childNode) {
+            if (childNode.nodeType === 1) {
+              menuItem = cola.widget(childNode);
+              if (menuItem) {
+                _this.addRightItem(menuItem);
+              } else if (cola.util.hasClass(childNode, "item")) {
+                menuItem = new cola.menu.MenuItem({
+                  dom: childNode
+                });
+                _this.addRightItem(menuItem);
+              }
+            }
+            childNode = childNode.nextSibling;
+          }
+        };
+      })(this);
+      childNode = node.firstChild;
+      results = [];
+      while (childNode) {
+        if (childNode._eachIgnore) {
+          childNode = childNode.nextSibling;
+          continue;
+        }
+        if (childNode.nodeType === 1) {
+          menuItem = cola.widget(childNode);
+          if (menuItem) {
+            this.addItem(menuItem);
+          } else if (!this._rightMenuDom && cola.util.hasClass(childNode, "right menu")) {
+            this._rightMenuDom = childNode;
+            parseRightMenu(childNode);
+          } else if (cola.util.hasClass(childNode, "item")) {
+            pageCode = $fly(childNode).attr("page-code");
+            if (pageCode) {
+              if (pageCode === "pages") {
+                for (l = 0, len1 = _pagesItems.length; l < len1; l++) {
+                  pageItemKey = _pagesItems[l];
+                  pageItem = this._pagerItemConfig[pageItemKey];
+                  if (pageItemKey === "firstPage") {
+                    pageItem.dom = childNode;
+                    menuItem = new cola.menu.MenuItem(pageItem);
+                    this.addItem(menuItem);
+                    beforeChild = childNode;
+                  } else {
+                    if (pageItem.$type === "input") {
+                      menuItem = new cola.menu.ControlMenuItem({
+                        control: pageItem
+                      });
+                    } else {
+                      menuItem = new cola.menu.MenuItem(pageItem);
+                    }
+                    itemDom = menuItem.getDom();
+                    $fly(beforeChild).after(itemDom);
+                    itemDom._eachIgnore = true;
+                    this.addItem(menuItem);
+                    beforeChild = itemDom;
+                  }
+                  this._pagerItemMap[pageItemKey] = menuItem;
+                }
+              } else {
+                propName = _pageCodeMap[pageCode];
+                if (propName) {
+                  itemConfig = this._pagerItemConfig[propName];
+                  itemConfig.dom = childNode;
+                  if (cola.util.hasContent(childNode)) {
+                    delete itemConfig["icon"];
+                  }
+                  menuItem = new cola.menu.MenuItem(itemConfig);
+                  this.addItem(menuItem);
+                } else if (pageCode === "goto") {
+                  propName = "goto";
+                  itemConfig = {
+                    dom: childNode,
+                    control: this._pagerItemConfig[pageCode]
+                  };
+                  menuItem = new cola.menu.ControlMenuItem(itemConfig);
+                  this.addItem(menuItem);
+                }
+                this._pagerItemMap[propName] = menuItem;
+              }
+            } else {
+              menuItem = new cola.menu.MenuItem({
+                dom: childNode
+              });
+              this.addItem(menuItem);
+            }
+          }
+        }
+        results.push(childNode = childNode.nextSibling);
+      }
+      return results;
+    };
+
+    Pager.prototype._createItem = function(config, floatRight) {
+      var itemConfig, l, len1, menuItem, pageItem, pageItemKey, propName;
+      if (typeof config === "string") {
+        if (config === "pages") {
+          for (l = 0, len1 = _pagesItems.length; l < len1; l++) {
+            pageItemKey = _pagesItems[l];
+            pageItem = this._pagerItemConfig[pageItemKey];
+            if (pageItem.$type === "input") {
+              menuItem = new cola.menu.ControlMenuItem({
+                control: pageItem
+              });
+            } else {
+              menuItem = new cola.menu.MenuItem(pageItem);
+            }
+            if (floatRight) {
+              this.addRightItem(menuItem);
+            } else {
+              this.addItem(menuItem);
+            }
+            this._pagerItemMap[pageItemKey] = menuItem;
+          }
+        } else {
+          propName = _pageCodeMap[config];
+          if (propName) {
+            itemConfig = this._pagerItemConfig[propName];
+            menuItem = new cola.menu.MenuItem(itemConfig);
+          } else if (config === "goto") {
+            propName = "goto";
+            itemConfig = {
+              control: this._pagerItemConfig[config]
+            };
+            menuItem = new cola.menu.ControlMenuItem(itemConfig);
+          }
+          if (floatRight) {
+            this.addRightItem(menuItem);
+          } else {
+            this.addItem(menuItem);
+          }
+          this._pagerItemMap[propName] = menuItem;
+        }
+        return;
+      }
+      menuItem = null;
+      if (config.constructor === Object.prototype.constructor) {
+        if (config.$type) {
+          if (config.$type === "dropdown") {
+            menuItem = new cola.menu.DropdownMenuItem(config);
+          } else if (config.$type === "headerItem") {
+            menuItem = new cola.menu.HeaderMenuItem(config);
+          } else {
+            menuItem = new cola.menu.ControlMenuItem({
+              control: config
+            });
+          }
+        } else {
+          menuItem = new cola.menu.MenuItem(config);
+        }
+      } else if (config instanceof cola.menu.AbstractMenuItem) {
+        menuItem = config;
+      }
+      return menuItem;
+    };
+
+    Pager.prototype.pagerItemsRefresh = function(pager) {
+      var data, gotoInput, pageCount, ref, ref1, ref2, ref3, ref4, ref5;
+      data = pager._getBindItems();
+      if (data) {
+        this._pageNo = data.pageNo;
+        if ((ref = pager._pagerItemMap["firstPage"]) != null) {
+          ref.get$Dom().toggleClass("disabled", data.pageNo === 1);
+        }
+        if ((ref1 = pager._pagerItemMap["prevPage"]) != null) {
+          ref1.get$Dom().toggleClass("disabled", data.pageNo === 1);
+        }
+        pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize);
+        if ((ref2 = pager._pagerItemMap["nextPage"]) != null) {
+          ref2.get$Dom().toggleClass("disabled", pageCount === data.pageNo);
+        }
+        if ((ref3 = pager._pagerItemMap["lastPage"]) != null) {
+          ref3.get$Dom().toggleClass("disabled", pageCount === data.pageNo);
+        }
+        gotoInput = (ref4 = pager._pagerItemMap["goto"]) != null ? ref4.get("control") : void 0;
+        if (gotoInput) {
+          return (ref5 = cola.widget(gotoInput)) != null ? ref5.set("value", data.pageNo) : void 0;
+        }
+      }
+    };
+
+    Pager.prototype._onItemsRefresh = function() {
+      return setTimeout((function(_this) {
+        return function() {
+          return _this.pagerItemsRefresh(_this);
+        };
+      })(this), 100);
+    };
+
+    Pager.prototype._onItemRefresh = function(arg) {};
+
+    Pager.prototype._onItemInsert = function(arg) {};
+
+    Pager.prototype._onItemRemove = function(arg) {};
+
+    Pager.prototype._onItemsLoadingStart = function(arg) {};
+
+    Pager.prototype._onItemsLoadingEnd = function(arg) {};
+
+    Pager.prototype._onCurrentItemChange = function(arg) {};
+
+    return Pager;
+
+  })(cola.Menu);
+
+  cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin);
 
 }).call(this);

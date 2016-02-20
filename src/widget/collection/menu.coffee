@@ -32,6 +32,7 @@ class cola.menu.AbstractMenuItem extends cola.AbstractContainer
 		delete @_parent
 
 
+
 class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	@CLASS_NAME: "item"
 	@TAG_NAME: "a"

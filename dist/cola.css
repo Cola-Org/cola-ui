@@ -5246,3 +5246,16 @@ html.ios body {
 .ui.sidebar.animation {
   display: block !important;
 }
+
+.ui.menu .goto.ui.input {
+  width: 6.25em;
+}
+.ui.menu .goto.ui.input > input {
+  width: 3em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+.ui.menu .goto.ui.input .ui.button {
+  padding-left: 0.8em;
+  padding-right: 0.8em;
+}

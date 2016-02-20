@@ -191,20 +191,36 @@ class cola.Pager extends cola.Menu
 		else if config instanceof cola.menu.AbstractMenuItem
 			menuItem = config
 		return menuItem
-	_onItemsRefresh: (arg) ->
-		data = @_getBindItems()
+	pagerItemsRefresh: (pager) ->
+		data = pager._getBindItems()
 		if data
-			@_pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", data.pageNo is 1)
-			@_pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", data.pageNo is 1)
+			@_pageNo = data.pageNo
+			pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", data.pageNo is 1)
+			pager._pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", data.pageNo is 1)
 			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
-			@_pagerItemMap["nextPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
-			@_pagerItemMap["lastPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
-			gotoInput = @_pagerItemMap["goto"]?.get("control")
+			pager._pagerItemMap["nextPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
+			pager._pagerItemMap["lastPage"]?.get$Dom().toggleClass("disabled", pageCount is data.pageNo)
+			gotoInput = pager._pagerItemMap["goto"]?.get("control")
 			if gotoInput
 				cola.widget(gotoInput)?.set("value", data.pageNo)
+	_onItemsRefresh: ()->
+		setTimeout(()=>
+			@pagerItemsRefresh(@)
+		, 100)
 	_onItemRefresh: (arg)->
 	_onItemInsert: (arg) ->
 	_onItemRemove: (arg) ->
 	_onItemsLoadingStart: (arg)->
 	_onItemsLoadingEnd: (arg)->
+	_onCurrentItemChange: (arg)->
+#		if arg.current and @_itemDomMap
+#			itemId = _getEntityId(arg.current)
+#			if itemId
+#				currentItemDom = @_itemDomMap[itemId]
+#				if not currentItemDom
+#					@_refreshItems()
+#					return
+#		@_setCurrentItemDom(currentItemDom)
+		return
+
 cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)

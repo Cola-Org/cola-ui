@@ -237,6 +237,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
 	grunt.registerTask "test", ["mochaTask", "qunitTask"]
+
 	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
 	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
@@ -244,5 +245,6 @@ module.exports = (grunt) ->
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 								 "less:build", "cola-ui-license", "concat",
 								 "clean:core-widget", "copy:semantic",
-								 "uglify:build", "cssmin", "compress",
+#								 "uglify:build",
+								 "cssmin", "compress",
 								 "clean:workTemp"]
