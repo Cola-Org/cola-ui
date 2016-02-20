@@ -852,8 +852,8 @@ class Page extends LinkedList
 	loadData: (callback) ->
 		providerInvoker = @entityList._providerInvoker
 		if providerInvoker
-			pageSize = @entityList.pageSize
-			providerInvoker.invokerOptions.data.from = pageSize * (@pageNo - 1) if pageSize > 1 and @pageNo > 1
+			providerInvoker.pageSize = @entityList.pageSize
+			providerInvoker.pageNo = @pageNo
 			if callback
 				providerInvoker.invokeAsync(
 					complete: (success, result) =>

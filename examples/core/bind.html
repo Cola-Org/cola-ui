@@ -16,7 +16,7 @@
 				}
 			});
 
-			cola.action({
+			model.action({
 				double: function (value) {
 					return value * 2;
 				}
@@ -37,7 +37,7 @@
 
 <p>
 	<input c-bind="dateProp" type="date">
-	<label c-bind="formatDate(dateProp,'yyMMdd')"></label>
+	<label c-bind="formatDate(dateProp,'yy-MM-dd')"></label>
 </p>
 <p>
 	<input c-bind="size" type="number">
