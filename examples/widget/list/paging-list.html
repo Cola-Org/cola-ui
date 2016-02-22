@@ -25,6 +25,16 @@
 			});
 
 			model.widgetConfig({
+				pager1: {
+					$type: "Pager",
+					bind: "items",
+					items: [
+
+						"pages"
+					]
+
+
+				},
 				listScroll: {
 					$type: "listView",
 //					class: "striped",
@@ -57,21 +67,21 @@
 				buttonPrev: {
 					$type: "button",
 					caption: "Prev Page",
-					click: function() {
+					click: function () {
 						model.get("items").previousPage();
 					}
 				},
 				buttonNext: {
 					$type: "button",
 					caption: "Next Page",
-					click: function() {
+					click: function () {
 						model.get("items").nextPage();
 					}
 				},
 				buttonSet: {
 					$type: "button",
 					caption: "Set",
-					click: function() {
+					click: function () {
 						model.set("items.name", ++sn);
 					}
 				}
@@ -84,12 +94,12 @@
 <body style="padding:0px;margin:0;" class="v-box">
 
 <div c-widget="pager; bind:items">
-	<a page-code="|<" class="item"></a>
-	<a page-code="<" class="item"></a>
-	<div page-code="info" class="item"></div>
-	<a page-code=">" class="item"></a>
-	<a page-code=">|" class="item"></a>
+	<div class="right menu">
+		<a page-code="pages" class="item"></a>
+		<div page-code="goto" class="item"></div>
+	</div>
 </div>
+<div id="pager1"></div>
 <div class="flex-box">
 	<div id="listScroll">
 		<template name="default">

@@ -1,6 +1,6 @@
 # TODO
 
-_pagesItems = ["firstPage", "prevPage", "goto", "nextPage", "lastPage"]
+_pagesItems = ["firstPage", "prevPage", "info", "nextPage", "lastPage"]
 _pageCodeMap =
 	"|<": "firstPage"
 	"<": "prevPage"
@@ -66,7 +66,7 @@ class cola.Pager extends cola.Menu
 					click: ()->
 						if pager._targetPageNo
 							data = pager._getBindItems()
-							data?.loadPage(pager._targetPageNo)
+							data?.gotoPage(pager._targetPageNo)
 
 			nextPage:
 				icon: "angle right"
@@ -81,7 +81,49 @@ class cola.Pager extends cola.Menu
 
 
 		super(config)
+	_parsePageItem:(childNode, right)->
+		pageCode = $fly(childNode).attr("page-code")
+		if pageCode
+			if pageCode is "pages"
+				for pageItemKey in _pagesItems
+					pageItem = @_pagerItemConfig[pageItemKey]
+					if pageItemKey is "firstPage"
+						pageItem.dom = childNode
+						menuItem = new cola.menu.MenuItem(pageItem)
+						if right then @addRightItem(menuItem) else @addItem(menuItem)
+						beforeChild = childNode
+					else
+						if pageItemKey is "info"
+							menuItem = new cola.menu.ControlMenuItem()
+						else
+							menuItem = new cola.menu.MenuItem(pageItem)
 
+						itemDom = menuItem.getDom()
+						$fly(beforeChild).after(itemDom)
+						itemDom._eachIgnore = true
+						if right then @addRightItem(menuItem) else @addItem(menuItem)
+						beforeChild = itemDom
+					@_pagerItemMap[pageItemKey] = menuItem
+			else
+				propName = _pageCodeMap[pageCode]
+				if propName
+					itemConfig = @_pagerItemConfig[propName]
+					itemConfig.dom = childNode
+					if cola.util.hasContent(childNode)
+						delete itemConfig["icon"]
+					menuItem = new cola.menu.MenuItem(itemConfig)
+					if right then @addRightItem(menuItem) else @addItem(menuItem)
+				else if pageCode is "goto"
+					propName = "goto"
+					itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
+					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+					if right then @addRightItem(menuItem) else @addItem(menuItem)
+				else if pageCode is "info"
+					propName = "info"
+					itemConfig = {dom: childNode}
+					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+					if right then @addRightItem(menuItem) else @addItem(menuItem)
+				@_pagerItemMap[propName] = menuItem
 	_parseItems: (node)->
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
@@ -92,8 +134,12 @@ class cola.Pager extends cola.Menu
 					if menuItem
 						@addRightItem(menuItem)
 					else if cola.util.hasClass(childNode, "item")
-						menuItem = new cola.menu.MenuItem({dom: childNode})
-						@addRightItem(menuItem)
+						pageCode = $fly(childNode).attr("page-code")
+						if pageCode
+							@_parsePageItem(childNode,true)
+						else
+							menuItem = new cola.menu.MenuItem({dom: childNode})
+							@addRightItem(menuItem)
 				childNode = childNode.nextSibling
 			return
 		childNode = node.firstChild
@@ -112,45 +158,7 @@ class cola.Pager extends cola.Menu
 				else if cola.util.hasClass(childNode, "item")
 					pageCode = $fly(childNode).attr("page-code")
 					if pageCode
-						if pageCode is "pages"
-							for pageItemKey in _pagesItems
-								pageItem = @_pagerItemConfig[pageItemKey]
-								if pageItemKey is "firstPage"
-									pageItem.dom = childNode
-									menuItem = new cola.menu.MenuItem(pageItem)
-									@addItem(menuItem)
-									beforeChild = childNode
-								else
-									if pageItem.$type is "input"
-										menuItem = new cola.menu.ControlMenuItem({control: pageItem})
-									else
-										menuItem = new cola.menu.MenuItem(pageItem)
-
-									itemDom = menuItem.getDom()
-									$fly(beforeChild).after(itemDom)
-									itemDom._eachIgnore = true
-									@addItem(menuItem)
-									beforeChild = itemDom
-								@_pagerItemMap[pageItemKey] = menuItem
-
-						else
-							propName = _pageCodeMap[pageCode]
-							if propName
-								itemConfig = @_pagerItemConfig[propName]
-								itemConfig.dom = childNode
-								if cola.util.hasContent(childNode)
-									delete itemConfig["icon"]
-								menuItem = new cola.menu.MenuItem(itemConfig)
-								@addItem(menuItem)
-							else if pageCode is "goto"
-								propName = "goto"
-								itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
-								menuItem = new cola.menu.ControlMenuItem(itemConfig)
-								@addItem(menuItem)
-							else if pageCode is "info"
-								propName = "info"
-								menuItem = childNode
-							@_pagerItemMap[propName] = menuItem
+						@_parsePageItem(childNode)
 					else
 						menuItem = new cola.menu.MenuItem({dom: childNode})
 						@addItem(menuItem)
@@ -160,8 +168,8 @@ class cola.Pager extends cola.Menu
 			if config is "pages"
 				for pageItemKey in _pagesItems
 					pageItem = @_pagerItemConfig[pageItemKey]
-					if pageItem.$type is "input"
-						menuItem = new cola.menu.ControlMenuItem({control: pageItem})
+					if pageItemKey is "info"
+						menuItem = new cola.menu.ControlMenuItem()
 					else
 						menuItem = new cola.menu.MenuItem(pageItem)
 					if floatRight then @addRightItem(menuItem) else @addItem(menuItem)
