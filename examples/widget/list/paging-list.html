@@ -63,28 +63,8 @@
 //					itemClick: function(self, arg) {
 //						self.showItemSlidePane(arg.item, "right");
 //					}
-				},
-				buttonPrev: {
-					$type: "button",
-					caption: "Prev Page",
-					click: function () {
-						model.get("items").previousPage();
-					}
-				},
-				buttonNext: {
-					$type: "button",
-					caption: "Next Page",
-					click: function () {
-						model.get("items").nextPage();
-					}
-				},
-				buttonSet: {
-					$type: "button",
-					caption: "Set",
-					click: function () {
-						model.set("items.name", ++sn);
-					}
 				}
+
 			});
 		});
 	</script>
@@ -93,12 +73,7 @@
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
 
-<div c-widget="pager; bind:items">
-	<div class="right menu">
-		<a page-code="pages" class="item"></a>
-		<div page-code="goto" class="item"></div>
-	</div>
-</div>
+
 <div id="pager1"></div>
 <div class="flex-box">
 	<div id="listScroll">
@@ -109,6 +84,11 @@
 		</template>
 	</div>
 </div>
-
+<div c-widget="pager; bind:items">
+	<div class="right menu">
+		<a page-code="pages" class="item"></a>
+		<div page-code="goto" class="item"></div>
+	</div>
+</div>
 </body>
 </html>
