@@ -335,6 +335,14 @@
           </li>
         </ul>
 
+    - name: totalEntityCount
+      type: number
+      label: 总的Entity数量。
+      description: |
+        entityCount用于表示EntityList中当前实际有多少个Entity，不包含尚未下载的。而totalEntityCount则是包含尚未下载的Entity的总数量。
+        totalEntityCount有时并不是一个准确的或者确定的数字，这取决于Server端返回的数据中有没有包含entityCount的定义。
+        如果没有，那么我们通过totalEntityCount拿到的只是根据页数和每页记录数估算出来的一个数字。
+
   methods:
     - name: fillData
       type: cola.EntityList
