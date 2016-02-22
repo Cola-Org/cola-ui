@@ -104,7 +104,7 @@ cola.xRender = (template, model, context) ->
 				for processor in cola.xRender.nodeProcessors
 					dom = processor(template, context)
 					if dom then break
-				if dom then dom = $.xCreate(template, context)
+				unless dom then dom = $.xCreate(template, context)
 		finally
 			cola.currentScope = oldScope
 

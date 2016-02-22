@@ -26,6 +26,7 @@ cola.xRender.nodeProcessors.push (node, context) ->
 	if widget
 		dom = widget.getDom()
 		dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+		return dom
 
 cola.Model::widgetConfig = (id, config) ->
 	if arguments.length == 1
