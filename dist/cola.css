@@ -29,6 +29,15 @@ template {
 .display-none {
   display: none;
 }
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
 .red-background {
   background-color: #db2828;
 }

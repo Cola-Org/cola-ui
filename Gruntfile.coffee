@@ -246,5 +246,6 @@ module.exports = (grunt) ->
 								 "less:build", "cola-ui-license", "concat",
 								 "clean:core-widget", "copy:semantic",
 #								 "uglify:build",
-								 "cssmin", "compress",
+								 "cssmin",
+#								 "compress",
 								 "clean:workTemp"]

@@ -20,20 +20,25 @@
 			model.describe("items", {
 				provider: {
 					url: "languages{:$pageNo}.json",
-					pageSize: 10
+					pageSize: 10,
+					parameter:{
+						sss:"sdsd"
+					}
 				}
 			});
 
 			model.widgetConfig({
+				pagerExample:{
+					$type:"pager",
+//					bind: "items",
+					items:["|<","<","info"]
+				},
 				pager1: {
 					$type: "Pager",
 					bind: "items",
 					items: [
-
 						"pages"
 					]
-
-
 				},
 				listScroll: {
 					$type: "listView",
@@ -72,8 +77,6 @@
 	</style>
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
-
-
 <div id="pager1"></div>
 <div class="flex-box">
 	<div id="listScroll">
@@ -84,10 +87,16 @@
 		</template>
 	</div>
 </div>
+<div id="pagerExample"></div>
 <div c-widget="pager; bind:items">
+	<a page-code="|<" class="item"></a>
+	<a page-code="<" class="item"></a>
+	<a page-code="info" class="item"></a>
+	<a page-code=">" class="item"></a>
+	<a page-code=">|" class="item"></a>
 	<div class="right menu">
-		<a page-code="pages" class="item"></a>
 		<div page-code="goto" class="item"></div>
+
 	</div>
 </div>
 </body>
