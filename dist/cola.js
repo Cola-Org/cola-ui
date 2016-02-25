@@ -803,7 +803,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -840,8 +840,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -7785,6 +7785,10 @@
     if (defaultRes) {
       resUrl = null;
       if (htmlUrl) {
+        i = htmlUrl.indexOf("?");
+        if (i > 0) {
+          htmlUrl = htmlUrl.substring(0, i);
+        }
         i = htmlUrl.lastIndexOf(".");
         resUrl = (i > 0 ? htmlUrl.substring(0, i) : htmlUrl) + suffix;
       }
@@ -7819,7 +7823,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7837,8 +7841,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -9318,7 +9322,7 @@
               break;
             }
           }
-          if (dom) {
+          if (!dom) {
             dom = $.xCreate(template, context);
           }
         }
@@ -10067,8 +10071,9 @@
     }
     if (widget) {
       dom = widget.getDom();
-      return dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
     }
+    return dom;
   });
 
   cola.Model.prototype.widgetConfig = function(id, config) {
@@ -10662,12 +10667,12 @@
       })(this);
       itemsScope.onItemsLoadingStart = (function(_this) {
         return function(arg) {
-          return _this._onItemsLoadingStart(arg);
+          return typeof _this._onItemsLoadingStart === "function" ? _this._onItemsLoadingStart(arg) : void 0;
         };
       })(this);
       itemsScope.onItemsLoadingEnd = (function(_this) {
         return function(arg) {
-          return _this._onItemsLoadingEnd(arg);
+          return typeof _this._onItemsLoadingEnd === "function" ? _this._onItemsLoadingEnd(arg) : void 0;
         };
       })(this);
       if (this._onCurrentItemChange) {
@@ -14147,7 +14152,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14155,8 +14160,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -20390,7 +20395,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20403,8 +20408,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -27506,7 +27511,7 @@
 
   })(cola.AbstractTable);
 
-  _pagesItems = ["firstPage", "prevPage", "goto", "nextPage", "lastPage"];
+  _pagesItems = ["firstPage", "prevPage", "info", "nextPage", "lastPage"];
 
   _pageCodeMap = {
     "|<": "firstPage",
@@ -27605,7 +27610,7 @@
               var data;
               if (pager._targetPageNo) {
                 data = pager._getBindItems();
-                return data != null ? data.loadPage(pager._targetPageNo) : void 0;
+                return data != null ? data.gotoPage(pager._targetPageNo) : void 0;
               }
             }
           }
@@ -27630,11 +27635,91 @@
       Pager.__super__.constructor.call(this, config);
     }
 
+    Pager.prototype._parsePageItem = function(childNode, right) {
+      var beforeChild, itemConfig, itemDom, l, len1, menuItem, pageCode, pageItem, pageItemKey, propName, results;
+      pageCode = $fly(childNode).attr("page-code");
+      if (pageCode) {
+        if (pageCode === "pages") {
+          results = [];
+          for (l = 0, len1 = _pagesItems.length; l < len1; l++) {
+            pageItemKey = _pagesItems[l];
+            pageItem = this._pagerItemConfig[pageItemKey];
+            if (pageItemKey === "firstPage") {
+              pageItem.dom = childNode;
+              menuItem = new cola.menu.MenuItem(pageItem);
+              if (right) {
+                this.addRightItem(menuItem);
+              } else {
+                this.addItem(menuItem);
+              }
+              beforeChild = childNode;
+            } else {
+              if (pageItemKey === "info") {
+                menuItem = new cola.menu.ControlMenuItem();
+              } else {
+                menuItem = new cola.menu.MenuItem(pageItem);
+              }
+              itemDom = menuItem.getDom();
+              $fly(beforeChild).after(itemDom);
+              itemDom._eachIgnore = true;
+              if (right) {
+                this.addRightItem(menuItem);
+              } else {
+                this.addItem(menuItem);
+              }
+              beforeChild = itemDom;
+            }
+            results.push(this._pagerItemMap[pageItemKey] = menuItem);
+          }
+          return results;
+        } else {
+          propName = _pageCodeMap[pageCode];
+          if (propName) {
+            itemConfig = this._pagerItemConfig[propName];
+            itemConfig.dom = childNode;
+            if (cola.util.hasContent(childNode)) {
+              delete itemConfig["icon"];
+            }
+            menuItem = new cola.menu.MenuItem(itemConfig);
+            if (right) {
+              this.addRightItem(menuItem);
+            } else {
+              this.addItem(menuItem);
+            }
+          } else if (pageCode === "goto") {
+            propName = "goto";
+            itemConfig = {
+              dom: childNode,
+              control: this._pagerItemConfig[pageCode]
+            };
+            menuItem = new cola.menu.ControlMenuItem(itemConfig);
+            if (right) {
+              this.addRightItem(menuItem);
+            } else {
+              this.addItem(menuItem);
+            }
+          } else if (pageCode === "info") {
+            propName = "info";
+            itemConfig = {
+              dom: childNode
+            };
+            menuItem = new cola.menu.ControlMenuItem(itemConfig);
+            if (right) {
+              this.addRightItem(menuItem);
+            } else {
+              this.addItem(menuItem);
+            }
+          }
+          return this._pagerItemMap[propName] = menuItem;
+        }
+      }
+    };
+
     Pager.prototype._parseItems = function(node) {
-      var beforeChild, childNode, itemConfig, itemDom, l, len1, menuItem, pageCode, pageItem, pageItemKey, parseRightMenu, propName, results;
+      var childNode, menuItem, pageCode, parseRightMenu, results;
       parseRightMenu = (function(_this) {
         return function(node) {
-          var childNode, menuItem;
+          var childNode, menuItem, pageCode;
           childNode = node.firstChild;
           if (_this._rightItems == null) {
             _this._rightItems = [];
@@ -27645,10 +27730,15 @@
               if (menuItem) {
                 _this.addRightItem(menuItem);
               } else if (cola.util.hasClass(childNode, "item")) {
-                menuItem = new cola.menu.MenuItem({
-                  dom: childNode
-                });
-                _this.addRightItem(menuItem);
+                pageCode = $fly(childNode).attr("page-code");
+                if (pageCode) {
+                  _this._parsePageItem(childNode, true);
+                } else {
+                  menuItem = new cola.menu.MenuItem({
+                    dom: childNode
+                  });
+                  _this.addRightItem(menuItem);
+                }
               }
             }
             childNode = childNode.nextSibling;
@@ -27672,55 +27762,7 @@
           } else if (cola.util.hasClass(childNode, "item")) {
             pageCode = $fly(childNode).attr("page-code");
             if (pageCode) {
-              if (pageCode === "pages") {
-                for (l = 0, len1 = _pagesItems.length; l < len1; l++) {
-                  pageItemKey = _pagesItems[l];
-                  pageItem = this._pagerItemConfig[pageItemKey];
-                  if (pageItemKey === "firstPage") {
-                    pageItem.dom = childNode;
-                    menuItem = new cola.menu.MenuItem(pageItem);
-                    this.addItem(menuItem);
-                    beforeChild = childNode;
-                  } else {
-                    if (pageItem.$type === "input") {
-                      menuItem = new cola.menu.ControlMenuItem({
-                        control: pageItem
-                      });
-                    } else {
-                      menuItem = new cola.menu.MenuItem(pageItem);
-                    }
-                    itemDom = menuItem.getDom();
-                    $fly(beforeChild).after(itemDom);
-                    itemDom._eachIgnore = true;
-                    this.addItem(menuItem);
-                    beforeChild = itemDom;
-                  }
-                  this._pagerItemMap[pageItemKey] = menuItem;
-                }
-              } else {
-                propName = _pageCodeMap[pageCode];
-                if (propName) {
-                  itemConfig = this._pagerItemConfig[propName];
-                  itemConfig.dom = childNode;
-                  if (cola.util.hasContent(childNode)) {
-                    delete itemConfig["icon"];
-                  }
-                  menuItem = new cola.menu.MenuItem(itemConfig);
-                  this.addItem(menuItem);
-                } else if (pageCode === "goto") {
-                  propName = "goto";
-                  itemConfig = {
-                    dom: childNode,
-                    control: this._pagerItemConfig[pageCode]
-                  };
-                  menuItem = new cola.menu.ControlMenuItem(itemConfig);
-                  this.addItem(menuItem);
-                } else if (pageCode === "info") {
-                  propName = "info";
-                  menuItem = childNode;
-                }
-                this._pagerItemMap[propName] = menuItem;
-              }
+              this._parsePageItem(childNode);
             } else {
               menuItem = new cola.menu.MenuItem({
                 dom: childNode
@@ -27741,10 +27783,8 @@
           for (l = 0, len1 = _pagesItems.length; l < len1; l++) {
             pageItemKey = _pagesItems[l];
             pageItem = this._pagerItemConfig[pageItemKey];
-            if (pageItem.$type === "input") {
-              menuItem = new cola.menu.ControlMenuItem({
-                control: pageItem
-              });
+            if (pageItemKey === "info") {
+              menuItem = new cola.menu.ControlMenuItem();
             } else {
               menuItem = new cola.menu.MenuItem(pageItem);
             }

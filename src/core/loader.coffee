@@ -112,6 +112,9 @@ _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
 	if defaultRes
 		resUrl = null
 		if htmlUrl
+			i = htmlUrl.indexOf("?")
+			if i > 0 then htmlUrl = htmlUrl.substring(0, i)
+
 			i = htmlUrl.lastIndexOf(".")
 			resUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
 	return resUrl
