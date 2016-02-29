@@ -18199,7 +18199,7 @@
       this._classNamePool.add(this._type);
       $dom = this.get$Dom();
       $dom.checkbox(!!this._disabled ? "disable" : "enable");
-      $(this._doms.input).attr("name", this._name);
+      $(this._doms.input).attr("name", this._name).attr("value", this._value);
       return this._refreshEditorDom();
     };
 

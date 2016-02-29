@@ -135,6 +135,7 @@ module.exports = (grunt) ->
 			api:
 				options:
 					output: "api"
+					header: "Cola UI API-v#{pkg.version}"
 				files: [
 					{
 						expand: true
@@ -153,6 +154,7 @@ module.exports = (grunt) ->
 					"dest/work/cola/coffee/widget.coffee": sources.coffee.widgetAll
 		"cola-ui-license":
 			options:
+
 				license: """
 /*! Cola UI - #{pkg.version}
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
@@ -249,10 +251,11 @@ module.exports = (grunt) ->
 	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
-	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget","coffee:i18n",
-								 "less:build", "cola-ui-license", "concat",
-								 "clean:core-widget", "copy:semantic",
-								 "uglify:build",
-								 "cssmin",
+	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
+	                             "coffee:i18n",
+	                             "less:build", "cola-ui-license", "concat",
+	                             "clean:core-widget", "copy:semantic",
+	                             "uglify:build",
+	                             "cssmin",
 #								 "compress",
-								 "clean:workTemp"]
+                                 "clean:workTemp"]
