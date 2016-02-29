@@ -42,6 +42,13 @@ module.exports = (grunt) ->
 					"dist/cola-widget.js": [
 						"dest/work/cola/coffee/widget.coffee"
 					]
+			i18n:
+				options:
+					sourceMap: false
+					join: true
+				files:
+					"dist/i18n/en/cola.js": sources.i18n["en"]
+					"dist/i18n/zh-Hans/cola.js": sources.i18n["zh-Hans"]
 		less:
 			dev:
 				options:
@@ -242,7 +249,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
-	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
+	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget","coffee:i18n",
 								 "less:build", "cola-ui-license", "concat",
 								 "clean:core-widget", "copy:semantic",
 								 "uglify:build",
