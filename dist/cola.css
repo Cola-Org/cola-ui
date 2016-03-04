@@ -178,6 +178,7 @@ template {
 }
 .v-box,
 .h-box {
+  height: 100%;
   position: relative;
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
@@ -259,6 +260,22 @@ template {
   -webkit-justify-content: flex-end;
   -ms-flex-pack: end;
   justify-content: flex-end;
+}
+
+.field.required {
+  padding-right: 1em;
+  position: relative;
+}
+.field.required:after {
+  float: right;
+  font-family: Icons;
+  content: "\f069";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  margin-top: -10px;
+  color: #db2828;
+  transform: scale(0.5);
 }
 
 [class*="block-grid-"] {
