@@ -92,7 +92,7 @@ module.exports = (grunt) ->
 			all:
 				options:
 					urls: [
-						'http://localhost:9001/test/qunit/all.html'
+						"http://localhost:9001/test/qunit/all.html"
 					]
 		uglify:
 			options:
@@ -102,10 +102,10 @@ module.exports = (grunt) ->
 				files: [
 					{
 						expand: true
-						cwd: 'dist'
-						src: '**/*.js'
-						dest: 'dist'
-						ext: '.min.js'
+						cwd: "dist"
+						src: "**/*.js"
+						dest: "dist"
+						ext: ".min.js"
 					}
 				]
 		yaml:
@@ -186,44 +186,44 @@ module.exports = (grunt) ->
 				files: [
 					{
 						expand: true
-						cwd: 'dist'
-						src: ['cola.css', 'semantic.css']
-						dest: 'dist'
-						ext: '.min.css'
+						cwd: "dist"
+						src: ["cola.css", "semantic.css"]
+						dest: "dist"
+						ext: ".min.css"
 					}
 				]
 		compress:
 			js:
 				options:
-					mode: 'gzip'
+					mode: "gzip"
 				files: [
 					{
 						expand: true
 						cwd: "dist"
 						src: [
-							'cola.js'
-							'cola-widget.js'
-							'cola-core.js'
-							'3rd.js'
-							'semantic.js'
+							"cola.js"
+							"cola-widget.js"
+							"cola-core.js"
+							"3rd.js"
+							"semantic.js"
 						]
-						dest: 'dist/gzip'
-						ext: '.gz.js'
+						dest: "dist/gzip"
+						ext: ".gz.js"
 					}
 				]
 			css:
 				options:
-					mode: 'gzip'
+					mode: "gzip"
 				files: [
 					{
 						expand: true
 						cwd: "dist"
 						src: [
-							'cola.css'
-							'semantic.css'
+							"cola.css"
+							"semantic.css"
 						]
-						dest: 'dist/gzip'
-						ext: '.gz.css'
+						dest: "dist/gzip"
+						ext: ".gz.css"
 					}
 				]
 
@@ -239,9 +239,9 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-connect"
 	grunt.loadNpmTasks "grunt-cola-ui-build"
 	grunt.loadNpmTasks "grunt-contrib-concat"
-	grunt.loadNpmTasks 'grunt-contrib-rename'
-	grunt.loadNpmTasks 'grunt-contrib-cssmin'
-	grunt.loadNpmTasks 'grunt-contrib-compress'
+	grunt.loadNpmTasks "grunt-contrib-rename"
+	grunt.loadNpmTasks "grunt-contrib-cssmin"
+	grunt.loadNpmTasks "grunt-contrib-compress"
 
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]

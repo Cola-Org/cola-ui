@@ -120,11 +120,11 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 
 	_replaceSysParams: (options) ->
 		url = options.originUrl or options.url
-		matches = url.match(/{:\$[\w-]+}/g)
+		matches = url.match(/{\$[\w-]+}/g)
 		if matches
 			options.originUrl = url unless options.originUrl
 			for match in matches
-				name = match.substring(3, match.length - 1)
+				name = match.substring(2, match.length - 1)
 				if name
 					url = url.replace(match, @[name] or "")
 					options.url = url
@@ -134,13 +134,13 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		if data
 			for p, v of data
 				if typeof v is "string"
-					if v.charCodeAt(0) is 58 and v.charCodeAt(1) is 36 # `:`, `$`
+					if v.charCodeAt(0) is 123 and v.charCodeAt(1) is 36 # `{`, `$`
 						options.originData = $.extend(data, null) unless options.originData
-						data[p] = @[v.substring(2)]
+						data[p] = @[v.substring(1)]
 						changed = true
-					else if v.match(/^{:\$[\w-]+}$/)
+					else if v.match(/^{\$[\w-]+}$/)
 						options.originData = $.extend(data, null) unless options.originData
-						data[p] = @[v.substring(3, v.length - 1)]
+						data[p] = @[v.substring(2, v.length - 1)]
 						changed = true
 		return changed
 
@@ -169,10 +169,10 @@ class cola.Provider extends cola.AjaxService
 
 	getUrl: (context) ->
 		url = @_url
-		matches = url.match(/{:[\w-]+}/g)
+		matches = url.match(/{[\w-]+}/g)
 		if matches
 			for match in matches
-				expr = match.substring(2, match.length - 1)
+				expr = match.substring(1, match.length - 1)
 				if expr
 					url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") or "")
 		return url
@@ -184,15 +184,15 @@ class cola.Provider extends cola.AjaxService
 		return provider
 
 	_evalParamValue: (expr, context) ->
-		if expr.charCodeAt(0) is 58 and expr.charCodeAt(1) isnt 36 # `:`, `$`
+		if expr.charCodeAt(0) is 123 and expr.charCodeAt(1) isnt 36 # `{`, `$`
 			if context
 				return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
 			else
 				return null
 		else if context and expr.charCodeAt(0) is 123 # `{`
-			if expr.match(/^{:[\w-]+}$/)
+			if expr.match(/^{[\w-]+}$/)
 				if context
-					return cola.Entity._evalDataPath(context, expr.substring(2, expr.length - 1), true, "never");
+					return cola.Entity._evalDataPath(context, expr.substring(1, expr.length - 1), true, "never");
 				else
 					return null
 		return expr

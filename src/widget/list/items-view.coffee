@@ -140,11 +140,10 @@ class cola.ItemsView extends cola.Widget
 				itemsWrapper = @_doms.itemsWrapper
 				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
 					@_loadingNextPage = true
-					@_showLoadingTip()
-					$fly(itemsWrapper).find(">.tail-padding").remove()
+					$fly(itemsWrapper).find(">.tail-padding >.ui.loader").addClass("active")
 					realItems.loadPage(realItems.pageNo + 1, () =>
 						@_loadingNextPage = false
-						@_hideLoadingTip()
+						$fly(itemsWrapper).find(">.tail-padding >.ui.loader").removeClass("active")
 						return
 					)
 		return
@@ -353,17 +352,21 @@ class cola.ItemsView extends cola.Widget
 			if documentFragment
 				itemsWrapper.appendChild(documentFragment)
 
-			if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
+			if not @_currentPageOnly and @_autoLoadPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
 				currentPageNo = lastItem?._page?.pageNo
 				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
-					if itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
+					if not @_loadingNextPage and itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
 						@_showLoadingTip()
 						items.loadPage(currentPageNo + 1, () =>
 							@_hideLoadingTip()
 							return
 						)
-				else
-					$fly(itemsWrapper).xAppend( class: "tail-padding" )
+					else
+						$fly(itemsWrapper).xAppend(
+							class: "tail-padding"
+							content:
+								class: "ui loader"
+						)
 
 		if @_pullAction == undefined
 			@_pullAction = null
