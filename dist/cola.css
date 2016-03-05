@@ -29,6 +29,15 @@ template {
 .display-none {
   display: none;
 }
+.text-center {
+  text-align: center;
+}
+.text-left {
+  text-align: left;
+}
+.text-right {
+  text-align: right;
+}
 .red-background {
   background-color: #db2828;
 }
@@ -2250,6 +2259,7 @@ template {
 }
 .ui.list-view .tail-padding {
   height: 5em;
+  position: relative;
 }
 .ui.list-view.striped .list.item:nth-child(2n):not(.current) {
   background: #f7f7f7;
@@ -2544,6 +2554,7 @@ template {
 }
 .ui.nested-list .ui.layer {
   background: #ffffff;
+  box-shadow: -2px 0 0 0 rgba(34, 36, 38, 0.2);
 }
 .ui.nested-list .item.has-child {
   position: relative;

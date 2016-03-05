@@ -136,7 +136,7 @@ class cola.RadioButton extends cola.Widget
 
 		$dom = @get$Dom()
 		$dom.checkbox(if !!@_disabled then "disable" else "enable")
-		$(@_doms.input).attr("name", @_name)
+		$(@_doms.input).attr("name", @_name).attr("value", @_value)
 		@_refreshEditorDom()
 
 	toggle: ()->

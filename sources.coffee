@@ -90,6 +90,14 @@ sources =
 			"src/widget/list/table.coffee"
 			"src/widget/list/pager.coffee"
 		]
+	i18n:
+		en:[
+			"src/i18n/en/cola.coffee"
+		]
+		"zh-Hans":[
+			"src/i18n/en/cola.coffee"
+		]
+
 	less:
 		cola: [
 			"src/css/global.less"
