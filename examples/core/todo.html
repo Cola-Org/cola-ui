@@ -49,6 +49,7 @@
 </p>
 <ul>
 	<li c-repeat="todo in sort(filter(todos,filterParam),sortParam)">
+	<!--<li c-repeat="todo in todos | filter(filterParam) | sort(sortParam)">-->
 		<input type="checkbox" c-bind="todo.done">
 		<span c-bind="todo.title"></span>
 		<button c-onclick="delete(todo)">Delete</button>

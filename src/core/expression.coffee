@@ -240,6 +240,9 @@ class cola.Expression
 	evaluate: (scope, loadMode, dataCtx)  ->
 		retValue = eval(@expression)
 
+#		if retValue instanceof cola.Chain
+#			retValue = retValue._data
+
 		if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 			dataCtx?.path = retValue.getPath()
 		return retValue

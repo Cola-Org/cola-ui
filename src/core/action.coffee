@@ -6,24 +6,41 @@ else
 	cola = @cola
 #IMPORT_END
 
-cola.defaultAction = {}
+defaultActionTimestamp = 0
 
-cola.defaultAction["default"] = (value, defaultValue = "") ->
-	return value or defaultValue
+cola.defaultAction = (name, fn) ->
+	return unless name
 
-cola.defaultAction["int"] = (value) ->
-	return parseInt(value, 10) or 0
+	if typeof name is "string" and typeof fn is "function"
+		cola.defaultAction[name] = fn
+	else if typeof name is "object"
+		for n of name
+			cola.defaultAction[n] = name[n] if name.hasOwnProperty(n)
+	defaultActionTimestamp = cola.uniqueId()
+	return
 
-cola.defaultAction["float"] = (value) ->
-	return parseFloat(value) or 0
+#class cola.Chain
+#	constructor: (data) ->
+#		@_data = data
+#		if cola.Chain::timestamp isnt defaultActionTimestamp
+#			cola.Chain::timestamp = defaultActionTimestamp
+#
+#			for name of cola.defaultAction
+#				if not cola.Chain::[name] and cola.defaultAction.hasOwnProperty(name) and name isnt "chain"
+#					cola.Chain::[name] = (args...) ->
+#						@_data = cola.defaultAction[name](@_data, args...)
+#						return @
+#
+#cola.defaultAction.chain = (data) -> new cola.Chain(data)
 
-cola.defaultAction["is"] = (value) ->
-	return !!value
+cola.defaultAction["default"] = (value, defaultValue = "") -> value or defaultValue
 
+cola.defaultAction["int"] = (value) -> parseInt(value, 10) or 0
+cola.defaultAction["float"] = (value) -> parseFloat(value) or 0
+
+cola.defaultAction["is"] = (value) -> !!value
 cola.defaultAction["bool"] = cola.defaultAction.is
-
-cola.defaultAction["not"] = (value) ->
-	return not value
+cola.defaultAction["not"] = (value) -> not value
 
 cola.defaultAction.isEmpty = (value) ->
 	if value instanceof Array
@@ -35,8 +52,7 @@ cola.defaultAction.isEmpty = (value) ->
 	else
 		return !value
 
-cola.defaultAction.isNotEmpty = (value) ->
-	return not cola.defaultAction.isEmpty(value)
+cola.defaultAction.isNotEmpty = (value) -> not cola.defaultAction.isEmpty(value)
 
 cola.defaultAction.len = (value) ->
 	if not value
@@ -47,14 +63,10 @@ cola.defaultAction.len = (value) ->
 		return value.entityCount
 	return 0
 
-cola.defaultAction["upperCase"] = (value) ->
-	return value?.toUpperCase()
+cola.defaultAction["upperCase"] = (value) -> value?.toUpperCase()
+cola.defaultAction["lowerCase"] = (value) -> value?.toLowerCase()
 
-cola.defaultAction["lowerCase"] = (value) ->
-	return value?.toLowerCase()
-
-cola.defaultAction.resource = (key, params...) ->
-	return cola.resource(key, params...)
+cola.defaultAction.resource = (key, params...) -> cola.resource(key, params...)
 
 _matchValue = (value, propFilter) ->
 	if propFilter.strict
@@ -69,7 +81,6 @@ _matchValue = (value, propFilter) ->
 			return (value + "").indexOf(propFilter.value) > -1
 
 cola.defaultAction.filter = cola._filterCollection
-
 cola.defaultAction.sort = cola._sortCollection
 
 cola.defaultAction["top"] = (collection, top = 1) ->

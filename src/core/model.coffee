@@ -223,7 +223,7 @@ class cola.AliasScope extends cola.SubScope
 
 class cola.ItemScope extends cola.SubScope
 	constructor: (@parent, alias) ->
-		@data = new cola.AliasDataModel(@, alias, @parent?.dataType)
+		@data = new cola.ItemDataModel(@, alias, @parent?.dataType)
 		@action = @parent.action
 
 	watchPath: () ->
@@ -962,6 +962,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	notifyObservers: () ->
 		@parent.notifyObservers()
 		return @
+
+class cola.ItemDataModel extends cola.AliasDataModel
+
+	get: (path, loadMode, context) ->
+		return super(path, loadMode, context)
+
+	set: (path, data, context) ->
+		return super(path, data, context)
 
 ###
 Root Model

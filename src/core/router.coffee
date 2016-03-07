@@ -32,10 +32,10 @@ cola.route = (path, router) ->
 	router.path = path
 	if not router.name
 		name = path or cola.constants.DEFAULT_PATH
-		parts = name.split("/")
+		parts = name.split(/[\/\-]/)
 		nameParts = []
 		for part, i in parts
-			if part.charCodeAt(0) == 58 # `:`
+			if not part or part.charCodeAt(0) == 58 # `:`
 				continue
 			nameParts.push(if nameParts.length > 0 then cola.util.capitalize(part) else part)
 		router.name = nameParts.join("");

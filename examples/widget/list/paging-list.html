@@ -19,7 +19,7 @@
 //			}
 			model.describe("items", {
 				provider: {
-					url: "languages{:$pageNo}.json",
+					url: "languages{$pageNo}.json",
 					pageSize: 10,
 					parameter:{
 						sss:"sdsd"
@@ -51,7 +51,8 @@
 					pullUp: true,
 					itemSlide: "both",
 					height: "100%",
-					currentPageOnly: true
+//					currentPageOnly: true,
+					autoLoadPage: true
 //					columns: "row 2 4",
 //					highlightCurrentItem: false,
 //					getGroupString: function (arg) {

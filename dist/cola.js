@@ -803,7 +803,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -840,8 +840,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -2415,14 +2415,14 @@
     ProviderInvoker.prototype._replaceSysParams = function(options) {
       var changed, data, l, len1, match, matches, name, p, url, v;
       url = options.originUrl || options.url;
-      matches = url.match(/{:\$[\w-]+}/g);
+      matches = url.match(/{\$[\w-]+}/g);
       if (matches) {
         if (!options.originUrl) {
           options.originUrl = url;
         }
         for (l = 0, len1 = matches.length; l < len1; l++) {
           match = matches[l];
-          name = match.substring(3, match.length - 1);
+          name = match.substring(2, match.length - 1);
           if (name) {
             url = url.replace(match, this[name] || "");
             options.url = url;
@@ -2435,17 +2435,17 @@
         for (p in data) {
           v = data[p];
           if (typeof v === "string") {
-            if (v.charCodeAt(0) === 58 && v.charCodeAt(1) === 36) {
+            if (v.charCodeAt(0) === 123 && v.charCodeAt(1) === 36) {
               if (!options.originData) {
                 options.originData = $.extend(data, null);
               }
-              data[p] = this[v.substring(2)];
+              data[p] = this[v.substring(1)];
               changed = true;
-            } else if (v.match(/^{:\$[\w-]+}$/)) {
+            } else if (v.match(/^{\$[\w-]+}$/)) {
               if (!options.originData) {
                 options.originData = $.extend(data, null);
               }
-              data[p] = this[v.substring(3, v.length - 1)];
+              data[p] = this[v.substring(2, v.length - 1)];
               changed = true;
             }
           }
@@ -2499,11 +2499,11 @@
     Provider.prototype.getUrl = function(context) {
       var expr, l, len1, match, matches, url;
       url = this._url;
-      matches = url.match(/{:[\w-]+}/g);
+      matches = url.match(/{[\w-]+}/g);
       if (matches) {
         for (l = 0, len1 = matches.length; l < len1; l++) {
           match = matches[l];
-          expr = match.substring(2, match.length - 1);
+          expr = match.substring(1, match.length - 1);
           if (expr) {
             url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") || "");
           }
@@ -2521,16 +2521,16 @@
     };
 
     Provider.prototype._evalParamValue = function(expr, context) {
-      if (expr.charCodeAt(0) === 58 && expr.charCodeAt(1) !== 36) {
+      if (expr.charCodeAt(0) === 123 && expr.charCodeAt(1) !== 36) {
         if (context) {
           return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
         } else {
           return null;
         }
       } else if (context && expr.charCodeAt(0) === 123) {
-        if (expr.match(/^{:[\w-]+}$/)) {
+        if (expr.match(/^{[\w-]+}$/)) {
           if (context) {
-            return cola.Entity._evalDataPath(context, expr.substring(2, expr.length - 1), true, "never");
+            return cola.Entity._evalDataPath(context, expr.substring(1, expr.length - 1), true, "never");
           } else {
             return null;
           }
@@ -7785,6 +7785,10 @@
     if (defaultRes) {
       resUrl = null;
       if (htmlUrl) {
+        i = htmlUrl.indexOf("?");
+        if (i > 0) {
+          htmlUrl = htmlUrl.substring(0, i);
+        }
         i = htmlUrl.lastIndexOf(".");
         resUrl = (i > 0 ? htmlUrl.substring(0, i) : htmlUrl) + suffix;
       }
@@ -7819,7 +7823,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7837,8 +7841,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -7926,11 +7930,11 @@
     router.path = path;
     if (!router.name) {
       name = path || cola.constants.DEFAULT_PATH;
-      parts = name.split("/");
+      parts = name.split(/[\/\-]/);
       nameParts = [];
       for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
         part = parts[i];
-        if (part.charCodeAt(0) === 58) {
+        if (!part || part.charCodeAt(0) === 58) {
           continue;
         }
         nameParts.push(nameParts.length > 0 ? cola.util.capitalize(part) : part);
@@ -10663,12 +10667,12 @@
       })(this);
       itemsScope.onItemsLoadingStart = (function(_this) {
         return function(arg) {
-          return _this._onItemsLoadingStart(arg);
+          return typeof _this._onItemsLoadingStart === "function" ? _this._onItemsLoadingStart(arg) : void 0;
         };
       })(this);
       itemsScope.onItemsLoadingEnd = (function(_this) {
         return function(arg) {
-          return _this._onItemsLoadingEnd(arg);
+          return typeof _this._onItemsLoadingEnd === "function" ? _this._onItemsLoadingEnd(arg) : void 0;
         };
       })(this);
       if (this._onCurrentItemChange) {
@@ -14148,7 +14152,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14156,8 +14160,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -20391,7 +20395,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20404,8 +20408,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -22899,12 +22903,11 @@
           itemsWrapper = this._doms.itemsWrapper;
           if (itemsWrapper.scrollTop + itemsWrapper.clientHeight === itemsWrapper.scrollHeight) {
             this._loadingNextPage = true;
-            this._showLoadingTip();
-            $fly(itemsWrapper).find(">.tail-padding").remove();
+            $fly(itemsWrapper).find(">.tail-padding >.ui.loader").addClass("active");
             realItems.loadPage(realItems.pageNo + 1, (function(_this) {
               return function() {
                 _this._loadingNextPage = false;
-                _this._hideLoadingTip();
+                $fly(itemsWrapper).find(">.tail-padding >.ui.loader").removeClass("active");
               };
             })(this));
           }
@@ -23164,21 +23167,24 @@
         if (documentFragment) {
           itemsWrapper.appendChild(documentFragment);
         }
-        if (!this._currentPageOnly && this._autoLoadPage && !this._loadingNextPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
+        if (!this._currentPageOnly && this._autoLoadPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
           currentPageNo = lastItem != null ? (ref = lastItem._page) != null ? ref.pageNo : void 0 : void 0;
           if (currentPageNo && (currentPageNo < items.pageCount || !items.pageCountDetermined)) {
-            if (itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {
+            if (!this._loadingNextPage && itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {
               this._showLoadingTip();
               items.loadPage(currentPageNo + 1, (function(_this) {
                 return function() {
                   _this._hideLoadingTip();
                 };
               })(this));
+            } else {
+              $fly(itemsWrapper).xAppend({
+                "class": "tail-padding",
+                content: {
+                  "class": "ui loader"
+                }
+              });
             }
-          } else {
-            $fly(itemsWrapper).xAppend({
-              "class": "tail-padding"
-            });
           }
         }
       }
