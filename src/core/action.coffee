@@ -19,19 +19,20 @@ cola.defaultAction = (name, fn) ->
 	defaultActionTimestamp = cola.uniqueId()
 	return
 
-#class cola.Chain
-#	constructor: (data) ->
-#		@_data = data
-#		if cola.Chain::timestamp isnt defaultActionTimestamp
-#			cola.Chain::timestamp = defaultActionTimestamp
-#
-#			for name of cola.defaultAction
-#				if not cola.Chain::[name] and cola.defaultAction.hasOwnProperty(name) and name isnt "chain"
-#					cola.Chain::[name] = (args...) ->
-#						@_data = cola.defaultAction[name](@_data, args...)
-#						return @
-#
-#cola.defaultAction.chain = (data) -> new cola.Chain(data)
+class cola.Chain
+	constructor: (data) ->
+		@_data = data
+		if cola.Chain::timestamp isnt defaultActionTimestamp
+			cola.Chain::timestamp = defaultActionTimestamp
+
+			for name of cola.defaultAction
+				if not cola.Chain::[name] and cola.defaultAction.hasOwnProperty(name) and name isnt "chain"
+					do (name) ->
+						cola.Chain::[name] = (args...) ->
+							@_data = cola.defaultAction[name](@_data, args...)
+							return @
+
+cola.defaultAction.chain = (data) -> new cola.Chain(data)
 
 cola.defaultAction["default"] = (value, defaultValue = "") -> value or defaultValue
 

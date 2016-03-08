@@ -158,42 +158,41 @@ class cola.Expression
 
 	compile: (exprStr) ->
 
-		stringifyMemberExpression = (node, parts, context) ->
-			type = node.type
-			if type == "Identifier"
-				parts.push(node.name)
-			else
-				stringifyMemberExpression(node.object, parts, context)
-				parts.push(node.property.name)
-			return
-
-		stringify = (node, parts, context) ->
+		stringify = (node, parts, pathParts, close, context) ->
 			type = node.type
 			switch type
-				when "MemberExpression", "Identifier"
-					pathPart = []
-					stringifyMemberExpression(node, pathPart, context)
-					path = pathPart.join(".")
-					if !context.path
-						context.path = path
-					else if typeof context.path == "string"
-						context.path = [context.path, path]
-					else
-						context.path.push(path)
+				when "MemberExpression", "Identifier", "ThisExpression"
+					if type == "Identifier" or type == "ThisExpression"
+						pathParts.push(node.name)
+					else if type == "MemberExpression"
+						stringify(node.object, parts, pathParts, false, context)
 
-					parts.push("_getData(scope,'")
-					parts.push(path)
-					parts.push("',loadMode,dataCtx)")
+						if pathParts.length
+							pathParts.push(node.property.name)
+						else
+							parts.push(".")
+							parts.push(node.property.name)
 
 				when "CallExpression"
 					context.hasCallStatement = true
-					parts.push("scope.action(\"")
-					stringifyMemberExpression(node.callee, parts, context)
-					parts.push("\")(")
+
+					callee = node.callee
+					if callee.type == "Identifier"
+						parts.push("scope.action(\"")
+						parts.push(node.callee.name)
+						parts.push("\")(")
+					else if callee.type == "MemberExpression"
+						stringify(callee.object, parts, pathParts, true, context)
+						parts.push(".")
+						parts.push(callee.property.name)
+						parts.push("(")
+					else
+						throw new cola.Exception("\"#{exprStr}\" invalid callee.")
+
 					if node.arguments?.length
 						for argument, i in node.arguments
 							if i > 0 then parts.push(",")
-							stringify(argument, parts, context)
+							stringify(argument, parts, pathParts, true, context)
 					parts.push(")")
 
 				when "Literal"
@@ -201,47 +200,61 @@ class cola.Expression
 
 				when "BinaryExpression", "LogicalExpression"
 					parts.push("(")
-					stringify(node.left, parts, context)
+					stringify(node.left, parts, pathParts, true, context)
 					parts.push(node.operator)
-					stringify(node.right, parts, context)
+					stringify(node.right, parts, pathParts, true, context)
 					parts.push(")")
-
-				when "ThisExpression"
-					parts.push("scope")
 
 				when "UnaryExpression"
 					parts.push(node.operator)
-					stringify(node.argument, parts, context)
+					stringify(node.argument, parts, pathParts, true, context)
 
 				when "ConditionalExpression"
 					parts.push("(")
-					stringify(node.test, parts, context)
+					stringify(node.test, parts, pathParts, true, context)
 					parts.push("?")
-					stringify(node.consequent, parts, context)
+					stringify(node.consequent, parts, pathParts, true, context)
 					parts.push(":")
-					stringify(node.alternate, parts, context)
+					stringify(node.alternate, parts, pathParts, true, context)
 					parts.push(")")
 
 				when "ArrayExpression"
 					parts.push("[")
 					for element, i in node.elements
 						if i > 0 then parts.push(",")
-						stringify(element, parts, context)
+						stringify(element, parts, pathParts, true, context)
 					parts.push("]")
+
+			if close and pathParts.length
+				path = pathParts.join(".")
+				if !context.path
+					context.path = path
+				else if typeof context.path == "string"
+					context.path = [context.path, path]
+				else
+					context.path.push(path)
+
+				parts.push("_getData(scope,'")
+				parts.push(path)
+				parts.push("',loadMode,dataCtx)")
+				pathParts.splice(0, pathParts.length)
+
 			return
 
 		tree = jsep(exprStr)
 		@type = tree.type
 
 		parts = []
-		stringify(tree, parts, @)
+		pathParts = []
+		stringify(tree, parts, pathParts, true, @)
 		@expression = parts.join("")
+		return
 
 	evaluate: (scope, loadMode, dataCtx)  ->
 		retValue = eval(@expression)
 
-#		if retValue instanceof cola.Chain
-#			retValue = retValue._data
+		if retValue instanceof cola.Chain
+			retValue = retValue._data
 
 		if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 			dataCtx?.path = retValue.getPath()
