@@ -219,8 +219,8 @@ class cola.Pager extends cola.Menu
 	pagerItemsRefresh: () ->
 		pager = @
 		data = pager._getBindItems()
-		hasPrev = true
-		hasNext = true
+		hasPrev = false
+		hasNext = false
 		pageNo = 0
 		pageCount = 0
 
