@@ -27937,23 +27937,23 @@
       pageCount = 0;
       if (data) {
         pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize);
-        hasPrev = data.pageNo === 1;
-        hasNext = pageCount === data.pageNo;
+        hasPrev = data.pageNo > 1;
+        hasNext = pageCount > data.pageNo;
         pageNo = data.pageNo;
         pageCount = data.pageCount;
       }
       this._pageNo = pageNo;
       if ((ref = pager._pagerItemMap["firstPage"]) != null) {
-        ref.get$Dom().toggleClass("disabled", hasPrev);
+        ref.get$Dom().toggleClass("disabled", !hasPrev);
       }
       if ((ref1 = pager._pagerItemMap["prevPage"]) != null) {
-        ref1.get$Dom().toggleClass("disabled", hasPrev);
+        ref1.get$Dom().toggleClass("disabled", !hasPrev);
       }
       if ((ref2 = pager._pagerItemMap["nextPage"]) != null) {
-        ref2.get$Dom().toggleClass("disabled", hasNext);
+        ref2.get$Dom().toggleClass("disabled", !hasNext);
       }
       if ((ref3 = pager._pagerItemMap["lastPage"]) != null) {
-        ref3.get$Dom().toggleClass("disabled", hasNext);
+        ref3.get$Dom().toggleClass("disabled", !hasNext);
       }
       infoItem = pager._pagerItemMap["info"];
       if (infoItem) {
