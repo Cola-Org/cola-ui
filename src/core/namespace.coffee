@@ -17,6 +17,7 @@ cola.constants = {
 	COLLECTION_CURRENT_CLASS: "current"
 
 	DEFAULT_PATH: "$root"
+	REPEAT_INDEX: "$index"
 
 	DOM_USER_DATA_KEY: "_d"
 	DOM_BINDING_KEY: "_binding"

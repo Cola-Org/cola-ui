@@ -46,6 +46,7 @@
 <hr>
 <ul>
 	<li c-repeat="address in addresses">
+		<span c-bind="$index"></span>
 		<span c-bind="address.city"></span>
 		<span c-bind="address.postCode"></span>
 		<input c-bind="address.city">

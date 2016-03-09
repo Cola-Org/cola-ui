@@ -112,30 +112,64 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
 			templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY)
-			itemDom = @createNewItem(domBinding, templateDom, domBinding.scope, arg.entity)
+
+			entity = arg.entity
+			itemsScope = arg.itemsScope
 			insertMode = arg.insertMode
 			if !insertMode or insertMode == "end"
-				$fly(tailDom).before(itemDom)
+				index = arg.entityList.entityCount
 			else if insertMode == "begin"
-				$fly(headDom).after(itemDom)
-			else if domBinding.itemDomBindingMap
-				refEntityId = cola.Entity._getEntityId(arg.refEntity)
-				if refEntityId
-					refDom = domBinding.itemDomBindingMap[refEntityId]?
-					if refDom
-						if insertMode == "before"
-							$fly(refDom).before(itemDom)
-						else
-							$fly(refDom).after(itemDom)
+				index = 1
+			else if insertMode == "before"
+				refItemScope = itemsScope.getItemScope(arg.refEntity)
+				index = refItemScope?.data.getIndex()
+			else if insertMode == "after"
+				refItemScope = itemsScope.getItemScope(arg.refEntity)
+				index = refItemScope?.data.getIndex() + 1
+
+			itemDom = @createNewItem(domBinding, templateDom, domBinding.scope, entity, index)
+
+			if !insertMode or insertMode == "end"
+				$fly(tailDom).before(itemDom)
+			else
+				if insertMode == "begin"
+					$fly(headDom).after(itemDom)
+				else if domBinding.itemDomBindingMap
+					refEntityId = cola.Entity._getEntityId(arg.refEntity)
+					if refEntityId
+						refDom = domBinding.itemDomBindingMap[refEntityId]?
+						if refDom
+							if insertMode == "before"
+								$fly(refDom).before(itemDom)
+							else
+								$fly(refDom).after(itemDom)
+
+				for id, iScope of itemsScope.itemScopeMap
+					i = iScope.data.getIndex()
+					if i >= index and iScope.data.getTargetData() isnt entity
+						iScope.data.setIndex(i + 1)
 			return
+
 		scope.onItemRemove = (arg) ->
-			itemId = cola.Entity._getEntityId(arg.entity)
+			entity = arg.entity
+			itemsScope = arg.itemsScope
+
+			itemId = cola.Entity._getEntityId(entity)
 			if itemId
+				itemScope = itemsScope.getItemScope(entity)
+
 				itemDomBinding = domBinding.itemDomBindingMap[itemId]
 				if itemDomBinding
-					arg.itemsScope.unregItemScope(itemId)
+					itemsScope.unregItemScope(itemId)
 					itemDomBinding.remove()
 					delete domBinding.currentItemDom if itemDomBinding.dom == domBinding.currentItemDom
+
+				if itemScope
+					index = itemScope.data.getIndex()
+					if index < arg.entityList.entityCount
+						for id, iScope of itemsScope.itemScopeMap
+							i = iScope.data.getIndex()
+							if i > index then iScope.data.setIndex(i - 1)
 			return
 
 		domBinding.subScopeCreated = true
@@ -173,7 +207,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				scope.resetItemScopeMap()
 
 				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
-				cola.each items, (item) =>
+				cola.each items, (item, i) =>
 					if !item? then return
 
 					itemDom = currentDom.nextSibling
@@ -190,8 +224,9 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						itemDomBinding.itemId = itemId
 						domBinding.itemDomBindingMap[itemId] = itemDomBinding
 						itemScope.data.setTargetData(item)
+						itemScope.data.setIndex(i + 1)
 					else
-						itemDom = @createNewItem(domBinding, templateDom, scope, item)
+						itemDom = @createNewItem(domBinding, templateDom, scope, item, i + 1)
 						documentFragment ?= document.createDocumentFragment()
 						documentFragment.appendChild(itemDom)
 						$fly(tailDom).before(itemDom)
@@ -213,9 +248,10 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				$fly(tailDom).before(documentFragment)
 		return
 
-	createNewItem: (repeatDomBinding, templateDom, scope, item) ->
+	createNewItem: (repeatDomBinding, templateDom, scope, item, index) ->
 		itemScope = new cola.ItemScope(scope, @alias)
 		itemScope.data.setTargetData(item, true)
+		itemScope.data.setIndex(index, true)
 
 		itemDom = templateDom.cloneNode(true)
 

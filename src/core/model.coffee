@@ -965,11 +965,29 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 class cola.ItemDataModel extends cola.AliasDataModel
 
+	getIndex: () -> @_index
+	setIndex: (index, silence) ->
+		@_index = index
+		if !silence
+			@_onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+				entity: null
+				property: cola.constants.REPEAT_INDEX
+				value: index
+			})
+		return
+
 	get: (path, loadMode, context) ->
-		return super(path, loadMode, context)
+		if path is cola.constants.REPEAT_INDEX
+			return @getIndex()
+		else
+			return super(path, loadMode, context)
 
 	set: (path, data, context) ->
-		return super(path, data, context)
+		if path is cola.constants.REPEAT_INDEX
+			@setIndex(data)
+		else
+			super(path, data, context)
+		return
 
 ###
 Root Model
