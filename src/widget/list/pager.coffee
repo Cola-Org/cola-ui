@@ -219,22 +219,22 @@ class cola.Pager extends cola.Menu
 	pagerItemsRefresh: () ->
 		pager = @
 		data = pager._getBindItems()
-		hasPrev = true
-		hasNext = true
+		hasPrev = false
+		hasNext = false
 		pageNo = 0
 		pageCount = 0
 
 		if data
 			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
-			hasPrev = data.pageNo is 1
-			hasNext = pageCount is data.pageNo
+			hasPrev = data.pageNo > 1
+			hasNext = pageCount > data.pageNo
 			pageNo = data.pageNo
 			pageCount = data.pageCount
 		@_pageNo = pageNo
-		pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", hasPrev)
-		pager._pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", hasPrev)
-		pager._pagerItemMap["nextPage"]?.get$Dom().toggleClass("disabled", hasNext)
-		pager._pagerItemMap["lastPage"]?.get$Dom().toggleClass("disabled", hasNext)
+		pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", !hasPrev)
+		pager._pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", !hasPrev)
+		pager._pagerItemMap["nextPage"]?.get$Dom().toggleClass("disabled", !hasNext)
+		pager._pagerItemMap["lastPage"]?.get$Dom().toggleClass("disabled", !hasNext)
 		infoItem = pager._pagerItemMap["info"]
 		if infoItem
 			infoItemDom = if infoItem.nodeType is 1 then infoItem else  infoItem.getDom()
