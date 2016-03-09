@@ -60,7 +60,7 @@ cola.route = (path, router) ->
 		router.hasVariable = hasVariable
 
 	routerRegistry.add(path, router)
-	return @
+	return router
 
 cola.getCurrentRoutePath = () ->
 	return currentRoutePath
