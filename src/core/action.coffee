@@ -66,6 +66,7 @@ cola.defaultAction.len = (value) ->
 
 cola.defaultAction["upperCase"] = (value) -> value?.toUpperCase()
 cola.defaultAction["lowerCase"] = (value) -> value?.toLowerCase()
+cola.defaultAction["capitalize"] = (value) -> cola.util.capitalize(value)
 
 cola.defaultAction.resource = (key, params...) -> cola.resource(key, params...)
 

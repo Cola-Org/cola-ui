@@ -174,7 +174,6 @@ class cola.Property extends cola.Definition
 				@_provider = provider
 				return
 		defaultValue: null
-		required: null
 		aggregated:
 			readOnlyAfterCreate: true
 		validators:
@@ -183,8 +182,6 @@ class cola.Property extends cola.Definition
 					if not (validator instanceof cola.Validator)
 						validator = cola.create("validator", validator, cola.Validator)
 					@_validators.push(validator)
-					if validator instanceof cola.RequiredValidator and not @_required
-						@_required = true
 					return
 
 				delete @_validators

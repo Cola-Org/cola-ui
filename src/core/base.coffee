@@ -286,7 +286,7 @@ cola.resource = (key, params...) ->
 			else
 				return templ
 		else
-			return key
+			return if params?.length then params[0] else key
 	else
 		# resource(bundle)
 		# load resource resources from bundle(json format)
