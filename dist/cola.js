@@ -27,6 +27,7 @@
     IGNORE_DIRECTIVE: "c-ignore",
     COLLECTION_CURRENT_CLASS: "current",
     DEFAULT_PATH: "$root",
+    REPEAT_INDEX: "$index",
     DOM_USER_DATA_KEY: "_d",
     DOM_BINDING_KEY: "_binding",
     DOM_INITIALIZER_KEY: "_initialize",
@@ -803,7 +804,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -840,8 +841,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -922,7 +923,7 @@
           return templ;
         }
       } else {
-        return key;
+        return (params != null ? params[0] : void 0) || key;
       }
     } else {
       bundle = key;
@@ -3323,7 +3324,6 @@
         }
       },
       defaultValue: null,
-      required: null,
       aggregated: {
         readOnlyAfterCreate: true
       },
@@ -3336,9 +3336,6 @@
                 validator = cola.create("validator", validator, cola.Validator);
               }
               _this._validators.push(validator);
-              if (validator instanceof cola.RequiredValidator && !_this._required) {
-                _this._required = true;
-              }
             };
           })(this);
           delete this._validators;
@@ -7081,12 +7078,35 @@
       return ItemDataModel.__super__.constructor.apply(this, arguments);
     }
 
+    ItemDataModel.prototype.getIndex = function() {
+      return this._index;
+    };
+
+    ItemDataModel.prototype.setIndex = function(index, silence) {
+      this._index = index;
+      if (!silence) {
+        this._onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+          entity: null,
+          property: cola.constants.REPEAT_INDEX,
+          value: index
+        });
+      }
+    };
+
     ItemDataModel.prototype.get = function(path, loadMode, context) {
-      return ItemDataModel.__super__.get.call(this, path, loadMode, context);
+      if (path === cola.constants.REPEAT_INDEX) {
+        return this.getIndex();
+      } else {
+        return ItemDataModel.__super__.get.call(this, path, loadMode, context);
+      }
     };
 
     ItemDataModel.prototype.set = function(path, data, context) {
-      return ItemDataModel.__super__.set.call(this, path, data, context);
+      if (path === cola.constants.REPEAT_INDEX) {
+        this.setIndex(data);
+      } else {
+        ItemDataModel.__super__.set.call(this, path, data, context);
+      }
     };
 
     return ItemDataModel;
@@ -7395,6 +7415,10 @@
 
   cola.defaultAction["lowerCase"] = function(value) {
     return value != null ? value.toLowerCase() : void 0;
+  };
+
+  cola.defaultAction["capitalize"] = function(value) {
+    return cola.util.capitalize(value);
   };
 
   cola.defaultAction.resource = function() {
@@ -7902,7 +7926,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7920,8 +7944,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -8045,7 +8069,7 @@
       router.hasVariable = hasVariable;
     }
     routerRegistry.add(path, router);
-    return this;
+    return router;
   };
 
   cola.getCurrentRoutePath = function() {
@@ -8506,41 +8530,80 @@
       };
       scope.onItemInsert = (function(_this) {
         return function(arg) {
-          var headDom, insertMode, itemDom, refDom, refEntityId, tailDom, templateDom;
+          var entity, headDom, i, iScope, id, index, insertMode, itemDom, itemsScope, ref, refDom, refEntityId, refItemScope, tailDom, templateDom;
           headDom = domBinding.dom;
           tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY);
           templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY);
-          itemDom = _this.createNewItem(domBinding, templateDom, domBinding.scope, arg.entity);
+          entity = arg.entity;
+          itemsScope = arg.itemsScope;
           insertMode = arg.insertMode;
           if (!insertMode || insertMode === "end") {
-            $fly(tailDom).before(itemDom);
+            index = arg.entityList.entityCount;
           } else if (insertMode === "begin") {
-            $fly(headDom).after(itemDom);
-          } else if (domBinding.itemDomBindingMap) {
-            refEntityId = cola.Entity._getEntityId(arg.refEntity);
-            if (refEntityId) {
-              refDom = domBinding.itemDomBindingMap[refEntityId] != null;
-              if (refDom) {
-                if (insertMode === "before") {
-                  $fly(refDom).before(itemDom);
-                } else {
-                  $fly(refDom).after(itemDom);
+            index = 1;
+          } else if (insertMode === "before") {
+            refItemScope = itemsScope.getItemScope(arg.refEntity);
+            index = refItemScope != null ? refItemScope.data.getIndex() : void 0;
+          } else if (insertMode === "after") {
+            refItemScope = itemsScope.getItemScope(arg.refEntity);
+            index = (refItemScope != null ? refItemScope.data.getIndex() : void 0) + 1;
+          }
+          itemDom = _this.createNewItem(domBinding, templateDom, domBinding.scope, entity, index);
+          if (!insertMode || insertMode === "end") {
+            $fly(tailDom).before(itemDom);
+          } else {
+            if (insertMode === "begin") {
+              $fly(headDom).after(itemDom);
+            } else if (domBinding.itemDomBindingMap) {
+              refEntityId = cola.Entity._getEntityId(arg.refEntity);
+              if (refEntityId) {
+                refDom = domBinding.itemDomBindingMap[refEntityId] != null;
+                if (refDom) {
+                  if (insertMode === "before") {
+                    $fly(refDom).before(itemDom);
+                  } else {
+                    $fly(refDom).after(itemDom);
+                  }
                 }
+              }
+            }
+            ref = itemsScope.itemScopeMap;
+            for (id in ref) {
+              iScope = ref[id];
+              i = iScope.data.getIndex();
+              if (i >= index && iScope.data.getTargetData() !== entity) {
+                iScope.data.setIndex(i + 1);
               }
             }
           }
         };
       })(this);
       scope.onItemRemove = function(arg) {
-        var itemDomBinding, itemId;
-        itemId = cola.Entity._getEntityId(arg.entity);
+        var entity, i, iScope, id, index, itemDomBinding, itemId, itemScope, itemsScope, ref;
+        entity = arg.entity;
+        itemsScope = arg.itemsScope;
+        itemId = cola.Entity._getEntityId(entity);
         if (itemId) {
+          itemScope = itemsScope.getItemScope(entity);
           itemDomBinding = domBinding.itemDomBindingMap[itemId];
           if (itemDomBinding) {
-            arg.itemsScope.unregItemScope(itemId);
+            itemsScope.unregItemScope(itemId);
             itemDomBinding.remove();
             if (itemDomBinding.dom === domBinding.currentItemDom) {
               delete domBinding.currentItemDom;
+            }
+          }
+          if (itemScope) {
+            index = itemScope.data.getIndex();
+            if (index < arg.entityList.entityCount) {
+              ref = itemsScope.itemScopeMap;
+              for (id in ref) {
+                iScope = ref[id];
+                i = iScope.data.getIndex();
+                if (i > index) {
+                  iScope.data.setIndex(i - 1);
+                }
+              }
             }
           }
         }
@@ -8580,7 +8643,7 @@
             $fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS);
           }
           cola.each(items, (function(_this) {
-            return function(item) {
+            return function(item, i) {
               var itemDom, itemDomBinding, itemId, itemScope;
               if (item == null) {
                 return;
@@ -8601,8 +8664,9 @@
                 itemDomBinding.itemId = itemId;
                 domBinding.itemDomBindingMap[itemId] = itemDomBinding;
                 itemScope.data.setTargetData(item);
+                itemScope.data.setIndex(i + 1);
               } else {
-                itemDom = _this.createNewItem(domBinding, templateDom, scope, item);
+                itemDom = _this.createNewItem(domBinding, templateDom, scope, item, i + 1);
                 if (documentFragment == null) {
                   documentFragment = document.createDocumentFragment();
                 }
@@ -8630,10 +8694,11 @@
       }
     };
 
-    _RepeatFeature.prototype.createNewItem = function(repeatDomBinding, templateDom, scope, item) {
+    _RepeatFeature.prototype.createNewItem = function(repeatDomBinding, templateDom, scope, item, index) {
       var domBinding, itemDom, itemId, itemScope, templateDomBinding;
       itemScope = new cola.ItemScope(scope, this.alias);
       itemScope.data.setTargetData(item, true);
+      itemScope.data.setIndex(index, true);
       itemDom = templateDom.cloneNode(true);
       this.deepCloneNodeData(itemDom, itemScope, false);
       templateDomBinding = cola.util.userData(templateDom, cola.constants.DOM_BINDING_KEY);
@@ -14231,7 +14296,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14239,8 +14304,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -20474,7 +20539,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20487,8 +20552,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
