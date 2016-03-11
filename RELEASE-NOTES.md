@@ -4,6 +4,7 @@
 **Bug 修复**
 - **Pager** - 在$entityCount=0情况下 下一页按钮可单击的Bug
 - **RadioGroup** - 控件dom上value值为none的bug
+- **字体请求** - 修复默认上google请求字体导致的页面停止渲染
 
 **小改进**
 - **布局** - h-box默认宽度设定为100%、 v-box默认高度设定为100%
