@@ -299,7 +299,7 @@ class cola.ResourceException extends cola.Exception
 		super(cola.resource(key, params...))
 
 ###
-Mothods
+Methods
 ###
 
 cola.callback = (callback, success, result) ->

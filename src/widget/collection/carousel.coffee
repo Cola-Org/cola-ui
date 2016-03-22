@@ -22,10 +22,11 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 	_parseDom: (dom)->
 		parseItem = (node)=>
-			@_items = []
 			childNode = node.firstChild
 			while childNode
-				@addItem(childNode) if childNode.nodeType == 1
+				if childNode.nodeType == 1
+					@_items = [] unless @_items
+					@addItem(childNode)
 				childNode = childNode.nextSibling
 			return
 
@@ -84,7 +85,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			@_doms.wrap.appendChild(template)
 			cola.xRender(template, @_scope)
 
-		if @_items
+		if @_getItems().items
 			@_itemsRender()
 			@refreshIndicators()
 
@@ -123,6 +124,12 @@ class cola.Carousel extends cola.AbstractItemGroup
 			}))
 		return
 
+	_getItems: () ->
+		if @_items
+			return {items: @_items}
+		else
+			return super()
+
 	setCurrentIndex: (index)->
 		@fire("change", @, {index: index})
 		@_currentIndex = index
@@ -139,7 +146,12 @@ class cola.Carousel extends cola.AbstractItemGroup
 		return @
 
 	refreshIndicators: ()->
-		itemsCount = @_items?.length
+		items = @_getItems().items
+		if items
+			itemsCount = if items instanceof cola.EntityList then items.entityCount else items.length
+		else
+			itemsCount = 0
+
 		return unless @_doms?.indicators
 		indicatorCount = @_doms.indicators.children.length
 
@@ -163,19 +175,21 @@ class cola.Carousel extends cola.AbstractItemGroup
 		return @
 
 	next: ()->
-		if @_scroller
+		items = @_getItems().items
+		if items and @_scroller
 			pos = @_scroller.getPos()
-			if pos == (@_items.length - 1)
+			if pos == (items.length - 1)
 				@goTo(0)
 			else
 				@_scroller.next()
 		return @
 
 	previous: ()->
-		if @_scroller
+		items = @_getItems().items
+		if items and @_scroller
 			pos = @_scroller.getPos()
 			if pos == 0
-				@goTo(@_items.length - 1)
+				@goTo(_items.length - 1)
 			else
 				@_scroller.prev()
 
