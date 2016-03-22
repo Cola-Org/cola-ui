@@ -804,7 +804,7 @@
     }
 
     Exception.processException = function(ex) {
-      var error1, ex2, scope;
+      var ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -841,8 +841,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (error1) {
-          ex2 = error1;
+        } catch (_error) {
+          ex2 = _error;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -7926,7 +7926,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, error1, head, scriptElement;
+        var e, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7944,8 +7944,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (error1) {
-          e = error1;
+        } catch (_error) {
+          e = _error;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -14296,7 +14296,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e, error;
+      var contentWindow, e;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14304,8 +14304,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (error) {
-        e = error;
+      } catch (_error) {
+        e = _error;
       }
       return contentWindow;
     };
@@ -20539,7 +20539,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, error, pos;
+      var activeSpan, e, pos;
       this.fire("change", this, {
         index: index
       });
@@ -20552,8 +20552,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (error) {
-            e = error;
+          } catch (_error) {
+            e = _error;
           }
         }
         if (this._scroller) {
