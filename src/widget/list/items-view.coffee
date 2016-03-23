@@ -24,7 +24,6 @@ class cola.ItemsView extends cola.Widget
 
 		autoLoadPage:
 			type: "boolean"
-			defaultValue: true
 
 		changeCurrentItem:
 			type: "boolean"

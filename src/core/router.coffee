@@ -184,6 +184,7 @@ _switchRouter = (router, path) ->
 
 	if router.templateUrl
 		model = cola.createRouterModel(router)
+		eventArg.nextModel = model
 		cola.util.userData(router.targetDom, "_model", model)
 		cola.loadSubView(router.targetDom, {
 			model: model
@@ -201,7 +202,6 @@ _switchRouter = (router, path) ->
 		router.enter?(router, null)
 		document.title = router.title if router.title
 
-	eventArg.nextModel = model
 	cola.fire("routerSwitch", cola, eventArg)
 	return
 

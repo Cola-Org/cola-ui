@@ -149,7 +149,7 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 			if not options.data? then options.data = {}
 			if cola.setting("pagingParamStyle") is "from"
 				options.data.from = @from
-				options.data.limit = @limit
+				options.data.limit = @limit + (if @detectEnd then 1 else 0)
 			else
 				options.data.pageSize = @pageSize
 				options.data.pageNo = @pageNo
@@ -157,9 +157,9 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 
 	_beforeSend: (options) ->
 		if not @pageNo >= 1 then @pageNo = 1
-		@from = @pageSize * (@pageNo - 1) if @pageSize > 1 and @pageNo > 1
-		@limit = @pageSize + (if @detectEnd then 1 else 0)
-		@applyPagingParameters(options)
+		@from = @pageSize * (@pageNo - 1)
+		@limit = @pageSize
+		@applyPagingParameters(options) if @pageSize
 		return
 
 class cola.Provider extends cola.AjaxService
@@ -229,7 +229,7 @@ class cola.Provider extends cola.AjaxService
 	translateResult: (result, invokerOptions) ->
 		if @_detectEnd and result instanceof Array
 			if result.length >= @_pageSize
-				result.pop()
+				result = result.slice(0, @_pageSize)
 			else
 				result = {
 					$entityCount: (invokerOptions.data.from or 0) + result.length
