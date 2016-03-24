@@ -20,7 +20,13 @@
 		cola(function (model) {
 			model.describe({
 				id: {
-					validators: ["required", "email"]
+					validators: ["required", new cola.CustomValidator({
+						func: function (value) {
+							console.log(value)
+						}
+					}),function(value,ddd){
+						console.log(value)
+					}]
 				},
 				num: {
 					dataType: "int",

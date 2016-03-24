@@ -1,32 +1,6 @@
-[
-	{
-		"name": "Javascript"
-	},
-	{
-		"name": "Java"
-	},
-	{
-		"name": "C"
-	},
-	{
-		"name": "C++"
-	},
-	{
-		"name": "Coffee"
-	},
-	{
-		"name": "Ruby"
-	},
-	{
-		"name": "R"
-	},
-	{
-		"name": "Python"
-	},
-	{
-		"name": "Pascal"
-	},
-	{
-		"name": "Go"
-	}
-]
+{
+  "$entityCount": 0,
+  "$data": [
+
+  ]
+}

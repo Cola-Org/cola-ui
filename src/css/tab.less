@@ -1,7 +1,7 @@
 //@import (optional) '../../semantic-src/themes/default/collections/menu.variables';
 @import (reference) "global";
 
-@lineHeight: 48px;
+@lineHeight: 38px;
 @boxShadowColor: rgba(0, 0, 0, .4);
 @color: #29324e;
 @maxWidth: 100%;
@@ -16,10 +16,10 @@
 
 .ui.card-book {
 	overflow: hidden;
-	>.item {
+	> .item {
 		display: none;
 	}
-	>.item.active {
+	> .item.active {
 		display: block;
 	}
 }
@@ -92,16 +92,26 @@
 		list-style: none;
 		margin: 0;
 		padding: 1em;
-		>.item {
+		> .item {
 			display: none;
 		}
-		>.item.active {
+		> .item.active {
 			display: block;
 		}
 		top: @lineHeight;
 		bottom: 0;
 		right: 0;
 		left: 0;
+	}
+	&.top-bar {
+		> .tab-bar {
+			> .tabs {
+				> .tab-button {
+					//border-top-right-radius: 2px;
+					//border-top-left-radius: 2px;
+				}
+			}
+		}
 	}
 
 	&.bottom-bar {

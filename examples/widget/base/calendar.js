@@ -7,7 +7,14 @@
  */
 
 
-var calendar=new cola.Calendar()
-window.document.body.appendChild(calendar.getDom())
+cola(function(model){
+	model.widgetConfig({
+		calendar:{
+			$type:"calendar",
+			monthChange:function(self,arg){
+				console.log(arg)
+			}
+		}
+	})
 
-
+});

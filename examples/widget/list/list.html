@@ -34,7 +34,7 @@
 				},
 				listTemplate: {
 					$type: "listView",
-					bind: "language in languages | sort:sortParam",
+					bind: "language in sort(languages,sortParam)",
 					group: true,
 					indexBar: true,
 //					height: 260,

@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.2
+/*! Cola UI - 0.8.3
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -7,6 +7,7 @@
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
+
 template {
   display: none;
 }
@@ -289,14 +290,6 @@ template {
 [class*="block-grid-"]:after {
   display: table;
   content: "";
-}
-[class*="block-grid-"]:after {
-  clear: both;
-}
-[class*="block-grid-"]:before,
-[class*="block-grid-"]:after {
-  content: " ";
-  display: table;
 }
 [class*="block-grid-"]:after {
   clear: both;
@@ -954,14 +947,6 @@ template {
 .row:after {
   clear: both;
 }
-.row:before,
-.row:after {
-  content: " ";
-  display: table;
-}
-.row:after {
-  clear: both;
-}
 .row.collapse > .column,
 .row.collapse > .columns {
   padding-left: 0;
@@ -985,14 +970,6 @@ template {
 .row .row:after {
   clear: both;
 }
-.row .row:before,
-.row .row:after {
-  content: " ";
-  display: table;
-}
-.row .row:after {
-  clear: both;
-}
 .row .row.collapse {
   *zoom: 1;
   margin: 0;
@@ -1003,14 +980,6 @@ template {
 .row .row.collapse:after {
   display: table;
   content: "";
-}
-.row .row.collapse:after {
-  clear: both;
-}
-.row .row.collapse:before,
-.row .row.collapse:after {
-  content: " ";
-  display: table;
 }
 .row .row.collapse:after {
   clear: both;
@@ -4116,7 +4085,7 @@ template {
   overflow: hidden;
   display: inline-block;
   width: 100%;
-  height: 48px;
+  height: 38px;
   background: #f4f4f4;
   box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
   color: #29324e;
@@ -4129,7 +4098,7 @@ template {
 }
 .ui.c-tab > .tab-bar > .tabs > .tab-button {
   cursor: pointer;
-  line-height: 48px;
+  line-height: 38px;
   padding: 0 .5em 0 1em;
   float: left;
   font-size: 1em;
@@ -4174,7 +4143,7 @@ template {
   list-style: none;
   margin: 0;
   padding: 1em;
-  top: 48px;
+  top: 38px;
   bottom: 0;
   right: 0;
   left: 0;
@@ -4197,7 +4166,7 @@ template {
 .ui.c-tab.bottom-bar > .contents {
   overflow: auto;
   top: 0;
-  bottom: 48px;
+  bottom: 38px;
 }
 .ui.c-tab.left-bar > .tab-bar,
 .ui.c-tab.right-bar > .tab-bar {
@@ -4212,8 +4181,8 @@ template {
 .ui.c-tab.left-bar > .tab-bar > .tabs > .tab-button,
 .ui.c-tab.right-bar > .tab-bar > .tabs > .tab-button {
   float: none;
-  height: 48px;
-  line-height: 48px;
+  height: 38px;
+  line-height: 38px;
   display: block;
 }
 .ui.c-tab.left-bar > .contents,
@@ -4979,7 +4948,7 @@ template {
 }
 .calendar .date-table-wrapper {
   position: relative;
-  min-height: 400px;
+  min-height: 200px;
   min-width: 300px;
 }
 .calendar .date-table-wrapper .ui.stack {

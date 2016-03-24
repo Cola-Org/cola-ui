@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.2
+/*! Cola UI - 0.8.3
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -949,7 +949,7 @@
 
 
   /*
-  Mothods
+  Methods
    */
 
   cola.callback = function(callback, success, result) {
@@ -2476,7 +2476,7 @@
         }
         if (cola.setting("pagingParamStyle") === "from") {
           options.data.from = this.from;
-          options.data.limit = this.limit;
+          options.data.limit = this.limit + (this.detectEnd ? 1 : 0);
         } else {
           options.data.pageSize = this.pageSize;
           options.data.pageNo = this.pageNo;
@@ -2488,11 +2488,11 @@
       if (!this.pageNo >= 1) {
         this.pageNo = 1;
       }
-      if (this.pageSize > 1 && this.pageNo > 1) {
-        this.from = this.pageSize * (this.pageNo - 1);
+      this.from = this.pageSize * (this.pageNo - 1);
+      this.limit = this.pageSize;
+      if (this.pageSize) {
+        this.applyPagingParameters(options);
       }
-      this.limit = this.pageSize + (this.detectEnd ? 1 : 0);
-      this.applyPagingParameters(options);
     };
 
     return ProviderInvoker;
@@ -2592,7 +2592,7 @@
     Provider.prototype.translateResult = function(result, invokerOptions) {
       if (this._detectEnd && result instanceof Array) {
         if (result.length >= this._pageSize) {
-          result.pop();
+          result = result.slice(0, this._pageSize);
         } else {
           result = {
             $entityCount: (invokerOptions.data.from || 0) + result.length,
@@ -8229,6 +8229,7 @@
     currentRouter = router;
     if (router.templateUrl) {
       model = cola.createRouterModel(router);
+      eventArg.nextModel = model;
       cola.util.userData(router.targetDom, "_model", model);
       cola.loadSubView(router.targetDom, {
         model: model,
@@ -8254,7 +8255,6 @@
         document.title = router.title;
       }
     }
-    eventArg.nextModel = model;
     cola.fire("routerSwitch", cola, eventArg);
   };
 
@@ -9859,7 +9859,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.8.2
+/*! Cola UI - 0.8.3
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -13620,7 +13620,7 @@
       DateGrid.prototype.getDateCellDom = function(date) {
         var value;
         value = new XDate(date).toString("yyyy-M-d");
-        return $(this._dom).find("td[c-date='" + value + "']");
+        return $(this._dom).find("td[cell-date='" + value + "']");
       };
 
       DateGrid.prototype.doRefreshCell = function(cell, row, column) {
@@ -13632,7 +13632,7 @@
         cellState = state[row * 7 + column];
         $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
         ym = this.getYMForState(cellState);
-        $fly(cell).attr("c-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+        $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
         if (cellState.type === "normal") {
           if (this._year === this._calendar._year && this._month === this._calendar._month && cellState.text === this._calendar._monthDate) {
             $fly(cell).addClass("selected");
@@ -13704,7 +13704,8 @@
       };
 
       SwipePicker.EVENTS = {
-        change: null
+        change: null,
+        monthChange: null
       };
 
       SwipePicker.prototype.createDateTable = function(dom) {
@@ -13756,7 +13757,7 @@
       };
 
       SwipePicker.prototype.setState = function(year, month) {
-        var nextM, nextY, prevM, prevY;
+        var nextM, nextY, prevM, prevY, ref;
         this._current.setState(year, month);
         prevY = month === 0 ? year - 1 : year;
         prevM = month === 0 ? 11 : month - 1;
@@ -13764,6 +13765,12 @@
         nextY = month === 11 ? year + 1 : year;
         nextM = month === 11 ? 0 : month + 1;
         this._next.setState(nextY, nextM);
+        if ((ref = this._calendar) != null) {
+          ref.fire("monthChange", this._calendar, {
+            year: year,
+            month: month
+          });
+        }
         return this;
       };
 
@@ -13959,6 +13966,7 @@
       Calendar.EVENTS = {
         refreshCellDom: null,
         change: null,
+        monthChange: null,
         cellClick: null
       };
 
@@ -13985,15 +13993,15 @@
         });
       };
 
-      Calendar.prototype._createDom = function() {
-        var allWeeks, cal, dom, picker, weeks;
+      Calendar.prototype._initDom = function(dom) {
+        var allWeeks, cDom, cal, picker, weeks;
         allWeeks = cola.resource("cola.date.dayNamesShort");
         weeks = allWeeks.split(",");
         cal = this;
         if (this._doms == null) {
           this._doms = {};
         }
-        dom = $.xCreate({
+        cDom = $.xCreate({
           tagName: "div",
           content: [
             {
@@ -14090,10 +14098,10 @@
             }
           }
         });
-        picker.appendTo(dom);
+        picker.appendTo(cDom);
         this._doms.dateTableWrapper = picker._dom;
         cal.bindButtonsEvent();
-        return dom;
+        return $(dom).append(cDom);
       };
 
       Calendar.prototype.setState = function(year, month) {
@@ -16975,10 +16983,10 @@
         return;
       }
       this._value = value;
-      this.fire("change", this, arg);
       if (value !== this._modelValue) {
         this.post();
       }
+      this.fire("change", this, arg);
       return true;
     };
 
@@ -20413,10 +20421,12 @@
       parseItem = (function(_this) {
         return function(node) {
           var childNode;
-          _this._items = [];
           childNode = node.firstChild;
           while (childNode) {
             if (childNode.nodeType === 1) {
+              if (!_this._items) {
+                _this._items = [];
+              }
               _this.addItem(childNode);
             }
             childNode = childNode.nextSibling;
@@ -20493,7 +20503,7 @@
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
       }
-      if (this._items) {
+      if (this._getItems().items) {
         this._itemsRender();
         this.refreshIndicators();
       }
@@ -20538,6 +20548,16 @@
       }
     };
 
+    Carousel.prototype._getItems = function() {
+      if (this._items) {
+        return {
+          items: this._items
+        };
+      } else {
+        return Carousel.__super__._getItems.call(this);
+      }
+    };
+
     Carousel.prototype.setCurrentIndex = function(index) {
       var activeSpan, e, pos;
       this.fire("change", this, {
@@ -20567,9 +20587,14 @@
     };
 
     Carousel.prototype.refreshIndicators = function() {
-      var currentIndex, i, indicatorCount, itemsCount, ref, ref1, span;
-      itemsCount = (ref = this._items) != null ? ref.length : void 0;
-      if (!((ref1 = this._doms) != null ? ref1.indicators : void 0)) {
+      var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
+      items = this._getItems().items;
+      if (items) {
+        itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
+      } else {
+        itemsCount = 0;
+      }
+      if (!((ref = this._doms) != null ? ref.indicators : void 0)) {
         return;
       }
       indicatorCount = this._doms.indicators.children.length;
@@ -20599,10 +20624,11 @@
     };
 
     Carousel.prototype.next = function() {
-      var pos;
-      if (this._scroller) {
+      var items, pos;
+      items = this._getItems().items;
+      if (items && this._scroller) {
         pos = this._scroller.getPos();
-        if (pos === (this._items.length - 1)) {
+        if (pos === (items.length - 1)) {
           this.goTo(0);
         } else {
           this._scroller.next();
@@ -20612,11 +20638,12 @@
     };
 
     Carousel.prototype.previous = function() {
-      var pos;
-      if (this._scroller) {
+      var items, pos;
+      items = this._getItems().items;
+      if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === 0) {
-          this.goTo(this._items.length - 1);
+          this.goTo(_items.length - 1);
         } else {
           this._scroller.prev();
         }
@@ -22511,7 +22538,7 @@
     Stack.duration = 200;
 
     Stack.prototype._initDom = function(dom) {
-      var itemsWrap;
+      var itemsWrap, width;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -22537,9 +22564,25 @@
       this._prevItem = this._doms.prevItem;
       this._currentItem = this._doms.currentItem;
       this._nextItem = this._doms.nextItem;
-      return $fly(this._currentItem).css({
+      width = this._currentItem.clientWidth;
+      $fly(this._currentItem).css({
         display: "block"
       });
+      this._bindTouch();
+      $fly(this._currentItem).css("transform", "translate(-" + width + "px,0)");
+      if (direction === "left") {
+        $fly(this._prevItem).css("display", "none");
+        $fly(this._nextItem).css({
+          transform: "translate(" + width + "px,0)",
+          display: "block"
+        });
+      } else {
+        $fly(this._nextItem).css("display", "none");
+        $fly(this._prevItem).css({
+          transform: "translate(" + (2 * width) + "px,0)",
+          display: "block"
+        });
+      }
     };
 
     Stack.prototype._parseDom = function(dom) {
@@ -22595,15 +22638,19 @@
     };
 
     Stack.prototype._setDom = function(dom, parseChild) {
+      return Stack.__super__._setDom.call(this, dom, parseChild);
+    };
+
+    Stack.prototype._bindTouch = function() {
       var stack;
-      Stack.__super__._setDom.call(this, dom, parseChild);
       stack = this;
-      return $(dom).on("touchstart", function(evt) {
-        return stack._onTouchStart(evt);
+      $(this._dom).on("touchstart", function(evt) {
+        stack._onTouchStart(evt);
       }).on("touchmove", function(evt) {
-        return stack._onTouchMove(evt);
-      }).on("touchend", function(evt) {
-        return stack._onTouchEnd(evt);
+        stack._onTouchMove(evt);
+      });
+      return $(window.document.body).on("touchend", function(evt) {
+        stack._onTouchEnd(evt);
       });
     };
 
@@ -22898,8 +22945,7 @@
         type: "boolean"
       },
       autoLoadPage: {
-        type: "boolean",
-        defaultValue: true
+        type: "boolean"
       },
       changeCurrentItem: {
         type: "boolean"
@@ -25989,6 +26035,7 @@
             } else if (node.get("hasChild") !== false) {
               _this.expand(node);
             }
+            return false;
           }
         };
       })(this));

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>日志查看</title>
+	<script src="../../include-all.js"></script>
+
+<script type="text/javascript">
+	cola(function(model) {
+		model.action({
+			modify : function(item) {
+				var dialog = cola.widget("dLog");
+				dialog.show();
+			},
+			remove : function(item) {
+				item.remove();
+			}
+		});
+		<!--
+		model.describe("items", {
+			provider : "dorado/ajaxService?bean=unitService&method=getLogs"
+		});
+		-->
+		model.set("items", [ {
+			"id" : "402892eb52816e280152816e5e5e0000",
+			"unitId" : "2",
+			"startDate" : 1453870440027,
+			"endDate" : 1453870440573,
+			"successful" : true,
+			"exceptionMessage" : null
+		}, {
+			"id" : "402892eb52816e280152816e5e600001",
+			"unitId" : "40289206527b56fe01527b808679002e",
+			"startDate" : 1453870440030,
+			"endDate" : 1453870440413,
+			"successful" : true,
+			"exceptionMessage" : null
+		} ]);
+		model.widgetConfig({
+			tableLog : {
+				$type : "table",
+				bind : "item in items",
+				showHeader : true,
+				height : 300,
+				columns : [ {
+					caption : "监控点",
+					bind : ".unitId"
+				}, {
+					caption : "日期",
+					bind : "formatDate(item.startDate, 'yyyy-MM-dd HH:mm')"
+				}, {
+					caption : "操作",
+					align : "center",
+					template : "operations"
+				} ]
+			}
+		});
+	});
+</script>
+</head>
+<body style="padding: 1em">
+
+	<div id="tableLog">
+		<template name="operations">
+		<div class="h-box center">
+			<div class="box"
+				c-widget="button;caption:Modify;class:green;size:mini;click:{{modify(item)}}"></div>
+			<div class="box"
+				c-widget="button;caption:Del;class:red;size:mini;click:{{remove(item)}}"></div>
+		</div>
+		</template>
+	</div>
+
+	<!-- <div c-widget="form" style="max-width:400px">
+    <div class="field">
+        <div c-widget="input; bind:item.id"></div>
+    </div>
+    <div class="field">
+        <div c-widget="input; bind:item.startDate"></div>
+    </div></div> -->
+
+	<div id="dLog" c-widget="Dialog; width:150px; ">
+		<div class="content">
+			<div class="description">
+				<div class="ui header">个人信息</div>
+				<p>此图片为您上传的头像，还可以从系统预设里选择个性头像。</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -127,7 +127,7 @@ class cola.Tree extends cola.ItemsView
 					@collapse(node)
 				else if node.get("hasChild") isnt false
 					@expand(node)
-				return
+				return false
 		)
 
 		itemsScope = @_itemsScope
