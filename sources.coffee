@@ -70,6 +70,7 @@ sources =
 		]
 		collection: [
 			"src/widget/collection/item-group.coffee"
+			"src/widget/collection/items-view.coffee"
 			"src/widget/collection/breadcrumb.coffee"
 			"src/widget/collection/card-book.coffee"
 			"src/widget/collection/carousel.coffee"
@@ -80,7 +81,7 @@ sources =
 			"src/widget/collection/stack.coffee"
 		]
 		list: [
-			"src/widget/list/items-view.coffee"
+			"src/widget/list/abstract-list.coffee"
 			"src/widget/list/pull-action.coffee"
 			"src/widget/list/list.coffee"
 			"src/widget/list/tree-support.coffee"
