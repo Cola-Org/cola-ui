@@ -167,7 +167,7 @@ _columnsSetter = (table, columnConfigs) ->
 	@_columns = columns
 	return
 
-class cola.AbstractTable extends cola.ItemsView
+class cola.AbstractTable extends cola.AbstractList
 	@ATTRIBUTES:
 		items:
 			refreshItems: true

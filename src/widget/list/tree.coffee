@@ -45,7 +45,7 @@ class cola.TreeNodeBind extends cola.CascadeBind
 		autoCheckChildren:
 			defaultValue: true
 
-class cola.Tree extends cola.ItemsView
+class cola.Tree extends cola.AbstractList
 	@CLASS_NAME: "items-view tree"
 
 	@ATTRIBUTES:
