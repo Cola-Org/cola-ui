@@ -164,6 +164,8 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 
 class cola.Provider extends cola.AjaxService
 	@ATTRIBUTES:
+		loadMode:	# lazy、manual
+			defaultValue: "lazy"
 		pageSize: null
 		detectEnd: null
 

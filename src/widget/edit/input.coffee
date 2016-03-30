@@ -361,10 +361,12 @@ class cola.Input extends cola.AbstractInput
 		).on("focus", ()=>
 			@_inputFocused = true
 			@_refreshInputValue(@_value)
+			@addClass("focused") if not @_finalReadOnly
 			@fire("focus", @)
 			return
 		).on("blur", ()=>
 			@_inputFocused = false
+			@removeClass("focused")
 			@_refreshInputValue(@_value)
 			@fire("blur", @)
 

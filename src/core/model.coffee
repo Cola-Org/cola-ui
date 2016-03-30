@@ -491,8 +491,9 @@ DataModel
 ###
 
 class cola.AbstractDataModel
+	disableObserverCount: 0
+
 	constructor: (@model) ->
-		@disableObserverCount = 0
 
 	get: (path, loadMode, context) ->
 		if not path
@@ -1019,8 +1020,8 @@ cola.data = (config) ->
 			dataType = new cola.EntityDataType(dataType)
 
 	return {
-	$dataType: dataType
-	$provider: provider
+		$dataType: dataType
+		$provider: provider
 	}
 
 ###

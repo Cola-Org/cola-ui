@@ -1,3 +1,9 @@
+oldErrorTemplate = $.fn.form.settings.templates.error
+$.fn.form.settings.templates.error = (errors) ->
+	if errors.length is 1 and errors[0]?.form instanceof cola.Form
+		errors = errors[0].form._errors
+	return oldErrorTemplate.call(@, errors)
+
 class cola.Form extends cola.Widget
 	@CLASS_NAME: "form"
 
@@ -24,6 +30,7 @@ class cola.Form extends cola.Widget
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
+		@_errors = []
 		super(config)
 
 	_initDom: (dom) ->
@@ -32,9 +39,26 @@ class cola.Form extends cola.Widget
 
 		@_inline = $dom.find(".ui.message").length is 0
 		cola.ready () =>
-			$dom.form(
+			$dom.xAppend(
+				tagName: "input"
+				type: "hidden"
+				"data-validate": "__mockField"
+			).form(
 				on: "_disabled"
+				revalidate: false
 				inline: @_inline
+				fields:
+					__mockField:
+						identifier: "__mockField"
+						rules: [
+							{
+								type: "empty"
+								prompt:
+									form: @
+									search: () -> -1
+									replace: () -> @
+							}
+						]
 			)
 			return
 		return
@@ -44,7 +68,7 @@ class cola.Form extends cola.Widget
 
 	_processDataMessage: (path, type, arg) ->
 		entity = @_bindInfo.expression.evaluate(@_scope, "never")
-		if entity and entity instanceof dorado.Entity
+		if entity and entity instanceof cola.Entity
 			@_resetEntityMessages()
 		else
 			entity = null
@@ -61,18 +85,22 @@ class cola.Form extends cola.Widget
 		keyMessage = @_messageHolder.getKeyMessage()
 		type = keyMessage?.type
 		if type is "error" and !@_inline
-			errors = []
+			errors = @_errors
+			errors.length = 0
+
 			messages = @_messageHolder.findMessages(null, type)
 			if messages
 				for m in messages
-					if m.text then errors.push(m.text)
-			@_$dom.form("add errors", errors)
+					if m.text
+						errors.push(m.text)
+
 			if errors.length > 0
 				@_$dom.form("add errors", errors)
 				state = type
 			else
 				@_$dom.find(".error.message").empty()
 
+		@_$dom.form("set value", "__mockField", if type is "error" then "" else "mockValue")
 		@set("state", state)
 		return
 
@@ -89,7 +117,7 @@ class cola.Form extends cola.Widget
 
 	setMessages: (messages) ->
 		messageHolder = @_messageHolder
-		messageHolder.clear("$")
+		messageHolder.clear()
 		if messages
 			for message in messages
 				messageHolder.add("$", message)

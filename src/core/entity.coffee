@@ -263,12 +263,10 @@ class cola.Entity
 					data: @
 					property: prop
 				}
-				if loadMode is "async"
-					@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
+				@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 				providerInvoker.invokeAsync(
 					complete: (success, result) =>
-						if loadMode is "async"
-							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 
 						if @_data[prop] != providerInvoker then success = false
 						if success
@@ -293,7 +291,7 @@ class cola.Entity
 			if property
 				provider = property.get("provider")
 				context?.unloaded = true
-				if provider
+				if provider and provider._loadMode is "lazy"
 					value = loadData.call(@, provider)
 					callbackProcessed = true
 		else if value instanceof cola.Provider
@@ -567,7 +565,8 @@ class cola.Entity
 
 	flush: (property, loadMode = "async") ->
 		propertyDef = @dataType.getProperty(property)
-		if !propertyDef?._provider?
+		provider = propertyDef?._provider
+		if not provider
 			throw new cola.Exception("Provider undefined.")
 
 		@_set(property, undefined)
@@ -576,11 +575,17 @@ class cola.Entity
 			callback = loadMode
 			loadMode = "async"
 
-		return @_get(property, loadMode, {
-			complete: (success, result) =>
-				cola.callback(callback, success, result)
-				return
-		})
+		oldLoadMode = provider._loadMode
+		provider._loadMode = "lazy"
+		try
+			return @_get(property, loadMode, {
+				complete: (success, result) =>
+					cola.callback(callback, success, result)
+					return
+			})
+		finally
+			provider._loadMode = oldLoadMode
+		return
 
 	_setListener: (listener) ->
 		return if @_listener == listener
