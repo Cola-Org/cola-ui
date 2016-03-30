@@ -121,9 +121,7 @@ class cola.Model extends cola.Scope
 						break unless scope
 						store = scope.action
 
-					fn = cola.defaultAction[name]
-					if fn
-						return fn.action or fn
+					return cola.defaultAction[name]
 				else if name and typeof name == "object"
 					config = name
 					for n, a of config
