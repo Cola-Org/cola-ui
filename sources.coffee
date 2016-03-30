@@ -89,12 +89,13 @@ sources =
 			"src/widget/list/table-support.coffee"
 			"src/widget/list/table.coffee"
 			"src/widget/list/pager.coffee"
+			"src/widget/list/time-line.coffee"
 		]
 	i18n:
-		en:[
+		en: [
 			"src/i18n/en/cola.coffee"
 		]
-		"zh-Hans":[
+		"zh-Hans": [
 			"src/i18n/en/cola.coffee"
 		]
 
@@ -130,6 +131,7 @@ sources =
 			"src/css/radio.less"
 			"src/css/sidebar.less"
 			"src/css/pager.less"
+			"src/css/time-line.less"
 		]
 
 	lib:
