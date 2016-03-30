@@ -255,7 +255,7 @@ cola.TemplateSupport =
 		if template instanceof Array
 			if supportMultiNodes and template.length > 1
 				fragment = document.createDocumentFragment()
-				fragment.push(templ.cloneNode(true) for templ in template)
+				fragment.appendChild(templ.cloneNode(true) for templ in template)
 				return fragment
 			else
 				return template[0].cloneNode(true)
