@@ -563,3 +563,36 @@ class cola.ItemsView extends cola.Widget
 
 cola.Element.mixin(cola.ItemsView, cola.TemplateSupport)
 cola.Element.mixin(cola.ItemsView, cola.DataItemsWidgetMixin)
+
+class cola.TimeLine extends cola.ItemsView
+	@ATTRIBUTES:
+		bind:
+			refreshItems: true
+			setter: (bindStr) ->
+				return @_bindSetter(bindStr)
+
+	@TEMPLATES:
+		"default":
+			tagName: "li"
+
+	_createNewItem: (itemType, item) ->
+		template = @_getTemplate(itemType)
+		itemDom = @_cloneTemplate(template)
+		$fly(itemDom).addClass("time-line item " + itemType)
+		itemDom._itemType = itemType
+
+		template = @_getTemplate("content")
+		contentDom = @_cloneTemplate(template)
+		itemDom.appendChild(contentDom)
+
+		template = @_getTemplate("icon")
+		contentDom = @_cloneTemplate(template)
+		itemDom.appendChild(contentDom)
+
+		template = @_getTemplate("time")
+		contentDom = @_cloneTemplate(template)
+		itemDom.appendChild(contentDom)
+
+		if !@_currentItem
+			@_setCurrentNode(item)
+		return itemDom

@@ -185,11 +185,11 @@ class cola.Tree extends cola.ItemsView
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
 			template = @_getTemplate("node-" + itemType, "node")
 			if template
-				if template instanceof Array
-					span = document.createElement("span")
-					span.appendChild(templ) for templ in template
-					template = span
-					@_regTemplate("node-" + itemType, template)
+#				if template instanceof Array
+#					span = document.createElement("span")
+#					span.appendChild(templ) for templ in template
+#					template = span
+#					@_regTemplate("node-" + itemType, template)
 
 				contentDom = @_cloneTemplate(template)
 				$fly(contentDom).addClass("node-content")
