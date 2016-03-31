@@ -351,6 +351,18 @@ class cola._DomAttrFeature extends cola._DomFeature
 		return
 
 class cola._DomClassFeature extends cola._DomFeature
+	constructor: (expression) ->
+		super(expression)
+
+	_doRender: (domBinding, value) ->
+		if @_lastClassName
+			domBinding.$dom.removeClass(@_lastClassName)
+		if value
+			domBinding.$dom.addClass(value)
+			@_lastClassName = value
+		return
+
+class cola._DomToggleClassFeature extends cola._DomFeature
 	constructor: (expression, @className) ->
 		super(expression)
 
