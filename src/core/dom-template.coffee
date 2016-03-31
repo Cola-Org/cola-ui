@@ -216,9 +216,9 @@ _doRenderDomTemplate = (dom, scope, context) ->
 					else
 						feature = buildAttrFeature(dom, attrName, attrValue)
 
-#					if feature
-#						features ?= []
-#						features.push(feature)
+	#					if feature
+	#						features ?= []
+	#						features.push(feature)
 
 	for customDomCompiler in cola._userDomCompiler.$
 		result = customDomCompiler(scope, dom, null, context)
