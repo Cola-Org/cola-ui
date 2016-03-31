@@ -5257,3 +5257,36 @@ html.ios body {
   padding-left: 0.8em;
   padding-right: 0.8em;
 }
+
+.ui.time-line > .items {
+  list-style: none;
+  padding: 0;
+}
+.ui.time-line > .items > .item {
+  position: relative;
+  padding: 0 !important;
+}
+.ui.time-line > .items > .item:before {
+  position: absolute;
+  border: 1px solid #646464;
+  left: 8em;
+  height: 100%;
+  content: "";
+}
+.ui.time-line > .items > .item .content {
+  margin-left: 10em;
+}
+.ui.time-line > .items > .item > .icon {
+  position: absolute;
+  left: 9em;
+  top: 0;
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  text-align: center;
+  border: 2px solid #646464;
+}
+.ui.time-line > .items > .item > .icon > .icon {
+  line-height: 1.8em;
+  margin: 0;
+}

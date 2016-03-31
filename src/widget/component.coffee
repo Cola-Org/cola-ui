@@ -1,28 +1,32 @@
-class cola.WidgetDataModel extends cola.AbstractDataModel
-	constructor: (@model, @widget) ->
+_extendsWidget = (superCls, definition) ->
+	cls = () ->
+		cls.__super__.constructor.apply(this, arguments)
+		definition.constructor?.apply(this, arguments)
 
-	get: (path, loadMode, context) -> @widget.get(path)
+	`__extends(cls, superCls)`
 
-	set: () ->
-	flush: () ->
+	for prop, def of definition
+		if definition.hasOwnProperty(prop)
+			if prop is "ATTRIBUTES"
+				for attr, attrDef of def
+					cls.ATTRIBUTES[attr] = attrDef
+			else if prop is "EVENTS"
+				for evt, evtDef of def
+					cls.EVENTS[evt] = evtDef
+			else
+				cls::[prop] = def
 
-class cola.WidgetModel extends cola.Scope
-	constructor: (@widget) ->
-		@data = new cola.WidgetDataModel(@, @widget)
+	return cls
 
-		widget = @widget
-		@action = (name) ->
-			method = widget[name]
-			if method instanceof Function
-				return () -> method.apply(widget, arguments)
-			return cola.defaultAction[name]
+cola.component = (name, type, definition) ->
+	if not cola.util.isSuperClass(cola.widget, type)
+		definition = type
+		type = cola.TemplateWidget
+	if definition
+		type = _extendsWidget(type, definition)
+	cola.component.tagNames[name] = type
+	return type
 
-	destroy: () ->
-		@data.destroy?()
-		return
-
-cola.component = (name, definition) ->
-
-	return
+cola.component.tagNames = {}
 
 

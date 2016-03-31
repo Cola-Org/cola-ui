@@ -5,19 +5,6 @@ $.xCreate.templateProcessors.push (template) ->
 		return dom
 	return
 
-$.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
-	return unless attrValue
-	if typeof attrValue == "string"
-		$dom.attr(attrName, attrValue)
-	else if context
-		configKey = cola.uniqueId()
-		$dom.attr("widget-config", configKey)
-		widgetConfigs = context.widgetConfigs
-		if !widgetConfigs
-			context.widgetConfigs = widgetConfigs = {}
-		widgetConfigs[configKey] = attrValue
-	return
-
 cola.xRender.nodeProcessors.push (node, context) ->
 	if node instanceof cola.Widget
 		widget = node
@@ -51,22 +38,26 @@ _findWidgetConfig = (scope, name) ->
 		scope = scope.parent
 	return widgetConfig
 
-cola._userDomCompiler.$.push((scope, dom, context) ->
+cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 	return null if cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
+	return null unless dom.nodeType is 1
 
 	if dom.id
 		jsonConfig = _findWidgetConfig(scope, dom.id)
 
-	configKey = dom.getAttribute("widget-config")
-	if configKey
-		dom.removeAttribute("widget-config")
-		config = context.widgetConfigs?[configKey]
+	tagName = dom.tagName
+	widgetType = cola.component.tagNames[tagName]
+	if widgetType
+		config =
+			$constructor: widgetType
+
 	else
 		widgetConfigStr = dom.getAttribute("c-widget")
 		if widgetConfigStr
 			dom.removeAttribute("c-widget")
 			if context.defaultPath
 				widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
+
 			config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
 			if config
 				importNames = null
@@ -91,7 +82,8 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 
 	config ?= {}
 	if jsonConfig
-		config[k] = v for k, v of jsonConfig
+		for k, v of jsonConfig
+			if not config.hasOwnProperty(k) then config[k] = v
 
 	if typeof config is "string"
 		config = {
@@ -117,8 +109,12 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 )
 
 cola.registerTypeResolver "widget", (config) ->
-	return unless config and config.$type
-	return cola[cola.util.capitalize(config.$type)]
+	return unless config
+	if config.$constructor and cola.util.isSuperClass(cola.Widget, config.$constructor)
+		return config.$constructor
+	if config.$type
+		return cola[cola.util.capitalize(config.$type)]
+	return
 
 cola.registerType("widget", "_default", cola.Widget)
 

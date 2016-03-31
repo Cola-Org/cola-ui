@@ -132,3 +132,12 @@ cola.util.waitForAll = (funcs, callback) ->
 
 		func(subCallback)
 	return
+
+# OO
+
+cola.util.isSuperClass = (superCls, cls) ->
+	return false unless superCls
+	while cls
+		return true if cls.__super__ is superCls
+		cls = cls.__super__
+	return false
