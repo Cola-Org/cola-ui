@@ -193,13 +193,13 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			if attrName == "style"
 				newFeatures = buildStyleFeature(attrValue)
 				features = if features then features.concat(newFeatures) else newFeatures
-			else if attrName == "class"
+			else if attrName == "class" or attrName == "classname"
 				newFeatures = buildClassFeature(attrValue)
 				features = if features then features.concat(newFeatures) else newFeatures
 			else
 				customDomCompiler = cola._userDomCompiler[attrName]
 				if customDomCompiler
-					result = customDomCompiler(scope, dom, context)
+					result = customDomCompiler(scope, dom, attr, context)
 					if result
 						if result instanceof cola._BindingFeature
 							features.push(result)
@@ -216,12 +216,12 @@ _doRenderDomTemplate = (dom, scope, context) ->
 					else
 						feature = buildAttrFeature(dom, attrName, attrValue)
 
-					if feature
-						features ?= []
-						features.push(feature)
+#					if feature
+#						features ?= []
+#						features.push(feature)
 
 	for customDomCompiler in cola._userDomCompiler.$
-		result = customDomCompiler(scope, dom, context)
+		result = customDomCompiler(scope, dom, null, context)
 		if result
 			if result instanceof cola._BindingFeature
 				features.push(result)
@@ -336,14 +336,20 @@ buildStyleFeature = (styleStr) ->
 
 buildClassFeature = (classStr) ->
 	return false unless classStr
-	classConfig = cola.util.parseStyleLikeString(classStr)
 
 	features = []
-	for className, classExpr of classConfig
-		expression = cola._compileExpression(classExpr)
+	try
+		expression = cola._compileExpression(classStr)
 		if expression
-			feature = new cola._DomClassFeature(expression, className, true)
+			feature = new cola._DomClassFeature(expression)
 			features.push(feature)
+	catch
+		classConfig = cola.util.parseStyleLikeString(classStr)
+		for className, classExpr of classConfig
+			expression = cola._compileExpression(classExpr)
+			if expression
+				feature = new cola._DomToggleClassFeature(expression, className)
+				features.push(feature)
 	return features
 
 buildAttrFeature = (dom, attr, expr) ->
@@ -351,8 +357,6 @@ buildAttrFeature = (dom, attr, expr) ->
 	if expression
 		if attr == "display"
 			feature = new cola._DisplayFeature(expression)
-		else if attr == "classname"
-			feature = new cola._DomAttrFeature(expression, "class", false)
 		else if attr == "options" and dom.nodeName == "SELECT"
 			feature = new cola._SelectOptionsFeature(expression)
 		else
