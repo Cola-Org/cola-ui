@@ -2268,14 +2268,14 @@ template {
   color: rgba(0, 0, 0, 0.85);
 }
 .ui.list-view.striped.inverted .list.item:nth-child(2n):not(.current) {
-  background: #252628;
+  background: #2f3032;
 }
 .ui.list-view.inverted {
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.list-view.inverted .list.item {
   color: rgba(255, 255, 255, 0.9);
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.list-view.inverted .list.item:hover:not(.current) {
   background: rgba(33, 133, 208, 0.2);
@@ -2285,11 +2285,11 @@ template {
 }
 .ui.list-view.inverted .list.group-header {
   color: rgba(255, 255, 255, 0.9);
-  background: #4c4f52;
-  border-bottom: 1px solid #6a6e72;
+  background: #56595c;
+  border-bottom: 1px solid #74787c;
 }
 .ui.list-view.inverted .list.group-header:active {
-  background: #6a6e72;
+  background: #74787c;
 }
 .ui.list-view.inverted > .index-bar {
   color: rgba(255, 255, 255, 0.9);
@@ -2635,11 +2635,11 @@ template {
   color: rgba(0, 0, 0, 0.85);
 }
 .ui.tree.inverted {
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.tree.inverted .tree.item {
   color: rgba(255, 255, 255, 0.9);
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.tree.inverted .tree.item:not(.current) > .tree.node:hover {
   background: rgba(33, 133, 208, 0.2);
@@ -2846,30 +2846,34 @@ template {
 .ui.widget-table table td {
   border-width: 1px;
   border-style: solid;
-  border-color: transparent transparent;
+  border-color: #edf0f3 transparent;
 }
 .ui.widget-table table thead th {
-  background: #f9fafb;
-  border-color: #edf0f3;
+  font-weight: normal;
+  background: #ffffff;
+  border-color: #edf0f3 transparent;
 }
 .ui.widget-table table thead th > div {
   overflow: hidden;
-  padding: 0.35em 0.125em;
+  padding: 0.4em 6px;
 }
 .ui.widget-table table tbody td > div {
   overflow: hidden;
-  padding: 0.5em 0.125em;
+  padding: 0.6em 6px;
+}
+.ui.widget-table table tbody tr:first-child td {
+  border-top: 2px solid #edf0f3;
 }
 .ui.widget-table table tbody tr:last-child td {
-  border-bottom: 1px solid #edf0f3;
+  border-bottom: 2px solid #edf0f3;
 }
 .ui.widget-table table tfoot td {
-  background: #f9fafb;
-  border-color: #edf0f3;
+  background: #ffffff;
+  border-color: #edf0f3 transparent;
 }
 .ui.widget-table table tfoot td > div {
   overflow: hidden;
-  padding: 0.35em 0.125em;
+  padding: 0.4em 6px;
 }
 .ui.widget-table table .ui.checkbox.in-cell {
   margin-top: 0.25em;
@@ -2884,11 +2888,9 @@ template {
 }
 .ui.widget-table > .fixed-header {
   top: 0;
-  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
 }
 .ui.widget-table > .fixed-footer {
   bottom: 0;
-  box-shadow: 0 -1px 2px 0 rgba(34, 36, 38, 0.15);
 }
 .ui.widget-table.impact table th > div,
 .ui.widget-table.impact table td > div {
@@ -2904,14 +2906,14 @@ template {
   background: rgba(0, 181, 173, 0.2);
 }
 .ui.widget-table.striped.inverted .table.item:nth-child(2n):not(.current) {
-  background: #252628;
+  background: #2f3032;
 }
 .ui.widget-table.inverted {
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.widget-table.inverted .table.item {
   color: rgba(255, 255, 255, 0.9);
-  background: #2f3032;
+  background: #393b3d;
 }
 .ui.widget-table.inverted .table.item:hover:not(.current) {
   background: rgba(33, 133, 208, 0.2);
@@ -2927,15 +2929,15 @@ template {
   border-color: transparent transparent;
 }
 .ui.widget-table.inverted table thead th {
-  background: #3d4042;
-  border-color: #5b5e62;
+  background: #474a4d;
+  border-color: #65696c;
 }
 .ui.widget-table.inverted table tbody tr:last-child td {
-  border-bottom-color: #5b5e62;
+  border-bottom-color: #65696c;
 }
 .ui.widget-table.inverted table tfoot td {
-  background: #3d4042;
-  border-color: #5b5e62;
+  background: #474a4d;
+  border-color: #65696c;
 }
 .ui.widget-table.basic {
   background: none;

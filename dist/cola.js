@@ -804,7 +804,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -841,8 +841,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -7933,7 +7933,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7951,8 +7951,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -9808,7 +9808,7 @@
   };
 
   buildClassFeature = function(classStr) {
-    var classConfig, classExpr, className, expression, feature, features;
+    var classConfig, classExpr, className, error1, expression, feature, features;
     if (!classStr) {
       return false;
     }
@@ -9819,7 +9819,7 @@
         feature = new cola._DomClassFeature(expression);
         features.push(feature);
       }
-    } catch (_error) {
+    } catch (error1) {
       classConfig = cola.util.parseStyleLikeString(classStr);
       for (className in classConfig) {
         classExpr = classConfig[className];
@@ -13651,7 +13651,7 @@
       DateGrid.prototype.getDateCellDom = function(date) {
         var value;
         value = new XDate(date).toString("yyyy-M-d");
-        return $(this._dom).find("td[cell-date='" + value + "']");
+        return $(this._dom).find("td[c-date='" + value + "']");
       };
 
       DateGrid.prototype.doRefreshCell = function(cell, row, column) {
@@ -13663,7 +13663,7 @@
         cellState = state[row * 7 + column];
         $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
         ym = this.getYMForState(cellState);
-        $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+        $fly(cell).attr("c-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
         if (cellState.type === "normal") {
           if (this._year === this._calendar._year && this._month === this._calendar._month && cellState.text === this._calendar._monthDate) {
             $fly(cell).addClass("selected");
@@ -13735,8 +13735,7 @@
       };
 
       SwipePicker.EVENTS = {
-        change: null,
-        monthChange: null
+        change: null
       };
 
       SwipePicker.prototype.createDateTable = function(dom) {
@@ -13788,7 +13787,7 @@
       };
 
       SwipePicker.prototype.setState = function(year, month) {
-        var nextM, nextY, prevM, prevY, ref;
+        var nextM, nextY, prevM, prevY;
         this._current.setState(year, month);
         prevY = month === 0 ? year - 1 : year;
         prevM = month === 0 ? 11 : month - 1;
@@ -13796,12 +13795,6 @@
         nextY = month === 11 ? year + 1 : year;
         nextM = month === 11 ? 0 : month + 1;
         this._next.setState(nextY, nextM);
-        if ((ref = this._calendar) != null) {
-          ref.fire("monthChange", this._calendar, {
-            year: year,
-            month: month
-          });
-        }
         return this;
       };
 
@@ -13997,7 +13990,6 @@
       Calendar.EVENTS = {
         refreshCellDom: null,
         change: null,
-        monthChange: null,
         cellClick: null
       };
 
@@ -14024,15 +14016,15 @@
         });
       };
 
-      Calendar.prototype._initDom = function(dom) {
-        var allWeeks, cDom, cal, picker, weeks;
+      Calendar.prototype._createDom = function() {
+        var allWeeks, cal, dom, picker, weeks;
         allWeeks = cola.resource("cola.date.dayNamesShort");
         weeks = allWeeks.split(",");
         cal = this;
         if (this._doms == null) {
           this._doms = {};
         }
-        cDom = $.xCreate({
+        dom = $.xCreate({
           tagName: "div",
           content: [
             {
@@ -14129,10 +14121,10 @@
             }
           }
         });
-        picker.appendTo(cDom);
+        picker.appendTo(dom);
         this._doms.dateTableWrapper = picker._dom;
         cal.bindButtonsEvent();
-        return $(dom).append(cDom);
+        return dom;
       };
 
       Calendar.prototype.setState = function(year, month) {
@@ -14335,7 +14327,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14343,8 +14335,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -20550,12 +20542,9 @@
                 };
               })(this));
             } else {
-              $fly(itemsWrapper).xAppend({
-                "class": "tail-padding",
-                content: {
-                  "class": "ui loader"
-                }
-              });
+              if (typeof this._appendTailDom === "function") {
+                this._appendTailDom(itemsWrapper);
+              }
             }
           }
         }
@@ -21409,7 +21398,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -21422,8 +21411,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -23388,7 +23377,7 @@
     Stack.duration = 200;
 
     Stack.prototype._initDom = function(dom) {
-      var itemsWrap, width;
+      var itemsWrap;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -23414,25 +23403,9 @@
       this._prevItem = this._doms.prevItem;
       this._currentItem = this._doms.currentItem;
       this._nextItem = this._doms.nextItem;
-      width = this._currentItem.clientWidth;
-      $fly(this._currentItem).css({
+      return $fly(this._currentItem).css({
         display: "block"
       });
-      this._bindTouch();
-      $fly(this._currentItem).css("transform", "translate(-" + width + "px,0)");
-      if (direction === "left") {
-        $fly(this._prevItem).css("display", "none");
-        $fly(this._nextItem).css({
-          transform: "translate(" + width + "px,0)",
-          display: "block"
-        });
-      } else {
-        $fly(this._nextItem).css("display", "none");
-        $fly(this._prevItem).css({
-          transform: "translate(" + (2 * width) + "px,0)",
-          display: "block"
-        });
-      }
     };
 
     Stack.prototype._parseDom = function(dom) {
@@ -23488,19 +23461,15 @@
     };
 
     Stack.prototype._setDom = function(dom, parseChild) {
-      return Stack.__super__._setDom.call(this, dom, parseChild);
-    };
-
-    Stack.prototype._bindTouch = function() {
       var stack;
+      Stack.__super__._setDom.call(this, dom, parseChild);
       stack = this;
-      $(this._dom).on("touchstart", function(evt) {
-        stack._onTouchStart(evt);
+      return $(dom).on("touchstart", function(evt) {
+        return stack._onTouchStart(evt);
       }).on("touchmove", function(evt) {
-        stack._onTouchMove(evt);
-      });
-      return $(window.document.body).on("touchend", function(evt) {
-        stack._onTouchEnd(evt);
+        return stack._onTouchMove(evt);
+      }).on("touchend", function(evt) {
+        return stack._onTouchEnd(evt);
       });
     };
 
@@ -23801,6 +23770,15 @@
       delete this._emptyItemDom;
     };
 
+    AbstractList.prototype._appendTailDom = function(itemsWrapper) {
+      $fly(itemsWrapper).xAppend({
+        "class": "tail-padding",
+        content: {
+          "class": "ui loader"
+        }
+      });
+    };
+
     AbstractList.prototype._onItemsWrapperScroll = function() {
       var itemsWrapper, realItems;
       realItems = this._realItems;
@@ -23823,20 +23801,18 @@
 
     AbstractList.prototype._convertItems = function(items) {
       var arg;
-      if (this._filterCriteria) {
-        if (this.getListeners("filterItem")) {
-          arg = {
-            filterCriteria: this._filterCriteria
+      if (this.getListeners("filterItem")) {
+        arg = {
+          filterCriteria: this._filterCriteria
+        };
+        items = cola._filterCollection(items, (function(_this) {
+          return function(item) {
+            arg.item = item;
+            return _this.fire("filterItem", _this, arg);
           };
-          items = cola.convertor.filter(items, (function(_this) {
-            return function(item) {
-              arg.item = item;
-              return _this.fire("filterItem", _this, arg);
-            };
-          })(this));
-        } else {
-          items = cola.convertor.filter(items, this._filterCriteria);
-        }
+        })(this));
+      } else if (this._filterCriteria) {
+        items = cola._filterCollection(items, this._filterCriteria);
       }
       return items;
     };
@@ -25302,7 +25278,7 @@
 
     return ListView;
 
-  })(cola.AbstractList);
+  })(cola.ItemsView);
 
   _getEntityId = cola.Entity._getEntityId;
 
@@ -26945,7 +26921,7 @@
 
     TableSelectColumn.ATTRIBUTES = {
       width: {
-        defaultValue: "34px"
+        defaultValue: "42px"
       },
       align: {
         defaultValue: "center"
@@ -27403,6 +27379,9 @@
 
     Table.prototype._doRefreshItems = function() {
       var col, colInfo, colgroup, column, columnConfigs, i, l, len1, len2, n, nextCol, propertyDef, ref, ref1, tbody, tfoot, thead;
+      if (!this._columnsInfo) {
+        return;
+      }
       if (!this._columnsInfo.dataColumns.length && this._dataType && this._dataType instanceof cola.EntityDataType) {
         columnConfigs = [];
         ref = this._dataType.getProperties().elements;
@@ -27564,19 +27543,16 @@
           contentWrapper = cell.firstChild;
           this._refreshHeaderCell(contentWrapper, colInfo, isNew);
         }
-        while (row.lastChild !== cell) {
+        while (row.lastChild && row.lastChild !== cell) {
           row.removeChild(row.lastChild);
         }
+        cola.xRender(row, this._scope);
         i++;
       }
-      while (row.lastChild !== cell) {
-        row.removeChild(row.lastChild);
-      }
-      cola.xRender(row, this._scope);
       if (fragment) {
         thead.appendChild(fragment);
       }
-      while (thead.lastChild !== row) {
+      while (thead.lastChild && thead.lastChild !== row) {
         thead.removeChild(thead.lastChild);
       }
     };
@@ -27584,6 +27560,7 @@
     Table.prototype._refreshHeaderCell = function(dom, columnInfo, isNew) {
       var caption, column, dataType, propertyDef, template, templateName;
       column = columnInfo.column;
+      dom.style.textAlign = column._align || "left";
       if (column.renderHeader) {
         if (column.renderHeader(dom) !== true) {
           return;
@@ -27676,6 +27653,7 @@
     Table.prototype._refreshFooterCell = function(dom, columnInfo, isNew) {
       var column, template, templateName;
       column = columnInfo.column;
+      dom.style.textAlign = column._align || "left";
       if (column.renderFooter) {
         if (column.renderFooter(dom) !== true) {
           return;
@@ -27752,7 +27730,7 @@
           contentWrapper = cell.firstChild;
           this._refreshCell(contentWrapper, item, colInfo, itemScope, isNew);
         }
-        while (itemDom.lastChild !== cell) {
+        while (itemDom.lastChild && itemDom.lastChild !== cell) {
           itemDom.removeChild(itemDom.lastChild);
         }
       }

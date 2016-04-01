@@ -31,6 +31,14 @@ class cola.AbstractList extends cola.ItemsView
 		delete @_emptyItemDom
 		return
 
+	_appendTailDom: (itemsWrapper) ->
+		$fly(itemsWrapper).xAppend(
+			class: "tail-padding"
+			content:
+				class: "ui loader"
+		)
+		return
+
 	_onItemsWrapperScroll: () ->
 		realItems = @_realItems
 		if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
@@ -47,17 +55,16 @@ class cola.AbstractList extends cola.ItemsView
 		return
 
 	_convertItems: (items) ->
-		if @_filterCriteria
-			if @getListeners("filterItem")
-				arg = {
-					filterCriteria: @_filterCriteria
-				}
-				items = cola.convertor.filter(items, (item) =>
-					arg.item = item
-					return @fire("filterItem", @, arg)
-				)
-			else
-				items = cola.convertor.filter(items, @_filterCriteria)
+		if @getListeners("filterItem")
+			arg = {
+				filterCriteria: @_filterCriteria
+			}
+			items = cola._filterCollection(items, (item) =>
+				arg.item = item
+				return @fire("filterItem", @, arg)
+			)
+		else if @_filterCriteria
+			items = cola._filterCollection(items, @_filterCriteria)
 		return items
 
 	_refreshEmptyItemDom: () ->

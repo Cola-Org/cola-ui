@@ -14,6 +14,8 @@ class cola.Table extends cola.AbstractTable
 		return
 
 	_doRefreshItems: () ->
+		return unless @_columnsInfo
+
 		if not @_columnsInfo.dataColumns.length and @_dataType and @_dataType instanceof cola.EntityDataType
 			columnConfigs = []
 			for propertyDef in @_dataType.getProperties().elements
@@ -148,21 +150,19 @@ class cola.Table extends cola.AbstractTable
 
 				@_refreshHeaderCell(contentWrapper, colInfo, isNew)
 
-			while row.lastChild != cell
+			while row.lastChild and row.lastChild != cell
 				row.removeChild(row.lastChild)
+			cola.xRender(row, @_scope)
 			i++
 
-		while row.lastChild != cell
-			row.removeChild(row.lastChild)
-
-		cola.xRender(row, @_scope)
 		if fragment then thead.appendChild(fragment)
-		while thead.lastChild != row
+		while thead.lastChild and thead.lastChild != row
 			thead.removeChild(thead.lastChild)
 		return
 
 	_refreshHeaderCell: (dom, columnInfo, isNew) ->
 		column = columnInfo.column
+		dom.style.textAlign = column._align or "left"
 
 		if column.renderHeader
 			if column.renderHeader(dom) != true
@@ -235,6 +235,7 @@ class cola.Table extends cola.AbstractTable
 
 	_refreshFooterCell: (dom, columnInfo, isNew) ->
 		column = columnInfo.column
+		dom.style.textAlign = column._align or "left"
 
 		if column.renderFooter
 			if column.renderFooter(dom) != true
@@ -292,7 +293,7 @@ class cola.Table extends cola.AbstractTable
 
 				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
 
-			while itemDom.lastChild != cell
+			while itemDom.lastChild and itemDom.lastChild != cell
 				itemDom.removeChild(itemDom.lastChild)
 		return
 

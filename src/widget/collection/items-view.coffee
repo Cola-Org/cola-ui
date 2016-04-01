@@ -1,5 +1,3 @@
-
-
 _getEntityId = cola.Entity._getEntityId
 
 class cola.ItemsView extends cola.Widget
@@ -289,13 +287,8 @@ class cola.ItemsView extends cola.Widget
 							return
 						)
 					else
-						$fly(itemsWrapper).xAppend(
-							class: "tail-padding"
-							content:
-								class: "ui loader"
-						)
+						@_appendTailDom?(itemsWrapper)
 		return
-
 
 	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope) ->
 		if item == @_currentItem

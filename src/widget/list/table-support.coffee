@@ -70,7 +70,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@ATTRIBUTES:
 		width:
-			defaultValue: "34px"
+			defaultValue: "42px"
 		align:
 			defaultValue: "center"
 

@@ -3,14 +3,13 @@
 
 @tableHeadLineColor: darken(@offWhite, 4%);
 @tableFootLineColor: @tableHeadLineColor;
-@tableRowLineColor: transparent;
+@tableRowLineColor: @tableHeadLineColor;
 @tableColLineColor: transparent;
-@tableHeadCellPadding: 0.35em 0.125em;
-@tableFootCellPadding: 0.35em 0.125em;
-@tableCellPadding: 0.5em 0.125em;
-@shadowColor: @borderColor;
+@tableHeadCellPadding: 0.4em 6px;
+@tableFootCellPadding: 0.4em 6px;
+@tableCellPadding: 0.6em 6px;
 
-@tableHeadBackground: @offWhite;
+@tableHeadBackground: @white;
 @tableFootBackground: @tableHeadBackground;
 
 @tableInvertedStripedBackground: darken(@itemsViewInvertedBackground, 4%);
@@ -36,12 +35,15 @@
 			border-style: solid;
 			border-color: @tableRowLineColor @tableColLineColor;
 		}
-		thead th {
-			background: @tableHeadBackground;
-			border-color: @tableHeadLineColor;
-			> div {
-				overflow: hidden;
-				padding: @tableHeadCellPadding;
+		thead {
+			th {
+				font-weight: normal;
+				background: @tableHeadBackground;
+				border-color: @tableHeadLineColor @tableColLineColor;
+				> div {
+					overflow: hidden;
+					padding: @tableHeadCellPadding;
+				}
 			}
 		}
 		tbody td {
@@ -50,15 +52,20 @@
 				padding: @tableCellPadding;
 			}
 		}
-		tbody tr:last-child td {
-			border-bottom: 1px solid @tableFootLineColor;
+		tbody tr:first-child td {
+			border-top: 2px solid @tableHeadLineColor;
 		}
-		tfoot td {
-			background: @tableFootBackground;
-			border-color: @tableFootLineColor;
-			> div {
-				overflow: hidden;
-				padding: @tableFootCellPadding;
+		tbody tr:last-child td {
+			border-bottom: 2px solid @tableFootLineColor;
+		}
+		tfoot{
+			td {
+				background: @tableFootBackground;
+				border-color: @tableFootLineColor @tableColLineColor;
+				> div {
+					overflow: hidden;
+					padding: @tableFootCellPadding;
+				}
 			}
 		}
 
@@ -77,12 +84,10 @@
 
 	> .fixed-header {
 		top: 0;
-		box-shadow: 0 1px 2px 0 @shadowColor;
 	}
 
 	> .fixed-footer {
 		bottom: 0;
-		box-shadow: 0 -1px 2px 0 @shadowColor;
 	}
 }
 
