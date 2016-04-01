@@ -1,0 +1,65 @@
+@import "global.less";
+
+@panelHeaderHeight: 3.2rem;
+@panelHeaderBkgColor: #f3f3f4;
+@panelHeaderIconColor: #5a5a5b;
+@panelHeaderFontColor: #5a5a5b;
+
+.ui.panel {
+	box-shadow: 0 2px 4px 0 rgba(34, 36, 38, .12), 0 2px 10px 0 rgba(34, 36, 38, .08);
+	> .header {
+		position: relative;
+		padding: 0 1rem;
+		height: @panelHeaderHeight;
+		background-color: @panelHeaderBkgColor;
+		color: @panelHeaderFontColor;
+		> i.panel-icon {
+			color: @panelHeaderIconColor;
+			line-height: @panelHeaderHeight;
+		}
+		> .caption {
+			line-height: @panelHeaderHeight;
+		}
+		> .tools {
+
+			position: absolute;
+			right: 1rem;
+			top: 0;
+			bottom: 0;
+			> * {
+				color: @panelHeaderIconColor;
+				cursor: pointer;
+				line-height: @panelHeaderHeight;
+			}
+
+			.collapse-btn:before {
+				.transition(transform 0.2s ease-out);
+			}
+		}
+
+	}
+	.transition(height 0.2s ease-out);
+	overflow: hidden;
+	&.collapsed {
+		height: @panelHeaderHeight !important;
+		.collapse-btn:before {
+			.transform(rotate(-90deg));
+		}
+	}
+
+	&.fieldset {
+		> .header {
+			position: inherit;
+			> .tools {
+				position: inherit;
+				display: inline-block;
+				height: @panelHeaderHeight;
+			}
+		}
+
+	}
+	&.groupbox {
+
+	}
+
+}

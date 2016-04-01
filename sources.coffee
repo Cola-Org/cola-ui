@@ -67,6 +67,7 @@ sources =
 			"src/widget/layout/modal.coffee"
 			"src/widget/layout/sidebar.coffee"
 			"src/widget/layout/tab.coffee"
+			"src/widget/layout/panel.coffee"
 		]
 		collection: [
 			"src/widget/collection/item-group.coffee"
@@ -133,6 +134,7 @@ sources =
 			"src/css/sidebar.less"
 			"src/css/pager.less"
 			"src/css/time-line.less"
+			"src/css/panel.less"
 		]
 
 	lib:

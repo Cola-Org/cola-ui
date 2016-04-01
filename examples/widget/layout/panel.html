@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
+	<title>Panel</title>
+	<script src="../../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+
+
+<div c-widget="#panel"></div>
+<div c-widget="#panel; class:fieldset"></div>
+<div c-widget="#panel; class:groupbox"></div>
+
+<script type="text/javascript">
+	cola(function (model) {
+		model.widgetConfig({
+			panel: {
+				$type: "Panel",
+				caption: "个人数据",
+				width: "40%", height: "10em"
+			}
+		});
+	})
+
+</script>
+
+</body>
+</html>

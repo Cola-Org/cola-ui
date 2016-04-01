@@ -21,24 +21,21 @@
 				provider: {
 					url: "languages{$pageNo}.json",
 					pageSize: 10,
-					parameter:{
-						sss:"sdsd"
+					parameter: {
+						sss: "sdsd"
 					}
 				}
 			});
 
 			model.widgetConfig({
-				pagerExample:{
-					$type:"pager",
-//					bind: "items",
-					items:["|<","<","info"]
+				pagerExample: {
+					$type: "pager",
+					bind: "items",
+					items: ["|<", "<", "info"]
 				},
 				pager1: {
 					$type: "Pager",
-					bind: "items",
-					items: [
-						"pages"
-					]
+					bind: "items"
 				},
 				listScroll: {
 					$type: "listView",
@@ -95,6 +92,7 @@
 	<a page-code="info" class="item"></a>
 	<a page-code=">" class="item"></a>
 	<a page-code=">|" class="item"></a>
+
 	<div class="right menu">
 		<div page-code="goto" class="item"></div>
 

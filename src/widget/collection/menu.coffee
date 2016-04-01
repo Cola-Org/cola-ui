@@ -269,7 +269,8 @@ class cola.Menu extends cola.Widget
 				@addItem(item) for item in value if value
 		showActivity:
 			type: "boolean"
-			defaultValue: true
+			defaultValue: false
+
 		rightItems:
 			setter: (value)->
 				@clearRightItems() if @["_rightItems"]

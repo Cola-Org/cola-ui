@@ -83,7 +83,14 @@ class cola.Pager extends cola.Menu
 					data?.lastPage()
 
 		super(config)
+	_parseDom: (dom)->
+		super(dom)
 
+		if @_items
+			if @_items.length == 0 then @addItem("pages")
+		else
+			@_items = []
+			@addItem("pages")
 	_parsePageItem: (childNode, right)->
 		pageCode = $fly(childNode).attr("page-code")
 		unless pageCode then return

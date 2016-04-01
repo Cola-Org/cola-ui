@@ -2,8 +2,8 @@
 
 @leftWidth: 8em;
 @iconSize: 2em;
-@iconMarginLeft: @leftWidth+@iconSize/2;
-@contentMarginLeft: @leftWidth+@iconSize;
+@iconMarginLeft: @leftWidth - @iconSize/2;
+@contentMarginLeft: @leftWidth + @iconSize;
 
 .ui.time-line {
 	> .items {
@@ -16,11 +16,21 @@
 				position: absolute;
 				border: 1px solid #646464;
 				left: @leftWidth;
-				height: 100%;
+				top: @iconSize;
+				bottom: 0;
 				content: "";
+			}
+			.time {
+				position: absolute;
+				top: 0.3em;
+				width: @leftWidth;
+				display: inline-block;
+				text-align: right;
+				padding: 0 @iconSize 0 0;
 			}
 			.content {
 				margin-left: @contentMarginLeft;
+				padding-bottom: 1em;
 			}
 			> .icon {
 				position: absolute;
