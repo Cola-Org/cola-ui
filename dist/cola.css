@@ -5270,15 +5270,25 @@ html.ios body {
   position: absolute;
   border: 1px solid #646464;
   left: 8em;
-  height: 100%;
+  top: 2em;
+  bottom: 0;
   content: "";
+}
+.ui.time-line > .items > .item .time {
+  position: absolute;
+  top: 0.3em;
+  width: 8em;
+  display: inline-block;
+  text-align: right;
+  padding: 0 2em 0 0;
 }
 .ui.time-line > .items > .item .content {
   margin-left: 10em;
+  padding-bottom: 1em;
 }
 .ui.time-line > .items > .item > .icon {
   position: absolute;
-  left: 9em;
+  left: 7em;
   top: 0;
   display: inline-block;
   width: 2em;
@@ -5289,4 +5299,52 @@ html.ios body {
 .ui.time-line > .items > .item > .icon > .icon {
   line-height: 1.8em;
   margin: 0;
+}
+
+.ui.panel {
+  box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
+  transition: height 0.2s ease-out;
+  overflow: hidden;
+}
+.ui.panel > .header {
+  position: relative;
+  padding: 0 1rem;
+  height: 3.2rem;
+  background-color: #f3f3f4;
+  color: #5a5a5b;
+}
+.ui.panel > .header > i.panel-icon {
+  color: #5a5a5b;
+  line-height: 3.2rem;
+}
+.ui.panel > .header > .caption {
+  line-height: 3.2rem;
+}
+.ui.panel > .header > .tools {
+  position: absolute;
+  right: 1rem;
+  top: 0;
+  bottom: 0;
+}
+.ui.panel > .header > .tools > * {
+  color: #5a5a5b;
+  cursor: pointer;
+  line-height: 3.2rem;
+}
+.ui.panel > .header > .tools .collapse-btn:before {
+  transition: transform 0.2s ease-out;
+}
+.ui.panel.collapsed {
+  height: 3.2rem !important;
+}
+.ui.panel.collapsed .collapse-btn:before {
+  transform: rotate(-90deg);
+}
+.ui.panel.fieldset > .header {
+  position: inherit;
+}
+.ui.panel.fieldset > .header > .tools {
+  position: inherit;
+  display: inline-block;
+  height: 3.2rem;
 }
