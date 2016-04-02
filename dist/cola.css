@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.3
+/*! Cola UI - 0.8.4
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -5260,6 +5260,14 @@ html.ios body {
   padding-right: 0.8em;
 }
 
+@-webkit-keyframes breathe {
+  0% {
+    opacity: .5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 .ui.time-line > .items {
   list-style: none;
   padding: 0;
@@ -5270,7 +5278,7 @@ html.ios body {
 }
 .ui.time-line > .items > .item:before {
   position: absolute;
-  border: 1px solid #646464;
+  border: 1px solid #e0e0e0;
   left: 8em;
   top: 2em;
   bottom: 0;
@@ -5288,6 +5296,10 @@ html.ios body {
   margin-left: 10em;
   padding-bottom: 1em;
 }
+.ui.time-line > .items > .item .content p {
+  color: rgba(103, 106, 108, 0.7);
+  padding: 0.4em 0;
+}
 .ui.time-line > .items > .item > .icon {
   position: absolute;
   left: 7em;
@@ -5296,57 +5308,161 @@ html.ios body {
   width: 2em;
   height: 2em;
   text-align: center;
-  border: 2px solid #646464;
+  color: #18a689;
+  border: 2.5px solid #e0e0e0;
 }
 .ui.time-line > .items > .item > .icon > .icon {
   line-height: 1.8em;
   margin: 0;
 }
+.ui.time-line > .items > .item:hover > .icon > i {
+  animation-timing-function: ease-in-out;
+  animation-name: breathe;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.ui.time-line > .items > .item:hover > .icon,
+.ui.time-line > .items > .item:hover:before {
+  border-color: rgba(24, 166, 137, 0.6);
+}
+.ui.time-line.circular > .items > .item > .icon {
+  border-radius: 50%;
+}
 
 .ui.panel {
   box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
+  padding: 0.6em;
   transition: height 0.2s ease-out;
   overflow: hidden;
 }
 .ui.panel > .header {
-  position: relative;
+  margin: -0.6em -0.6em 0.6em -0.6em;
+}
+.ui.panel > .header > .content {
   padding: 0 1rem;
-  height: 3.2rem;
+  height: 2.8rem;
   background-color: #f3f3f4;
   color: #5a5a5b;
 }
-.ui.panel > .header > i.panel-icon {
+.ui.panel > .header > .content > i.panel-icon {
   color: #5a5a5b;
-  line-height: 3.2rem;
+  line-height: 2.8rem;
 }
-.ui.panel > .header > .caption {
-  line-height: 3.2rem;
+.ui.panel > .header > .content > .caption {
+  line-height: 2.8rem;
 }
-.ui.panel > .header > .tools {
-  position: absolute;
-  right: 1rem;
-  top: 0;
-  bottom: 0;
+.ui.panel > .header > .content > .tools {
+  float: right;
 }
-.ui.panel > .header > .tools > * {
-  color: #5a5a5b;
+.ui.panel > .header > .content > .tools > * {
+  position: relative;
+  color: #aeaeae;
   cursor: pointer;
-  line-height: 3.2rem;
+  line-height: 2.8rem;
 }
-.ui.panel > .header > .tools .collapse-btn:before {
+.ui.panel > .header > .content > .tools > *:before {
+  position: absolute;
+}
+.ui.panel > .header > .content > .tools .collapse-btn:before {
   transition: transform 0.2s ease-out;
 }
 .ui.panel.collapsed {
-  height: 3.2rem !important;
+  height: 2.8rem !important;
 }
 .ui.panel.collapsed .collapse-btn:before {
   transform: rotate(-90deg);
 }
-.ui.panel.fieldset > .header {
-  position: inherit;
+.ui.panel.fieldset,
+.ui.panel.groupbox {
+  position: relative;
+  box-shadow: none;
 }
-.ui.panel.fieldset > .header > .tools {
-  position: inherit;
+.ui.panel.fieldset.basic,
+.ui.panel.groupbox.basic {
+  border-color: transparent;
+}
+.ui.panel.fieldset:before,
+.ui.panel.groupbox:before {
+  width: 100%;
+  content: "";
+  position: absolute;
+  border-radius: 2px;
+  top: 1.4rem;
+  z-index: -1;
+  margin-left: -0.6em;
+}
+.ui.panel.fieldset > .header > .content,
+.ui.panel.groupbox > .header > .content {
+  position: relative;
   display: inline-block;
-  height: 3.2rem;
+  background-color: transparent;
+  margin-left: 3em;
+  border-radius: 4px;
+}
+.ui.panel.fieldset > .header > .content:before,
+.ui.panel.groupbox > .header > .content:before {
+  border: 1px solid #d8d8dc;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  top: 2px;
+  border-radius: 2px;
+  bottom: 2px;
+  content: "";
+  z-index: -1;
+  position: absolute;
+}
+.ui.panel.fieldset > .header > .content > .tools,
+.ui.panel.groupbox > .header > .content > .tools {
+  height: 2.8rem;
+}
+.ui.panel.fieldset:before {
+  border-top: 1px solid #d8d8dc;
+}
+.ui.panel.groupbox:before {
+  border: 1px solid #d8d8dc;
+  bottom: 0;
+}
+.ui.panel.basic {
+  box-shadow: none;
+}
+.ui.panel.basic > .header > .content:before {
+  border: none;
+}
+.ui.panel.red > .header {
+  border-left: 2.5px solid #db2828;
+}
+.ui.panel.orange > .header {
+  border-left: 2.5px solid #f2711c;
+}
+.ui.panel.yellow > .header {
+  border-left: 2.5px solid #fbbd08;
+}
+.ui.panel.olive > .header {
+  border-left: 2.5px solid #b5cc18;
+}
+.ui.panel.green > .header {
+  border-left: 2.5px solid #21ba45;
+}
+.ui.panel.teal > .header {
+  border-left: 2.5px solid #00b5ad;
+}
+.ui.panel.blue > .header {
+  border-left: 2.5px solid #2185d0;
+}
+.ui.panel.violet > .header {
+  border-left: 2.5px solid #6435c9;
+}
+.ui.panel.purple > .header {
+  border-left: 2.5px solid #a333c8;
+}
+.ui.panel.pink > .header {
+  border-left: 2.5px solid #ff4081;
+}
+.ui.panel.brown > .header {
+  border-left: 2.5px solid #a5673f;
+}
+.ui.panel.grey > .header {
+  border-left: 2.5px solid #767676;
 }

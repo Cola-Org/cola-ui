@@ -528,7 +528,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   background: #FFFFFF;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 14px;
   line-height: 1.4285em;
   color: rgba(0, 0, 0, 0.87);
@@ -544,7 +544,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   line-height: 1.2857em;
   margin: calc(2rem -  0.14285em ) 0em 1rem;
   font-weight: bold;
@@ -691,7 +691,7 @@ input::selection {
   vertical-align: baseline;
   background: #E0E1E2 none;
   color: rgba(0, 0, 0, 0.6);
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   margin: 0em 0.25em 0em 0em;
   padding: 0.78571429em 1.5em 0.78571429em;
   text-transform: none;
@@ -4579,7 +4579,7 @@ input::selection {
 /* Text Container */
 
 .ui.text.container {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   max-width: 700px !important;
   line-height: 1.5;
 }
@@ -6186,7 +6186,7 @@ i.flag.zimbabwe:before {
   border: none;
   margin: calc(2rem -  0.14285em ) 0em 1rem;
   padding: 0em 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-weight: bold;
   line-height: 1.2857em;
   text-transform: none;
@@ -10644,7 +10644,7 @@ img.ui.bordered.image {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   text-align: left;
   line-height: 1.2142em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   padding: 0.67861429em 1em;
   background: #FFFFFF;
   border: 1px solid rgba(34, 36, 38, 0.15);
@@ -12776,7 +12776,7 @@ ol.ui.list ol li,
 .ui.list > .item .header {
   display: block;
   margin: 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
 }
@@ -15377,7 +15377,7 @@ ol.ui.horizontal.list li:before,
 /* Title */
 
 .ui.steps .step .title {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1.14285714em;
   font-weight: bold;
 }
@@ -16151,7 +16151,7 @@ ol.ui.horizontal.list li:before,
 .ui.form input[type="time"],
 .ui.form input[type="text"],
 .ui.form input[type="url"] {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   margin: 0em;
   outline: none;
   -webkit-appearance: none;
@@ -19531,7 +19531,7 @@ ol.ui.horizontal.list li:before,
   display: -ms-flexbox;
   display: flex;
   margin: 1rem 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   background: #FFFFFF;
   font-weight: normal;
   border: 1px solid rgba(34, 36, 38, 0.15);
@@ -21763,7 +21763,7 @@ Floated Menu / Item
 
 .ui.message .header {
   display: block;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-weight: bold;
   margin: -0.14285em 0em 0rem 0em;
 }
@@ -23970,7 +23970,7 @@ Floated Menu / Item
 .ui.card > .content > .header {
   display: block;
   margin: '';
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   color: rgba(0, 0, 0, 0.85);
 }
 
@@ -25586,7 +25586,7 @@ a.ui.card:hover,
 .ui.items > .item > .content > .header {
   display: inline-block;
   margin: -0.21425em 0em 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.85);
 }
@@ -26068,7 +26068,7 @@ a.ui.card:hover,
 
 .ui.statistics .statistic > .value,
 .ui.statistic > .value {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 4rem;
   font-weight: normal;
   line-height: 1em;
@@ -26083,7 +26083,7 @@ a.ui.card:hover,
 
 .ui.statistics .statistic > .label,
 .ui.statistic > .label {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1em;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
@@ -26639,7 +26639,7 @@ a.ui.card:hover,
 
 .ui.accordion .title:not(.ui) {
   padding: 0.5em 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1em;
   color: rgba(0, 0, 0, 0.87);
 }
@@ -29510,7 +29510,7 @@ select.ui.dropdown {
 
 .ui.modal > .header {
   display: block;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   background: #FFFFFF;
   margin: 0em;
   padding: 1.25rem 1.5rem;
@@ -30175,7 +30175,7 @@ a.ui.nag {
 
 .ui.popup > .header {
   padding: 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1.125em;
   line-height: 1.2;
   font-weight: bold;
@@ -31529,7 +31529,7 @@ a.ui.nag {
 
 .ui.search > .results .result .title {
   margin: -0.14285em 0em 0em;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-weight: bold;
   font-size: 1em;
   color: rgba(0, 0, 0, 0.85);
@@ -31555,7 +31555,7 @@ a.ui.nag {
 }
 
 .ui.search > .results > .message .header {
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1rem;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.87);
@@ -31765,7 +31765,7 @@ a.ui.nag {
 .ui.category.search > .results .category > .name {
   width: 100px;
   background: transparent;
-  font-family: "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
+  font-family: sans-serif, "Helvetica Neue", Arial, "Hiragino Sans GB", 'Lato', "Microsoft YaHei", Helvetica, sans-serif;
   font-size: 1em;
   float: 1em;
   float: left;

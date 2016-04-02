@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.3
+/*! Cola UI - 0.8.4
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -804,7 +804,7 @@
     }
 
     Exception.processException = function(ex) {
-      var error1, ex2, scope;
+      var ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -841,8 +841,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (error1) {
-          ex2 = error1;
+        } catch (_error) {
+          ex2 = _error;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -7933,7 +7933,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, error1, head, scriptElement;
+        var e, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7951,8 +7951,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (error1) {
-          e = error1;
+        } catch (_error) {
+          e = _error;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -9808,7 +9808,7 @@
   };
 
   buildClassFeature = function(classStr) {
-    var classConfig, classExpr, className, error1, expression, feature, features;
+    var classConfig, classExpr, className, expression, feature, features;
     if (!classStr) {
       return false;
     }
@@ -9819,7 +9819,7 @@
         feature = new cola._DomClassFeature(expression);
         features.push(feature);
       }
-    } catch (error1) {
+    } catch (_error) {
       classConfig = cola.util.parseStyleLikeString(classStr);
       for (className in classConfig) {
         classExpr = classConfig[className];
@@ -9893,7 +9893,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.8.3
+/*! Cola UI - 0.8.4
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -13651,7 +13651,7 @@
       DateGrid.prototype.getDateCellDom = function(date) {
         var value;
         value = new XDate(date).toString("yyyy-M-d");
-        return $(this._dom).find("td[c-date='" + value + "']");
+        return $(this._dom).find("td[cell-date='" + value + "']");
       };
 
       DateGrid.prototype.doRefreshCell = function(cell, row, column) {
@@ -13663,7 +13663,7 @@
         cellState = state[row * 7 + column];
         $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
         ym = this.getYMForState(cellState);
-        $fly(cell).attr("c-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+        $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
         if (cellState.type === "normal") {
           if (this._year === this._calendar._year && this._month === this._calendar._month && cellState.text === this._calendar._monthDate) {
             $fly(cell).addClass("selected");
@@ -13735,7 +13735,8 @@
       };
 
       SwipePicker.EVENTS = {
-        change: null
+        change: null,
+        monthChange: null
       };
 
       SwipePicker.prototype.createDateTable = function(dom) {
@@ -13787,7 +13788,7 @@
       };
 
       SwipePicker.prototype.setState = function(year, month) {
-        var nextM, nextY, prevM, prevY;
+        var nextM, nextY, prevM, prevY, ref;
         this._current.setState(year, month);
         prevY = month === 0 ? year - 1 : year;
         prevM = month === 0 ? 11 : month - 1;
@@ -13795,6 +13796,12 @@
         nextY = month === 11 ? year + 1 : year;
         nextM = month === 11 ? 0 : month + 1;
         this._next.setState(nextY, nextM);
+        if ((ref = this._calendar) != null) {
+          ref.fire("monthChange", this._calendar, {
+            year: year,
+            month: month
+          });
+        }
         return this;
       };
 
@@ -13990,6 +13997,7 @@
       Calendar.EVENTS = {
         refreshCellDom: null,
         change: null,
+        monthChange: null,
         cellClick: null
       };
 
@@ -14016,15 +14024,15 @@
         });
       };
 
-      Calendar.prototype._createDom = function() {
-        var allWeeks, cal, dom, picker, weeks;
+      Calendar.prototype._initDom = function(dom) {
+        var allWeeks, cDom, cal, picker, weeks;
         allWeeks = cola.resource("cola.date.dayNamesShort");
         weeks = allWeeks.split(",");
         cal = this;
         if (this._doms == null) {
           this._doms = {};
         }
-        dom = $.xCreate({
+        cDom = $.xCreate({
           tagName: "div",
           content: [
             {
@@ -14121,10 +14129,10 @@
             }
           }
         });
-        picker.appendTo(dom);
+        picker.appendTo(cDom);
         this._doms.dateTableWrapper = picker._dom;
         cal.bindButtonsEvent();
-        return dom;
+        return $(dom).append(cDom);
       };
 
       Calendar.prototype.setState = function(year, month) {
@@ -14327,7 +14335,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e, error;
+      var contentWindow, e;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14335,8 +14343,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (error) {
-        e = error;
+      } catch (_error) {
+        e = _error;
       }
       return contentWindow;
     };
@@ -16941,7 +16949,7 @@
       },
       closable: {
         type: "boolean",
-        defaultValue: true
+        defaultValue: false
       },
       caption: {
         refreshDom: true
@@ -17037,22 +17045,26 @@
     };
 
     Panel.prototype._initDom = function(dom) {
-      var l, len1, node, nodes, template, toolsDom;
+      var headerContent, l, len1, node, nodes, template, toolsDom;
       this._regDefaultTempaltes();
       Panel.__super__._initDom.call(this, dom);
-      this._doms.caption = $.xCreate({
-        tagName: "span",
-        "class": "caption"
+      headerContent = $.xCreate({
+        tagName: "div",
+        "class": "content"
       });
-      this._render(this._doms.caption, "header");
       this._doms.icon = $.xCreate({
         tagName: "i",
         "class": "panel-icon"
       });
-      this._render(this._doms.icon, "header");
+      headerContent.appendChild(this._doms.icon);
+      this._doms.caption = $.xCreate({
+        tagName: "span",
+        "class": "caption"
+      });
+      headerContent.appendChild(this._doms.caption);
       template = this._getTemplate("tools");
       cola.xRender(template, this._scope);
-      toolsDom = $.xCreate({
+      toolsDom = this._doms.tools = $.xCreate({
         "class": "tools"
       });
       toolsDom.appendChild(template);
@@ -17079,7 +17091,8 @@
         node = nodes[l];
         toolsDom.appendChild(node);
       }
-      this._render(toolsDom, "header");
+      headerContent.appendChild(toolsDom);
+      this._render(headerContent, "header");
       if (!this._doms.content) {
         this._makeContentDom("content");
       }
@@ -17091,7 +17104,13 @@
       }
       Panel.__super__._doRefreshDom.call(this);
       $fly(this._doms.caption).text(this._caption || "");
-      return $fly(this._doms.icon).text(this._icon || "");
+      if (this._doms.icon._icon) {
+        $fly(this._doms.icon).removeClass(this._doms.icon._icon);
+      }
+      $fly(this._doms.icon).addClass("icon " + (this._icon || ""));
+      this._doms.icon._icon = this._icon;
+      $fly(this._doms.tools).find(".collapse-btn")[this._collapsible ? "show" : "hide"]();
+      return $fly(this._doms.tools).find(".close-btn")[this._closable ? "show" : "hide"]();
     };
 
     Panel.prototype._makeContentDom = function(target) {
@@ -17101,7 +17120,11 @@
       }
       dom = document.createElement("div");
       dom.className = target;
-      this._dom.appendChild(dom);
+      if (target === "header") {
+        $(this._dom).prepend(dom);
+      } else {
+        this._dom.appendChild(dom);
+      }
       this._doms[target] = dom;
       return dom;
     };
@@ -17132,6 +17155,7 @@
           } else {
             $child = $(child);
             if (!$child.hasClass("content")) {
+              child = child.nextSibling;
               continue;
             }
             this._doms["content"] = child;
@@ -17148,6 +17172,32 @@
   })(cola.AbstractContainer);
 
   cola.Element.mixin(cola.Panel, cola.TemplateSupport);
+
+  cola.FieldSet = (function(superClass) {
+    extend(FieldSet, superClass);
+
+    function FieldSet() {
+      return FieldSet.__super__.constructor.apply(this, arguments);
+    }
+
+    FieldSet.CLASS_NAME = "panel fieldset";
+
+    return FieldSet;
+
+  })(cola.Panel);
+
+  cola.GroupBox = (function(superClass) {
+    extend(GroupBox, superClass);
+
+    function GroupBox() {
+      return GroupBox.__super__.constructor.apply(this, arguments);
+    }
+
+    GroupBox.CLASS_NAME = "panel groupbox";
+
+    return GroupBox;
+
+  })(cola.Panel);
 
   cola.AbstractEditor = (function(superClass) {
     extend(AbstractEditor, superClass);
@@ -21398,7 +21448,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, error, pos;
+      var activeSpan, e, pos;
       this.fire("change", this, {
         index: index
       });
@@ -21411,8 +21461,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (error) {
-            e = error;
+          } catch (_error) {
+            e = _error;
           }
         }
         if (this._scroller) {
@@ -23377,7 +23427,7 @@
     Stack.duration = 200;
 
     Stack.prototype._initDom = function(dom) {
-      var itemsWrap;
+      var itemsWrap, width;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -23403,9 +23453,25 @@
       this._prevItem = this._doms.prevItem;
       this._currentItem = this._doms.currentItem;
       this._nextItem = this._doms.nextItem;
-      return $fly(this._currentItem).css({
+      width = this._currentItem.clientWidth;
+      $fly(this._currentItem).css({
         display: "block"
       });
+      this._bindTouch();
+      $fly(this._currentItem).css("transform", "translate(-" + width + "px,0)");
+      if (direction === "left") {
+        $fly(this._prevItem).css("display", "none");
+        $fly(this._nextItem).css({
+          transform: "translate(" + width + "px,0)",
+          display: "block"
+        });
+      } else {
+        $fly(this._nextItem).css("display", "none");
+        $fly(this._prevItem).css({
+          transform: "translate(" + (2 * width) + "px,0)",
+          display: "block"
+        });
+      }
     };
 
     Stack.prototype._parseDom = function(dom) {
@@ -23461,15 +23527,19 @@
     };
 
     Stack.prototype._setDom = function(dom, parseChild) {
+      return Stack.__super__._setDom.call(this, dom, parseChild);
+    };
+
+    Stack.prototype._bindTouch = function() {
       var stack;
-      Stack.__super__._setDom.call(this, dom, parseChild);
       stack = this;
-      return $(dom).on("touchstart", function(evt) {
-        return stack._onTouchStart(evt);
+      $(this._dom).on("touchstart", function(evt) {
+        stack._onTouchStart(evt);
       }).on("touchmove", function(evt) {
-        return stack._onTouchMove(evt);
-      }).on("touchend", function(evt) {
-        return stack._onTouchEnd(evt);
+        stack._onTouchMove(evt);
+      });
+      return $(window.document.body).on("touchend", function(evt) {
+        stack._onTouchEnd(evt);
       });
     };
 
@@ -28418,12 +28488,6 @@
       }
     };
 
-    TimeLine.EVENTS = {
-      itemContentClick: null,
-      itemLineClick: null,
-      itemIconClick: null
-    };
-
     TimeLine.TEMPLATES = {
       "default": {
         tagName: "li"
@@ -28468,6 +28532,6 @@
 
     return TimeLine;
 
-  })(cola.ItemsView);
+  })(cola.AbstractList);
 
 }).call(this);

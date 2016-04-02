@@ -1,4 +1,25 @@
 ## RELEASE NOTES
+### Version 0.8.3 - April 03, 2016
+
+**新控件**
+- **TimeLine** - [Api](http://cola-ui.com/api/cola.Panel.html) 
+- **Panel** - [Api](http://cola-ui.com/api/cola.Panel.html)
+- **FieldSet** - [Api](http://cola-ui.com/api/cola.FieldSet.html)
+- **GroupBox** - [Api](http://cola-ui.com/api/cola.GroupBox.html)
+
+**Bug 修复**
+- **Carousel** - 修正Carousel利用数据绑定时，常常不能自动刷新出indicators的BUG。
+- **Provider** - 修正Provider发送limit from和pageSize pageNo参数时的BUG
+- **Tree** - 修复Tree autoExpand=true时 出现全部收缩的问题 
+- **Pager** - 修复pager控件items属性默认为空的bug  …
+- **Stack** - 修复Stack控件在部分Android下滑动不了得问题…
+- **Calendar** - 修复Calendar控件获得日期对应dom在切换前无法获得的bug…
+
+**小改进**
+- **Input** - 先执行Input的post工作，再触发change事件。
+- **Semantic** - Semantic-UI 汉字优化
+- **Provider** - 为provider提供loadMode属性
+- **Font** - 英文字体 Open Sans字体优先级调高
 
 ### Version 0.8.2 - March 11, 2016
 **Bug 修复**

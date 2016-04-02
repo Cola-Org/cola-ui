@@ -10,15 +10,42 @@
 <body style="padding: 20px;">
 
 
-<div c-widget="#panel"></div>
-<div c-widget="#panel; class:fieldset"></div>
-<div c-widget="#panel; class:groupbox"></div>
+<div c-widget="#panel">
+	<div c-widget="button; caption:GroupBox"></div>
+</div>
+<br>
+
+<div c-widget="#fieldSet;"></div>
+<br>
+
+<div c-widget="#groupBox;">
+
+	<div c-widget="button; caption:GroupBox"></div>
+
+
+</div>
 
 <script type="text/javascript">
 	cola(function (model) {
 		model.widgetConfig({
 			panel: {
+				icon: "user",
 				$type: "Panel",
+				closable: false,
+				caption: "个人数据",
+				width: "40%", height: "10em"
+			},
+			fieldSet: {
+				icon: "user",
+				$type: "FieldSet",
+				closable: false,
+				caption: "个人数据",
+				width: "40%", height: "10em"
+			},
+			groupBox: {
+				icon: "user",
+				$type: "GroupBox",
+				closable: false,
 				caption: "个人数据",
 				width: "40%", height: "10em"
 			}

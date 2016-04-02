@@ -6,6 +6,9 @@
 * Cola UI遵循Mobile First的策略，特别适合于移动设备应用开发。
 * Cola UI整合了jQuery和Semantic UI，同时提供更多常用的List、Table、Tree等高级控件。
 
+
+[产品版本日志](https://github.com/Cola-Org/cola-ui/blob/master/RELEASE-NOTES.md)
+
 ## 相关链接
 
 产品官网 [http://cola-ui.com](http://cola-ui.com)

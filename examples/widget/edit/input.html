@@ -21,6 +21,7 @@
 					}]
 				}
 			});
+			model.set("username", "alex")
 			model.action({
 				inputChange: function () {
 					console.log("change")
@@ -28,19 +29,21 @@
 			})
 			model.widgetConfig({
 				inputEventTest: {
-					focus: function (self,arg) {
+					postOnInput:true,
+					focus: function (self, arg) {
 //						console.log("focus")
 					},
 					blur: function () {
 //						console.log("blur")
 					},
-					keyDown: function (self,arg) {
-//						console.log("keyDown")
+					keyDown: function (self, arg) {
+						console.log("keyDown")
 					},
-					keyPress: function (self,arg) {
+					keyPress: function (self, arg) {
 //						console.log("keyPress")
 //						console.log(arg)
-					}, change: function (self,arg) {
+						console.log(self.get("value"))
+					}, change: function (self, arg) {
 						console.log("change");
 						console.log(arg)
 					}
@@ -66,6 +69,6 @@
 
 
 </div>
-
+<div class="fluid" c-widget="Input; placeholder:搜索99位同学; icon:search; iconPosition:left; bind:username; keydown:query"></div>
 </body>
 </html>
