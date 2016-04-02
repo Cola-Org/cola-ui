@@ -20,6 +20,7 @@
 - **Semantic** - Semantic-UI 汉字优化
 - **Provider** - 为provider提供loadMode属性
 - **Font** - 英文字体 Open Sans字体优先级调高
+- **Table** - 改进table外观
 
 ### Version 0.8.2 - March 11, 2016
 **Bug 修复**
