@@ -24,11 +24,34 @@ class cola.WidgetModel extends cola.Scope
 class cola.TemplateWidget extends cola.Widget
 
 	@ATTRIBUTES:
-		template: null
+		template:
+			readOnlyAfterCreate: true
 
 	constructor: (config) ->
 		@_widgetModel = new cola.WidgetModel(@)
 		super(config)
 
 	_createDom: () ->
-		return cola.xRender(@_template or {}, @_widgetModel)
+		if @_template
+			dom = cola.xRender(@_template or {}, @_widgetModel)
+			@_domCreated = true
+			return dom
+		else
+			return super()
+
+	_initDom: (dom) ->
+		super(dom)
+		if @_template and not @_domCreated
+			templateDom = cola.xRender(@_template or {}, @_widgetModel)
+			if templateDom
+				for attr in dom.attributes
+					attrName = attr.name
+					if not attrName is "style"
+						dom.setAttribute(attrName, attr.value) if not dom.hasAttribute(attrName)
+
+				for cssName of templateDom.style
+					dom.style[cssName] = templateDom.style[cssName] if dom.style[cssName] is ""
+
+				for childNode in templateDom.childNodes
+					dom.appendChild(childNode)
+		return

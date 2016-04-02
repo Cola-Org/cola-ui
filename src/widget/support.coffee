@@ -38,6 +38,18 @@ _findWidgetConfig = (scope, name) ->
 		scope = scope.parent
 	return widgetConfig
 
+_compileWidgetDom = (dom, widgetType) ->
+	config =
+		$constr: widgetType
+
+	for attr in dom.attributes
+		attrName = attr.name
+		if attrName.indexOf("c-") == 0
+#			dom.removeAttribute(attrName)
+		else
+			config[attrName] = attr.value
+	return config
+
 cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 	return null if cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
 	return null unless dom.nodeType is 1
@@ -46,11 +58,9 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 		jsonConfig = _findWidgetConfig(scope, dom.id)
 
 	tagName = dom.tagName
-	widgetType = cola.component.tagNames[tagName]
+	widgetType = cola.widget.tagNames[tagName]
 	if widgetType
-		config =
-			$constructor: widgetType
-
+		config = _compileWidgetDom(dom, widgetType)
 	else
 		widgetConfigStr = dom.getAttribute("c-widget")
 		if widgetConfigStr
@@ -90,7 +100,11 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 			$type: config
 		}
 	oldParentConstr = context.constr
-	constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
+
+	if config.$constr instanceof Function
+		constr = config.$constr
+	else
+		constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
 	config.$constr = context.constr = constr
 
 	if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender

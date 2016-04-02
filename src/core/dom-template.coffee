@@ -179,6 +179,15 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			features ?= []
 			features.push(feature)
 
+	for customDomCompiler in cola._userDomCompiler.$
+		result = customDomCompiler(scope, dom, null, context)
+		if result
+			if result instanceof cola._BindingFeature
+				features.push(result)
+			if typeof result == "function"
+				initializers ?= []
+				initializers.push(result)
+
 	for attr in dom.attributes
 		attrName = attr.name
 		if attrName.substring(0, 2) == "c-"
@@ -207,7 +216,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 							initializers ?= []
 							initializers.push(result)
 				else
-					if attrName.substring(0, 2) == "on"
+					if attrName.indexOf("on") == 0
 						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
 					else if attrName == "resource"
 						feature = buildResourceFeature(scope, dom, attrValue)
@@ -215,19 +224,9 @@ _doRenderDomTemplate = (dom, scope, context) ->
 						feature = buildWatchFeature(scope, dom, attrValue)
 					else
 						feature = buildAttrFeature(dom, attrName, attrValue)
-
-	#					if feature
-	#						features ?= []
-	#						features.push(feature)
-
-	for customDomCompiler in cola._userDomCompiler.$
-		result = customDomCompiler(scope, dom, null, context)
-		if result
-			if result instanceof cola._BindingFeature
-				features.push(result)
-			if typeof result == "function"
-				initializers ?= []
-				initializers.push(result)
+					if feature
+						features ?= []
+						features.push(feature)
 
 	if removeAttrs
 		for removeAttr in removeAttrs

@@ -92,7 +92,6 @@ class cola.RenderableElement extends cola.Element
 		dom.className = "ui #{className}"
 		return dom
 
-
 	_doSet: (attr, attrConfig, value) ->
 		if attrConfig?.refreshDom and @_dom
 			cola.util.delay(@, "refreshDom", 50, @_refreshDom)
@@ -133,8 +132,6 @@ class cola.RenderableElement extends cola.Element
 		unless @_dom
 			dom = @_createDom()
 			@_setDom(dom)
-
-
 		return @_dom
 
 	get$Dom: ()-># 将获得jQuery或zepto 实例
