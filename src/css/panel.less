@@ -1,42 +1,46 @@
 @import "global.less";
 
-@panelHeaderHeight: 3.2rem;
+@panelHeaderHeight: 2.8rem;
 @panelHeaderBkgColor: #f3f3f4;
-@panelHeaderIconColor: #5a5a5b;
-@panelHeaderFontColor: #5a5a5b;
 
+@panelHeaderIconColor: #5a5a5b;
+@panelToolsIconColor: #aeaeae;
+@panelHeaderFontColor: #5a5a5b;
+@panelBorderColor: darken(@panelHeaderBkgColor, 10%);
+@panelPadding: 0.6em;
 .ui.panel {
 	box-shadow: 0 2px 4px 0 rgba(34, 36, 38, .12), 0 2px 10px 0 rgba(34, 36, 38, .08);
+	padding: @panelPadding;
 	> .header {
-		position: relative;
-		padding: 0 1rem;
-		height: @panelHeaderHeight;
-		background-color: @panelHeaderBkgColor;
-		color: @panelHeaderFontColor;
-		> i.panel-icon {
-			color: @panelHeaderIconColor;
-			line-height: @panelHeaderHeight;
-		}
-		> .caption {
-			line-height: @panelHeaderHeight;
-		}
-		> .tools {
-
-			position: absolute;
-			right: 1rem;
-			top: 0;
-			bottom: 0;
-			> * {
+		margin: -@panelPadding -@panelPadding @panelPadding -@panelPadding;
+		> .content {
+			padding: 0 1rem;
+			height: @panelHeaderHeight;
+			background-color: @panelHeaderBkgColor;
+			color: @panelHeaderFontColor;
+			> i.panel-icon {
 				color: @panelHeaderIconColor;
-				cursor: pointer;
 				line-height: @panelHeaderHeight;
 			}
-
-			.collapse-btn:before {
-				.transition(transform 0.2s ease-out);
+			> .caption {
+				line-height: @panelHeaderHeight;
+			}
+			> .tools {
+				float: right;
+				> * {
+					position: relative;
+					&:before {
+						position: absolute;
+					}
+					color: @panelToolsIconColor;
+					cursor: pointer;
+					line-height: @panelHeaderHeight;
+				}
+				.collapse-btn:before {
+					.transition(transform 0.2s ease-out);
+				}
 			}
 		}
-
 	}
 	.transition(height 0.2s ease-out);
 	overflow: hidden;
@@ -46,20 +50,90 @@
 			.transform(rotate(-90deg));
 		}
 	}
+	&.fieldset, &.groupbox {
+		&.basic {
+			border-color: transparent;
+		}
 
-	&.fieldset {
+		position: relative;
+		box-shadow: none;
+		&:before {
+			width: 100%;
+			content: "";
+			position: absolute;
+			border-radius: 2px;
+			top: @panelHeaderHeight/2;
+			z-index: -1;
+			margin-left: -@panelPadding;
+		}
 		> .header {
-			position: inherit;
-			> .tools {
-				position: inherit;
+			> .content {
+				position: relative;
 				display: inline-block;
-				height: @panelHeaderHeight;
+				background-color: transparent;
+				margin-left: 3em;
+				border-radius: 4px;
+				&:before {
+					border: 1px solid @panelBorderColor;
+					left: 0;
+					right: 0;
+					background-color: #fff;
+					top: 2px;
+					border-radius: 2px;
+					bottom: 2px;
+					content: "";
+					z-index: -1;
+					position: absolute;
+				}
+				> .tools {
+					height: @panelHeaderHeight;
+				}
+			}
+		}
+	}
+	&.fieldset {
+		&:before {
+			border-top: 1px solid @panelBorderColor;
+		}
+	}
+	&.groupbox {
+		&:before {
+			border: 1px solid @panelBorderColor;
+			bottom: 0;
+		}
+	}
+
+	&.basic {
+		box-shadow: none;
+		> .header {
+			> .content {
+
+				&:before {
+					border: none;
+
+				}
+
+			}
+		}
+	}
+	.mixin_panel_color(@name,@color) {
+		&.@{name} {
+			> .header {
+				border-left: 2.5px solid @color;
 			}
 		}
 
 	}
-	&.groupbox {
-
-	}
-
+	.mixin_panel_color(red, @red);
+	.mixin_panel_color(orange, @orange);
+	.mixin_panel_color(yellow, @yellow);
+	.mixin_panel_color(olive, @olive);
+	.mixin_panel_color(green, @green);
+	.mixin_panel_color(teal, @teal);
+	.mixin_panel_color(blue, @blue);
+	.mixin_panel_color(violet, @violet);
+	.mixin_panel_color(purple, @purple);
+	.mixin_panel_color(pink, @pink);
+	.mixin_panel_color(brown, @brown);
+	.mixin_panel_color(grey, @grey);
 }

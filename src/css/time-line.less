@@ -1,9 +1,20 @@
 @import "global.less";
 
-@leftWidth: 8em;
-@iconSize: 2em;
-@iconMarginLeft: @leftWidth - @iconSize/2;
-@contentMarginLeft: @leftWidth + @iconSize;
+@timeLineLeftWidth: 8em;
+@timeLineIconSize: 2em;
+@timeLineIconMarginLeft: @timeLineLeftWidth - @timeLineIconSize/2;
+@timeLineContentMarginLeft: @timeLineLeftWidth + @timeLineIconSize;
+@timeLineLineColor: #e0e0e0;
+@timeLineDefaultIconColor: #18a689;
+
+@-webkit-keyframes breathe {
+	0% {
+		opacity: .5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
 
 .ui.time-line {
 	> .items {
@@ -14,33 +25,40 @@
 			padding: 0 !important;
 			&:before {
 				position: absolute;
-				border: 1px solid #646464;
-				left: @leftWidth;
-				top: @iconSize;
+				border: 1px solid @timeLineLineColor;
+				left: @timeLineLeftWidth;
+				top: @timeLineIconSize;
 				bottom: 0;
 				content: "";
 			}
 			.time {
 				position: absolute;
 				top: 0.3em;
-				width: @leftWidth;
+				width: @timeLineLeftWidth;
 				display: inline-block;
 				text-align: right;
-				padding: 0 @iconSize 0 0;
+				//color: @timeLineDefaultIconColor;
+				padding: 0 @timeLineIconSize 0 0;
 			}
+
 			.content {
-				margin-left: @contentMarginLeft;
+				margin-left: @timeLineContentMarginLeft;
 				padding-bottom: 1em;
+				p {
+					color: rgba(103, 106, 108, 0.7);
+					padding: 0.4em 0
+				}
 			}
 			> .icon {
 				position: absolute;
-				left: @iconMarginLeft;
+				left: @timeLineIconMarginLeft;
 				top: 0;
 				display: inline-block;
-				width: @iconSize;
-				height: @iconSize;
+				width: @timeLineIconSize;
+				height: @timeLineIconSize;
 				text-align: center;
-				border: 2px solid #646464;
+				color: @timeLineDefaultIconColor;
+				border: 2.5px solid @timeLineLineColor;
 				> .icon {
 					line-height: 1.8em;
 					margin: 0;
@@ -48,4 +66,35 @@
 			}
 		}
 	}
+
+	> .items {
+		> .item:hover {
+			> .icon {
+				> i {
+					.animation-timing-function(ease-in-out);
+					.animation-name(breathe);
+					.animation-duration(500ms);
+					.animation-iteration-count(infinite);
+					.animation-direction(alternate);
+				}
+			}
+			> .icon, &:before {
+				border-color: fadeout(@timeLineDefaultIconColor, 40%);
+			}
+		}
+	}
+
+	&.circular {
+		> .items {
+			> .item {
+				> .icon {
+					border-radius: 50%;
+
+				}
+
+			}
+		}
+	}
+
 }
+

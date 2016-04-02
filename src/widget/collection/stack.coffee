@@ -24,8 +24,25 @@ class cola.Stack extends cola.Widget
 		@_prevItem = @_doms.prevItem
 		@_currentItem = @_doms.currentItem
 		@_nextItem = @_doms.nextItem
-
+		width = @_currentItem.clientWidth
 		$fly(@_currentItem).css({display: "block"})
+		@_bindTouch()
+
+		$fly(@_currentItem).css("transform", "translate(-#{width}px,0)")
+		if direction is "left"
+			$fly(@_prevItem).css("display", "none")
+			$fly(@_nextItem).css({
+				transform: "translate(#{width}px,0)"
+				display: "block"
+			})
+		else
+			$fly(@_nextItem).css("display", "none")
+			$fly(@_prevItem).css({
+				transform: "translate(#{2 * width}px,0)"
+				display: "block"
+			})
+		return
+
 	_parseDom: (dom)->
 		parseItem = (node)=>
 			@_items = []
@@ -60,10 +77,19 @@ class cola.Stack extends cola.Widget
 
 	_setDom: (dom, parseChild)->
 		super(dom, parseChild)
+	_bindTouch: ()->
 		stack = @
-		$(dom).on("touchstart", (evt) -> stack._onTouchStart(evt))
-		.on("touchmove", (evt) -> stack._onTouchMove(evt))
-		.on("touchend", (evt) -> stack._onTouchEnd(evt))
+		$(@_dom).on("touchstart", (evt) ->
+			stack._onTouchStart(evt)
+			return
+		).on("touchmove", (evt) ->
+			stack._onTouchMove(evt)
+			return
+		)
+		$(window.document.body).on("touchend", (evt) ->
+			stack._onTouchEnd(evt)
+			return
+		)
 
 	_getTouchPoint: (evt) ->
 		touches = evt.originalEvent.touches
@@ -182,8 +208,6 @@ class cola.Stack extends cola.Widget
 				@_doPrev()
 		else
 			restore()
-
-
 		return
 
 	next: ()->

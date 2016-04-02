@@ -163,7 +163,7 @@ do->
 			return
 		getDateCellDom: (date)->
 			value = new XDate(date).toString("yyyy-M-d")
-			return $(@_dom).find("td[c-date='#{value}']")
+			return $(@_dom).find("td[cell-date='#{value}']")
 
 		doRefreshCell: (cell, row, column) ->
 			state = @_state
@@ -172,7 +172,7 @@ do->
 			cellState = state[row * 7 + column]
 			$fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text)
 			ym = @getYMForState(cellState)
-			$fly(cell).attr("c-date", "#{ym.year}-#{ym.month + 1}-#{cellState.text}")
+			$fly(cell).attr("cell-date", "#{ym.year}-#{ym.month + 1}-#{cellState.text}")
 			if cellState.type == "normal"
 				if @_year == @_calendar._year && @_month == @_calendar._month && cellState.text == @_calendar._monthDate
 					$fly(cell).addClass("selected")
@@ -224,6 +224,7 @@ do->
 			calendar: null
 		@EVENTS:
 			change: null
+			monthChange: null
 		createDateTable: (dom)->
 			calendar = @_calendar
 			dateTable = new cola.calendar.DateGrid({
@@ -267,6 +268,7 @@ do->
 			nextY = if month == 11 then year + 1 else year
 			nextM = if month == 11 then 0 else month + 1
 			@_next.setState(nextY, nextM)
+			@_calendar?.fire("monthChange", @_calendar, {year: year, month: month})
 			return @
 
 		setDate: ()->
@@ -408,6 +410,7 @@ do->
 		@EVENTS:
 			refreshCellDom: null
 			change: null
+			monthChange: null
 			cellClick: null
 		doFireCellRefresh: (arg)->
 			@fire("refreshCellDom", @, arg)
@@ -427,12 +430,12 @@ do->
 			$fly(doms.nextYearButton).on("click", ()->
 				cal.nextYear()
 			)
-		_createDom: ()->
+		_initDom: (dom)->
 			allWeeks = cola.resource("cola.date.dayNamesShort")
 			weeks = allWeeks.split(",")
 			cal = this
 			@_doms ?= {}
-			dom = $.xCreate({
+			cDom = $.xCreate({
 				tagName: "div"
 				content: [
 					{
@@ -528,7 +531,6 @@ do->
 							}
 						]
 					}
-
 				]
 			}, @_doms)
 
@@ -540,14 +542,12 @@ do->
 						cal.nextMonth()
 					else
 						cal.prevMonth()
-
 			})
-			picker.appendTo(dom)
+			picker.appendTo(cDom)
 			@_doms.dateTableWrapper = picker._dom
 
 			cal.bindButtonsEvent()
-			return dom
-
+			$(dom).append(cDom)
 
 
 		setState: (year, month)->

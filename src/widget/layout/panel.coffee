@@ -6,7 +6,7 @@ class cola.Panel extends cola.AbstractContainer
 			defaultValue: true
 		closable:
 			type: "boolean"
-			defaultValue: true
+			defaultValue: false
 		caption:
 			refreshDom: true
 		icon:
@@ -65,24 +65,29 @@ class cola.Panel extends cola.AbstractContainer
 	_initDom: (dom)->
 		@_regDefaultTempaltes()
 		super(dom)
+		headerContent = $.xCreate({
+			tagName: "div"
+			class: "content"
+		})
+		@_doms.icon = $.xCreate({
+			tagName: "i"
+			class: "panel-icon"
+		})
+		headerContent.appendChild(@_doms.icon)
 
 		@_doms.caption = $.xCreate({
 			tagName: "span"
 			class: "caption"
 		})
-		@_render(@_doms.caption, "header")
-		@_doms.icon = $.xCreate({
-			tagName: "i"
-			class: "panel-icon"
-		})
-		@_render(@_doms.icon, "header")
+		headerContent.appendChild(@_doms.caption)
 
 		template = @_getTemplate("tools")
 		cola.xRender(template, @_scope)
-		toolsDom = $.xCreate({
+		toolsDom = @_doms.tools = $.xCreate({
 			class: "tools"
 		})
 		toolsDom.appendChild(template)
+
 		nodes = $.xCreate([
 			{
 				tagName: "i"
@@ -98,7 +103,10 @@ class cola.Panel extends cola.AbstractContainer
 			}
 		])
 		toolsDom.appendChild(node) for node in nodes
-		@_render(toolsDom, "header")
+		headerContent.appendChild(toolsDom)
+
+
+		@_render(headerContent, "header")
 		@_makeContentDom("content") unless @_doms.content
 		return
 
@@ -106,16 +114,24 @@ class cola.Panel extends cola.AbstractContainer
 		return unless @_dom
 		super()
 		$fly(@_doms.caption).text(@_caption || "")
-		$fly(@_doms.icon).text(@_icon || "")
+		if @_doms.icon._icon
+			$fly(@_doms.icon).removeClass(@_doms.icon._icon)
+		$fly(@_doms.icon).addClass("icon #{@_icon || ""}")
+		@_doms.icon._icon = @_icon
+		$fly(@_doms.tools).find(".collapse-btn")[if @_collapsible then "show" else "hide"]()
+		$fly(@_doms.tools).find(".close-btn")[if @_closable then "show" else "hide"]()
 
 	_makeContentDom: (target)->
 		@_doms ?= {}
 		dom = document.createElement("div")
 		dom.className = target
-		@_dom.appendChild(dom)
+
+		if target is "header"
+			$(@_dom).prepend(dom)
+		else
+			@_dom.appendChild(dom)
 		@_doms[target] = dom
 		return dom
-
 
 	_parseDom: (dom)->
 		@_doms ?= {}
@@ -136,7 +152,9 @@ class cola.Panel extends cola.AbstractContainer
 					@_regTemplate(child)
 				else
 					$child = $(child)
-					continue unless $child.hasClass("content")
+					unless $child.hasClass("content")
+						child = child.nextSibling
+						continue
 					@_doms["content"] = child
 					_parseChild(child, "content")
 					break
@@ -144,3 +162,9 @@ class cola.Panel extends cola.AbstractContainer
 		return
 cola.Element.mixin(cola.Panel, cola.TemplateSupport)
 
+
+
+class cola.FieldSet extends cola.Panel
+	@CLASS_NAME: "panel fieldset"
+class cola.GroupBox extends cola.Panel
+	@CLASS_NAME: "panel groupbox"

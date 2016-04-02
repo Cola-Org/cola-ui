@@ -1,13 +1,15 @@
-class cola.TimeLine extends cola.ItemsView
+class cola.TimeLine extends cola.AbstractList
 	@CLASS_NAME: "time-line"
 	@ATTRIBUTES:
 		bind:
 			refreshItems: true
 			setter: (bindStr) -> @_bindSetter(bindStr)
-	@EVENTS:
-		itemContentClick: null
-		itemLineClick: null
-		itemIconClick: null
+
+#	@EVENTS:
+#		itemContentClick: null
+#		itemLineClick: null
+#		itemIconClick: null
+
 	@TEMPLATES:
 		"default":
 			tagName: "li"
@@ -20,6 +22,7 @@ class cola.TimeLine extends cola.ItemsView
 		"time":
 			tagName: "div"
 			"c-bind": "$default.time"
+
 	_createNewItem: (itemType, item) ->
 		template = @_getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
@@ -31,6 +34,8 @@ class cola.TimeLine extends cola.ItemsView
 			container = $.xCreate({
 				tagName: "div"
 				class: name
+#				click: ()=>
+#					@fire("item#{cola.util.capitalize(name)}Click", @, {item: item})
 			})
 			container.appendChild(contentDom)
 			itemDom.appendChild(container)
