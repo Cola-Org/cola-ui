@@ -3808,6 +3808,9 @@ template {
   will-change: top, left, margin, transform, opacity;
   min-width: 240px;
 }
+.ui.dialog.v-box {
+  height: auto;
+}
 .ui.dialog > :first-child:not(.icon),
 .ui.dialog > .icon:first-child + * {
   border-top-left-radius: 0.28571429rem;
