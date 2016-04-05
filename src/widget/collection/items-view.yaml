@@ -1,0 +1,115 @@
+name: cola.ItemsView
+stereotype: class
+super: cola.Widget
+label: 集合型控件类
+
+attributes:
+  - name: allowNoCurrent
+    type: boolean
+    defaultValue: true
+    label: 是否允许集合型控件没有当前列表元素。
+
+  - name: currentItem
+    type: cola.Entity || any
+    label: 当前列表元素所对应的列表数据项。
+
+  - name: highlightCurrentItem
+    type: boolean
+    label: 是否高亮显示当前的列表元素。
+
+
+events:
+  - name: getItemTemplate
+    label: 当列表控件尝试确定每一个列表项的模板时触发的事件。
+    description: |
+      该事件的返回值即为要使用的模板的名称，如果此事件返回空则表示使用默认的名为“default”的模板。
+    type: string
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+
+  - name: renderItem
+    label: 当列表控件尝试渲染每一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: itemScope
+            type: cola.Scope
+            description: 当前列表元素对应的scope。
+
+  - name: itemClick
+    label: 当用户点击某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: itemDoubleClick
+    label: 当用户双击某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+
+  - name: itemPress
+    label: 当用户长按某一个列表项时触发的事件。
+    arguments:
+      - name: self
+        type: cola.ItemsView
+        label: 控件本身
+      - name: arg
+        properties:
+          - name: item
+            type: cola.Entity || any
+            description: 当前列表元素对应的列表项数据。
+          - name: itemDom
+            type: HTMLElement
+            description: 当前列表元素，即当前列表项的DOM元素。
+          - name: event
+            type: Event
+            description: 原生DOM事件对应的Event对象。
+methods:
+  - name: getItems
+    label: 获得items列表
+  - name: refreshItem
+    label: 刷新指定item对应的Dom
+    arguments:
+      - name: item
+        type: cola.Entity
