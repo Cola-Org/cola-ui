@@ -115,7 +115,10 @@ class cola.Panel extends cola.AbstractContainer
 		super()
 		$fly(@_doms.caption).text(@_caption || "")
 		if @_doms.icon._icon
-			$fly(@_doms.icon).removeClass(@_doms.icon._icon)
+			$fly(@_doms.icon).show().removeClass(@_doms.icon._icon)
+		else
+			$fly(@_doms.icon).hide()
+
 		$fly(@_doms.icon).addClass("icon #{@_icon || ""}")
 		@_doms.icon._icon = @_icon
 		$fly(@_doms.tools).find(".collapse-btn")[if @_collapsible then "show" else "hide"]()
@@ -161,7 +164,6 @@ class cola.Panel extends cola.AbstractContainer
 			child = child.nextSibling
 		return
 cola.Element.mixin(cola.Panel, cola.TemplateSupport)
-
 
 
 class cola.FieldSet extends cola.Panel
