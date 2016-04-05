@@ -7,7 +7,7 @@ _createGroupArray = () ->
 	groups._grouped = true
 	return groups
 
-class cola.ListView extends cola.ItemsView
+class cola.ListView extends cola.AbstractList
 	@CLASS_NAME: "items-view list-view"
 
 	_columnsChanged: true
