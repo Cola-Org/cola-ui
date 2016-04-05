@@ -1,8 +1,20 @@
 ## RELEASE NOTES
+
+### Version 0.8.4 - April 05, 2016
+#### 建议原使用v0.8.3版本的用户更新之此版本。
+**Bug 修复**
+- **ListView** - 修复v0.8.3中列表型控件报Connot read property ‘call’ of undefined 的严重Bug
+- **Dialog** - 修复Dialog高度默认为100%的Bug
+
+**小改进以及文档补充**
+- **列表型控件API** - 重新调整列表型控件API
+- **Panel** - Panel控件改进为在无icon下，图标Dom自动隐藏
+- **Time-Line** - 编写time-line API
+
 ### Version 0.8.3 - April 03, 2016
 
 **新控件**
-- **TimeLine** - [Api](http://cola-ui.com/api/cola.Panel.html) 
+- **TimeLine** - [Api](http://cola-ui.com/api/cola.TimeLine.html) 
 - **Panel** - [Api](http://cola-ui.com/api/cola.Panel.html)
 - **FieldSet** - [Api](http://cola-ui.com/api/cola.FieldSet.html)
 - **GroupBox** - [Api](http://cola-ui.com/api/cola.GroupBox.html)

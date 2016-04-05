@@ -17105,7 +17105,9 @@
       Panel.__super__._doRefreshDom.call(this);
       $fly(this._doms.caption).text(this._caption || "");
       if (this._doms.icon._icon) {
-        $fly(this._doms.icon).removeClass(this._doms.icon._icon);
+        $fly(this._doms.icon).show().removeClass(this._doms.icon._icon);
+      } else {
+        $fly(this._doms.icon).hide();
       }
       $fly(this._doms.icon).addClass("icon " + (this._icon || ""));
       this._doms.icon._icon = this._icon;
@@ -25348,7 +25350,7 @@
 
     return ListView;
 
-  })(cola.ItemsView);
+  })(cola.AbstractList);
 
   _getEntityId = cola.Entity._getEntityId;
 
@@ -28498,7 +28500,7 @@
       },
       "icon": {
         tagName: "i",
-        "class": "'icon'+$default.icon"
+        "c-class": "'icon '+$default.icon"
       },
       "time": {
         tagName: "div",
