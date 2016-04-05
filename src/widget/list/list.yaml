@@ -1,6 +1,6 @@
 name: cola.ListView
 stereotype: class
-super: cola.ItemsView
+super: cola.AbstractList
 label: 列表
 
 attributes:

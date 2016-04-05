@@ -22,7 +22,6 @@ class cola.AbstractList extends cola.ItemsView
 		pullStep: null
 		pullComplete: null
 		pullCancel: null
-
 		filterItem:
 			singleListener: true
 
