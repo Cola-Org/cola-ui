@@ -18,7 +18,7 @@ class cola.TimeLine extends cola.AbstractList
 			"c-bind": "$default.content"
 		"icon":
 			tagName: "i"
-			class: "'icon'+$default.icon"
+			"c-class": "'icon '+$default.icon"
 		"time":
 			tagName: "div"
 			"c-bind": "$default.time"
