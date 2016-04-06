@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.4
+/*! Cola UI - 0.8.5
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -9893,7 +9893,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.8.4
+/*! Cola UI - 0.8.5
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -16677,13 +16677,15 @@
         oldTab.get$Dom().removeClass("active");
         $(oldTab.get("contentContainer")).removeClass("active");
       }
-      newTab.get$Dom().addClass("active");
-      container = newTab.get("contentContainer");
-      if (!container) {
-        this._tabContentRender(newTab);
+      if (newTab) {
+        newTab.get$Dom().addClass("active");
         container = newTab.get("contentContainer");
+        if (!container) {
+          this._tabContentRender(newTab);
+          container = newTab.get("contentContainer");
+        }
+        $(container).addClass("active");
       }
-      $(container).addClass("active");
       this._currentTab = newTab;
       this.fire("change", this, arg);
       return true;
@@ -21394,7 +21396,7 @@
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
       }
-      if (this._getItems().items) {
+      if (this._getDataItems().items) {
         this._itemsRender();
         this.refreshIndicators();
       }
@@ -21439,13 +21441,13 @@
       }
     };
 
-    Carousel.prototype._getItems = function() {
+    Carousel.prototype._getDataItems = function() {
       if (this._items) {
         return {
           items: this._items
         };
       } else {
-        return Carousel.__super__._getItems.call(this);
+        return Carousel.__super__._getDataItems.call(this);
       }
     };
 
@@ -21479,7 +21481,7 @@
 
     Carousel.prototype.refreshIndicators = function() {
       var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
-      items = this._getItems().items;
+      items = this._getDataItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
       } else {
@@ -21516,7 +21518,7 @@
 
     Carousel.prototype.next = function() {
       var items, pos;
-      items = this._getItems().items;
+      items = this._getDataItems().items;
       if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === (items.length - 1)) {
@@ -21530,7 +21532,7 @@
 
     Carousel.prototype.previous = function() {
       var items, pos;
-      items = this._getItems().items;
+      items = this._getDataItems().items;
       if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === 0) {

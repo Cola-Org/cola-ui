@@ -1,6 +1,6 @@
 class cola.Carousel extends cola.AbstractItemGroup
 	@CLASS_NAME: "carousel"
-
+	
 	@ATTRIBUTES:
 		bind:
 			readonlyAfterCreate: true
@@ -12,14 +12,14 @@ class cola.Carousel extends cola.AbstractItemGroup
 			defaultValue: true
 		pause:
 			defaultValue: 3000
-
+	
 	@EVENTS:
 		change: null
-
+	
 	getContentContainer: ()->
 		@_createItemsWrap(dom) unless @_doms.wrap
 		return @_doms.wrap
-
+	
 	_parseDom: (dom)->
 		parseItem = (node)=>
 			childNode = node.firstChild
@@ -29,7 +29,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 					@addItem(childNode)
 				childNode = childNode.nextSibling
 			return
-
+		
 		doms = @_doms
 		child = dom.firstChild
 		while child
@@ -42,14 +42,14 @@ class cola.Carousel extends cola.AbstractItemGroup
 				else if child.nodeName == "TEMPLATE"
 					@_regTemplate(child)
 			child = child.nextSibling
-
+		
 		@_createIndicatorContainer(dom) unless doms.indicators
 		@_createItemsWrap(dom) unless doms.wrap
 		return
-
+	
 	_createIndicatorContainer: (dom)->
 		@_doms ?= {}
-
+		
 		@_doms.indicators = $.xCreate({
 			tagName: "div"
 			class: "indicators indicators-#{@_orientation}"
@@ -57,13 +57,13 @@ class cola.Carousel extends cola.AbstractItemGroup
 		})
 		carousel = @
 		dom.appendChild(@_doms.indicators)
-
+		
 		$(@_doms.indicators).delegate(">span", "click", ()->
 			carousel.goTo($fly(@).index())
 		)
-
+		
 		return null
-
+	
 	_createItemsWrap: (dom)->
 		@_doms ?= {}
 		@_doms.wrap = $.xCreate({
@@ -73,22 +73,22 @@ class cola.Carousel extends cola.AbstractItemGroup
 		})
 		dom.appendChild(@_doms.wrap)
 		return null
-
+	
 	_initDom: (dom)->
 		@_createIndicatorContainer(dom) unless @_doms.indicators
 		@_createItemsWrap(dom) unless @_doms.wrap
-
+		
 		template = @_getTemplate()
 		if template
 			if @_bindStr
 				$fly(template).attr("c-repeat", @_bindStr)
 			@_doms.wrap.appendChild(template)
 			cola.xRender(template, @_scope)
-
-		if @_getItems().items
+		
+		if @_getDataItems().items
 			@_itemsRender()
 			@refreshIndicators()
-
+		
 		@setCurrentIndex(0)
 		carousel = @
 		setTimeout(()->
@@ -123,13 +123,13 @@ class cola.Carousel extends cola.AbstractItemGroup
 				]
 			}))
 		return
-
-	_getItems: () ->
+	
+	_getDataItems: () ->
 		if @_items
 			return {items: @_items}
 		else
 			return super()
-
+	
 	setCurrentIndex: (index)->
 		@fire("change", @, {index: index})
 		@_currentIndex = index
@@ -144,17 +144,17 @@ class cola.Carousel extends cola.AbstractItemGroup
 				pos = @_scroller.getPos()
 				if pos isnt index then @_scroller.slide(index)
 		return @
-
+	
 	refreshIndicators: ()->
-		items = @_getItems().items
+		items = @_getDataItems().items
 		if items
 			itemsCount = if items instanceof cola.EntityList then items.entityCount else items.length
 		else
 			itemsCount = 0
-
+		
 		return unless @_doms?.indicators
 		indicatorCount = @_doms.indicators.children.length
-
+		
 		if indicatorCount < itemsCount
 			i = indicatorCount
 			while i < itemsCount
@@ -171,11 +171,11 @@ class cola.Carousel extends cola.AbstractItemGroup
 		$("span", @_doms.indicators).removeClass("active")
 		if currentIndex != -1
 			jQuery("span:nth-child(" + (currentIndex + 1) + ")", @_doms.indicators).addClass("indicator-active")
-
+		
 		return @
-
+	
 	next: ()->
-		items = @_getItems().items
+		items = @_getDataItems().items
 		if items and @_scroller
 			pos = @_scroller.getPos()
 			if pos == (items.length - 1)
@@ -183,44 +183,44 @@ class cola.Carousel extends cola.AbstractItemGroup
 			else
 				@_scroller.next()
 		return @
-
+	
 	previous: ()->
-		items = @_getItems().items
+		items = @_getDataItems().items
 		if items and @_scroller
 			pos = @_scroller.getPos()
 			if pos == 0
 				@goTo(_items.length - 1)
 			else
 				@_scroller.prev()
-
+		
 		return @
-
+	
 	refreshItems: ()->
 		super()
 		@_scroller?.refresh()
 		@refreshIndicators()
 		@setCurrentIndex(0)
 		return @
-
+	
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 		@_classNamePool.add("carousel-#{@_orientation}")
-
+		
 		@refreshIndicators()
 		return
-
+	
 	_onItemsRefresh: (arg) -> @_itemDomsChanged()
 	_onItemInsert: (arg) -> @_itemDomsChanged()
 	_onItemRemove: (arg) -> @_itemDomsChanged()
-
+	
 	_itemDomsChanged: () ->
 		setTimeout(()=>
 			@_parseDom(@_dom)
 			return
 		, 0)
 		return
-
+	
 	play: (pause)->
 		if @_interval then clearInterval(@_interval)
 		carousel = @
@@ -229,14 +229,14 @@ class cola.Carousel extends cola.AbstractItemGroup
 			carousel.next()
 		, @_pause)
 		return @
-
+	
 	replay: ()->
 		if @_interval then @play()
-
+	
 	pause: ()->
 		if @_interval then clearInterval(@_interval)
 		return @
-
+	
 	goTo: (index = 0)->
 		@replay()
 		@setCurrentIndex(index)
