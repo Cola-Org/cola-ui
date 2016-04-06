@@ -246,16 +246,14 @@ class cola.Tab extends cola.Widget
 		if oldTab
 			oldTab.get$Dom().removeClass("active")
 			$(oldTab.get("contentContainer")).removeClass("active")
-
-		newTab.get$Dom().addClass("active")
-		container = newTab.get("contentContainer")
-
-		unless container #懒渲染
-			@_tabContentRender(newTab)
+		if newTab
+			newTab.get$Dom().addClass("active")
 			container = newTab.get("contentContainer")
 
-		$(container).addClass("active")
-
+			unless container #懒渲染
+				@_tabContentRender(newTab)
+				container = newTab.get("contentContainer")
+			$(container).addClass("active")
 		@_currentTab = newTab
 
 		@fire("change", @, arg)
