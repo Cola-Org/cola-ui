@@ -4,24 +4,24 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
-		cola(function (model) {
-			var MyComponent = cola.defineWidget("my-component", {
-				ATTRIBUTES: {
-					text: null
+		var MyComponent = cola.defineWidget("my-component", {
+			ATTRIBUTES: {
+				text: null
+			},
+			template: {
+				style: {
+					display: "block",
+					padding: "4px",
+					border: "1px red solid"
 				},
-				template: {
-					style: {
-						display: "block",
-						padding: "4px",
-						border: "1px red solid"
-					},
-					content: {
-						tagName: "input",
-						"c-bind": "text"
-					}
+				content: {
+					tagName: "input",
+					"c-bind": "text"
 				}
-			});
+			}
+		});
 
+		cola(function (model) {
 			var myComponent = new MyComponent({
 				text: "cccc"
 			});
@@ -31,7 +31,7 @@
 </head>
 <body style="padding:20px;">
 
-<my-component text="aaaa"></my-component>
+<my-component id="myComponent1" text="aaaa"></my-component>
 <my-component text="bbbb"></my-component>
 
 </body>

@@ -32,6 +32,75 @@ _getEntityPath = (markNoncurrent) ->
 	if !markNoncurrent then @_pathCache = path
 	return path
 
+_watch = (path, watcher) ->
+	if path instanceof Function
+		watcher = path
+		path = "*"
+	@_watchers ?= {}
+
+	holder = @_watchers[path]
+	if not holder
+		@_watchers[path] =
+			path: path.split(".")
+			watchers: [watcher]
+	else
+		holder.watchers.push(watcher)
+	return
+
+_unwatch = (path, watcher) ->
+	return unless @_watchers
+	if path instanceof Function
+		watcher = path
+		path = "*"
+
+	watchers = @_watchers
+	if not watcher
+		delete watchers[path]
+	else
+		holder = watchers[path]
+		if holder
+			for w, i in holder.watchers
+				if w is watcher
+					holder.watchers.splice(i, 1)
+					break
+
+			if not holder.watchers.length
+				delete watchers[path]
+	return
+
+_triggerWatcher = (path, type, arg) ->
+	if @_watchers
+		for p, holder of @_watchers
+			shouldTrigger = false
+			if p is "**"
+				shouldTrigger = true
+			else if p is "*"
+				shouldTrigger = path.length < 2
+			else
+				pv = holder.path
+				if pv.length >= path.length
+					shouldTrigger = true
+					for s, i in pv
+						if i is pv.length - 1
+							if s is "**"
+								break
+							else if s is "*"
+								shouldTrigger = i is path.length - 1
+								break
+
+						if s isnt path[i]
+							shouldTrigger = false
+							break
+
+			if shouldTrigger
+				for watch in holder.watchers
+					watch.call(@, path, type, arg)
+
+	if @_parent
+		path.unshift(@_parentProperty) if @_parentProperty
+		@_parent._triggerWatcher(path, type, arg)
+	return
+
 _matchValue = (value, propFilter) ->
 	if propFilter.strict
 		if not propFilter.caseSensitive and typeof propFilter.value == "string"
@@ -416,7 +485,7 @@ class cola.Entity
 
 				value._parent = @
 				value._parentProperty = prop
-				value._setListener(@_listener)
+				value._setObserver(@_observer)
 				value._onPathChange()
 				@_mayHasSubEntity = true
 
@@ -587,15 +656,19 @@ class cola.Entity
 			provider._loadMode = oldLoadMode
 		return
 
-	_setListener: (listener) ->
-		return if @_listener == listener
-		@_listener = listener
+	_setObserver: (observer) ->
+		return if @_observer == observer
+		@_observer = observer
 		if @_mayHasSubEntity
 			data = @_data
 			for p, value of data
 				if value and (value instanceof _Entity or value instanceof _EntityList)
-					value._setListener(listener)
+					value._setObserver(observer)
 		return
+
+	watch: _watch
+	unwatch: _unwatch
+	_triggerWatcher: _triggerWatcher
 
 	_onPathChange: () ->
 		delete @_pathCache
@@ -621,16 +694,20 @@ class cola.Entity
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			path = @getPath(true)
-			if (type == cola.constants.MESSAGE_PROPERTY_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_LOADING_START or type == cola.constants.MESSAGE_LOADING_END) and arg.property
+
+			if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type is cola.constants.MESSAGE_LOADING_START or type is cola.constants.MESSAGE_LOADING_END) and arg.property
 				if path
 					path = path.concat(arg.property)
 				else
 					path = [arg.property]
 			@_doNotify(path, type, arg)
+
+			if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REFRESH
+				@_triggerWatcher([arg.property or "*"], type, arg)
 		return
 
 	_doNotify: (path, type, arg) ->
-		@_listener?.onMessage(path, type, arg)
+		@_observer?.onMessage(path, type, arg)
 		return
 
 	_validate: (prop) ->
@@ -828,7 +905,7 @@ class Page extends LinkedList
 				entityList.current = entity
 				entityList._setCurrentPage(entity._page)
 
-		entity._setListener(entityList._listener)
+		entity._setObserver(entityList._observer)
 		entity._onPathChange()
 		@entityCount++ if entity.state != _Entity.STATE_DELETED
 		return
@@ -837,7 +914,7 @@ class Page extends LinkedList
 		super(entity)
 		delete entity._page
 		delete entity._parent
-		entity._setListener(null)
+		entity._setObserver(null)
 		entity._onPathChange()
 		@entityCount-- if entity.state != _Entity.STATE_DELETED
 		return
@@ -847,7 +924,7 @@ class Page extends LinkedList
 		while entity
 			delete entity._page
 			delete entity._parent
-			entity._setListener(null)
+			entity._setObserver(null)
 			entity._onPathChange()
 			entity = entity._next
 		@entityCount = 0
@@ -899,9 +976,9 @@ class cola.EntityList extends LinkedList
 		page.initData(array)
 		return
 
-	_setListener: (listener) ->
-		return if @_listener == listener
-		@_listener = listener
+	_setObserver: (observer) ->
+		return if @_observer == observer
+		@_observer = observer
 
 		page = @_first
 		if !page then return
@@ -909,12 +986,16 @@ class cola.EntityList extends LinkedList
 		next = page._first
 		while page
 			if next
-				next._setListener(listener)
+				next._setObserver(observer)
 				next = next._next
 			else
 				page = page._next
 				next = page?._first
 		return
+
+	watch: _watch
+	unwatch: _unwatch
+	_triggerWatcher: _triggerWatcher
 
 	_setCurrentPage: (page) ->
 		@_currentPage = page
@@ -1262,7 +1343,10 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_listener?.onMessage(@getPath(true), type, arg)
+			@_observer?.onMessage(@getPath(true), type, arg)
+
+			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
+				@_triggerWatcher(["*"], type, arg)
 		return
 
 	flush: (loadMode) ->

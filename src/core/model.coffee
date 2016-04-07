@@ -488,7 +488,7 @@ class cola.ItemsScope extends cola.SubScope
 DataModel
 ###
 
-class cola.AbstractDataModel
+class  cola.AbstractDataModel
 	disableObserverCount: 0
 
 	constructor: (@model) ->
@@ -743,7 +743,7 @@ class cola.DataModel extends cola.AbstractDataModel
 			@_rootData = rootData = @_createRootData(@_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
-			rootData._setListener(
+			rootData._setObserver(
 				onMessage: (path, type, arg) ->
 					dataModel._onDataMessage(path, type, arg)
 			)
