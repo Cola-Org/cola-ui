@@ -22,7 +22,7 @@
 					},
 					{
 						tagName: "input",
-						"c-bind": "$bind"
+						"c-bind": "?$bind"
 					},
 					{
 						"c-widget": "input; bind:{{$bind}}"
@@ -32,7 +32,7 @@
 		});
 
 		cola(function (model) {
-			model.set("prop", "aaaa");
+			model.set("prop", "Yeah!");
 
 			model.widgetConfig({
 				buttonTest: {
@@ -54,6 +54,9 @@
 <body style="padding:20px;">
 
 <button id="buttonTest"></button>
+<input c-bind="prop">
+<div c-widget="input; bind:prop"></div>
+<div c-widget="label; text:{{prop}}"></div>
 
 <my-widget bind="prop" text="1"></my-widget>
 <my-widget bind="prop" text="2"></my-widget>

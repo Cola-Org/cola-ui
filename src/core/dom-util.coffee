@@ -101,7 +101,7 @@ ON_NODE_REMOVED_KEY = "__onNodeRemoved"
 cola.detachNode = (node) ->
 	return unless node.parentNode
 	cola._ignoreNodeRemoved = true
-	node.parentNode.removeChild(ele)
+	node.parentNode.removeChild(node)
 	cola._ignoreNodeRemoved = false
 	return
 

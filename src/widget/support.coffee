@@ -328,26 +328,12 @@ cola.DataWidgetMixin =
 						return
 				}
 
-			path = expression.path
-			if !path
-				if expression.hasCallStatement
-					path = "**"
-					bindInfo.watchingMoreMessage = expression.hasCallStatement or expression.convertors
-			else
-				if typeof expression.path == "string"
-					bindInfo.expressionPaths = [expression.path.split(".")]
-				if expression.path instanceof Array
-					paths = []
-					for p in expression.path
-						paths.push(p.split("."))
-					bindInfo.expressionPaths = paths
+			paths = expression.paths
+			if not paths and expression.hasCallStatement
+				paths = ["**"]
+				bindInfo.watchingMoreMessage = expression.hasCallStatement or expression.convertors
 
-			if path
-				if typeof path == "string"
-					paths = [path]
-				else
-					paths = path
-
+			if paths
 				@_watchingPaths = paths
 				for p, i in paths
 					@_scope.data.bind(p, bindProcessor)

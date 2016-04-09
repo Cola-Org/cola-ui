@@ -1030,27 +1030,20 @@ Element binding
 class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
-		@path = path = @expression.path
-		if !path and @expression.hasCallStatement
-			@path = path = "**"
+		@paths = paths = @expression.paths
+		if !paths and @expression.hasCallStatement
+			@paths = paths = ["**"]
 			@watchingMoreMessage = @expression.hasCallStatement
 
-		if path
-			if typeof path == "string"
+		if paths
+			for path in paths
 				scope.data.bind(path, @)
-			else
-				for p in path
-					scope.data.bind(p, @)
 
 	destroy: () ->
-		path = @path
-		if path
-			scope = @scope
-			if typeof path == "string"
-				scope.data.unbind(path, @)
-			else
-				for p in path
-					@scope.data.unbind(p, @)
+		paths = @paths
+		if paths
+			for path in paths
+				@scope.data.unbind(path, @)
 		return
 
 	_processMessage: (bindingPath, path, type)->
