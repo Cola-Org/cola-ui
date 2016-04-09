@@ -87,7 +87,6 @@ cola._compileExpression = (exprStr, specialType) ->
 	else
 		exp = new cola.Expression(exprStr, true)
 
-	exp.type = specialType
 	return exp
 
 splitExpression = (text, separator) ->

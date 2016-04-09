@@ -10,7 +10,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 	set: (path, value) ->
 		if path.charCodeAt(0) is 36 # `$`
-			@widget.set(path, value)
+			@widget.set(path.substring(1), value)
 			@_onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		else
 			@model.parent?.data.set(path, value)

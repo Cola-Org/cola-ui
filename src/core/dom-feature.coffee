@@ -11,7 +11,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			@isStatic = @expression.isStatic
 			@isDyna = @expression.isDyna
 			@paths = @expression.paths
-			if not @patsh and @expression.hasCallStatement
+			if not @paths and @expression.hasCallStatement
 				@paths = ["**"]
 				if not @isStatic then @delay = true
 			@watchingMoreMessage = @expression.hasCallStatement
@@ -35,7 +35,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 							paths = @dynaExpression.paths
 							if paths
 								for path in paths
-									if @path.indexOf(path) < 0
+									if @paths.indexOf(path) < 0
 										if not @dynaPaths
 											@dynaPaths = [path]
 										else
@@ -115,7 +115,6 @@ class cola._AliasFeature extends cola._ExpressionFeature
 class cola._RepeatFeature extends cola._ExpressionFeature
 	constructor: (expression) ->
 		super(expression)
-		@ignoreBind = not @isDyna
 		@alias = expression.alias
 
 	init: (domBinding) ->
@@ -211,7 +210,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return
 
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
-		if @isDyna
+		if @isDyna and not dynaExpressionOnly
 			@evaluate(domBinding, dynaExpressionOnly, dataCtx)
 			domBinding.scope.setExpression(@dynaExpression)
 
@@ -350,7 +349,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
-		paths = @paths
+		paths = if @isDyna then @dynaPaths else @paths
 		if paths and paths.length is 1
 			@ignoreMessage = true
 			domBinding.scope.set(paths[0], value)

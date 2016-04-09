@@ -201,7 +201,9 @@ _doRenderDomTemplate = (dom, scope, context) ->
 					if result
 						if result instanceof cola._BindingFeature
 							features.push(result)
-						if typeof result == "function"
+						else if result instanceof Array
+							features.push(f) for f in result
+						else if typeof result == "function"
 							initializers ?= []
 							initializers.push(result)
 				else
@@ -209,17 +211,21 @@ _doRenderDomTemplate = (dom, scope, context) ->
 						feature = cola._domFeatureBuilder.event(attrValue, attrName, dom)
 					else
 						builder = cola._domFeatureBuilder[attrName]
-						feature = (builder or cola._domFeatureBuilder["default"])(attrValue, attrName, dom)
+						feature = (builder or cola._domFeatureBuilder["$"]).call(cola._domFeatureBuilder, attrValue, attrName, dom)
+
 					if feature
 						features ?= []
-						features.push(feature)
+						if feature  instanceof cola._BindingFeature
+							features.push(feature)
+						else if result instanceof Array
+							features.push(f) for f in feature
 
 	if removeAttrs
 		for removeAttr in removeAttrs
 			dom.removeAttribute(removeAttr)
 
 	if features?.length
-		domBinding = cola._domBindingBuilder[bindingType or "default"](dom, scope, features)
+		domBinding = cola._domBindingBuilder[bindingType or "$"](dom, scope, features)
 		defaultPath = scope.data.alias if scope.data.alias
 
 	if not cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN)
@@ -236,14 +242,14 @@ _doRenderDomTemplate = (dom, scope, context) ->
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
 
-	if features?.length
-		if initializers
-			if context.inRepeatTemplate or bindingType is "repeat"
-				cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers)
-			else
-				for initializer in initializers
-					initializer(scope, dom)
+	if initializers
+		if context.inRepeatTemplate or bindingType is "repeat"
+			cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers)
+		else
+			for initializer in initializers
+				initializer(scope, dom)
 
+	if features?.length
 		domBinding.refresh(true) unless context.inRepeatTemplate
 		if domBinding instanceof cola._RepeatDomBinding
 			tailDom = cola.util.userData(domBinding.dom, cola.constants.REPEAT_TAIL_KEY)
@@ -275,7 +281,7 @@ buildContent = (parts, dom, scope) ->
 	return
 
 cola._domBindingBuilder =
-	default: (dom, scope, features) ->
+	$: (dom, scope, features) ->
 		return new cola._DomBinding(dom, scope, features)
 
 	repeat: (dom, scope, features) ->
@@ -289,12 +295,12 @@ cola._domBindingBuilder =
 		return domBinding
 
 cola._domFeatureBuilder =
-	default: (attrValue, attrName) ->
+	$: (attrValue, attrName, dom) ->
 		expression = cola._compileExpression(attrValue)
 		if expression
-			if attr == "display"
+			if attrName == "display"
 				feature = new cola._DisplayFeature(expression)
-			else if attr == "options" and dom.nodeName == "SELECT"
+			else if attrName == "options" and dom.nodeName == "SELECT"
 				feature = new cola._SelectOptionsFeature(expression)
 			else
 				feature = new cola._DomAttrFeature(expression, attrName)
