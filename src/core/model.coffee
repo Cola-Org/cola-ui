@@ -191,6 +191,7 @@ class cola.SubScope extends cola.Scope
 				@parent.data.unbind("**", @)
 			else if @_watchPath
 				@_unwatchPath()
+		super()
 		return
 
 class cola.AliasScope extends cola.SubScope
@@ -488,7 +489,7 @@ class cola.ItemsScope extends cola.SubScope
 DataModel
 ###
 
-class  cola.AbstractDataModel
+class cola.AbstractDataModel
 	disableObserverCount: 0
 
 	constructor: (@model) ->

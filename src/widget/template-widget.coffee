@@ -1,16 +1,35 @@
 class cola.WidgetDataModel extends cola.AbstractDataModel
-	constructor: (@model, @widget) ->
+	constructor: (model, @widget) ->
+		super(model)
 
-	get: (path, loadMode, context) -> @widget.get(path)
+	get: (path, loadMode, context) ->
+		if path.charCodeAt(0) is 36 # `$`
+			return @widget.get(path.substring(1))
+		else
+			return @model.parent?.data.get(path, loadMode, context)
 
-	set: () ->
+	set: (path, value) ->
+		if path.charCodeAt(0) is 36 # `$`
+			@widget.set(path, value)
+			@_onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+		else
+			@model.parent?.data.set(path, value)
+		return
+
+	_processMessage: (bindingPath, path, type, arg) ->
+		@_onDataMessage(path, type, arg)
+		return
+
+	getDataType: (path) -> @model.parent?.data.getDataType(path)
+
 	flush: () ->
 
-class cola.WidgetModel extends cola.Scope
-	constructor: (@widget) ->
-		@data = new cola.WidgetDataModel(@, @widget)
-
+class cola.WidgetModel extends cola.SubScope
+	constructor: (@widget, @parent) ->
 		widget = @widget
+		@data = new cola.WidgetDataModel(@, widget)
+		@parent?.data.bind("**", @)
+
 		@action = (name) ->
 			method = widget[name]
 			if method instanceof Function
@@ -21,6 +40,9 @@ class cola.WidgetModel extends cola.Scope
 		@data.destroy?()
 		return
 
+	_processMessage: (bindingPath, path, type, arg) ->
+		return @data._processMessage(bindingPath, path, type, arg)
+
 class cola.TemplateWidget extends cola.Widget
 
 	@ATTRIBUTES:
@@ -28,8 +50,14 @@ class cola.TemplateWidget extends cola.Widget
 			readOnlyAfterCreate: true
 
 	constructor: (config) ->
-		@_widgetModel = new cola.WidgetModel(@)
+		@_widgetModel = new cola.WidgetModel(@, config?.scope or cola.currentScope)
 		super(config)
+
+	set: (attr, value, ignoreError) ->
+		super(attr, value, ignoreError)
+		if typeof attr is "string"
+			@_widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+		return @
 
 	_createDom: () ->
 		if @_template
@@ -52,6 +80,6 @@ class cola.TemplateWidget extends cola.Widget
 				for cssName of templateDom.style
 					dom.style[cssName] = templateDom.style[cssName] if dom.style[cssName] is ""
 
-				for childNode in templateDom.childNodes
-					dom.appendChild(childNode)
+				while templateDom.firstChild
+					dom.appendChild(templateDom.firstChild)
 		return

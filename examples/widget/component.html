@@ -4,8 +4,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
-		var MyComponent = cola.defineWidget("my-component", {
+		var MyWidget = cola.defineWidget("my-widget", {
 			ATTRIBUTES: {
+				bind: null,
 				text: null
 			},
 			template: {
@@ -14,25 +15,48 @@
 					padding: "4px",
 					border: "1px red solid"
 				},
-				content: {
-					tagName: "input",
-					"c-bind": "text"
-				}
+				content: [
+					{
+						tagName: "input",
+						"c-bind": "$text"
+					},
+					{
+						tagName: "input",
+						"c-bind": "$bind"
+					},
+					{
+						"c-widget": "input; bind:{{$bind}}"
+					}
+				]
 			}
 		});
 
 		cola(function (model) {
-			var myComponent = new MyComponent({
-				text: "cccc"
+			model.set("prop", "aaaa");
+
+			model.widgetConfig({
+				buttonTest: {
+					$type: "button",
+					caption: "Test",
+					click: function() {
+						var myWidget = new MyWidget({
+							bind: "prop"
+						});
+						myWidget.appendTo(document.body);
+
+						myWidget.set("text", new Date());
+					}
+				}
 			});
-			myComponent.appendTo(document.body);
 		});
 	</script>
 </head>
 <body style="padding:20px;">
 
-<my-component id="myComponent1" text="aaaa"></my-component>
-<my-component text="bbbb"></my-component>
+<button id="buttonTest"></button>
+
+<my-widget bind="prop" text="1"></my-widget>
+<my-widget bind="prop" text="2"></my-widget>
 
 </body>
 </html>

@@ -12,7 +12,8 @@ class cola._DomBinding
 			if feature instanceof Array
 				for f in feature
 					@addFeature(f)
-			else@addFeature(feature)
+			else
+				@addFeature(feature)
 
 		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
 		cola.util.onNodeRemoved(dom, _destroyDomBinding)

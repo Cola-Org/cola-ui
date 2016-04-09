@@ -6,7 +6,10 @@ class cola._BindingFeature
 	init: () -> return
 
 class cola._ExpressionFeature extends cola._BindingFeature
-	constructor: (@expression) ->
+	constructor: (expression) ->
+		@setExpression(expression)
+
+	setExpression: (@expression) ->
 		if @expression
 			@isStatic = @expression.isStatic
 			@path = @expression.path
@@ -14,6 +17,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				@path = "**"
 				if not @isStatic then @delay = true
 			@watchingMoreMessage = @expression.hasCallStatement
+		return
 
 	evaluate: (domBinding, dataCtx) ->
 		return @expression.evaluate(domBinding.scope, "async", dataCtx)
@@ -32,6 +36,10 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			if @isStatic and !dataCtx.unloaded
 				@disabled = true
 		return
+
+class cola._DynaExpressionFeature extends cola._ExpressionFeature
+	constructor: (expression) ->
+		super(expression)
 
 class cola._WatchFeature extends cola._BindingFeature
 	constructor: (@action, @path) ->
@@ -53,7 +61,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 
 	init: (domBinding) ->
 		expression = @expression
-		domBinding.$dom.bind(@event, () ->
+		domBinding.$dom.on(@event, () ->
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
 			try
@@ -335,7 +343,7 @@ class cola._TextNodeFeature extends cola._DomFeature
 		return
 
 class cola._DomAttrFeature extends cola._DomFeature
-	constructor: (expression, @attr, @isStyle) ->
+	constructor: (expression, @attr) ->
 		super(expression)
 
 	_doRender: (domBinding, value) ->
@@ -344,10 +352,16 @@ class cola._DomAttrFeature extends cola._DomFeature
 			cola.util.setText(domBinding.dom, if value? then value else "")
 		else if attr == "html"
 			domBinding.$dom.html(if value? then value else "")
-		else if @isStyle
-			domBinding.$dom.css(attr, value)
 		else
 			domBinding.$dom.attr(attr, if value? then value else "")
+		return
+
+class cola._DomStylePropFeature extends cola._DomFeature
+	constructor: (expression, @prop) ->
+		super(expression)
+
+	_doRender: (domBinding, value) ->
+		domBinding.$dom.css(@prop, value)
 		return
 
 class cola._DomClassFeature extends cola._DomFeature

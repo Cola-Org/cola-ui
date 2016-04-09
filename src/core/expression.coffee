@@ -54,30 +54,6 @@ digestExpression = (text, p) ->
 cola._compileExpression = (exprStr, specialType) ->
 	if !exprStr then return null
 
-	if exprStr.charCodeAt(0) == 61 # `=`
-		exprStr = exprStr.substring(1)
-		isStatic = true
-
-	i = exprStr.indexOf(" on ")
-	if i > 0
-		pathStr = exprStr.substring(i + 4)
-		exprStr = exprStr.substring(0, i)
-
-		paths = []
-		for path in pathStr.split(",")
-			path = cola.util.trim(path)
-			continue unless path
-			if path.indexOf(".") > 0
-				parts = []
-				oldParts = path.split(".")
-				last = oldParts.length - 1
-				for part, j in oldParts
-					if j < last and part.charCodeAt(0) != 33 # `!`
-						part = "!" + part
-					parts.push(part)
-				path = parts.join(".")
-			paths.push(path)
-
 	if specialType == "repeat"
 		i = exprStr.indexOf(" in ")
 		if i > 0
@@ -111,8 +87,7 @@ cola._compileExpression = (exprStr, specialType) ->
 	else
 		exp = new cola.Expression(exprStr, true)
 
-	if isStatic then exp.isStatic = true
-	if paths then exp.path = paths
+	exp.type = specialType
 	return exp
 
 splitExpression = (text, separator) ->
@@ -152,9 +127,33 @@ class cola.Expression
 		i = exprStr.indexOf(" on ")
 		if 0 < i < (exprStr.length - 1)
 			exprStr = exprStr.substring(0, i)
-			@watchPath = exprStr.substring(i + 4)
+			watchPathStr = exprStr.substring(i + 4)
+
+			watchPaths = []
+			for path in watchPathStr.split(",")
+				path = cola.util.trim(path)
+				continue unless path
+				if path.indexOf(".") > 0
+					parts = []
+					oldParts = path.split(".")
+					last = oldParts.length - 1
+					for part, j in oldParts
+						if j < last and part.charCodeAt(0) != 33 # `!`
+							part = "!" + part
+						parts.push(part)
+					path = parts.join(".")
+				watchPaths.push(path)
+
+		fc = exprStr.charCodeAt(0)
+		if fc == 61 # `=`
+			exprStr = exprStr.substring(1)
+			@isStatic = true
+		else if fc == 63 # `?`
+			exprStr = exprStr.substring(1)
+			@isDyna = true
+
 		@compile(exprStr)
-		@path = @watchPath if @watchPath
+		@path = watchPaths if watchPaths
 
 	compile: (exprStr) ->
 
