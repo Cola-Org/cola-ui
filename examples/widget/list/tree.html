@@ -64,6 +64,7 @@
 					currentNodeChange: function (self, arg) {
 						var current = self.get("currentNode");
 						model.set("currentNode", current ? current.get("data") : null);
+						console.log(arg)
 					}
 				}
 			});

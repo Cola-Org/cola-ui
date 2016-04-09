@@ -37,7 +37,6 @@
 				width: @timeLineLeftWidth;
 				display: inline-block;
 				text-align: right;
-				//color: @timeLineDefaultIconColor;
 				padding: 0 @timeLineIconSize 0 0;
 			}
 
@@ -96,5 +95,164 @@
 		}
 	}
 
+	&.log {
+		@oddBkgColor: lighten(@timeLineDefaultIconColor, 8%);
+		@evenBkgColor: lighten(@timeLineDefaultIconColor, 3%);
+		@cupFontColor: rgba(255, 255, 255, 0.8);
+		@titleColor: rgba(255, 255, 255, 0.95);
+		@titleBorderColor: rgba(255, 255, 255, 0.3);
+		> .items {
+			> .item {
+				&:before, > .icon {
+					border-color: fadeout(@oddBkgColor, 30%);
+				}
+				.icon {
+					color: @timeLineDefaultIconColor;
+				}
+				> .content {
+					position: relative;
+					padding: 0.8em 1em;
+					color: @titleColor;
+					strong {
+						display: block;
+						border-bottom: 1px solid @titleBorderColor;
+						line-height: 2em;
+
+					}
+					p {
+						color: @cupFontColor;
+						font-size: 0.85em;
+						padding: 1em 0;
+					}
+					&:after {
+						position: absolute;
+						left: 0;
+						top: 0.2em;
+						right: 0;
+						content: "";
+						bottom: 0.2em;
+						z-index: -1;
+						border-radius: 0.2em;
+
+					}
+					&:before {
+						width: 0;
+						height: 0;
+						position: absolute;
+						left: -0.35em;
+						content: "";
+						top: 1em;
+						border-top: 0.4em solid transparent;
+						border-right: 0.4em solid transparent;
+						border-bottom: 0.4em solid transparent;
+					}
+				}
+				> .time {
+					top: 0.1em;
+					> * {
+						display: list-item;
+					}
+					> .date {
+						color: rgba(0, 0, 0, 0.6);
+						font-size: 0.8em;
+					}
+					> .date-time {
+						font-size: 1.4em;
+						color: @evenBkgColor;
+					}
+				}
+			}
+			> .item:nth-of-type(even) {
+				> .content {
+					position: relative;
+					&:after {
+						background-color: @evenBkgColor;
+					}
+					&:before {
+						border-right-color: @evenBkgColor;
+					}
+				}
+			}
+			> .item:nth-of-type(odd) {
+				> .content {
+					&:after {
+						background-color: @oddBkgColor;
+					}
+					&:before {
+						border-right-color: @oddBkgColor;
+					}
+				}
+
+			}
+		}
+
+		> .items {
+			> .item:hover {
+				> .icon, &:before {
+					border-color: @evenBkgColor;
+				}
+			}
+		}
+
+	}
+	.mixin_message_color(@name,@color) {
+		@mOddBkgColor:lighten(@color, 8%);
+		@mEvenBkgColor:lighten(@color, 3%);
+		&.log.@{name} {
+			> .items {
+				> .item {
+					&:before, > .icon {
+						border-color: fadeout(@mOddBkgColor, 30%);
+					}
+					.icon {
+						color: @color;
+					}
+					> .time {
+						> .date-time {
+							color: @mEvenBkgColor;
+						}
+					}
+				}
+				> .item:nth-of-type(even) {
+					> .content {
+						&:after{
+							background-color: @mEvenBkgColor;
+						}
+						 &:before {
+							border-right-color: @mEvenBkgColor;
+						}
+					}
+				}
+				> .item:nth-of-type(odd) {
+					> .content {
+						&:after{
+							background-color: @mOddBkgColor;
+						}
+						&:before {
+							border-right-color: @mOddBkgColor;
+						}
+					}
+				}
+
+				> .item:hover {
+					> .icon, &:before {
+						border-color: @mEvenBkgColor;
+					}
+				}
+			}
+		}
+	}
+	.mixin_message_color(red, @red);
+	.mixin_message_color(orange, @orange);
+	.mixin_message_color(yellow, @yellow);
+	.mixin_message_color(olive, @olive);
+	.mixin_message_color(green, @green);
+	.mixin_message_color(teal, @teal);
+	.mixin_message_color(blue, @blue);
+	.mixin_message_color(violet, @violet);
+	.mixin_message_color(purple, @purple);
+	.mixin_message_color(pink, @pink);
+	.mixin_message_color(brown, @brown);
+	.mixin_message_color(grey, @grey);
 }
 

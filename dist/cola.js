@@ -21412,7 +21412,7 @@
           }
         });
       }, 0);
-      if (this._controls) {
+      if (cola.device.desktop && this._controls) {
         dom.appendChild($.xCreate({
           tagName: "div",
           "class": "controls",

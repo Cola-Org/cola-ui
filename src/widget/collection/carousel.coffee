@@ -101,7 +101,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 					return
 			})
 		, 0)
-		if @_controls
+
+		if cola.device.desktop and @_controls
 			dom.appendChild($.xCreate({
 				tagName: "div"
 				class: "controls"

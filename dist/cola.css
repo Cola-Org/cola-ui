@@ -5332,6 +5332,394 @@ html.ios body {
 .ui.time-line.circular > .items > .item > .icon {
   border-radius: 50%;
 }
+.ui.time-line.log > .items > .item:before,
+.ui.time-line.log > .items > .item > .icon {
+  border-color: rgba(29, 202, 166, 0.7);
+}
+.ui.time-line.log > .items > .item .icon {
+  color: #18a689;
+}
+.ui.time-line.log > .items > .item > .content {
+  position: relative;
+  padding: 0.8em 1em;
+  color: rgba(255, 255, 255, 0.95);
+}
+.ui.time-line.log > .items > .item > .content strong {
+  display: block;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  line-height: 2em;
+}
+.ui.time-line.log > .items > .item > .content p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85em;
+  padding: 1em 0;
+}
+.ui.time-line.log > .items > .item > .content:after {
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  right: 0;
+  content: "";
+  bottom: 0.2em;
+  z-index: -1;
+  border-radius: 0.2em;
+}
+.ui.time-line.log > .items > .item > .content:before {
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: -0.35em;
+  content: "";
+  top: 1em;
+  border-top: 0.4em solid transparent;
+  border-right: 0.4em solid transparent;
+  border-bottom: 0.4em solid transparent;
+}
+.ui.time-line.log > .items > .item > .time {
+  top: 0.1em;
+}
+.ui.time-line.log > .items > .item > .time > * {
+  display: list-item;
+}
+.ui.time-line.log > .items > .item > .time > .date {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.8em;
+}
+.ui.time-line.log > .items > .item > .time > .date-time {
+  font-size: 1.4em;
+  color: #1ab394;
+}
+.ui.time-line.log > .items > .item:nth-of-type(even) > .content {
+  position: relative;
+}
+.ui.time-line.log > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #1ab394;
+}
+.ui.time-line.log > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #1ab394;
+}
+.ui.time-line.log > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #1dcaa6;
+}
+.ui.time-line.log > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #1dcaa6;
+}
+.ui.time-line.log > .items > .item:hover > .icon,
+.ui.time-line.log > .items > .item:hover:before {
+  border-color: #1ab394;
+}
+.ui.time-line.log.red > .items > .item:before,
+.ui.time-line.log.red > .items > .item > .icon {
+  border-color: rgba(225, 75, 75, 0.7);
+}
+.ui.time-line.log.red > .items > .item .icon {
+  color: #db2828;
+}
+.ui.time-line.log.red > .items > .item > .time > .date-time {
+  color: #dd3535;
+}
+.ui.time-line.log.red > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #dd3535;
+}
+.ui.time-line.log.red > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #dd3535;
+}
+.ui.time-line.log.red > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #e14b4b;
+}
+.ui.time-line.log.red > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #e14b4b;
+}
+.ui.time-line.log.red > .items > .item:hover > .icon,
+.ui.time-line.log.red > .items > .item:hover:before {
+  border-color: #dd3535;
+}
+.ui.time-line.log.orange > .items > .item:before,
+.ui.time-line.log.orange > .items > .item > .icon {
+  border-color: rgba(244, 137, 67, 0.7);
+}
+.ui.time-line.log.orange > .items > .item .icon {
+  color: #f2711c;
+}
+.ui.time-line.log.orange > .items > .item > .time > .date-time {
+  color: #f37a2a;
+}
+.ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #f37a2a;
+}
+.ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #f37a2a;
+}
+.ui.time-line.log.orange > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #f48943;
+}
+.ui.time-line.log.orange > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #f48943;
+}
+.ui.time-line.log.orange > .items > .item:hover > .icon,
+.ui.time-line.log.orange > .items > .item:hover:before {
+  border-color: #f37a2a;
+}
+.ui.time-line.log.yellow > .items > .item:before,
+.ui.time-line.log.yellow > .items > .item > .icon {
+  border-color: rgba(252, 200, 48, 0.7);
+}
+.ui.time-line.log.yellow > .items > .item .icon {
+  color: #fbbd08;
+}
+.ui.time-line.log.yellow > .items > .item > .time > .date-time {
+  color: #fbc117;
+}
+.ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #fbc117;
+}
+.ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #fbc117;
+}
+.ui.time-line.log.yellow > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #fcc830;
+}
+.ui.time-line.log.yellow > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #fcc830;
+}
+.ui.time-line.log.yellow > .items > .item:hover > .icon,
+.ui.time-line.log.yellow > .items > .item:hover:before {
+  border-color: #fbc117;
+}
+.ui.time-line.log.olive > .items > .item:before,
+.ui.time-line.log.olive > .items > .item > .icon {
+  border-color: rgba(205, 230, 39, 0.7);
+}
+.ui.time-line.log.olive > .items > .item .icon {
+  color: #b5cc18;
+}
+.ui.time-line.log.olive > .items > .item > .time > .date-time {
+  color: #c1da1a;
+}
+.ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #c1da1a;
+}
+.ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #c1da1a;
+}
+.ui.time-line.log.olive > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #cde627;
+}
+.ui.time-line.log.olive > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #cde627;
+}
+.ui.time-line.log.olive > .items > .item:hover > .icon,
+.ui.time-line.log.olive > .items > .item:hover:before {
+  border-color: #c1da1a;
+}
+.ui.time-line.log.green > .items > .item:before,
+.ui.time-line.log.green > .items > .item > .icon {
+  border-color: rgba(43, 217, 84, 0.7);
+}
+.ui.time-line.log.green > .items > .item .icon {
+  color: #21ba45;
+}
+.ui.time-line.log.green > .items > .item > .time > .date-time {
+  color: #23c74a;
+}
+.ui.time-line.log.green > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #23c74a;
+}
+.ui.time-line.log.green > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #23c74a;
+}
+.ui.time-line.log.green > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #2bd954;
+}
+.ui.time-line.log.green > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #2bd954;
+}
+.ui.time-line.log.green > .items > .item:hover > .icon,
+.ui.time-line.log.green > .items > .item:hover:before {
+  border-color: #23c74a;
+}
+.ui.time-line.log.teal > .items > .item:before,
+.ui.time-line.log.teal > .items > .item > .icon {
+  border-color: rgba(0, 222, 212, 0.7);
+}
+.ui.time-line.log.teal > .items > .item .icon {
+  color: #00b5ad;
+}
+.ui.time-line.log.teal > .items > .item > .time > .date-time {
+  color: #00c4bc;
+}
+.ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #00c4bc;
+}
+.ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #00c4bc;
+}
+.ui.time-line.log.teal > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #00ded4;
+}
+.ui.time-line.log.teal > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #00ded4;
+}
+.ui.time-line.log.teal > .items > .item:hover > .icon,
+.ui.time-line.log.teal > .items > .item:hover:before {
+  border-color: #00c4bc;
+}
+.ui.time-line.log.blue > .items > .item:before,
+.ui.time-line.log.blue > .items > .item > .icon {
+  border-color: rgba(58, 153, 224, 0.7);
+}
+.ui.time-line.log.blue > .items > .item .icon {
+  color: #2185d0;
+}
+.ui.time-line.log.blue > .items > .item > .time > .date-time {
+  color: #248ddc;
+}
+.ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #248ddc;
+}
+.ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #248ddc;
+}
+.ui.time-line.log.blue > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #3a99e0;
+}
+.ui.time-line.log.blue > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #3a99e0;
+}
+.ui.time-line.log.blue > .items > .item:hover > .icon,
+.ui.time-line.log.blue > .items > .item:hover:before {
+  border-color: #248ddc;
+}
+.ui.time-line.log.violet > .items > .item:before,
+.ui.time-line.log.violet > .items > .item > .icon {
+  border-color: rgba(125, 85, 210, 0.7);
+}
+.ui.time-line.log.violet > .items > .item .icon {
+  color: #6435c9;
+}
+.ui.time-line.log.violet > .items > .item > .time > .date-time {
+  color: #6d41cd;
+}
+.ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #6d41cd;
+}
+.ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #6d41cd;
+}
+.ui.time-line.log.violet > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #7d55d2;
+}
+.ui.time-line.log.violet > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #7d55d2;
+}
+.ui.time-line.log.violet > .items > .item:hover > .icon,
+.ui.time-line.log.violet > .items > .item:hover:before {
+  border-color: #6d41cd;
+}
+.ui.time-line.log.purple > .items > .item:before,
+.ui.time-line.log.purple > .items > .item > .icon {
+  border-color: rgba(178, 81, 211, 0.7);
+}
+.ui.time-line.log.purple > .items > .item .icon {
+  color: #a333c8;
+}
+.ui.time-line.log.purple > .items > .item > .time > .date-time {
+  color: #aa3dcd;
+}
+.ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #aa3dcd;
+}
+.ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #aa3dcd;
+}
+.ui.time-line.log.purple > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #b251d3;
+}
+.ui.time-line.log.purple > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #b251d3;
+}
+.ui.time-line.log.purple > .items > .item:hover > .icon,
+.ui.time-line.log.purple > .items > .item:hover:before {
+  border-color: #aa3dcd;
+}
+.ui.time-line.log.pink > .items > .item:before,
+.ui.time-line.log.pink > .items > .item > .icon {
+  border-color: rgba(255, 105, 156, 0.7);
+}
+.ui.time-line.log.pink > .items > .item .icon {
+  color: #ff4081;
+}
+.ui.time-line.log.pink > .items > .item > .time > .date-time {
+  color: #ff4f8b;
+}
+.ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #ff4f8b;
+}
+.ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #ff4f8b;
+}
+.ui.time-line.log.pink > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #ff699c;
+}
+.ui.time-line.log.pink > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #ff699c;
+}
+.ui.time-line.log.pink > .items > .item:hover > .icon,
+.ui.time-line.log.pink > .items > .item:hover:before {
+  border-color: #ff4f8b;
+}
+.ui.time-line.log.brown > .items > .item:before,
+.ui.time-line.log.brown > .items > .item > .icon {
+  border-color: rgba(188, 123, 80, 0.7);
+}
+.ui.time-line.log.brown > .items > .item .icon {
+  color: #a5673f;
+}
+.ui.time-line.log.brown > .items > .item > .time > .date-time {
+  color: #b06e43;
+}
+.ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #b06e43;
+}
+.ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #b06e43;
+}
+.ui.time-line.log.brown > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #bc7b50;
+}
+.ui.time-line.log.brown > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #bc7b50;
+}
+.ui.time-line.log.brown > .items > .item:hover > .icon,
+.ui.time-line.log.brown > .items > .item:hover:before {
+  border-color: #b06e43;
+}
+.ui.time-line.log.grey > .items > .item:before,
+.ui.time-line.log.grey > .items > .item > .icon {
+  border-color: rgba(138, 138, 138, 0.7);
+}
+.ui.time-line.log.grey > .items > .item .icon {
+  color: #767676;
+}
+.ui.time-line.log.grey > .items > .item > .time > .date-time {
+  color: #7e7e7e;
+}
+.ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content:after {
+  background-color: #7e7e7e;
+}
+.ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content:before {
+  border-right-color: #7e7e7e;
+}
+.ui.time-line.log.grey > .items > .item:nth-of-type(odd) > .content:after {
+  background-color: #8a8a8a;
+}
+.ui.time-line.log.grey > .items > .item:nth-of-type(odd) > .content:before {
+  border-right-color: #8a8a8a;
+}
+.ui.time-line.log.grey > .items > .item:hover > .icon,
+.ui.time-line.log.grey > .items > .item:hover:before {
+  border-color: #7e7e7e;
+}
 
 .ui.panel {
   box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
