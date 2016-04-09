@@ -118,7 +118,7 @@ splitExpression = (text, separator) ->
 	return parts
 
 class cola.Expression
-	#path
+	#paths
 	#hasCallStatement
 
 	constructor: (exprStr) ->
@@ -226,12 +226,10 @@ class cola.Expression
 
 			if close and pathParts.length
 				path = pathParts.join(".")
-				if !context.path
-					context.path = path
-				else if typeof context.path == "string"
-					context.path = [context.path, path]
+				if not context.paths
+					context.paths = [path]
 				else
-					context.path.push(path)
+					context.paths.push(path)
 
 				parts.push("_getData(scope,'")
 				parts.push(path)

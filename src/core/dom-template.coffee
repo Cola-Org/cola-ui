@@ -275,6 +275,9 @@ buildContent = (parts, dom, scope) ->
 	return
 
 cola._domBindingBuilder =
+	default: (dom, scope, features) ->
+		return new cola._DomBinding(dom, scope, features)
+
 	repeat: (dom, scope, features) ->
 		domBinding = new cola._RepeatDomBinding(dom, scope, features)
 		scope = domBinding.scope
@@ -285,14 +288,7 @@ cola._domBindingBuilder =
 		scope = domBinding.scope
 		return domBinding
 
-	default: (dom, scope, features) ->
-		return new cola._DomBinding(dom, scope, features)
-
 cola._domFeatureBuilder =
-	dynaExpr: (attrValue, attrName) ->
-
-		return
-
 	default: (attrValue, attrName) ->
 		expression = cola._compileExpression(attrValue)
 		if expression
