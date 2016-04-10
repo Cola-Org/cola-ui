@@ -46,14 +46,14 @@ _compileWidgetDom = (dom, widgetType) ->
 	for attr in dom.attributes
 		attrName = attr.name
 		if attrName.indexOf("c-") == 0
-			prop = cola.util.kebab2Camel(attrName.slice(2))
+			prop = attrName.slice(2).toLowerCase()
 			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
 				config[prop] = cola._compileExpression(attr.value)
 
 				removeAttrs ?= []
 				removeAttrs.push(attrName)
 		else
-			prop = cola.util.kebab2Camel(attrName)
+			prop = attrName.toLowerCase()
 			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
 				config[prop] = attr.value
 

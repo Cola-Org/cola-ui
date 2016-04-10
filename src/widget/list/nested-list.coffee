@@ -340,4 +340,4 @@ class cola.NestedList extends cola.Widget
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)
 
-cola.defineWidget("c-nested-list", cola.NestedList)
+cola.defineWidget("c-nestedList", cola.NestedList)

@@ -153,7 +153,7 @@ class cola.ImageLabel extends cola.Label
 		else
 			detailDom.remove()
 
-cola.defineWidget("c-image-label", cola.ImageLabel)
+cola.defineWidget("c-imageLabel", cola.ImageLabel)
 
 class cola.PointingLabel extends cola.Label
 	@CLASS_NAME: "pointing label"
@@ -174,7 +174,7 @@ class cola.PointingLabel extends cola.Label
 
 		if @_pointing then @_classNamePool.add(@_pointing)
 
-cola.defineWidget("c-pointing-label", cola.PointingLabel)
+cola.defineWidget("c-pointingLabel", cola.PointingLabel)
 
 class cola.Tag extends cola.Label
 	@CLASS_NAME: "tag label"

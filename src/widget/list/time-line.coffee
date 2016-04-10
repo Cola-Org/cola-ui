@@ -39,4 +39,4 @@ class cola.TimeLine extends cola.ItemsView
 
 		return itemDom
 
-cola.defineWidget("c-time-line", cola.TimeLine)
+cola.defineWidget("c-timeLine", cola.TimeLine)

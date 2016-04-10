@@ -571,4 +571,4 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			@_dropdownContent = cola.xRender(dropdownContent, @_scope)
 		return @_dropdownContent
 
-cola.defineWidget("c-custom-dropdown", cola.CustomDropdown)
+cola.defineWidget("c-customDropdown", cola.CustomDropdown)

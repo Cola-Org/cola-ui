@@ -895,4 +895,4 @@ class cola.ListView extends cola.AbstractList
 		@_hideItemSlidePane(true, animation)
 		return
 
-cola.defineWidget("c-list-view", cola.ListView)
+cola.defineWidget("c-listView", cola.ListView)

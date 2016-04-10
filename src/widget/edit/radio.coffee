@@ -282,4 +282,4 @@ class cola.RadioGroup extends cola.AbstractEditor
 		super()
 		return @
 
-cola.defineWidget("c-radio-group", cola.RadioGroup)
+cola.defineWidget("c-radioGroup", cola.RadioGroup)

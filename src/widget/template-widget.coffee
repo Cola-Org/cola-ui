@@ -55,7 +55,7 @@ class cola.TemplateWidget extends cola.Widget
 
 	set: (attr, value, ignoreError) ->
 		super(attr, value, ignoreError)
-		if typeof attr is "string"
+		if typeof attr is "string" and @constructor.ATTRIBUTES.$has(attr)
 			@_widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		return @
 

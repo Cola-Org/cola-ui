@@ -337,7 +337,7 @@ class cola.Widget extends cola.RenderableElement
 	fire: (eventName, self, arg) ->
 		return unless @_eventRegistry
 
-		eventConfig = @constructor.EVENTS[eventName]
+		eventConfig = @constructor.EVENTS.$get(eventName)
 
 		return if @constructor.ATTRIBUTES.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
 
@@ -364,7 +364,7 @@ class cola.Widget extends cola.RenderableElement
 		return if @_bindedEvents[eventName]
 
 		$dom = @get$Dom()
-		eventConfig = @constructor.EVENTS[eventName]
+		eventConfig = @constructor.EVENTS.$get(eventName)
 
 		if eventConfig?.$event
 			$dom.on(eventConfig.$event, (evt)=>

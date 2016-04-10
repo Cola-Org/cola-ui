@@ -11,9 +11,9 @@ tagSplitter = " "
 doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 	return if definitions == mergeDefinitions
 	for name, mergeDefinition of mergeDefinitions
-		if definitions.hasOwnProperty(name)
+		if definitions.$has(name)
 			definition = definitions[name]
-			if definition
+			if definition and mergeDefinition
 				for prop of mergeDefinition
 					if overwrite or !definition.hasOwnProperty(prop) then definition[prop] = mergeDefinition[prop]
 			else
@@ -21,6 +21,9 @@ doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 		else
 			definitions[name] = mergeDefinition
 	return
+
+hasDefinition = (name) -> @hasOwnProperty(name.toLowerCase())
+getDefinition = (name) -> @[name.toLowerCase()]
 
 preprocessClass = (classType) ->
 	superType = classType.__super__?.constructor
@@ -32,12 +35,34 @@ preprocessClass = (classType) ->
 		attributes = classType.ATTRIBUTES
 		if !attributes._inited
 			attributes._inited = true
+
+			for name, definition of attributes
+				realName = name.toLowerCase()
+				if name isnt realName
+					definition ?= {}
+					definition.name = name
+					attributes[realName] = definition
+					delete attributes[name]
+
+			attributes.$has = hasDefinition
+			attributes.$get = getDefinition
+
 			doMergeDefinitions(attributes, superType.ATTRIBUTES, false)
 
 		# merge EVENTS
 		events = classType.EVENTS
 		if !events._inited
 			events._inited = true
+
+			for name, definition of events
+				realName = name.toLowerCase()
+				if name isnt realName
+					attributes[realName] = definition
+					delete attributes[name]
+
+			events.$has = hasDefinition
+			events.$get = getDefinition
+
 			doMergeDefinitions(events, superType.EVENTS, false)
 	return
 
@@ -141,11 +166,11 @@ class cola.Element
 			return @_get(attr, ignoreError)
 
 	_get: (attr, ignoreError) ->
-		if !@constructor.ATTRIBUTES.hasOwnProperty(attr)
+		if !@constructor.ATTRIBUTES.$has(attr)
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
-		attrConfig = @constructor.ATTRIBUTES[attr]
+		attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
 		if attrConfig?.getter
 			return attrConfig.getter.call(@, attr)
 		else
@@ -191,8 +216,8 @@ class cola.Element
 				if parts?.length > 0
 					value = parts[0]
 
-		if @constructor.ATTRIBUTES.hasOwnProperty(attr)
-			attrConfig = @constructor.ATTRIBUTES[attr]
+		if @constructor.ATTRIBUTES.$has(attr)
+			attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
 			if attrConfig
 				if attrConfig.readOnly
 					if ignoreError then return
@@ -205,7 +230,7 @@ class cola.Element
 			eventName = attr
 			i = eventName.indexOf(":")
 			if i > 0 then eventName = eventName.substring(0, i)
-			if @constructor.EVENTS.hasOwnProperty(eventName)
+			if @constructor.EVENTS.$has(eventName)
 				if value instanceof cola.Expression
 					expression = value
 					scope = @_scope
@@ -273,10 +298,11 @@ class cola.Element
 				attrConfig.setter.call(@, value, attr )
 				return
 
-		@["_" + attr] = value
+		@["_" + (eventName?.name or attr)] = value
 		return
 
 	_on: (eventName, listener, alias, once) ->
+		eventName = eventName.toLowerCase()
 		eventConfig = @constructor.EVENTS[eventName]
 
 		if @_eventRegistry
@@ -316,7 +342,7 @@ class cola.Element
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
 
-		if !@constructor.EVENTS.hasOwnProperty(eventName)
+		if !@constructor.EVENTS.$has(eventName)
 			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 		if typeof listener != "function"
@@ -329,6 +355,7 @@ class cola.Element
 		@on(eventName, listener, true)
 
 	_off: (eventName, listener, alias) ->
+		eventName = eventName.toLowerCase()
 		listenerRegistry = @_eventRegistry[eventName]
 		return @ unless listenerRegistry
 
@@ -381,11 +408,12 @@ class cola.Element
 		return @
 
 	getListeners: (eventName) ->
-		return @_eventRegistry?[eventName]?.listeners
+		return @_eventRegistry?[eventName.toLowerCase()]?.listeners
 
 	fire: (eventName, self, arg) ->
 		return unless @_eventRegistry
 
+		eventName = eventName.toLowerCase()
 		result = undefined
 		listenerRegistry = @_eventRegistry[eventName]
 		if listenerRegistry
