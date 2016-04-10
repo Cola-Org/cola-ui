@@ -25,10 +25,10 @@ doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 hasDefinition = (name) -> @hasOwnProperty(name.toLowerCase())
 getDefinition = (name) -> @[name.toLowerCase()]
 
-preprocessClass = (classType) ->
+cola.preprocessClass = (classType) ->
 	superType = classType.__super__?.constructor
 	if superType
-		if classType.__super__ then preprocessClass(superType)
+		if classType.__super__ then cola.preprocessClass(superType)
 
 		# merge ATTRIBUTES
 		# TODO: 此处可以考虑预先计算出有无含默认值设置的属性，以便在对象创建时提高性能
@@ -115,8 +115,8 @@ class cola.Element
 	constructor: (config) ->
 		@_constructing = true
 		classType = @constructor
-		if !classType.ATTRIBUTES._inited or !classType.EVENTS._inited
-			preprocessClass(classType)
+		if not classType.ATTRIBUTES._inited or not classType.EVENTS._inited
+			cola.preprocessClass(classType)
 
 		@_scope = config?.scope or cola.currentScope
 
@@ -126,7 +126,7 @@ class cola.Element
 				if attrConfig.setter
 					attrConfig.setter.call(@, attrConfig.defaultValue, attr)
 				else
-					@["_" + attr] = attrConfig.defaultValue
+					@["_" + (attrConfig?.name or attr)] = attrConfig.defaultValue
 
 		if classType._constructors
 			for constructor in classType._constructors
@@ -298,7 +298,7 @@ class cola.Element
 				attrConfig.setter.call(@, value, attr )
 				return
 
-		@["_" + (eventName?.name or attr)] = value
+		@["_" + (attrConfig?.name or attr)] = value
 		return
 
 	_on: (eventName, listener, alias, once) ->
@@ -420,24 +420,29 @@ class cola.Element
 			listeners = listenerRegistry.listeners
 			if listeners
 				if arg
-					arg.model = @._scope
+					arg.model = @_scope
 				else
-					arg = {model: @._scope}
+					arg = {model: @_scope}
 
-				for listener in listeners
-					if typeof listener == "function"
-						argsMode = listener._argsMode
-						if not listener._argsMode
-							argsMode = cola.util.parseListener(listener)
-						if argsMode == 1
-							retValue = listener.call(self, self, arg)
-						else
-							retValue = listener.call(self, arg, self)
-					else if typeof listener == "string"
-						retValue = do (self, arg) => eval(listener)
+				oldScope = cola.currentScope
+				cola.currentScope = @_scope
+				try
+					for listener in listeners
+						if typeof listener == "function"
+							argsMode = listener._argsMode
+							if not listener._argsMode
+								argsMode = cola.util.parseListener(listener)
+							if argsMode == 1
+								retValue = listener.call(self, self, arg)
+							else
+								retValue = listener.call(self, arg, self)
+						else if typeof listener == "string"
+							retValue = do (self, arg) => eval(listener)
 
-					if retValue != undefined then result = retValue
-					if retValue == false then break
+						if retValue != undefined then result = retValue
+						if retValue == false then break
+				finally
+					cola.currentScope = oldScope
 
 				if listenerRegistry.onceListeners
 					onceListeners = listenerRegistry.onceListeners.slice()

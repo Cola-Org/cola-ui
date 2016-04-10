@@ -152,7 +152,7 @@ class cola.Expression
 			@isDyna = true
 
 		@compile(exprStr)
-		@path = watchPaths if watchPaths
+		@paths = watchPaths if watchPaths
 
 	compile: (exprStr) ->
 

@@ -29,6 +29,7 @@ class cola.ListView extends cola.AbstractList
 			setter: (bindStr) ->
 				@_set("items", undefined)
 				return @_bindSetter(bindStr)
+
 		textProperty:
 			refreshItems: true
 

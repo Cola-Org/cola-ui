@@ -93,6 +93,8 @@ class cola.Scope
 
 class cola.Model extends cola.Scope
 	constructor: (name, parent) ->
+		cola.currentScope ?= @
+
 		if name instanceof cola.Scope
 			parent = name
 			name = undefined
@@ -196,17 +198,17 @@ class cola.SubScope extends cola.Scope
 
 class cola.AliasScope extends cola.SubScope
 	constructor: (@parent, expression) ->
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement
-			dataType = @parent.data.getDataType(expression.path)
+		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+			dataType = @parent.data.getDataType(expression.paths[0])
 
 		@data = new cola.AliasDataModel(@, expression.alias, dataType)
 		@action = @parent.action
 
 		@expression = expression
-		if !expression.path and expression.hasCallStatement
+		if not expression.paths and expression.hasCallStatement
 			@watchAllMessages()
 		else
-			@watchPath(expression.path)
+			@watchPath(expression.paths)
 
 	destroy: () ->
 		super()
@@ -260,24 +262,21 @@ class cola.ItemsScope extends cola.SubScope
 		@expression = expression
 		if expression
 			@alias = expression.alias
-			if typeof expression.path == "string"
-				@expressionPath = [expression.path.split(".")]
-			else if expression.path instanceof Array
-				paths = []
-				for path in expression.path
-					paths.push(path.split("."))
-				@expressionPath = paths
+			paths = []
+			for path in expression.paths
+				paths.push(path.split("."))
+			@expressionPath = paths
 
-			if !expression.path and expression.hasCallStatement
+			if not expression.paths and expression.hasCallStatement
 				@watchAllMessages()
 			else
-				@watchPath(expression.path)
+				@watchPath(expression.paths)
 		else
 			@alias = "item"
 			@expressionPath = []
 
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement
-			@dataType = @parent.data.getDataType(expression.path)
+		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
 	setItems: (items, originItems...) ->
@@ -691,7 +690,7 @@ class cola.AbstractDataModel
 		oldScope = cola.currentScope
 		cola.currentScope = @
 		try
-			arg.timestamp = cola.sequenceNo() unless arg.timestamp
+			arg.timestamp ?= cola.sequenceNo()
 			if path
 				node = @bindingRegistry
 				lastIndex = path.length - 1
@@ -1031,7 +1030,7 @@ class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
 		@paths = paths = @expression.paths
-		if !paths and @expression.hasCallStatement
+		if not paths and @expression.hasCallStatement
 			@paths = paths = ["**"]
 			@watchingMoreMessage = @expression.hasCallStatement
 

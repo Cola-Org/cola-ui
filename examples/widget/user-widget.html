@@ -7,6 +7,7 @@
 		var MyWidget = cola.defineWidget("my-widget", {
 			ATTRIBUTES: {
 				bind: null,
+				itemsBind: null,
 				text: null
 			},
 			template: {
@@ -25,7 +26,9 @@
 						"c-bind": "?$bind"
 					},
 					{
-						"c-widget": "input; bind:{{$bind}}"
+						tagName: "c-listview",
+						"c-bind": "?$itemsBind",
+						textProperty: "city"
 					}
 				]
 			}
@@ -33,6 +36,9 @@
 
 		cola(function (model) {
 			model.set("prop", "Yeah!");
+			model.describe("addresses", {
+				provider: "../core/city.json"
+			});
 
 			model.action({
 				buttonClick: function() {
@@ -46,7 +52,8 @@
 					caption: "Test",
 					click: function() {
 						var myWidget = new MyWidget({
-							bind: "prop"
+							bind: "prop",
+							itemsBind: "addresses"
 						});
 						myWidget.appendTo(document.body);
 
@@ -64,11 +71,12 @@
 <div c-widget="input; bind:prop"></div>
 <div c-widget="label; text:{{prop}}"></div>
 
-<my-widget bind="prop" text="1"></my-widget>
-<my-widget bind="prop" text="2"></my-widget>
+<my-widget bind="prop" itemsBind="addresses" text="1"></my-widget>
+<my-widget bind="prop" itemsBind="addresses" text="2"></my-widget>
 
 <c-button icon="search" c-click="buttonClick()">Button</c-button>
 <c-slider></c-slider>
+
 
 </body>
 </html>

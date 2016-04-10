@@ -39,6 +39,9 @@ _findWidgetConfig = (scope, name) ->
 	return widgetConfig
 
 _compileWidgetDom = (dom, widgetType) ->
+	if not widgetType.ATTRIBUTES._inited or not widgetType.EVENTS._inited
+		cola.preprocessClass(widgetType)
+
 	config =
 		$constr: widgetType
 
@@ -46,15 +49,15 @@ _compileWidgetDom = (dom, widgetType) ->
 	for attr in dom.attributes
 		attrName = attr.name
 		if attrName.indexOf("c-") == 0
-			prop = attrName.slice(2).toLowerCase()
-			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
+			prop = attrName.slice(2)
+			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
 				config[prop] = cola._compileExpression(attr.value)
 
 				removeAttrs ?= []
 				removeAttrs.push(attrName)
 		else
-			prop = attrName.toLowerCase()
-			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
+			prop = attrName
+			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
 				config[prop] = attr.value
 
 			removeAttrs ?= []

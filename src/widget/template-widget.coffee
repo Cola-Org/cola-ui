@@ -20,7 +20,17 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		@_onDataMessage(path, type, arg)
 		return
 
-	getDataType: (path) -> @model.parent?.data.getDataType(path)
+	getDataType: (path) ->
+		if path.charCodeAt(0) is 36 # `$`
+			return null
+		else
+			return @model.parent?.data.getDataType(path)
+
+	getProperty: (path) ->
+		if path.charCodeAt(0) is 36 # `$`
+			return null
+		else
+			return @model.parent?.data.getDataType(path)
 
 	flush: () ->
 

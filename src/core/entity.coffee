@@ -693,6 +693,7 @@ class cola.Entity
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
+			delete arg.timestamp
 			path = @getPath(true)
 
 			if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type is cola.constants.MESSAGE_LOADING_START or type is cola.constants.MESSAGE_LOADING_END) and arg.property
