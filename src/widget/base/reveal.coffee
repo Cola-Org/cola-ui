@@ -159,3 +159,5 @@ class cola.Reveal extends cola.Widget
 
 	getVisibleContentContainer: ()-> return @_getContentContainer("visible")
 	getHiddenContentContainer: ()-> return @_getContentContainer("hidden")
+
+cola.defineWidget("c-reveal", cola.Reveal)

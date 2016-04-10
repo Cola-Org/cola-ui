@@ -56,4 +56,4 @@ class cola.Segment extends cola.AbstractContainer
 
 		return
 
-
+cola.defineWidget("c-segment", cola.Segment)

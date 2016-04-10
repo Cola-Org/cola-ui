@@ -288,3 +288,5 @@ class cola.Stack extends cola.Widget
 			action: "back"
 		})
 		return null
+
+cola.defineWidget("c-stack", cola.Stack)

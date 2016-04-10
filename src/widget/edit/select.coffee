@@ -77,3 +77,5 @@ class cola.Select extends cola.AbstractInput
 		super(value)
 		cola.util.toggleClass(@_doms.input, "placeholder", !value? or value is "")
 		return
+
+cola.defineWidget("c-select", cola.Select)

@@ -31,8 +31,6 @@ class cola.menu.AbstractMenuItem extends cola.AbstractContainer
 		super()
 		delete @_parent
 
-
-
 class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	@CLASS_NAME: "item"
 	@TAG_NAME: "a"
@@ -585,6 +583,8 @@ class cola.TitleBar extends cola.Menu
 			$(@_doms.title).empty()
 
 		return null
+
+cola.defineWidget("c-menu", cola.Menu)
 
 cola.registerType("menu", "_default", cola.menu.MenuItem)
 cola.registerType("menu", "item", cola.menu.MenuItem)

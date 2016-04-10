@@ -34,6 +34,12 @@
 		cola(function (model) {
 			model.set("prop", "Yeah!");
 
+			model.action({
+				buttonClick: function() {
+					alert("Button Clicked!");
+				}
+			});
+
 			model.widgetConfig({
 				buttonTest: {
 					$type: "button",
@@ -60,6 +66,9 @@
 
 <my-widget bind="prop" text="1"></my-widget>
 <my-widget bind="prop" text="2"></my-widget>
+
+<c-button icon="search" c-click="buttonClick()">Button</c-button>
+<c-slider></c-slider>
 
 </body>
 </html>

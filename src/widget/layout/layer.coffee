@@ -136,3 +136,5 @@ class cola.Layer extends cola.AbstractLayer
 			$dom.removeClass("hidden").addClass("visible").transit(configs)
 			@_transitionStart()
 		return
+
+cola.defineWidget("c-layer", cola.Layer)

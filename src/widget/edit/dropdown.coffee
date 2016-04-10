@@ -545,6 +545,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 		list.refresh()
 		return template
 
+cola.defineWidget("c-dropdown", cola.Dropdown)
+
 class cola.CustomDropdown extends cola.AbstractDropdown
 	@ATTRIBUTES:
 		content: null
@@ -568,3 +570,5 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 				dropdownContent = @_getTemplate()
 			@_dropdownContent = cola.xRender(dropdownContent, @_scope)
 		return @_dropdownContent
+
+cola.defineWidget("c-custom-dropdown", cola.CustomDropdown)

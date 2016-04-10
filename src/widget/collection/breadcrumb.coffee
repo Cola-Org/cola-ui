@@ -249,6 +249,7 @@ class cola.Breadcrumb extends cola.Widget
 
 		return
 
+cola.defineWidget("c-breadcrumb", cola.Breadcrumb)
 
 cola.registerType("breadcrumb", "_default", cola.breadcrumb.Section)
 cola.registerType("breadcrumb", "section", cola.breadcrumb.Section)

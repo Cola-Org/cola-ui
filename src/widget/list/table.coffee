@@ -499,3 +499,5 @@ class cola.Table extends cola.AbstractTable
 		@_refreshFixedHeader() if @_showHeader
 		@_refreshFixedFooter() if @_showFooter
 		return
+
+cola.defineWidget("c-table", cola.Table)

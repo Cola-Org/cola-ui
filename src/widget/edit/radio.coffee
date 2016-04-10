@@ -153,6 +153,8 @@ class cola.RadioButton extends cola.Widget
 		super()
 		delete @_doms
 
+cola.defineWidget("c-radio", cola.Radio)
+
 emptyRadioGroupItems = []
 class cola.RadioGroup extends cola.AbstractEditor
 	@CLASS_NAME: "grouped"
@@ -279,3 +281,5 @@ class cola.RadioGroup extends cola.AbstractEditor
 			delete @_items
 		super()
 		return @
+
+cola.defineWidget("c-radio-group", cola.RadioGroup)

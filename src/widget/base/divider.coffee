@@ -17,3 +17,5 @@ class cola.Divider extends cola.AbstractContainer
 		super()
 		if @_direction then @_classNamePool.add(@_direction)
 		return
+
+cola.defineWidget("c-divider", cola.ButtonGroup)

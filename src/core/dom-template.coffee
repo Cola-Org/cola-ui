@@ -165,14 +165,6 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			features.push(feature)
 			dom.removeAttribute("c-alias")
 
-	bindingExpr = dom.getAttribute("c-bind")
-	if bindingExpr
-		bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
-		feature = cola._domFeatureBuilder.bind(bindingExpr, "bind", dom)
-		features ?= []
-		features.push(feature)
-		dom.removeAttribute("c-bind")
-
 	for customDomCompiler in cola._userDomCompiler.$
 		result = customDomCompiler(scope, dom, null, context)
 		if result

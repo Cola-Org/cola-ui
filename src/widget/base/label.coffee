@@ -114,6 +114,8 @@ class cola.Label extends cola.Widget
 
 		return
 
+cola.defineWidget("c-label", cola.Label)
+
 class cola.ImageLabel extends cola.Label
 	@CLASS_NAME: "image label"
 	@ATTRIBUTES:
@@ -151,6 +153,8 @@ class cola.ImageLabel extends cola.Label
 		else
 			detailDom.remove()
 
+cola.defineWidget("c-image-label", cola.ImageLabel)
+
 class cola.PointingLabel extends cola.Label
 	@CLASS_NAME: "pointing label"
 	@ATTRIBUTES:
@@ -170,9 +174,12 @@ class cola.PointingLabel extends cola.Label
 
 		if @_pointing then @_classNamePool.add(@_pointing)
 
+cola.defineWidget("c-pointing-label", cola.PointingLabel)
+
 class cola.Tag extends cola.Label
 	@CLASS_NAME: "tag label"
 
+cola.defineWidget("c-tag", cola.Tag)
 
 class cola.Corner extends cola.Label
 	@CLASS_NAME: "corner label"
@@ -192,6 +199,8 @@ class cola.Corner extends cola.Label
 		return unless @_dom
 		super()
 		@_classNamePool.add(@_position)
+
+cola.defineWidget("c-corner", cola.Corner)
 
 class cola.Ribbon extends cola.Label
 	@CLASS_NAME: "ribbon label"
@@ -215,3 +224,5 @@ class cola.Ribbon extends cola.Label
 		if position is "right"
 			@_classNamePool.remove("ribbon")
 			@_classNamePool.add("right ribbon")
+
+cola.defineWidget("c-ribbon", cola.Ribbon)

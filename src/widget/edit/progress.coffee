@@ -233,4 +233,4 @@ class cola.Progress extends cola.Widget
 
 		return
 
-
+cola.defineWidget("c-progress", cola.Progress)

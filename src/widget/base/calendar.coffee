@@ -617,7 +617,3 @@ do->
 				@setState(date.getFullYear(), date.getMonth())
 				@setDate(date.getDate())
 		getDateCellDom: (date)-> @_datePicker.getDateCellDom(date)
-
-
-
-

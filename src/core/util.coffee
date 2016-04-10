@@ -13,6 +13,15 @@ cola.util.capitalize = (text) ->
 	return text unless text
 	return text.charAt(0).toUpperCase() + text.slice(1);
 
+cola.util.kebab2Camel = (name) ->
+	return name unless name
+	for part, i in name.split("-")
+		if i is 0
+			result = part
+		else
+			result += part.charAt(0).toUpperCase() + part.slice(1);
+	return result
+
 cola.util.isSimpleValue = (value) ->
 	if value == null or value == undefined then return false
 	type = typeof value
@@ -138,6 +147,6 @@ cola.util.waitForAll = (funcs, callback) ->
 cola.util.isSuperClass = (superCls, cls) ->
 	return false unless superCls
 	while cls
-		return true if cls.__super__ is superCls
-		cls = cls.__super__
+		return true if cls.__super__ is superCls::
+		cls = cls.__super__?.constructor
 	return false

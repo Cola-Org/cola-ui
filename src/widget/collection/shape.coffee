@@ -103,7 +103,8 @@ class cola.Shape extends cola.AbstractItemGroup
 		@get$Dom().shape("set next side", selector)
 		return @
 
-
 cola.Element.mixin(cola.Shape, cola.TemplateSupport)
 cola.Element.mixin(cola.Shape, cola.DataItemsWidgetMixin)
+
+cola.defineWidget("c-shape", cola.Shape)
 

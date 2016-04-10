@@ -42,12 +42,26 @@ _compileWidgetDom = (dom, widgetType) ->
 	config =
 		$constr: widgetType
 
+	removeAttrs = null
 	for attr in dom.attributes
 		attrName = attr.name
 		if attrName.indexOf("c-") == 0
-#			dom.removeAttribute(attrName)
+			prop = cola.util.kebab2Camel(attrName.slice(2))
+			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
+				config[prop] = cola._compileExpression(attr.value)
+
+				removeAttrs ?= []
+				removeAttrs.push(attrName)
 		else
-			config[attrName] = attr.value
+			prop = cola.util.kebab2Camel(attrName)
+			if widgetType.ATTRIBUTES.hasOwnProperty(prop) or widgetType.EVENTS.hasOwnProperty(prop)
+				config[prop] = attr.value
+
+			removeAttrs ?= []
+			removeAttrs.push(attrName)
+
+	if removeAttrs
+		dom.removeAttribute(attr) for attr in removeAttrs
 	return config
 
 cola._userDomCompiler.$.push((scope, dom, attr, context) ->
@@ -58,7 +72,7 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 		jsonConfig = _findWidgetConfig(scope, dom.id)
 
 	tagName = dom.tagName
-	widgetType = cola.widget.tagNames[tagName]
+	widgetType = WIDGET_TAG_NAMES[tagName]
 	if widgetType
 		config = _compileWidgetDom(dom, widgetType)
 	else
@@ -171,6 +185,49 @@ cola.findWidget = (dom, type) ->
 				return widget
 		dom = dom.parentNode
 	return null
+
+###
+User Widget
+###
+
+WIDGET_TAG_NAMES = {}
+
+_extendsWidget = (superCls, definition) ->
+	cls = () ->
+		cls.__super__.constructor.apply(this, arguments)
+		definition.constructor?.apply(this, arguments)
+		return
+
+	`extend(cls, superCls)`
+
+	for prop, def of definition
+		if definition.hasOwnProperty(prop)
+			if prop is "ATTRIBUTES"
+				for attr, attrDef of def
+					cls.ATTRIBUTES[attr] = attrDef
+			else if prop is "EVENTS"
+				for evt, evtDef of def
+					cls.EVENTS[evt] = evtDef
+			else if prop is "template"
+				cls.ATTRIBUTES.template =
+					defaultValue: def
+			else
+				cls::[prop] = def
+
+	return cls
+
+cola.defineWidget = (name, type, definition) ->
+	if not cola.util.isSuperClass(cola.Widget, type)
+		definition = type
+		type = cola.TemplateWidget
+	if definition
+		type = _extendsWidget(type, definition)
+	WIDGET_TAG_NAMES[name.toUpperCase()] = type
+	return type
+
+###
+Template
+###
 
 TEMP_TEMPLATE = null
 

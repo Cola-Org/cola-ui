@@ -131,3 +131,4 @@ class cola.Sidebar extends cola.AbstractLayer
 		)
 	isVisible: ()->return if @_dom then @get$Dom().hasClass("visible") else false
 
+cola.defineWidget("c-sidebar", cola.Sidebar)

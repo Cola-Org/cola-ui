@@ -162,6 +162,8 @@ class cola.Button extends cola.AbstractButton
 
 		return
 
+cola.defineWidget("c-button", cola.Button)
+
 cola.buttonGroup = {}
 
 class cola.buttonGroup.Separator extends cola.Widget
@@ -351,6 +353,8 @@ class cola.ButtonGroup extends cola.AbstractButton
 
 	getItems: ()->
 		return @_items or cola.buttonGroup.emptyItems
+
+cola.defineWidget("c-button-group", cola.ButtonGroup)
 
 cola.registerType("button-group", "_default", cola.Button)
 cola.registerType("button-group", "Separator", cola.buttonGroup.Separator)
