@@ -32,6 +32,7 @@ sources =
 			"src/widget/support.coffee"
 			"src/widget/semantic-overrides.coffee"
 			"src/widget/widget.coffee"
+			"src/widget/template-widget.coffee"
 		]
 		base: [
 			"src/widget/base/abstract-container.coffee"

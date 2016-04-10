@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		var MyWidget = cola.defineWidget("my-widget", {
+			ATTRIBUTES: {
+				bind: null,
+				itemsBind: null,
+				text: null
+			},
+			template: {
+				style: {
+					display: "block",
+					padding: "4px",
+					border: "1px red solid"
+				},
+				content: [
+					{
+						tagName: "input",
+						"c-bind": "$text"
+					},
+					{
+						tagName: "input",
+						"c-bind": "?$bind"
+					},
+					{
+						tagName: "c-listview",
+						"c-bind": "?$itemsBind",
+						textProperty: "city"
+					}
+				]
+			}
+		});
+
+		cola(function (model) {
+			model.set("prop", "Yeah!");
+			model.describe("addresses", {
+				provider: "../core/city.json"
+			});
+
+			model.action({
+				buttonClick: function() {
+					alert("Button Clicked!");
+				}
+			});
+
+			model.widgetConfig({
+				buttonTest: {
+					$type: "button",
+					caption: "Test",
+					click: function() {
+						var myWidget = new MyWidget({
+							bind: "prop",
+							itemsBind: "addresses"
+						});
+						myWidget.appendTo(document.body);
+
+						myWidget.set("text", new Date());
+					}
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding:20px;">
+
+<button id="buttonTest"></button>
+<input c-bind="prop">
+<div c-widget="input; bind:prop"></div>
+<div c-widget="label; text:{{prop}}"></div>
+
+<my-widget bind="prop" itemsBind="addresses" text="1"></my-widget>
+<my-widget bind="prop" itemsBind="addresses" text="2"></my-widget>
+
+<c-button icon="search" c-click="buttonClick()">Button</c-button>
+<c-slider></c-slider>
+
+
+</body>
+</html>

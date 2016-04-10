@@ -43,5 +43,9 @@ class cola.Image extends cola.Widget
 
 		return
 
+cola.defineWidget("c-image", cola.Image)
+
 class cola.Avatar extends cola.Image
 	@CLASS_NAME: "avatar image"
+
+cola.defineWidget("c-avatar", cola.Avatar)

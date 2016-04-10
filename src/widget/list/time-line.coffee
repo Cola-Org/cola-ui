@@ -44,5 +44,4 @@ class cola.TimeLine extends cola.AbstractList
 
 		return itemDom
 
-
-
+cola.defineWidget("c-timeLine", cola.TimeLine)

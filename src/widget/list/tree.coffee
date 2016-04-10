@@ -470,3 +470,5 @@ class cola.Tree extends cola.AbstractList
 		return nodes
 
 cola.Element.mixin(cola.Tree, cola.TreeSupportMixin)
+
+cola.defineWidget("c-tree", cola.Tree)

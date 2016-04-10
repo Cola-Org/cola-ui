@@ -258,3 +258,5 @@ class cola.Pager extends cola.Menu
 	_onCurrentItemChange: (arg)->
 
 cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)
+
+cola.defineWidget("c-pager", cola.Pager)

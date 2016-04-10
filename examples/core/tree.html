@@ -55,6 +55,10 @@
 				}
 			]);
 
+			model.get("categories").watch("**", function(path, type, arg) {
+				alert("watch: " + path);
+			});
+
 			model.action({
 				setName: function(entity) {
 					entity.set("name", entity.get("name") +  " *** ");

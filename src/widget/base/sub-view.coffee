@@ -137,3 +137,5 @@ class cola.SubView extends cola.Widget
 		@fire("unload", @)
 		return
 
+cola.defineWidget("c-subView", cola.SubView)
+

@@ -26,4 +26,4 @@ class cola.Link extends cola.AbstractContainer
 			$dom.removeAttr("href")
 		$dom.attr("target", @_target || "")
 
-
+cola.defineWidget("c-link", cola.Link)

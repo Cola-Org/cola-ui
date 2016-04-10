@@ -188,3 +188,4 @@ class cola.Dialog extends cola.Layer
 		_dimmerDom = @_doms.modalLayer
 		$(_dimmerDom).removeClass("active")
 
+cola.defineWidget("c-dialog", cola.Dialog)

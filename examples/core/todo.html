@@ -77,15 +77,14 @@
 <p>
 	<input c-bind="newItem">
 	<button c-onclick="add()" c-disabled="newItem?false:true">Add</button>
-	<button c-class="red:name=='张三'">Add</button>
 </p>
 <p>
 	Filter: <input c-bind="filterParam">
 	Sort: <select c-bind="sortParam" c-options="sortOptions"></select>
 </p>
 <ul>
-	<!--<li c-repeat="todo in sort(filter(todos,filterParam),sortParam)">-->
-	<li c-repeat="todo in chain(todos).filter(filterParam).sort(sortParam)">
+	<li c-repeat="todo in sort(filter(todos,filterParam),sortParam)">
+	<!--<li c-repeat="todo in chain(todos).filter(filterParam).sort(sortParam)">-->
 		<input type="checkbox" c-bind="todo.done">
 		<span c-bind="todo.title"></span>
 		<button c-onclick="delete(todo)">Delete</button>

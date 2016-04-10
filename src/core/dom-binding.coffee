@@ -4,85 +4,65 @@ _destroyDomBinding = (node, data) ->
 	return
 
 class cola._DomBinding
-	constructor: (dom, @scope, feature) ->
+	constructor: (dom, @scope, features) ->
 		@dom = dom
 		@$dom = $(dom)
 
-		if feature
-			if feature instanceof Array
-				for f in feature
-					@addFeature(f)
-			else@addFeature(feature)
+		if features
+			for f in features
+				@addFeature(f)
 
 		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
 		cola.util.onNodeRemoved(dom, _destroyDomBinding)
 
 	destroy: () ->
-		_feature = @feature
-		if _feature
-			if _feature instanceof Array
-				for feature in _feature
-					@unbindFeature(feature)
-			else
-				@unbindFeature(_feature)
+		_features = @features
+		if _features
+			while _features.length
+				@unbindFeature(_features[_features.length - 1])
 
 		delete @dom
 		delete @$dom
-		return
-
-	bindFeature: (feature) ->
-		return unless feature._processMessage
-
-		path = feature.path
-		if path
-			if typeof path == "string"
-				@bind(path, feature)
-			else
-				for p in path
-					@bind(p, feature)
-		return
-
-	unbindFeature: (feature) ->
-		return unless feature._processMessage
-
-		path = feature.path
-		if path
-			if typeof path == "string"
-				@unbind(path, feature)
-			else
-				for p in path
-					@unbind(p, feature)
 		return
 
 	addFeature: (feature) ->
 		feature.id ?= cola.uniqueId()
 		feature.init?(@)
 
-		if !@feature
-			@feature = feature
-		else if @feature instanceof Array
-			@feature.push(feature)
+		if not @features
+			@features = [feature]
 		else
-			@feature = [@feature, feature]
+			@features.push(feature)
 
-		@bindFeature(feature)
+		@bindFeature(feature) if not feature.ignoreBind
 		return
 
 	removeFeature: (feature) ->
-		_feature = @feature
-		if _feature
-			if _feature == feature
-				delete @feature
-				if _feature.length == 1
-					delete @feature
-			else
-				i = _feature.indexOf(feature)
-				_feature.splice(i, 1) if i > -1
-			@unbindFeature(feature)
+		_features = @features
+		if _features
+			i = _features.indexOf(feature)
+			_features.splice(i, 1) if i > -1
+
+			@unbindFeature(feature) if not feature.ignoreBind
+		return
+
+	bindFeature: (feature) ->
+		return unless feature._processMessage
+		paths = feature.paths
+		if paths
+			@bind(path, feature) for path in paths
+		return
+
+	unbindFeature: (feature) ->
+		return unless feature._processMessage
+		paths = feature.paths
+		if paths
+			@unbind(path, feature) for path in paths
 		return
 
 	bind: (path, feature) ->
 		pipe = {
+			path: path
 			_processMessage: (bindingPath, path, type, arg) =>
 				if not feature.disabled
 					feature._processMessage(@, bindingPath, path, type, arg)
@@ -92,25 +72,33 @@ class cola._DomBinding
 				return
 		}
 		@scope.data.bind(path, pipe)
-		@[feature.id] = pipe
+
+		holder = @[feature.id]
+		if not holder
+			@[feature.id] = [pipe]
+		else
+			holder.push(pipe)
 		return
 
 	unbind: (path, feature) ->
-		pipe = @[feature.id]
-		delete @[feature.id]
+		holder = @[feature.id]
+		for p, i in holder
+			if p.path is path
+				holder.splice(i, 1)
+				break
+		if not holder.length then delete @[feature.id]
+
 		@scope.data.unbind(path, pipe)
 		return
 
 	refresh: (force) ->
-		feature = @feature
-		if feature instanceof Array
-			f.refresh(@, force) for f in feature
-		else if feature
-			feature.refresh(@, force) 
+		if @features
+			for f in @features
+				f.refresh(@, force)
 		return
 
 	clone: (dom, scope) ->
-		return new @constructor(dom, scope, @feature, true)
+		return new @constructor(dom, scope, @features, true)
 
 class cola._AliasDomBinding extends cola._DomBinding
 	destroy: () ->

@@ -54,5 +54,6 @@ class cola.Rating extends cola.Widget
 		@set("rating", 0)
 		return @
 
-
 cola.Element.mixin(cola.Rating, cola.DataWidgetMixin)
+
+cola.defineWidget("c-rating", cola.Rating)

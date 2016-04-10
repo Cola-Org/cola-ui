@@ -245,3 +245,5 @@ class cola.Carousel extends cola.AbstractItemGroup
 cola.Element.mixin(cola.Carousel, cola.TemplateSupport)
 cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin)
 
+cola.defineWidget("c-carousel", cola.Carousel)
+

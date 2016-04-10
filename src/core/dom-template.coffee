@@ -150,34 +150,29 @@ _doRenderDomTemplate = (dom, scope, context) ->
 	bindingExpr = dom.getAttribute("c-repeat")
 	if bindingExpr
 		bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
+		bindingType = "repeat"
+		feature = cola._domFeatureBuilder[bindingType](bindingExpr, bindingType, dom)
+		features ?= []
+		features.push(feature)
 		dom.removeAttribute("c-repeat")
-		expression = cola._compileExpression(bindingExpr, "repeat")
-		if expression
-			bindingType = "repeat"
-			feature = buildRepeatFeature(expression)
-			features ?= []
-			features.push(feature)
 	else
 		bindingExpr = dom.getAttribute("c-alias")
 		if bindingExpr
 			bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
-			dom.removeAttribute("c-alias")
 			bindingType = "alias"
-			expression = cola._compileExpression(bindingExpr, "alias")
-			if expression
-				feature = buildAliasFeature(expression)
-				features ?= []
-				features.push(feature)
-
-	bindingExpr = dom.getAttribute("c-bind")
-	if bindingExpr
-		bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
-		dom.removeAttribute("c-bind")
-		expression = cola._compileExpression(bindingExpr)
-		if expression
-			feature = buildBindFeature(expression, dom)
+			feature = cola._domFeatureBuilder[bindingType](bindingExpr, bindingType, dom)
 			features ?= []
 			features.push(feature)
+			dom.removeAttribute("c-alias")
+
+	for customDomCompiler in cola._userDomCompiler.$
+		result = customDomCompiler(scope, dom, null, context)
+		if result
+			if result instanceof cola._BindingFeature
+				features.push(result)
+			if typeof result == "function"
+				initializers ?= []
+				initializers.push(result)
 
 	for attr in dom.attributes
 		attrName = attr.name
@@ -189,49 +184,41 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			if attrValue and context.defaultPath
 				attrValue = attrValue.replace(ALIAS_REGEXP, context.defaultPath)
 
-			attrName = attrName.substring(2)
-			if attrName == "style"
-				newFeatures = buildStyleFeature(attrValue)
-				features = if features then features.concat(newFeatures) else newFeatures
-			else if attrName == "class" or attrName == "classname"
-				newFeatures = buildClassFeature(attrValue)
-				features = if features then features.concat(newFeatures) else newFeatures
-			else
+			if attrValue
+				attrName = attrName.substring(2)
+
 				customDomCompiler = cola._userDomCompiler[attrName]
 				if customDomCompiler
-					result = customDomCompiler(scope, dom, context)
+					result = customDomCompiler(scope, dom, attr, context)
 					if result
 						if result instanceof cola._BindingFeature
 							features.push(result)
-						if typeof result == "function"
+						else if result instanceof Array
+							features.push(f) for f in result
+						else if typeof result == "function"
 							initializers ?= []
 							initializers.push(result)
 				else
-					if attrName.substring(0, 2) == "on"
-						feature = buildEvent(scope, dom, attrName.substring(2), attrValue)
-					else if attrName == "resource"
-						feature = buildResourceFeature(scope, dom, attrValue)
-					else if attrName == "watch"
-						feature = buildWatchFeature(scope, dom, attrValue)
+					if attrName.indexOf("on") == 0
+						feature = cola._domFeatureBuilder.event(attrValue, attrName, dom)
 					else
-						feature = buildAttrFeature(dom, attrName, attrValue)
+						builder = cola._domFeatureBuilder[attrName]
+						feature = (builder or cola._domFeatureBuilder["$"]).call(cola._domFeatureBuilder, attrValue, attrName, dom)
 
 					if feature
 						features ?= []
-						features.push(feature)
-
-	for customDomCompiler in cola._userDomCompiler.$
-		result = customDomCompiler(scope, dom, context)
-		if result
-			if result instanceof cola._BindingFeature
-				features.push(result)
-			if typeof result == "function"
-				initializers ?= []
-				initializers.push(result)
+						if feature  instanceof cola._BindingFeature
+							features.push(feature)
+						else if result instanceof Array
+							features.push(f) for f in feature
 
 	if removeAttrs
 		for removeAttr in removeAttrs
 			dom.removeAttribute(removeAttr)
+
+	if features?.length
+		domBinding = cola._domBindingBuilder[bindingType or "$"](dom, scope, features)
+		defaultPath = scope.data.alias if scope.data.alias
 
 	if not cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN)
 		childContext = {}
@@ -247,56 +234,19 @@ _doRenderDomTemplate = (dom, scope, context) ->
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
 
-	if features?.length
-		if bindingType == "repeat"
-			domBinding = new cola._RepeatDomBinding(dom, scope, features)
-			scope = domBinding.scope
-			defaultPath = scope.data.alias
-		else if bindingType == "alias"
-			domBinding = new cola._AliasDomBinding(dom, scope, features)
-			scope = domBinding.scope
-			defaultPath = scope.data.alias
-		else
-			domBinding = new cola._DomBinding(dom, scope, features)
-		domBinding = null if not domBinding.feature
-
 	if initializers
-		if context.inRepeatTemplate or (domBinding and domBinding instanceof cola._RepeatDomBinding)
+		if context.inRepeatTemplate or bindingType is "repeat"
 			cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers)
 		else
 			for initializer in initializers
 				initializer(scope, dom)
 
-	if domBinding
+	if features?.length
 		domBinding.refresh(true) unless context.inRepeatTemplate
 		if domBinding instanceof cola._RepeatDomBinding
 			tailDom = cola.util.userData(domBinding.dom, cola.constants.REPEAT_TAIL_KEY)
 			dom = tailDom or domBinding.dom
 	return dom
-
-buildAliasFeature = (expression) ->
-	return new cola._AliasFeature(expression)
-
-buildRepeatFeature = (expression) ->
-	return new cola._RepeatFeature(expression)
-
-buildBindFeature = (expression, dom) ->
-	nodeName = dom.nodeName
-	if nodeName == "INPUT"
-		type = dom.type
-		if type == "checkbox"
-			feature = new cola._CheckboxFeature(expression)
-		else if type == "radio"
-			feature = new cola._RadioFeature(expression)
-		else
-			feature = new cola._TextBoxFeature(expression)
-	else if nodeName == "SELECT"
-		feature = new cola._SelectFeature(expression)
-	else if nodeName == "TEXTAREA"
-		feature = new cola._TextBoxFeature(expression)
-	else
-		feature = new cola._DomAttrFeature(expression, "text", false)
-	return feature
 
 createContentPart = (part, scope) ->
 	if part instanceof cola.Expression
@@ -322,72 +272,122 @@ buildContent = (parts, dom, scope) ->
 	cola._ignoreNodeRemoved = false
 	return
 
-buildStyleFeature = (styleStr) ->
-	return false unless styleStr
-	style = cola.util.parseStyleLikeString(styleStr)
+cola._domBindingBuilder =
+	$: (dom, scope, features) ->
+		return new cola._DomBinding(dom, scope, features)
 
-	features = []
-	for styleProp, styleExpr of style
-		expression = cola._compileExpression(styleExpr)
+	repeat: (dom, scope, features) ->
+		domBinding = new cola._RepeatDomBinding(dom, scope, features)
+		scope = domBinding.scope
+		return domBinding
+
+	alias: (dom, scope, features) ->
+		domBinding = new cola._AliasDomBinding(dom, scope, features)
+		scope = domBinding.scope
+		return domBinding
+
+cola._domFeatureBuilder =
+	$: (attrValue, attrName, dom) ->
+		expression = cola._compileExpression(attrValue)
 		if expression
-			feature = new cola._DomAttrFeature(expression, styleProp, true)
-			features.push(feature)
-	return features
+			if attrName == "display"
+				feature = new cola._DisplayFeature(expression)
+			else if attrName == "options" and dom.nodeName == "SELECT"
+				feature = new cola._SelectOptionsFeature(expression)
+			else
+				feature = new cola._DomAttrFeature(expression, attrName)
+		return feature
 
-buildClassFeature = (classStr) ->
-	return false unless classStr
-
-	features = []
-	try
-		expression = cola._compileExpression(classStr)
+	repeat: (attrValue) ->
+		expression = cola._compileExpression(attrValue, "repeat")
 		if expression
-			feature = new cola._DomClassFeature(expression)
-			features.push(feature)
-	catch
-		classConfig = cola.util.parseStyleLikeString(classStr)
-		for className, classExpr of classConfig
-			expression = cola._compileExpression(classExpr)
-			if expression
-				feature = new cola._DomToggleClassFeature(expression, className)
-				features.push(feature)
-	return features
-
-buildAttrFeature = (dom, attr, expr) ->
-	expression = cola._compileExpression(expr)
-	if expression
-		if attr == "display"
-			feature = new cola._DisplayFeature(expression)
-		else if attr == "options" and dom.nodeName == "SELECT"
-			feature = new cola._SelectOptionsFeature(expression)
+			return new cola._RepeatFeature(expression)
 		else
-			feature = new cola._DomAttrFeature(expression, attr, false)
-	return feature
+			return
 
-buildResourceFeature = (scope, dom, expr) ->
-	expr = cola.util.trim(expr)
-	if expr
-		$fly(dom).text(cola.resource(expr))
-	return
+	alias: (attrValue) ->
+		expression = cola._compileExpression(attrValue, "alias")
+		if expression
+			return new cola._AliasFeature(expression)
+		else
+			return
 
-buildWatchFeature = (scope, dom, expr) ->
-	i = expr.indexOf(" on ")
-	if i > 0
-		action = expr.substring(0, i)
-		pathStr = expr.substring(i + 4)
-		if pathStr
-			paths = []
-			for path in pathStr.split(",")
-				path = cola.util.trim(path)
-				paths.push(path) if path
-			if paths.length
-				feature = new cola._WatchFeature(action, paths)
+	bind: (attrValue, attrName, dom) ->
+		expression = cola._compileExpression(attrValue)
+		nodeName = dom.nodeName
+		if nodeName == "INPUT"
+			type = dom.type
+			if type == "checkbox"
+				feature = new cola._CheckboxFeature(expression)
+			else if type == "radio"
+				feature = new cola._RadioFeature(expression)
+			else
+				feature = new cola._TextBoxFeature(expression)
+		else if nodeName == "SELECT"
+			feature = new cola._SelectFeature(expression)
+		else if nodeName == "TEXTAREA"
+			feature = new cola._TextBoxFeature(expression)
+		else
+			feature = new cola._DomAttrFeature(expression, "text")
+		return feature
 
-	if not feature
-		throw new cola.Exception("\"#{expr}\" is not a valid watch expression.")
-	return feature
+	style: (attrValue) ->
+		return false unless attrValue
+		style = cola.util.parseStyleLikeString(attrValue)
 
-buildEvent = (scope, dom, event, expr) ->
-	expression = cola._compileExpression(expr)
-	if expression
-		feature = new cola._EventFeature(expression, event)
-	return feature
+		features = []
+		for styleProp, styleExpr of style
+			expression = cola._compileExpression(styleExpr)
+			if expression
+				feature = new cola._DomStylePropFeature(expression, styleProp)
+				features.push(feature)
+		return features
+
+	classname: (attrValue) ->
+		return false unless attrValue
+
+		features = []
+		try
+			expression = cola._compileExpression(attrValue)
+			if expression
+				feature = new cola._DomClassFeature(expression)
+				features.push(feature)
+		catch
+			classConfig = cola.util.parseStyleLikeString(attrValue)
+			for className, classExpr of classConfig
+				expression = cola._compileExpression(classExpr)
+				if expression
+					feature = new cola._DomToggleClassFeature(expression, className)
+					features.push(feature)
+		return features
+
+	class: () -> @classname.apply(@, arguments)
+
+	resource: (attrValue, attrName, dom) ->
+		attrValue = cola.util.trim(attrValue)
+		if attrValue
+			$fly(dom).text(cola.resource(attrValue))
+		return
+
+	watch: (attrValue) ->
+		i = attrValue.indexOf(" on ")
+		if i > 0
+			action = attrValue.substring(0, i)
+			pathStr = attrValue.substring(i + 4)
+			if pathStr
+				paths = []
+				for path in pathStr.split(",")
+					path = cola.util.trim(path)
+					paths.push(path) if path
+				if paths.length
+					feature = new cola._WatchFeature(action, paths)
+
+		if not feature
+			throw new cola.Exception("\"#{expr}\" is not a valid watch expression.")
+		return feature
+
+	event: (attrValue, attrName) ->
+		expression = cola._compileExpression(attrValue)
+		if expression
+			feature = new cola._EventFeature(expression, attrName.substring(2))
+		return feature

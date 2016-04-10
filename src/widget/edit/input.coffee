@@ -422,3 +422,5 @@ class cola.Input extends cola.AbstractInput
 					format = ISO_FORMAT_STRING
 				value = (new XDate(value)).toString(format)
 		return super(value)
+
+cola.defineWidget("c-input", cola.Input)

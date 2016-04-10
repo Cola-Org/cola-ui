@@ -93,6 +93,8 @@ class cola.Scope
 
 class cola.Model extends cola.Scope
 	constructor: (name, parent) ->
+		cola.currentScope ?= @
+
 		if name instanceof cola.Scope
 			parent = name
 			name = undefined
@@ -121,9 +123,7 @@ class cola.Model extends cola.Scope
 						break unless scope
 						store = scope.action
 
-					fn = cola.defaultAction[name]
-					if fn
-						return fn.action or fn
+					return cola.defaultAction[name]
 				else if name and typeof name == "object"
 					config = name
 					for n, a of config
@@ -193,21 +193,22 @@ class cola.SubScope extends cola.Scope
 				@parent.data.unbind("**", @)
 			else if @_watchPath
 				@_unwatchPath()
+		super()
 		return
 
 class cola.AliasScope extends cola.SubScope
 	constructor: (@parent, expression) ->
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement
-			dataType = @parent.data.getDataType(expression.path)
+		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+			dataType = @parent.data.getDataType(expression.paths[0])
 
 		@data = new cola.AliasDataModel(@, expression.alias, dataType)
 		@action = @parent.action
 
 		@expression = expression
-		if !expression.path and expression.hasCallStatement
+		if not expression.paths and expression.hasCallStatement
 			@watchAllMessages()
 		else
-			@watchPath(expression.path)
+			@watchPath(expression.paths)
 
 	destroy: () ->
 		super()
@@ -261,24 +262,21 @@ class cola.ItemsScope extends cola.SubScope
 		@expression = expression
 		if expression
 			@alias = expression.alias
-			if typeof expression.path == "string"
-				@expressionPath = [expression.path.split(".")]
-			else if expression.path instanceof Array
-				paths = []
-				for path in expression.path
-					paths.push(path.split("."))
-				@expressionPath = paths
+			paths = []
+			for path in expression.paths
+				paths.push(path.split("."))
+			@expressionPath = paths
 
-			if !expression.path and expression.hasCallStatement
+			if not expression.paths and expression.hasCallStatement
 				@watchAllMessages()
 			else
-				@watchPath(expression.path)
+				@watchPath(expression.paths)
 		else
 			@alias = "item"
 			@expressionPath = []
 
-		if expression and typeof expression.path == "string" and not expression.hasCallStatement
-			@dataType = @parent.data.getDataType(expression.path)
+		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
 	setItems: (items, originItems...) ->
@@ -692,7 +690,7 @@ class cola.AbstractDataModel
 		oldScope = cola.currentScope
 		cola.currentScope = @
 		try
-			arg.timestamp = cola.sequenceNo() unless arg.timestamp
+			arg.timestamp ?= cola.sequenceNo()
 			if path
 				node = @bindingRegistry
 				lastIndex = path.length - 1
@@ -745,7 +743,7 @@ class cola.DataModel extends cola.AbstractDataModel
 			@_rootData = rootData = @_createRootData(@_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
-			rootData._setListener(
+			rootData._setObserver(
 				onMessage: (path, type, arg) ->
 					dataModel._onDataMessage(path, type, arg)
 			)
@@ -1031,27 +1029,20 @@ Element binding
 class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
-		@path = path = @expression.path
-		if !path and @expression.hasCallStatement
-			@path = path = "**"
+		@paths = paths = @expression.paths
+		if not paths and @expression.hasCallStatement
+			@paths = paths = ["**"]
 			@watchingMoreMessage = @expression.hasCallStatement
 
-		if path
-			if typeof path == "string"
+		if paths
+			for path in paths
 				scope.data.bind(path, @)
-			else
-				for p in path
-					scope.data.bind(p, @)
 
 	destroy: () ->
-		path = @path
-		if path
-			scope = @scope
-			if typeof path == "string"
-				scope.data.unbind(path, @)
-			else
-				for p in path
-					@scope.data.unbind(p, @)
+		paths = @paths
+		if paths
+			for path in paths
+				@scope.data.unbind(path, @)
 		return
 
 	_processMessage: (bindingPath, path, type)->

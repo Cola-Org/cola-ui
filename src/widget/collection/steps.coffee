@@ -321,6 +321,8 @@ class cola.Steps extends cola.Widget
 	getStepIndex: (step)->
 		return @_steps?.indexOf(step)
 
+cola.defineWidget("c-steps", cola.Steps)
+
 cola.registerType("steps", "_default", cola.steps.Step)
 cola.registerType("steps", "Step", cola.steps.Step)
 cola.registerTypeResolver "steps", (config) ->

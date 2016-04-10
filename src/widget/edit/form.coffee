@@ -139,3 +139,5 @@ class cola.Form extends cola.Widget
 		return
 
 cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
+
+cola.defineWidget("c-form", cola.Form)

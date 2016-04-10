@@ -43,4 +43,4 @@ class cola.CardBook extends cola.AbstractItemGroup
 		@fire("change", @, arg)
 		return @
 
-
+cola.defineWidget("c-cardBook", cola.CardBook)

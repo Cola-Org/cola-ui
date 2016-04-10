@@ -89,9 +89,11 @@ setAttrs = (el, $el, attrs, context)  ->
 				when "data"
 					if context instanceof Object and attrValue and typeof attrValue == "string"
 						context[attrValue] = el
+				when "classname"
+					$el.attr("class", attrValue)
 				else
 					if typeof attrValue == "function"
-						$el.bind(attrName, attrValue)
+						$el.on(attrName, attrValue)
 					else
 						$el.attr(attrName, attrValue)
 	return

@@ -429,3 +429,4 @@ class cola.Tab extends cola.Widget
 		tab.destroy() for tab in tabs
 		@_tabs = []
 
+cola.defineWidget("c-tab", cola.Tab)

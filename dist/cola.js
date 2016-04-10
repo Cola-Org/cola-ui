@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.5
+/*! Cola UI - 0.8.3
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -171,9 +171,12 @@
               context[attrValue] = el;
             }
             break;
+          case "classname":
+            $el.attr("class", attrValue);
+            break;
           default:
             if (typeof attrValue === "function") {
-              $el.bind(attrName, attrValue);
+              $el.on(attrName, attrValue);
             } else {
               $el.attr(attrName, attrValue);
             }
@@ -516,6 +519,19 @@
     }
   };
 
+  cola.util.isSuperClass = function(superCls, cls) {
+    if (!superCls) {
+      return false;
+    }
+    while (cls) {
+      if (cls.__super__ === superCls) {
+        return true;
+      }
+      cls = cls.__super__;
+    }
+    return false;
+  };
+
   cola.version = "${version}";
 
   uniqueIdSeed = 1;
@@ -804,7 +820,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -841,8 +857,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -5846,10 +5862,7 @@
               }
               store = scope.action;
             }
-            fn = cola.defaultAction[name];
-            if (fn) {
-              return fn.action || fn;
-            }
+            return cola.defaultAction[name];
           } else if (name && typeof name === "object") {
             config = name;
             for (n in config) {
@@ -7933,7 +7946,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -7951,8 +7964,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -9618,7 +9631,7 @@
         } else {
           customDomCompiler = cola._userDomCompiler[attrName];
           if (customDomCompiler) {
-            result = customDomCompiler(scope, dom, context);
+            result = customDomCompiler(scope, dom, attr, context);
             if (result) {
               if (result instanceof cola._BindingFeature) {
                 features.push(result);
@@ -9640,12 +9653,6 @@
             } else {
               feature = buildAttrFeature(dom, attrName, attrValue);
             }
-            if (feature) {
-              if (features == null) {
-                features = [];
-              }
-              features.push(feature);
-            }
           }
         }
       }
@@ -9653,7 +9660,7 @@
     ref1 = cola._userDomCompiler.$;
     for (o = 0, len2 = ref1.length; o < len2; o++) {
       customDomCompiler = ref1[o];
-      result = customDomCompiler(scope, dom, context);
+      result = customDomCompiler(scope, dom, null, context);
       if (result) {
         if (result instanceof cola._BindingFeature) {
           features.push(result);
@@ -9808,7 +9815,7 @@
   };
 
   buildClassFeature = function(classStr) {
-    var classConfig, classExpr, className, expression, feature, features;
+    var classConfig, classExpr, className, error1, expression, feature, features;
     if (!classStr) {
       return false;
     }
@@ -9819,7 +9826,7 @@
         feature = new cola._DomClassFeature(expression);
         features.push(feature);
       }
-    } catch (_error) {
+    } catch (error1) {
       classConfig = cola.util.parseStyleLikeString(classStr);
       for (className in classConfig) {
         classExpr = classConfig[className];
@@ -9893,7 +9900,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.8.5
+/*! Cola UI - 0.8.3
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -9903,7 +9910,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, _columnsSetter, _createGroupArray, _destroyRenderableElement, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, _columnsSetter, _createGroupArray, _destroyRenderableElement, _extendsWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -10222,24 +10229,6 @@
     }
   });
 
-  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
-    var configKey, widgetConfigs;
-    if (!attrValue) {
-      return;
-    }
-    if (typeof attrValue === "string") {
-      $dom.attr(attrName, attrValue);
-    } else if (context) {
-      configKey = cola.uniqueId();
-      $dom.attr("widget-config", configKey);
-      widgetConfigs = context.widgetConfigs;
-      if (!widgetConfigs) {
-        context.widgetConfigs = widgetConfigs = {};
-      }
-      widgetConfigs[configKey] = attrValue;
-    }
-  };
-
   cola.xRender.nodeProcessors.push(function(node, context) {
     var dom, widget;
     if (node instanceof cola.Widget) {
@@ -10290,18 +10279,23 @@
     return widgetConfig;
   };
 
-  cola._userDomCompiler.$.push(function(scope, dom, context) {
-    var config, configKey, constr, importConfig, importName, importNames, ip, iv, jsonConfig, k, l, len1, oldParentConstr, p, ref, v, widgetConfigStr;
+  cola._userDomCompiler.$.push(function(scope, dom, attr, context) {
+    var config, constr, importConfig, importName, importNames, ip, iv, jsonConfig, k, l, len1, oldParentConstr, p, tagName, v, widgetConfigStr, widgetType;
     if (cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)) {
+      return null;
+    }
+    if (dom.nodeType !== 1) {
       return null;
     }
     if (dom.id) {
       jsonConfig = _findWidgetConfig(scope, dom.id);
     }
-    configKey = dom.getAttribute("widget-config");
-    if (configKey) {
-      dom.removeAttribute("widget-config");
-      config = (ref = context.widgetConfigs) != null ? ref[configKey] : void 0;
+    tagName = dom.tagName;
+    widgetType = cola.component.tagNames[tagName];
+    if (widgetType) {
+      config = {
+        $constructor: widgetType
+      };
     } else {
       widgetConfigStr = dom.getAttribute("c-widget");
       if (widgetConfigStr) {
@@ -10352,7 +10346,9 @@
     if (jsonConfig) {
       for (k in jsonConfig) {
         v = jsonConfig[k];
-        config[k] = v;
+        if (!config.hasOwnProperty(k)) {
+          config[k] = v;
+        }
       }
     }
     if (typeof config === "string") {
@@ -10382,10 +10378,15 @@
   });
 
   cola.registerTypeResolver("widget", function(config) {
-    if (!(config && config.$type)) {
+    if (!config) {
       return;
     }
-    return cola[cola.util.capitalize(config.$type)];
+    if (config.$constructor && cola.util.isSuperClass(cola.Widget, config.$constructor)) {
+      return config.$constructor;
+    }
+    if (config.$type) {
+      return cola[cola.util.capitalize(config.$type)];
+    }
   });
 
   cola.registerType("widget", "_default", cola.Widget);
@@ -10893,6 +10894,49 @@
       };
     }
   };
+
+  _extendsWidget = function(superCls, definition) {
+    var attr, attrDef, cls, def, evt, evtDef, prop;
+    cls = function() {
+      var ref;
+      cls.__super__.constructor.apply(this, arguments);
+      return (ref = definition.constructor) != null ? ref.apply(this, arguments) : void 0;
+    };
+    __extends(cls, superCls);
+    for (prop in definition) {
+      def = definition[prop];
+      if (definition.hasOwnProperty(prop)) {
+        if (prop === "ATTRIBUTES") {
+          for (attr in def) {
+            attrDef = def[attr];
+            cls.ATTRIBUTES[attr] = attrDef;
+          }
+        } else if (prop === "EVENTS") {
+          for (evt in def) {
+            evtDef = def[evt];
+            cls.EVENTS[evt] = evtDef;
+          }
+        } else {
+          cls.prototype[prop] = def;
+        }
+      }
+    }
+    return cls;
+  };
+
+  cola.component = function(name, type, definition) {
+    if (!cola.util.isSuperClass(cola.widget, type)) {
+      definition = type;
+      type = cola.TemplateWidget;
+    }
+    if (definition) {
+      type = _extendsWidget(type, definition);
+    }
+    cola.component.tagNames[name] = type;
+    return type;
+  };
+
+  cola.component.tagNames = {};
 
   ACTIVE_PINCH_REG = /^pinch/i;
 
@@ -11592,6 +11636,77 @@
       return ++cola.floatWidget._zIndex;
     }
   };
+
+  cola.WidgetDataModel = (function(superClass) {
+    extend(WidgetDataModel, superClass);
+
+    function WidgetDataModel(model1, widget1) {
+      this.model = model1;
+      this.widget = widget1;
+    }
+
+    WidgetDataModel.prototype.get = function(path, loadMode, context) {
+      return this.widget.get(path);
+    };
+
+    WidgetDataModel.prototype.set = function() {};
+
+    WidgetDataModel.prototype.flush = function() {};
+
+    return WidgetDataModel;
+
+  })(cola.AbstractDataModel);
+
+  cola.WidgetModel = (function(superClass) {
+    extend(WidgetModel, superClass);
+
+    function WidgetModel(widget1) {
+      var widget;
+      this.widget = widget1;
+      this.data = new cola.WidgetDataModel(this, this.widget);
+      widget = this.widget;
+      this.action = function(name) {
+        var method;
+        method = widget[name];
+        if (method instanceof Function) {
+          return function() {
+            return method.apply(widget, arguments);
+          };
+        }
+        return cola.defaultAction[name];
+      };
+    }
+
+    WidgetModel.prototype.destroy = function() {
+      var base;
+      if (typeof (base = this.data).destroy === "function") {
+        base.destroy();
+      }
+    };
+
+    return WidgetModel;
+
+  })(cola.Scope);
+
+  cola.TemplateWidget = (function(superClass) {
+    extend(TemplateWidget, superClass);
+
+    TemplateWidget.ATTRIBUTES = {
+      template: null
+    };
+
+    function TemplateWidget(config) {
+      this._widgetModel = new cola.WidgetModel(this);
+      TemplateWidget.__super__.constructor.call(this, config);
+    }
+
+    TemplateWidget.prototype._createDom = function() {
+      return cola.xRender(this._template || {}, this._widgetModel);
+    };
+
+    return TemplateWidget;
+
+  })(cola.Widget);
 
   containerEmptyChildren = [];
 
@@ -13651,7 +13766,7 @@
       DateGrid.prototype.getDateCellDom = function(date) {
         var value;
         value = new XDate(date).toString("yyyy-M-d");
-        return $(this._dom).find("td[cell-date='" + value + "']");
+        return $(this._dom).find("td[c-date='" + value + "']");
       };
 
       DateGrid.prototype.doRefreshCell = function(cell, row, column) {
@@ -13663,7 +13778,7 @@
         cellState = state[row * 7 + column];
         $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
         ym = this.getYMForState(cellState);
-        $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+        $fly(cell).attr("c-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
         if (cellState.type === "normal") {
           if (this._year === this._calendar._year && this._month === this._calendar._month && cellState.text === this._calendar._monthDate) {
             $fly(cell).addClass("selected");
@@ -13735,8 +13850,7 @@
       };
 
       SwipePicker.EVENTS = {
-        change: null,
-        monthChange: null
+        change: null
       };
 
       SwipePicker.prototype.createDateTable = function(dom) {
@@ -13788,7 +13902,7 @@
       };
 
       SwipePicker.prototype.setState = function(year, month) {
-        var nextM, nextY, prevM, prevY, ref;
+        var nextM, nextY, prevM, prevY;
         this._current.setState(year, month);
         prevY = month === 0 ? year - 1 : year;
         prevM = month === 0 ? 11 : month - 1;
@@ -13796,12 +13910,6 @@
         nextY = month === 11 ? year + 1 : year;
         nextM = month === 11 ? 0 : month + 1;
         this._next.setState(nextY, nextM);
-        if ((ref = this._calendar) != null) {
-          ref.fire("monthChange", this._calendar, {
-            year: year,
-            month: month
-          });
-        }
         return this;
       };
 
@@ -13997,7 +14105,6 @@
       Calendar.EVENTS = {
         refreshCellDom: null,
         change: null,
-        monthChange: null,
         cellClick: null
       };
 
@@ -14024,15 +14131,15 @@
         });
       };
 
-      Calendar.prototype._initDom = function(dom) {
-        var allWeeks, cDom, cal, picker, weeks;
+      Calendar.prototype._createDom = function() {
+        var allWeeks, cal, dom, picker, weeks;
         allWeeks = cola.resource("cola.date.dayNamesShort");
         weeks = allWeeks.split(",");
         cal = this;
         if (this._doms == null) {
           this._doms = {};
         }
-        cDom = $.xCreate({
+        dom = $.xCreate({
           tagName: "div",
           content: [
             {
@@ -14129,10 +14236,10 @@
             }
           }
         });
-        picker.appendTo(cDom);
+        picker.appendTo(dom);
         this._doms.dateTableWrapper = picker._dom;
         cal.bindButtonsEvent();
-        return $(dom).append(cDom);
+        return dom;
       };
 
       Calendar.prototype.setState = function(year, month) {
@@ -14335,7 +14442,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14343,8 +14450,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -16677,15 +16784,13 @@
         oldTab.get$Dom().removeClass("active");
         $(oldTab.get("contentContainer")).removeClass("active");
       }
-      if (newTab) {
-        newTab.get$Dom().addClass("active");
+      newTab.get$Dom().addClass("active");
+      container = newTab.get("contentContainer");
+      if (!container) {
+        this._tabContentRender(newTab);
         container = newTab.get("contentContainer");
-        if (!container) {
-          this._tabContentRender(newTab);
-          container = newTab.get("contentContainer");
-        }
-        $(container).addClass("active");
       }
+      $(container).addClass("active");
       this._currentTab = newTab;
       this.fire("change", this, arg);
       return true;
@@ -16934,274 +17039,6 @@
     return Tab;
 
   })(cola.Widget);
-
-  cola.Panel = (function(superClass) {
-    extend(Panel, superClass);
-
-    function Panel() {
-      return Panel.__super__.constructor.apply(this, arguments);
-    }
-
-    Panel.CLASS_NAME = "panel";
-
-    Panel.ATTRIBUTES = {
-      collapsible: {
-        type: "boolean",
-        defaultValue: true
-      },
-      closable: {
-        type: "boolean",
-        defaultValue: false
-      },
-      caption: {
-        refreshDom: true
-      },
-      icon: {
-        refreshDom: true
-      }
-    };
-
-    Panel.TEMPLATES = {
-      "tools": {
-        tagName: "div"
-      }
-    };
-
-    Panel.EVENTS = {
-      open: null,
-      collapsedChange: null,
-      close: null,
-      beforeOpen: null,
-      beforeCollapsedChange: null,
-      beforeClose: null
-    };
-
-    Panel.prototype.collapsedChange = function() {
-      var $dom, collapsed;
-      $dom = this._$dom;
-      collapsed = this.isCollapsed();
-      if (this.fire("beforeCollapsedChange", this, {}) === false) {
-        return this;
-      }
-      $dom.toggleClass("collapsed", !collapsed);
-      setTimeout((function(_this) {
-        return function() {
-          return _this.fire("collapsedChange", _this, {});
-        };
-      })(this), 300);
-    };
-
-    Panel.prototype.isCollapsed = function() {
-      var ref;
-      return (ref = this._$dom) != null ? ref.hasClass("collapsed") : void 0;
-    };
-
-    Panel.prototype.isClosed = function() {
-      var ref;
-      return (ref = this._$dom) != null ? ref.hasClass("transition hidden") : void 0;
-    };
-
-    Panel.prototype.open = function() {
-      if (!this.isClosed()) {
-        return;
-      }
-      return this.toggle();
-    };
-
-    Panel.prototype.close = function() {
-      if (this.isClosed()) {
-        return;
-      }
-      return this.toggle();
-    };
-
-    Panel.prototype.toggle = function() {
-      var beforeEvt, onEvt;
-      beforeEvt = "beforeOpen";
-      onEvt = "open";
-      if (!this.isClosed) {
-        beforeEvt = "beforeClose";
-        onEvt = "close";
-      }
-      if (this.fire(beforeEvt, this, {}) === false) {
-        return;
-      }
-      return this._$dom.transition({
-        animation: 'scale',
-        onComplete: (function(_this) {
-          return function() {
-            return _this.fire(onEvt, _this, {});
-          };
-        })(this)
-      });
-    };
-
-    Panel.prototype.getContentContainer = function() {
-      if (!this._dom) {
-        return null;
-      }
-      if (!this._doms.content) {
-        this._makeContentDom("content");
-      }
-      return this._doms.content;
-    };
-
-    Panel.prototype._initDom = function(dom) {
-      var headerContent, l, len1, node, nodes, template, toolsDom;
-      this._regDefaultTempaltes();
-      Panel.__super__._initDom.call(this, dom);
-      headerContent = $.xCreate({
-        tagName: "div",
-        "class": "content"
-      });
-      this._doms.icon = $.xCreate({
-        tagName: "i",
-        "class": "panel-icon"
-      });
-      headerContent.appendChild(this._doms.icon);
-      this._doms.caption = $.xCreate({
-        tagName: "span",
-        "class": "caption"
-      });
-      headerContent.appendChild(this._doms.caption);
-      template = this._getTemplate("tools");
-      cola.xRender(template, this._scope);
-      toolsDom = this._doms.tools = $.xCreate({
-        "class": "tools"
-      });
-      toolsDom.appendChild(template);
-      nodes = $.xCreate([
-        {
-          tagName: "i",
-          click: (function(_this) {
-            return function() {
-              return _this.collapsedChange();
-            };
-          })(this),
-          "class": "icon chevron down collapse-btn"
-        }, {
-          tagName: "i",
-          click: (function(_this) {
-            return function() {
-              return _this.toggle();
-            };
-          })(this),
-          "class": "icon close close-btn"
-        }
-      ]);
-      for (l = 0, len1 = nodes.length; l < len1; l++) {
-        node = nodes[l];
-        toolsDom.appendChild(node);
-      }
-      headerContent.appendChild(toolsDom);
-      this._render(headerContent, "header");
-      if (!this._doms.content) {
-        this._makeContentDom("content");
-      }
-    };
-
-    Panel.prototype._doRefreshDom = function() {
-      if (!this._dom) {
-        return;
-      }
-      Panel.__super__._doRefreshDom.call(this);
-      $fly(this._doms.caption).text(this._caption || "");
-      if (this._doms.icon._icon) {
-        $fly(this._doms.icon).show().removeClass(this._doms.icon._icon);
-      } else {
-        $fly(this._doms.icon).hide();
-      }
-      $fly(this._doms.icon).addClass("icon " + (this._icon || ""));
-      this._doms.icon._icon = this._icon;
-      $fly(this._doms.tools).find(".collapse-btn")[this._collapsible ? "show" : "hide"]();
-      return $fly(this._doms.tools).find(".close-btn")[this._closable ? "show" : "hide"]();
-    };
-
-    Panel.prototype._makeContentDom = function(target) {
-      var dom;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      dom = document.createElement("div");
-      dom.className = target;
-      if (target === "header") {
-        $(this._dom).prepend(dom);
-      } else {
-        this._dom.appendChild(dom);
-      }
-      this._doms[target] = dom;
-      return dom;
-    };
-
-    Panel.prototype._parseDom = function(dom) {
-      var $child, _parseChild, child;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      _parseChild = (function(_this) {
-        return function(node, target) {
-          var childNode, widget;
-          childNode = node.firstChild;
-          while (childNode) {
-            if (childNode.nodeType === 1) {
-              widget = cola.widget(childNode);
-              _this._addContentElement(widget || childNode, target);
-            }
-            childNode = childNode.nextSibling;
-          }
-        };
-      })(this);
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          if (child.nodeName === "TEMPLATE") {
-            this._regTemplate(child);
-          } else {
-            $child = $(child);
-            if (!$child.hasClass("content")) {
-              child = child.nextSibling;
-              continue;
-            }
-            this._doms["content"] = child;
-            _parseChild(child, "content");
-            break;
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    return Panel;
-
-  })(cola.AbstractContainer);
-
-  cola.Element.mixin(cola.Panel, cola.TemplateSupport);
-
-  cola.FieldSet = (function(superClass) {
-    extend(FieldSet, superClass);
-
-    function FieldSet() {
-      return FieldSet.__super__.constructor.apply(this, arguments);
-    }
-
-    FieldSet.CLASS_NAME = "panel fieldset";
-
-    return FieldSet;
-
-  })(cola.Panel);
-
-  cola.GroupBox = (function(superClass) {
-    extend(GroupBox, superClass);
-
-    function GroupBox() {
-      return GroupBox.__super__.constructor.apply(this, arguments);
-    }
-
-    GroupBox.CLASS_NAME = "panel groupbox";
-
-    return GroupBox;
-
-  })(cola.Panel);
 
   cola.AbstractEditor = (function(superClass) {
     extend(AbstractEditor, superClass);
@@ -20596,9 +20433,12 @@
                 };
               })(this));
             } else {
-              if (typeof this._appendTailDom === "function") {
-                this._appendTailDom(itemsWrapper);
-              }
+              $fly(itemsWrapper).xAppend({
+                "class": "tail-padding",
+                content: {
+                  "class": "ui loader"
+                }
+              });
             }
           }
         }
@@ -21396,7 +21236,7 @@
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
       }
-      if (this._getDataItems().items) {
+      if (this._getItems().items) {
         this._itemsRender();
         this.refreshIndicators();
       }
@@ -21412,7 +21252,7 @@
           }
         });
       }, 0);
-      if (cola.device.desktop && this._controls) {
+      if (this._controls) {
         dom.appendChild($.xCreate({
           tagName: "div",
           "class": "controls",
@@ -21441,18 +21281,18 @@
       }
     };
 
-    Carousel.prototype._getDataItems = function() {
+    Carousel.prototype._getItems = function() {
       if (this._items) {
         return {
           items: this._items
         };
       } else {
-        return Carousel.__super__._getDataItems.call(this);
+        return Carousel.__super__._getItems.call(this);
       }
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -21465,8 +21305,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -21481,7 +21321,7 @@
 
     Carousel.prototype.refreshIndicators = function() {
       var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
-      items = this._getDataItems().items;
+      items = this._getItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
       } else {
@@ -21518,7 +21358,7 @@
 
     Carousel.prototype.next = function() {
       var items, pos;
-      items = this._getDataItems().items;
+      items = this._getItems().items;
       if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === (items.length - 1)) {
@@ -21532,7 +21372,7 @@
 
     Carousel.prototype.previous = function() {
       var items, pos;
-      items = this._getDataItems().items;
+      items = this._getItems().items;
       if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === 0) {
@@ -22085,7 +21925,7 @@
       },
       showActivity: {
         type: "boolean",
-        defaultValue: false
+        defaultValue: true
       },
       rightItems: {
         setter: function(value) {
@@ -23431,7 +23271,7 @@
     Stack.duration = 200;
 
     Stack.prototype._initDom = function(dom) {
-      var itemsWrap, width;
+      var itemsWrap;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -23457,25 +23297,9 @@
       this._prevItem = this._doms.prevItem;
       this._currentItem = this._doms.currentItem;
       this._nextItem = this._doms.nextItem;
-      width = this._currentItem.clientWidth;
-      $fly(this._currentItem).css({
+      return $fly(this._currentItem).css({
         display: "block"
       });
-      this._bindTouch();
-      $fly(this._currentItem).css("transform", "translate(-" + width + "px,0)");
-      if (direction === "left") {
-        $fly(this._prevItem).css("display", "none");
-        $fly(this._nextItem).css({
-          transform: "translate(" + width + "px,0)",
-          display: "block"
-        });
-      } else {
-        $fly(this._nextItem).css("display", "none");
-        $fly(this._prevItem).css({
-          transform: "translate(" + (2 * width) + "px,0)",
-          display: "block"
-        });
-      }
     };
 
     Stack.prototype._parseDom = function(dom) {
@@ -23531,19 +23355,15 @@
     };
 
     Stack.prototype._setDom = function(dom, parseChild) {
-      return Stack.__super__._setDom.call(this, dom, parseChild);
-    };
-
-    Stack.prototype._bindTouch = function() {
       var stack;
+      Stack.__super__._setDom.call(this, dom, parseChild);
       stack = this;
-      $(this._dom).on("touchstart", function(evt) {
-        stack._onTouchStart(evt);
+      return $(dom).on("touchstart", function(evt) {
+        return stack._onTouchStart(evt);
       }).on("touchmove", function(evt) {
-        stack._onTouchMove(evt);
-      });
-      return $(window.document.body).on("touchend", function(evt) {
-        stack._onTouchEnd(evt);
+        return stack._onTouchMove(evt);
+      }).on("touchend", function(evt) {
+        return stack._onTouchEnd(evt);
       });
     };
 
@@ -23844,15 +23664,6 @@
       delete this._emptyItemDom;
     };
 
-    AbstractList.prototype._appendTailDom = function(itemsWrapper) {
-      $fly(itemsWrapper).xAppend({
-        "class": "tail-padding",
-        content: {
-          "class": "ui loader"
-        }
-      });
-    };
-
     AbstractList.prototype._onItemsWrapperScroll = function() {
       var itemsWrapper, realItems;
       realItems = this._realItems;
@@ -23875,18 +23686,20 @@
 
     AbstractList.prototype._convertItems = function(items) {
       var arg;
-      if (this.getListeners("filterItem")) {
-        arg = {
-          filterCriteria: this._filterCriteria
-        };
-        items = cola._filterCollection(items, (function(_this) {
-          return function(item) {
-            arg.item = item;
-            return _this.fire("filterItem", _this, arg);
+      if (this._filterCriteria) {
+        if (this.getListeners("filterItem")) {
+          arg = {
+            filterCriteria: this._filterCriteria
           };
-        })(this));
-      } else if (this._filterCriteria) {
-        items = cola._filterCollection(items, this._filterCriteria);
+          items = cola.convertor.filter(items, (function(_this) {
+            return function(item) {
+              arg.item = item;
+              return _this.fire("filterItem", _this, arg);
+            };
+          })(this));
+        } else {
+          items = cola.convertor.filter(items, this._filterCriteria);
+        }
       }
       return items;
     };
@@ -26995,7 +26808,7 @@
 
     TableSelectColumn.ATTRIBUTES = {
       width: {
-        defaultValue: "42px"
+        defaultValue: "34px"
       },
       align: {
         defaultValue: "center"
@@ -27453,9 +27266,6 @@
 
     Table.prototype._doRefreshItems = function() {
       var col, colInfo, colgroup, column, columnConfigs, i, l, len1, len2, n, nextCol, propertyDef, ref, ref1, tbody, tfoot, thead;
-      if (!this._columnsInfo) {
-        return;
-      }
       if (!this._columnsInfo.dataColumns.length && this._dataType && this._dataType instanceof cola.EntityDataType) {
         columnConfigs = [];
         ref = this._dataType.getProperties().elements;
@@ -27617,16 +27427,19 @@
           contentWrapper = cell.firstChild;
           this._refreshHeaderCell(contentWrapper, colInfo, isNew);
         }
-        while (row.lastChild && row.lastChild !== cell) {
+        while (row.lastChild !== cell) {
           row.removeChild(row.lastChild);
         }
-        cola.xRender(row, this._scope);
         i++;
       }
+      while (row.lastChild !== cell) {
+        row.removeChild(row.lastChild);
+      }
+      cola.xRender(row, this._scope);
       if (fragment) {
         thead.appendChild(fragment);
       }
-      while (thead.lastChild && thead.lastChild !== row) {
+      while (thead.lastChild !== row) {
         thead.removeChild(thead.lastChild);
       }
     };
@@ -27634,7 +27447,6 @@
     Table.prototype._refreshHeaderCell = function(dom, columnInfo, isNew) {
       var caption, column, dataType, propertyDef, template, templateName;
       column = columnInfo.column;
-      dom.style.textAlign = column._align || "left";
       if (column.renderHeader) {
         if (column.renderHeader(dom) !== true) {
           return;
@@ -27727,7 +27539,6 @@
     Table.prototype._refreshFooterCell = function(dom, columnInfo, isNew) {
       var column, template, templateName;
       column = columnInfo.column;
-      dom.style.textAlign = column._align || "left";
       if (column.renderFooter) {
         if (column.renderFooter(dom) !== true) {
           return;
@@ -27804,7 +27615,7 @@
           contentWrapper = cell.firstChild;
           this._refreshCell(contentWrapper, item, colInfo, itemScope, isNew);
         }
-        while (itemDom.lastChild && itemDom.lastChild !== cell) {
+        while (itemDom.lastChild !== cell) {
           itemDom.removeChild(itemDom.lastChild);
         }
       }
@@ -28190,18 +28001,6 @@
       Pager.__super__.constructor.call(this, config);
     }
 
-    Pager.prototype._parseDom = function(dom) {
-      Pager.__super__._parseDom.call(this, dom);
-      if (this._items) {
-        if (this._items.length === 0) {
-          return this.addItem("pages");
-        }
-      } else {
-        this._items = [];
-        return this.addItem("pages");
-      }
-    };
-
     Pager.prototype._parsePageItem = function(childNode, right) {
       var beforeChild, itemConfig, itemDom, l, len1, menuItem, pageCode, pageItem, pageItemKey, propName, results;
       pageCode = $fly(childNode).attr("page-code");
@@ -28492,6 +28291,12 @@
       }
     };
 
+    TimeLine.EVENTS = {
+      itemContentClick: null,
+      itemLineClick: null,
+      itemIconClick: null
+    };
+
     TimeLine.TEMPLATES = {
       "default": {
         tagName: "li"
@@ -28502,7 +28307,7 @@
       },
       "icon": {
         tagName: "i",
-        "c-class": "'icon '+$default.icon"
+        "class": "'icon'+$default.icon"
       },
       "time": {
         tagName: "div",
@@ -28536,6 +28341,6 @@
 
     return TimeLine;
 
-  })(cola.AbstractList);
+  })(cola.ItemsView);
 
 }).call(this);

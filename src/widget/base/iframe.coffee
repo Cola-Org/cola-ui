@@ -78,3 +78,5 @@ class cola.IFrame extends cola.Widget
 		else
 			$fly(@_doms.iframe).prop("src", url)
 		return @
+
+cola.defineWidget("c-iframe", cola.IFrame)

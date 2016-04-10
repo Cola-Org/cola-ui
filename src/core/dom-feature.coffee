@@ -9,36 +9,64 @@ class cola._ExpressionFeature extends cola._BindingFeature
 	constructor: (@expression) ->
 		if @expression
 			@isStatic = @expression.isStatic
-			@path = @expression.path
-			if not @path and @expression.hasCallStatement
-				@path = "**"
+			@isDyna = @expression.isDyna
+			@paths = @expression.paths
+			if not @paths and @expression.hasCallStatement
+				@paths = ["**"]
 				if not @isStatic then @delay = true
 			@watchingMoreMessage = @expression.hasCallStatement
 
-	evaluate: (domBinding, dataCtx) ->
-		return @expression.evaluate(domBinding.scope, "async", dataCtx)
+	evaluate: (domBinding, dynaExpressionOnly, dataCtx, loadMode = "async") ->
+		if dynaExpressionOnly
+			result = @dynaExpression?.evaluate(domBinding.scope, loadMode, dataCtx)
+		else
+			result = @expression.evaluate(domBinding.scope, loadMode, dataCtx)
 
-	refresh: (domBinding, force, dataCtx = {}) ->
+			if @isDyna and result isnt @dynaExpressionStr
+				@dynaExpressionStr = result
+
+				if not @ignoreBind and @dynaPaths
+					domBinding.unbind(path, @) for path in @dynaPaths
+
+				if typeof result is "string"
+					@dynaExpression = cola._compileExpression(result)
+					if @dynaExpression
+						if not @ignoreBind
+							paths = @dynaExpression.paths
+							if paths
+								for path in paths
+									if @paths.indexOf(path) < 0
+										if not @dynaPaths
+											@dynaPaths = [path]
+										else
+											@dynaPaths.push(path)
+										domBinding.bind(path, @)
+
+						result = @dynaExpression.evaluate(domBinding.scope, loadMode, dataCtx)
+		return result
+
+	refresh: (domBinding, force, dynaExpressionOnly, dataCtx = {}) ->
 		return unless @_refresh
-		if @delay and !force
+		if @delay and not force
 			cola.util.delay(domBinding, "refresh", 100, () =>
-				@_refresh(domBinding, dataCtx)
+				@_refresh(domBinding, dynaExpressionOnly, dataCtx)
 				if @isStatic and !dataCtx.unloaded
 					@disabled = true
 				return
 			)
 		else
-			@_refresh(domBinding, dataCtx)
+			@_refresh(domBinding, dynaExpressionOnly, dataCtx)
 			if @isStatic and !dataCtx.unloaded
 				@disabled = true
 		return
 
 class cola._WatchFeature extends cola._BindingFeature
-	constructor: (@action, @path) ->
+	constructor: (@action, @paths) ->
 		@watchingMoreMessage = true
 
-	_processMessage: (domBinding)->
-		@refresh(domBinding)
+	_processMessage: (domBinding, bindingPath)->
+		if not @isDyna or @dynaPaths?.indexOf(bindingPath) >= 0
+			@refresh(domBinding)
 		return
 
 	refresh: (domBinding) ->
@@ -49,15 +77,16 @@ class cola._WatchFeature extends cola._BindingFeature
 		return
 
 class cola._EventFeature extends cola._ExpressionFeature
+	ignoreBind: true
+
 	constructor: (@expression, @event) ->
 
 	init: (domBinding) ->
-		expression = @expression
-		domBinding.$dom.bind(@event, () ->
+		domBinding.$dom.on(@event, () =>
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
 			try
-				return expression.evaluate(domBinding.scope, "never")
+				return @evaluate(domBinding, false, null, "never")
 			finally
 				cola.currentScope = oldScope
 		)
@@ -75,11 +104,11 @@ class cola._AliasFeature extends cola._ExpressionFeature
 
 	_processMessage: (domBinding, bindingPath, path, type, arg)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding)
+			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
 		return
 
-	_refresh: (domBinding, dataCtx)->
-		data = @evaluate(domBinding, dataCtx)
+	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
+		data = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
 		domBinding.scope.data.setTargetData(data)
 		return
 
@@ -89,7 +118,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		@alias = expression.alias
 
 	init: (domBinding) ->
-		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
+		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, if @isDyna then null else @expression)
 
 		scope.onItemsRefresh = () =>
 			@onItemsRefresh(domBinding)
@@ -175,7 +204,16 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_refresh: (domBinding, dataCtx) ->
+	_processMessage: (domBinding, bindingPath, path, type, arg)->
+		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
+			@refresh(domBinding)
+		return
+
+	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
+		if @isDyna and not dynaExpressionOnly
+			@evaluate(domBinding, dynaExpressionOnly, dataCtx)
+			domBinding.scope.setExpression(@dynaExpression)
+
 		domBinding.scope.refreshItems(dataCtx)
 		return
 
@@ -311,21 +349,21 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
-		path = @path
-		if path and typeof path == "string"
+		paths = if @isDyna then @dynaPaths else @paths
+		if paths and paths.length is 1
 			@ignoreMessage = true
-			domBinding.scope.set(path, value)
+			domBinding.scope.set(paths[0], value)
 			@ignoreMessage = false
 		return
 
 	_processMessage: (domBinding, bindingPath, path, type, arg)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding)
+			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
 		return
 
-	_refresh: (domBinding, dataCtx)->
+	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
 		return if @ignoreMessage
-		value = @evaluate(domBinding, dataCtx)
+		value = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
 		@_doRender(domBinding, value)
 		return
 
@@ -335,7 +373,7 @@ class cola._TextNodeFeature extends cola._DomFeature
 		return
 
 class cola._DomAttrFeature extends cola._DomFeature
-	constructor: (expression, @attr, @isStyle) ->
+	constructor: (expression, @attr) ->
 		super(expression)
 
 	_doRender: (domBinding, value) ->
@@ -344,10 +382,16 @@ class cola._DomAttrFeature extends cola._DomFeature
 			cola.util.setText(domBinding.dom, if value? then value else "")
 		else if attr == "html"
 			domBinding.$dom.html(if value? then value else "")
-		else if @isStyle
-			domBinding.$dom.css(attr, value)
 		else
 			domBinding.$dom.attr(attr, if value? then value else "")
+		return
+
+class cola._DomStylePropFeature extends cola._DomFeature
+	constructor: (expression, @prop) ->
+		super(expression)
+
+	_doRender: (domBinding, value) ->
+		domBinding.$dom.css(@prop, value)
 		return
 
 class cola._DomClassFeature extends cola._DomFeature

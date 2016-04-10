@@ -92,7 +92,6 @@ class cola.RenderableElement extends cola.Element
 		dom.className = "ui #{className}"
 		return dom
 
-
 	_doSet: (attr, attrConfig, value) ->
 		if attrConfig?.refreshDom and @_dom
 			cola.util.delay(@, "refreshDom", 50, @_refreshDom)
@@ -133,8 +132,6 @@ class cola.RenderableElement extends cola.Element
 		unless @_dom
 			dom = @_createDom()
 			@_setDom(dom)
-
-
 		return @_dom
 
 	get$Dom: ()-># 将获得jQuery或zepto 实例
@@ -340,7 +337,7 @@ class cola.Widget extends cola.RenderableElement
 	fire: (eventName, self, arg) ->
 		return unless @_eventRegistry
 
-		eventConfig = @constructor.EVENTS[eventName]
+		eventConfig = @constructor.EVENTS.$get(eventName)
 
 		return if @constructor.ATTRIBUTES.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
 
@@ -367,7 +364,7 @@ class cola.Widget extends cola.RenderableElement
 		return if @_bindedEvents[eventName]
 
 		$dom = @get$Dom()
-		eventConfig = @constructor.EVENTS[eventName]
+		eventConfig = @constructor.EVENTS.$get(eventName)
 
 		if eventConfig?.$event
 			$dom.on(eventConfig.$event, (evt)=>

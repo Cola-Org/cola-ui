@@ -339,3 +339,5 @@ class cola.NestedList extends cola.Widget
 		return @getLayer(@_layerIndex)
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)
+
+cola.defineWidget("c-nestedList", cola.NestedList)

@@ -161,11 +161,15 @@ class cola.Checkbox extends cola.AbstractCheckbox
 			return
 		super()
 
+cola.defineWidget("c-checkbox", cola.Checkbox)
 
 class cola.Toggle extends cola.AbstractCheckbox
 	@CLASS_NAME: "toggle checkbox"
 
+cola.defineWidget("c-toggle", cola.Toggle)
+
 class cola.Slider extends cola.AbstractCheckbox
 	@CLASS_NAME: "slider checkbox"
 
+cola.defineWidget("c-slider", cola.Slider)
 

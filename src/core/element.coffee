@@ -11,9 +11,9 @@ tagSplitter = " "
 doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 	return if definitions == mergeDefinitions
 	for name, mergeDefinition of mergeDefinitions
-		if definitions.hasOwnProperty(name)
+		if definitions.$has(name)
 			definition = definitions[name]
-			if definition
+			if definition and mergeDefinition
 				for prop of mergeDefinition
 					if overwrite or !definition.hasOwnProperty(prop) then definition[prop] = mergeDefinition[prop]
 			else
@@ -22,22 +22,47 @@ doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 			definitions[name] = mergeDefinition
 	return
 
-preprocessClass = (classType) ->
+hasDefinition = (name) -> @hasOwnProperty(name.toLowerCase())
+getDefinition = (name) -> @[name.toLowerCase()]
+
+cola.preprocessClass = (classType) ->
 	superType = classType.__super__?.constructor
 	if superType
-		if classType.__super__ then preprocessClass(superType)
+		if classType.__super__ then cola.preprocessClass(superType)
 
 		# merge ATTRIBUTES
 		# TODO: 此处可以考虑预先计算出有无含默认值设置的属性，以便在对象创建时提高性能
 		attributes = classType.ATTRIBUTES
 		if !attributes._inited
 			attributes._inited = true
+
+			for name, definition of attributes
+				realName = name.toLowerCase()
+				if name isnt realName
+					definition ?= {}
+					definition.name = name
+					attributes[realName] = definition
+					delete attributes[name]
+
+			attributes.$has = hasDefinition
+			attributes.$get = getDefinition
+
 			doMergeDefinitions(attributes, superType.ATTRIBUTES, false)
 
 		# merge EVENTS
 		events = classType.EVENTS
 		if !events._inited
 			events._inited = true
+
+			for name, definition of events
+				realName = name.toLowerCase()
+				if name isnt realName
+					attributes[realName] = definition
+					delete attributes[name]
+
+			events.$has = hasDefinition
+			events.$get = getDefinition
+
 			doMergeDefinitions(events, superType.EVENTS, false)
 	return
 
@@ -90,8 +115,8 @@ class cola.Element
 	constructor: (config) ->
 		@_constructing = true
 		classType = @constructor
-		if !classType.ATTRIBUTES._inited or !classType.EVENTS._inited
-			preprocessClass(classType)
+		if not classType.ATTRIBUTES._inited or not classType.EVENTS._inited
+			cola.preprocessClass(classType)
 
 		@_scope = config?.scope or cola.currentScope
 
@@ -101,7 +126,7 @@ class cola.Element
 				if attrConfig.setter
 					attrConfig.setter.call(@, attrConfig.defaultValue, attr)
 				else
-					@["_" + attr] = attrConfig.defaultValue
+					@["_" + (attrConfig?.name or attr)] = attrConfig.defaultValue
 
 		if classType._constructors
 			for constructor in classType._constructors
@@ -141,11 +166,11 @@ class cola.Element
 			return @_get(attr, ignoreError)
 
 	_get: (attr, ignoreError) ->
-		if !@constructor.ATTRIBUTES.hasOwnProperty(attr)
+		if !@constructor.ATTRIBUTES.$has(attr)
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
-		attrConfig = @constructor.ATTRIBUTES[attr]
+		attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
 		if attrConfig?.getter
 			return attrConfig.getter.call(@, attr)
 		else
@@ -191,8 +216,8 @@ class cola.Element
 				if parts?.length > 0
 					value = parts[0]
 
-		if @constructor.ATTRIBUTES.hasOwnProperty(attr)
-			attrConfig = @constructor.ATTRIBUTES[attr]
+		if @constructor.ATTRIBUTES.$has(attr)
+			attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
 			if attrConfig
 				if attrConfig.readOnly
 					if ignoreError then return
@@ -205,7 +230,7 @@ class cola.Element
 			eventName = attr
 			i = eventName.indexOf(":")
 			if i > 0 then eventName = eventName.substring(0, i)
-			if @constructor.EVENTS.hasOwnProperty(eventName)
+			if @constructor.EVENTS.$has(eventName)
 				if value instanceof cola.Expression
 					expression = value
 					scope = @_scope
@@ -273,10 +298,11 @@ class cola.Element
 				attrConfig.setter.call(@, value, attr )
 				return
 
-		@["_" + attr] = value
+		@["_" + (attrConfig?.name or attr)] = value
 		return
 
 	_on: (eventName, listener, alias, once) ->
+		eventName = eventName.toLowerCase()
 		eventConfig = @constructor.EVENTS[eventName]
 
 		if @_eventRegistry
@@ -316,7 +342,7 @@ class cola.Element
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
 
-		if !@constructor.EVENTS.hasOwnProperty(eventName)
+		if !@constructor.EVENTS.$has(eventName)
 			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 		if typeof listener != "function"
@@ -329,6 +355,7 @@ class cola.Element
 		@on(eventName, listener, true)
 
 	_off: (eventName, listener, alias) ->
+		eventName = eventName.toLowerCase()
 		listenerRegistry = @_eventRegistry[eventName]
 		return @ unless listenerRegistry
 
@@ -381,35 +408,41 @@ class cola.Element
 		return @
 
 	getListeners: (eventName) ->
-		return @_eventRegistry?[eventName]?.listeners
+		return @_eventRegistry?[eventName.toLowerCase()]?.listeners
 
 	fire: (eventName, self, arg) ->
 		return unless @_eventRegistry
 
+		eventName = eventName.toLowerCase()
 		result = undefined
 		listenerRegistry = @_eventRegistry[eventName]
 		if listenerRegistry
 			listeners = listenerRegistry.listeners
 			if listeners
 				if arg
-					arg.model = @._scope
+					arg.model = @_scope
 				else
-					arg = {model: @._scope}
+					arg = {model: @_scope}
 
-				for listener in listeners
-					if typeof listener == "function"
-						argsMode = listener._argsMode
-						if not listener._argsMode
-							argsMode = cola.util.parseListener(listener)
-						if argsMode == 1
-							retValue = listener.call(self, self, arg)
-						else
-							retValue = listener.call(self, arg, self)
-					else if typeof listener == "string"
-						retValue = do (self, arg) => eval(listener)
+				oldScope = cola.currentScope
+				cola.currentScope = @_scope
+				try
+					for listener in listeners
+						if typeof listener == "function"
+							argsMode = listener._argsMode
+							if not listener._argsMode
+								argsMode = cola.util.parseListener(listener)
+							if argsMode == 1
+								retValue = listener.call(self, self, arg)
+							else
+								retValue = listener.call(self, arg, self)
+						else if typeof listener == "string"
+							retValue = do (self, arg) => eval(listener)
 
-					if retValue != undefined then result = retValue
-					if retValue == false then break
+						if retValue != undefined then result = retValue
+						if retValue == false then break
+				finally
+					cola.currentScope = oldScope
 
 				if listenerRegistry.onceListeners
 					onceListeners = listenerRegistry.onceListeners.slice()

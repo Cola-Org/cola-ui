@@ -75,6 +75,8 @@ class cola.MenuButton extends cola.Button
 	getMenuItem: (index)->
 		return @_menu?.getItem(index)
 
+cola.defineWidget("c-menuButton", cola.MenuButton)
+
 cola.registerType("menuButton", "_default", cola.ButtonMenu)
 cola.registerType("menuButton", "menu", cola.ButtonMenu)
 

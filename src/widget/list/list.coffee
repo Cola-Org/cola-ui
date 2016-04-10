@@ -29,6 +29,7 @@ class cola.ListView extends cola.AbstractList
 			setter: (bindStr) ->
 				@_set("items", undefined)
 				return @_bindSetter(bindStr)
+
 		textProperty:
 			refreshItems: true
 
@@ -894,3 +895,5 @@ class cola.ListView extends cola.AbstractList
 	hideItemSlidePane: (animation) ->
 		@_hideItemSlidePane(true, animation)
 		return
+
+cola.defineWidget("c-listView", cola.ListView)

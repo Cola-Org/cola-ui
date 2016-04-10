@@ -5,19 +5,6 @@ $.xCreate.templateProcessors.push (template) ->
 		return dom
 	return
 
-$.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
-	return unless attrValue
-	if typeof attrValue == "string"
-		$dom.attr(attrName, attrValue)
-	else if context
-		configKey = cola.uniqueId()
-		$dom.attr("widget-config", configKey)
-		widgetConfigs = context.widgetConfigs
-		if !widgetConfigs
-			context.widgetConfigs = widgetConfigs = {}
-		widgetConfigs[configKey] = attrValue
-	return
-
 cola.xRender.nodeProcessors.push (node, context) ->
 	if node instanceof cola.Widget
 		widget = node
@@ -51,22 +38,53 @@ _findWidgetConfig = (scope, name) ->
 		scope = scope.parent
 	return widgetConfig
 
-cola._userDomCompiler.$.push((scope, dom, context) ->
+_compileWidgetDom = (dom, widgetType) ->
+	if not widgetType.ATTRIBUTES._inited or not widgetType.EVENTS._inited
+		cola.preprocessClass(widgetType)
+
+	config =
+		$constr: widgetType
+
+	removeAttrs = null
+	for attr in dom.attributes
+		attrName = attr.name
+		if attrName.indexOf("c-") == 0
+			prop = attrName.slice(2)
+			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
+				config[prop] = cola._compileExpression(attr.value)
+
+				removeAttrs ?= []
+				removeAttrs.push(attrName)
+		else
+			prop = attrName
+			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
+				config[prop] = attr.value
+
+			removeAttrs ?= []
+			removeAttrs.push(attrName)
+
+	if removeAttrs
+		dom.removeAttribute(attr) for attr in removeAttrs
+	return config
+
+cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 	return null if cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
+	return null unless dom.nodeType is 1
 
 	if dom.id
 		jsonConfig = _findWidgetConfig(scope, dom.id)
 
-	configKey = dom.getAttribute("widget-config")
-	if configKey
-		dom.removeAttribute("widget-config")
-		config = context.widgetConfigs?[configKey]
+	tagName = dom.tagName
+	widgetType = WIDGET_TAG_NAMES[tagName]
+	if widgetType
+		config = _compileWidgetDom(dom, widgetType)
 	else
 		widgetConfigStr = dom.getAttribute("c-widget")
 		if widgetConfigStr
 			dom.removeAttribute("c-widget")
 			if context.defaultPath
 				widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
+
 			config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
 			if config
 				importNames = null
@@ -91,14 +109,19 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 
 	config ?= {}
 	if jsonConfig
-		config[k] = v for k, v of jsonConfig
+		for k, v of jsonConfig
+			if not config.hasOwnProperty(k) then config[k] = v
 
 	if typeof config is "string"
 		config = {
 			$type: config
 		}
 	oldParentConstr = context.constr
-	constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
+
+	if config.$constr instanceof Function
+		constr = config.$constr
+	else
+		constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
 	config.$constr = context.constr = constr
 
 	if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender
@@ -117,8 +140,12 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
 )
 
 cola.registerTypeResolver "widget", (config) ->
-	return unless config and config.$type
-	return cola[cola.util.capitalize(config.$type)]
+	return unless config
+	if config.$constructor and cola.util.isSuperClass(cola.Widget, config.$constructor)
+		return config.$constructor
+	if config.$type
+		return cola[cola.util.capitalize(config.$type)]
+	return
 
 cola.registerType("widget", "_default", cola.Widget)
 
@@ -161,6 +188,49 @@ cola.findWidget = (dom, type) ->
 				return widget
 		dom = dom.parentNode
 	return null
+
+###
+User Widget
+###
+
+WIDGET_TAG_NAMES = {}
+
+_extendsWidget = (superCls, definition) ->
+	cls = () ->
+		cls.__super__.constructor.apply(this, arguments)
+		definition.constructor?.apply(this, arguments)
+		return
+
+	`extend(cls, superCls)`
+
+	for prop, def of definition
+		if definition.hasOwnProperty(prop)
+			if prop is "ATTRIBUTES"
+				for attr, attrDef of def
+					cls.ATTRIBUTES[attr] = attrDef
+			else if prop is "EVENTS"
+				for evt, evtDef of def
+					cls.EVENTS[evt] = evtDef
+			else if prop is "template"
+				cls.ATTRIBUTES.template =
+					defaultValue: def
+			else
+				cls::[prop] = def
+
+	return cls
+
+cola.defineWidget = (name, type, definition) ->
+	if not cola.util.isSuperClass(cola.Widget, type)
+		definition = type
+		type = cola.TemplateWidget
+	if definition
+		type = _extendsWidget(type, definition)
+	WIDGET_TAG_NAMES[name.toUpperCase()] = type
+	return type
+
+###
+Template
+###
 
 TEMP_TEMPLATE = null
 
@@ -318,26 +388,12 @@ cola.DataWidgetMixin =
 						return
 				}
 
-			path = expression.path
-			if !path
-				if expression.hasCallStatement
-					path = "**"
-					bindInfo.watchingMoreMessage = expression.hasCallStatement or expression.convertors
-			else
-				if typeof expression.path == "string"
-					bindInfo.expressionPaths = [expression.path.split(".")]
-				if expression.path instanceof Array
-					paths = []
-					for p in expression.path
-						paths.push(p.split("."))
-					bindInfo.expressionPaths = paths
+			paths = expression.paths
+			if not paths and expression.hasCallStatement
+				paths = ["**"]
+				bindInfo.watchingMoreMessage = expression.hasCallStatement or expression.convertors
 
-			if path
-				if typeof path == "string"
-					paths = [path]
-				else
-					paths = path
-
+			if paths
 				@_watchingPaths = paths
 				for p, i in paths
 					@_scope.data.bind(p, bindProcessor)
