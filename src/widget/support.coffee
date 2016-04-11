@@ -58,9 +58,6 @@ _compileWidgetDom = (dom, widgetType) ->
 			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
 				config[prop] = attr.value
 
-			removeAttrs ?= []
-			removeAttrs.push(attrName)
-
 	if removeAttrs
 		dom.removeAttribute(attr) for attr in removeAttrs
 	return config
@@ -456,11 +453,16 @@ cola.DataItemsWidgetMixin =
 		@_bindStr = bindStr
 		@_itemsRetrieved = false
 
-		if bindStr and @_scope
+		delete @_simpleBindPath
+		if bindStr
 			expression = cola._compileExpression(bindStr, "repeat")
-			if !expression.repeat
+			if not expression.repeat
 				throw new cola.Exception("Expression \"#{bindStr}\" must be a repeat expression.")
 			@_alias = expression.alias
+
+			if (expression.type is "MemberExpression" or expression.type is "Identifier") and not expression.hasCallStatement and not expression.convertors
+				@_simpleBindPath = expression.paths[0]
+
 		@_itemsScope.setExpression(expression)
 		return
 
@@ -484,3 +486,16 @@ cola.DataItemsWidgetMixin =
 			items: @_itemsScope.items
 			originItems: @_itemsScope.originItems
 		}
+
+	_getBindDataType: () ->
+		items = @_getItems().originItems
+		if items
+			if items instanceof cola.EntityList
+				dataType = items.dataType
+			else if items instanceof Array and items.length
+				item = items[0]
+				if item and item instanceof cola.Entity
+					dataType = item.dataType
+		else if @_simpleBindPath
+			dataType = @_scope.data.getDataType(@_simpleBindPath)
+		return dataType

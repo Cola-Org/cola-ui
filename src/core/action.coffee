@@ -108,3 +108,13 @@ cola.defaultAction.formatNumber = (number, format) ->
 	return "" unless number?
 	return number if isNaN(number)
 	return formatNumber(format, number)
+
+cola.defaultAction.format = (value, format) ->
+	if value instanceof Date
+		return cola.defaultAction.formatDate(value, format)
+	else if isFinite(value)
+		return cola.defaultAction.formatNumber(value, format)
+	else if value is null or value is undefined
+		return ""
+	else
+		return value

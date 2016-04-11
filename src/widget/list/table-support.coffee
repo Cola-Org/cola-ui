@@ -64,6 +64,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		dataType:
 			readOnlyAfterCreate: true
 			setter: cola.DataType.dataTypeSetter
+		property: null
 		bind: null
 		template: null
 
@@ -269,18 +270,10 @@ class cola.AbstractTable extends cola.AbstractList
 				if column._bind
 					bind = column._bind
 					if bind.charCodeAt(0) == 46 # `.`
-						convertorIndex = bind.indexOf("|")
-						if convertorIndex < 0
-							info.property = bind.substring(1)
-						else
-							info.property = bind.substring(1, convertorIndex)
-							info.expression = cola._compileExpression(context.alias + bind)
+						if not column._property
+							column._property = bind.substring(1)
 					else
 						info.expression = cola._compileExpression(bind)
-						path = info.expression?.path
-						if path instanceof Array then path = path[0]
-						if path and path.indexOf("*") < 0
-							info.property = path
 
 				if column._width
 					width = column._width
@@ -324,16 +317,7 @@ class cola.AbstractTable extends cola.AbstractList
 
 	_getBindDataType: () ->
 		return @_dataType if @_dataType
-
-		items = @_getItems().originItems
-		if items
-			if items instanceof cola.EntityList
-				dataType = items.dataType
-			else if items instanceof Array and items.length
-				item = items[0]
-				if item and item instanceof cola.Entity
-					dataType = item.dataType
-		return @_dataType = dataType
+		return @_dataType = super()
 
 	_createDom: ()->
 		dom = document.createElement("div")

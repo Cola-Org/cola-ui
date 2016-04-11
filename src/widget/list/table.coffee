@@ -189,8 +189,8 @@ class cola.Table extends cola.AbstractTable
 		return if column._realHeaderTemplate
 
 		dataType = @_getBindDataType()
-		if dataType and columnInfo.property
-			propertyDef = dataType.getProperty(columnInfo.property)
+		if dataType and column._property
+			propertyDef = dataType.getProperty(column._property)
 
 		caption = column._caption or propertyDef?._caption
 		if !caption
@@ -324,10 +324,15 @@ class cola.Table extends cola.AbstractTable
 			if template
 				template = @_cloneTemplate(template)
 				dom.appendChild(template)
-				if columnInfo.property
-					context = {
-						defaultPath: @_alias + "." + columnInfo.property
-					}
+				if column._property
+					if column._format
+						context = {
+							defaultPath: "format(#{@_alias}.#{column._property},#{column._format})"
+						}
+					else
+						context = {
+							defaultPath: "#{@_alias}.#{column._property}"
+						}
 				cola.xRender(dom, itemScope, context)
 
 		return if column._realTemplate
@@ -336,7 +341,16 @@ class cola.Table extends cola.AbstractTable
 		if columnInfo.expression
 			$dom.attr("c-bind", columnInfo.expression.raw)
 		else
-			$dom.text(if columnInfo.property then item.get(columnInfo.property) else "")
+			value = item.get(column._property)
+			if column._format
+				value = cola.defaultAction.format(value, column._format)
+			else
+				if value instanceof Date
+					defaultDateFormat = cola.setting("defaultDateFormat")
+					if defaultDateFormat
+						value = cola.defaultAction.formatDate(value, defaultDateFormat)
+			value = "" if value is undefined or value is null
+			$dom.text(value)
 		return
 
 	_refreshFakeRow: (row) ->

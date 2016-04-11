@@ -162,6 +162,7 @@ Setting
 
 setting = {
 	defaultCharset: "utf-8"
+	defaultDateFormat: "yyyy-mm-dd"
 }
 
 cola.setting = (key, value) ->
