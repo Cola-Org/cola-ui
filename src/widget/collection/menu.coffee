@@ -539,6 +539,7 @@ class cola.Menu extends cola.Widget
 		delete @_containerDom
 		return @
 
+cola.defineWidget("c-menu", cola.Menu)
 
 class cola.TitleBar extends cola.Menu
 	@CLASS_NAME: "menu title-bar"
@@ -585,7 +586,7 @@ class cola.TitleBar extends cola.Menu
 
 		return null
 
-cola.defineWidget("c-menu", cola.Menu)
+cola.defineWidget("c-titleBar", cola.TitleBar)
 
 cola.registerType("menu", "_default", cola.menu.MenuItem)
 cola.registerType("menu", "item", cola.menu.MenuItem)
