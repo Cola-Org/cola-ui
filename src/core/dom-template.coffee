@@ -252,7 +252,7 @@ createContentPart = (part, scope) ->
 	if part instanceof cola.Expression
 		expression = part
 		textNode = document.createElement("span")
-		feature = new cola._TextNodeFeature(expression)
+		feature = new cola._DomAttrFeature(expression, "text")
 		domBinding = new cola._DomBinding(textNode, scope, feature)
 		domBinding.refresh()
 	else

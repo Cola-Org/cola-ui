@@ -367,16 +367,16 @@ class cola._DomFeature extends cola._ExpressionFeature
 		@_doRender(domBinding, value)
 		return
 
-class cola._TextNodeFeature extends cola._DomFeature
-	_doRender: (domBinding, value) ->
-		cola.util.setText(domBinding.dom, if value? then value else "")
-		return
-
 class cola._DomAttrFeature extends cola._DomFeature
 	constructor: (expression, @attr) ->
 		super(expression)
 
 	_doRender: (domBinding, value) ->
+		if value instanceof Date
+			defaultDateFormat = cola.setting("defaultDateFormat")
+			if defaultDateFormat
+				value = cola.defaultAction.formatDate(value, defaultDateFormat)
+
 		attr = @attr
 		if attr == "text"
 			cola.util.setText(domBinding.dom, if value? then value else "")

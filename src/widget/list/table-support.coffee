@@ -65,6 +65,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 			readOnlyAfterCreate: true
 			setter: cola.DataType.dataTypeSetter
 		bind: null
+		format: null
 		template: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
@@ -324,16 +325,7 @@ class cola.AbstractTable extends cola.AbstractList
 
 	_getBindDataType: () ->
 		return @_dataType if @_dataType
-
-		items = @_getItems().originItems
-		if items
-			if items instanceof cola.EntityList
-				dataType = items.dataType
-			else if items instanceof Array and items.length
-				item = items[0]
-				if item and item instanceof cola.Entity
-					dataType = item.dataType
-		return @_dataType = dataType
+		return @_dataType = super()
 
 	_createDom: ()->
 		dom = document.createElement("div")
