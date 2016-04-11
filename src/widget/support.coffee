@@ -58,9 +58,6 @@ _compileWidgetDom = (dom, widgetType) ->
 			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
 				config[prop] = attr.value
 
-			removeAttrs ?= []
-			removeAttrs.push(attrName)
-
 	if removeAttrs
 		dom.removeAttribute(attr) for attr in removeAttrs
 	return config

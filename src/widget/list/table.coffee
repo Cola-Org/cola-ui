@@ -189,8 +189,8 @@ class cola.Table extends cola.AbstractTable
 		return if column._realHeaderTemplate
 
 		dataType = @_getBindDataType()
-		if dataType and columnInfo.property
-			propertyDef = dataType.getProperty(columnInfo.property)
+		if dataType and column._property
+			propertyDef = dataType.getProperty(column._property)
 
 		caption = column._caption or propertyDef?._caption
 		if !caption
@@ -324,14 +324,14 @@ class cola.Table extends cola.AbstractTable
 			if template
 				template = @_cloneTemplate(template)
 				dom.appendChild(template)
-				if columnInfo.property
+				if column._property
 					if column._format
 						context = {
-							defaultPath: "format(#{@_alias}.#{columnInfo.property},#{column._format})"
+							defaultPath: "format(#{@_alias}.#{column._property},#{column._format})"
 						}
 					else
 						context = {
-							defaultPath: "#{@_alias}.#{columnInfo.property}"
+							defaultPath: "#{@_alias}.#{column._property}"
 						}
 				cola.xRender(dom, itemScope, context)
 
@@ -341,7 +341,7 @@ class cola.Table extends cola.AbstractTable
 		if columnInfo.expression
 			$dom.attr("c-bind", columnInfo.expression.raw)
 		else
-			value = item.get(columnInfo.property)
+			value = item.get(column._property)
 			if column._format
 				value = cola.defaultAction.format(value, column._format)
 			else
