@@ -57,8 +57,8 @@ cola.preprocessClass = (classType) ->
 			for name, definition of events
 				realName = name.toLowerCase()
 				if name isnt realName
-					attributes[realName] = definition
-					delete attributes[name]
+					events[realName] = definition
+					delete events[name]
 
 			events.$has = hasDefinition
 			events.$get = getDefinition
