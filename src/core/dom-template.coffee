@@ -209,7 +209,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 						features ?= []
 						if feature  instanceof cola._BindingFeature
 							features.push(feature)
-						else if result instanceof Array
+						else if feature instanceof Array
 							features.push(f) for f in feature
 
 	if removeAttrs

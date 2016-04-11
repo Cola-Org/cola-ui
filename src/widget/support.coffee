@@ -27,8 +27,6 @@ cola.Model::widgetConfig = (id, config) ->
 		@_widgetConfig[id] = config
 	return
 
-cola._userDomCompiler.widget = () -> return
-
 ALIAS_REGEXP = new RegExp("\\$default", "g")
 
 _findWidgetConfig = (scope, name) ->
