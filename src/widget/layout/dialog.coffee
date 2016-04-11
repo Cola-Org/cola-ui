@@ -56,6 +56,8 @@ class cola.Dialog extends cola.Layer
 			height = $dom.height()
 			pWidth = $(window).width()
 			pHeight = $(window).height()
+			if height > pHeight then height = pHeight
+			if width > pWidth then width = pWidth
 			$dom.css({
 				left: (pWidth - width) / 2
 				top: (pHeight - height) / 2

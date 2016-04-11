@@ -27,20 +27,8 @@ class cola.Stack extends cola.Widget
 		width = @_currentItem.clientWidth
 		$fly(@_currentItem).css({display: "block"})
 		@_bindTouch()
-
 		$fly(@_currentItem).css("transform", "translate(-#{width}px,0)")
-		if direction is "left"
-			$fly(@_prevItem).css("display", "none")
-			$fly(@_nextItem).css({
-				transform: "translate(#{width}px,0)"
-				display: "block"
-			})
-		else
-			$fly(@_nextItem).css("display", "none")
-			$fly(@_prevItem).css({
-				transform: "translate(#{2 * width}px,0)"
-				display: "block"
-			})
+
 		return
 
 	_parseDom: (dom)->

@@ -114,7 +114,7 @@ class cola.Panel extends cola.AbstractContainer
 		return unless @_dom
 		super()
 		$fly(@_doms.caption).text(@_caption || "")
-		if @_doms.icon._icon
+		if @_icon
 			$fly(@_doms.icon).show().removeClass(@_doms.icon._icon)
 		else
 			$fly(@_doms.icon).hide()
