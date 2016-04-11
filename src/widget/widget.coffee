@@ -227,24 +227,7 @@ class cola.Widget extends cola.RenderableElement
 				@["_class"] = value
 				return
 
-		popup:
-			setter: (value)->
-				options = {}
-
-				if typeof value is "string"
-					options.content = value
-				else if value.constructor == Object.prototype.constructor and value.tagName
-					options.html = $.xCreate(value)
-				else if value.nodeType is 1
-					options.html = value
-				else
-					options = value
-
-				@_popup = options
-
-				@get$Dom().popup(@_popup) if @_dom
-				return
-
+		popup: null
 		dimmer:
 			setter: (value)->
 				@_dimmer ?= {}
@@ -318,15 +301,26 @@ class cola.Widget extends cola.RenderableElement
 			hammerEvent: "swipeup"
 		swipeDown:
 			hammerEvent: "swipedown"
+	_initDom: (dom)->
+		super(dom)
+		popup = @_popup
+		if popup
+			popupOptions = {}
+			if typeof popup is "string" or (popup.constructor == Object.prototype.constructor and popup.tagName) or popup.nodeType is 1
+				popupOptions.html = cola.xRender(popup)
+			else if popup.constructor == Object.prototype.constructor
+				popupOptions = popup
+				if popupOptions.content
+					popupOptions.html = cola.xRender(popupOptions.content)
+				else if popupOptions.html
+					popupOptions.html = cola.xRender(popupOptions.html)
+			$(dom).popup(popupOptions)
 	_setDom: (dom, parseChild)->
 		return unless dom
 		super(dom, parseChild)
 
 		for eventName of @constructor.EVENTS
 			@_bindEvent(eventName) if @getListeners(eventName)
-
-		$(dom).popup(@_popup) if @_popup
-
 		return
 
 	_on: (eventName, listener, alias) ->
