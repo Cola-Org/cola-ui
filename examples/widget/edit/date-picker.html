@@ -21,13 +21,19 @@
 				{name: "Pascal"}
 			]);
 
+			var dateGrid=new cola.DateGrid({cellClick:function(self,arg){
+				console.log(arg)
+			}});
 
+			dateGrid.appendTo(document.getElementById("dateGrid"))
+			dateGrid.setState(2016,3)
 
 			model.widgetConfig({
 				datePicker: {
 					$type: "datePicker",
 					openMode: "drop"
 				}
+
 			});
 		});
 	</script>
@@ -35,6 +41,9 @@
 <body style="padding:20px;">
 
 <div id="datePicker"></div>
+<div id="dateGrid"></div>
+
+
 
 </body>
 </html>

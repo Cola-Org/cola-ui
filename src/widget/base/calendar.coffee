@@ -21,6 +21,7 @@ do->
 		return null
 
 	cola.calendar ?= {}
+	cola.calendar.getCellPosition = getCellPosition
 
 	class cola.calendar.DateGrid extends cola.RenderableElement
 		@ATTRIBUTES:
@@ -400,6 +401,8 @@ do->
 		cells.firstDayPosition = firstDayPosition
 		return cells
 
+	cola.getDateTableState = getDateTableState
+
 
 	class cola.Calendar extends cola.Widget
 		@CLASS_NAME: "calendar"
@@ -617,3 +620,6 @@ do->
 				@setState(date.getFullYear(), date.getMonth())
 				@setDate(date.getDate())
 		getDateCellDom: (date)-> @_datePicker.getDateCellDom(date)
+
+
+
