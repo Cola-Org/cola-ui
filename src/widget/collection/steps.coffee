@@ -1,138 +1,3 @@
-cola.steps ?= {}
-class cola.steps.Step extends cola.Widget
-	@tagName: "c-step"
-	@parentWidget: cola.Step
-
-	@CLASS_NAME: "step"
-
-	@attributes:
-		icon:
-			refreshDom: true
-		content:
-			refreshDom: true
-		states:
-			refreshDom: true
-			enum: ["completed", "active", ""]
-			defaultValue: ""
-			setter: (value)->
-				oldValue = @_states
-				@_states = value
-				if @_dom and value isnt oldValue and oldValue
-					$fly(@_dom).removeClass(oldValue)
-				return @
-
-		disabled:
-			type: "boolean"
-			defaultValue: false
-
-	_parseDom: (dom)->
-		@_doms ?= {}
-
-		parseTitle = (node)=>
-			@_doms.title = node
-			title = cola.util.getTextChildData(node)
-			content = @_content or {}
-			if !content.title and title
-				@_content ?= {}
-				@_doms.titleDom = node
-				@_content.title = title
-
-			return
-
-		parseDescription = (node)=>
-			@_doms.description = node
-			description = cola.util.getTextChildData(node)
-			content = @_content or {}
-			if description and not content.description
-				@_content ?= {}
-				@_doms.descriptionDom = node
-				@_content.description = description
-
-			return
-
-		parseContent = (node)=>
-			content = cola.util.getTextChildData(node)
-			@_content = content if not @_content and content
-			return
-
-		child = dom.firstChild
-		while child
-			if child.nodeType == 1
-				if child.nodeName is "I"
-					@_doms.iconDom = child
-					@_icon = child.className unless @_icon
-				else
-					$child = $(child)
-					if $child.hasClass("content")
-						@_doms.contentDom = child
-						for cc in child.childNodes
-							continue if child.nodeType isnt 1
-							$cc = $(cc)
-							parseTitle(cc) if $cc.hasClass("title")
-							parseDescription(cc) if $cc.hasClass("description")
-
-						parseContent(child) unless @_content
-
-					else if $child.hasClass("title")
-						parseTitle(child)
-					else if $child.hasClass("description")
-						parseDescription(child)
-
-			child = child.nextSibling
-
-
-		parseContent(dom)
-
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		@_doms ?= {}
-		content = @get("content")
-		$dom = @get$Dom()
-		$dom.empty()
-		icon = @get("icon")
-
-		if icon
-			@_doms.iconDom ?= document.createElement("i")
-			@_doms.iconDom.className = "#{icon} icon"
-			$dom.append(@_doms.iconDom)
-		else
-			$fly(@_doms.iconDom).remove()
-
-		if content
-			@_doms.contentDom ?= document.createElement("div")
-			$contentDom = $(@_doms.contentDom)
-			$contentDom.addClass("content").empty()
-
-			if typeof content is "string"
-				$contentDom.text(content)
-			else
-				if content.title
-					@_doms.titleDom ?= document.createElement("div")
-					$fly(@_doms.titleDom).addClass("title").text(content.title)
-					$contentDom.append(@_doms.titleDom)
-
-				if content.description
-					@_doms.descriptionDom ?= document.createElement("div")
-					$fly(@_doms.descriptionDom).addClass("description").text(content.description)
-					$contentDom.append(@_doms.descriptionDom)
-
-			$dom.append($contentDom)
-
-		classNamePool = @_classNamePool
-
-		if @_states then classNamePool.add(@_states)
-		classNamePool.toggle("disabled", @_disabled)
-
-	destroy: ()->
-		return if @_destroyed
-		super()
-		delete @_doms
-
-cola.registerWidget(cola.steps.Step)
-
 class cola.Steps extends cola.Widget
 	@tagName: "c-steps"
 
@@ -180,7 +45,6 @@ class cola.Steps extends cola.Widget
 		beforeChange: null
 		change: null
 		complete: null
-
 
 	_doRefreshDom: ()->
 		return unless @_dom
@@ -331,6 +195,141 @@ class cola.Steps extends cola.Widget
 		return @_steps?.indexOf(step)
 
 cola.registerWidget(cola.Steps)
+
+cola.steps ?= {}
+class cola.steps.Step extends cola.Widget
+	@tagName: "div"
+	@parentWidget: cola.Steps
+
+	@CLASS_NAME: "step"
+
+	@attributes:
+		icon:
+			refreshDom: true
+		content:
+			refreshDom: true
+		states:
+			refreshDom: true
+			enum: ["completed", "active", ""]
+			defaultValue: ""
+			setter: (value)->
+				oldValue = @_states
+				@_states = value
+				if @_dom and value isnt oldValue and oldValue
+					$fly(@_dom).removeClass(oldValue)
+				return @
+
+		disabled:
+			type: "boolean"
+			defaultValue: false
+
+	_parseDom: (dom)->
+		@_doms ?= {}
+
+		parseTitle = (node)=>
+			@_doms.title = node
+			title = cola.util.getTextChildData(node)
+			content = @_content or {}
+			if !content.title and title
+				@_content ?= {}
+				@_doms.titleDom = node
+				@_content.title = title
+
+			return
+
+		parseDescription = (node)=>
+			@_doms.description = node
+			description = cola.util.getTextChildData(node)
+			content = @_content or {}
+			if description and not content.description
+				@_content ?= {}
+				@_doms.descriptionDom = node
+				@_content.description = description
+
+			return
+
+		parseContent = (node)=>
+			content = cola.util.getTextChildData(node)
+			@_content = content if not @_content and content
+			return
+
+		child = dom.firstChild
+		while child
+			if child.nodeType == 1
+				if child.nodeName is "I"
+					@_doms.iconDom = child
+					@_icon = child.className unless @_icon
+				else
+					$child = $(child)
+					if $child.hasClass("content")
+						@_doms.contentDom = child
+						for cc in child.childNodes
+							continue if child.nodeType isnt 1
+							$cc = $(cc)
+							parseTitle(cc) if $cc.hasClass("title")
+							parseDescription(cc) if $cc.hasClass("description")
+
+						parseContent(child) unless @_content
+
+					else if $child.hasClass("title")
+						parseTitle(child)
+					else if $child.hasClass("description")
+						parseDescription(child)
+
+			child = child.nextSibling
+
+
+		parseContent(dom)
+
+		return
+
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		@_doms ?= {}
+		content = @get("content")
+		$dom = @get$Dom()
+		$dom.empty()
+		icon = @get("icon")
+
+		if icon
+			@_doms.iconDom ?= document.createElement("i")
+			@_doms.iconDom.className = "#{icon} icon"
+			$dom.append(@_doms.iconDom)
+		else
+			$fly(@_doms.iconDom).remove()
+
+		if content
+			@_doms.contentDom ?= document.createElement("div")
+			$contentDom = $(@_doms.contentDom)
+			$contentDom.addClass("content").empty()
+
+			if typeof content is "string"
+				$contentDom.text(content)
+			else
+				if content.title
+					@_doms.titleDom ?= document.createElement("div")
+					$fly(@_doms.titleDom).addClass("title").text(content.title)
+					$contentDom.append(@_doms.titleDom)
+
+				if content.description
+					@_doms.descriptionDom ?= document.createElement("div")
+					$fly(@_doms.descriptionDom).addClass("description").text(content.description)
+					$contentDom.append(@_doms.descriptionDom)
+
+			$dom.append($contentDom)
+
+		classNamePool = @_classNamePool
+
+		if @_states then classNamePool.add(@_states)
+		classNamePool.toggle("disabled", @_disabled)
+
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_doms
+
+cola.registerWidget(cola.steps.Step)
 
 cola.registerType("steps", "_default", cola.steps.Step)
 cola.registerType("steps", "Step", cola.steps.Step)

@@ -204,6 +204,7 @@ _extendWidget = (superCls, definition) ->
 	`extend(cls, superCls)`
 
 	cls.tagName = definition.tagName?.toUpperCase() or ""
+	cls.parentWidget = definition.parentWidget if definition.parentWidget
 
 	if definition.attributes then cls.attributes = definition.attributes
 	if definition.events then cls.events = definition.events
