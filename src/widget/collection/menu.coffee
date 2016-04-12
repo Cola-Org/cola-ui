@@ -1,266 +1,11 @@
-cola.menu ?= {}
-
-class cola.menu.AbstractMenuItem extends cola.AbstractContainer
-	@ATTRIBUTES:
-		parent: null
-		active:
-			type: "boolean"
-			defaultValue: false
-			setter: (value)->
-				oldValue = @_active
-				@_active = value
-				if oldValue isnt value and value then @onActive(@)
-			getter: ()->
-				if !@_active and @_rendered
-					@_active = @get$Dom().hasClass("active")
-				return @_active
-
-	onItemClick: (event, item)->
-		parentMenu = @_parent
-		if parentMenu instanceof cola.Menu then parentMenu.onItemClick(event, item)
-		return
-
-	onActive: (item)->
-		parentMenu = @_parent
-		if parentMenu instanceof cola.Menu then parentMenu.setActiveItem(item)
-
-	getParent: ()-> @_parent
-	hasSubMenu: ()->return !!this._subMenu
-	destroy: ()->
-		return if @_destroyed
-		super()
-		delete @_parent
-
-class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
-	@CLASS_NAME: "item"
-	@TAG_NAME: "a"
-	@ATTRIBUTES:
-		caption:
-			refreshDom: true
-		icon:
-			refreshDom: true
-		href:
-			refreshDom: true
-		target:
-			refreshDom: true
-		items:
-			setter: (value)-> @_resetSubMenu(value)
-			getter: ()->return @_subMenu?.get("items")
-
-	_parseDom: (dom)->
-		child = dom.firstChild
-		@_doms ?= {}
-		while child
-			if child.nodeType == 1
-				subMenu = cola.widget(child)
-				if subMenu instanceof cola.Menu
-					@_subMenu = subMenu
-					subMenu._isSubMemu = true
-				else if child.nodeName == "I"
-					@_doms.iconDom = child
-					@_icon ?= child.className
-				else if cola.util.hasClass(child, "caption")
-					@_doms.captionDom = child
-
-			child = child.nextSibling
-
-		unless @_doms.captionDom
-			@_doms.captionDom = $.xCreate({
-				tagName: "span",
-				content: @_caption or ""
-			})
-			if @_doms.iconDom
-				$fly(@_doms.iconDom).after(@_doms.captionDom)
-			else
-				$fly(dom).prepend(@_doms.captionDom)
-
-		return
-
-	_initDom: (dom)->
-		super(dom)
-		@_$dom ?= $(dom)
-		@_$dom.click((event)=>
-			if @_subMenu then return
-			return @onItemClick(event, @)
-		)
-		if @_subMenu
-			subMenuDom = @_subMenu.getDom()
-			if subMenuDom.parentNode isnt dom then dom.appendChild(subMenuDom)
-		return
-
-	_setDom: (dom, parseChild)->
-		if parseChild
-			unless @_href
-				href = dom.getAttribute("href")
-				@_href = href if href
-			unless @_target
-				target = dom.getAttribute("target")
-				@_target = target if target
-
-		super(dom, parseChild)
-
-	_createDom: ()->
-		icon = @get("icon") or ""
-		caption = @get("caption") or ""
-		return $.xCreate({
-			tagName: "A",
-			class: @constructor.CLASS_NAME,
-			content: [
-				{
-					tagName: "span",
-					content: caption,
-					contextKey: "captionDom"
-				}
-			]
-		}, @_doms)
-
-	_refreshIcon: ()->
-		$dom = @get$Dom()
-		if @_icon and not @_caption
-			@_classNamePool.add("icon")
-		if @_icon
-			if not @_doms.iconDom
-				@_doms.iconDom = $.xCreate({
-					tagName: "i"
-					class: "icon"
-				})
-			if @_doms.iconDom.parentNode isnt @_dom then $dom.prepend(@_doms.iconDom)
-			$fly(@_doms.iconDom).addClass(@_icon)
-		else
-			$fly(@_doms.iconDom).remove()
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		$dom = @get$Dom()
-		$dom.find(">.ui.menu").removeClass("ui")
-		@_refreshIcon()
-		$fly(@_doms.captionDom).text(@_caption or "")
-
-		if @_subMenu
-			subMenuDom = @_subMenu.getDom()
-			if subMenuDom.parentNode isnt @_dom then @_dom.appendChild(subMenuDom)
-		if @_href
-			$dom.attr("href", @_href)
-		else
-			$dom.removeAttr("href")
-		$dom.attr("target", @_target || "")
-		return
-
-	_resetSubMenu: (config)->
-		@_subMenu?.destroy()
-		if config
-			@_subMenu = new cola.Menu({
-				items: config
-			})
-			@_subMenu._parent = @
-			@_subMenu._isSubMemu = true
-		else
-			delete @_subMenu
-
-	destroy: ()->
-		return if @_destroyed
-		@_subMenu?.destroy()
-		super()
-
-class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
-	@CLASS_NAME: "dropdown item"
-	@ATTRIBUTES:
-		icon:
-			refreshDom: true
-			defaultValue: "dropdown"
-
-	_createDom: ()->
-		caption = @get("caption") or ""
-
-		return $.xCreate({
-			tagName: "DIV",
-			class: @constructor.CLASS_NAME,
-			content: [
-				{
-					tagName: "span"
-					content: caption
-					contextKey: "captionDom"
-				}
-				{
-					tagName: "i",
-					class: "dropdown icon"
-					contextKey: "iconDom"
-				}
-			]
-		}, @_doms)
-
-	_refreshIcon: ()->
-		unless @_doms.iconDom
-			@_doms.iconDom = document.createElement("i")
-			@_dom.appendChild(@_doms.iconDom)
-		@_doms.iconDom.className = "#{@_icon or "dropdown"} icon"
-
-class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
-	@CLASS_NAME: "item"
-	@ATTRIBUTES:
-		control:
-			setter: (value)->
-				$fly(@_control).remove()
-				control = cola.xRender(value)
-				@_control = control
-				if control and @_dom then @_dom.appendChild(control)
-				return @
-
-	_parseDom: (dom)->
-		child = dom.firstChild
-
-		while child
-			if child.nodeType == 1
-				widget = cola.widget(child)
-				if widget
-					@_control = widget
-					break
-			child = child.nextSibling
-
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-
-		@_classNamePool.remove("ui")
-
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		control = @_control
-		return unless control
-		if control instanceof cola.RenderableElement
-			cola._ignoreNodeRemoved = true
-			dom.appendChild(control.getDom())
-			cola._ignoreNodeRemoved = false
-		else if control.nodeType == 1
-			dom.appendChild(control)
-		return
-
-class cola.menu.HeaderMenuItem extends cola.menu.AbstractMenuItem
-	@CLASS_NAME: "header item"
-	@ATTRIBUTES:
-		text: null
-
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		@get$Dom(@_text)if @_text
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		@_classNamePool.remove("ui")
-		text = @get("text") or ""
-		@get$Dom().text(text)
-		return
-
 class cola.Menu extends cola.Widget
+	@tagName: "c-menu"
+
 	@CLASS_NAME: "ui menu"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
 	@SEMANTIC_CLASS: ["top fixed", "right fixed", "bottom fixed", "left fixed"]
-	@ATTRIBUTES:
+
+	@attributes:
 		items:
 			setter: (value)->
 				@clearItems() if @["_items"]
@@ -277,8 +22,10 @@ class cola.Menu extends cola.Widget
 		centered:
 			type: "boolean"
 			defaultValue: false
-	@EVENTS:
+
+	@events:
 		itemClick: null
+
 	_parseItems: (node)->
 		parseRightMenu = (node)=>
 			childNode = node.firstChild
@@ -539,12 +286,295 @@ class cola.Menu extends cola.Widget
 		delete @_containerDom
 		return @
 
-cola.defineWidget("c-menu", cola.Menu)
+cola.registerWidget(cola.Menu)
+
+cola.menu ?= {}
+
+class cola.menu.AbstractMenuItem extends cola.AbstractContainer
+	@attributes:
+		parent: null
+		active:
+			type: "boolean"
+			defaultValue: false
+			setter: (value)->
+				oldValue = @_active
+				@_active = value
+				if oldValue isnt value and value then @onActive(@)
+			getter: ()->
+				if !@_active and @_rendered
+					@_active = @get$Dom().hasClass("active")
+				return @_active
+
+	onItemClick: (event, item)->
+		parentMenu = @_parent
+		if parentMenu instanceof cola.Menu then parentMenu.onItemClick(event, item)
+		return
+
+	onActive: (item)->
+		parentMenu = @_parent
+		if parentMenu instanceof cola.Menu then parentMenu.setActiveItem(item)
+
+	getParent: ()-> @_parent
+	hasSubMenu: ()->return !!this._subMenu
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_parent
+
+class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
+	@tagName: "a"
+	@parentWidget: cola.Menu
+
+	@CLASS_NAME: "item"
+
+	@attributes:
+		caption:
+			refreshDom: true
+		icon:
+			refreshDom: true
+		href:
+			refreshDom: true
+		target:
+			refreshDom: true
+		items:
+			setter: (value)-> @_resetSubMenu(value)
+			getter: ()->return @_subMenu?.get("items")
+
+	_parseDom: (dom)->
+		child = dom.firstChild
+		@_doms ?= {}
+		while child
+			if child.nodeType == 1
+				subMenu = cola.widget(child)
+				if subMenu instanceof cola.Menu
+					@_subMenu = subMenu
+					subMenu._isSubMemu = true
+				else if child.nodeName == "I"
+					@_doms.iconDom = child
+					@_icon ?= child.className
+				else if cola.util.hasClass(child, "caption")
+					@_doms.captionDom = child
+
+			child = child.nextSibling
+
+		unless @_doms.captionDom
+			@_doms.captionDom = $.xCreate({
+				tagName: "span",
+				content: @_caption or ""
+			})
+			if @_doms.iconDom
+				$fly(@_doms.iconDom).after(@_doms.captionDom)
+			else
+				$fly(dom).prepend(@_doms.captionDom)
+
+		return
+
+	_initDom: (dom)->
+		super(dom)
+		@_$dom ?= $(dom)
+		@_$dom.click((event)=>
+			if @_subMenu then return
+			return @onItemClick(event, @)
+		)
+		if @_subMenu
+			subMenuDom = @_subMenu.getDom()
+			if subMenuDom.parentNode isnt dom then dom.appendChild(subMenuDom)
+		return
+
+	_setDom: (dom, parseChild)->
+		if parseChild
+			unless @_href
+				href = dom.getAttribute("href")
+				@_href = href if href
+			unless @_target
+				target = dom.getAttribute("target")
+				@_target = target if target
+
+		super(dom, parseChild)
+
+	_createDom: ()->
+		icon = @get("icon") or ""
+		caption = @get("caption") or ""
+		return $.xCreate({
+			tagName: "A",
+			class: @constructor.CLASS_NAME,
+			content: [
+				{
+					tagName: "span",
+					content: caption,
+					contextKey: "captionDom"
+				}
+			]
+		}, @_doms)
+
+	_refreshIcon: ()->
+		$dom = @get$Dom()
+		if @_icon and not @_caption
+			@_classNamePool.add("icon")
+		if @_icon
+			if not @_doms.iconDom
+				@_doms.iconDom = $.xCreate({
+					tagName: "i"
+					class: "icon"
+				})
+			if @_doms.iconDom.parentNode isnt @_dom then $dom.prepend(@_doms.iconDom)
+			$fly(@_doms.iconDom).addClass(@_icon)
+		else
+			$fly(@_doms.iconDom).remove()
+
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		$dom = @get$Dom()
+		$dom.find(">.ui.menu").removeClass("ui")
+		@_refreshIcon()
+		$fly(@_doms.captionDom).text(@_caption or "")
+
+		if @_subMenu
+			subMenuDom = @_subMenu.getDom()
+			if subMenuDom.parentNode isnt @_dom then @_dom.appendChild(subMenuDom)
+		if @_href
+			$dom.attr("href", @_href)
+		else
+			$dom.removeAttr("href")
+		$dom.attr("target", @_target || "")
+		return
+
+	_resetSubMenu: (config)->
+		@_subMenu?.destroy()
+		if config
+			@_subMenu = new cola.Menu({
+				items: config
+			})
+			@_subMenu._parent = @
+			@_subMenu._isSubMemu = true
+		else
+			delete @_subMenu
+
+	destroy: ()->
+		return if @_destroyed
+		@_subMenu?.destroy()
+		super()
+
+cola.registerWidget(cola.menu.MenuItem)
+
+class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
+	@tagName: "c-dropdownItem"
+	@parentWidget: cola.Menu
+
+	@CLASS_NAME: "dropdown item"
+
+	@attributes:
+		icon:
+			refreshDom: true
+			defaultValue: "dropdown"
+
+	_createDom: ()->
+		caption = @get("caption") or ""
+
+		return $.xCreate({
+			tagName: "DIV",
+			class: @constructor.CLASS_NAME,
+			content: [
+				{
+					tagName: "span"
+					content: caption
+					contextKey: "captionDom"
+				}
+				{
+					tagName: "i",
+					class: "dropdown icon"
+					contextKey: "iconDom"
+				}
+			]
+		}, @_doms)
+
+	_refreshIcon: ()->
+		unless @_doms.iconDom
+			@_doms.iconDom = document.createElement("i")
+			@_dom.appendChild(@_doms.iconDom)
+		@_doms.iconDom.className = "#{@_icon or "dropdown"} icon"
+
+cola.registerWidget(cola.menu.DropdownMenuItem)
+
+class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
+	@tagName: "c-controlItem"
+	@parentWidget: cola.Menu
+
+	@CLASS_NAME: "item"
+
+	@attributes:
+		control:
+			setter: (value)->
+				$fly(@_control).remove()
+				control = cola.xRender(value)
+				@_control = control
+				if control and @_dom then @_dom.appendChild(control)
+				return @
+
+	_parseDom: (dom)->
+		child = dom.firstChild
+
+		while child
+			if child.nodeType == 1
+				widget = cola.widget(child)
+				if widget
+					@_control = widget
+					break
+			child = child.nextSibling
+
+		return
+
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+
+		@_classNamePool.remove("ui")
+
+	_setDom: (dom, parseChild)->
+		super(dom, parseChild)
+		control = @_control
+		return unless control
+		if control instanceof cola.RenderableElement
+			cola._ignoreNodeRemoved = true
+			dom.appendChild(control.getDom())
+			cola._ignoreNodeRemoved = false
+		else if control.nodeType == 1
+			dom.appendChild(control)
+		return
+
+cola.registerWidget(cola.menu.ControlMenuItem)
+
+class cola.menu.HeaderMenuItem extends cola.menu.AbstractMenuItem
+	@tagName: "c-headerItem"
+	@parentWidget: cola.Menu
+
+	@CLASS_NAME: "header item"
+
+	@attributes:
+		text: null
+
+	_setDom: (dom, parseChild)->
+		super(dom, parseChild)
+		@get$Dom(@_text)if @_text
+		return
+
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		@_classNamePool.remove("ui")
+		text = @get("text") or ""
+		@get$Dom().text(text)
+		return
+
+cola.registerWidget(cola.menu.HeaderMenuItem)
 
 class cola.TitleBar extends cola.Menu
+	@tagName: "c-titleBar"
 	@CLASS_NAME: "menu title-bar"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
-	@ATTRIBUTES:
+
+	@attributes:
 		title:
 			refreshDom: true
 
@@ -586,7 +616,7 @@ class cola.TitleBar extends cola.Menu
 
 		return null
 
-cola.defineWidget("c-titleBar", cola.TitleBar)
+cola.registerWidget(cola.TitleBar)
 
 cola.registerType("menu", "_default", cola.menu.MenuItem)
 cola.registerType("menu", "item", cola.menu.MenuItem)

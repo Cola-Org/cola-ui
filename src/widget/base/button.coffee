@@ -2,7 +2,7 @@
     按钮的抽象类
 ###
 class cola.AbstractButton extends cola.Widget
-	@ATTRIBUTES:
+	@attributes:
 		size:
 			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
 			refreshDom: true
@@ -48,12 +48,15 @@ class cola.AbstractButton extends cola.Widget
 		return
 
 class cola.Button extends cola.AbstractButton
+	@tagName: "c-button"
+
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
 		"top attached", "bottom attached", "left attached", "right attached"
 	]
 	@CLASS_NAME: "button"
-	@ATTRIBUTES:
+
+	@attributes:
 		caption:
 			refreshDom: true
 
@@ -162,14 +165,18 @@ class cola.Button extends cola.AbstractButton
 
 		return
 
-cola.defineWidget("c-button", cola.Button)
+cola.registerWidget(cola.Button)
 
 cola.buttonGroup = {}
 
 class cola.buttonGroup.Separator extends cola.Widget
+	@tagName: "c-separator"
+	@parentWidget: cola.ButtonGroup
+
 	@SEMANTIC_CLASS: []
 	@CLASS_NAME: "or"
-	@ATTRIBUTES:
+
+	@attributes:
 		text:
 			defaultValue: "or"
 			refreshDom: true
@@ -192,13 +199,16 @@ class cola.buttonGroup.Separator extends cola.Widget
 
 cola.buttonGroup.emptyItems = []
 class cola.ButtonGroup extends cola.AbstractButton
+	@tagName: "c-buttonGroup"
+
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
 		"top attached", "bottom attached", "left attached", "right attached"
 	]
 	@CHILDREN_TYPE_NAMESPACE: "button-group"
 	@CLASS_NAME: "buttons"
-	@ATTRIBUTES:
+
+	@attributes:
 		fluid:
 			type: "boolean"
 			refreshDom: true
@@ -268,7 +278,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 		return unless @_dom
 
 		$dom = @get$Dom()
-		attrName = @constructor.ATTRIBUTES.fluid.attrName
+		attrName = @constructor.attributes.fluid.attrName
 		oldFluid = $dom.attr(attrName)
 		newFluid = 0
 		items = @_items or []
@@ -354,7 +364,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 	getItems: ()->
 		return @_items or cola.buttonGroup.emptyItems
 
-cola.defineWidget("c-buttonGroup", cola.ButtonGroup)
+cola.registerWidget(cola.ButtonGroup)
 
 cola.registerType("button-group", "_default", cola.Button)
 cola.registerType("button-group", "Separator", cola.buttonGroup.Separator)

@@ -73,13 +73,13 @@ class cola.AjaxServiceInvoker
 		return @_internalInvoke(false)
 
 class cola.AjaxService extends cola.Definition
-	@ATTRIBUTES:
+	@attributes:
 		url: null
 		method: null
 		parameter: null
 		ajaxOptions: null
 
-	@EVENTS:
+	@events:
 		beforeSend: null
 		complete: null
 		success: null
@@ -163,7 +163,7 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		return
 
 class cola.Provider extends cola.AjaxService
-	@ATTRIBUTES:
+	@attributes:
 		loadMode:	# lazy、manual
 			defaultValue: "lazy"
 		pageSize: null

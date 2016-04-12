@@ -118,3 +118,6 @@ cola.defaultAction.format = (value, format) ->
 		return ""
 	else
 		return value
+
+_numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
+cola.defaultAction.number2Word = (number) -> _numberWords[number]

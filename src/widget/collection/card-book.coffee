@@ -1,6 +1,8 @@
 class cola.CardBook extends cola.AbstractItemGroup
+	@tagName: "c-cardBook"
 	@CLASS_NAME: "card-book"
-	@EVENTS:
+
+	@events:
 		beforeChange: null
 		change: null
 
@@ -43,4 +45,4 @@ class cola.CardBook extends cola.AbstractItemGroup
 		@fire("change", @, arg)
 		return @
 
-cola.defineWidget("c-cardBook", cola.CardBook)
+cola.registerWidget(cola.CardBook)

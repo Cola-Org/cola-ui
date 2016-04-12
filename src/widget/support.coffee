@@ -37,7 +37,7 @@ _findWidgetConfig = (scope, name) ->
 	return widgetConfig
 
 _compileWidgetDom = (dom, widgetType) ->
-	if not widgetType.ATTRIBUTES._inited or not widgetType.EVENTS._inited
+	if not widgetType.attributes._inited or not widgetType.events._inited
 		cola.preprocessClass(widgetType)
 
 	config =
@@ -48,18 +48,46 @@ _compileWidgetDom = (dom, widgetType) ->
 		attrName = attr.name
 		if attrName.indexOf("c-") == 0
 			prop = attrName.slice(2)
-			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
+			if widgetType.attributes.$has(prop) or widgetType.events.$has(prop)
 				config[prop] = cola._compileExpression(attr.value)
 
 				removeAttrs ?= []
 				removeAttrs.push(attrName)
 		else
 			prop = attrName
-			if widgetType.ATTRIBUTES.$has(prop) or widgetType.EVENTS.$has(prop)
+			if widgetType.attributes.$has(prop) or widgetType.events.$has(prop)
 				config[prop] = attr.value
 
 	if removeAttrs
 		dom.removeAttribute(attr) for attr in removeAttrs
+	return config
+
+_compileWidgetAttribute = (scope, dom, context) ->
+	widgetConfigStr = dom.getAttribute("c-widget")
+	if widgetConfigStr
+		dom.removeAttribute("c-widget")
+		if context.defaultPath
+			widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
+
+		config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
+		if config
+			importNames = null
+			for p, v of config
+				importName = null
+				if p.charCodeAt(0) == 35
+					importName = p.substring(1)
+				else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
+					importName = v.substring(1)
+				if importName
+					delete config[p]
+					importNames ?= []
+					importNames.push(importName)
+
+			if importNames
+				for importName in importNames
+					importConfig = _findWidgetConfig(scope, importName)
+					if importConfig
+						config[ip] = iv for ip, iv of importConfig
 	return config
 
 cola._userDomCompiler.$.push((scope, dom, attr, context) ->
@@ -69,37 +97,15 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 	if dom.id
 		jsonConfig = _findWidgetConfig(scope, dom.id)
 
+	parentWidget = context.parentWidget
 	tagName = dom.tagName
-	widgetType = WIDGET_TAG_NAMES[tagName]
+
+	widgetType = parentWidget?.childTagNames?[tagName]
+	widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
 	if widgetType
 		config = _compileWidgetDom(dom, widgetType)
 	else
-		widgetConfigStr = dom.getAttribute("c-widget")
-		if widgetConfigStr
-			dom.removeAttribute("c-widget")
-			if context.defaultPath
-				widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
-
-			config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
-			if config
-				importNames = null
-				for p, v of config
-					importName = null
-					if p.charCodeAt(0) == 35
-						importName = p.substring(1)
-					else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
-						importName = v.substring(1)
-					if importName
-						delete config[p]
-						importNames ?= []
-						importNames.push(importName)
-
-				if importNames
-					for importName in importNames
-						importConfig = _findWidgetConfig(scope, importName)
-						if importConfig
-							config[ip] = iv for ip, iv of importConfig
-
+		config = _compileWidgetAttribute(scope, dom, context)
 	return null unless config or jsonConfig
 
 	config ?= {}
@@ -111,19 +117,18 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 		config = {
 			$type: config
 		}
-	oldParentConstr = context.constr
 
 	if config.$constr instanceof Function
 		constr = config.$constr
 	else
-		constr = cola.resolveType((oldParentConstr?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
-	config.$constr = context.constr = constr
+		constr = cola.resolveType((parentWidget?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
+	config.$constr = context.parentWidget = constr
 
 	if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender
 		cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
 
 	return (scope, dom) ->
-		context.constr = oldParentConstr
+		context.parentWidget = parentWidget
 		config.dom = dom
 		oldScope = cola.currentScope
 		cola.currentScope = scope
@@ -188,9 +193,9 @@ cola.findWidget = (dom, type) ->
 User Widget
 ###
 
-WIDGET_TAG_NAMES = {}
+WIDGET_TAGS_REGISTRY = {}
 
-_extendsWidget = (superCls, definition) ->
+_extendWidget = (superCls, definition) ->
 	cls = () ->
 		cls.__super__.constructor.apply(this, arguments)
 		definition.constructor?.apply(this, arguments)
@@ -198,30 +203,45 @@ _extendsWidget = (superCls, definition) ->
 
 	`extend(cls, superCls)`
 
+	cls.tagName = definition.tagName?.toUpperCase() or ""
+
+	if definition.attributes then cls.attributes = definition.attributes
+	if definition.events then cls.events = definition.events
+
+	template = definition.template
+	if template
+		cls.attributes.template =
+			defaultValue: template
+
 	for prop, def of definition
-		if definition.hasOwnProperty(prop)
-			if prop is "ATTRIBUTES"
-				for attr, attrDef of def
-					cls.ATTRIBUTES[attr] = attrDef
-			else if prop is "EVENTS"
-				for evt, evtDef of def
-					cls.EVENTS[evt] = evtDef
-			else if prop is "template"
-				cls.ATTRIBUTES.template =
-					defaultValue: def
-			else
-				cls::[prop] = def
+		if definition.hasOwnProperty(prop) and typeof def is "function"
+			cls::[prop] = def
 
 	return cls
 
-cola.defineWidget = (name, type, definition) ->
+cola.defineWidget = (type, definition) ->
 	if not cola.util.isSuperClass(cola.Widget, type)
 		definition = type
 		type = cola.TemplateWidget
+
 	if definition
-		type = _extendsWidget(type, definition)
-	WIDGET_TAG_NAMES[name.toUpperCase()] = type
+		type = _extendWidget(type, definition)
+
+	tagName = type.tagName?.toUpperCase()
+	if tagName and type.parentWidget
+		childTagNames = type.parentWidget.childTagNames
+		if not childTagNames
+			type.parentWidget.childTagNames = childTagNames = {}
+		if childTagNames[tagName]
+			throw new cola.Exception("Tag name \"#{tagName}\" is already registered in \"#{type.parentWidget.tagName}\".")
+		childTagNames[tagName] = type
+	else if tagName
+		if WIDGET_TAGS_REGISTRY[tagName]
+			throw new cola.Exception("Tag name \"#{tagName}\" is already registered.")
+		WIDGET_TAGS_REGISTRY[tagName] = type
 	return type
+
+cola.registerWidget = cola.defineWidget
 
 ###
 Template

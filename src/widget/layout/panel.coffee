@@ -1,6 +1,6 @@
 class cola.Panel extends cola.AbstractContainer
 	@CLASS_NAME: "panel"
-	@ATTRIBUTES:
+	@attributes:
 		collapsible:
 			type: "boolean"
 			defaultValue: true
@@ -14,7 +14,7 @@ class cola.Panel extends cola.AbstractContainer
 	@TEMPLATES:
 		"tools":
 			tagName: "div"
-	@EVENTS:
+	@events:
 		open: null
 		collapsedChange: null
 		close: null

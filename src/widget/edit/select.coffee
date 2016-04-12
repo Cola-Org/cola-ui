@@ -1,6 +1,8 @@
 class cola.Select extends cola.AbstractInput
+	@tagName: "c-select"
 	@CLASS_NAME: "input select"
-	@ATTRIBUTES:
+
+	@attributes:
 		options:
 			setter: (options) ->
 				return unless options instanceof Array or options instanceof cola.EntityList
@@ -78,4 +80,4 @@ class cola.Select extends cola.AbstractInput
 		cola.util.toggleClass(@_doms.input, "placeholder", !value? or value is "")
 		return
 
-cola.defineWidget("c-select", cola.Select)
+cola.registerWidget(cola.Select)

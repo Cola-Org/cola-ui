@@ -1,8 +1,9 @@
 class cola.AbstractCheckbox extends cola.AbstractEditor
+	@tagName: "c-checkbox"
 	@CLASS_NAME: "checkbox"
 	@INPUT_TYPE: "checkbox"
 
-	@ATTRIBUTES:
+	@attributes:
 		label:
 			refreshDom: true
 		name:
@@ -143,7 +144,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		return @
 
 class cola.Checkbox extends cola.AbstractCheckbox
-	@ATTRIBUTES:
+	@attributes:
 		indeterminateValue: null
 
 		triState:
@@ -161,15 +162,14 @@ class cola.Checkbox extends cola.AbstractCheckbox
 			return
 		super()
 
-cola.defineWidget("c-checkbox", cola.Checkbox)
+cola.registerWidget(cola.Checkbox)
 
 class cola.Toggle extends cola.AbstractCheckbox
+	@tagName: "c-toggle"
 	@CLASS_NAME: "toggle checkbox"
 
-cola.defineWidget("c-toggle", cola.Toggle)
+cola.registerWidget(cola.Toggle)
 
 class cola.Slider extends cola.AbstractCheckbox
 	@CLASS_NAME: "slider checkbox"
-
-cola.defineWidget("c-slider", cola.Slider)
 

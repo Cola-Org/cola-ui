@@ -13,7 +13,7 @@ cola.findDropDown = (target) ->
 class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
 
-	@ATTRIBUTES:
+	@attributes:
 		items:
 			expressionType: "repeat"
 			setter: (items) ->
@@ -41,7 +41,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		dropdownWidth: null
 		dropdownHeight: null
 
-	@EVENTS:
+	@events:
 		beforeOpen: null
 		open: null
 		close: null
@@ -350,7 +350,7 @@ cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
 class DropBox extends cola.Layer
 	@CLASS_NAME: "drop-box transition"
-	@ATTRIBUTES:
+	@attributes:
 		dropdown: null
 
 	show: (options, callback) ->
@@ -424,8 +424,9 @@ class DropBox extends cola.Layer
 		return
 
 class cola.Dropdown extends cola.AbstractDropdown
+	@tagName: "c-dropdown"
 
-	@ATTRIBUTES:
+	@attributes:
 		filterable:
 			readOnlyAfterCreate: true
 			defaultValue: true
@@ -435,7 +436,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		filterInterval:
 			defaultValue: 300
 
-	@EVENTS:
+	@events:
 		filterItem: null
 
 	@TEMPLATES:
@@ -545,10 +546,12 @@ class cola.Dropdown extends cola.AbstractDropdown
 		list.refresh()
 		return template
 
-cola.defineWidget("c-dropdown", cola.Dropdown)
+cola.registerWidget(cola.Dropdown)
 
 class cola.CustomDropdown extends cola.AbstractDropdown
-	@ATTRIBUTES:
+	@tagName: "c-customDropdown"
+
+	@attributes:
 		content: null
 
 	@TEMPLATES:
@@ -571,4 +574,4 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			@_dropdownContent = cola.xRender(dropdownContent, @_scope)
 		return @_dropdownContent
 
-cola.defineWidget("c-customDropdown", cola.CustomDropdown)
+cola.registerWidget(cola.CustomDropdown)

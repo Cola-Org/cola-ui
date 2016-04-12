@@ -2,7 +2,7 @@ containerEmptyChildren = []
 
 ## 此控件为容器控件超类 Layer、Dialog、Segment等等控件都继承自此类
 class cola.AbstractContainer extends cola.Widget
-	@ATTRIBUTES:
+	@attributes:
 		content:
 			setter: (value)->
 				@_setContent(value, "content")

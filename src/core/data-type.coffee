@@ -21,7 +21,7 @@ class cola.StringDataType extends cola.BaseDataType
 		return text
 
 class cola.NumberDataType extends cola.BaseDataType
-	@ATTRIBUTES:
+	@attributes:
 		isInteger: null
 
 	parse: (text) ->
@@ -64,7 +64,7 @@ EntityDataType
 ###
 
 class cola.EntityDataType extends cola.DataType
-	@ATTRIBUTES:
+	@attributes:
 		properties:
 			setter: (properties) ->
 				@_properties.clear()
@@ -78,7 +78,7 @@ class cola.EntityDataType extends cola.DataType
 								config.property = property
 							@addProperty(config)
 
-	@EVENTS:
+	@events:
 		beforeCurrentChange: null
 		currentChange: null
 
@@ -152,7 +152,7 @@ cola.DataType.dataTypeSetter = (dataType) ->
 	return
 
 class cola.Property extends cola.Definition
-	@ATTRIBUTES:
+	@attributes:
 		property:
 			readOnlyAfterCreate: true
 		name:
@@ -197,7 +197,7 @@ class cola.Property extends cola.Definition
 				return
 		rejectInvalidValue: null
 
-	@EVENTS:
+	@events:
 		beforeWrite: null
 		write: null
 		beforeLoad: null

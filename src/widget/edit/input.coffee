@@ -12,7 +12,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		"left icon", "left action"
 	]
 
-	@ATTRIBUTES:
+	@attributes:
 		name: null
 		value:
 			setter: (value) ->
@@ -312,8 +312,10 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 class cola.Input extends cola.AbstractInput
+	@tagName: "c-input"
 	@CLASS_NAME: "input"
-	@ATTRIBUTES:
+
+	@attributes:
 		displayFormat: null
 		inputFormat: null
 		inputType:
@@ -321,11 +323,13 @@ class cola.Input extends cola.AbstractInput
 		postOnInput:
 			type: "boolean"
 			defaultValue: false
-	@EVENTS:
+
+	@events:
 		focus: null
 		blur: null
 		keyDown: null
 		keyPress: null
+
 	_createEditorDom: ()->
 		config =
 			tagName: "input",
@@ -423,4 +427,4 @@ class cola.Input extends cola.AbstractInput
 				value = (new XDate(value)).toString(format)
 		return super(value)
 
-cola.defineWidget("c-input", cola.Input)
+cola.registerWidget(cola.Input)

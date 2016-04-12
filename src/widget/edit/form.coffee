@@ -5,9 +5,10 @@ $.fn.form.settings.templates.error = (errors) ->
 	return oldErrorTemplate.call(@, errors)
 
 class cola.Form extends cola.Widget
+	@tagName: "c-form"
 	@CLASS_NAME: "form"
 
-	@ATTRIBUTES:
+	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
 		state:
@@ -140,4 +141,4 @@ class cola.Form extends cola.Widget
 
 cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
 
-cola.defineWidget("c-form", cola.Form)
+cola.registerWidget(cola.Form)

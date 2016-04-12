@@ -1,9 +1,11 @@
 class cola.Progress extends cola.Widget
+	@tagName: "c-progress"
 	@CLASS_NAME: "progress"
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated"
 	]
-	@ATTRIBUTES:
+
+	@attributes:
 		total:
 			type: "number"
 			defaultValue: 0
@@ -84,7 +86,7 @@ class cola.Progress extends cola.Widget
 			defaultValue: 1
 
 
-	@EVENTS:
+	@events:
 		change: null
 		success: null
 		active: null
@@ -233,4 +235,4 @@ class cola.Progress extends cola.Widget
 
 		return
 
-cola.defineWidget("c-progress", cola.Progress)
+cola.registerWidget(cola.Progress)

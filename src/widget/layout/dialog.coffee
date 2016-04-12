@@ -1,6 +1,8 @@
 class cola.Dialog extends cola.Layer
+	@tagName: "c-dialog"
 	@CLASS_NAME: "dialog transition v-box hidden"
-	@ATTRIBUTES:
+
+	@attributes:
 		context: null
 		animation:
 			defaultValue: "scale"
@@ -190,4 +192,4 @@ class cola.Dialog extends cola.Layer
 		_dimmerDom = @_doms.modalLayer
 		$(_dimmerDom).removeClass("active")
 
-cola.defineWidget("c-dialog", cola.Dialog)
+cola.registerWidget(cola.Dialog)

@@ -9,12 +9,14 @@ class cola.ButtonMenu extends cola.Menu
 		return null
 
 class cola.MenuButton extends cola.Button
+	@tagName: "c-menuButton"
 	@CLASS_NAME: "dropdown button"
-	@ATTRIBUTES:
+
+	@attributes:
 		menuItems:
 			setter: (value)-> @_resetMenu(value)
 			getter: ()-> @_menu?.get("items")
-	@EVENTS:
+	@events:
 		menuItemClick: null
 	_setDom: (dom, parseChild)->
 		super(dom, parseChild)
@@ -75,7 +77,7 @@ class cola.MenuButton extends cola.Button
 	getMenuItem: (index)->
 		return @_menu?.getItem(index)
 
-cola.defineWidget("c-menuButton", cola.MenuButton)
+cola.registerWidget(cola.MenuButton)
 
 cola.registerType("menuButton", "_default", cola.ButtonMenu)
 cola.registerType("menuButton", "menu", cola.ButtonMenu)

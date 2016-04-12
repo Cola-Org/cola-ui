@@ -1,11 +1,13 @@
 class cola.TimeLine extends cola.AbstractList
+	@tagName: "c-timeLine"
 	@CLASS_NAME: "time-line"
-	@ATTRIBUTES:
+
+	@attributes:
 		bind:
 			refreshItems: true
 			setter: (bindStr) -> @_bindSetter(bindStr)
 
-#	@EVENTS:
+#	@events:
 #		itemContentClick: null
 #		itemLineClick: null
 #		itemIconClick: null
@@ -44,4 +46,4 @@ class cola.TimeLine extends cola.AbstractList
 
 		return itemDom
 
-cola.defineWidget("c-timeLine", cola.TimeLine)
+cola.registerWidget(cola.TimeLine)

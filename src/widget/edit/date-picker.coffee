@@ -1,6 +1,6 @@
 class cola.DateGrid extends cola.RenderableElement
 	@CLASS_NAME: "calendar"
-	@ATTRIBUTES:
+	@attributes:
 		columnCount:
 			type: "number"
 			defaultValue: 7
@@ -15,7 +15,7 @@ class cola.DateGrid extends cola.RenderableElement
 		tableClassName:
 			defaultValue: "ui date-table"
 
-	@EVENTS:
+	@events:
 		cellClick: null
 		refreshCellDom: null
 
@@ -359,7 +359,7 @@ DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
 DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 class cola.DatePicker extends cola.CustomDropdown
-	@ATTRIBUTES:
+	@attributes:
 		displayFormat:
 			defaultValue:DEFAULT_DATE_DISPLAY_FORMAT
 		inputFormat:
@@ -370,7 +370,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			$type: "calender"
 		inputType:
 			defaultValue: "date"
-	@EVENTS:
+	@events:
 		focus: null
 		blur: null
 		keyDown: null

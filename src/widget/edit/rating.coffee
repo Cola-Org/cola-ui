@@ -1,6 +1,8 @@
 class cola.Rating extends cola.Widget
+	@tagName: "c-rating"
 	@CLASS_NAME: "rating"
-	@ATTRIBUTES:
+
+	@attributes:
 		rating:
 			type: "number"
 			defaultValue: 0
@@ -19,8 +21,9 @@ class cola.Rating extends cola.Widget
 			refreshDom: true
 			defaultValue: false
 
-	@EVENTS:
+	@events:
 		rate: null
+
 	_fireRate: ()->
 		cola.util.cancelDelay(@, "_fireRate")
 		return @fire("rate", @, {rating: @_rating})
@@ -56,4 +59,4 @@ class cola.Rating extends cola.Widget
 
 cola.Element.mixin(cola.Rating, cola.DataWidgetMixin)
 
-cola.defineWidget("c-rating", cola.Rating)
+cola.registerWidget(cola.Rating)

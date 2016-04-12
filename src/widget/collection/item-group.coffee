@@ -1,5 +1,5 @@
 class cola.AbstractItemGroup extends cola.Widget
-	@ATTRIBUTES:
+	@attributes:
 		items:
 			setter: (value)->
 				@clearItems()

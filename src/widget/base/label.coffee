@@ -1,4 +1,6 @@
 class cola.Label extends cola.Widget
+	@tagName: "c-label"
+
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
 		"left top attached", "right top attached", "right bottom attached", "left bottom attached",
@@ -6,7 +8,8 @@ class cola.Label extends cola.Widget
 		"left ribbon", "right ribbon", "center aligned"
 	]
 	@CLASS_NAME: "label"
-	@ATTRIBUTES:
+	
+	@attributes:
 		size:
 			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
 			refreshDom: true
@@ -114,11 +117,13 @@ class cola.Label extends cola.Widget
 
 		return
 
-cola.defineWidget("c-label", cola.Label)
+cola.registerWidget(cola.Label)
 
 class cola.ImageLabel extends cola.Label
+	@tagName: "c-imageLabel"
 	@CLASS_NAME: "image label"
-	@ATTRIBUTES:
+	
+	@attributes:
 		image: null
 		iconPosition:
 			refreshDom: true
@@ -153,11 +158,13 @@ class cola.ImageLabel extends cola.Label
 		else
 			detailDom.remove()
 
-cola.defineWidget("c-imageLabel", cola.ImageLabel)
+cola.registerWidget(cola.ImageLabel)
 
 class cola.PointingLabel extends cola.Label
+	@tagName: "c-pointingLabel"
 	@CLASS_NAME: "pointing label"
-	@ATTRIBUTES:
+	
+	@attributes:
 		pointing:
 			refreshDom: true
 			defaultValue: "top"
@@ -174,16 +181,19 @@ class cola.PointingLabel extends cola.Label
 
 		if @_pointing then @_classNamePool.add(@_pointing)
 
-cola.defineWidget("c-pointingLabel", cola.PointingLabel)
+cola.registerWidget(cola.PointingLabel)
 
 class cola.Tag extends cola.Label
+	@tagName: "c-tag"
 	@CLASS_NAME: "tag label"
 
-cola.defineWidget("c-tag", cola.Tag)
+cola.registerWidget(cola.Tag)
 
 class cola.Corner extends cola.Label
+	@tagName: "c-corner"
 	@CLASS_NAME: "corner label"
-	@ATTRIBUTES:
+	
+	@attributes:
 		position:
 			enum: ["left", "right"]
 			defaultValue: "right"
@@ -200,11 +210,13 @@ class cola.Corner extends cola.Label
 		super()
 		@_classNamePool.add(@_position)
 
-cola.defineWidget("c-corner", cola.Corner)
+cola.registerWidget(cola.Corner)
 
 class cola.Ribbon extends cola.Label
+	@tagName: "c-ribbon"
 	@CLASS_NAME: "ribbon label"
-	@ATTRIBUTES:
+	
+	@attributes:
 		position:
 			enum: ["left", "right"]
 			defaultValue: "left"
@@ -225,4 +237,4 @@ class cola.Ribbon extends cola.Label
 			@_classNamePool.remove("ribbon")
 			@_classNamePool.add("right ribbon")
 
-cola.defineWidget("c-ribbon", cola.Ribbon)
+cola.registerWidget(cola.Ribbon)

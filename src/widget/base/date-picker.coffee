@@ -1,6 +1,6 @@
 cola.slotPicker ?= {}
 class cola.slotPicker.ZyngaScroller extends cola.Element
-	@EVENTS:
+	@events:
 		scrolled: null
 	constructor: (container, options)->
 		self = @
@@ -152,7 +152,7 @@ class cola.slotPicker.ZyngaScroller extends cola.Element
 class cola.AbstractSlotList extends cola.RenderableElement
 class cola.SlotList extends cola.AbstractSlotList
 	@CLASS_NAME: "list"
-	@ATTRIBUTES:
+	@attributes:
 		viewItemCount:
 			type: "number"
 			refreshDom: true
@@ -189,7 +189,7 @@ class cola.SlotList extends cola.AbstractSlotList
 			refreshDom: true
 			defaultValue: 0
 		formatter: null
-	@EVENTS:
+	@events:
 		valueChange: null
 
 	doTouchStart: (touches, timeStamp)->
@@ -352,7 +352,7 @@ class cola.SlotList extends cola.AbstractSlotList
 		return @_items || []
 
 class cola.RangeSlotList extends cola.SlotList
-	@ATTRIBUTES:
+	@attributes:
 		range:
 			refreshDom: true
 			setter: (value)->
@@ -379,7 +379,7 @@ class cola.RangeSlotList extends cola.SlotList
 class cola.MultiSlotPicker extends cola.AbstractSlotList
 	@CLASS_NAME: "multi-slot-picker"
 	@slotConfigs: []
-	@ATTRIBUTES:
+	@attributes:
 		height: null
 	_createDom: ()->
 		picker = @
@@ -679,7 +679,7 @@ cola.mobile ?= {}
 class cola.mobile.DateTimePicker extends cola.MultiSlotPicker
 	@CLASS_NAME: "multi-slot-picker"
 	@slotConfigs: []
-	@ATTRIBUTES:
+	@attributes:
 		type:
 			enum: ["year", "month", "date", "time", "datetime", "hours", "minutes", "dateHours", "dateMinutes"]
 			defaultValue: "date"

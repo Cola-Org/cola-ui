@@ -1,186 +1,8 @@
-cola.tab ?= {}
-class cola.tab.AbstractTabButton extends cola.Widget
-	@TAG_NAME: "li"
-	@CLASS_NAME: "tab-button"
-	@ATTRIBUTES:
-		icon:
-			refreshDom: true
-			setter: (value)->
-				oldValue = @["_icon"]
-				@["_icon"] = value
-				if oldValue and oldValue isnt value and @_dom and @_doms?.icon
-					$fly(@_doms.icon).removeClass(oldValue)
-				return
-
-		closeable:
-			type: "boolean"
-			refreshDom: true
-			defaultValue: false
-
-		caption:
-			refreshDom: true
-
-		name:
-			refreshDom: true
-
-	getCaptionDom: ()->
-		@_doms ?= {}
-		unless @_doms.caption
-			dom = @_doms.caption = document.createElement("div")
-			dom.className = "caption"
-			@_dom.appendChild(dom)
-		return @_doms.caption
-
-	getCloseDom: ()->
-		@_doms ?= {}
-		tabItem = @
-		@_doms._closeBtn ?= $.xCreate({
-			tagName: "div"
-			class: "close-btn"
-			content: {
-				tagName: "i"
-				class: "close icon"
-			}
-			click: ()->
-				tabItem.close()
-				return false
-		})
-		return @_doms._closeBtn
-
-	_refreshIcon: ()->
-		return unless @_dom
-		if @_icon
-			captionDom = @getCaptionDom()
-			@_doms.icon ?= document.createElement("i")
-			dom = @_doms.icon
-			$fly(dom).addClass("#{@_icon} icon")
-			captionDom.appendChild(dom) if dom.parentNode isnt captionDom
-		else
-			$fly(@_doms.iconDom).remove() if @_doms.iconDom
-
-		return
-
-	_refreshCaption: ()->
-		return unless @_dom
-		if @_caption
-			captionDom = @getCaptionDom()
-			@_doms.span ?= document.createElement("span")
-			span = @_doms.span
-			$(span).text(@_caption)
-			captionDom.appendChild(span) if span.parentNode isnt captionDom
-		else if @_doms.span
-			$(@_doms.span).remove()
-		return
-
-	_parseDom: (dom)->
-		child = dom.firstChild
-		tabItem = @
-		@_doms ?= {}
-		parseCaption = (node)=>
-			childNode = node.firstChild
-			while childNode
-				if childNode.nodeType == 1
-					if childNode.nodeName == "SPAN"
-						@_doms.span = childNode
-						@_caption ?= cola.util.getTextChildData(childNode)
-					if childNode.nodeName == "I"
-						@_doms.icon = childNode
-						@_icon ?= childNode.className
-				childNode = childNode.nextSibling
-			return
-
-		while child
-			if child.nodeType == 1
-				if !@_doms.caption and cola.util.hasClass(child, "caption")
-					@_doms.caption = child
-					parseCaption(child)
-				else if !@_doms.closeBtn and cola.util.hasClass(child, "close-btn")
-					@_doms._closeBtn = child
-					$(child).on("click", ()->
-						tabItem.close()
-						return false
-					)
-
-			child = child.nextSibling
-
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		@_refreshIcon()
-		@_refreshCaption()
-		if !!@_closeable
-			closeDom = @getCloseDom()
-			@_dom.appendChild(closeDom) if closeDom.parentNode isnt @_dom
-		else if @_doms and @_doms.closeDom
-			$(@_doms.closeDom).remove()
-		return
-
-	_createCaptionDom: ()->
-		@_doms ?= {}
-		dom = $.xCreate({
-			tagName: "div"
-			class: "caption"
-			contextKey: "caption"
-			content: [
-				{
-					tagName: "i"
-					contextKey: "icon"
-					class: "icon"
-				}
-				{
-					tagName: "span"
-					contextKey: "span"
-					content: @_caption or ""
-				}
-			]
-		}, @_doms)
-		@_dom.appendChild(dom)
-
-	destroy: ()->
-		return if @_destroyed
-		super()
-		delete @_doms
-		return @
-
-class cola.TabButton extends cola.tab.AbstractTabButton
-	@ATTRIBUTES:
-		content:
-			setter: (value)->
-				@_content = cola.xRender(value, @_scope)
-		contentContainer: null
-		parent: null
-
-	@EVENTS:
-		beforeClose: null
-		afterClose: null
-
-	close: ()->
-		arg =
-			tab: @
-
-		@fire("beforeClose", @, arg)
-		return @ if arg.processDefault is false
-		@_parent?.removeTab(@)
-		@destroy()
-		@fire("afterClose", @, arg)
-		return @
-	getContentDom: ()->
-		return @_content
-
-	destroy: ()->
-		return if @_destroyed
-		super()
-		delete @_content
-		delete @_contentContainer
-		delete @_parent
-		return @
-
 class cola.Tab extends cola.Widget
+	@tagName: "c-tab"
 	@CLASS_NAME: "c-tab"
-	@TAG_NAME: "div"
-	@ATTRIBUTES:
+
+	@attributes:
 		direction:
 			refreshDom: true
 			enum: ["left", "right", "top", "bottom"]
@@ -207,7 +29,7 @@ class cola.Tab extends cola.Widget
 			setter: (index)->
 				@setCurrentIndex(index)
 				return @
-	@EVENTS:
+	@events:
 		beforeChange: null
 		change: null
 
@@ -429,4 +251,187 @@ class cola.Tab extends cola.Widget
 		tab.destroy() for tab in tabs
 		@_tabs = []
 
-cola.defineWidget("c-tab", cola.Tab)
+cola.registerWidget(cola.Tab)
+
+cola.tab ?= {}
+
+class cola.tab.AbstractTabButton extends cola.Widget
+	@attributes:
+		icon:
+			refreshDom: true
+			setter: (value)->
+				oldValue = @["_icon"]
+				@["_icon"] = value
+				if oldValue and oldValue isnt value and @_dom and @_doms?.icon
+					$fly(@_doms.icon).removeClass(oldValue)
+				return
+
+		closeable:
+			type: "boolean"
+			refreshDom: true
+			defaultValue: false
+
+		caption:
+			refreshDom: true
+
+		name:
+			refreshDom: true
+
+	getCaptionDom: ()->
+		@_doms ?= {}
+		unless @_doms.caption
+			dom = @_doms.caption = document.createElement("div")
+			dom.className = "caption"
+			@_dom.appendChild(dom)
+		return @_doms.caption
+
+	getCloseDom: ()->
+		@_doms ?= {}
+		tabItem = @
+		@_doms._closeBtn ?= $.xCreate({
+			tagName: "div"
+			class: "close-btn"
+			content: {
+				tagName: "i"
+				class: "close icon"
+			}
+			click: ()->
+				tabItem.close()
+				return false
+		})
+		return @_doms._closeBtn
+
+	_refreshIcon: ()->
+		return unless @_dom
+		if @_icon
+			captionDom = @getCaptionDom()
+			@_doms.icon ?= document.createElement("i")
+			dom = @_doms.icon
+			$fly(dom).addClass("#{@_icon} icon")
+			captionDom.appendChild(dom) if dom.parentNode isnt captionDom
+		else
+			$fly(@_doms.iconDom).remove() if @_doms.iconDom
+
+		return
+
+	_refreshCaption: ()->
+		return unless @_dom
+		if @_caption
+			captionDom = @getCaptionDom()
+			@_doms.span ?= document.createElement("span")
+			span = @_doms.span
+			$(span).text(@_caption)
+			captionDom.appendChild(span) if span.parentNode isnt captionDom
+		else if @_doms.span
+			$(@_doms.span).remove()
+		return
+
+	_parseDom: (dom)->
+		child = dom.firstChild
+		tabItem = @
+		@_doms ?= {}
+		parseCaption = (node)=>
+			childNode = node.firstChild
+			while childNode
+				if childNode.nodeType == 1
+					if childNode.nodeName == "SPAN"
+						@_doms.span = childNode
+						@_caption ?= cola.util.getTextChildData(childNode)
+					if childNode.nodeName == "I"
+						@_doms.icon = childNode
+						@_icon ?= childNode.className
+				childNode = childNode.nextSibling
+			return
+
+		while child
+			if child.nodeType == 1
+				if !@_doms.caption and cola.util.hasClass(child, "caption")
+					@_doms.caption = child
+					parseCaption(child)
+				else if !@_doms.closeBtn and cola.util.hasClass(child, "close-btn")
+					@_doms._closeBtn = child
+					$(child).on("click", ()->
+						tabItem.close()
+						return false
+					)
+
+			child = child.nextSibling
+
+		return
+
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		@_refreshIcon()
+		@_refreshCaption()
+		if !!@_closeable
+			closeDom = @getCloseDom()
+			@_dom.appendChild(closeDom) if closeDom.parentNode isnt @_dom
+		else if @_doms and @_doms.closeDom
+			$(@_doms.closeDom).remove()
+		return
+
+	_createCaptionDom: ()->
+		@_doms ?= {}
+		dom = $.xCreate({
+			tagName: "div"
+			class: "caption"
+			contextKey: "caption"
+			content: [
+				{
+					tagName: "i"
+					contextKey: "icon"
+					class: "icon"
+				}
+				{
+					tagName: "span"
+					contextKey: "span"
+					content: @_caption or ""
+				}
+			]
+		}, @_doms)
+		@_dom.appendChild(dom)
+
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_doms
+		return @
+
+class cola.TabButton extends cola.tab.AbstractTabButton
+	@CLASS_NAME: "tab-button"
+	@parentWidget: cola.Tab
+
+	@attributes:
+		content:
+			setter: (value)->
+				@_content = cola.xRender(value, @_scope)
+		contentContainer: null
+		parent: null
+
+	@events:
+		beforeClose: null
+		afterClose: null
+
+	close: ()->
+		arg =
+			tab: @
+
+		@fire("beforeClose", @, arg)
+		return @ if arg.processDefault is false
+		@_parent?.removeTab(@)
+		@destroy()
+		@fire("afterClose", @, arg)
+		return @
+	getContentDom: ()->
+		return @_content
+
+	destroy: ()->
+		return if @_destroyed
+		super()
+		delete @_content
+		delete @_contentContainer
+		delete @_parent
+		return @
+
+cola.registerWidget(cola.TabButton)

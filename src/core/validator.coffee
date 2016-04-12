@@ -15,7 +15,7 @@ cola.registerTypeResolver "validator", (config) ->
 		return cola.CustomValidator
 
 class cola.Validator extends cola.Definition
-	@ATTRIBUTES:
+	@attributes:
 		message: null
 		messageType:
 			defaultValue: "error"
@@ -45,7 +45,7 @@ class cola.Validator extends cola.Definition
 		return @_parseValidResult(result, data)
 
 class cola.RequiredValidator extends cola.Validator
-	@ATTRIBUTES:
+	@attributes:
 		validateEmptyValue:
 			defaultValue: true
 		trim:
@@ -60,7 +60,7 @@ class cola.RequiredValidator extends cola.Validator
 		return !!data
 
 class cola.NumberValidator extends cola.Validator
-	@ATTRIBUTES:
+	@attributes:
 		min: null
 		minInclude:
 			defaultValue: true
@@ -80,7 +80,7 @@ class cola.NumberValidator extends cola.Validator
 		return result
 
 class cola.LengthValidator extends cola.Validator
-	@ATTRIBUTES:
+	@attributes:
 		min: null
 		max: null
 
@@ -99,7 +99,7 @@ class cola.LengthValidator extends cola.Validator
 		return true
 
 class cola.RegExpValidator extends cola.Validator
-	@ATTRIBUTES:
+	@attributes:
 		regExp: null
 		mode:
 			defaultValue: "white"
@@ -139,7 +139,7 @@ class cola.UrlValidator extends cola.Validator
 		return true
 
 class cola.AsyncValidator extends cola.Validator
-	@ATTRIBUTES:
+	@attributes:
 		async:
 			defaultValue: true
 
@@ -161,7 +161,7 @@ class cola.AsyncValidator extends cola.Validator
 		return result
 
 class cola.AjaxValidator extends cola.AsyncValidator
-	@ATTRIBUTES:
+	@attributes:
 		url: null
 		method: null
 		ajaxOptions: null
@@ -196,7 +196,7 @@ class cola.AjaxValidator extends cola.AsyncValidator
 			return invoker.invokeSync()
 
 class cola.CustomValidator extends cola.AsyncValidator
-	@ATTRIBUTES:
+	@attributes:
 		async:
 			defaultValue: false
 		validateEmptyValue:

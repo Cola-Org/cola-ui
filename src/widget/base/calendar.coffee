@@ -24,7 +24,7 @@ do->
 	cola.calendar.getCellPosition = getCellPosition
 
 	class cola.calendar.DateGrid extends cola.RenderableElement
-		@ATTRIBUTES:
+		@attributes:
 			calendar: null
 			columnCount:
 				type: "number"
@@ -37,7 +37,7 @@ do->
 			rowClassName: null
 			tableClassName: null
 
-		@EVENTS:
+		@events:
 			cellClick: null
 			refreshCellDom: null
 
@@ -221,9 +221,9 @@ do->
 
 	class cola.calendar.SwipePicker extends cola.RenderableElement
 		@CLASS_NAME: "ui swipe-picker"
-		@ATTRIBUTES:
+		@attributes:
 			calendar: null
-		@EVENTS:
+		@events:
 			change: null
 			monthChange: null
 		createDateTable: (dom)->
@@ -406,11 +406,11 @@ do->
 
 	class cola.Calendar extends cola.Widget
 		@CLASS_NAME: "calendar"
-		@ATTRIBUTES:
+		@attributes:
 			date:
 				getter: ()->
 					return @_date or new Date()
-		@EVENTS:
+		@events:
 			refreshCellDom: null
 			change: null
 			monthChange: null

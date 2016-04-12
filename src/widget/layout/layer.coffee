@@ -3,7 +3,9 @@ _removeTranslateStyle = (element)->
 		element.style[prefix + "Transform"] = ""
 	element.style.transform = ""
 class cola.AbstractLayer extends cola.AbstractContainer
-	@ATTRIBUTES:
+	@tagName: "c-layer"
+
+	@attributes:
 		duration:
 			defaultValue: 300
 
@@ -16,7 +18,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		lazyRender:
 			type: "boolean"
 
-	@EVENTS:
+	@events:
 		show: null
 		hide: null
 		beforeShow: null
@@ -64,7 +66,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 
 class cola.Layer extends cola.AbstractLayer
 	@CLASS_NAME: "layer transition hidden"
-	@ATTRIBUTES:
+	@attributes:
 		animation:
 			defaultValue: "slide left"
 			enum: [
@@ -137,4 +139,4 @@ class cola.Layer extends cola.AbstractLayer
 			@_transitionStart()
 		return
 
-cola.defineWidget("c-layer", cola.Layer)
+cola.registerWidget(cola.Layer)

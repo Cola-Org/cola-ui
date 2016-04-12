@@ -55,7 +55,7 @@ class cola.WidgetModel extends cola.SubScope
 
 class cola.TemplateWidget extends cola.Widget
 
-	@ATTRIBUTES:
+	@attributes:
 		template:
 			readOnlyAfterCreate: true
 
@@ -65,7 +65,7 @@ class cola.TemplateWidget extends cola.Widget
 
 	set: (attr, value, ignoreError) ->
 		super(attr, value, ignoreError)
-		if typeof attr is "string" and @constructor.ATTRIBUTES.$has(attr)
+		if typeof attr is "string" and @constructor.attributes.$has(attr)
 			@_widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		return @
 

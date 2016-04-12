@@ -1,7 +1,11 @@
 cola.steps ?= {}
 class cola.steps.Step extends cola.Widget
+	@tagName: "c-step"
+	@parentWidget: cola.Step
+
 	@CLASS_NAME: "step"
-	@ATTRIBUTES:
+
+	@attributes:
 		icon:
 			refreshDom: true
 		content:
@@ -127,11 +131,16 @@ class cola.steps.Step extends cola.Widget
 		super()
 		delete @_doms
 
+cola.registerWidget(cola.steps.Step)
+
 class cola.Steps extends cola.Widget
+	@tagName: "c-steps"
+
 	@CHILDREN_TYPE_NAMESPACE: "steps"
 	@CLASS_NAME: "steps"
 	@SEMANTIC_CLASS: ["tablet stackable", "left floated", "right floated"]
-	@ATTRIBUTES:
+
+	@attributes:
 		size:
 			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
 			refreshDom: true
@@ -167,7 +176,7 @@ class cola.Steps extends cola.Widget
 			type: "boolean"
 			defaultValue: true
 
-	@EVENTS:
+	@events:
 		beforeChange: null
 		change: null
 		complete: null
@@ -321,7 +330,7 @@ class cola.Steps extends cola.Widget
 	getStepIndex: (step)->
 		return @_steps?.indexOf(step)
 
-cola.defineWidget("c-steps", cola.Steps)
+cola.registerWidget(cola.Steps)
 
 cola.registerType("steps", "_default", cola.steps.Step)
 cola.registerType("steps", "Step", cola.steps.Step)

@@ -8,11 +8,12 @@ _createGroupArray = () ->
 	return groups
 
 class cola.ListView extends cola.AbstractList
+	@tagName: "c-listView"
 	@CLASS_NAME: "items-view list-view"
 
 	_columnsChanged: true
 
-	@ATTRIBUTES:
+	@attributes:
 		items:
 			expressionType: "repeat"
 			refreshItems: true
@@ -67,7 +68,7 @@ class cola.ListView extends cola.AbstractList
 					@_leftItemSlide = left
 					@_rightItemSlide = right
 
-	@EVENTS:
+	@events:
 		getGroupString: null
 		itemSlideStart: null
 		itemSlideStep: null
@@ -896,4 +897,4 @@ class cola.ListView extends cola.AbstractList
 		@_hideItemSlidePane(true, animation)
 		return
 
-cola.defineWidget("c-listView", cola.ListView)
+cola.registerWidget(cola.ListView)

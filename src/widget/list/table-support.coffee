@@ -9,7 +9,7 @@ cola.registerTypeResolver "table.column", (config) ->
 	return cola.TableDataColumn
 
 class cola.TableColumn extends cola.Element
-	@ATTRIBUTES:
+	@attributes:
 		name:
 			reaonlyAfterCreate: true
 		caption: null
@@ -18,7 +18,7 @@ class cola.TableColumn extends cola.Element
 			defaultValue: true
 		headerTemplate: null
 
-	@EVENTS:
+	@events:
 		renderHeader: null
 
 	constructor: (config) ->
@@ -32,7 +32,7 @@ class cola.TableColumn extends cola.Element
 		return
 
 class cola.TableGroupColumn extends cola.TableColumn
-	@ATTRIBUTES:
+	@attributes:
 		columns:
 			setter: (columnConfigs) ->
 				_columnsSetter.call(@, @_table, columnConfigs)
@@ -46,7 +46,7 @@ class cola.TableGroupColumn extends cola.TableColumn
 		return
 
 class cola.TableContentColumn extends cola.TableColumn
-	@ATTRIBUTES:
+	@attributes:
 		width:
 			defaultValue: 80
 		align:
@@ -55,12 +55,12 @@ class cola.TableContentColumn extends cola.TableColumn
 			enum: ["top", "center", "bottom"]
 		footerTemplate: null
 
-	@EVENTS:
+	@events:
 		renderCell: null
 		renderFooter: null
 
 class cola.TableDataColumn extends cola.TableContentColumn
-	@ATTRIBUTES:
+	@attributes:
 		dataType:
 			readOnlyAfterCreate: true
 			setter: cola.DataType.dataTypeSetter
@@ -69,7 +69,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		template: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
-	@ATTRIBUTES:
+	@attributes:
 		width:
 			defaultValue: "42px"
 		align:
@@ -169,7 +169,7 @@ _columnsSetter = (table, columnConfigs) ->
 	return
 
 class cola.AbstractTable extends cola.AbstractList
-	@ATTRIBUTES:
+	@attributes:
 		items:
 			refreshItems: true
 			setter: (items) ->
@@ -203,7 +203,7 @@ class cola.AbstractTable extends cola.AbstractList
 		selectedProperty:
 			defaultValue: "selected"
 
-	@EVENTS:
+	@events:
 		renderRow: null
 		renderCell: null
 		renderHeaderCell: null

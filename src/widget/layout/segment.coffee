@@ -1,6 +1,7 @@
 
 
 class cola.Segment extends cola.AbstractContainer
+	@tagName: "c-segment"
 	@CLASS_NAME: "segment"
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
@@ -9,7 +10,8 @@ class cola.Segment extends cola.AbstractContainer
 		"left aligned", "right aligned", "center aligned",
 		"vertical segment", "horizontal segment"
 	]
-	@ATTRIBUTES:
+
+	@attributes:
 		textAlign:
 			refreshDom: true
 			enum: ["left", "right", "center"]
@@ -56,4 +58,4 @@ class cola.Segment extends cola.AbstractContainer
 
 		return
 
-cola.defineWidget("c-segment", cola.Segment)
+cola.registerWidget(cola.Segment)

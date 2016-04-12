@@ -1,7 +1,8 @@
 class cola.Carousel extends cola.AbstractItemGroup
+	@tagName: "c-carousel"
 	@CLASS_NAME: "carousel"
 	
-	@ATTRIBUTES:
+	@attributes:
 		bind:
 			readonlyAfterCreate: true
 			setter: (bindStr) -> @_bindSetter(bindStr)
@@ -13,7 +14,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		pause:
 			defaultValue: 3000
 	
-	@EVENTS:
+	@events:
 		change: null
 	
 	getContentContainer: ()->
@@ -245,5 +246,5 @@ class cola.Carousel extends cola.AbstractItemGroup
 cola.Element.mixin(cola.Carousel, cola.TemplateSupport)
 cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin)
 
-cola.defineWidget("c-carousel", cola.Carousel)
+cola.registerWidget(cola.Carousel)
 

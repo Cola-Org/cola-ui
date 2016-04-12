@@ -1,6 +1,8 @@
 class cola.Sidebar extends cola.AbstractLayer
+	@tagName: "c-sidebar"
 	@CLASS_NAME: "ui sidebar"
-	@ATTRIBUTES:
+
+	@attributes:
 		direction:
 			defaultValue: "left"
 			refreshDom: true
@@ -131,4 +133,4 @@ class cola.Sidebar extends cola.AbstractLayer
 		)
 	isVisible: ()->return if @_dom then @get$Dom().hasClass("visible") else false
 
-cola.defineWidget("c-sidebar", cola.Sidebar)
+cola.registerWidget(cola.Sidebar)

@@ -1,5 +1,5 @@
 class cola.AbstractEditor extends cola.Widget
-	@ATTRIBUTES:
+	@attributes:
 		value:
 			refreshDom: true
 			setter: (value)-> @_setValue(value)
@@ -26,7 +26,7 @@ class cola.AbstractEditor extends cola.Widget
 						cola.util.addClass(@_fieldDom, state) if @_fieldDom
 				return
 
-	@EVENTS:
+	@events:
 		beforePost: null
 		post: null
 		beforeChange: null

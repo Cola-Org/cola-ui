@@ -1,7 +1,10 @@
 class cola.RadioButton extends cola.Widget
+	@tagName: "c-radio"
+
 	@CLASS_NAME: "checkbox"
 	@INPUT_TYPE: "radio"
-	@ATTRIBUTES:
+
+	@attributes:
 		type:
 			enum: ["radio", "toggle", "slider"]
 			defaultValue: "radio"
@@ -153,12 +156,14 @@ class cola.RadioButton extends cola.Widget
 		super()
 		delete @_doms
 
-cola.defineWidget("c-radio", cola.Radio)
+cola.registerWidget(cola.RadioButton)
 
 emptyRadioGroupItems = []
 class cola.RadioGroup extends cola.AbstractEditor
+	@tagName: "c-radioGroup"
 	@CLASS_NAME: "grouped"
-	@ATTRIBUTES:
+
+	@attributes:
 		name: null
 		items:
 			setter: (items)->
@@ -282,4 +287,4 @@ class cola.RadioGroup extends cola.AbstractEditor
 		super()
 		return @
 
-cola.defineWidget("c-radioGroup", cola.RadioGroup)
+cola.registerWidget(cola.RadioGroup)

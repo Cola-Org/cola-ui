@@ -1,11 +1,13 @@
 class cola.Shape extends cola.AbstractItemGroup
+	@tagName: "c-shape"
 	@CLASS_NAME: "shape"
-	@ATTRIBUTES:
+
+	@attributes:
 		bind:
 			readonlyAfterCreate: true
 			setter: (bindStr) -> @_bindSetter(bindStr)
 
-	@EVENTS:
+	@events:
 		beforeChange: null
 		afterChange: null
 
@@ -106,5 +108,5 @@ class cola.Shape extends cola.AbstractItemGroup
 cola.Element.mixin(cola.Shape, cola.TemplateSupport)
 cola.Element.mixin(cola.Shape, cola.DataItemsWidgetMixin)
 
-cola.defineWidget("c-shape", cola.Shape)
+cola.registerWidget(cola.Shape)
 

@@ -1,7 +1,7 @@
 _getEntityId = cola.Entity._getEntityId
 
 class cola.ItemsView extends cola.Widget
-	@ATTRIBUTES:
+	@attributes:
 		allowNoCurrent:
 			type:"boolean"
 			defaultValue: true
@@ -19,7 +19,7 @@ class cola.ItemsView extends cola.Widget
 		highlightCurrentItem:
 			type: "boolean"
 
-	@EVENTS:
+	@events:
 		getItemTemplate: null
 		renderItem: null
 		itemClick: null

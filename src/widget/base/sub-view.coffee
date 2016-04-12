@@ -1,7 +1,8 @@
 class cola.SubView extends cola.Widget
+	@tagName: "c-subView"
 	@CLASS_NAME: "sub-view"
 
-	@ATTRIBUTES:
+	@attributes:
 		loading: null
 		url:
 			readOnlyAfterCreate: true
@@ -22,7 +23,7 @@ class cola.SubView extends cola.Widget
 		showDimmer:
 			defaultValue: false
 
-	@EVENTS:
+	@events:
 		load: null
 		loadError: null
 		unload: null
@@ -137,5 +138,5 @@ class cola.SubView extends cola.Widget
 		@fire("unload", @)
 		return
 
-cola.defineWidget("c-subView", cola.SubView)
+cola.registerWidget(cola.SubView)
 

@@ -1,6 +1,8 @@
 class cola.Divider extends cola.AbstractContainer
+	@tagName: "c-divider"
 	@CLASS_NAME: "divider"
-	@ATTRIBUTES:
+
+	@attributes:
 		direction:
 			enum: ["vertical", "horizontal", ""]
 			defaultValue: ""
@@ -18,4 +20,4 @@ class cola.Divider extends cola.AbstractContainer
 		if @_direction then @_classNamePool.add(@_direction)
 		return
 
-cola.defineWidget("c-divider", cola.ButtonGroup)
+cola.registerWidget(cola.Divider)

@@ -1,5 +1,5 @@
 class cola.TreeNode extends cola.Node
-	@ATTRIBUTES:
+	@attributes:
 		expanded:
 			getter: () ->
 				if @_expanded? then return @_expanded
@@ -38,7 +38,7 @@ class cola.TreeNode extends cola.Node
 class cola.TreeNodeBind extends cola.CascadeBind
 	@NODE_TYPE: cola.TreeNode
 
-	@ATTRIBUTES:
+	@attributes:
 		textProperty: null
 		expandedProperty: null
 		checkedProperty: null
@@ -46,9 +46,10 @@ class cola.TreeNodeBind extends cola.CascadeBind
 			defaultValue: true
 
 class cola.Tree extends cola.AbstractList
+	@tagName: "c-tree"
 	@CLASS_NAME: "items-view tree"
 
-	@ATTRIBUTES:
+	@attributes:
 		bind:
 			refreshItems: true
 			setter: (bind) ->
@@ -74,7 +75,7 @@ class cola.Tree extends cola.AbstractList
 		autoCollapse: null
 		autoExpand: null
 
-	@EVENTS:
+	@events:
 		beforeCurrentNodeChange: null
 		currentNodeChange: null
 
@@ -471,4 +472,4 @@ class cola.Tree extends cola.AbstractList
 
 cola.Element.mixin(cola.Tree, cola.TreeSupportMixin)
 
-cola.defineWidget("c-tree", cola.Tree)
+cola.registerWidget(cola.Tree)

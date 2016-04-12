@@ -1,8 +1,8 @@
 cola.breadcrumb ?= {}
 class cola.breadcrumb.Section extends cola.Widget
 	@CLASS_NAME: "section"
-	@TAG_NAME: "a"
-	@ATTRIBUTES:
+	@tagName: "a"
+	@attributes:
 		text:
 			refreshDom: true
 		active:
@@ -38,9 +38,11 @@ class cola.breadcrumb.Section extends cola.Widget
 		return
 
 class cola.Breadcrumb extends cola.Widget
+	@tagName: "c-breadcrumb"
 	@CHILDREN_TYPE_NAMESPACE: "breadcrumb"
 	@CLASS_NAME: "breadcrumb"
-	@ATTRIBUTES:
+
+	@attributes:
 		divider:
 			enum: ["chevron", "slash"]
 			defaultValue: "chevron"
@@ -72,7 +74,7 @@ class cola.Breadcrumb extends cola.Widget
 				else
 					return -1
 
-	@EVENTS:
+	@events:
 		sectionClick: null
 		change: null
 
@@ -249,7 +251,7 @@ class cola.Breadcrumb extends cola.Widget
 
 		return
 
-cola.defineWidget("c-breadcrumb", cola.Breadcrumb)
+cola.registerWidget(cola.Breadcrumb)
 
 cola.registerType("breadcrumb", "_default", cola.breadcrumb.Section)
 cola.registerType("breadcrumb", "section", cola.breadcrumb.Section)

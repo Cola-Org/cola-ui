@@ -26,13 +26,16 @@ hasDefinition = (name) -> @hasOwnProperty(name.toLowerCase())
 getDefinition = (name) -> @[name.toLowerCase()]
 
 cola.preprocessClass = (classType) ->
+	return unless not classType.attributes._inited or not classType.events._inited
+
 	superType = classType.__super__?.constructor
 	if superType
-		if classType.__super__ then cola.preprocessClass(superType)
+		if superType and (not superType.attributes._inited or not superType.events._inited)
+			cola.preprocessClass(superType)
 
-		# merge ATTRIBUTES
+		# merge attributes
 		# TODO: 此处可以考虑预先计算出有无含默认值设置的属性，以便在对象创建时提高性能
-		attributes = classType.ATTRIBUTES
+		attributes = classType.attributes
 		if !attributes._inited
 			attributes._inited = true
 
@@ -47,10 +50,10 @@ cola.preprocessClass = (classType) ->
 			attributes.$has = hasDefinition
 			attributes.$get = getDefinition
 
-			doMergeDefinitions(attributes, superType.ATTRIBUTES, false)
+			doMergeDefinitions(attributes, superType.attributes, false)
 
-		# merge EVENTS
-		events = classType.EVENTS
+		# merge events
+		events = classType.events
 		if !events._inited
 			events._inited = true
 
@@ -63,21 +66,21 @@ cola.preprocessClass = (classType) ->
 			events.$has = hasDefinition
 			events.$get = getDefinition
 
-			doMergeDefinitions(events, superType.EVENTS, false)
+			doMergeDefinitions(events, superType.events, false)
 	return
 
 class cola.Element
 	@mixin: (classType, mixin) ->
 		for name, member of mixin
-			if name == "ATTRIBUTES"
+			if name == "attributes"
 				mixinAttributes = member
 				if mixinAttributes
-					attributes = classType.ATTRIBUTES ?= {}
+					attributes = classType.attributes ?= {}
 					doMergeDefinitions(attributes, mixinAttributes, true)
-			else if name == "EVENTS"
+			else if name == "events"
 				mixInEvents = member
 				if mixInEvents
-					events = classType.EVENTS ?= {}
+					events = classType.events ?= {}
 					doMergeDefinitions(events, mixInEvents, true)
 			else if name == "constructor"
 				if !classType._constructors
@@ -93,7 +96,7 @@ class cola.Element
 				classType.prototype[name] = member
 		return
 
-	@ATTRIBUTES:
+	@attributes:
 		tag:
 			getter: ->
 				return if @_tag then @_tag.join(tagSplitter) else null
@@ -108,19 +111,19 @@ class cola.Element
 
 		userData: null
 
-	@EVENTS:
+	@events:
 		attributeChange: null
 		destroy: null
 
 	constructor: (config) ->
 		@_constructing = true
 		classType = @constructor
-		if not classType.ATTRIBUTES._inited or not classType.EVENTS._inited
+		if not classType.attributes._inited or not classType.events._inited
 			cola.preprocessClass(classType)
 
 		@_scope = config?.scope or cola.currentScope
 
-		attrConfigs = classType.ATTRIBUTES
+		attrConfigs = classType.attributes
 		for attr, attrConfig of attrConfigs
 			if attrConfig?.defaultValue != undefined
 				if attrConfig.setter
@@ -166,11 +169,11 @@ class cola.Element
 			return @_get(attr, ignoreError)
 
 	_get: (attr, ignoreError) ->
-		if !@constructor.ATTRIBUTES.$has(attr)
+		if !@constructor.attributes.$has(attr)
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
-		attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
+		attrConfig = @constructor.attributes[attr.toLowerCase()]
 		if attrConfig?.getter
 			return attrConfig.getter.call(@, attr)
 		else
@@ -216,8 +219,8 @@ class cola.Element
 				if parts?.length > 0
 					value = parts[0]
 
-		if @constructor.ATTRIBUTES.$has(attr)
-			attrConfig = @constructor.ATTRIBUTES[attr.toLowerCase()]
+		if @constructor.attributes.$has(attr)
+			attrConfig = @constructor.attributes[attr.toLowerCase()]
 			if attrConfig
 				if attrConfig.readOnly
 					if ignoreError then return
@@ -230,7 +233,7 @@ class cola.Element
 			eventName = attr
 			i = eventName.indexOf(":")
 			if i > 0 then eventName = eventName.substring(0, i)
-			if @constructor.EVENTS.$has(eventName)
+			if @constructor.events.$has(eventName)
 				if value instanceof cola.Expression
 					expression = value
 					scope = @_scope
@@ -303,7 +306,7 @@ class cola.Element
 
 	_on: (eventName, listener, alias, once) ->
 		eventName = eventName.toLowerCase()
-		eventConfig = @constructor.EVENTS[eventName]
+		eventConfig = @constructor.events[eventName]
 
 		if @_eventRegistry
 			listenerRegistry = @_eventRegistry[eventName]
@@ -342,7 +345,7 @@ class cola.Element
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
 
-		if !@constructor.EVENTS.$has(eventName)
+		if !@constructor.events.$has(eventName)
 			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 		if typeof listener != "function"
@@ -452,7 +455,7 @@ class cola.Element
 		return result
 
 class cola.Definition extends cola.Element
-	@ATTRIBUTES:
+	@attributes:
 		name:
 			readOnlyAfterCreate: true
 

@@ -1,5 +1,5 @@
 class cola.AbstractList extends cola.ItemsView
-	@ATTRIBUTES:
+	@attributes:
 		currentPageOnly:
 			type: "boolean"
 
@@ -17,7 +17,7 @@ class cola.AbstractList extends cola.ItemsView
 		filterCriteria:
 			refreshItems: true
 
-	@EVENTS:
+	@events:
 		pullStart: null
 		pullStep: null
 		pullComplete: null

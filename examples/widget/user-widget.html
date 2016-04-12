@@ -4,8 +4,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
-		var MyWidget = cola.defineWidget("my-widget", {
-			ATTRIBUTES: {
+		var MyWidget = cola.defineWidget({
+			tagName: "my-widget",
+			attributes: {
 				bind: null,
 				itemsBind: null,
 				text: null
@@ -34,6 +35,11 @@
 			}
 		});
 
+		cola.defineWidget({
+			tagName: "child",
+			parentWidget: MyWidget
+		});
+
 		cola(function (model) {
 			model.set("prop", "Yeah!");
 			model.describe("addresses", {
@@ -48,7 +54,6 @@
 
 			model.widgetConfig({
 				buttonTest: {
-					$type: "button",
 					caption: "Test",
 					click: function() {
 						var myWidget = new MyWidget({
@@ -66,17 +71,23 @@
 </head>
 <body style="padding:20px;">
 
-<button id="buttonTest"></button>
+<c-button id="buttonTest"></c-button>
 <input c-bind="prop">
-<div c-widget="input; bind:prop"></div>
-<div c-widget="label; text:{{prop}}"></div>
+<c-input bind="prop"></c-input>
+<c-label c-text="prop"></c-label>
 
 <my-widget bind="prop" itemsBind="addresses" text="1"></my-widget>
 <my-widget bind="prop" itemsBind="addresses" text="2"></my-widget>
 
 <c-button icon="search" c-click="buttonClick()">Button</c-button>
-<c-slider></c-slider>
 
+<c-menu>
+	<a caption="Home" icon="home"></a>
+	<a caption="Search" icon="search"></a>
+	<div class="right menu">
+		<a caption="User" icon="user"></a>
+	</div>
+</c-menu>
 
 </body>
 </html>

@@ -3,8 +3,10 @@ Reveal 组件
 ###
 
 class cola.Reveal extends cola.Widget
+	@tagName: "c-reveal"
 	@CLASS_NAME: "ui reveal"
-	@ATTRIBUTES:
+
+	@attributes:
 		type:
 			refreshDom: true
 			defaultValue: "fade"
@@ -160,4 +162,4 @@ class cola.Reveal extends cola.Widget
 	getVisibleContentContainer: ()-> return @_getContentContainer("visible")
 	getHiddenContentContainer: ()-> return @_getContentContainer("hidden")
 
-cola.defineWidget("c-reveal", cola.Reveal)
+cola.registerWidget(cola.Reveal)

@@ -1,7 +1,7 @@
 _getEntityId = cola.Entity._getEntityId
 
 class cola.CascadeBind extends cola.Element
-	@ATTRIBUTES:
+	@attributes:
 		expression:
 			setter: (expression) ->
 				expression = cola._compileExpression(expression, "repeat")
@@ -190,7 +190,7 @@ class cola.CascadeBind extends cola.Element
 class cola.Node extends cola.Element
 	isDataWrapper: true
 
-	@ATTRIBUTES:
+	@attributes:
 		bind:
 			readOnly: true
 		alias: null

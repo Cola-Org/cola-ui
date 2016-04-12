@@ -8,7 +8,9 @@ _pageCodeMap =
 	">|": "lastPage"
 
 class cola.Pager extends cola.Menu
-	@ATTRIBUTES:
+	@tagName: "c-pager"
+
+	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
 
@@ -259,4 +261,4 @@ class cola.Pager extends cola.Menu
 
 cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)
 
-cola.defineWidget("c-pager", cola.Pager)
+cola.registerWidget(cola.Pager)

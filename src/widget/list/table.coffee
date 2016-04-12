@@ -1,4 +1,5 @@
 class cola.Table extends cola.AbstractTable
+	@tagName: "c-table"
 	@CLASS_NAME: "items-view widget-table"
 
 	_initDom: (dom) ->
@@ -515,4 +516,4 @@ class cola.Table extends cola.AbstractTable
 		@_refreshFixedFooter() if @_showFooter
 		return
 
-cola.defineWidget("c-table", cola.Table)
+cola.registerWidget(cola.Table)

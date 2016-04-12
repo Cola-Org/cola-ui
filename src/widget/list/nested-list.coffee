@@ -1,5 +1,5 @@
 class cola.NestedListNode extends cola.Node
-	@ATTRIBUTES:
+	@attributes:
 		title:
 			readOnly: true
 			getter: () ->
@@ -13,13 +13,14 @@ class cola.NestedListNode extends cola.Node
 
 class cola.NestedListBind extends cola.CascadeBind
 	@NODE_TYPE = cola.NestedListNode
-	@ATTRIBUTES:
+	@attributes:
 		titleProperty: null
 
 class cola.NestedList extends cola.Widget
+	@tagName: "c-nestedList"
 	@CLASS_NAME: "nested-list"
 
-	@ATTRIBUTES:
+	@attributes:
 		bind:
 			setter: (bind) ->
 				if bind and !(bind instanceof cola.NestedListBind)
@@ -44,7 +45,7 @@ class cola.NestedList extends cola.Widget
 			readOnly: true
 			getter: () -> @_autoSplit and @_largeScreen
 
-	@EVENTS:
+	@events:
 		getItemTemplate: null
 		itemClick: null
 		renderItem: null
@@ -340,4 +341,4 @@ class cola.NestedList extends cola.Widget
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)
 
-cola.defineWidget("c-nestedList", cola.NestedList)
+cola.registerWidget(cola.NestedList)

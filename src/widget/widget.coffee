@@ -1,7 +1,7 @@
 ACTIVE_PINCH_REG = /^pinch/i
 ACTIVE_ROTATE_REG = /^rotate/i
-PAN_VERTICAL_EVENTS = ["panUp", "panDown"]
-SWIPE_VERTICAL_EVENTS = ["swipeUp", "swipeDown"]
+PAN_VERTICAL_events = ["panUp", "panDown"]
+SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"]
 
 ###
     ClassName池对象
@@ -58,8 +58,7 @@ _destroyRenderableElement = (node, data) ->
     可渲染元素
 ###
 class cola.RenderableElement extends cola.Element
-	@TAG_NAME: "DIV"
-	@EVENTS:
+	@events:
 		initDom: null
 		refreshDom: null
 	constructor: (config)->
@@ -87,7 +86,7 @@ class cola.RenderableElement extends cola.Element
 		return
 
 	_createDom: ()->
-		dom = document.createElement(@constructor.TAG_NAME or "div")
+		dom = document.createElement(@constructor.tagName or "div")
 		className = @constructor.CLASS_NAME or ""
 		dom.className = "ui #{className}"
 		return dom
@@ -202,7 +201,7 @@ class cola.Widget extends cola.RenderableElement
 	@CLASS_NAME: "control"
 	@SEMANTIC_CLASS: ["left floated", "right floated"]
 
-	@ATTRIBUTES:
+	@attributes:
 		display:
 			defaultValue: true
 			refreshDom: true
@@ -239,7 +238,7 @@ class cola.Widget extends cola.RenderableElement
 		width:
 			refreshDom: true
 
-	@EVENTS:
+	@events:
 		click:
 			$event: "click"
 		dblClick:
@@ -319,7 +318,7 @@ class cola.Widget extends cola.RenderableElement
 		return unless dom
 		super(dom, parseChild)
 
-		for eventName of @constructor.EVENTS
+		for eventName of @constructor.events
 			@_bindEvent(eventName) if @getListeners(eventName)
 		return
 
@@ -331,9 +330,9 @@ class cola.Widget extends cola.RenderableElement
 	fire: (eventName, self, arg) ->
 		return unless @_eventRegistry
 
-		eventConfig = @constructor.EVENTS.$get(eventName)
+		eventConfig = @constructor.events.$get(eventName)
 
-		return if @constructor.ATTRIBUTES.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
+		return if @constructor.attributes.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
 
 		@["_hasFireTapEvent"] = eventName is "tap" if !@["_hasFireTapEvent"]
 		return if eventName is "click" and @["_hasFireTapEvent"]
@@ -358,7 +357,7 @@ class cola.Widget extends cola.RenderableElement
 		return if @_bindedEvents[eventName]
 
 		$dom = @get$Dom()
-		eventConfig = @constructor.EVENTS.$get(eventName)
+		eventConfig = @constructor.events.$get(eventName)
 
 		if eventConfig?.$event
 			$dom.on(eventConfig.$event, (evt)=>
@@ -373,8 +372,8 @@ class cola.Widget extends cola.RenderableElement
 			@_hammer ?= new Hammer(@_dom, {})
 			@_hammer.get("pinch").set({enable: true}) if ACTIVE_PINCH_REG.test(eventName)
 			@_hammer.get("rotate").set({enable: true}) if ACTIVE_ROTATE_REG.test(eventName)
-			@_hammer.get("pan").set({direction: Hammer.DIRECTION_ALL}) if PAN_VERTICAL_EVENTS.indexOf(eventName) >= 0
-			@_hammer.get("swipe").set({direction: Hammer.DIRECTION_ALL}) if SWIPE_VERTICAL_EVENTS.indexOf(eventName) >= 0
+			@_hammer.get("pan").set({direction: Hammer.DIRECTION_ALL}) if PAN_VERTICAL_events.indexOf(eventName) >= 0
+			@_hammer.get("swipe").set({direction: Hammer.DIRECTION_ALL}) if SWIPE_VERTICAL_events.indexOf(eventName) >= 0
 			@_hammer.on(eventConfig.hammerEvent, (evt)=>
 				arg =
 					dom: @_dom, event: evt, returnValue: null, eventName: eventName

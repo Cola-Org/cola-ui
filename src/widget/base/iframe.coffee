@@ -1,7 +1,9 @@
 BLANK_PATH = "about:blank"
 class cola.IFrame extends cola.Widget
+	@tagName: "c-iframe"
 	@CLASS_NAME: "iframe"
-	@ATTRIBUTES:
+
+	@attributes:
 		path:
 			defaultValue: BLANK_PATH
 			setter: (value)->
@@ -14,7 +16,7 @@ class cola.IFrame extends cola.Widget
 
 		loadingText: null
 
-	@EVENTS:
+	@events:
 		load: null
 
 	_initDom: (dom)->
@@ -79,4 +81,4 @@ class cola.IFrame extends cola.Widget
 			$fly(@_doms.iframe).prop("src", url)
 		return @
 
-cola.defineWidget("c-iframe", cola.IFrame)
+cola.registerWidget(cola.IFrame)

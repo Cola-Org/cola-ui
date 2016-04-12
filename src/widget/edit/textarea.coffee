@@ -1,3 +1,4 @@
 class cola.TextArea extends cola.AbstractEditor
+	@tagName:"c-textArea"
 
-cola.defineWidget("c-textArea", cola.TextArea)
+cola.registerWidget(cola.TextArea)

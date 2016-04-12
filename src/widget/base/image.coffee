@@ -1,7 +1,8 @@
 class cola.Image extends cola.Widget
+	@tagName: "img"
+
 	@CLASS_NAME: "image"
-	@TAG_NAME: "img"
-	@ATTRIBUTES:
+	@attributes:
 		src:
 			refreshDom: true
 		size:
@@ -43,9 +44,5 @@ class cola.Image extends cola.Widget
 
 		return
 
-cola.defineWidget("c-image", cola.Image)
-
 class cola.Avatar extends cola.Image
 	@CLASS_NAME: "avatar image"
-
-cola.defineWidget("c-avatar", cola.Avatar)
