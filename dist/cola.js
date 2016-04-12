@@ -741,7 +741,8 @@
    */
 
   setting = {
-    defaultCharset: "utf-8"
+    defaultCharset: "utf-8",
+    defaultDateFormat: "yyyy-mm-dd"
   };
 
   cola.setting = function(key, value) {
@@ -1127,8 +1128,8 @@
           definition = events[name];
           realName = name.toLowerCase();
           if (name !== realName) {
-            attributes[realName] = definition;
-            delete attributes[name];
+            events[realName] = definition;
+            delete events[name];
           }
         }
         events.$has = hasDefinition;
@@ -7651,6 +7652,18 @@
     return formatNumber(format, number);
   };
 
+  cola.defaultAction.format = function(value, format) {
+    if (value instanceof Date) {
+      return cola.defaultAction.formatDate(value, format);
+    } else if (isFinite(value)) {
+      return cola.defaultAction.formatNumber(value, format);
+    } else if (value === null || value === void 0) {
+      return "";
+    } else {
+      return value;
+    }
+  };
+
   _$ = $();
 
   _$.length = 1;
@@ -9030,21 +9043,6 @@
 
   })(cola._ExpressionFeature);
 
-  cola._TextNodeFeature = (function(superClass) {
-    extend(_TextNodeFeature, superClass);
-
-    function _TextNodeFeature() {
-      return _TextNodeFeature.__super__.constructor.apply(this, arguments);
-    }
-
-    _TextNodeFeature.prototype._doRender = function(domBinding, value) {
-      cola.util.setText(domBinding.dom, value != null ? value : "");
-    };
-
-    return _TextNodeFeature;
-
-  })(cola._DomFeature);
-
   cola._DomAttrFeature = (function(superClass) {
     extend(_DomAttrFeature, superClass);
 
@@ -9054,7 +9052,13 @@
     }
 
     _DomAttrFeature.prototype._doRender = function(domBinding, value) {
-      var attr;
+      var attr, defaultDateFormat;
+      if (value instanceof Date) {
+        defaultDateFormat = cola.setting("defaultDateFormat");
+        if (defaultDateFormat) {
+          value = cola.defaultAction.formatDate(value, defaultDateFormat);
+        }
+      }
       attr = this.attr;
       if (attr === "text") {
         cola.util.setText(domBinding.dom, value != null ? value : "");
@@ -9856,7 +9860,7 @@
               }
               if (feature instanceof cola._BindingFeature) {
                 features.push(feature);
-              } else if (result instanceof Array) {
+              } else if (feature instanceof Array) {
                 for (r = 0, len4 = feature.length; r < len4; r++) {
                   f = feature[r];
                   features.push(f);
@@ -9924,7 +9928,7 @@
     if (part instanceof cola.Expression) {
       expression = part;
       textNode = document.createElement("span");
-      feature = new cola._TextNodeFeature(expression);
+      feature = new cola._DomAttrFeature(expression, "text");
       domBinding = new cola._DomBinding(textNode, scope, feature);
       domBinding.refresh();
     } else {
@@ -10475,8 +10479,6 @@
     }
   };
 
-  cola._userDomCompiler.widget = function() {};
-
   ALIAS_REGEXP = new RegExp("\\$default", "g");
 
   _findWidgetConfig = function(scope, name) {
@@ -10518,10 +10520,6 @@
         if (widgetType.ATTRIBUTES.$has(prop) || widgetType.EVENTS.$has(prop)) {
           config[prop] = attr.value;
         }
-        if (removeAttrs == null) {
-          removeAttrs = [];
-        }
-        removeAttrs.push(attrName);
       }
     }
     if (removeAttrs) {
@@ -11104,12 +11102,16 @@
       }
       this._bindStr = bindStr;
       this._itemsRetrieved = false;
-      if (bindStr && this._scope) {
+      delete this._simpleBindPath;
+      if (bindStr) {
         expression = cola._compileExpression(bindStr, "repeat");
         if (!expression.repeat) {
           throw new cola.Exception("Expression \"" + bindStr + "\" must be a repeat expression.");
         }
         this._alias = expression.alias;
+        if ((expression.type === "MemberExpression" || expression.type === "Identifier") && !expression.hasCallStatement && !expression.convertors) {
+          this._simpleBindPath = expression.paths[0];
+        }
       }
       this._itemsScope.setExpression(expression);
     },
@@ -11163,6 +11165,23 @@
         items: this._itemsScope.items,
         originItems: this._itemsScope.originItems
       };
+    },
+    _getBindDataType: function() {
+      var dataType, item, items;
+      items = this._getItems().originItems;
+      if (items) {
+        if (items instanceof cola.EntityList) {
+          dataType = items.dataType;
+        } else if (items instanceof Array && items.length) {
+          item = items[0];
+          if (item && item instanceof cola.Entity) {
+            dataType = item.dataType;
+          }
+        }
+      } else if (this._simpleBindPath) {
+        dataType = this._scope.data.getDataType(this._simpleBindPath);
+      }
+      return dataType;
     }
   };
 
@@ -11532,25 +11551,7 @@
           this["_class"] = value;
         }
       },
-      popup: {
-        setter: function(value) {
-          var options;
-          options = {};
-          if (typeof value === "string") {
-            options.content = value;
-          } else if (value.constructor === Object.prototype.constructor && value.tagName) {
-            options.html = $.xCreate(value);
-          } else if (value.nodeType === 1) {
-            options.html = value;
-          } else {
-            options = value;
-          }
-          this._popup = options;
-          if (this._dom) {
-            this.get$Dom().popup(this._popup);
-          }
-        }
-      },
+      popup: null,
       dimmer: {
         setter: function(value) {
           var k, v;
@@ -11658,6 +11659,26 @@
       }
     };
 
+    Widget.prototype._initDom = function(dom) {
+      var popup, popupOptions;
+      Widget.__super__._initDom.call(this, dom);
+      popup = this._popup;
+      if (popup) {
+        popupOptions = {};
+        if (typeof popup === "string" || (popup.constructor === Object.prototype.constructor && popup.tagName) || popup.nodeType === 1) {
+          popupOptions.html = cola.xRender(popup);
+        } else if (popup.constructor === Object.prototype.constructor) {
+          popupOptions = popup;
+          if (popupOptions.content) {
+            popupOptions.html = cola.xRender(popupOptions.content);
+          } else if (popupOptions.html) {
+            popupOptions.html = cola.xRender(popupOptions.html);
+          }
+        }
+        return $(dom).popup(popupOptions);
+      }
+    };
+
     Widget.prototype._setDom = function(dom, parseChild) {
       var eventName;
       if (!dom) {
@@ -11668,9 +11689,6 @@
         if (this.getListeners(eventName)) {
           this._bindEvent(eventName);
         }
-      }
-      if (this._popup) {
-        $(dom).popup(this._popup);
       }
     };
 
@@ -13927,6 +13945,7 @@
     if (cola.calendar == null) {
       cola.calendar = {};
     }
+    cola.calendar.getCellPosition = getCellPosition;
     cola.calendar.DateGrid = (function(superClass) {
       extend(DateGrid, superClass);
 
@@ -14440,6 +14459,7 @@
       cells.firstDayPosition = firstDayPosition;
       return cells;
     };
+    cola.getDateTableState = getDateTableState;
     return cola.Calendar = (function(superClass) {
       extend(Calendar, superClass);
 
@@ -20376,6 +20396,629 @@
 
   cola.defineWidget("c-customDropdown", cola.CustomDropdown);
 
+  cola.DateGrid = (function(superClass) {
+    extend(DateGrid, superClass);
+
+    function DateGrid() {
+      return DateGrid.__super__.constructor.apply(this, arguments);
+    }
+
+    DateGrid.CLASS_NAME = "calendar";
+
+    DateGrid.ATTRIBUTES = {
+      columnCount: {
+        type: "number",
+        defaultValue: 7
+      },
+      rowCount: {
+        type: "number",
+        defaultValue: 6
+      },
+      cellClassName: null,
+      selectedCellClassName: "",
+      rowClassName: null,
+      autoSelect: {
+        defaultValue: true
+      },
+      tableClassName: {
+        defaultValue: "ui date-table"
+      }
+    };
+
+    DateGrid.EVENTS = {
+      cellClick: null,
+      refreshCellDom: null
+    };
+
+    DateGrid.prototype._initDom = function(dom) {
+      var allWeeks, columnCount, headerDom, i, j, picker, rowCount, table, td, tr, weeks;
+      picker = this;
+      columnCount = this._columnCount;
+      rowCount = this._rowCount;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      allWeeks = cola.resource("cola.date.dayNamesShort");
+      weeks = allWeeks.split(",");
+      headerDom = $.xCreate({
+        tagName: "div",
+        content: [
+          {
+            tagName: "div",
+            "class": "header",
+            contextKey: "header",
+            content: [
+              {
+                tagName: "div",
+                "class": "month",
+                content: [
+                  {
+                    tagName: "span",
+                    "class": "button prev",
+                    contextKey: "prevMonthButton",
+                    click: function() {
+                      return picker.prevMonth();
+                    }
+                  }, {
+                    tagName: "span",
+                    "class": "button next",
+                    contextKey: "nextMonthButton",
+                    click: function() {
+                      return picker.nextMonth();
+                    }
+                  }, {
+                    tagName: "div",
+                    "class": "label",
+                    contextKey: "monthLabel"
+                  }
+                ]
+              }, {
+                tagName: "div",
+                "class": "year",
+                content: [
+                  {
+                    tagName: "span",
+                    "class": "button prev",
+                    contextKey: "prevYearButton",
+                    click: function() {
+                      return picker.prevYear();
+                    }
+                  }, {
+                    tagName: "span",
+                    "class": "button next",
+                    contextKey: "nextYearButton",
+                    click: function() {
+                      return picker.nextYear();
+                    }
+                  }, {
+                    tagName: "div",
+                    "class": "label",
+                    contextKey: "yearLabel"
+                  }
+                ]
+              }
+            ]
+          }, {
+            tagName: "table",
+            cellPadding: 0,
+            cellSpacing: 0,
+            border: 0,
+            "class": "date-header",
+            contextKey: "dateHeader",
+            content: [
+              {
+                tagName: "tr",
+                "class": "header",
+                content: [
+                  {
+                    tagName: "td",
+                    content: weeks[0]
+                  }, {
+                    tagName: "td",
+                    content: weeks[1]
+                  }, {
+                    tagName: "td",
+                    content: weeks[2]
+                  }, {
+                    tagName: "td",
+                    content: weeks[3]
+                  }, {
+                    tagName: "td",
+                    content: weeks[4]
+                  }, {
+                    tagName: "td",
+                    content: weeks[5]
+                  }, {
+                    tagName: "td",
+                    content: weeks[6]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }, this._doms);
+      table = $.xCreate({
+        tagName: "table",
+        cellSpacing: 0,
+        "class": (picker._className || "") + " " + (picker._tableClassName || ""),
+        content: {
+          tagName: "tbody",
+          contextKey: "body"
+        }
+      }, this._doms);
+      i = 0;
+      while (i < rowCount) {
+        tr = document.createElement("tr");
+        j = 0;
+        while (j < columnCount) {
+          td = document.createElement("td");
+          if (this._cellClassName) {
+            td.className = this._cellClassName;
+          }
+          this.doRenderCell(td, i, j);
+          tr.appendChild(td);
+          j++;
+        }
+        if (this._rowClassName) {
+          tr.className = this._rowClassName;
+        }
+        this._doms.body.appendChild(tr);
+        i++;
+      }
+      $fly(table).on("click", function(event) {
+        var position;
+        position = cola.calendar.getCellPosition(event);
+        if (position && position.element) {
+          if (position.row >= picker._rowCount) {
+            return;
+          }
+          if (picker._autoSelect) {
+            picker.setSelectionCell(position.row, position.column);
+          }
+          return picker.fire("cellClick", picker, position);
+        }
+      });
+      dom.appendChild(headerDom);
+      this._doms.tableWrapper = $.xCreate({
+        tagName: "div",
+        "class": "date-table-wrapper"
+      });
+      this._doms.tableWrapper.appendChild(table);
+      dom.appendChild(this._doms.tableWrapper);
+      return dom;
+    };
+
+    DateGrid.prototype.doFireRefreshEvent = function(eventArg) {
+      this.fire("refreshCellDom", this, eventArg);
+      return this;
+    };
+
+    DateGrid.prototype.refreshHeader = function() {
+      var monthLabel, yearLabel;
+      if (this._doms) {
+        monthLabel = this._doms.monthLabel;
+        yearLabel = this._doms.yearLabel;
+        $fly(yearLabel).text(this._year || "");
+        return $fly(monthLabel).text(this._month + 1 || "");
+      }
+    };
+
+    DateGrid.prototype.refreshGrid = function() {
+      var cell, columnCount, dom, eventArg, i, j, lastSelectedCell, picker, rowCount, rows;
+      picker = this;
+      dom = this._doms.body;
+      columnCount = this._columnCount;
+      rowCount = this._rowCount;
+      lastSelectedCell = this._lastSelectedCell;
+      if (lastSelectedCell) {
+        $fly(lastSelectedCell).removeClass(this._selectedCellClassName || "selected");
+        this._lastSelectedCell = null;
+      }
+      i = 0;
+      while (i < rowCount) {
+        rows = dom.rows[i];
+        j = 0;
+        while (j < columnCount) {
+          cell = rows.cells[j];
+          if (picker._cellClassName) {
+            cell.className = picker._cellClassName;
+          }
+          eventArg = {
+            cell: cell,
+            row: i,
+            column: j
+          };
+          this.doFireRefreshEvent(eventArg);
+          if (eventArg.processDefault !== false) {
+            this.doRefreshCell(cell, i, j);
+          }
+          j++;
+        }
+        i++;
+      }
+      return this;
+    };
+
+    DateGrid.prototype._doRefreshDom = function() {
+      DateGrid.__super__._doRefreshDom.call(this);
+      if (!this._dom) {
+        return;
+      }
+      this.refreshGrid();
+      return this.refreshHeader();
+    };
+
+    DateGrid.prototype.setSelectionCell = function(row, column) {
+      var cell, lastSelectedCell, picker, tbody;
+      picker = this;
+      lastSelectedCell = this._lastSelectedCell;
+      if (!this._dom) {
+        this._selectionPosition = {
+          row: row,
+          column: column
+        };
+        return this;
+      }
+      if (lastSelectedCell) {
+        $fly(lastSelectedCell).removeClass(this._selectedCellClassName || "selected");
+        this._lastSelectedCell = null;
+      }
+      tbody = picker._doms.body;
+      if (tbody.rows[row]) {
+        cell = tbody.rows[row].cells[column];
+      }
+      if (!cell) {
+        return this;
+      }
+      $fly(cell).addClass(this._selectedCellClassName || "selected");
+      this._lastSelectedCell = cell;
+      return this;
+    };
+
+    DateGrid.prototype.getYMForState = function(cellState) {
+      var month, year;
+      month = this._month;
+      year = this._year;
+      if (cellState.type === "prev-month") {
+        year = month === 0 ? year - 1 : year;
+        month = month === 0 ? 11 : month - 1;
+      } else if (cellState.type === "next-month") {
+        year = month === 11 ? year + 1 : year;
+        month = month === 11 ? 0 : month + 1;
+      }
+      return {
+        year: year,
+        month: month
+      };
+    };
+
+    DateGrid.prototype.doFireRefreshEvent = function(eventArg) {
+      var cellState, column, row, ym;
+      row = eventArg.row;
+      column = eventArg.column;
+      if (this._state && this._year && this._month) {
+        cellState = this._state[row * 7 + column];
+        ym = this.getYMForState(cellState);
+        eventArg.date = new Date(ym.year, ym.month, cellState.text);
+      }
+      this.fire("refreshCellDom", this, eventArg);
+      return this;
+    };
+
+    DateGrid.prototype.doRenderCell = function(cell, row, column) {
+      var label;
+      label = document.createElement("div");
+      label.className = "label";
+      cell.appendChild(label);
+    };
+
+    DateGrid.prototype.getDateCellDom = function(date) {
+      var value;
+      value = new XDate(date).toString("yyyy-M-d");
+      return $(this._dom).find("td[cell-date='" + value + "']")[0];
+    };
+
+    DateGrid.prototype.setCurrentDate = function(date) {
+      var month, year;
+      month = date.getMonth();
+      year = date.getFullYear();
+      this.setState(year, month);
+      return this.selectCell(this.getDateCellDom(date));
+    };
+
+    DateGrid.prototype.selectCell = function(cell) {
+      var lastSelectedCell;
+      lastSelectedCell = this._lastSelectedCell;
+      if (!this._dom) {
+        return this;
+      }
+      if (lastSelectedCell) {
+        $fly(lastSelectedCell).removeClass(this._selectedCellClassName || "selected");
+        this._lastSelectedCell = null;
+      }
+      if (!cell) {
+        return this;
+      }
+      $fly(cell).addClass(this._selectedCellClassName || "selected");
+      return this._lastSelectedCell = cell;
+    };
+
+    DateGrid.prototype.doRefreshCell = function(cell, row, column) {
+      var cellState, state, ym;
+      state = this._state;
+      if (!state) {
+        return;
+      }
+      cellState = state[row * 7 + column];
+      $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
+      ym = this.getYMForState(cellState);
+      return $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+    };
+
+    DateGrid.prototype.setState = function(year, month) {
+      var oldMonth, oldYear;
+      oldYear = this._year;
+      oldMonth = this._month;
+      if (oldYear !== year || oldMonth !== month) {
+        this._year = year;
+        this._month = month;
+        this._state = cola.getDateTableState(new Date(year, month, 1));
+        if (this._dom) {
+          this.refreshGrid();
+          this.refreshHeader();
+        }
+      }
+      return this.onCalDateChange();
+    };
+
+    DateGrid.prototype.prevMonth = function() {
+      var month, newMonth, newYear, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        newYear = month === 0 ? year - 1 : year;
+        newMonth = month === 0 ? 11 : month - 1;
+        this.setState(newYear, newMonth);
+      }
+      return this;
+    };
+
+    DateGrid.prototype.nextMonth = function() {
+      var month, newMonth, newYear, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        newYear = month === 11 ? year + 1 : year;
+        newMonth = month === 11 ? 0 : month + 1;
+        this.setState(newYear, newMonth);
+      }
+      return this;
+    };
+
+    DateGrid.prototype.prevYear = function() {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        this.setState(year - 1, month);
+      }
+      return this;
+    };
+
+    DateGrid.prototype.setYear = function(newYear) {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        return this.setState(newYear, month);
+      }
+    };
+
+    DateGrid.prototype.nextYear = function() {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        this.setState(year + 1, month);
+      }
+      return this;
+    };
+
+    DateGrid.prototype.onCalDateChange = function() {
+      if (!this._dom) {
+        return this;
+      }
+      return this;
+    };
+
+    return DateGrid;
+
+  })(cola.RenderableElement);
+
+  DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd";
+
+  DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd";
+
+  DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss";
+
+  DEFAULT_TIME_INPUT_FORMAT = "HHmmss";
+
+  cola.DatePicker = (function(superClass) {
+    extend(DatePicker, superClass);
+
+    function DatePicker() {
+      return DatePicker.__super__.constructor.apply(this, arguments);
+    }
+
+    DatePicker.ATTRIBUTES = {
+      displayFormat: {
+        defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
+      },
+      inputFormat: {
+        defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
+      },
+      icon: {
+        defaultValue: "calendar"
+      },
+      content: {
+        $type: "calender"
+      },
+      inputType: {
+        defaultValue: "date"
+      }
+    };
+
+    DatePicker.EVENTS = {
+      focus: null,
+      blur: null,
+      keyDown: null,
+      keyPress: null
+    };
+
+    DatePicker.prototype._initDom = function(dom) {
+      var doPost;
+      DatePicker.__super__._initDom.call(this, dom);
+      doPost = (function(_this) {
+        return function() {
+          var inputFormat, readOnly, value, xDate;
+          readOnly = _this._readOnly;
+          if (!readOnly) {
+            value = $(_this._doms.input).val();
+            inputFormat = _this._inputFormat || _this._displayFormat || DEFAULT_DATE_DISPLAY_FORMAT;
+            if (inputFormat) {
+              value = inputFormat + "||" + value;
+              xDate = new XDate(value);
+              value = xDate.toDate();
+              _this.set("value", value);
+            }
+          }
+        };
+      })(this);
+      $(this._doms.input).on("change", (function(_this) {
+        return function() {
+          doPost();
+        };
+      })(this)).on("focus", (function(_this) {
+        return function() {
+          _this._inputFocused = true;
+          _this._refreshInputValue(_this._value);
+          if (!_this._finalReadOnly) {
+            _this.addClass("focused");
+          }
+          _this.fire("focus", _this);
+        };
+      })(this)).on("blur", (function(_this) {
+        return function() {
+          var entity, propertyDef, ref;
+          _this._inputFocused = false;
+          _this.removeClass("focused");
+          _this._refreshInputValue(_this._value);
+          _this.fire("blur", _this);
+          if ((_this._value == null) || _this._value === "" && ((ref = _this._bindInfo) != null ? ref.isWriteable : void 0)) {
+            propertyDef = _this._getBindingProperty();
+            if ((propertyDef != null ? propertyDef._required : void 0) && propertyDef._validators) {
+              entity = _this._scope.get(_this._bindInfo.entityPath);
+              if (entity) {
+                entity.validate(_this._bindInfo.property);
+              }
+            }
+          }
+        };
+      })(this)).on("keydown", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          return _this.fire("keyDown", _this, arg);
+        };
+      })(this)).on("keypress", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          if (_this.fire("keyPress", _this, arg) === false) {
+            return;
+          }
+          if (event.keyCode === 13 && isIE11) {
+            return doPost();
+          }
+        };
+      })(this));
+    };
+
+    DatePicker.prototype._refreshInputValue = function(value) {
+      var format, inputType;
+      inputType = this._inputType;
+      if (value instanceof Date) {
+        if (inputType === "date") {
+          format = DEFAULT_DATE_DISPLAY_FORMAT;
+        } else if (inputType === "time") {
+          format = DEFAULT_TIME_DISPLAY_FORMAT;
+        }
+        value = (new XDate(value)).toString(format);
+      }
+      return DatePicker.__super__._refreshInputValue.call(this, value);
+    };
+
+    DatePicker.prototype._refreshInput = function() {
+      var $inputDom, ref;
+      $inputDom = $fly(this._doms.input);
+      if (this._name) {
+        $inputDom.attr("name", this._name);
+      }
+      $inputDom.attr("placeholder", this.get("placeholder"));
+      $inputDom.prop("readOnly", this._finalReadOnly);
+      if ((ref = this.get("actionButton")) != null) {
+        ref.set("disabled", this._finalReadOnly);
+      }
+      $inputDom.prop("type", "text").css("text-align", "left");
+      this._refreshInputValue(this._value);
+    };
+
+    DatePicker.prototype.open = function() {
+      var value;
+      DatePicker.__super__.open.call(this);
+      value = this.get("value");
+      if (!value) {
+        value = new Date();
+      }
+      return this._dataGrid.setCurrentDate(value);
+    };
+
+    DatePicker.prototype._getDropdownContent = function() {
+      var dateGrid, datePicker;
+      datePicker = this;
+      if (!this._dropdownContent) {
+        this._dataGrid = dateGrid = new cola.DateGrid({
+          cellClick: (function(_this) {
+            return function(self, arg) {
+              var d, value;
+              value = $fly(arg.element).attr("cell-date");
+              d = Date.parse(value);
+              return datePicker.close(new Date(d));
+            };
+          })(this)
+        });
+        this._dropdownContent = dateGrid.getDom();
+      }
+      return this._dropdownContent;
+    };
+
+    return DatePicker;
+
+  })(cola.CustomDropdown);
+
   oldErrorTemplate = $.fn.form.settings.templates.error;
 
   $.fn.form.settings.templates.error = function(errors) {
@@ -23037,6 +23680,8 @@
 
   })(cola.Widget);
 
+  cola.defineWidget("c-menu", cola.Menu);
+
   cola.TitleBar = (function(superClass) {
     extend(TitleBar, superClass);
 
@@ -23107,7 +23752,7 @@
 
   })(cola.Menu);
 
-  cola.defineWidget("c-menu", cola.Menu);
+  cola.defineWidget("c-titleBar", cola.TitleBar);
 
   cola.registerType("menu", "_default", cola.menu.MenuItem);
 
@@ -24004,19 +24649,6 @@
       });
       this._bindTouch();
       $fly(this._currentItem).css("transform", "translate(-" + width + "px,0)");
-      if (direction === "left") {
-        $fly(this._prevItem).css("display", "none");
-        $fly(this._nextItem).css({
-          transform: "translate(" + width + "px,0)",
-          display: "block"
-        });
-      } else {
-        $fly(this._nextItem).css("display", "none");
-        $fly(this._prevItem).css({
-          transform: "translate(" + (2 * width) + "px,0)",
-          display: "block"
-        });
-      }
     };
 
     Stack.prototype._parseDom = function(dom) {
@@ -27527,6 +28159,7 @@
         readOnlyAfterCreate: true,
         setter: cola.DataType.dataTypeSetter
       },
+      property: null,
       bind: null,
       template: null
     };
@@ -27787,7 +28420,7 @@
     AbstractTable.prototype._collectionColumnsInfo = function() {
       var col, collectColumnInfo, columnsInfo, expression, l, len1, ref;
       collectColumnInfo = function(column, context, deepth) {
-        var bind, col, cols, convertorIndex, info, l, len1, path, ref, ref1, width, widthType;
+        var bind, col, cols, info, l, len1, ref, width, widthType;
         info = {
           level: deepth,
           column: column
@@ -27817,22 +28450,11 @@
           if (column._bind) {
             bind = column._bind;
             if (bind.charCodeAt(0) === 46) {
-              convertorIndex = bind.indexOf("|");
-              if (convertorIndex < 0) {
-                info.property = bind.substring(1);
-              } else {
-                info.property = bind.substring(1, convertorIndex);
-                info.expression = cola._compileExpression(context.alias + bind);
+              if (!column._property) {
+                column._property = bind.substring(1);
               }
             } else {
               info.expression = cola._compileExpression(bind);
-              path = (ref1 = info.expression) != null ? ref1.path : void 0;
-              if (path instanceof Array) {
-                path = path[0];
-              }
-              if (path && path.indexOf("*") < 0) {
-                info.property = path;
-              }
             }
           }
           if (column._width) {
@@ -27888,22 +28510,10 @@
     };
 
     AbstractTable.prototype._getBindDataType = function() {
-      var dataType, item, items;
       if (this._dataType) {
         return this._dataType;
       }
-      items = this._getItems().originItems;
-      if (items) {
-        if (items instanceof cola.EntityList) {
-          dataType = items.dataType;
-        } else if (items instanceof Array && items.length) {
-          item = items[0];
-          if (item && item instanceof cola.Entity) {
-            dataType = item.dataType;
-          }
-        }
-      }
-      return this._dataType = dataType;
+      return this._dataType = AbstractTable.__super__._getBindDataType.call(this);
     };
 
     AbstractTable.prototype._createDom = function() {
@@ -28222,8 +28832,8 @@
         return;
       }
       dataType = this._getBindDataType();
-      if (dataType && columnInfo.property) {
-        propertyDef = dataType.getProperty(columnInfo.property);
+      if (dataType && column._property) {
+        propertyDef = dataType.getProperty(column._property);
       }
       caption = column._caption || (propertyDef != null ? propertyDef._caption : void 0);
       if (!caption) {
@@ -28360,7 +28970,7 @@
     };
 
     Table.prototype._refreshCell = function(dom, item, columnInfo, itemScope, isNew) {
-      var $dom, column, context, template, templateName;
+      var $dom, column, context, defaultDateFormat, template, templateName, value;
       column = columnInfo.column;
       dom.style.textAlign = column._align || "";
       if (column.renderCell) {
@@ -28399,10 +29009,16 @@
         if (template) {
           template = this._cloneTemplate(template);
           dom.appendChild(template);
-          if (columnInfo.property) {
-            context = {
-              defaultPath: this._alias + "." + columnInfo.property
-            };
+          if (column._property) {
+            if (column._format) {
+              context = {
+                defaultPath: "format(" + this._alias + "." + column._property + "," + column._format + ")"
+              };
+            } else {
+              context = {
+                defaultPath: this._alias + "." + column._property
+              };
+            }
           }
           cola.xRender(dom, itemScope, context);
         }
@@ -28414,7 +29030,21 @@
       if (columnInfo.expression) {
         $dom.attr("c-bind", columnInfo.expression.raw);
       } else {
-        $dom.text(columnInfo.property ? item.get(columnInfo.property) : "");
+        value = item.get(column._property);
+        if (column._format) {
+          value = cola.defaultAction.format(value, column._format);
+        } else {
+          if (value instanceof Date) {
+            defaultDateFormat = cola.setting("defaultDateFormat");
+            if (defaultDateFormat) {
+              value = cola.defaultAction.formatDate(value, defaultDateFormat);
+            }
+          }
+        }
+        if (value === void 0 || value === null) {
+          value = "";
+        }
+        $dom.text(value);
       }
     };
 

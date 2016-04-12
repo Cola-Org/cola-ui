@@ -99,8 +99,8 @@ sources =
 		en: [
 			"src/i18n/en/cola.coffee"
 		]
-		"zh-Hans": [
-			"src/i18n/en/cola.coffee"
+		"zh": [
+			"src/i18n/zh-CN/cola.coffee"
 		]
 
 	less:

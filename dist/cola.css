@@ -194,7 +194,9 @@ template {
   align-items: flex-start;
 }
 .v-box > .box,
-.h-box > .box,
+.h-box > .box {
+  overflow: visible;
+}
 .v-box > .flex-box,
 .h-box > .flex-box {
   overflow: auto;

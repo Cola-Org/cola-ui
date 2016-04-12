@@ -48,7 +48,7 @@ module.exports = (grunt) ->
 					join: true
 				files:
 					"dist/i18n/en/cola.js": sources.i18n["en"]
-					"dist/i18n/zh-Hans/cola.js": sources.i18n["zh-Hans"]
+					"dist/i18n/zh/cola.js": sources.i18n["zh"]
 		less:
 			dev:
 				options:
