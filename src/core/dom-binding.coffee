@@ -13,7 +13,7 @@ class cola._DomBinding
 				@addFeature(f)
 
 		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
-		cola.util.onNodeRemoved(dom, _destroyDomBinding)
+		cola.util.onNodeDispose(dom, _destroyDomBinding)
 
 	destroy: () ->
 		_features = @features
@@ -121,7 +121,7 @@ class cola._RepeatDomBinding extends cola._DomBinding
 
 			cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, @)
 			cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom)
-			cola.util.onNodeRemoved(headerNode, _destroyDomBinding)
+			cola.util.onNodeDispose(headerNode, _destroyDomBinding)
 
 			repeatItemDomBinding = new cola._RepeatItemDomBinding(dom, null)
 			repeatItemDomBinding.repeatDomBinding = @

@@ -21,7 +21,8 @@ cola.util.setText = (dom, text = "") ->
 
 doms = {}
 cola.util.cacheDom = (ele) ->
-	if !doms.hiddenDiv
+	cola._ignoreNodeRemoved = true
+	if not doms.hiddenDiv
 		doms.hiddenDiv = $.xCreate(
 			tagName: "div"
 			id: "_hidden_div"
@@ -30,7 +31,6 @@ cola.util.cacheDom = (ele) ->
 		)
 		doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 		document.body.appendChild(doms.hiddenDiv)
-	cola._ignoreNodeRemoved = true
 	doms.hiddenDiv.appendChild(ele)
 	cola._ignoreNodeRemoved = false
 	return
@@ -105,7 +105,7 @@ cola.detachNode = (node) ->
 	cola._ignoreNodeRemoved = false
 	return
 
-cola.util.onNodeRemoved = (node, listener) ->
+cola.util.onNodeDispose = (node, listener) ->
 	oldListener = cola.util.userData(node, ON_NODE_REMOVED_KEY)
 	if oldListener
 		if oldListener instanceof Array
@@ -116,19 +116,13 @@ cola.util.onNodeRemoved = (node, listener) ->
 		cola.util.userData(node, ON_NODE_REMOVED_KEY, listener)
 	return
 
-_removeNodeData = (node) ->
-	return if node.nodeType == 3
+_nodesToBeRemove = {}
 
-	if node.nodeType == 8
-		text = node.nodeValue
-		i = text.indexOf("|")
-		id = text.substring(i + 1) if i > -1
-	else
-		id = node.getAttribute(USER_DATA_KEY)
-
-	if id
+setInterval(() ->
+	for id, node of _nodesToBeRemove
 		store = cola.util.userDataStore[id]
 		if store
+			changed = true
 			nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
 			if nodeRemovedListener
 				if nodeRemovedListener instanceof Array
@@ -137,6 +131,34 @@ _removeNodeData = (node) ->
 				else
 					nodeRemovedListener(node, store)
 			delete cola.util.userDataStore[id]
+
+	if changed then _nodesToBeRemove = {}
+	return
+, 10000)
+
+_getNodeDataId = (node) ->
+	return if node.nodeType == 3
+
+	if node.nodeType == 8
+		text = node.nodeValue
+		i = text.indexOf("|")
+		id = text.substring(i + 1) if i > -1
+	else
+		id = node.getAttribute(USER_DATA_KEY)
+	return id
+
+_DOMNodeInsertedListener = (evt) ->
+	node = evt.target
+	return unless node
+
+	child = node.firstChild
+	while child
+		id = _getNodeDataId(child)
+		if id then delete _nodesToBeRemove[id]
+		child = child.nextSibling
+
+	id = _getNodeDataId(node)
+	if id then delete _nodesToBeRemove[id]
 	return
 
 _DOMNodeRemovedListener = (evt) ->
@@ -147,15 +169,19 @@ _DOMNodeRemovedListener = (evt) ->
 
 	child = node.firstChild
 	while child
-		_removeNodeData(child)
+		id = _getNodeDataId(child)
+		if id then _nodesToBeRemove[id] = child
 		child = child.nextSibling
 
-	_removeNodeData(node)
+	id = _getNodeDataId(node)
+	if id then _nodesToBeRemove[id] = node
 	return
 
+document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 
 $fly(window).on("unload", () ->
+	document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 	document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 	return
 )

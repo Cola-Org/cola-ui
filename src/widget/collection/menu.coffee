@@ -536,9 +536,7 @@ class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
 		control = @_control
 		return unless control
 		if control instanceof cola.RenderableElement
-			cola._ignoreNodeRemoved = true
 			dom.appendChild(control.getDom())
-			cola._ignoreNodeRemoved = false
 		else if control.nodeType == 1
 			dom.appendChild(control)
 		return

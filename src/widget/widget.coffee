@@ -75,7 +75,7 @@ class cola.RenderableElement extends cola.Element
 		return unless dom
 		@_dom = dom
 		cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, @)
-		cola.util.onNodeRemoved(dom, _destroyRenderableElement)
+		cola.util.onNodeDispose(dom, _destroyRenderableElement)
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
 		arg =

@@ -130,6 +130,7 @@ class cola.ImageLabel extends cola.Label
 			defaultValue: "right"
 			enum: ["left", "right"]
 		detail: null
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
@@ -144,6 +145,7 @@ class cola.ImageLabel extends cola.Label
 			$fly(@_doms.image).attr("src", @_image)
 		else
 			if @_doms.image then cola.detachNode(@_doms.image)
+
 		detailDom = $(".detail", @_dom)
 		if @_detail
 			if detailDom.length > 0

@@ -238,11 +238,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		leftAction = buttonPosition is "left"
 		@_classNamePool.add(if leftAction then "left action" else "action")
 
-		# 此处没有使用cola.detachNode()，因为cola.detachNode()会将dom从DOM树上移除，可能对性能不利
-		cola._ignoreNodeRemoved = true
 		if leftAction then $(@_doms.input).before(btnDom) else @_dom.appendChild(btnDom)
-		cola._ignoreNodeRemoved = false
-
 		return
 
 	_refreshIcon: ()->
@@ -261,10 +257,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 			leftIcon = iconPosition is "left"
 			classNamePool.add(if leftIcon then "left icon" else "icon")
 
-			# 此处没有使用cola.detachNode()，因为cola.detachNode()会将dom从DOM树上移除，可能对性能不利
-			cola._ignoreNodeRemoved = true
 			if leftIcon then $(@_doms.input).before(iconDom) else @_dom.appendChild(iconDom)
-			cola._ignoreNodeRemoved = false
 		else
 			$(@_doms.iconDom).remove() if @_doms.iconDom
 

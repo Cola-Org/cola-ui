@@ -570,9 +570,7 @@ class cola.ListView extends cola.AbstractList
 			)
 			cola.xRender(leftSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(leftSlidePaneTemplate, "scope", itemScope)
-			cola._ignoreNodeRemoved = true
 			itemsWrapper.appendChild(leftSlidePaneTemplate)
-			cola._ignoreNodeRemoved = false
 
 		if rightSlidePaneTemplate
 			$fly(rightSlidePaneTemplate).addClass("item-slide-pane protected").css("right", "100%").click(()=>
@@ -582,9 +580,7 @@ class cola.ListView extends cola.AbstractList
 			)
 			cola.xRender(rightSlidePaneTemplate, itemScope, @_templateContext)
 			cola.util.userData(rightSlidePaneTemplate, "scope", itemScope)
-			cola._ignoreNodeRemoved = true
 			itemsWrapper.appendChild(rightSlidePaneTemplate)
-			cola._ignoreNodeRemoved = false
 		return
 
 	_getTouchPoint: (evt) ->

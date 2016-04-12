@@ -93,11 +93,9 @@ class cola.Shape extends cola.AbstractItemGroup
 
 	flip: (direction = "right")->
 		if @constructor.directions.indexOf(direction) >= 0
-			cola._ignoreNodeRemoved = true
 			$dom = @get$Dom()
 			unless $dom.shape("is animating")
 				$dom.shape("flip #{direction}")
-			cola._ignoreNodeRemoved = false
 		return @
 
 	setNextSide: (selector)->

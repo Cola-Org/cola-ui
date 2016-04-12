@@ -267,9 +267,7 @@ buildContent = (parts, dom, scope) ->
 		for part in parts
 			partNode = createContentPart(part, scope)
 			childNode.appendChild(partNode)
-	cola._ignoreNodeRemoved = true
 	dom.parentNode.replaceChild(childNode, dom)
-	cola._ignoreNodeRemoved = false
 	return
 
 cola._domBindingBuilder =
