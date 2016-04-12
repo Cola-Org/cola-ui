@@ -52,11 +52,19 @@ class cola.Scope
 			if name instanceof Array
 				for dataType in name
 					if not (dataType instanceof cola.DataType)
-						dataType = new cola.EntityDataType(dataType)
+						if dataType.name
+							if dataType.lazy is false
+								dataType = new cola.EntityDataType(dataType)
+							else
+								@data.regDefinition(dataType.name, dataType)
 			else
 				dataType = name
 				if not (dataType instanceof cola.DataType)
-					dataType = new cola.EntityDataType(dataType)
+					if dataType.name
+						if dataType.lazy is false
+							dataType = new cola.EntityDataType(dataType)
+						else
+							@data.regDefinition(dataType.name, dataType)
 			return
 
 	definition: (name) ->
@@ -780,11 +788,19 @@ class cola.DataModel extends cola.AbstractDataModel
 
 	definition: (name) ->
 		definition = @_definitionStore?[name]
-		definition ?= cola.DataType.defaultDataTypes[name]
+		if definition
+			if not (definition instanceof cola.Definition)
+				definition = new cola.EntityDataType(definition)
+				@_definitionStore[name] = definition
+		else
+			definition = cola.DataType.defaultDataTypes[name]
 		return definition
 
-	regDefinition: (definition) ->
-		name = definition._name
+	regDefinition: (name, definition) ->
+		if name instanceof cola.Definition
+			definition = name
+			name = name._name
+
 		if not name
 			throw new cola.Exception("Attribute \"name\" cannot be emtpy.")
 
