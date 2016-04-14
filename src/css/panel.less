@@ -21,14 +21,19 @@
 			> i.panel-icon {
 				color: @panelHeaderIconColor;
 				line-height: @panelHeaderHeight;
+				height: @panelHeaderHeight;
+				float: left;
 			}
 			> .caption {
 				line-height: @panelHeaderHeight;
 			}
 			> .tools {
 				float: right;
+				height: @panelHeaderHeight;
 				> * {
+					height: inherit;
 					position: relative;
+					display: inline-block;
 					&:before {
 						position: absolute;
 					}

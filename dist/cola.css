@@ -5746,15 +5746,20 @@ html.ios body {
 .ui.panel > .header > .content > i.panel-icon {
   color: #5a5a5b;
   line-height: 2.8rem;
+  height: 2.8rem;
+  float: left;
 }
 .ui.panel > .header > .content > .caption {
   line-height: 2.8rem;
 }
 .ui.panel > .header > .content > .tools {
   float: right;
+  height: 2.8rem;
 }
 .ui.panel > .header > .content > .tools > * {
+  height: inherit;
   position: relative;
+  display: inline-block;
   color: #aeaeae;
   cursor: pointer;
   line-height: 2.8rem;
