@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeRemovedListener, _Entity, _EntityList, _RESERVE_NAMES, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _onHashChange, _onStateChange, _removeNodeData, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, alertException, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _RESERVE_NAMES, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, alertException, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1097,12 +1097,15 @@
 
   cola.preprocessClass = function(classType) {
     var attributes, definition, events, name, realName, ref, superType;
+    if (!(!classType.attributes._inited || !classType.events._inited)) {
+      return;
+    }
     superType = (ref = classType.__super__) != null ? ref.constructor : void 0;
     if (superType) {
-      if (classType.__super__) {
+      if (superType && (!superType.attributes._inited || !superType.events._inited)) {
         cola.preprocessClass(superType);
       }
-      attributes = classType.ATTRIBUTES;
+      attributes = classType.attributes;
       if (!attributes._inited) {
         attributes._inited = true;
         for (name in attributes) {
@@ -1119,9 +1122,9 @@
         }
         attributes.$has = hasDefinition;
         attributes.$get = getDefinition;
-        doMergeDefinitions(attributes, superType.ATTRIBUTES, false);
+        doMergeDefinitions(attributes, superType.attributes, false);
       }
-      events = classType.EVENTS;
+      events = classType.events;
       if (!events._inited) {
         events._inited = true;
         for (name in events) {
@@ -1134,7 +1137,7 @@
         }
         events.$has = hasDefinition;
         events.$get = getDefinition;
-        doMergeDefinitions(events, superType.EVENTS, false);
+        doMergeDefinitions(events, superType.events, false);
       }
     }
   };
@@ -1144,16 +1147,16 @@
       var attributes, events, member, mixInEvents, mixinAttributes, name;
       for (name in mixin) {
         member = mixin[name];
-        if (name === "ATTRIBUTES") {
+        if (name === "attributes") {
           mixinAttributes = member;
           if (mixinAttributes) {
-            attributes = classType.ATTRIBUTES != null ? classType.ATTRIBUTES : classType.ATTRIBUTES = {};
+            attributes = classType.attributes != null ? classType.attributes : classType.attributes = {};
             doMergeDefinitions(attributes, mixinAttributes, true);
           }
-        } else if (name === "EVENTS") {
+        } else if (name === "events") {
           mixInEvents = member;
           if (mixInEvents) {
-            events = classType.EVENTS != null ? classType.EVENTS : classType.EVENTS = {};
+            events = classType.events != null ? classType.events : classType.events = {};
             doMergeDefinitions(events, mixInEvents, true);
           }
         } else if (name === "constructor") {
@@ -1174,7 +1177,7 @@
       }
     };
 
-    Element.ATTRIBUTES = {
+    Element.attributes = {
       tag: {
         getter: function() {
           if (this._tag) {
@@ -1206,7 +1209,7 @@
       userData: null
     };
 
-    Element.EVENTS = {
+    Element.events = {
       attributeChange: null,
       destroy: null
     };
@@ -1215,11 +1218,11 @@
       var attr, attrConfig, attrConfigs, classType, constructor, l, len1, ref;
       this._constructing = true;
       classType = this.constructor;
-      if (!classType.ATTRIBUTES._inited || !classType.EVENTS._inited) {
+      if (!classType.attributes._inited || !classType.events._inited) {
         cola.preprocessClass(classType);
       }
       this._scope = (config != null ? config.scope : void 0) || cola.currentScope;
-      attrConfigs = classType.ATTRIBUTES;
+      attrConfigs = classType.attributes;
       for (attr in attrConfigs) {
         attrConfig = attrConfigs[attr];
         if ((attrConfig != null ? attrConfig.defaultValue : void 0) !== void 0) {
@@ -1292,13 +1295,13 @@
 
     Element.prototype._get = function(attr, ignoreError) {
       var attrConfig;
-      if (!this.constructor.ATTRIBUTES.$has(attr)) {
+      if (!this.constructor.attributes.$has(attr)) {
         if (ignoreError) {
           return;
         }
         throw new cola.Exception("Unrecognized Attribute \"" + attr + "\".");
       }
-      attrConfig = this.constructor.ATTRIBUTES[attr.toLowerCase()];
+      attrConfig = this.constructor.attributes[attr.toLowerCase()];
       if (attrConfig != null ? attrConfig.getter : void 0) {
         return attrConfig.getter.call(this, attr);
       } else {
@@ -1359,8 +1362,8 @@
           }
         }
       }
-      if (this.constructor.ATTRIBUTES.$has(attr)) {
-        attrConfig = this.constructor.ATTRIBUTES[attr.toLowerCase()];
+      if (this.constructor.attributes.$has(attr)) {
+        attrConfig = this.constructor.attributes[attr.toLowerCase()];
         if (attrConfig) {
           if (attrConfig.readOnly) {
             if (ignoreError) {
@@ -1381,7 +1384,7 @@
         if (i > 0) {
           eventName = eventName.substring(0, i);
         }
-        if (this.constructor.EVENTS.$has(eventName)) {
+        if (this.constructor.events.$has(eventName)) {
           if (value instanceof cola.Expression) {
             expression = value;
             scope = this._scope;
@@ -1470,7 +1473,7 @@
     Element.prototype._on = function(eventName, listener, alias, once) {
       var aliasMap, eventConfig, i, listenerRegistry, listeners;
       eventName = eventName.toLowerCase();
-      eventConfig = this.constructor.EVENTS[eventName];
+      eventConfig = this.constructor.events[eventName];
       if (this._eventRegistry) {
         listenerRegistry = this._eventRegistry[eventName];
       } else {
@@ -1515,7 +1518,7 @@
         alias = eventName.substring(i + 1);
         eventName = eventName.substring(0, i);
       }
-      if (!this.constructor.EVENTS.$has(eventName)) {
+      if (!this.constructor.events.$has(eventName)) {
         throw new cola.Exception("Unrecognized event \"" + eventName + "\".");
       }
       if (typeof listener !== "function") {
@@ -1672,7 +1675,7 @@
   cola.Definition = (function(superClass) {
     extend(Definition, superClass);
 
-    Definition.ATTRIBUTES = {
+    Definition.attributes = {
       name: {
         readOnlyAfterCreate: true
       }
@@ -2416,14 +2419,14 @@
   cola.AjaxService = (function(superClass) {
     extend(AjaxService, superClass);
 
-    AjaxService.ATTRIBUTES = {
+    AjaxService.attributes = {
       url: null,
       method: null,
       parameter: null,
       ajaxOptions: null
     };
 
-    AjaxService.EVENTS = {
+    AjaxService.events = {
       beforeSend: null,
       complete: null,
       success: null,
@@ -2556,7 +2559,7 @@
       return Provider.__super__.constructor.apply(this, arguments);
     }
 
-    Provider.ATTRIBUTES = {
+    Provider.attributes = {
       loadMode: {
         defaultValue: "lazy"
       },
@@ -2680,7 +2683,7 @@
       return Validator.__super__.constructor.apply(this, arguments);
     }
 
-    Validator.ATTRIBUTES = {
+    Validator.attributes = {
       message: null,
       messageType: {
         defaultValue: "error",
@@ -2740,7 +2743,7 @@
       return RequiredValidator.__super__.constructor.apply(this, arguments);
     }
 
-    RequiredValidator.ATTRIBUTES = {
+    RequiredValidator.attributes = {
       validateEmptyValue: {
         defaultValue: true
       },
@@ -2774,7 +2777,7 @@
       return NumberValidator.__super__.constructor.apply(this, arguments);
     }
 
-    NumberValidator.ATTRIBUTES = {
+    NumberValidator.attributes = {
       min: null,
       minInclude: {
         defaultValue: true
@@ -2812,7 +2815,7 @@
       return LengthValidator.__super__.constructor.apply(this, arguments);
     }
 
-    LengthValidator.ATTRIBUTES = {
+    LengthValidator.attributes = {
       min: null,
       max: null
     };
@@ -2848,7 +2851,7 @@
       return RegExpValidator.__super__.constructor.apply(this, arguments);
     }
 
-    RegExpValidator.ATTRIBUTES = {
+    RegExpValidator.attributes = {
       regExp: null,
       mode: {
         defaultValue: "white",
@@ -2932,7 +2935,7 @@
       return AsyncValidator.__super__.constructor.apply(this, arguments);
     }
 
-    AsyncValidator.ATTRIBUTES = {
+    AsyncValidator.attributes = {
       async: {
         defaultValue: true
       }
@@ -2975,7 +2978,7 @@
       return AjaxValidator.__super__.constructor.apply(this, arguments);
     }
 
-    AjaxValidator.ATTRIBUTES = {
+    AjaxValidator.attributes = {
       url: null,
       method: null,
       ajaxOptions: null,
@@ -3025,7 +3028,7 @@
   cola.CustomValidator = (function(superClass) {
     extend(CustomValidator, superClass);
 
-    CustomValidator.ATTRIBUTES = {
+    CustomValidator.attributes = {
       async: {
         defaultValue: false
       },
@@ -3115,7 +3118,7 @@
       return NumberDataType.__super__.constructor.apply(this, arguments);
     }
 
-    NumberDataType.ATTRIBUTES = {
+    NumberDataType.attributes = {
       isInteger: null
     };
 
@@ -3218,7 +3221,7 @@
   cola.EntityDataType = (function(superClass) {
     extend(EntityDataType, superClass);
 
-    EntityDataType.ATTRIBUTES = {
+    EntityDataType.attributes = {
       properties: {
         setter: function(properties) {
           var config, l, len1, property, results, results1;
@@ -3249,7 +3252,7 @@
       }
     };
 
-    EntityDataType.EVENTS = {
+    EntityDataType.events = {
       beforeCurrentChange: null,
       currentChange: null,
       beforeDataChange: null,
@@ -3348,7 +3351,7 @@
       return Property.__super__.constructor.apply(this, arguments);
     }
 
-    Property.ATTRIBUTES = {
+    Property.attributes = {
       property: {
         readOnlyAfterCreate: true
       },
@@ -3411,7 +3414,7 @@
       rejectInvalidValue: null
     };
 
-    Property.EVENTS = {
+    Property.events = {
       beforeWrite: null,
       write: null,
       beforeLoad: null,
@@ -5918,13 +5921,25 @@
           for (l = 0, len1 = name.length; l < len1; l++) {
             dataType = name[l];
             if (!(dataType instanceof cola.DataType)) {
-              dataType = new cola.EntityDataType(dataType);
+              if (dataType.name) {
+                if (dataType.lazy === false) {
+                  dataType = new cola.EntityDataType(dataType);
+                } else {
+                  this.data.regDefinition(dataType.name, dataType);
+                }
+              }
             }
           }
         } else {
           dataType = name;
           if (!(dataType instanceof cola.DataType)) {
-            dataType = new cola.EntityDataType(dataType);
+            if (dataType.name) {
+              if (dataType.lazy === false) {
+                dataType = new cola.EntityDataType(dataType);
+              } else {
+                this.data.regDefinition(dataType.name, dataType);
+              }
+            }
           }
         }
       }
@@ -6988,15 +7003,23 @@
     DataModel.prototype.definition = function(name) {
       var definition, ref;
       definition = (ref = this._definitionStore) != null ? ref[name] : void 0;
-      if (definition == null) {
+      if (definition) {
+        if (!(definition instanceof cola.Definition)) {
+          definition = new cola.EntityDataType(definition);
+          this._definitionStore[name] = definition;
+        }
+      } else {
         definition = cola.DataType.defaultDataTypes[name];
       }
       return definition;
     };
 
-    DataModel.prototype.regDefinition = function(definition) {
-      var name, store;
-      name = definition._name;
+    DataModel.prototype.regDefinition = function(name, definition) {
+      var store;
+      if (name instanceof cola.Definition) {
+        definition = name;
+        name = name._name;
+      }
       if (!name) {
         throw new cola.Exception("Attribute \"name\" cannot be emtpy.");
       }
@@ -7664,6 +7687,12 @@
     }
   };
 
+  _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
+
+  cola.defaultAction.number2Word = function(number) {
+    return _numberWords[number];
+  };
+
   _$ = $();
 
   _$.length = 1;
@@ -7687,6 +7716,7 @@
   doms = {};
 
   cola.util.cacheDom = function(ele) {
+    cola._ignoreNodeRemoved = true;
     if (!doms.hiddenDiv) {
       doms.hiddenDiv = $.xCreate({
         tagName: "div",
@@ -7698,7 +7728,6 @@
       doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
       document.body.appendChild(doms.hiddenDiv);
     }
-    cola._ignoreNodeRemoved = true;
     doms.hiddenDiv.appendChild(ele);
     cola._ignoreNodeRemoved = false;
   };
@@ -7792,7 +7821,7 @@
     cola._ignoreNodeRemoved = false;
   };
 
-  cola.util.onNodeRemoved = function(node, listener) {
+  cola.util.onNodeDispose = function(node, listener) {
     var oldListener;
     oldListener = cola.util.userData(node, ON_NODE_REMOVED_KEY);
     if (oldListener) {
@@ -7806,23 +7835,15 @@
     }
   };
 
-  _removeNodeData = function(node) {
-    var i, id, l, len1, listener, nodeRemovedListener, store, text;
-    if (node.nodeType === 3) {
-      return;
-    }
-    if (node.nodeType === 8) {
-      text = node.nodeValue;
-      i = text.indexOf("|");
-      if (i > -1) {
-        id = text.substring(i + 1);
-      }
-    } else {
-      id = node.getAttribute(USER_DATA_KEY);
-    }
-    if (id) {
+  _nodesToBeRemove = {};
+
+  setInterval(function() {
+    var changed, id, l, len1, listener, node, nodeRemovedListener, store;
+    for (id in _nodesToBeRemove) {
+      node = _nodesToBeRemove[id];
       store = cola.util.userDataStore[id];
       if (store) {
+        changed = true;
         nodeRemovedListener = store[ON_NODE_REMOVED_KEY];
         if (nodeRemovedListener) {
           if (nodeRemovedListener instanceof Array) {
@@ -7837,10 +7858,50 @@
         delete cola.util.userDataStore[id];
       }
     }
+    if (changed) {
+      _nodesToBeRemove = {};
+    }
+  }, 10000);
+
+  _getNodeDataId = function(node) {
+    var i, id, text;
+    if (node.nodeType === 3) {
+      return;
+    }
+    if (node.nodeType === 8) {
+      text = node.nodeValue;
+      i = text.indexOf("|");
+      if (i > -1) {
+        id = text.substring(i + 1);
+      }
+    } else {
+      id = node.getAttribute(USER_DATA_KEY);
+    }
+    return id;
+  };
+
+  _DOMNodeInsertedListener = function(evt) {
+    var child, id, node;
+    node = evt.target;
+    if (!node) {
+      return;
+    }
+    child = node.firstChild;
+    while (child) {
+      id = _getNodeDataId(child);
+      if (id) {
+        delete _nodesToBeRemove[id];
+      }
+      child = child.nextSibling;
+    }
+    id = _getNodeDataId(node);
+    if (id) {
+      delete _nodesToBeRemove[id];
+    }
   };
 
   _DOMNodeRemovedListener = function(evt) {
-    var child, node;
+    var child, id, node;
     if (cola._ignoreNodeRemoved || window.closed) {
       return;
     }
@@ -7850,15 +7911,24 @@
     }
     child = node.firstChild;
     while (child) {
-      _removeNodeData(child);
+      id = _getNodeDataId(child);
+      if (id) {
+        _nodesToBeRemove[id] = child;
+      }
       child = child.nextSibling;
     }
-    _removeNodeData(node);
+    id = _getNodeDataId(node);
+    if (id) {
+      _nodesToBeRemove[id] = node;
+    }
   };
+
+  document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
 
   document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
 
   $fly(window).on("unload", function() {
+    document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
     document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
   });
 
@@ -9298,7 +9368,7 @@
         }
       }
       cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, this);
-      cola.util.onNodeRemoved(dom, _destroyDomBinding);
+      cola.util.onNodeDispose(dom, _destroyDomBinding);
     }
 
     _DomBinding.prototype.destroy = function() {
@@ -9468,7 +9538,7 @@
         this.dom = headerNode;
         cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, this);
         cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom);
-        cola.util.onNodeRemoved(headerNode, _destroyDomBinding);
+        cola.util.onNodeDispose(headerNode, _destroyDomBinding);
         repeatItemDomBinding = new cola._RepeatItemDomBinding(dom, null);
         repeatItemDomBinding.repeatDomBinding = this;
         repeatItemDomBinding.isTemplate = true;
@@ -9949,9 +10019,7 @@
         childNode.appendChild(partNode);
       }
     }
-    cola._ignoreNodeRemoved = true;
     dom.parentNode.replaceChild(childNode, dom);
-    cola._ignoreNodeRemoved = false;
   };
 
   cola._domBindingBuilder = {
@@ -10126,7 +10194,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_EVENTS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_EVENTS, TEMP_TEMPLATE, WIDGET_TAG_NAMES, _columnsSetter, _compileWidgetDom, _createGroupArray, _destroyRenderableElement, _extendsWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_events, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_events, TEMP_TEMPLATE, WIDGET_TAGS_REGISTRY, _columnsSetter, _compileWidgetAttribute, _compileWidgetDom, _createGroupArray, _destroyRenderableElement, _extendWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -10495,7 +10563,7 @@
 
   _compileWidgetDom = function(dom, widgetType) {
     var attr, attrName, config, l, len1, len2, n, prop, ref, removeAttrs;
-    if (!widgetType.ATTRIBUTES._inited || !widgetType.EVENTS._inited) {
+    if (!widgetType.attributes._inited || !widgetType.events._inited) {
       cola.preprocessClass(widgetType);
     }
     config = {
@@ -10508,7 +10576,7 @@
       attrName = attr.name;
       if (attrName.indexOf("c-") === 0) {
         prop = attrName.slice(2);
-        if (widgetType.ATTRIBUTES.$has(prop) || widgetType.EVENTS.$has(prop)) {
+        if (widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) {
           config[prop] = cola._compileExpression(attr.value);
           if (removeAttrs == null) {
             removeAttrs = [];
@@ -10517,7 +10585,7 @@
         }
       } else {
         prop = attrName;
-        if (widgetType.ATTRIBUTES.$has(prop) || widgetType.EVENTS.$has(prop)) {
+        if (widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) {
           config[prop] = attr.value;
         }
       }
@@ -10531,8 +10599,52 @@
     return config;
   };
 
+  _compileWidgetAttribute = function(scope, dom, context) {
+    var config, importConfig, importName, importNames, ip, iv, l, len1, p, v, widgetConfigStr;
+    widgetConfigStr = dom.getAttribute("c-widget");
+    if (widgetConfigStr) {
+      dom.removeAttribute("c-widget");
+      if (context.defaultPath) {
+        widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
+      }
+      config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
+      if (config) {
+        importNames = null;
+        for (p in config) {
+          v = config[p];
+          importName = null;
+          if (p.charCodeAt(0) === 35) {
+            importName = p.substring(1);
+          } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
+            importName = v.substring(1);
+          }
+          if (importName) {
+            delete config[p];
+            if (importNames == null) {
+              importNames = [];
+            }
+            importNames.push(importName);
+          }
+        }
+        if (importNames) {
+          for (l = 0, len1 = importNames.length; l < len1; l++) {
+            importName = importNames[l];
+            importConfig = _findWidgetConfig(scope, importName);
+            if (importConfig) {
+              for (ip in importConfig) {
+                iv = importConfig[ip];
+                config[ip] = iv;
+              }
+            }
+          }
+        }
+      }
+    }
+    return config;
+  };
+
   cola._userDomCompiler.$.push(function(scope, dom, attr, context) {
-    var config, constr, importConfig, importName, importNames, ip, iv, jsonConfig, k, l, len1, oldParentConstr, p, tagName, v, widgetConfigStr, widgetType;
+    var config, constr, jsonConfig, k, parentWidget, ref, tagName, v, widgetType;
     if (cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)) {
       return null;
     }
@@ -10542,50 +10654,16 @@
     if (dom.id) {
       jsonConfig = _findWidgetConfig(scope, dom.id);
     }
+    parentWidget = context.parentWidget;
     tagName = dom.tagName;
-    widgetType = WIDGET_TAG_NAMES[tagName];
+    widgetType = parentWidget != null ? (ref = parentWidget.childTagNames) != null ? ref[tagName] : void 0 : void 0;
+    if (widgetType == null) {
+      widgetType = WIDGET_TAGS_REGISTRY[tagName];
+    }
     if (widgetType) {
       config = _compileWidgetDom(dom, widgetType);
     } else {
-      widgetConfigStr = dom.getAttribute("c-widget");
-      if (widgetConfigStr) {
-        dom.removeAttribute("c-widget");
-        if (context.defaultPath) {
-          widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
-        }
-        config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
-        if (config) {
-          importNames = null;
-          for (p in config) {
-            v = config[p];
-            importName = null;
-            if (p.charCodeAt(0) === 35) {
-              importName = p.substring(1);
-            } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
-              importName = v.substring(1);
-            }
-            if (importName) {
-              delete config[p];
-              if (importNames == null) {
-                importNames = [];
-              }
-              importNames.push(importName);
-            }
-          }
-          if (importNames) {
-            for (l = 0, len1 = importNames.length; l < len1; l++) {
-              importName = importNames[l];
-              importConfig = _findWidgetConfig(scope, importName);
-              if (importConfig) {
-                for (ip in importConfig) {
-                  iv = importConfig[ip];
-                  config[ip] = iv;
-                }
-              }
-            }
-          }
-        }
-      }
+      config = _compileWidgetAttribute(scope, dom, context);
     }
     if (!(config || jsonConfig)) {
       return null;
@@ -10606,19 +10684,18 @@
         $type: config
       };
     }
-    oldParentConstr = context.constr;
     if (config.$constr instanceof Function) {
       constr = config.$constr;
     } else {
-      constr = cola.resolveType((oldParentConstr != null ? oldParentConstr.CHILDREN_TYPE_NAMESPACE : void 0) || "widget", config, cola.Widget);
+      constr = cola.resolveType((parentWidget != null ? parentWidget.CHILDREN_TYPE_NAMESPACE : void 0) || "widget", config, cola.Widget);
     }
-    config.$constr = context.constr = constr;
+    config.$constr = context.parentWidget = constr;
     if (cola.util.isCompatibleType(cola.AbstractLayer, constr) && config.lazyRender) {
       cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true);
     }
     return function(scope, dom) {
       var oldScope, widget;
-      context.constr = oldParentConstr;
+      context.parentWidget = parentWidget;
       config.dom = dom;
       oldScope = cola.currentScope;
       cola.currentScope = scope;
@@ -10726,10 +10803,10 @@
   User Widget
    */
 
-  WIDGET_TAG_NAMES = {};
+  WIDGET_TAGS_REGISTRY = {};
 
-  _extendsWidget = function(superCls, definition) {
-    var attr, attrDef, cls, def, evt, evtDef, prop;
+  _extendWidget = function(superCls, definition) {
+    var cls, def, prop, ref, template;
     cls = function() {
       var ref;
       cls.__super__.constructor.apply(this, arguments);
@@ -10738,42 +10815,60 @@
       }
     };
     extend(cls, superCls);
+    cls.tagName = ((ref = definition.tagName) != null ? ref.toUpperCase() : void 0) || "";
+    if (definition.parentWidget) {
+      cls.parentWidget = definition.parentWidget;
+    }
+    if (definition.attributes) {
+      cls.attributes = definition.attributes;
+    }
+    if (definition.events) {
+      cls.events = definition.events;
+    }
+    template = definition.template;
+    if (template) {
+      cls.attributes.template = {
+        defaultValue: template
+      };
+    }
     for (prop in definition) {
       def = definition[prop];
-      if (definition.hasOwnProperty(prop)) {
-        if (prop === "ATTRIBUTES") {
-          for (attr in def) {
-            attrDef = def[attr];
-            cls.ATTRIBUTES[attr] = attrDef;
-          }
-        } else if (prop === "EVENTS") {
-          for (evt in def) {
-            evtDef = def[evt];
-            cls.EVENTS[evt] = evtDef;
-          }
-        } else if (prop === "template") {
-          cls.ATTRIBUTES.template = {
-            defaultValue: def
-          };
-        } else {
-          cls.prototype[prop] = def;
-        }
+      if (definition.hasOwnProperty(prop) && typeof def === "function") {
+        cls.prototype[prop] = def;
       }
     }
     return cls;
   };
 
-  cola.defineWidget = function(name, type, definition) {
+  cola.defineWidget = function(type, definition) {
+    var childTagNames, ref, tagName;
     if (!cola.util.isSuperClass(cola.Widget, type)) {
       definition = type;
       type = cola.TemplateWidget;
     }
     if (definition) {
-      type = _extendsWidget(type, definition);
+      type = _extendWidget(type, definition);
     }
-    WIDGET_TAG_NAMES[name.toUpperCase()] = type;
+    tagName = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
+    if (tagName && type.parentWidget) {
+      childTagNames = type.parentWidget.childTagNames;
+      if (!childTagNames) {
+        type.parentWidget.childTagNames = childTagNames = {};
+      }
+      if (childTagNames[tagName]) {
+        throw new cola.Exception("Tag name \"" + tagName + "\" is already registered in \"" + type.parentWidget.tagName + "\".");
+      }
+      childTagNames[tagName] = type;
+    } else if (tagName) {
+      if (WIDGET_TAGS_REGISTRY[tagName]) {
+        throw new cola.Exception("Tag name \"" + tagName + "\" is already registered.");
+      }
+      WIDGET_TAGS_REGISTRY[tagName] = type;
+    }
     return type;
   };
+
+  cola.registerWidget = cola.defineWidget;
 
 
   /*
@@ -11213,9 +11308,9 @@
 
   ACTIVE_ROTATE_REG = /^rotate/i;
 
-  PAN_VERTICAL_EVENTS = ["panUp", "panDown"];
+  PAN_VERTICAL_events = ["panUp", "panDown"];
 
-  SWIPE_VERTICAL_EVENTS = ["swipeUp", "swipeDown"];
+  SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"];
 
 
   /*
@@ -11305,9 +11400,7 @@
   cola.RenderableElement = (function(superClass) {
     extend(RenderableElement, superClass);
 
-    RenderableElement.TAG_NAME = "DIV";
-
-    RenderableElement.EVENTS = {
+    RenderableElement.events = {
       initDom: null,
       refreshDom: null
     };
@@ -11340,7 +11433,7 @@
       }
       this._dom = dom;
       cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, this);
-      cola.util.onNodeRemoved(dom, _destroyRenderableElement);
+      cola.util.onNodeDispose(dom, _destroyRenderableElement);
       if (parseChild) {
         this._parseDom(dom);
       }
@@ -11356,7 +11449,7 @@
 
     RenderableElement.prototype._createDom = function() {
       var className, dom;
-      dom = document.createElement(this.constructor.TAG_NAME || "div");
+      dom = document.createElement(this.constructor.tagName || "div");
       className = this.constructor.CLASS_NAME || "";
       dom.className = "ui " + className;
       return dom;
@@ -11521,7 +11614,7 @@
 
     Widget.SEMANTIC_CLASS = ["left floated", "right floated"];
 
-    Widget.ATTRIBUTES = {
+    Widget.attributes = {
       display: {
         defaultValue: true,
         refreshDom: true,
@@ -11572,7 +11665,7 @@
       }
     };
 
-    Widget.EVENTS = {
+    Widget.events = {
       click: {
         $event: "click"
       },
@@ -11685,7 +11778,7 @@
         return;
       }
       Widget.__super__._setDom.call(this, dom, parseChild);
-      for (eventName in this.constructor.EVENTS) {
+      for (eventName in this.constructor.events) {
         if (this.getListeners(eventName)) {
           this._bindEvent(eventName);
         }
@@ -11705,8 +11798,8 @@
       if (!this._eventRegistry) {
         return;
       }
-      eventConfig = this.constructor.EVENTS.$get(eventName);
-      if (this.constructor.ATTRIBUTES.hasOwnProperty("disabled") && this.get("disabled") && eventConfig && (eventConfig.$event || eventConfig.hammerEvent)) {
+      eventConfig = this.constructor.events.$get(eventName);
+      if (this.constructor.attributes.hasOwnProperty("disabled") && this.get("disabled") && eventConfig && (eventConfig.$event || eventConfig.hammerEvent)) {
         return;
       }
       if (!this["_hasFireTapEvent"]) {
@@ -11749,7 +11842,7 @@
         return;
       }
       $dom = this.get$Dom();
-      eventConfig = this.constructor.EVENTS.$get(eventName);
+      eventConfig = this.constructor.events.$get(eventName);
       if (eventConfig != null ? eventConfig.$event : void 0) {
         $dom.on(eventConfig.$event, (function(_this) {
           return function(evt) {
@@ -11779,12 +11872,12 @@
             enable: true
           });
         }
-        if (PAN_VERTICAL_EVENTS.indexOf(eventName) >= 0) {
+        if (PAN_VERTICAL_events.indexOf(eventName) >= 0) {
           this._hammer.get("pan").set({
             direction: Hammer.DIRECTION_ALL
           });
         }
-        if (SWIPE_VERTICAL_EVENTS.indexOf(eventName) >= 0) {
+        if (SWIPE_VERTICAL_events.indexOf(eventName) >= 0) {
           this._hammer.get("swipe").set({
             direction: Hammer.DIRECTION_ALL
           });
@@ -12006,7 +12099,7 @@
   cola.TemplateWidget = (function(superClass) {
     extend(TemplateWidget, superClass);
 
-    TemplateWidget.ATTRIBUTES = {
+    TemplateWidget.attributes = {
       template: {
         readOnlyAfterCreate: true
       }
@@ -12019,7 +12112,7 @@
 
     TemplateWidget.prototype.set = function(attr, value, ignoreError) {
       TemplateWidget.__super__.set.call(this, attr, value, ignoreError);
-      if (typeof attr === "string" && this.constructor.ATTRIBUTES.$has(attr)) {
+      if (typeof attr === "string" && this.constructor.attributes.$has(attr)) {
         this._widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
       }
       return this;
@@ -12077,7 +12170,7 @@
       return AbstractContainer.__super__.constructor.apply(this, arguments);
     }
 
-    AbstractContainer.ATTRIBUTES = {
+    AbstractContainer.attributes = {
       content: {
         setter: function(value) {
           this._setContent(value, "content");
@@ -12234,9 +12327,9 @@
       return Link.__super__.constructor.apply(this, arguments);
     }
 
-    Link.TAG_NAME = "a";
+    Link.tagName = "a";
 
-    Link.ATTRIBUTES = {
+    Link.attributes = {
       href: {
         refreshDom: true
       },
@@ -12283,8 +12376,6 @@
 
   })(cola.AbstractContainer);
 
-  cola.defineWidget("c-link", cola.Link);
-
 
   /*
       按钮的抽象类
@@ -12297,7 +12388,7 @@
       return AbstractButton.__super__.constructor.apply(this, arguments);
     }
 
-    AbstractButton.ATTRIBUTES = {
+    AbstractButton.attributes = {
       size: {
         "enum": ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"],
         refreshDom: true,
@@ -12368,11 +12459,13 @@
       return Button.__super__.constructor.apply(this, arguments);
     }
 
+    Button.tagName = "c-button";
+
     Button.SEMANTIC_CLASS = ["left floated", "right floated", "top attached", "bottom attached", "left attached", "right attached"];
 
     Button.CLASS_NAME = "button";
 
-    Button.ATTRIBUTES = {
+    Button.attributes = {
       caption: {
         refreshDom: true
       },
@@ -12511,7 +12604,7 @@
 
   })(cola.AbstractButton);
 
-  cola.defineWidget("c-button", cola.Button);
+  cola.registerWidget(cola.Button);
 
   cola.buttonGroup = {};
 
@@ -12522,11 +12615,15 @@
       return Separator.__super__.constructor.apply(this, arguments);
     }
 
+    Separator.tagName = "c-separator";
+
+    Separator.parentWidget = cola.ButtonGroup;
+
     Separator.SEMANTIC_CLASS = [];
 
     Separator.CLASS_NAME = "or";
 
-    Separator.ATTRIBUTES = {
+    Separator.attributes = {
       text: {
         defaultValue: "or",
         refreshDom: true
@@ -12570,13 +12667,15 @@
       return ButtonGroup.__super__.constructor.apply(this, arguments);
     }
 
+    ButtonGroup.tagName = "c-buttonGroup";
+
     ButtonGroup.SEMANTIC_CLASS = ["left floated", "right floated", "top attached", "bottom attached", "left attached", "right attached"];
 
     ButtonGroup.CHILDREN_TYPE_NAMESPACE = "button-group";
 
     ButtonGroup.CLASS_NAME = "buttons";
 
-    ButtonGroup.ATTRIBUTES = {
+    ButtonGroup.attributes = {
       fluid: {
         type: "boolean",
         refreshDom: true,
@@ -12673,7 +12772,7 @@
         return;
       }
       $dom = this.get$Dom();
-      attrName = this.constructor.ATTRIBUTES.fluid.attrName;
+      attrName = this.constructor.attributes.fluid.attrName;
       oldFluid = $dom.attr(attrName);
       newFluid = 0;
       items = this._items || [];
@@ -12805,7 +12904,7 @@
 
   })(cola.AbstractButton);
 
-  cola.defineWidget("c-buttonGroup", cola.ButtonGroup);
+  cola.registerWidget(cola.ButtonGroup);
 
   cola.registerType("button-group", "_default", cola.Button);
 
@@ -12822,7 +12921,7 @@
   cola.slotPicker.ZyngaScroller = (function(superClass) {
     extend(ZyngaScroller, superClass);
 
-    ZyngaScroller.EVENTS = {
+    ZyngaScroller.events = {
       scrolled: null
     };
 
@@ -13023,7 +13122,7 @@
 
     SlotList.CLASS_NAME = "list";
 
-    SlotList.ATTRIBUTES = {
+    SlotList.attributes = {
       viewItemCount: {
         type: "number",
         refreshDom: true,
@@ -13074,7 +13173,7 @@
       formatter: null
     };
 
-    SlotList.EVENTS = {
+    SlotList.events = {
       valueChange: null
     };
 
@@ -13273,7 +13372,7 @@
       return RangeSlotList.__super__.constructor.apply(this, arguments);
     }
 
-    RangeSlotList.ATTRIBUTES = {
+    RangeSlotList.attributes = {
       range: {
         refreshDom: true,
         setter: function(value) {
@@ -13318,7 +13417,7 @@
 
     MultiSlotPicker.slotConfigs = [];
 
-    MultiSlotPicker.ATTRIBUTES = {
+    MultiSlotPicker.attributes = {
       height: null
     };
 
@@ -13691,7 +13790,7 @@
 
     DateTimePicker.slotConfigs = [];
 
-    DateTimePicker.ATTRIBUTES = {
+    DateTimePicker.attributes = {
       type: {
         "enum": ["year", "month", "date", "time", "datetime", "hours", "minutes", "dateHours", "dateMinutes"],
         defaultValue: "date"
@@ -13953,7 +14052,7 @@
         return DateGrid.__super__.constructor.apply(this, arguments);
       }
 
-      DateGrid.ATTRIBUTES = {
+      DateGrid.attributes = {
         calendar: null,
         columnCount: {
           type: "number",
@@ -13969,7 +14068,7 @@
         tableClassName: null
       };
 
-      DateGrid.EVENTS = {
+      DateGrid.events = {
         cellClick: null,
         refreshCellDom: null
       };
@@ -14212,11 +14311,11 @@
 
       SwipePicker.CLASS_NAME = "ui swipe-picker";
 
-      SwipePicker.ATTRIBUTES = {
+      SwipePicker.attributes = {
         calendar: null
       };
 
-      SwipePicker.EVENTS = {
+      SwipePicker.events = {
         change: null,
         monthChange: null
       };
@@ -14469,7 +14568,7 @@
 
       Calendar.CLASS_NAME = "calendar";
 
-      Calendar.ATTRIBUTES = {
+      Calendar.attributes = {
         date: {
           getter: function() {
             return this._date || new Date();
@@ -14477,7 +14576,7 @@
         }
       };
 
-      Calendar.EVENTS = {
+      Calendar.events = {
         refreshCellDom: null,
         change: null,
         monthChange: null,
@@ -14717,9 +14816,11 @@
       return Divider.__super__.constructor.apply(this, arguments);
     }
 
+    Divider.tagName = "c-divider";
+
     Divider.CLASS_NAME = "divider";
 
-    Divider.ATTRIBUTES = {
+    Divider.attributes = {
       direction: {
         "enum": ["vertical", "horizontal", ""],
         defaultValue: "",
@@ -14749,7 +14850,7 @@
 
   })(cola.AbstractContainer);
 
-  cola.defineWidget("c-divider", cola.ButtonGroup);
+  cola.registerWidget(cola.Divider);
 
   BLANK_PATH = "about:blank";
 
@@ -14760,9 +14861,11 @@
       return IFrame.__super__.constructor.apply(this, arguments);
     }
 
+    IFrame.tagName = "c-iframe";
+
     IFrame.CLASS_NAME = "iframe";
 
-    IFrame.ATTRIBUTES = {
+    IFrame.attributes = {
       path: {
         defaultValue: BLANK_PATH,
         setter: function(value) {
@@ -14779,7 +14882,7 @@
       loadingText: null
     };
 
-    IFrame.EVENTS = {
+    IFrame.events = {
       load: null
     };
 
@@ -14871,7 +14974,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-iframe", cola.IFrame);
+  cola.registerWidget(cola.IFrame);
 
   cola.SubView = (function(superClass) {
     extend(SubView, superClass);
@@ -14880,9 +14983,11 @@
       return SubView.__super__.constructor.apply(this, arguments);
     }
 
+    SubView.tagName = "c-subView";
+
     SubView.CLASS_NAME = "sub-view";
 
-    SubView.ATTRIBUTES = {
+    SubView.attributes = {
       loading: null,
       url: {
         readOnlyAfterCreate: true
@@ -14914,7 +15019,7 @@
       }
     };
 
-    SubView.EVENTS = {
+    SubView.events = {
       load: null,
       loadError: null,
       unload: null
@@ -15042,7 +15147,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-subView", cola.SubView);
+  cola.registerWidget(cola.SubView);
 
   cola.Image = (function(superClass) {
     extend(Image, superClass);
@@ -15051,11 +15156,11 @@
       return Image.__super__.constructor.apply(this, arguments);
     }
 
+    Image.tagName = "img";
+
     Image.CLASS_NAME = "image";
 
-    Image.TAG_NAME = "img";
-
-    Image.ATTRIBUTES = {
+    Image.attributes = {
       src: {
         refreshDom: true
       },
@@ -15111,8 +15216,6 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-image", cola.Image);
-
   cola.Avatar = (function(superClass) {
     extend(Avatar, superClass);
 
@@ -15126,8 +15229,6 @@
 
   })(cola.Image);
 
-  cola.defineWidget("c-avatar", cola.Avatar);
-
   cola.Label = (function(superClass) {
     extend(Label, superClass);
 
@@ -15135,11 +15236,13 @@
       return Label.__super__.constructor.apply(this, arguments);
     }
 
+    Label.tagName = "c-label";
+
     Label.SEMANTIC_CLASS = ["left floated", "right floated", "left top attached", "right top attached", "right bottom attached", "left bottom attached", "top attached", "bottom attached", "left ribbon", "right ribbon", "center aligned"];
 
     Label.CLASS_NAME = "label";
 
-    Label.ATTRIBUTES = {
+    Label.attributes = {
       size: {
         "enum": ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"],
         refreshDom: true,
@@ -15283,7 +15386,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-label", cola.Label);
+  cola.registerWidget(cola.Label);
 
   cola.ImageLabel = (function(superClass) {
     extend(ImageLabel, superClass);
@@ -15292,9 +15395,11 @@
       return ImageLabel.__super__.constructor.apply(this, arguments);
     }
 
+    ImageLabel.tagName = "c-imageLabel";
+
     ImageLabel.CLASS_NAME = "image label";
 
-    ImageLabel.ATTRIBUTES = {
+    ImageLabel.attributes = {
       image: null,
       iconPosition: {
         refreshDom: true,
@@ -15350,7 +15455,7 @@
 
   })(cola.Label);
 
-  cola.defineWidget("c-imageLabel", cola.ImageLabel);
+  cola.registerWidget(cola.ImageLabel);
 
   cola.PointingLabel = (function(superClass) {
     extend(PointingLabel, superClass);
@@ -15359,9 +15464,11 @@
       return PointingLabel.__super__.constructor.apply(this, arguments);
     }
 
+    PointingLabel.tagName = "c-pointingLabel";
+
     PointingLabel.CLASS_NAME = "pointing label";
 
-    PointingLabel.ATTRIBUTES = {
+    PointingLabel.attributes = {
       pointing: {
         refreshDom: true,
         defaultValue: "top",
@@ -15391,7 +15498,7 @@
 
   })(cola.Label);
 
-  cola.defineWidget("c-pointingLabel", cola.PointingLabel);
+  cola.registerWidget(cola.PointingLabel);
 
   cola.Tag = (function(superClass) {
     extend(Tag, superClass);
@@ -15400,13 +15507,15 @@
       return Tag.__super__.constructor.apply(this, arguments);
     }
 
+    Tag.tagName = "c-tag";
+
     Tag.CLASS_NAME = "tag label";
 
     return Tag;
 
   })(cola.Label);
 
-  cola.defineWidget("c-tag", cola.Tag);
+  cola.registerWidget(cola.Tag);
 
   cola.Corner = (function(superClass) {
     extend(Corner, superClass);
@@ -15415,9 +15524,11 @@
       return Corner.__super__.constructor.apply(this, arguments);
     }
 
+    Corner.tagName = "c-corner";
+
     Corner.CLASS_NAME = "corner label";
 
-    Corner.ATTRIBUTES = {
+    Corner.attributes = {
       position: {
         "enum": ["left", "right"],
         defaultValue: "right",
@@ -15445,7 +15556,7 @@
 
   })(cola.Label);
 
-  cola.defineWidget("c-corner", cola.Corner);
+  cola.registerWidget(cola.Corner);
 
   cola.Ribbon = (function(superClass) {
     extend(Ribbon, superClass);
@@ -15454,9 +15565,11 @@
       return Ribbon.__super__.constructor.apply(this, arguments);
     }
 
+    Ribbon.tagName = "c-ribbon";
+
     Ribbon.CLASS_NAME = "ribbon label";
 
-    Ribbon.ATTRIBUTES = {
+    Ribbon.attributes = {
       position: {
         "enum": ["left", "right"],
         defaultValue: "left",
@@ -15492,7 +15605,7 @@
 
   })(cola.Label);
 
-  cola.defineWidget("c-ribbon", cola.Ribbon);
+  cola.registerWidget(cola.Ribbon);
 
   (function() {
     var createMessageBoxDom, messageBox;
@@ -15819,9 +15932,11 @@
       return Reveal.__super__.constructor.apply(this, arguments);
     }
 
+    Reveal.tagName = "c-reveal";
+
     Reveal.CLASS_NAME = "ui reveal";
 
-    Reveal.ATTRIBUTES = {
+    Reveal.attributes = {
       type: {
         refreshDom: true,
         defaultValue: "fade",
@@ -16059,7 +16174,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-reveal", cola.Reveal);
+  cola.registerWidget(cola.Reveal);
 
   cola.Segment = (function(superClass) {
     extend(Segment, superClass);
@@ -16068,11 +16183,13 @@
       return Segment.__super__.constructor.apply(this, arguments);
     }
 
+    Segment.tagName = "c-segment";
+
     Segment.CLASS_NAME = "segment";
 
     Segment.SEMANTIC_CLASS = ["left floated", "right floated", "top attached", "bottom attached", "left attached", "right attached", "very basic", "left aligned", "right aligned", "center aligned", "vertical segment", "horizontal segment"];
 
-    Segment.ATTRIBUTES = {
+    Segment.attributes = {
       textAlign: {
         refreshDom: true,
         "enum": ["left", "right", "center"],
@@ -16136,7 +16253,7 @@
 
   })(cola.AbstractContainer);
 
-  cola.defineWidget("c-segment", cola.Segment);
+  cola.registerWidget(cola.Segment);
 
   _removeTranslateStyle = function(element) {
     var l, len1, prefix, ref;
@@ -16155,7 +16272,9 @@
       return AbstractLayer.__super__.constructor.apply(this, arguments);
     }
 
-    AbstractLayer.ATTRIBUTES = {
+    AbstractLayer.tagName = "c-layer";
+
+    AbstractLayer.attributes = {
       duration: {
         defaultValue: 300
       },
@@ -16171,7 +16290,7 @@
       }
     };
 
-    AbstractLayer.EVENTS = {
+    AbstractLayer.events = {
       show: null,
       hide: null,
       beforeShow: null,
@@ -16249,7 +16368,7 @@
 
     Layer.CLASS_NAME = "layer transition hidden";
 
-    Layer.ATTRIBUTES = {
+    Layer.attributes = {
       animation: {
         defaultValue: "slide left",
         "enum": ["scale", "drop", "browse right", "browse", "slide left", "slide right", "slide up", "slide down", "fade left", "fade right", "fade up", "fade down", "fly left", "fly right", "fly up", "fly down", "swing left", "swing right", "swing up", "swing down", "horizontal flip", "vertical flip"]
@@ -16344,7 +16463,7 @@
 
   })(cola.AbstractLayer);
 
-  cola.defineWidget("c-layer", cola.Layer);
+  cola.registerWidget(cola.Layer);
 
   cola.Dialog = (function(superClass) {
     extend(Dialog, superClass);
@@ -16353,9 +16472,11 @@
       return Dialog.__super__.constructor.apply(this, arguments);
     }
 
+    Dialog.tagName = "c-dialog";
+
     Dialog.CLASS_NAME = "dialog transition v-box hidden";
 
-    Dialog.ATTRIBUTES = {
+    Dialog.attributes = {
       context: null,
       animation: {
         defaultValue: "scale",
@@ -16629,7 +16750,7 @@
 
   })(cola.Layer);
 
-  cola.defineWidget("c-dialog", cola.Dialog);
+  cola.registerWidget(cola.Dialog);
 
   cola.Sidebar = (function(superClass) {
     extend(Sidebar, superClass);
@@ -16638,9 +16759,11 @@
       return Sidebar.__super__.constructor.apply(this, arguments);
     }
 
+    Sidebar.tagName = "c-sidebar";
+
     Sidebar.CLASS_NAME = "ui sidebar";
 
-    Sidebar.ATTRIBUTES = {
+    Sidebar.attributes = {
       direction: {
         defaultValue: "left",
         refreshDom: true,
@@ -16815,285 +16938,7 @@
 
   })(cola.AbstractLayer);
 
-  cola.defineWidget("c-sidebar", cola.Sidebar);
-
-  if (cola.tab == null) {
-    cola.tab = {};
-  }
-
-  cola.tab.AbstractTabButton = (function(superClass) {
-    extend(AbstractTabButton, superClass);
-
-    function AbstractTabButton() {
-      return AbstractTabButton.__super__.constructor.apply(this, arguments);
-    }
-
-    AbstractTabButton.TAG_NAME = "li";
-
-    AbstractTabButton.CLASS_NAME = "tab-button";
-
-    AbstractTabButton.ATTRIBUTES = {
-      icon: {
-        refreshDom: true,
-        setter: function(value) {
-          var oldValue, ref;
-          oldValue = this["_icon"];
-          this["_icon"] = value;
-          if (oldValue && oldValue !== value && this._dom && ((ref = this._doms) != null ? ref.icon : void 0)) {
-            $fly(this._doms.icon).removeClass(oldValue);
-          }
-        }
-      },
-      closeable: {
-        type: "boolean",
-        refreshDom: true,
-        defaultValue: false
-      },
-      caption: {
-        refreshDom: true
-      },
-      name: {
-        refreshDom: true
-      }
-    };
-
-    AbstractTabButton.prototype.getCaptionDom = function() {
-      var dom;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      if (!this._doms.caption) {
-        dom = this._doms.caption = document.createElement("div");
-        dom.className = "caption";
-        this._dom.appendChild(dom);
-      }
-      return this._doms.caption;
-    };
-
-    AbstractTabButton.prototype.getCloseDom = function() {
-      var base, tabItem;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      tabItem = this;
-      if ((base = this._doms)._closeBtn == null) {
-        base._closeBtn = $.xCreate({
-          tagName: "div",
-          "class": "close-btn",
-          content: {
-            tagName: "i",
-            "class": "close icon"
-          },
-          click: function() {
-            tabItem.close();
-            return false;
-          }
-        });
-      }
-      return this._doms._closeBtn;
-    };
-
-    AbstractTabButton.prototype._refreshIcon = function() {
-      var base, captionDom, dom;
-      if (!this._dom) {
-        return;
-      }
-      if (this._icon) {
-        captionDom = this.getCaptionDom();
-        if ((base = this._doms).icon == null) {
-          base.icon = document.createElement("i");
-        }
-        dom = this._doms.icon;
-        $fly(dom).addClass(this._icon + " icon");
-        if (dom.parentNode !== captionDom) {
-          captionDom.appendChild(dom);
-        }
-      } else {
-        if (this._doms.iconDom) {
-          $fly(this._doms.iconDom).remove();
-        }
-      }
-    };
-
-    AbstractTabButton.prototype._refreshCaption = function() {
-      var base, captionDom, span;
-      if (!this._dom) {
-        return;
-      }
-      if (this._caption) {
-        captionDom = this.getCaptionDom();
-        if ((base = this._doms).span == null) {
-          base.span = document.createElement("span");
-        }
-        span = this._doms.span;
-        $(span).text(this._caption);
-        if (span.parentNode !== captionDom) {
-          captionDom.appendChild(span);
-        }
-      } else if (this._doms.span) {
-        $(this._doms.span).remove();
-      }
-    };
-
-    AbstractTabButton.prototype._parseDom = function(dom) {
-      var child, parseCaption, tabItem;
-      child = dom.firstChild;
-      tabItem = this;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      parseCaption = (function(_this) {
-        return function(node) {
-          var childNode;
-          childNode = node.firstChild;
-          while (childNode) {
-            if (childNode.nodeType === 1) {
-              if (childNode.nodeName === "SPAN") {
-                _this._doms.span = childNode;
-                if (_this._caption == null) {
-                  _this._caption = cola.util.getTextChildData(childNode);
-                }
-              }
-              if (childNode.nodeName === "I") {
-                _this._doms.icon = childNode;
-                if (_this._icon == null) {
-                  _this._icon = childNode.className;
-                }
-              }
-            }
-            childNode = childNode.nextSibling;
-          }
-        };
-      })(this);
-      while (child) {
-        if (child.nodeType === 1) {
-          if (!this._doms.caption && cola.util.hasClass(child, "caption")) {
-            this._doms.caption = child;
-            parseCaption(child);
-          } else if (!this._doms.closeBtn && cola.util.hasClass(child, "close-btn")) {
-            this._doms._closeBtn = child;
-            $(child).on("click", function() {
-              tabItem.close();
-              return false;
-            });
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    AbstractTabButton.prototype._doRefreshDom = function() {
-      var closeDom;
-      if (!this._dom) {
-        return;
-      }
-      AbstractTabButton.__super__._doRefreshDom.call(this);
-      this._refreshIcon();
-      this._refreshCaption();
-      if (!!this._closeable) {
-        closeDom = this.getCloseDom();
-        if (closeDom.parentNode !== this._dom) {
-          this._dom.appendChild(closeDom);
-        }
-      } else if (this._doms && this._doms.closeDom) {
-        $(this._doms.closeDom).remove();
-      }
-    };
-
-    AbstractTabButton.prototype._createCaptionDom = function() {
-      var dom;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      dom = $.xCreate({
-        tagName: "div",
-        "class": "caption",
-        contextKey: "caption",
-        content: [
-          {
-            tagName: "i",
-            contextKey: "icon",
-            "class": "icon"
-          }, {
-            tagName: "span",
-            contextKey: "span",
-            content: this._caption || ""
-          }
-        ]
-      }, this._doms);
-      return this._dom.appendChild(dom);
-    };
-
-    AbstractTabButton.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      AbstractTabButton.__super__.destroy.call(this);
-      delete this._doms;
-      return this;
-    };
-
-    return AbstractTabButton;
-
-  })(cola.Widget);
-
-  cola.TabButton = (function(superClass) {
-    extend(TabButton, superClass);
-
-    function TabButton() {
-      return TabButton.__super__.constructor.apply(this, arguments);
-    }
-
-    TabButton.ATTRIBUTES = {
-      content: {
-        setter: function(value) {
-          return this._content = cola.xRender(value, this._scope);
-        }
-      },
-      contentContainer: null,
-      parent: null
-    };
-
-    TabButton.EVENTS = {
-      beforeClose: null,
-      afterClose: null
-    };
-
-    TabButton.prototype.close = function() {
-      var arg, ref;
-      arg = {
-        tab: this
-      };
-      this.fire("beforeClose", this, arg);
-      if (arg.processDefault === false) {
-        return this;
-      }
-      if ((ref = this._parent) != null) {
-        ref.removeTab(this);
-      }
-      this.destroy();
-      this.fire("afterClose", this, arg);
-      return this;
-    };
-
-    TabButton.prototype.getContentDom = function() {
-      return this._content;
-    };
-
-    TabButton.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      TabButton.__super__.destroy.call(this);
-      delete this._content;
-      delete this._contentContainer;
-      delete this._parent;
-      return this;
-    };
-
-    return TabButton;
-
-  })(cola.tab.AbstractTabButton);
+  cola.registerWidget(cola.Sidebar);
 
   cola.Tab = (function(superClass) {
     extend(Tab, superClass);
@@ -17102,11 +16947,11 @@
       return Tab.__super__.constructor.apply(this, arguments);
     }
 
+    Tab.tagName = "c-tab";
+
     Tab.CLASS_NAME = "c-tab";
 
-    Tab.TAG_NAME = "div";
-
-    Tab.ATTRIBUTES = {
+    Tab.attributes = {
       direction: {
         refreshDom: true,
         "enum": ["left", "right", "top", "bottom"],
@@ -17146,7 +16991,7 @@
       }
     };
 
-    Tab.EVENTS = {
+    Tab.events = {
       beforeChange: null,
       change: null
     };
@@ -17456,7 +17301,287 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-tab", cola.Tab);
+  cola.registerWidget(cola.Tab);
+
+  if (cola.tab == null) {
+    cola.tab = {};
+  }
+
+  cola.tab.AbstractTabButton = (function(superClass) {
+    extend(AbstractTabButton, superClass);
+
+    function AbstractTabButton() {
+      return AbstractTabButton.__super__.constructor.apply(this, arguments);
+    }
+
+    AbstractTabButton.attributes = {
+      icon: {
+        refreshDom: true,
+        setter: function(value) {
+          var oldValue, ref;
+          oldValue = this["_icon"];
+          this["_icon"] = value;
+          if (oldValue && oldValue !== value && this._dom && ((ref = this._doms) != null ? ref.icon : void 0)) {
+            $fly(this._doms.icon).removeClass(oldValue);
+          }
+        }
+      },
+      closeable: {
+        type: "boolean",
+        refreshDom: true,
+        defaultValue: false
+      },
+      caption: {
+        refreshDom: true
+      },
+      name: {
+        refreshDom: true
+      }
+    };
+
+    AbstractTabButton.prototype.getCaptionDom = function() {
+      var dom;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      if (!this._doms.caption) {
+        dom = this._doms.caption = document.createElement("div");
+        dom.className = "caption";
+        this._dom.appendChild(dom);
+      }
+      return this._doms.caption;
+    };
+
+    AbstractTabButton.prototype.getCloseDom = function() {
+      var base, tabItem;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      tabItem = this;
+      if ((base = this._doms)._closeBtn == null) {
+        base._closeBtn = $.xCreate({
+          tagName: "div",
+          "class": "close-btn",
+          content: {
+            tagName: "i",
+            "class": "close icon"
+          },
+          click: function() {
+            tabItem.close();
+            return false;
+          }
+        });
+      }
+      return this._doms._closeBtn;
+    };
+
+    AbstractTabButton.prototype._refreshIcon = function() {
+      var base, captionDom, dom;
+      if (!this._dom) {
+        return;
+      }
+      if (this._icon) {
+        captionDom = this.getCaptionDom();
+        if ((base = this._doms).icon == null) {
+          base.icon = document.createElement("i");
+        }
+        dom = this._doms.icon;
+        $fly(dom).addClass(this._icon + " icon");
+        if (dom.parentNode !== captionDom) {
+          captionDom.appendChild(dom);
+        }
+      } else {
+        if (this._doms.iconDom) {
+          $fly(this._doms.iconDom).remove();
+        }
+      }
+    };
+
+    AbstractTabButton.prototype._refreshCaption = function() {
+      var base, captionDom, span;
+      if (!this._dom) {
+        return;
+      }
+      if (this._caption) {
+        captionDom = this.getCaptionDom();
+        if ((base = this._doms).span == null) {
+          base.span = document.createElement("span");
+        }
+        span = this._doms.span;
+        $(span).text(this._caption);
+        if (span.parentNode !== captionDom) {
+          captionDom.appendChild(span);
+        }
+      } else if (this._doms.span) {
+        $(this._doms.span).remove();
+      }
+    };
+
+    AbstractTabButton.prototype._parseDom = function(dom) {
+      var child, parseCaption, tabItem;
+      child = dom.firstChild;
+      tabItem = this;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      parseCaption = (function(_this) {
+        return function(node) {
+          var childNode;
+          childNode = node.firstChild;
+          while (childNode) {
+            if (childNode.nodeType === 1) {
+              if (childNode.nodeName === "SPAN") {
+                _this._doms.span = childNode;
+                if (_this._caption == null) {
+                  _this._caption = cola.util.getTextChildData(childNode);
+                }
+              }
+              if (childNode.nodeName === "I") {
+                _this._doms.icon = childNode;
+                if (_this._icon == null) {
+                  _this._icon = childNode.className;
+                }
+              }
+            }
+            childNode = childNode.nextSibling;
+          }
+        };
+      })(this);
+      while (child) {
+        if (child.nodeType === 1) {
+          if (!this._doms.caption && cola.util.hasClass(child, "caption")) {
+            this._doms.caption = child;
+            parseCaption(child);
+          } else if (!this._doms.closeBtn && cola.util.hasClass(child, "close-btn")) {
+            this._doms._closeBtn = child;
+            $(child).on("click", function() {
+              tabItem.close();
+              return false;
+            });
+          }
+        }
+        child = child.nextSibling;
+      }
+    };
+
+    AbstractTabButton.prototype._doRefreshDom = function() {
+      var closeDom;
+      if (!this._dom) {
+        return;
+      }
+      AbstractTabButton.__super__._doRefreshDom.call(this);
+      this._refreshIcon();
+      this._refreshCaption();
+      if (!!this._closeable) {
+        closeDom = this.getCloseDom();
+        if (closeDom.parentNode !== this._dom) {
+          this._dom.appendChild(closeDom);
+        }
+      } else if (this._doms && this._doms.closeDom) {
+        $(this._doms.closeDom).remove();
+      }
+    };
+
+    AbstractTabButton.prototype._createCaptionDom = function() {
+      var dom;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      dom = $.xCreate({
+        tagName: "div",
+        "class": "caption",
+        contextKey: "caption",
+        content: [
+          {
+            tagName: "i",
+            contextKey: "icon",
+            "class": "icon"
+          }, {
+            tagName: "span",
+            contextKey: "span",
+            content: this._caption || ""
+          }
+        ]
+      }, this._doms);
+      return this._dom.appendChild(dom);
+    };
+
+    AbstractTabButton.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      AbstractTabButton.__super__.destroy.call(this);
+      delete this._doms;
+      return this;
+    };
+
+    return AbstractTabButton;
+
+  })(cola.Widget);
+
+  cola.TabButton = (function(superClass) {
+    extend(TabButton, superClass);
+
+    function TabButton() {
+      return TabButton.__super__.constructor.apply(this, arguments);
+    }
+
+    TabButton.CLASS_NAME = "tab-button";
+
+    TabButton.parentWidget = cola.Tab;
+
+    TabButton.attributes = {
+      content: {
+        setter: function(value) {
+          return this._content = cola.xRender(value, this._scope);
+        }
+      },
+      contentContainer: null,
+      parent: null
+    };
+
+    TabButton.events = {
+      beforeClose: null,
+      afterClose: null
+    };
+
+    TabButton.prototype.close = function() {
+      var arg, ref;
+      arg = {
+        tab: this
+      };
+      this.fire("beforeClose", this, arg);
+      if (arg.processDefault === false) {
+        return this;
+      }
+      if ((ref = this._parent) != null) {
+        ref.removeTab(this);
+      }
+      this.destroy();
+      this.fire("afterClose", this, arg);
+      return this;
+    };
+
+    TabButton.prototype.getContentDom = function() {
+      return this._content;
+    };
+
+    TabButton.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      TabButton.__super__.destroy.call(this);
+      delete this._content;
+      delete this._contentContainer;
+      delete this._parent;
+      return this;
+    };
+
+    return TabButton;
+
+  })(cola.tab.AbstractTabButton);
+
+  cola.registerWidget(cola.TabButton);
 
   cola.Panel = (function(superClass) {
     extend(Panel, superClass);
@@ -17467,7 +17592,7 @@
 
     Panel.CLASS_NAME = "panel";
 
-    Panel.ATTRIBUTES = {
+    Panel.attributes = {
       collapsible: {
         type: "boolean",
         defaultValue: true
@@ -17490,7 +17615,7 @@
       }
     };
 
-    Panel.EVENTS = {
+    Panel.events = {
       open: null,
       collapsedChange: null,
       close: null,
@@ -17733,7 +17858,7 @@
       return AbstractEditor.__super__.constructor.apply(this, arguments);
     }
 
-    AbstractEditor.ATTRIBUTES = {
+    AbstractEditor.attributes = {
       value: {
         refreshDom: true,
         setter: function(value) {
@@ -17775,7 +17900,7 @@
       }
     };
 
-    AbstractEditor.EVENTS = {
+    AbstractEditor.events = {
       beforePost: null,
       post: null,
       beforeChange: null,
@@ -17873,11 +17998,13 @@
       return AbstractCheckbox.__super__.constructor.apply(this, arguments);
     }
 
+    AbstractCheckbox.tagName = "c-checkbox";
+
     AbstractCheckbox.CLASS_NAME = "checkbox";
 
     AbstractCheckbox.INPUT_TYPE = "checkbox";
 
-    AbstractCheckbox.ATTRIBUTES = {
+    AbstractCheckbox.attributes = {
       label: {
         refreshDom: true
       },
@@ -18066,7 +18193,7 @@
       return Checkbox.__super__.constructor.apply(this, arguments);
     }
 
-    Checkbox.ATTRIBUTES = {
+    Checkbox.attributes = {
       indeterminateValue: null,
       triState: {
         type: "boolean",
@@ -18093,7 +18220,7 @@
 
   })(cola.AbstractCheckbox);
 
-  cola.defineWidget("c-checkbox", cola.Checkbox);
+  cola.registerWidget(cola.Checkbox);
 
   cola.Toggle = (function(superClass) {
     extend(Toggle, superClass);
@@ -18102,13 +18229,15 @@
       return Toggle.__super__.constructor.apply(this, arguments);
     }
 
+    Toggle.tagName = "c-toggle";
+
     Toggle.CLASS_NAME = "toggle checkbox";
 
     return Toggle;
 
   })(cola.AbstractCheckbox);
 
-  cola.defineWidget("c-toggle", cola.Toggle);
+  cola.registerWidget(cola.Toggle);
 
   cola.Slider = (function(superClass) {
     extend(Slider, superClass);
@@ -18122,8 +18251,6 @@
     return Slider;
 
   })(cola.AbstractCheckbox);
-
-  cola.defineWidget("c-slider", cola.Slider);
 
   DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd";
 
@@ -18146,7 +18273,7 @@
 
     AbstractInput.SEMANTIC_CLASS = ["left floated", "right floated", "corner labeled", "right labeled", "left icon", "left action"];
 
-    AbstractInput.ATTRIBUTES = {
+    AbstractInput.attributes = {
       name: null,
       value: {
         setter: function(value) {
@@ -18431,13 +18558,11 @@
       btnDom = actionButton.getDom();
       leftAction = buttonPosition === "left";
       this._classNamePool.add(leftAction ? "left action" : "action");
-      cola._ignoreNodeRemoved = true;
       if (leftAction) {
         $(this._doms.input).before(btnDom);
       } else {
         this._dom.appendChild(btnDom);
       }
-      cola._ignoreNodeRemoved = false;
     };
 
     AbstractInput.prototype._refreshIcon = function() {
@@ -18455,13 +18580,11 @@
         $(iconDom).addClass(icon + " icon");
         leftIcon = iconPosition === "left";
         classNamePool.add(leftIcon ? "left icon" : "icon");
-        cola._ignoreNodeRemoved = true;
         if (leftIcon) {
           $(this._doms.input).before(iconDom);
         } else {
           this._dom.appendChild(iconDom);
         }
-        cola._ignoreNodeRemoved = false;
       } else {
         if (this._doms.iconDom) {
           $(this._doms.iconDom).remove();
@@ -18528,9 +18651,11 @@
       return Input.__super__.constructor.apply(this, arguments);
     }
 
+    Input.tagName = "c-input";
+
     Input.CLASS_NAME = "input";
 
-    Input.ATTRIBUTES = {
+    Input.attributes = {
       displayFormat: null,
       inputFormat: null,
       inputType: {
@@ -18542,7 +18667,7 @@
       }
     };
 
-    Input.EVENTS = {
+    Input.events = {
       focus: null,
       blur: null,
       keyDown: null,
@@ -18695,7 +18820,7 @@
 
   })(cola.AbstractInput);
 
-  cola.defineWidget("c-input", cola.Input);
+  cola.registerWidget(cola.Input);
 
   cola.Progress = (function(superClass) {
     extend(Progress, superClass);
@@ -18704,11 +18829,13 @@
       return Progress.__super__.constructor.apply(this, arguments);
     }
 
+    Progress.tagName = "c-progress";
+
     Progress.CLASS_NAME = "progress";
 
     Progress.SEMANTIC_CLASS = ["left floated", "right floated"];
 
-    Progress.ATTRIBUTES = {
+    Progress.attributes = {
       total: {
         type: "number",
         defaultValue: 0,
@@ -18804,7 +18931,7 @@
       }
     };
 
-    Progress.EVENTS = {
+    Progress.events = {
       change: null,
       success: null,
       active: null,
@@ -19008,7 +19135,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-progress", cola.Progress);
+  cola.registerWidget(cola.Progress);
 
   cola.RadioButton = (function(superClass) {
     extend(RadioButton, superClass);
@@ -19017,11 +19144,13 @@
       return RadioButton.__super__.constructor.apply(this, arguments);
     }
 
+    RadioButton.tagName = "c-radio";
+
     RadioButton.CLASS_NAME = "checkbox";
 
     RadioButton.INPUT_TYPE = "radio";
 
-    RadioButton.ATTRIBUTES = {
+    RadioButton.attributes = {
       type: {
         "enum": ["radio", "toggle", "slider"],
         defaultValue: "radio",
@@ -19222,7 +19351,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-radio", cola.Radio);
+  cola.registerWidget(cola.RadioButton);
 
   emptyRadioGroupItems = [];
 
@@ -19233,9 +19362,11 @@
       return RadioGroup.__super__.constructor.apply(this, arguments);
     }
 
+    RadioGroup.tagName = "c-radioGroup";
+
     RadioGroup.CLASS_NAME = "grouped";
 
-    RadioGroup.ATTRIBUTES = {
+    RadioGroup.attributes = {
       name: null,
       items: {
         setter: function(items) {
@@ -19429,7 +19560,7 @@
 
   })(cola.AbstractEditor);
 
-  cola.defineWidget("c-radioGroup", cola.RadioGroup);
+  cola.registerWidget(cola.RadioGroup);
 
   cola.Rating = (function(superClass) {
     extend(Rating, superClass);
@@ -19438,9 +19569,11 @@
       return Rating.__super__.constructor.apply(this, arguments);
     }
 
+    Rating.tagName = "c-rating";
+
     Rating.CLASS_NAME = "rating";
 
-    Rating.ATTRIBUTES = {
+    Rating.attributes = {
       rating: {
         type: "number",
         defaultValue: 0,
@@ -19462,7 +19595,7 @@
       }
     };
 
-    Rating.EVENTS = {
+    Rating.events = {
       rate: null
     };
 
@@ -19527,7 +19660,7 @@
 
   cola.Element.mixin(cola.Rating, cola.DataWidgetMixin);
 
-  cola.defineWidget("c-rating", cola.Rating);
+  cola.registerWidget(cola.Rating);
 
   cola.Select = (function(superClass) {
     extend(Select, superClass);
@@ -19536,9 +19669,11 @@
       return Select.__super__.constructor.apply(this, arguments);
     }
 
+    Select.tagName = "c-select";
+
     Select.CLASS_NAME = "input select";
 
-    Select.ATTRIBUTES = {
+    Select.attributes = {
       options: {
         setter: function(options) {
           var ref, select;
@@ -19644,7 +19779,7 @@
 
   })(cola.AbstractInput);
 
-  cola.defineWidget("c-select", cola.Select);
+  cola.registerWidget(cola.Select);
 
   dropdownDialogMargin = 0;
 
@@ -19671,7 +19806,7 @@
 
     AbstractDropdown.CLASS_NAME = "input drop";
 
-    AbstractDropdown.ATTRIBUTES = {
+    AbstractDropdown.attributes = {
       items: {
         expressionType: "repeat",
         setter: function(items) {
@@ -19705,7 +19840,7 @@
       dropdownHeight: null
     };
 
-    AbstractDropdown.EVENTS = {
+    AbstractDropdown.events = {
       beforeOpen: null,
       open: null,
       close: null
@@ -20098,7 +20233,7 @@
 
     DropBox.CLASS_NAME = "drop-box transition";
 
-    DropBox.ATTRIBUTES = {
+    DropBox.attributes = {
       dropdown: null
     };
 
@@ -20187,7 +20322,9 @@
       return Dropdown.__super__.constructor.apply(this, arguments);
     }
 
-    Dropdown.ATTRIBUTES = {
+    Dropdown.tagName = "c-dropdown";
+
+    Dropdown.attributes = {
       filterable: {
         readOnlyAfterCreate: true,
         defaultValue: true
@@ -20201,7 +20338,7 @@
       }
     };
 
-    Dropdown.EVENTS = {
+    Dropdown.events = {
       filterItem: null
     };
 
@@ -20349,7 +20486,7 @@
 
   })(cola.AbstractDropdown);
 
-  cola.defineWidget("c-dropdown", cola.Dropdown);
+  cola.registerWidget(cola.Dropdown);
 
   cola.CustomDropdown = (function(superClass) {
     extend(CustomDropdown, superClass);
@@ -20358,7 +20495,9 @@
       return CustomDropdown.__super__.constructor.apply(this, arguments);
     }
 
-    CustomDropdown.ATTRIBUTES = {
+    CustomDropdown.tagName = "c-customDropdown";
+
+    CustomDropdown.attributes = {
       content: null
     };
 
@@ -20394,7 +20533,7 @@
 
   })(cola.AbstractDropdown);
 
-  cola.defineWidget("c-customDropdown", cola.CustomDropdown);
+  cola.registerWidget(cola.CustomDropdown);
 
   cola.DateGrid = (function(superClass) {
     extend(DateGrid, superClass);
@@ -20405,7 +20544,7 @@
 
     DateGrid.CLASS_NAME = "calendar";
 
-    DateGrid.ATTRIBUTES = {
+    DateGrid.attributes = {
       columnCount: {
         type: "number",
         defaultValue: 7
@@ -20425,7 +20564,7 @@
       }
     };
 
-    DateGrid.EVENTS = {
+    DateGrid.events = {
       cellClick: null,
       refreshCellDom: null
     };
@@ -20851,7 +20990,7 @@
       return DatePicker.__super__.constructor.apply(this, arguments);
     }
 
-    DatePicker.ATTRIBUTES = {
+    DatePicker.attributes = {
       displayFormat: {
         defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
       },
@@ -20869,7 +21008,7 @@
       }
     };
 
-    DatePicker.EVENTS = {
+    DatePicker.events = {
       focus: null,
       blur: null,
       keyDown: null,
@@ -21032,9 +21171,11 @@
   cola.Form = (function(superClass) {
     extend(Form, superClass);
 
+    Form.tagName = "c-form";
+
     Form.CLASS_NAME = "form";
 
-    Form.ATTRIBUTES = {
+    Form.attributes = {
       bind: {
         setter: function(bindStr) {
           return this._bindSetter(bindStr);
@@ -21220,12 +21361,12 @@
 
   cola.Element.mixin(cola.Form, cola.DataWidgetMixin);
 
-  cola.defineWidget("c-form", cola.Form);
+  cola.registerWidget(cola.Form);
 
   cola.AbstractItemGroup = (function(superClass) {
     extend(AbstractItemGroup, superClass);
 
-    AbstractItemGroup.ATTRIBUTES = {
+    AbstractItemGroup.attributes = {
       items: {
         setter: function(value) {
           var item, l, len1;
@@ -21402,7 +21543,7 @@
       return ItemsView.__super__.constructor.apply(this, arguments);
     }
 
-    ItemsView.ATTRIBUTES = {
+    ItemsView.attributes = {
       allowNoCurrent: {
         type: "boolean",
         defaultValue: true
@@ -21428,7 +21569,7 @@
       }
     };
 
-    ItemsView.EVENTS = {
+    ItemsView.events = {
       getItemTemplate: null,
       renderItem: null,
       itemClick: null,
@@ -21958,9 +22099,9 @@
 
     Section.CLASS_NAME = "section";
 
-    Section.TAG_NAME = "a";
+    Section.tagName = "a";
 
-    Section.ATTRIBUTES = {
+    Section.attributes = {
       text: {
         refreshDom: true
       },
@@ -22028,11 +22169,13 @@
       return Breadcrumb.__super__.constructor.apply(this, arguments);
     }
 
+    Breadcrumb.tagName = "c-breadcrumb";
+
     Breadcrumb.CHILDREN_TYPE_NAMESPACE = "breadcrumb";
 
     Breadcrumb.CLASS_NAME = "breadcrumb";
 
-    Breadcrumb.ATTRIBUTES = {
+    Breadcrumb.attributes = {
       divider: {
         "enum": ["chevron", "slash"],
         defaultValue: "chevron"
@@ -22078,7 +22221,7 @@
       }
     };
 
-    Breadcrumb.EVENTS = {
+    Breadcrumb.events = {
       sectionClick: null,
       change: null
     };
@@ -22356,7 +22499,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-breadcrumb", cola.Breadcrumb);
+  cola.registerWidget(cola.Breadcrumb);
 
   cola.registerType("breadcrumb", "_default", cola.breadcrumb.Section);
 
@@ -22373,9 +22516,11 @@
       return CardBook.__super__.constructor.apply(this, arguments);
     }
 
+    CardBook.tagName = "c-cardBook";
+
     CardBook.CLASS_NAME = "card-book";
 
-    CardBook.EVENTS = {
+    CardBook.events = {
       beforeChange: null,
       change: null
     };
@@ -22442,7 +22587,7 @@
 
   })(cola.AbstractItemGroup);
 
-  cola.defineWidget("c-cardBook", cola.CardBook);
+  cola.registerWidget(cola.CardBook);
 
   cola.Carousel = (function(superClass) {
     extend(Carousel, superClass);
@@ -22451,9 +22596,11 @@
       return Carousel.__super__.constructor.apply(this, arguments);
     }
 
+    Carousel.tagName = "c-carousel";
+
     Carousel.CLASS_NAME = "carousel";
 
-    Carousel.ATTRIBUTES = {
+    Carousel.attributes = {
       bind: {
         readonlyAfterCreate: true,
         setter: function(bindStr) {
@@ -22472,7 +22619,7 @@
       }
     };
 
-    Carousel.EVENTS = {
+    Carousel.events = {
       change: null
     };
 
@@ -22802,432 +22949,7 @@
 
   cola.Element.mixin(cola.Carousel, cola.DataItemsWidgetMixin);
 
-  cola.defineWidget("c-carousel", cola.Carousel);
-
-  if (cola.menu == null) {
-    cola.menu = {};
-  }
-
-  cola.menu.AbstractMenuItem = (function(superClass) {
-    extend(AbstractMenuItem, superClass);
-
-    function AbstractMenuItem() {
-      return AbstractMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    AbstractMenuItem.ATTRIBUTES = {
-      parent: null,
-      active: {
-        type: "boolean",
-        defaultValue: false,
-        setter: function(value) {
-          var oldValue;
-          oldValue = this._active;
-          this._active = value;
-          if (oldValue !== value && value) {
-            return this.onActive(this);
-          }
-        },
-        getter: function() {
-          if (!this._active && this._rendered) {
-            this._active = this.get$Dom().hasClass("active");
-          }
-          return this._active;
-        }
-      }
-    };
-
-    AbstractMenuItem.prototype.onItemClick = function(event, item) {
-      var parentMenu;
-      parentMenu = this._parent;
-      if (parentMenu instanceof cola.Menu) {
-        parentMenu.onItemClick(event, item);
-      }
-    };
-
-    AbstractMenuItem.prototype.onActive = function(item) {
-      var parentMenu;
-      parentMenu = this._parent;
-      if (parentMenu instanceof cola.Menu) {
-        return parentMenu.setActiveItem(item);
-      }
-    };
-
-    AbstractMenuItem.prototype.getParent = function() {
-      return this._parent;
-    };
-
-    AbstractMenuItem.prototype.hasSubMenu = function() {
-      return !!this._subMenu;
-    };
-
-    AbstractMenuItem.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      AbstractMenuItem.__super__.destroy.call(this);
-      return delete this._parent;
-    };
-
-    return AbstractMenuItem;
-
-  })(cola.AbstractContainer);
-
-  cola.menu.MenuItem = (function(superClass) {
-    extend(MenuItem, superClass);
-
-    function MenuItem() {
-      return MenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    MenuItem.CLASS_NAME = "item";
-
-    MenuItem.TAG_NAME = "a";
-
-    MenuItem.ATTRIBUTES = {
-      caption: {
-        refreshDom: true
-      },
-      icon: {
-        refreshDom: true
-      },
-      href: {
-        refreshDom: true
-      },
-      target: {
-        refreshDom: true
-      },
-      items: {
-        setter: function(value) {
-          return this._resetSubMenu(value);
-        },
-        getter: function() {
-          var ref;
-          return (ref = this._subMenu) != null ? ref.get("items") : void 0;
-        }
-      }
-    };
-
-    MenuItem.prototype._parseDom = function(dom) {
-      var child, subMenu;
-      child = dom.firstChild;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      while (child) {
-        if (child.nodeType === 1) {
-          subMenu = cola.widget(child);
-          if (subMenu instanceof cola.Menu) {
-            this._subMenu = subMenu;
-            subMenu._isSubMemu = true;
-          } else if (child.nodeName === "I") {
-            this._doms.iconDom = child;
-            if (this._icon == null) {
-              this._icon = child.className;
-            }
-          } else if (cola.util.hasClass(child, "caption")) {
-            this._doms.captionDom = child;
-          }
-        }
-        child = child.nextSibling;
-      }
-      if (!this._doms.captionDom) {
-        this._doms.captionDom = $.xCreate({
-          tagName: "span",
-          content: this._caption || ""
-        });
-        if (this._doms.iconDom) {
-          $fly(this._doms.iconDom).after(this._doms.captionDom);
-        } else {
-          $fly(dom).prepend(this._doms.captionDom);
-        }
-      }
-    };
-
-    MenuItem.prototype._initDom = function(dom) {
-      var subMenuDom;
-      MenuItem.__super__._initDom.call(this, dom);
-      if (this._$dom == null) {
-        this._$dom = $(dom);
-      }
-      this._$dom.click((function(_this) {
-        return function(event) {
-          if (_this._subMenu) {
-            return;
-          }
-          return _this.onItemClick(event, _this);
-        };
-      })(this));
-      if (this._subMenu) {
-        subMenuDom = this._subMenu.getDom();
-        if (subMenuDom.parentNode !== dom) {
-          dom.appendChild(subMenuDom);
-        }
-      }
-    };
-
-    MenuItem.prototype._setDom = function(dom, parseChild) {
-      var href, target;
-      if (parseChild) {
-        if (!this._href) {
-          href = dom.getAttribute("href");
-          if (href) {
-            this._href = href;
-          }
-        }
-        if (!this._target) {
-          target = dom.getAttribute("target");
-          if (target) {
-            this._target = target;
-          }
-        }
-      }
-      return MenuItem.__super__._setDom.call(this, dom, parseChild);
-    };
-
-    MenuItem.prototype._createDom = function() {
-      var caption, icon;
-      icon = this.get("icon") || "";
-      caption = this.get("caption") || "";
-      return $.xCreate({
-        tagName: "A",
-        "class": this.constructor.CLASS_NAME,
-        content: [
-          {
-            tagName: "span",
-            content: caption,
-            contextKey: "captionDom"
-          }
-        ]
-      }, this._doms);
-    };
-
-    MenuItem.prototype._refreshIcon = function() {
-      var $dom;
-      $dom = this.get$Dom();
-      if (this._icon && !this._caption) {
-        this._classNamePool.add("icon");
-      }
-      if (this._icon) {
-        if (!this._doms.iconDom) {
-          this._doms.iconDom = $.xCreate({
-            tagName: "i",
-            "class": "icon"
-          });
-        }
-        if (this._doms.iconDom.parentNode !== this._dom) {
-          $dom.prepend(this._doms.iconDom);
-        }
-        return $fly(this._doms.iconDom).addClass(this._icon);
-      } else {
-        return $fly(this._doms.iconDom).remove();
-      }
-    };
-
-    MenuItem.prototype._doRefreshDom = function() {
-      var $dom, subMenuDom;
-      if (!this._dom) {
-        return;
-      }
-      MenuItem.__super__._doRefreshDom.call(this);
-      $dom = this.get$Dom();
-      $dom.find(">.ui.menu").removeClass("ui");
-      this._refreshIcon();
-      $fly(this._doms.captionDom).text(this._caption || "");
-      if (this._subMenu) {
-        subMenuDom = this._subMenu.getDom();
-        if (subMenuDom.parentNode !== this._dom) {
-          this._dom.appendChild(subMenuDom);
-        }
-      }
-      if (this._href) {
-        $dom.attr("href", this._href);
-      } else {
-        $dom.removeAttr("href");
-      }
-      $dom.attr("target", this._target || "");
-    };
-
-    MenuItem.prototype._resetSubMenu = function(config) {
-      var ref;
-      if ((ref = this._subMenu) != null) {
-        ref.destroy();
-      }
-      if (config) {
-        this._subMenu = new cola.Menu({
-          items: config
-        });
-        this._subMenu._parent = this;
-        return this._subMenu._isSubMemu = true;
-      } else {
-        return delete this._subMenu;
-      }
-    };
-
-    MenuItem.prototype.destroy = function() {
-      var ref;
-      if (this._destroyed) {
-        return;
-      }
-      if ((ref = this._subMenu) != null) {
-        ref.destroy();
-      }
-      return MenuItem.__super__.destroy.call(this);
-    };
-
-    return MenuItem;
-
-  })(cola.menu.AbstractMenuItem);
-
-  cola.menu.DropdownMenuItem = (function(superClass) {
-    extend(DropdownMenuItem, superClass);
-
-    function DropdownMenuItem() {
-      return DropdownMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    DropdownMenuItem.CLASS_NAME = "dropdown item";
-
-    DropdownMenuItem.ATTRIBUTES = {
-      icon: {
-        refreshDom: true,
-        defaultValue: "dropdown"
-      }
-    };
-
-    DropdownMenuItem.prototype._createDom = function() {
-      var caption;
-      caption = this.get("caption") || "";
-      return $.xCreate({
-        tagName: "DIV",
-        "class": this.constructor.CLASS_NAME,
-        content: [
-          {
-            tagName: "span",
-            content: caption,
-            contextKey: "captionDom"
-          }, {
-            tagName: "i",
-            "class": "dropdown icon",
-            contextKey: "iconDom"
-          }
-        ]
-      }, this._doms);
-    };
-
-    DropdownMenuItem.prototype._refreshIcon = function() {
-      if (!this._doms.iconDom) {
-        this._doms.iconDom = document.createElement("i");
-        this._dom.appendChild(this._doms.iconDom);
-      }
-      return this._doms.iconDom.className = (this._icon || "dropdown") + " icon";
-    };
-
-    return DropdownMenuItem;
-
-  })(cola.menu.MenuItem);
-
-  cola.menu.ControlMenuItem = (function(superClass) {
-    extend(ControlMenuItem, superClass);
-
-    function ControlMenuItem() {
-      return ControlMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    ControlMenuItem.CLASS_NAME = "item";
-
-    ControlMenuItem.ATTRIBUTES = {
-      control: {
-        setter: function(value) {
-          var control;
-          $fly(this._control).remove();
-          control = cola.xRender(value);
-          this._control = control;
-          if (control && this._dom) {
-            this._dom.appendChild(control);
-          }
-          return this;
-        }
-      }
-    };
-
-    ControlMenuItem.prototype._parseDom = function(dom) {
-      var child, widget;
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          widget = cola.widget(child);
-          if (widget) {
-            this._control = widget;
-            break;
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    ControlMenuItem.prototype._doRefreshDom = function() {
-      if (!this._dom) {
-        return;
-      }
-      ControlMenuItem.__super__._doRefreshDom.call(this);
-      return this._classNamePool.remove("ui");
-    };
-
-    ControlMenuItem.prototype._setDom = function(dom, parseChild) {
-      var control;
-      ControlMenuItem.__super__._setDom.call(this, dom, parseChild);
-      control = this._control;
-      if (!control) {
-        return;
-      }
-      if (control instanceof cola.RenderableElement) {
-        cola._ignoreNodeRemoved = true;
-        dom.appendChild(control.getDom());
-        cola._ignoreNodeRemoved = false;
-      } else if (control.nodeType === 1) {
-        dom.appendChild(control);
-      }
-    };
-
-    return ControlMenuItem;
-
-  })(cola.menu.AbstractMenuItem);
-
-  cola.menu.HeaderMenuItem = (function(superClass) {
-    extend(HeaderMenuItem, superClass);
-
-    function HeaderMenuItem() {
-      return HeaderMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    HeaderMenuItem.CLASS_NAME = "header item";
-
-    HeaderMenuItem.ATTRIBUTES = {
-      text: null
-    };
-
-    HeaderMenuItem.prototype._setDom = function(dom, parseChild) {
-      HeaderMenuItem.__super__._setDom.call(this, dom, parseChild);
-      if (this._text) {
-        this.get$Dom(this._text);
-      }
-    };
-
-    HeaderMenuItem.prototype._doRefreshDom = function() {
-      var text;
-      if (!this._dom) {
-        return;
-      }
-      HeaderMenuItem.__super__._doRefreshDom.call(this);
-      this._classNamePool.remove("ui");
-      text = this.get("text") || "";
-      this.get$Dom().text(text);
-    };
-
-    return HeaderMenuItem;
-
-  })(cola.menu.AbstractMenuItem);
+  cola.registerWidget(cola.Carousel);
 
   cola.Menu = (function(superClass) {
     extend(Menu, superClass);
@@ -23236,13 +22958,15 @@
       return Menu.__super__.constructor.apply(this, arguments);
     }
 
+    Menu.tagName = "c-menu";
+
     Menu.CLASS_NAME = "ui menu";
 
     Menu.CHILDREN_TYPE_NAMESPACE = "menu";
 
     Menu.SEMANTIC_CLASS = ["top fixed", "right fixed", "bottom fixed", "left fixed"];
 
-    Menu.ATTRIBUTES = {
+    Menu.attributes = {
       items: {
         setter: function(value) {
           var item, l, len1, results;
@@ -23285,7 +23009,7 @@
       }
     };
 
-    Menu.EVENTS = {
+    Menu.events = {
       itemClick: null
     };
 
@@ -23680,7 +23404,452 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-menu", cola.Menu);
+  cola.registerWidget(cola.Menu);
+
+  if (cola.menu == null) {
+    cola.menu = {};
+  }
+
+  cola.menu.AbstractMenuItem = (function(superClass) {
+    extend(AbstractMenuItem, superClass);
+
+    function AbstractMenuItem() {
+      return AbstractMenuItem.__super__.constructor.apply(this, arguments);
+    }
+
+    AbstractMenuItem.attributes = {
+      parent: null,
+      active: {
+        type: "boolean",
+        defaultValue: false,
+        setter: function(value) {
+          var oldValue;
+          oldValue = this._active;
+          this._active = value;
+          if (oldValue !== value && value) {
+            return this.onActive(this);
+          }
+        },
+        getter: function() {
+          if (!this._active && this._rendered) {
+            this._active = this.get$Dom().hasClass("active");
+          }
+          return this._active;
+        }
+      }
+    };
+
+    AbstractMenuItem.prototype.onItemClick = function(event, item) {
+      var parentMenu;
+      parentMenu = this._parent;
+      if (parentMenu instanceof cola.Menu) {
+        parentMenu.onItemClick(event, item);
+      }
+    };
+
+    AbstractMenuItem.prototype.onActive = function(item) {
+      var parentMenu;
+      parentMenu = this._parent;
+      if (parentMenu instanceof cola.Menu) {
+        return parentMenu.setActiveItem(item);
+      }
+    };
+
+    AbstractMenuItem.prototype.getParent = function() {
+      return this._parent;
+    };
+
+    AbstractMenuItem.prototype.hasSubMenu = function() {
+      return !!this._subMenu;
+    };
+
+    AbstractMenuItem.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      AbstractMenuItem.__super__.destroy.call(this);
+      return delete this._parent;
+    };
+
+    return AbstractMenuItem;
+
+  })(cola.AbstractContainer);
+
+  cola.menu.MenuItem = (function(superClass) {
+    extend(MenuItem, superClass);
+
+    function MenuItem() {
+      return MenuItem.__super__.constructor.apply(this, arguments);
+    }
+
+    MenuItem.tagName = "a";
+
+    MenuItem.parentWidget = cola.Menu;
+
+    MenuItem.CLASS_NAME = "item";
+
+    MenuItem.attributes = {
+      caption: {
+        refreshDom: true
+      },
+      icon: {
+        refreshDom: true
+      },
+      href: {
+        refreshDom: true
+      },
+      target: {
+        refreshDom: true
+      },
+      items: {
+        setter: function(value) {
+          return this._resetSubMenu(value);
+        },
+        getter: function() {
+          var ref;
+          return (ref = this._subMenu) != null ? ref.get("items") : void 0;
+        }
+      }
+    };
+
+    MenuItem.prototype._parseDom = function(dom) {
+      var child, subMenu;
+      child = dom.firstChild;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      while (child) {
+        if (child.nodeType === 1) {
+          subMenu = cola.widget(child);
+          if (subMenu instanceof cola.Menu) {
+            this._subMenu = subMenu;
+            subMenu._isSubMemu = true;
+          } else if (child.nodeName === "I") {
+            this._doms.iconDom = child;
+            if (this._icon == null) {
+              this._icon = child.className;
+            }
+          } else if (cola.util.hasClass(child, "caption")) {
+            this._doms.captionDom = child;
+          }
+        }
+        child = child.nextSibling;
+      }
+      if (!this._doms.captionDom) {
+        this._doms.captionDom = $.xCreate({
+          tagName: "span",
+          content: this._caption || ""
+        });
+        if (this._doms.iconDom) {
+          $fly(this._doms.iconDom).after(this._doms.captionDom);
+        } else {
+          $fly(dom).prepend(this._doms.captionDom);
+        }
+      }
+    };
+
+    MenuItem.prototype._initDom = function(dom) {
+      var subMenuDom;
+      MenuItem.__super__._initDom.call(this, dom);
+      if (this._$dom == null) {
+        this._$dom = $(dom);
+      }
+      this._$dom.click((function(_this) {
+        return function(event) {
+          if (_this._subMenu) {
+            return;
+          }
+          return _this.onItemClick(event, _this);
+        };
+      })(this));
+      if (this._subMenu) {
+        subMenuDom = this._subMenu.getDom();
+        if (subMenuDom.parentNode !== dom) {
+          dom.appendChild(subMenuDom);
+        }
+      }
+    };
+
+    MenuItem.prototype._setDom = function(dom, parseChild) {
+      var href, target;
+      if (parseChild) {
+        if (!this._href) {
+          href = dom.getAttribute("href");
+          if (href) {
+            this._href = href;
+          }
+        }
+        if (!this._target) {
+          target = dom.getAttribute("target");
+          if (target) {
+            this._target = target;
+          }
+        }
+      }
+      return MenuItem.__super__._setDom.call(this, dom, parseChild);
+    };
+
+    MenuItem.prototype._createDom = function() {
+      var caption, icon;
+      icon = this.get("icon") || "";
+      caption = this.get("caption") || "";
+      return $.xCreate({
+        tagName: "A",
+        "class": this.constructor.CLASS_NAME,
+        content: [
+          {
+            tagName: "span",
+            content: caption,
+            contextKey: "captionDom"
+          }
+        ]
+      }, this._doms);
+    };
+
+    MenuItem.prototype._refreshIcon = function() {
+      var $dom;
+      $dom = this.get$Dom();
+      if (this._icon && !this._caption) {
+        this._classNamePool.add("icon");
+      }
+      if (this._icon) {
+        if (!this._doms.iconDom) {
+          this._doms.iconDom = $.xCreate({
+            tagName: "i",
+            "class": "icon"
+          });
+        }
+        if (this._doms.iconDom.parentNode !== this._dom) {
+          $dom.prepend(this._doms.iconDom);
+        }
+        return $fly(this._doms.iconDom).addClass(this._icon);
+      } else {
+        return $fly(this._doms.iconDom).remove();
+      }
+    };
+
+    MenuItem.prototype._doRefreshDom = function() {
+      var $dom, subMenuDom;
+      if (!this._dom) {
+        return;
+      }
+      MenuItem.__super__._doRefreshDom.call(this);
+      $dom = this.get$Dom();
+      $dom.find(">.ui.menu").removeClass("ui");
+      this._refreshIcon();
+      $fly(this._doms.captionDom).text(this._caption || "");
+      if (this._subMenu) {
+        subMenuDom = this._subMenu.getDom();
+        if (subMenuDom.parentNode !== this._dom) {
+          this._dom.appendChild(subMenuDom);
+        }
+      }
+      if (this._href) {
+        $dom.attr("href", this._href);
+      } else {
+        $dom.removeAttr("href");
+      }
+      $dom.attr("target", this._target || "");
+    };
+
+    MenuItem.prototype._resetSubMenu = function(config) {
+      var ref;
+      if ((ref = this._subMenu) != null) {
+        ref.destroy();
+      }
+      if (config) {
+        this._subMenu = new cola.Menu({
+          items: config
+        });
+        this._subMenu._parent = this;
+        return this._subMenu._isSubMemu = true;
+      } else {
+        return delete this._subMenu;
+      }
+    };
+
+    MenuItem.prototype.destroy = function() {
+      var ref;
+      if (this._destroyed) {
+        return;
+      }
+      if ((ref = this._subMenu) != null) {
+        ref.destroy();
+      }
+      return MenuItem.__super__.destroy.call(this);
+    };
+
+    return MenuItem;
+
+  })(cola.menu.AbstractMenuItem);
+
+  cola.registerWidget(cola.menu.MenuItem);
+
+  cola.menu.DropdownMenuItem = (function(superClass) {
+    extend(DropdownMenuItem, superClass);
+
+    function DropdownMenuItem() {
+      return DropdownMenuItem.__super__.constructor.apply(this, arguments);
+    }
+
+    DropdownMenuItem.tagName = "c-dropdownItem";
+
+    DropdownMenuItem.parentWidget = cola.Menu;
+
+    DropdownMenuItem.CLASS_NAME = "dropdown item";
+
+    DropdownMenuItem.attributes = {
+      icon: {
+        refreshDom: true,
+        defaultValue: "dropdown"
+      }
+    };
+
+    DropdownMenuItem.prototype._createDom = function() {
+      var caption;
+      caption = this.get("caption") || "";
+      return $.xCreate({
+        tagName: "DIV",
+        "class": this.constructor.CLASS_NAME,
+        content: [
+          {
+            tagName: "span",
+            content: caption,
+            contextKey: "captionDom"
+          }, {
+            tagName: "i",
+            "class": "dropdown icon",
+            contextKey: "iconDom"
+          }
+        ]
+      }, this._doms);
+    };
+
+    DropdownMenuItem.prototype._refreshIcon = function() {
+      if (!this._doms.iconDom) {
+        this._doms.iconDom = document.createElement("i");
+        this._dom.appendChild(this._doms.iconDom);
+      }
+      return this._doms.iconDom.className = (this._icon || "dropdown") + " icon";
+    };
+
+    return DropdownMenuItem;
+
+  })(cola.menu.MenuItem);
+
+  cola.registerWidget(cola.menu.DropdownMenuItem);
+
+  cola.menu.ControlMenuItem = (function(superClass) {
+    extend(ControlMenuItem, superClass);
+
+    function ControlMenuItem() {
+      return ControlMenuItem.__super__.constructor.apply(this, arguments);
+    }
+
+    ControlMenuItem.tagName = "c-controlItem";
+
+    ControlMenuItem.parentWidget = cola.Menu;
+
+    ControlMenuItem.CLASS_NAME = "item";
+
+    ControlMenuItem.attributes = {
+      control: {
+        setter: function(value) {
+          var control;
+          $fly(this._control).remove();
+          control = cola.xRender(value);
+          this._control = control;
+          if (control && this._dom) {
+            this._dom.appendChild(control);
+          }
+          return this;
+        }
+      }
+    };
+
+    ControlMenuItem.prototype._parseDom = function(dom) {
+      var child, widget;
+      child = dom.firstChild;
+      while (child) {
+        if (child.nodeType === 1) {
+          widget = cola.widget(child);
+          if (widget) {
+            this._control = widget;
+            break;
+          }
+        }
+        child = child.nextSibling;
+      }
+    };
+
+    ControlMenuItem.prototype._doRefreshDom = function() {
+      if (!this._dom) {
+        return;
+      }
+      ControlMenuItem.__super__._doRefreshDom.call(this);
+      return this._classNamePool.remove("ui");
+    };
+
+    ControlMenuItem.prototype._setDom = function(dom, parseChild) {
+      var control;
+      ControlMenuItem.__super__._setDom.call(this, dom, parseChild);
+      control = this._control;
+      if (!control) {
+        return;
+      }
+      if (control instanceof cola.RenderableElement) {
+        dom.appendChild(control.getDom());
+      } else if (control.nodeType === 1) {
+        dom.appendChild(control);
+      }
+    };
+
+    return ControlMenuItem;
+
+  })(cola.menu.AbstractMenuItem);
+
+  cola.registerWidget(cola.menu.ControlMenuItem);
+
+  cola.menu.HeaderMenuItem = (function(superClass) {
+    extend(HeaderMenuItem, superClass);
+
+    function HeaderMenuItem() {
+      return HeaderMenuItem.__super__.constructor.apply(this, arguments);
+    }
+
+    HeaderMenuItem.tagName = "c-headerItem";
+
+    HeaderMenuItem.parentWidget = cola.Menu;
+
+    HeaderMenuItem.CLASS_NAME = "header item";
+
+    HeaderMenuItem.attributes = {
+      text: null
+    };
+
+    HeaderMenuItem.prototype._setDom = function(dom, parseChild) {
+      HeaderMenuItem.__super__._setDom.call(this, dom, parseChild);
+      if (this._text) {
+        this.get$Dom(this._text);
+      }
+    };
+
+    HeaderMenuItem.prototype._doRefreshDom = function() {
+      var text;
+      if (!this._dom) {
+        return;
+      }
+      HeaderMenuItem.__super__._doRefreshDom.call(this);
+      this._classNamePool.remove("ui");
+      text = this.get("text") || "";
+      this.get$Dom().text(text);
+    };
+
+    return HeaderMenuItem;
+
+  })(cola.menu.AbstractMenuItem);
+
+  cola.registerWidget(cola.menu.HeaderMenuItem);
 
   cola.TitleBar = (function(superClass) {
     extend(TitleBar, superClass);
@@ -23689,11 +23858,13 @@
       return TitleBar.__super__.constructor.apply(this, arguments);
     }
 
+    TitleBar.tagName = "c-titleBar";
+
     TitleBar.CLASS_NAME = "menu title-bar";
 
     TitleBar.CHILDREN_TYPE_NAMESPACE = "menu";
 
-    TitleBar.ATTRIBUTES = {
+    TitleBar.attributes = {
       title: {
         refreshDom: true
       }
@@ -23752,7 +23923,7 @@
 
   })(cola.Menu);
 
-  cola.defineWidget("c-titleBar", cola.TitleBar);
+  cola.registerWidget(cola.TitleBar);
 
   cola.registerType("menu", "_default", cola.menu.MenuItem);
 
@@ -23801,9 +23972,11 @@
       return MenuButton.__super__.constructor.apply(this, arguments);
     }
 
+    MenuButton.tagName = "c-menuButton";
+
     MenuButton.CLASS_NAME = "dropdown button";
 
-    MenuButton.ATTRIBUTES = {
+    MenuButton.attributes = {
       menuItems: {
         setter: function(value) {
           return this._resetMenu(value);
@@ -23815,7 +23988,7 @@
       }
     };
 
-    MenuButton.EVENTS = {
+    MenuButton.events = {
       menuItemClick: null
     };
 
@@ -23913,7 +24086,7 @@
 
   })(cola.Button);
 
-  cola.defineWidget("c-menuButton", cola.MenuButton);
+  cola.registerWidget(cola.MenuButton);
 
   cola.registerType("menuButton", "_default", cola.ButtonMenu);
 
@@ -23930,9 +24103,11 @@
       return Shape.__super__.constructor.apply(this, arguments);
     }
 
+    Shape.tagName = "c-shape";
+
     Shape.CLASS_NAME = "shape";
 
-    Shape.ATTRIBUTES = {
+    Shape.attributes = {
       bind: {
         readonlyAfterCreate: true,
         setter: function(bindStr) {
@@ -23941,7 +24116,7 @@
       }
     };
 
-    Shape.EVENTS = {
+    Shape.events = {
       beforeChange: null,
       afterChange: null
     };
@@ -24064,12 +24239,10 @@
         direction = "right";
       }
       if (this.constructor.directions.indexOf(direction) >= 0) {
-        cola._ignoreNodeRemoved = true;
         $dom = this.get$Dom();
         if (!$dom.shape("is animating")) {
           $dom.shape("flip " + direction);
         }
-        cola._ignoreNodeRemoved = false;
       }
       return this;
     };
@@ -24090,199 +24263,7 @@
 
   cola.Element.mixin(cola.Shape, cola.DataItemsWidgetMixin);
 
-  cola.defineWidget("c-shape", cola.Shape);
-
-  if (cola.steps == null) {
-    cola.steps = {};
-  }
-
-  cola.steps.Step = (function(superClass) {
-    extend(Step, superClass);
-
-    function Step() {
-      return Step.__super__.constructor.apply(this, arguments);
-    }
-
-    Step.CLASS_NAME = "step";
-
-    Step.ATTRIBUTES = {
-      icon: {
-        refreshDom: true
-      },
-      content: {
-        refreshDom: true
-      },
-      states: {
-        refreshDom: true,
-        "enum": ["completed", "active", ""],
-        defaultValue: "",
-        setter: function(value) {
-          var oldValue;
-          oldValue = this._states;
-          this._states = value;
-          if (this._dom && value !== oldValue && oldValue) {
-            $fly(this._dom).removeClass(oldValue);
-          }
-          return this;
-        }
-      },
-      disabled: {
-        type: "boolean",
-        defaultValue: false
-      }
-    };
-
-    Step.prototype._parseDom = function(dom) {
-      var $cc, $child, cc, child, l, len1, parseContent, parseDescription, parseTitle, ref;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      parseTitle = (function(_this) {
-        return function(node) {
-          var content, title;
-          _this._doms.title = node;
-          title = cola.util.getTextChildData(node);
-          content = _this._content || {};
-          if (!content.title && title) {
-            if (_this._content == null) {
-              _this._content = {};
-            }
-            _this._doms.titleDom = node;
-            _this._content.title = title;
-          }
-        };
-      })(this);
-      parseDescription = (function(_this) {
-        return function(node) {
-          var content, description;
-          _this._doms.description = node;
-          description = cola.util.getTextChildData(node);
-          content = _this._content || {};
-          if (description && !content.description) {
-            if (_this._content == null) {
-              _this._content = {};
-            }
-            _this._doms.descriptionDom = node;
-            _this._content.description = description;
-          }
-        };
-      })(this);
-      parseContent = (function(_this) {
-        return function(node) {
-          var content;
-          content = cola.util.getTextChildData(node);
-          if (!_this._content && content) {
-            _this._content = content;
-          }
-        };
-      })(this);
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          if (child.nodeName === "I") {
-            this._doms.iconDom = child;
-            if (!this._icon) {
-              this._icon = child.className;
-            }
-          } else {
-            $child = $(child);
-            if ($child.hasClass("content")) {
-              this._doms.contentDom = child;
-              ref = child.childNodes;
-              for (l = 0, len1 = ref.length; l < len1; l++) {
-                cc = ref[l];
-                if (child.nodeType !== 1) {
-                  continue;
-                }
-                $cc = $(cc);
-                if ($cc.hasClass("title")) {
-                  parseTitle(cc);
-                }
-                if ($cc.hasClass("description")) {
-                  parseDescription(cc);
-                }
-              }
-              if (!this._content) {
-                parseContent(child);
-              }
-            } else if ($child.hasClass("title")) {
-              parseTitle(child);
-            } else if ($child.hasClass("description")) {
-              parseDescription(child);
-            }
-          }
-        }
-        child = child.nextSibling;
-      }
-      parseContent(dom);
-    };
-
-    Step.prototype._doRefreshDom = function() {
-      var $contentDom, $dom, base, base1, base2, base3, classNamePool, content, icon;
-      if (!this._dom) {
-        return;
-      }
-      Step.__super__._doRefreshDom.call(this);
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      content = this.get("content");
-      $dom = this.get$Dom();
-      $dom.empty();
-      icon = this.get("icon");
-      if (icon) {
-        if ((base = this._doms).iconDom == null) {
-          base.iconDom = document.createElement("i");
-        }
-        this._doms.iconDom.className = icon + " icon";
-        $dom.append(this._doms.iconDom);
-      } else {
-        $fly(this._doms.iconDom).remove();
-      }
-      if (content) {
-        if ((base1 = this._doms).contentDom == null) {
-          base1.contentDom = document.createElement("div");
-        }
-        $contentDom = $(this._doms.contentDom);
-        $contentDom.addClass("content").empty();
-        if (typeof content === "string") {
-          $contentDom.text(content);
-        } else {
-          if (content.title) {
-            if ((base2 = this._doms).titleDom == null) {
-              base2.titleDom = document.createElement("div");
-            }
-            $fly(this._doms.titleDom).addClass("title").text(content.title);
-            $contentDom.append(this._doms.titleDom);
-          }
-          if (content.description) {
-            if ((base3 = this._doms).descriptionDom == null) {
-              base3.descriptionDom = document.createElement("div");
-            }
-            $fly(this._doms.descriptionDom).addClass("description").text(content.description);
-            $contentDom.append(this._doms.descriptionDom);
-          }
-        }
-        $dom.append($contentDom);
-      }
-      classNamePool = this._classNamePool;
-      if (this._states) {
-        classNamePool.add(this._states);
-      }
-      return classNamePool.toggle("disabled", this._disabled);
-    };
-
-    Step.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      Step.__super__.destroy.call(this);
-      return delete this._doms;
-    };
-
-    return Step;
-
-  })(cola.Widget);
+  cola.registerWidget(cola.Shape);
 
   cola.Steps = (function(superClass) {
     extend(Steps, superClass);
@@ -24291,13 +24272,15 @@
       return Steps.__super__.constructor.apply(this, arguments);
     }
 
+    Steps.tagName = "c-steps";
+
     Steps.CHILDREN_TYPE_NAMESPACE = "steps";
 
     Steps.CLASS_NAME = "steps";
 
     Steps.SEMANTIC_CLASS = ["tablet stackable", "left floated", "right floated"];
 
-    Steps.ATTRIBUTES = {
+    Steps.attributes = {
       size: {
         "enum": ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"],
         refreshDom: true,
@@ -24345,7 +24328,7 @@
       }
     };
 
-    Steps.EVENTS = {
+    Steps.events = {
       beforeChange: null,
       change: null,
       complete: null
@@ -24590,7 +24573,205 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-steps", cola.Steps);
+  cola.registerWidget(cola.Steps);
+
+  if (cola.steps == null) {
+    cola.steps = {};
+  }
+
+  cola.steps.Step = (function(superClass) {
+    extend(Step, superClass);
+
+    function Step() {
+      return Step.__super__.constructor.apply(this, arguments);
+    }
+
+    Step.tagName = "div";
+
+    Step.parentWidget = cola.Steps;
+
+    Step.CLASS_NAME = "step";
+
+    Step.attributes = {
+      icon: {
+        refreshDom: true
+      },
+      content: {
+        refreshDom: true
+      },
+      states: {
+        refreshDom: true,
+        "enum": ["completed", "active", ""],
+        defaultValue: "",
+        setter: function(value) {
+          var oldValue;
+          oldValue = this._states;
+          this._states = value;
+          if (this._dom && value !== oldValue && oldValue) {
+            $fly(this._dom).removeClass(oldValue);
+          }
+          return this;
+        }
+      },
+      disabled: {
+        type: "boolean",
+        defaultValue: false
+      }
+    };
+
+    Step.prototype._parseDom = function(dom) {
+      var $cc, $child, cc, child, l, len1, parseContent, parseDescription, parseTitle, ref;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      parseTitle = (function(_this) {
+        return function(node) {
+          var content, title;
+          _this._doms.title = node;
+          title = cola.util.getTextChildData(node);
+          content = _this._content || {};
+          if (!content.title && title) {
+            if (_this._content == null) {
+              _this._content = {};
+            }
+            _this._doms.titleDom = node;
+            _this._content.title = title;
+          }
+        };
+      })(this);
+      parseDescription = (function(_this) {
+        return function(node) {
+          var content, description;
+          _this._doms.description = node;
+          description = cola.util.getTextChildData(node);
+          content = _this._content || {};
+          if (description && !content.description) {
+            if (_this._content == null) {
+              _this._content = {};
+            }
+            _this._doms.descriptionDom = node;
+            _this._content.description = description;
+          }
+        };
+      })(this);
+      parseContent = (function(_this) {
+        return function(node) {
+          var content;
+          content = cola.util.getTextChildData(node);
+          if (!_this._content && content) {
+            _this._content = content;
+          }
+        };
+      })(this);
+      child = dom.firstChild;
+      while (child) {
+        if (child.nodeType === 1) {
+          if (child.nodeName === "I") {
+            this._doms.iconDom = child;
+            if (!this._icon) {
+              this._icon = child.className;
+            }
+          } else {
+            $child = $(child);
+            if ($child.hasClass("content")) {
+              this._doms.contentDom = child;
+              ref = child.childNodes;
+              for (l = 0, len1 = ref.length; l < len1; l++) {
+                cc = ref[l];
+                if (child.nodeType !== 1) {
+                  continue;
+                }
+                $cc = $(cc);
+                if ($cc.hasClass("title")) {
+                  parseTitle(cc);
+                }
+                if ($cc.hasClass("description")) {
+                  parseDescription(cc);
+                }
+              }
+              if (!this._content) {
+                parseContent(child);
+              }
+            } else if ($child.hasClass("title")) {
+              parseTitle(child);
+            } else if ($child.hasClass("description")) {
+              parseDescription(child);
+            }
+          }
+        }
+        child = child.nextSibling;
+      }
+      parseContent(dom);
+    };
+
+    Step.prototype._doRefreshDom = function() {
+      var $contentDom, $dom, base, base1, base2, base3, classNamePool, content, icon;
+      if (!this._dom) {
+        return;
+      }
+      Step.__super__._doRefreshDom.call(this);
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      content = this.get("content");
+      $dom = this.get$Dom();
+      $dom.empty();
+      icon = this.get("icon");
+      if (icon) {
+        if ((base = this._doms).iconDom == null) {
+          base.iconDom = document.createElement("i");
+        }
+        this._doms.iconDom.className = icon + " icon";
+        $dom.append(this._doms.iconDom);
+      } else {
+        $fly(this._doms.iconDom).remove();
+      }
+      if (content) {
+        if ((base1 = this._doms).contentDom == null) {
+          base1.contentDom = document.createElement("div");
+        }
+        $contentDom = $(this._doms.contentDom);
+        $contentDom.addClass("content").empty();
+        if (typeof content === "string") {
+          $contentDom.text(content);
+        } else {
+          if (content.title) {
+            if ((base2 = this._doms).titleDom == null) {
+              base2.titleDom = document.createElement("div");
+            }
+            $fly(this._doms.titleDom).addClass("title").text(content.title);
+            $contentDom.append(this._doms.titleDom);
+          }
+          if (content.description) {
+            if ((base3 = this._doms).descriptionDom == null) {
+              base3.descriptionDom = document.createElement("div");
+            }
+            $fly(this._doms.descriptionDom).addClass("description").text(content.description);
+            $contentDom.append(this._doms.descriptionDom);
+          }
+        }
+        $dom.append($contentDom);
+      }
+      classNamePool = this._classNamePool;
+      if (this._states) {
+        classNamePool.add(this._states);
+      }
+      return classNamePool.toggle("disabled", this._disabled);
+    };
+
+    Step.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      Step.__super__.destroy.call(this);
+      return delete this._doms;
+    };
+
+    return Step;
+
+  })(cola.Widget);
+
+  cola.registerWidget(cola.steps.Step);
 
   cola.registerType("steps", "_default", cola.steps.Step);
 
@@ -24607,9 +24788,11 @@
       return Stack.__super__.constructor.apply(this, arguments);
     }
 
+    Stack.tagName = "c-stack";
+
     Stack.CLASS_NAME = "stack";
 
-    Stack.EVENTS = {
+    Stack.events = {
       change: null,
       beforeChange: null
     };
@@ -24974,7 +25157,7 @@
 
   })(cola.Widget);
 
-  cola.defineWidget("c-stack", cola.Stack);
+  cola.registerWidget(cola.Stack);
 
   cola.AbstractList = (function(superClass) {
     extend(AbstractList, superClass);
@@ -24983,7 +25166,7 @@
       return AbstractList.__super__.constructor.apply(this, arguments);
     }
 
-    AbstractList.ATTRIBUTES = {
+    AbstractList.attributes = {
       currentPageOnly: {
         type: "boolean"
       },
@@ -25004,7 +25187,7 @@
       }
     };
 
-    AbstractList.EVENTS = {
+    AbstractList.events = {
       pullStart: null,
       pullStep: null,
       pullComplete: null,
@@ -25471,11 +25654,13 @@
       return ListView.__super__.constructor.apply(this, arguments);
     }
 
+    ListView.tagName = "c-listView";
+
     ListView.CLASS_NAME = "items-view list-view";
 
     ListView.prototype._columnsChanged = true;
 
-    ListView.ATTRIBUTES = {
+    ListView.attributes = {
       items: {
         expressionType: "repeat",
         refreshItems: true,
@@ -25542,7 +25727,7 @@
       }
     };
 
-    ListView.EVENTS = {
+    ListView.events = {
       getGroupString: null,
       itemSlideStart: null,
       itemSlideStep: null,
@@ -26164,9 +26349,7 @@
         })(this));
         cola.xRender(leftSlidePaneTemplate, itemScope, this._templateContext);
         cola.util.userData(leftSlidePaneTemplate, "scope", itemScope);
-        cola._ignoreNodeRemoved = true;
         itemsWrapper.appendChild(leftSlidePaneTemplate);
-        cola._ignoreNodeRemoved = false;
       }
       if (rightSlidePaneTemplate) {
         $fly(rightSlidePaneTemplate).addClass("item-slide-pane protected").css("right", "100%").click((function(_this) {
@@ -26178,9 +26361,7 @@
         })(this));
         cola.xRender(rightSlidePaneTemplate, itemScope, this._templateContext);
         cola.util.userData(rightSlidePaneTemplate, "scope", itemScope);
-        cola._ignoreNodeRemoved = true;
         itemsWrapper.appendChild(rightSlidePaneTemplate);
-        cola._ignoreNodeRemoved = false;
       }
     };
 
@@ -26529,14 +26710,14 @@
 
   })(cola.AbstractList);
 
-  cola.defineWidget("c-listView", cola.ListView);
+  cola.registerWidget(cola.ListView);
 
   _getEntityId = cola.Entity._getEntityId;
 
   cola.CascadeBind = (function(superClass) {
     extend(CascadeBind, superClass);
 
-    CascadeBind.ATTRIBUTES = {
+    CascadeBind.attributes = {
       expression: {
         setter: function(expression) {
           expression = cola._compileExpression(expression, "repeat");
@@ -26792,7 +26973,7 @@
 
     Node.prototype.isDataWrapper = true;
 
-    Node.ATTRIBUTES = {
+    Node.attributes = {
       bind: {
         readOnly: true
       },
@@ -26919,7 +27100,7 @@
       return NestedListNode.__super__.constructor.apply(this, arguments);
     }
 
-    NestedListNode.ATTRIBUTES = {
+    NestedListNode.attributes = {
       title: {
         readOnly: true,
         getter: function() {
@@ -26950,7 +27131,7 @@
 
     NestedListBind.NODE_TYPE = cola.NestedListNode;
 
-    NestedListBind.ATTRIBUTES = {
+    NestedListBind.attributes = {
       titleProperty: null
     };
 
@@ -26965,9 +27146,11 @@
       return NestedList.__super__.constructor.apply(this, arguments);
     }
 
+    NestedList.tagName = "c-nestedList";
+
     NestedList.CLASS_NAME = "nested-list";
 
-    NestedList.ATTRIBUTES = {
+    NestedList.attributes = {
       bind: {
         setter: function(bind) {
           if (bind && !(bind instanceof cola.NestedListBind)) {
@@ -27005,7 +27188,7 @@
       }
     };
 
-    NestedList.EVENTS = {
+    NestedList.events = {
       getItemTemplate: null,
       itemClick: null,
       renderItem: null,
@@ -27386,7 +27569,7 @@
 
   cola.Element.mixin(cola.NestedList, cola.TemplateSupport);
 
-  cola.defineWidget("c-nestedList", cola.NestedList);
+  cola.registerWidget(cola.NestedList);
 
   cola.TreeNode = (function(superClass) {
     extend(TreeNode, superClass);
@@ -27395,7 +27578,7 @@
       return TreeNode.__super__.constructor.apply(this, arguments);
     }
 
-    TreeNode.ATTRIBUTES = {
+    TreeNode.attributes = {
       expanded: {
         getter: function() {
           var prop;
@@ -27460,7 +27643,7 @@
 
     TreeNodeBind.NODE_TYPE = cola.TreeNode;
 
-    TreeNodeBind.ATTRIBUTES = {
+    TreeNodeBind.attributes = {
       textProperty: null,
       expandedProperty: null,
       checkedProperty: null,
@@ -27480,9 +27663,11 @@
       return Tree.__super__.constructor.apply(this, arguments);
     }
 
+    Tree.tagName = "c-tree";
+
     Tree.CLASS_NAME = "items-view tree";
 
-    Tree.ATTRIBUTES = {
+    Tree.attributes = {
       bind: {
         refreshItems: true,
         setter: function(bind) {
@@ -27514,7 +27699,7 @@
       autoExpand: null
     };
 
-    Tree.EVENTS = {
+    Tree.events = {
       beforeCurrentNodeChange: null,
       currentNodeChange: null
     };
@@ -28026,7 +28211,7 @@
 
   cola.Element.mixin(cola.Tree, cola.TreeSupportMixin);
 
-  cola.defineWidget("c-tree", cola.Tree);
+  cola.registerWidget(cola.Tree);
 
   cola.registerTypeResolver("table.column", function(config) {
     var type;
@@ -28050,7 +28235,7 @@
   cola.TableColumn = (function(superClass) {
     extend(TableColumn, superClass);
 
-    TableColumn.ATTRIBUTES = {
+    TableColumn.attributes = {
       name: {
         reaonlyAfterCreate: true
       },
@@ -28062,7 +28247,7 @@
       headerTemplate: null
     };
 
-    TableColumn.EVENTS = {
+    TableColumn.events = {
       renderHeader: null
     };
 
@@ -28094,7 +28279,7 @@
       return TableGroupColumn.__super__.constructor.apply(this, arguments);
     }
 
-    TableGroupColumn.ATTRIBUTES = {
+    TableGroupColumn.attributes = {
       columns: {
         setter: function(columnConfigs) {
           _columnsSetter.call(this, this._table, columnConfigs);
@@ -28125,7 +28310,7 @@
       return TableContentColumn.__super__.constructor.apply(this, arguments);
     }
 
-    TableContentColumn.ATTRIBUTES = {
+    TableContentColumn.attributes = {
       width: {
         defaultValue: 80
       },
@@ -28138,7 +28323,7 @@
       footerTemplate: null
     };
 
-    TableContentColumn.EVENTS = {
+    TableContentColumn.events = {
       renderCell: null,
       renderFooter: null
     };
@@ -28154,7 +28339,7 @@
       return TableDataColumn.__super__.constructor.apply(this, arguments);
     }
 
-    TableDataColumn.ATTRIBUTES = {
+    TableDataColumn.attributes = {
       dataType: {
         readOnlyAfterCreate: true,
         setter: cola.DataType.dataTypeSetter
@@ -28175,7 +28360,7 @@
       return TableSelectColumn.__super__.constructor.apply(this, arguments);
     }
 
-    TableSelectColumn.ATTRIBUTES = {
+    TableSelectColumn.attributes = {
       width: {
         defaultValue: "42px"
       },
@@ -28313,7 +28498,7 @@
   cola.AbstractTable = (function(superClass) {
     extend(AbstractTable, superClass);
 
-    AbstractTable.ATTRIBUTES = {
+    AbstractTable.attributes = {
       items: {
         refreshItems: true,
         setter: function(items) {
@@ -28355,7 +28540,7 @@
       }
     };
 
-    AbstractTable.EVENTS = {
+    AbstractTable.events = {
       renderRow: null,
       renderCell: null,
       renderHeaderCell: null,
@@ -28590,6 +28775,8 @@
     function Table() {
       return Table.__super__.constructor.apply(this, arguments);
     }
+
+    Table.tagName = "c-table";
 
     Table.CLASS_NAME = "items-view widget-table";
 
@@ -29245,7 +29432,7 @@
 
   })(cola.AbstractTable);
 
-  cola.defineWidget("c-table", cola.Table);
+  cola.registerWidget(cola.Table);
 
   _pagesItems = ["firstPage", "prevPage", "info", "nextPage", "lastPage"];
 
@@ -29259,7 +29446,9 @@
   cola.Pager = (function(superClass) {
     extend(Pager, superClass);
 
-    Pager.ATTRIBUTES = {
+    Pager.tagName = "c-pager";
+
+    Pager.attributes = {
       bind: {
         setter: function(bindStr) {
           return this._bindSetter(bindStr);
@@ -29655,7 +29844,7 @@
 
   cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin);
 
-  cola.defineWidget("c-pager", cola.Pager);
+  cola.registerWidget(cola.Pager);
 
   cola.TimeLine = (function(superClass) {
     extend(TimeLine, superClass);
@@ -29664,9 +29853,11 @@
       return TimeLine.__super__.constructor.apply(this, arguments);
     }
 
+    TimeLine.tagName = "c-timeLine";
+
     TimeLine.CLASS_NAME = "time-line";
 
-    TimeLine.ATTRIBUTES = {
+    TimeLine.attributes = {
       bind: {
         refreshItems: true,
         setter: function(bindStr) {
@@ -29721,6 +29912,6 @@
 
   })(cola.AbstractList);
 
-  cola.defineWidget("c-timeLine", cola.TimeLine);
+  cola.registerWidget(cola.TimeLine);
 
 }).call(this);

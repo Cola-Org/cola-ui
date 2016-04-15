@@ -21,16 +21,16 @@ class cola.TimeLine extends cola.AbstractList
 		"icon":
 			tagName: "i"
 			"c-class": "'icon '+$default.icon"
-		"time":
+		"label":
 			tagName: "div"
-			"c-bind": "$default.time"
+			"c-bind": "$default.label"
 
 	_createNewItem: (itemType, item) ->
 		template = @_getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
 		$fly(itemDom).addClass("item #{itemType}")
 		itemDom._itemType = itemType
-		for name in ["content", "icon", "time"]
+		for name in ["content", "icon", "label"]
 			template = @_getTemplate(name)
 			contentDom = @_cloneTemplate(template, true)
 			container = $.xCreate({
