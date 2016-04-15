@@ -3,13 +3,13 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		super(model)
 
 	get: (path, loadMode, context) ->
-		if path.charCodeAt(0) is 36 # `$`
+		if path.charCodeAt(0) is 64 # `@`
 			return @widget.get(path.substring(1))
 		else
 			return @model.parent?.data.get(path, loadMode, context)
 
 	set: (path, value) ->
-		if path.charCodeAt(0) is 36 # `$`
+		if path.charCodeAt(0) is 64 # `@`
 			@widget.set(path.substring(1), value)
 			@_onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		else
@@ -21,18 +21,21 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		return
 
 	getDataType: (path) ->
-		if path.charCodeAt(0) is 36 # `$`
+		if path.charCodeAt(0) is 64 # `@`
 			return null
 		else
 			return @model.parent?.data.getDataType(path)
 
 	getProperty: (path) ->
-		if path.charCodeAt(0) is 36 # `$`
+		if path.charCodeAt(0) is 64 # `@`
 			return null
 		else
 			return @model.parent?.data.getDataType(path)
 
-	flush: () ->
+	flush: (name, loadMode) ->
+		if path.charCodeAt(0) isnt 64 # `@`
+			@model.parent?.data.getDataType(name, loadMode)
+		return @
 
 class cola.WidgetModel extends cola.SubScope
 	constructor: (@widget, @parent) ->
@@ -46,11 +49,8 @@ class cola.WidgetModel extends cola.SubScope
 				return () -> method.apply(widget, arguments)
 			return cola.defaultAction[name]
 
-	destroy: () ->
-		@data.destroy?()
-		return
-
 	_processMessage: (bindingPath, path, type, arg) ->
+		if @messageTimestamp >= arg.timestamp then return
 		return @data._processMessage(bindingPath, path, type, arg)
 
 class cola.TemplateWidget extends cola.Widget

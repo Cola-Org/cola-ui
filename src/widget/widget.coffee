@@ -61,6 +61,7 @@ class cola.RenderableElement extends cola.Element
 	@events:
 		initDom: null
 		refreshDom: null
+
 	constructor: (config)->
 		if config
 			dom = config.dom
@@ -79,7 +80,7 @@ class cola.RenderableElement extends cola.Element
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
 		arg =
-			dom: dom, returnValue: null
+			dom: dom
 		@fire("initDom", @, arg)
 		@_refreshDom()
 		@_rendered = true
@@ -143,7 +144,7 @@ class cola.RenderableElement extends cola.Element
 		@_refreshDom()
 
 		arg =
-			dom: @_dom, returnValue: null
+			dom: @_dom
 		@fire("refreshDom", @, arg)
 
 		return @
@@ -300,6 +301,7 @@ class cola.Widget extends cola.RenderableElement
 			hammerEvent: "swipeup"
 		swipeDown:
 			hammerEvent: "swipedown"
+
 	_initDom: (dom)->
 		super(dom)
 		popup = @_popup
@@ -314,6 +316,7 @@ class cola.Widget extends cola.RenderableElement
 				else if popupOptions.html
 					popupOptions.html = cola.xRender(popupOptions.html)
 			$(dom).popup(popupOptions)
+
 	_setDom: (dom, parseChild)->
 		return unless dom
 		super(dom, parseChild)
@@ -362,7 +365,7 @@ class cola.Widget extends cola.RenderableElement
 		if eventConfig?.$event
 			$dom.on(eventConfig.$event, (evt)=>
 				arg =
-					dom: @_dom, event: evt, returnValue: null
+					dom: @_dom, event: evt
 				return @fire(eventName, @, arg)
 			)
 			@_bindedEvents[eventName] = true
@@ -376,7 +379,7 @@ class cola.Widget extends cola.RenderableElement
 			@_hammer.get("swipe").set({direction: Hammer.DIRECTION_ALL}) if SWIPE_VERTICAL_events.indexOf(eventName) >= 0
 			@_hammer.on(eventConfig.hammerEvent, (evt)=>
 				arg =
-					dom: @_dom, event: evt, returnValue: null, eventName: eventName
+					dom: @_dom, event: evt, eventName: eventName
 				return @fire(eventName, @, arg)
 			)
 

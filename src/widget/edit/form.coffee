@@ -82,6 +82,8 @@ class cola.Form extends cola.Widget
 		return @_scope.get()
 
 	_refreshState: () ->
+		return unless @_$dom
+
 		state = null
 		keyMessage = @_messageHolder.getKeyMessage()
 		type = keyMessage?.type
@@ -106,6 +108,8 @@ class cola.Form extends cola.Widget
 		return
 
 	_resetEntityMessages: () ->
+		return unless @_$dom
+
 		messageHolder = @_messageHolder
 		messageHolder.clear("fields")
 		entity = @_getEntity()

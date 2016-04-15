@@ -1,4 +1,3 @@
-#IMPORT_BEGIN
 if exports?
 	cola = require("./entity")
 	module?.exports = cola

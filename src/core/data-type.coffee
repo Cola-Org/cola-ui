@@ -57,7 +57,10 @@ class cola.JSONDataType extends cola.DataType
 		return JSON.stringify(value)
 
 	parse: (text) ->
-		return JSON.parse(text)
+		if typeof text is "string"
+			return JSON.parse(text)
+		else
+			return text
 
 ###
 EntityDataType

@@ -17,12 +17,14 @@
 //					name: attr
 //				});
 //			}
+			model.set("a", 123);
+
 			model.describe("items", {
 				provider: {
-					url: "languages{$pageNo}.json",
+					url: "languages.json",
 					pageSize: 10,
 					parameter: {
-						sss: "sdsd"
+						sss: "{{a*3}}"
 					}
 				}
 			});

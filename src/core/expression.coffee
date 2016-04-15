@@ -37,15 +37,15 @@ digestExpression = (text, p) ->
 	endBracket = 0
 	while p < len
 		c = text.charCodeAt(p)
-		if c == 125 && !quota    # `}`
-			if endBracket == 1
+		if c is 125 && !quota    # `}`
+			if endBracket is 1
 				return text.substring(s, p - 1)
 			endBracket++
 		else
 			endBracket = 0
-			if c == 39 or c == 34    # `'` or `"`
+			if c is 39 or c is 34    # `'` or `"`
 				if quota
-					if quota == c then quota = false
+					if quota is c then quota = false
 				else
 					quota = c
 		p++
@@ -54,7 +54,7 @@ digestExpression = (text, p) ->
 cola._compileExpression = (exprStr, specialType) ->
 	if !exprStr then return null
 
-	if specialType == "repeat"
+	if specialType is "repeat"
 		i = exprStr.indexOf(" in ")
 		if i > 0
 			aliasName = exprStr.substring(0, i)
@@ -71,7 +71,7 @@ cola._compileExpression = (exprStr, specialType) ->
 			exp = new cola.Expression(exprStr, true)
 			exp.repeat = true
 			exp.alias = "item"
-	else if specialType == "alias"
+	else if specialType is "alias"
 		i = exprStr.indexOf(" as ")
 		if i > 0
 			aliasName = exprStr.substring(i + 4)
@@ -97,15 +97,15 @@ splitExpression = (text, separator) ->
 	len = text.length
 	while i < len
 		c = text.charCodeAt(i)
-		if c == separatorCharCode && !quota
+		if c is separatorCharCode && !quota
 			part = text.substring(p, i)
 			parts ?= []
 			parts.push(cola.util.trim(part))
 			p = i + 1
 		else
-			if c == 39 or c == 34    # `'` or `"`
+			if c is 39 or c is 34    # `'` or `"`
 				if quota
-					if quota == c then quota = false
+					if quota is c then quota = false
 				else
 					quota = c
 		i++
@@ -144,10 +144,10 @@ class cola.Expression
 				watchPaths.push(path)
 
 		fc = exprStr.charCodeAt(0)
-		if fc == 61 # `=`
+		if fc is 61 # `=`
 			exprStr = exprStr.substring(1)
 			@isStatic = true
-		else if fc == 63 # `?`
+		else if fc is 63 # `?`
 			exprStr = exprStr.substring(1)
 			@isDyna = true
 
@@ -160,9 +160,7 @@ class cola.Expression
 			type = node.type
 			switch type
 				when "MemberExpression", "Identifier", "ThisExpression"
-					if type == "Identifier" or type == "ThisExpression"
-						pathParts.push(node.name)
-					else if type == "MemberExpression"
+					if type is "MemberExpression"
 						stringify(node.object, parts, pathParts, false, context)
 
 						if pathParts.length
@@ -170,16 +168,18 @@ class cola.Expression
 						else
 							parts.push(".")
 							parts.push(node.property.name)
+					else
+						pathParts.push(node.name)
 
 				when "CallExpression"
 					context.hasCallStatement = true
 
 					callee = node.callee
-					if callee.type == "Identifier"
+					if callee.type is "Identifier"
 						parts.push("scope.action(\"")
 						parts.push(node.callee.name)
 						parts.push("\")(")
-					else if callee.type == "MemberExpression"
+					else if callee.type is "MemberExpression"
 						stringify(callee.object, parts, pathParts, true, context)
 						parts.push(".")
 						parts.push(callee.property.name)
@@ -261,6 +261,6 @@ class cola.Expression
 
 _getData = (scope, path, loadMode, dataCtx)  ->
 	retValue = scope.get(path, loadMode, dataCtx)
-	if retValue == undefined and dataCtx?.vars
+	if retValue is undefined and dataCtx?.vars
 		retValue = dataCtx.vars[path]
 	return retValue

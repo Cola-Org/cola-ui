@@ -197,8 +197,15 @@ WIDGET_TAGS_REGISTRY = {}
 
 _extendWidget = (superCls, definition) ->
 	cls = () ->
-		cls.__super__.constructor.apply(this, arguments)
-		definition.constructor?.apply(this, arguments)
+		if not cls.attributes._inited or not cls.events._inited
+			cola.preprocessClass(cls)
+
+		if definition.create then @on("create", definition.create)
+		if definition.destroy then @on("destroy", definition.destroy)
+		if definition.initDom then @on("initDom", (self, arg) => @initDom(arg.dom))
+		if definition.refreshDom then @on("refreshDom", (self, arg) => @refreshDom(arg.dom))
+
+		cls.__super__.constructor.apply(@, arguments)
 		return
 
 	`extend(cls, superCls)`

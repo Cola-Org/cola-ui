@@ -19,19 +19,30 @@
 				},
 				content: [
 					{
-						tagName: "input",
-						"c-bind": "$text"
+						tagName: "c-button",
+						"c-caption": "getButtonCaption(@text)",
+						"c-click": "testAction()"
 					},
 					{
 						tagName: "input",
-						"c-bind": "?$bind"
+						"c-bind": "@text"
+					},
+					{
+						tagName: "input",
+						"c-bind": "?@bind"
 					},
 					{
 						tagName: "c-listview",
-						"c-bind": "?$itemsBind",
+						"c-bind": "?@itemsBind",
 						textProperty: "city"
 					}
 				]
+			},
+			testAction: function() {
+				alert(this.get("text"));
+			},
+			getButtonCaption: function(text) {
+				return "Button " + text;
 			}
 		});
 

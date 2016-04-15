@@ -112,15 +112,16 @@ class cola.Element
 		userData: null
 
 	@events:
+		create: null
 		attributeChange: null
 		destroy: null
 
 	constructor: (config) ->
-		@_constructing = true
 		classType = @constructor
 		if not classType.attributes._inited or not classType.events._inited
 			cola.preprocessClass(classType)
 
+		@_constructing = true
 		@_scope = config?.scope or cola.currentScope
 
 		attrConfigs = classType.attributes
@@ -137,6 +138,7 @@ class cola.Element
 
 		if config then @set(config, true)
 		delete @_constructing
+		@fire("create", @)
 
 	destroy: ()->
 		classType = @constructor

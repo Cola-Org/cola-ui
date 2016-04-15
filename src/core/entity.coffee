@@ -315,7 +315,7 @@ class cola.Entity
 	_get: (prop, loadMode, callback, context) ->
 		loadData = (provider) ->
 			retValue = undefined
-			providerInvoker = provider.getInvoker(@)
+			providerInvoker = provider.getInvoker(data: @)
 			if loadMode == "sync"
 				retValue = providerInvoker.invokeSync()
 				retValue = @_set(prop, retValue)
@@ -400,7 +400,7 @@ class cola.Entity
 	_jsonToEntity: (value, dataType, aggregated, provider) ->
 		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider?._pageSize)
 		if result and provider
-			result._providerInvoker = provider.getInvoker(@)
+			result._providerInvoker = provider.getInvoker(data: @)
 		return result
 
 	_set: (prop, value) ->
@@ -541,7 +541,7 @@ class cola.Entity
 				provider = property._provider
 				if provider
 					entityList.pageSize = provider._pageSize
-					entityList._providerInvoker = provider.getInvoker(@)
+					entityList._providerInvoker = provider.getInvoker(data: @)
 
 				@_disableWriteObservers++
 				@_set(prop, entityList)
@@ -1142,20 +1142,21 @@ class cola.EntityList extends LinkedList
 			else if loadMode isnt "never"
 				if setCurrent then @setCurrent(null)
 				page = @_createPage(pageNo)
-				if loadMode is "async"
-					page.loadData(
-						complete: (success, result) =>
-							if success
-								@_setCurrentPage(page)
-								if page.entityCount and @pageCount < pageNo
-									@pageCount = pageNo
-							cola.callback(callback, success, result)
-							return
-					)
-				else
-					page.loadData()
-					@_setCurrentPage(page)
-					cola.callback(callback, true)
+				if page
+					if loadMode is "async"
+						page.loadData(
+							complete: (success, result) =>
+								if success
+									@_setCurrentPage(page)
+									if page.entityCount and @pageCount < pageNo
+										@pageCount = pageNo
+								cola.callback(callback, success, result)
+								return
+						)
+					else
+						page.loadData()
+						@_setCurrentPage(page)
+						cola.callback(callback, true)
 		return @
 
 	loadPage: (pageNo, loadMode) ->

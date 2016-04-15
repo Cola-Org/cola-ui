@@ -120,9 +120,9 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 
 	_replaceSysParams: (options) ->
 		url = options.originUrl or options.url
-		matches = url.match(/{\$[\w-]+}/g)
+		matches = url.match(/{{\$[\w-]+}}/g)
 		if matches
-			options.originUrl = url unless options.originUrl
+			options.originUrl ?= url
 			for match in matches
 				name = match.substring(2, match.length - 1)
 				if name
@@ -134,12 +134,8 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		if data
 			for p, v of data
 				if typeof v is "string"
-					if v.charCodeAt(0) is 123 and v.charCodeAt(1) is 36 # `{`, `$`
-						options.originData = $.extend(data, null) unless options.originData
-						data[p] = @[v.substring(1)]
-						changed = true
-					else if v.match(/^{\$[\w-]+}$/)
-						options.originData = $.extend(data, null) unless options.originData
+					if v.charCodeAt(0) is 123 and v.match(/^{{\$[\w-]+}}$/) # `{`
+						options.originData ?= $.extend(data, null)
 						data[p] = @[v.substring(2, v.length - 1)]
 						changed = true
 		return changed
@@ -162,6 +158,29 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		@applyPagingParameters(options) if @pageSize
 		return
 
+_SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
+
+class _ExpressionDataModel extends cola.AbstractDataModel
+	constructor: (model, @entity) ->
+		super(model)
+
+	get: (path, loadMode, context) ->
+		if path.charCodeAt(0) is 64 # `@`
+			return @entity.get(path.substring(1))
+		else
+			return @model.parent?.data.get(path, loadMode, context)
+
+	set: cola._EMPTY_FUNC
+	_processMessage: cola._EMPTY_FUNC
+	getDataType: cola._EMPTY_FUNC
+	getProperty: cola._EMPTY_FUNC
+	flush: cola._EMPTY_FUNC
+
+class _ExpressionScope extends cola.SubScope
+	constructor: (@parent, @entity) ->
+		@data = new _ExpressionDataModel(@, @entity)
+		@action = @parent.action
+
 class cola.Provider extends cola.AjaxService
 	@attributes:
 		loadMode:	# lazy、manual
@@ -171,12 +190,11 @@ class cola.Provider extends cola.AjaxService
 
 	getUrl: (context) ->
 		url = @_url
-		matches = url.match(/{[\w-]+}/g)
+		matches = url.match(/{{.+}}/g)
 		if matches
+			context.expressionScope ?= new _ExpressionScope(@_scope, context.data)
 			for match in matches
-				expr = match.substring(1, match.length - 1)
-				if expr
-					url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") or "")
+				url = url.replace(match, @_evalParamValue(match, context))
 		return url
 
 	getInvoker: (context) ->
@@ -186,17 +204,13 @@ class cola.Provider extends cola.AjaxService
 		return provider
 
 	_evalParamValue: (expr, context) ->
-		if expr.charCodeAt(0) is 123 and expr.charCodeAt(1) isnt 36 # `{`, `$`
-			if context
-				return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
-			else
-				return null
-		else if context and expr.charCodeAt(0) is 123 # `{`
-			if expr.match(/^{[\w-]+}$/)
-				if context
-					return cola.Entity._evalDataPath(context, expr.substring(1, expr.length - 1), true, "never");
-				else
-					return null
+		if expr.charCodeAt(0) is 123	# `{`
+			if expr.match(/^{{.+}}$/)
+				expression = expr.substring(2, expr.length - 2)
+				if _SYS_PARAMS.indexOf(expression) < 0
+					expression = cola._compileExpression(expression)
+					if expression
+						return expression.evaluate(context.expressionScope, "never")
 		return expr
 
 	getInvokerOptions: (context) ->
@@ -204,11 +218,13 @@ class cola.Provider extends cola.AjaxService
 		parameter = options.data
 
 		if parameter?
+			context.expressionScope ?= new _ExpressionScope(@_scope, context.data)
+
 			if typeof parameter is "string"
 				parameter = @_evalParamValue(parameter, context)
 			else
 				if typeof parameter is "function"
-					parameter = parameter(@);
+					parameter = parameter(@, context);
 
 				if typeof parameter is "object"
 					oldParameter = parameter
