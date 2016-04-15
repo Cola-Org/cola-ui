@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _RESERVE_NAMES, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, alertException, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _RESERVE_NAMES, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, alertException, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -822,7 +822,7 @@
     }
 
     Exception.processException = function(ex) {
-      var ex2, scope;
+      var error1, ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -859,8 +859,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (_error) {
-          ex2 = _error;
+        } catch (error1) {
+          ex2 = error1;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -1210,17 +1210,18 @@
     };
 
     Element.events = {
+      create: null,
       attributeChange: null,
       destroy: null
     };
 
     function Element(config) {
       var attr, attrConfig, attrConfigs, classType, constructor, l, len1, ref;
-      this._constructing = true;
       classType = this.constructor;
       if (!classType.attributes._inited || !classType.events._inited) {
         cola.preprocessClass(classType);
       }
+      this._constructing = true;
       this._scope = (config != null ? config.scope : void 0) || cola.currentScope;
       attrConfigs = classType.attributes;
       for (attr in attrConfigs) {
@@ -1244,6 +1245,7 @@
         this.set(config, true);
       }
       delete this._constructing;
+      this.fire("create", this);
     }
 
     Element.prototype.destroy = function() {
@@ -2182,9 +2184,7 @@
           case "MemberExpression":
           case "Identifier":
           case "ThisExpression":
-            if (type === "Identifier" || type === "ThisExpression") {
-              pathParts.push(node.name);
-            } else if (type === "MemberExpression") {
+            if (type === "MemberExpression") {
               stringify(node.object, parts, pathParts, false, context);
               if (pathParts.length) {
                 pathParts.push(node.property.name);
@@ -2192,6 +2192,8 @@
                 parts.push(".");
                 parts.push(node.property.name);
               }
+            } else {
+              pathParts.push(node.name);
             }
             break;
           case "CallExpression":
@@ -2308,360 +2310,6 @@
     }
     return retValue;
   };
-
-  cola.AjaxServiceInvoker = (function() {
-    function AjaxServiceInvoker(ajaxService1, invokerOptions1) {
-      this.ajaxService = ajaxService1;
-      this.invokerOptions = invokerOptions1;
-      this.callbacks = [];
-    }
-
-    AjaxServiceInvoker.prototype.invokeCallback = function(success, result) {
-      var callback, callbacks, l, len1;
-      this.invoking = false;
-      callbacks = this.callbacks;
-      this.callbacks = [];
-      for (l = 0, len1 = callbacks.length; l < len1; l++) {
-        callback = callbacks[l];
-        cola.callback(callback, success, result);
-      }
-    };
-
-    AjaxServiceInvoker.prototype._internalInvoke = function(async) {
-      var ajaxService, invokerOptions, options, p, retValue, v;
-      if (async == null) {
-        async = true;
-      }
-      ajaxService = this.ajaxService;
-      invokerOptions = this.invokerOptions;
-      retValue = void 0;
-      options = {};
-      for (p in invokerOptions) {
-        v = invokerOptions[p];
-        options[p] = v;
-      }
-      options.async = async;
-      if (options.sendJson) {
-        options.data = JSON.stringify(options.data);
-      }
-      if (ajaxService.getListeners("beforeSend")) {
-        if (ajaxService.fire("beforeSend", ajaxService, {
-          options: options
-        }) === false) {
-          return;
-        }
-      }
-      if (this._beforeSend) {
-        this._beforeSend(options);
-      }
-      jQuery.ajax(options).done((function(_this) {
-        return function(result) {
-          result = ajaxService.translateResult(result, options);
-          _this.invokeCallback(true, result);
-          if (ajaxService.getListeners("success")) {
-            ajaxService.fire("success", ajaxService, {
-              options: options,
-              result: result
-            });
-          }
-          if (ajaxService.getListeners("complete")) {
-            ajaxService.fire("complete", ajaxService, {
-              success: true,
-              options: options,
-              result: result
-            });
-          }
-          retValue = result;
-        };
-      })(this)).fail((function(_this) {
-        return function(xhr) {
-          var error;
-          error = xhr.responseJSON;
-          _this.invokeCallback(false, error);
-          ajaxService.fire("error", ajaxService, {
-            options: options,
-            xhr: xhr,
-            error: error
-          });
-          ajaxService.fire("complete", ajaxService, {
-            success: false,
-            xhr: xhr,
-            options: options,
-            error: error
-          });
-        };
-      })(this));
-      return retValue;
-    };
-
-    AjaxServiceInvoker.prototype.invokeAsync = function(callback) {
-      this.callbacks.push(callback);
-      if (this.invoking) {
-        return false;
-      }
-      this.invoking = true;
-      this._internalInvoke();
-      return true;
-    };
-
-    AjaxServiceInvoker.prototype.invokeSync = function(callback) {
-      if (this.invoking) {
-        throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [" + this.url + "]");
-      }
-      this.callbacks.push(callback);
-      return this._internalInvoke(false);
-    };
-
-    return AjaxServiceInvoker;
-
-  })();
-
-  cola.AjaxService = (function(superClass) {
-    extend(AjaxService, superClass);
-
-    AjaxService.attributes = {
-      url: null,
-      method: null,
-      parameter: null,
-      ajaxOptions: null
-    };
-
-    AjaxService.events = {
-      beforeSend: null,
-      complete: null,
-      success: null,
-      error: null
-    };
-
-    function AjaxService(config) {
-      if (typeof config === "string") {
-        config = {
-          url: config
-        };
-      }
-      AjaxService.__super__.constructor.call(this, config);
-    }
-
-    AjaxService.prototype.getUrl = function() {
-      return this._url;
-    };
-
-    AjaxService.prototype.getInvokerOptions = function(context) {
-      var ajaxOptions, options, p, v;
-      options = {};
-      ajaxOptions = this._ajaxOptions;
-      if (ajaxOptions) {
-        for (p in ajaxOptions) {
-          v = ajaxOptions[p];
-          options[p] = v;
-        }
-      }
-      options.url = this.getUrl(context);
-      options.data = this._parameter;
-      return options;
-    };
-
-    AjaxService.prototype.getInvoker = function(context) {
-      return new cola.AjaxServiceInvoker(this, this.getInvokerOptions(context));
-    };
-
-    AjaxService.prototype.translateResult = function(result, invokerOptions) {
-      return result;
-    };
-
-    return AjaxService;
-
-  })(cola.Definition);
-
-  cola.ProviderInvoker = (function(superClass) {
-    extend(ProviderInvoker, superClass);
-
-    function ProviderInvoker() {
-      return ProviderInvoker.__super__.constructor.apply(this, arguments);
-    }
-
-    ProviderInvoker.prototype._replaceSysParams = function(options) {
-      var changed, data, l, len1, match, matches, name, p, url, v;
-      url = options.originUrl || options.url;
-      matches = url.match(/{\$[\w-]+}/g);
-      if (matches) {
-        if (!options.originUrl) {
-          options.originUrl = url;
-        }
-        for (l = 0, len1 = matches.length; l < len1; l++) {
-          match = matches[l];
-          name = match.substring(2, match.length - 1);
-          if (name) {
-            url = url.replace(match, this[name] || "");
-            options.url = url;
-            changed = true;
-          }
-        }
-      }
-      data = options.originData || options.data;
-      if (data) {
-        for (p in data) {
-          v = data[p];
-          if (typeof v === "string") {
-            if (v.charCodeAt(0) === 123 && v.charCodeAt(1) === 36) {
-              if (!options.originData) {
-                options.originData = $.extend(data, null);
-              }
-              data[p] = this[v.substring(1)];
-              changed = true;
-            } else if (v.match(/^{\$[\w-]+}$/)) {
-              if (!options.originData) {
-                options.originData = $.extend(data, null);
-              }
-              data[p] = this[v.substring(2, v.length - 1)];
-              changed = true;
-            }
-          }
-        }
-      }
-      return changed;
-    };
-
-    ProviderInvoker.prototype.applyPagingParameters = function(options) {
-      if (!this._replaceSysParams(options)) {
-        if (options.data == null) {
-          options.data = {};
-        }
-        if (cola.setting("pagingParamStyle") === "from") {
-          options.data.from = this.from;
-          options.data.limit = this.limit + (this.detectEnd ? 1 : 0);
-        } else {
-          options.data.pageSize = this.pageSize;
-          options.data.pageNo = this.pageNo;
-        }
-      }
-    };
-
-    ProviderInvoker.prototype._beforeSend = function(options) {
-      if (!this.pageNo >= 1) {
-        this.pageNo = 1;
-      }
-      this.from = this.pageSize * (this.pageNo - 1);
-      this.limit = this.pageSize;
-      if (this.pageSize) {
-        this.applyPagingParameters(options);
-      }
-    };
-
-    return ProviderInvoker;
-
-  })(cola.AjaxServiceInvoker);
-
-  cola.Provider = (function(superClass) {
-    extend(Provider, superClass);
-
-    function Provider() {
-      return Provider.__super__.constructor.apply(this, arguments);
-    }
-
-    Provider.attributes = {
-      loadMode: {
-        defaultValue: "lazy"
-      },
-      pageSize: null,
-      detectEnd: null
-    };
-
-    Provider.prototype.getUrl = function(context) {
-      var expr, l, len1, match, matches, url;
-      url = this._url;
-      matches = url.match(/{[\w-]+}/g);
-      if (matches) {
-        for (l = 0, len1 = matches.length; l < len1; l++) {
-          match = matches[l];
-          expr = match.substring(1, match.length - 1);
-          if (expr) {
-            url = url.replace(match, cola.Entity._evalDataPath(context, expr, true, "never") || "");
-          }
-        }
-      }
-      return url;
-    };
-
-    Provider.prototype.getInvoker = function(context) {
-      var provider;
-      provider = new cola.ProviderInvoker(this, this.getInvokerOptions(context));
-      provider.pageSize = this._pageSize;
-      provider.detectEnd = this._detectEnd;
-      return provider;
-    };
-
-    Provider.prototype._evalParamValue = function(expr, context) {
-      if (expr.charCodeAt(0) === 123 && expr.charCodeAt(1) !== 36) {
-        if (context) {
-          return cola.Entity._evalDataPath(context, expr.substring(1), true, "never");
-        } else {
-          return null;
-        }
-      } else if (context && expr.charCodeAt(0) === 123) {
-        if (expr.match(/^{[\w-]+}$/)) {
-          if (context) {
-            return cola.Entity._evalDataPath(context, expr.substring(1, expr.length - 1), true, "never");
-          } else {
-            return null;
-          }
-        }
-      }
-      return expr;
-    };
-
-    Provider.prototype.getInvokerOptions = function(context) {
-      var oldParameter, options, p, parameter, v;
-      options = Provider.__super__.getInvokerOptions.call(this, context);
-      parameter = options.data;
-      if (parameter != null) {
-        if (typeof parameter === "string") {
-          parameter = this._evalParamValue(parameter, context);
-        } else {
-          if (typeof parameter === "function") {
-            parameter = parameter(this);
-          }
-          if (typeof parameter === "object") {
-            oldParameter = parameter;
-            parameter = {};
-            for (p in oldParameter) {
-              v = oldParameter[p];
-              if (typeof v === "string") {
-                v = this._evalParamValue(v, context);
-              }
-              parameter[p] = v;
-            }
-          }
-        }
-      }
-      if (parameter == null) {
-        parameter = {};
-      } else if (!(parameter instanceof Object)) {
-        parameter = {
-          parameter: parameter
-        };
-      }
-      options.data = parameter;
-      return options;
-    };
-
-    Provider.prototype.translateResult = function(result, invokerOptions) {
-      if (this._detectEnd && result instanceof Array) {
-        if (result.length >= this._pageSize) {
-          result = result.slice(0, this._pageSize);
-        } else {
-          result = {
-            $entityCount: (invokerOptions.data.from || 0) + result.length,
-            $data: result
-          };
-        }
-      }
-      return result;
-    };
-
-    return Provider;
-
-  })(cola.AjaxService);
 
   cola.registerTypeResolver("validator", function(config) {
     if (!(config && config.$type)) {
@@ -3206,7 +2854,11 @@
     };
 
     JSONDataType.prototype.parse = function(text) {
-      return JSON.parse(text);
+      if (typeof text === "string") {
+        return JSON.parse(text);
+      } else {
+        return text;
+      }
     };
 
     return JSONDataType;
@@ -3936,7 +3588,9 @@
       loadData = function(provider) {
         var notifyArg, providerInvoker, retValue;
         retValue = void 0;
-        providerInvoker = provider.getInvoker(this);
+        providerInvoker = provider.getInvoker({
+          data: this
+        });
         if (loadMode === "sync") {
           retValue = providerInvoker.invokeSync();
           retValue = this._set(prop, retValue);
@@ -4048,7 +3702,9 @@
       var result;
       result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider != null ? provider._pageSize : void 0);
       if (result && provider) {
-        result._providerInvoker = provider.getInvoker(this);
+        result._providerInvoker = provider.getInvoker({
+          data: this
+        });
       }
       return result;
     };
@@ -4238,7 +3894,9 @@
           provider = property._provider;
           if (provider) {
             entityList.pageSize = provider._pageSize;
-            entityList._providerInvoker = provider.getInvoker(this);
+            entityList._providerInvoker = provider.getInvoker({
+              data: this
+            });
           }
           this._disableWriteObservers++;
           this._set(prop, entityList);
@@ -5105,24 +4763,26 @@
             this.setCurrent(null);
           }
           page = this._createPage(pageNo);
-          if (loadMode === "async") {
-            page.loadData({
-              complete: (function(_this) {
-                return function(success, result) {
-                  if (success) {
-                    _this._setCurrentPage(page);
-                    if (page.entityCount && _this.pageCount < pageNo) {
-                      _this.pageCount = pageNo;
+          if (page) {
+            if (loadMode === "async") {
+              page.loadData({
+                complete: (function(_this) {
+                  return function(success, result) {
+                    if (success) {
+                      _this._setCurrentPage(page);
+                      if (page.entityCount && _this.pageCount < pageNo) {
+                        _this.pageCount = pageNo;
+                      }
                     }
-                  }
-                  cola.callback(callback, success, result);
-                };
-              })(this)
-            });
-          } else {
-            page.loadData();
-            this._setCurrentPage(page);
-            cola.callback(callback, true);
+                    cola.callback(callback, success, result);
+                  };
+                })(this)
+              });
+            } else {
+              page.loadData();
+              this._setCurrentPage(page);
+              cola.callback(callback, true);
+            }
           }
         }
       }
@@ -5855,6 +5515,15 @@
       }
     }
   };
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    cola = require("./entity");
+    if (typeof module !== "undefined" && module !== null) {
+      module.exports = cola;
+    }
+  } else {
+    cola = this.cola;
+  }
 
 
   /*
@@ -7693,6 +7362,401 @@
     return _numberWords[number];
   };
 
+  cola.AjaxServiceInvoker = (function() {
+    function AjaxServiceInvoker(ajaxService1, invokerOptions1) {
+      this.ajaxService = ajaxService1;
+      this.invokerOptions = invokerOptions1;
+      this.callbacks = [];
+    }
+
+    AjaxServiceInvoker.prototype.invokeCallback = function(success, result) {
+      var callback, callbacks, l, len1;
+      this.invoking = false;
+      callbacks = this.callbacks;
+      this.callbacks = [];
+      for (l = 0, len1 = callbacks.length; l < len1; l++) {
+        callback = callbacks[l];
+        cola.callback(callback, success, result);
+      }
+    };
+
+    AjaxServiceInvoker.prototype._internalInvoke = function(async) {
+      var ajaxService, invokerOptions, options, p, retValue, v;
+      if (async == null) {
+        async = true;
+      }
+      ajaxService = this.ajaxService;
+      invokerOptions = this.invokerOptions;
+      retValue = void 0;
+      options = {};
+      for (p in invokerOptions) {
+        v = invokerOptions[p];
+        options[p] = v;
+      }
+      options.async = async;
+      if (options.sendJson) {
+        options.data = JSON.stringify(options.data);
+      }
+      if (ajaxService.getListeners("beforeSend")) {
+        if (ajaxService.fire("beforeSend", ajaxService, {
+          options: options
+        }) === false) {
+          return;
+        }
+      }
+      if (this._beforeSend) {
+        this._beforeSend(options);
+      }
+      jQuery.ajax(options).done((function(_this) {
+        return function(result) {
+          result = ajaxService.translateResult(result, options);
+          _this.invokeCallback(true, result);
+          if (ajaxService.getListeners("success")) {
+            ajaxService.fire("success", ajaxService, {
+              options: options,
+              result: result
+            });
+          }
+          if (ajaxService.getListeners("complete")) {
+            ajaxService.fire("complete", ajaxService, {
+              success: true,
+              options: options,
+              result: result
+            });
+          }
+          retValue = result;
+        };
+      })(this)).fail((function(_this) {
+        return function(xhr) {
+          var error;
+          error = xhr.responseJSON;
+          _this.invokeCallback(false, error);
+          ajaxService.fire("error", ajaxService, {
+            options: options,
+            xhr: xhr,
+            error: error
+          });
+          ajaxService.fire("complete", ajaxService, {
+            success: false,
+            xhr: xhr,
+            options: options,
+            error: error
+          });
+        };
+      })(this));
+      return retValue;
+    };
+
+    AjaxServiceInvoker.prototype.invokeAsync = function(callback) {
+      this.callbacks.push(callback);
+      if (this.invoking) {
+        return false;
+      }
+      this.invoking = true;
+      this._internalInvoke();
+      return true;
+    };
+
+    AjaxServiceInvoker.prototype.invokeSync = function(callback) {
+      if (this.invoking) {
+        throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [" + this.url + "]");
+      }
+      this.callbacks.push(callback);
+      return this._internalInvoke(false);
+    };
+
+    return AjaxServiceInvoker;
+
+  })();
+
+  cola.AjaxService = (function(superClass) {
+    extend(AjaxService, superClass);
+
+    AjaxService.attributes = {
+      url: null,
+      method: null,
+      parameter: null,
+      ajaxOptions: null
+    };
+
+    AjaxService.events = {
+      beforeSend: null,
+      complete: null,
+      success: null,
+      error: null
+    };
+
+    function AjaxService(config) {
+      if (typeof config === "string") {
+        config = {
+          url: config
+        };
+      }
+      AjaxService.__super__.constructor.call(this, config);
+    }
+
+    AjaxService.prototype.getUrl = function() {
+      return this._url;
+    };
+
+    AjaxService.prototype.getInvokerOptions = function(context) {
+      var ajaxOptions, options, p, v;
+      options = {};
+      ajaxOptions = this._ajaxOptions;
+      if (ajaxOptions) {
+        for (p in ajaxOptions) {
+          v = ajaxOptions[p];
+          options[p] = v;
+        }
+      }
+      options.url = this.getUrl(context);
+      options.data = this._parameter;
+      return options;
+    };
+
+    AjaxService.prototype.getInvoker = function(context) {
+      return new cola.AjaxServiceInvoker(this, this.getInvokerOptions(context));
+    };
+
+    AjaxService.prototype.translateResult = function(result, invokerOptions) {
+      return result;
+    };
+
+    return AjaxService;
+
+  })(cola.Definition);
+
+  cola.ProviderInvoker = (function(superClass) {
+    extend(ProviderInvoker, superClass);
+
+    function ProviderInvoker() {
+      return ProviderInvoker.__super__.constructor.apply(this, arguments);
+    }
+
+    ProviderInvoker.prototype._replaceSysParams = function(options) {
+      var changed, data, l, len1, match, matches, name, p, url, v;
+      url = options.originUrl || options.url;
+      matches = url.match(/{{\$[\w-]+}}/g);
+      if (matches) {
+        if (options.originUrl == null) {
+          options.originUrl = url;
+        }
+        for (l = 0, len1 = matches.length; l < len1; l++) {
+          match = matches[l];
+          name = match.substring(2, match.length - 1);
+          if (name) {
+            url = url.replace(match, this[name] || "");
+            options.url = url;
+            changed = true;
+          }
+        }
+      }
+      data = options.originData || options.data;
+      if (data) {
+        for (p in data) {
+          v = data[p];
+          if (typeof v === "string") {
+            if (v.charCodeAt(0) === 123 && v.match(/^{{\$[\w-]+}}$/)) {
+              if (options.originData == null) {
+                options.originData = $.extend(data, null);
+              }
+              data[p] = this[v.substring(2, v.length - 1)];
+              changed = true;
+            }
+          }
+        }
+      }
+      return changed;
+    };
+
+    ProviderInvoker.prototype.applyPagingParameters = function(options) {
+      if (!this._replaceSysParams(options)) {
+        if (options.data == null) {
+          options.data = {};
+        }
+        if (cola.setting("pagingParamStyle") === "from") {
+          options.data.from = this.from;
+          options.data.limit = this.limit + (this.detectEnd ? 1 : 0);
+        } else {
+          options.data.pageSize = this.pageSize;
+          options.data.pageNo = this.pageNo;
+        }
+      }
+    };
+
+    ProviderInvoker.prototype._beforeSend = function(options) {
+      if (!this.pageNo >= 1) {
+        this.pageNo = 1;
+      }
+      this.from = this.pageSize * (this.pageNo - 1);
+      this.limit = this.pageSize;
+      if (this.pageSize) {
+        this.applyPagingParameters(options);
+      }
+    };
+
+    return ProviderInvoker;
+
+  })(cola.AjaxServiceInvoker);
+
+  _SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"];
+
+  _ExpressionDataModel = (function(superClass) {
+    extend(_ExpressionDataModel, superClass);
+
+    function _ExpressionDataModel(model, entity1) {
+      this.entity = entity1;
+      _ExpressionDataModel.__super__.constructor.call(this, model);
+    }
+
+    _ExpressionDataModel.prototype.get = function(path, loadMode, context) {
+      var ref;
+      if (path.charCodeAt(0) === 64) {
+        return this.entity.get(path.substring(1));
+      } else {
+        return (ref = this.model.parent) != null ? ref.data.get(path, loadMode, context) : void 0;
+      }
+    };
+
+    _ExpressionDataModel.prototype.set = cola._EMPTY_FUNC;
+
+    _ExpressionDataModel.prototype._processMessage = cola._EMPTY_FUNC;
+
+    _ExpressionDataModel.prototype.getDataType = cola._EMPTY_FUNC;
+
+    _ExpressionDataModel.prototype.getProperty = cola._EMPTY_FUNC;
+
+    _ExpressionDataModel.prototype.flush = cola._EMPTY_FUNC;
+
+    return _ExpressionDataModel;
+
+  })(cola.AbstractDataModel);
+
+  _ExpressionScope = (function(superClass) {
+    extend(_ExpressionScope, superClass);
+
+    function _ExpressionScope(parent1, entity1) {
+      this.parent = parent1;
+      this.entity = entity1;
+      this.data = new _ExpressionDataModel(this, this.entity);
+      this.action = this.parent.action;
+    }
+
+    return _ExpressionScope;
+
+  })(cola.SubScope);
+
+  cola.Provider = (function(superClass) {
+    extend(Provider, superClass);
+
+    function Provider() {
+      return Provider.__super__.constructor.apply(this, arguments);
+    }
+
+    Provider.attributes = {
+      loadMode: {
+        defaultValue: "lazy"
+      },
+      pageSize: null,
+      detectEnd: null
+    };
+
+    Provider.prototype.getUrl = function(context) {
+      var l, len1, match, matches, url;
+      url = this._url;
+      matches = url.match(/{{.+}}/g);
+      if (matches) {
+        if (context.expressionScope == null) {
+          context.expressionScope = new _ExpressionScope(this._scope, context.data);
+        }
+        for (l = 0, len1 = matches.length; l < len1; l++) {
+          match = matches[l];
+          url = url.replace(match, this._evalParamValue(match, context));
+        }
+      }
+      return url;
+    };
+
+    Provider.prototype.getInvoker = function(context) {
+      var provider;
+      provider = new cola.ProviderInvoker(this, this.getInvokerOptions(context));
+      provider.pageSize = this._pageSize;
+      provider.detectEnd = this._detectEnd;
+      return provider;
+    };
+
+    Provider.prototype._evalParamValue = function(expr, context) {
+      var expression;
+      if (expr.charCodeAt(0) === 123) {
+        if (expr.match(/^{{.+}}$/)) {
+          expression = expr.substring(2, expr.length - 2);
+          if (_SYS_PARAMS.indexOf(expression) < 0) {
+            expression = cola._compileExpression(expression);
+            if (expression) {
+              return expression.evaluate(context.expressionScope, "never");
+            }
+          }
+        }
+      }
+      return expr;
+    };
+
+    Provider.prototype.getInvokerOptions = function(context) {
+      var oldParameter, options, p, parameter, v;
+      options = Provider.__super__.getInvokerOptions.call(this, context);
+      parameter = options.data;
+      if (parameter != null) {
+        if (context.expressionScope == null) {
+          context.expressionScope = new _ExpressionScope(this._scope, context.data);
+        }
+        if (typeof parameter === "string") {
+          parameter = this._evalParamValue(parameter, context);
+        } else {
+          if (typeof parameter === "function") {
+            parameter = parameter(this, context);
+          }
+          if (typeof parameter === "object") {
+            oldParameter = parameter;
+            parameter = {};
+            for (p in oldParameter) {
+              v = oldParameter[p];
+              if (typeof v === "string") {
+                v = this._evalParamValue(v, context);
+              }
+              parameter[p] = v;
+            }
+          }
+        }
+      }
+      if (parameter == null) {
+        parameter = {};
+      } else if (!(parameter instanceof Object)) {
+        parameter = {
+          parameter: parameter
+        };
+      }
+      options.data = parameter;
+      return options;
+    };
+
+    Provider.prototype.translateResult = function(result, invokerOptions) {
+      if (this._detectEnd && result instanceof Array) {
+        if (result.length >= this._pageSize) {
+          result = result.slice(0, this._pageSize);
+        } else {
+          result = {
+            $entityCount: (invokerOptions.data.from || 0) + result.length,
+            $data: result
+          };
+        }
+      }
+      return result;
+    };
+
+    return Provider;
+
+  })(cola.AjaxService);
+
   _$ = $();
 
   _$.length = 1;
@@ -8171,7 +8235,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, head, scriptElement;
+        var e, error1, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -8189,8 +8253,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -10113,7 +10177,7 @@
       return features;
     },
     classname: function(attrValue) {
-      var classConfig, classExpr, className, expression, feature, features;
+      var classConfig, classExpr, className, error1, expression, feature, features;
       if (!attrValue) {
         return false;
       }
@@ -10124,7 +10188,7 @@
           feature = new cola._DomClassFeature(expression);
           features.push(feature);
         }
-      } catch (_error) {
+      } catch (error1) {
         classConfig = cola.util.parseStyleLikeString(attrValue);
         for (className in classConfig) {
           classExpr = classConfig[className];
@@ -10808,11 +10872,30 @@
   _extendWidget = function(superCls, definition) {
     var cls, def, prop, ref, template;
     cls = function() {
-      var ref;
-      cls.__super__.constructor.apply(this, arguments);
-      if ((ref = definition.constructor) != null) {
-        ref.apply(this, arguments);
+      if (!cls.attributes._inited || !cls.events._inited) {
+        cola.preprocessClass(cls);
       }
+      if (definition.create) {
+        this.on("create", definition.create);
+      }
+      if (definition.destroy) {
+        this.on("destroy", definition.destroy);
+      }
+      if (definition.initDom) {
+        this.on("initDom", (function(_this) {
+          return function(self, arg) {
+            return _this.initDom(arg.dom);
+          };
+        })(this));
+      }
+      if (definition.refreshDom) {
+        this.on("refreshDom", (function(_this) {
+          return function(self, arg) {
+            return _this.refreshDom(arg.dom);
+          };
+        })(this));
+      }
+      cls.__super__.constructor.apply(this, arguments);
     };
     extend(cls, superCls);
     cls.tagName = ((ref = definition.tagName) != null ? ref.toUpperCase() : void 0) || "";
@@ -11439,8 +11522,7 @@
       }
       this._initDom(dom);
       arg = {
-        dom: dom,
-        returnValue: null
+        dom: dom
       };
       this.fire("initDom", this, arg);
       this._refreshDom();
@@ -11524,8 +11606,7 @@
       }
       this._refreshDom();
       arg = {
-        dom: this._dom,
-        returnValue: null
+        dom: this._dom
       };
       this.fire("refreshDom", this, arg);
       return this;
@@ -11849,8 +11930,7 @@
             var arg;
             arg = {
               dom: _this._dom,
-              event: evt,
-              returnValue: null
+              event: evt
             };
             return _this.fire(eventName, _this, arg);
           };
@@ -11888,7 +11968,6 @@
             arg = {
               dom: _this._dom,
               event: evt,
-              returnValue: null,
               eventName: eventName
             };
             return _this.fire(eventName, _this, arg);
@@ -12010,7 +12089,7 @@
 
     WidgetDataModel.prototype.get = function(path, loadMode, context) {
       var ref;
-      if (path.charCodeAt(0) === 36) {
+      if (path.charCodeAt(0) === 64) {
         return this.widget.get(path.substring(1));
       } else {
         return (ref = this.model.parent) != null ? ref.data.get(path, loadMode, context) : void 0;
@@ -12019,7 +12098,7 @@
 
     WidgetDataModel.prototype.set = function(path, value) {
       var ref;
-      if (path.charCodeAt(0) === 36) {
+      if (path.charCodeAt(0) === 64) {
         this.widget.set(path.substring(1), value);
         this._onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
       } else {
@@ -12035,7 +12114,7 @@
 
     WidgetDataModel.prototype.getDataType = function(path) {
       var ref;
-      if (path.charCodeAt(0) === 36) {
+      if (path.charCodeAt(0) === 64) {
         return null;
       } else {
         return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
@@ -12044,14 +12123,22 @@
 
     WidgetDataModel.prototype.getProperty = function(path) {
       var ref;
-      if (path.charCodeAt(0) === 36) {
+      if (path.charCodeAt(0) === 64) {
         return null;
       } else {
         return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
       }
     };
 
-    WidgetDataModel.prototype.flush = function() {};
+    WidgetDataModel.prototype.flush = function(name, loadMode) {
+      var ref;
+      if (path.charCodeAt(0) !== 64) {
+        if ((ref = this.model.parent) != null) {
+          ref.data.getDataType(name, loadMode);
+        }
+      }
+      return this;
+    };
 
     return WidgetDataModel;
 
@@ -12081,14 +12168,10 @@
       };
     }
 
-    WidgetModel.prototype.destroy = function() {
-      var base;
-      if (typeof (base = this.data).destroy === "function") {
-        base.destroy();
-      }
-    };
-
     WidgetModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+      if (this.messageTimestamp >= arg.timestamp) {
+        return;
+      }
       return this.data._processMessage(bindingPath, path, type, arg);
     };
 
@@ -14923,7 +15006,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e;
+      var contentWindow, e, error;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -14931,8 +15014,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (_error) {
-        e = _error;
+      } catch (error) {
+        e = error;
       }
       return contentWindow;
     };
@@ -21282,6 +21365,9 @@
 
     Form.prototype._refreshState = function() {
       var errors, keyMessage, l, len1, m, messages, state, type;
+      if (!this._$dom) {
+        return;
+      }
       state = null;
       keyMessage = this._messageHolder.getKeyMessage();
       type = keyMessage != null ? keyMessage.type : void 0;
@@ -21310,6 +21396,9 @@
 
     Form.prototype._resetEntityMessages = function() {
       var entity, l, len1, message, messageHolder, messages;
+      if (!this._$dom) {
+        return;
+      }
       messageHolder = this._messageHolder;
       messageHolder.clear("fields");
       entity = this._getEntity();
@@ -22773,7 +22862,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, pos;
+      var activeSpan, e, error, pos;
       this.fire("change", this, {
         index: index
       });
@@ -22786,8 +22875,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (_error) {
-            e = _error;
+          } catch (error) {
+            e = error;
           }
         }
         if (this._scroller) {
@@ -29878,9 +29967,9 @@
         tagName: "i",
         "c-class": "'icon '+$default.icon"
       },
-      "time": {
+      "label": {
         tagName: "div",
-        "c-bind": "$default.time"
+        "c-bind": "$default.label"
       }
     };
 
@@ -29890,7 +29979,7 @@
       itemDom = this._cloneTemplate(template);
       $fly(itemDom).addClass("item " + itemType);
       itemDom._itemType = itemType;
-      ref = ["content", "icon", "time"];
+      ref = ["content", "icon", "label"];
       for (l = 0, len1 = ref.length; l < len1; l++) {
         name = ref[l];
         template = this._getTemplate(name);

@@ -5294,7 +5294,7 @@ html.ios body {
   bottom: 0;
   content: "";
 }
-.ui.time-line > .items > .item .time {
+.ui.time-line > .items > .item .label {
   position: absolute;
   top: 0.3em;
   width: 8em;
@@ -5382,17 +5382,17 @@ html.ios body {
   border-right: 0.4em solid transparent;
   border-bottom: 0.4em solid transparent;
 }
-.ui.time-line.log > .items > .item > .time {
+.ui.time-line.log > .items > .item > .label {
   top: 0.1em;
 }
-.ui.time-line.log > .items > .item > .time > * {
+.ui.time-line.log > .items > .item > .label > * {
   display: list-item;
 }
-.ui.time-line.log > .items > .item > .time > .date {
+.ui.time-line.log > .items > .item > .label > .date {
   color: rgba(0, 0, 0, 0.6);
   font-size: 0.8em;
 }
-.ui.time-line.log > .items > .item > .time > .date-time {
+.ui.time-line.log > .items > .item > .label > .date-time {
   font-size: 1.4em;
   color: #1ab394;
 }
@@ -5422,7 +5422,7 @@ html.ios body {
 .ui.time-line.log.red > .items > .item .icon {
   color: #db2828;
 }
-.ui.time-line.log.red > .items > .item > .time > .date-time {
+.ui.time-line.log.red > .items > .item > .label > .date-time {
   color: #dd3535;
 }
 .ui.time-line.log.red > .items > .item:nth-of-type(even) > .content:after {
@@ -5448,7 +5448,7 @@ html.ios body {
 .ui.time-line.log.orange > .items > .item .icon {
   color: #f2711c;
 }
-.ui.time-line.log.orange > .items > .item > .time > .date-time {
+.ui.time-line.log.orange > .items > .item > .label > .date-time {
   color: #f37a2a;
 }
 .ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content:after {
@@ -5474,7 +5474,7 @@ html.ios body {
 .ui.time-line.log.yellow > .items > .item .icon {
   color: #fbbd08;
 }
-.ui.time-line.log.yellow > .items > .item > .time > .date-time {
+.ui.time-line.log.yellow > .items > .item > .label > .date-time {
   color: #fbc117;
 }
 .ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content:after {
@@ -5500,7 +5500,7 @@ html.ios body {
 .ui.time-line.log.olive > .items > .item .icon {
   color: #b5cc18;
 }
-.ui.time-line.log.olive > .items > .item > .time > .date-time {
+.ui.time-line.log.olive > .items > .item > .label > .date-time {
   color: #c1da1a;
 }
 .ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content:after {
@@ -5526,7 +5526,7 @@ html.ios body {
 .ui.time-line.log.green > .items > .item .icon {
   color: #21ba45;
 }
-.ui.time-line.log.green > .items > .item > .time > .date-time {
+.ui.time-line.log.green > .items > .item > .label > .date-time {
   color: #23c74a;
 }
 .ui.time-line.log.green > .items > .item:nth-of-type(even) > .content:after {
@@ -5552,7 +5552,7 @@ html.ios body {
 .ui.time-line.log.teal > .items > .item .icon {
   color: #00b5ad;
 }
-.ui.time-line.log.teal > .items > .item > .time > .date-time {
+.ui.time-line.log.teal > .items > .item > .label > .date-time {
   color: #00c4bc;
 }
 .ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content:after {
@@ -5578,7 +5578,7 @@ html.ios body {
 .ui.time-line.log.blue > .items > .item .icon {
   color: #2185d0;
 }
-.ui.time-line.log.blue > .items > .item > .time > .date-time {
+.ui.time-line.log.blue > .items > .item > .label > .date-time {
   color: #248ddc;
 }
 .ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content:after {
@@ -5604,7 +5604,7 @@ html.ios body {
 .ui.time-line.log.violet > .items > .item .icon {
   color: #6435c9;
 }
-.ui.time-line.log.violet > .items > .item > .time > .date-time {
+.ui.time-line.log.violet > .items > .item > .label > .date-time {
   color: #6d41cd;
 }
 .ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content:after {
@@ -5630,7 +5630,7 @@ html.ios body {
 .ui.time-line.log.purple > .items > .item .icon {
   color: #a333c8;
 }
-.ui.time-line.log.purple > .items > .item > .time > .date-time {
+.ui.time-line.log.purple > .items > .item > .label > .date-time {
   color: #aa3dcd;
 }
 .ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content:after {
@@ -5656,7 +5656,7 @@ html.ios body {
 .ui.time-line.log.pink > .items > .item .icon {
   color: #ff4081;
 }
-.ui.time-line.log.pink > .items > .item > .time > .date-time {
+.ui.time-line.log.pink > .items > .item > .label > .date-time {
   color: #ff4f8b;
 }
 .ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content:after {
@@ -5682,7 +5682,7 @@ html.ios body {
 .ui.time-line.log.brown > .items > .item .icon {
   color: #a5673f;
 }
-.ui.time-line.log.brown > .items > .item > .time > .date-time {
+.ui.time-line.log.brown > .items > .item > .label > .date-time {
   color: #b06e43;
 }
 .ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content:after {
@@ -5708,7 +5708,7 @@ html.ios body {
 .ui.time-line.log.grey > .items > .item .icon {
   color: #767676;
 }
-.ui.time-line.log.grey > .items > .item > .time > .date-time {
+.ui.time-line.log.grey > .items > .item > .label > .date-time {
   color: #7e7e7e;
 }
 .ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content:after {
