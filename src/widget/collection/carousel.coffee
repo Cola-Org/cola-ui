@@ -81,8 +81,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 		
 		template = @_getTemplate()
 		if template
-			if @_bindStr
-				$fly(template).attr("c-repeat", @_bindStr)
+			if @_bind
+				$fly(template).attr("c-repeat", @_bind)
 			@_doms.wrap.appendChild(template)
 			cola.xRender(template, @_scope)
 		

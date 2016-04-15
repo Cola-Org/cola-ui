@@ -98,7 +98,7 @@ cola.xRender = (template, model, context) ->
 					for processor in cola.xRender.nodeProcessors
 						child = processor(node, context)
 						if child then break
-					if child then child = $.xCreate(node, context)
+					child ?= $.xCreate(node, context)
 					documentFragment.appendChild(child) if child
 			else
 				for processor in cola.xRender.nodeProcessors

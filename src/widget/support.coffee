@@ -196,7 +196,7 @@ User Widget
 WIDGET_TAGS_REGISTRY = {}
 
 _extendWidget = (superCls, definition) ->
-	cls = () ->
+	cls = (config) ->
 		if not cls.attributes._inited or not cls.events._inited
 			cola.preprocessClass(cls)
 
@@ -205,7 +205,15 @@ _extendWidget = (superCls, definition) ->
 		if definition.initDom then @on("initDom", (self, arg) => @initDom(arg.dom))
 		if definition.refreshDom then @on("refreshDom", (self, arg) => @refreshDom(arg.dom))
 
-		cls.__super__.constructor.apply(@, arguments)
+		@on("attributeChange", (self, arg) =>
+			attr = arg.attribute
+			if typeof attr is "string" and @constructor.attributes.$has(attr)
+				@_widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+			return
+		)
+
+		@_widgetModel = new cola.WidgetModel(@, config?.scope or cola.currentScope)
+		cls.__super__.constructor.call(@, config)
 		return
 
 	`extend(cls, superCls)`
@@ -213,13 +221,43 @@ _extendWidget = (superCls, definition) ->
 	cls.tagName = definition.tagName?.toUpperCase() or ""
 	cls.parentWidget = definition.parentWidget if definition.parentWidget
 
-	if definition.attributes then cls.attributes = definition.attributes
+	cls.attributes = definition.attributes or {}
+	cls.attributes.template =
+		readOnlyAfterCreate: true
+
 	if definition.events then cls.events = definition.events
 
 	template = definition.template
 	if template
 		cls.attributes.template =
 			defaultValue: template
+
+	cls::_createDom = () ->
+		if @_template
+			dom = cola.xRender(@_template or {}, @_widgetModel)
+			@_domCreated = true
+			return dom
+		else
+			return superCls::_createDom.apply(@)
+
+	cls::_initDom = (dom) ->
+		superCls::_initDom.call(@, dom)
+		if @_template and not @_domCreated
+			templateDom = @xRender(@_template)
+			if templateDom
+				for attr in dom.attributes
+					attrName = attr.name
+					if not attrName is "style"
+						dom.setAttribute(attrName, attr.value) if not dom.hasAttribute(attrName)
+
+				for cssName of templateDom.style
+					dom.style[cssName] = templateDom.style[cssName] if dom.style[cssName] is ""
+
+				while templateDom.firstChild
+					dom.appendChild(templateDom.firstChild)
+		return
+
+	cls::xRender = (template) -> cola.xRender(template, @_widgetModel)
 
 	for prop, def of definition
 		if definition.hasOwnProperty(prop) and typeof def is "function"
@@ -357,7 +395,7 @@ cola.TemplateSupport =
 
 cola.DataWidgetMixin =
 	_bindSetter: (bindStr) ->
-		return if @_bindStr == bindStr
+		return if @_bind == bindStr
 
 		if @_bindInfo
 			bindInfo = @_bindInfo
@@ -366,7 +404,7 @@ cola.DataWidgetMixin =
 					@_scope.data.unbind(path.join("."), @_bindProcessor)
 			delete @_bindInfo
 
-		@_bindStr = bindStr
+		@_bind = bindStr
 
 		if bindStr and @_scope
 			@_bindInfo = bindInfo = {}
@@ -442,17 +480,17 @@ cola.DataWidgetMixin =
 	_writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
 		if !@_bindInfo.isWriteable
-			throw new cola.Exception("Expression \"#{@_bindStr}\" is not writable.")
-		@_scope.set(@_bindStr, value)
+			throw new cola.Exception("Expression \"#{@_bind}\" is not writable.")
+		@_scope.set(@_bind, value)
 		return
 
 	_getBindingProperty: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
-		return @_scope.data.getProperty(@_bindStr)
+		return @_scope.data.getProperty(@_bind)
 
 	_getBindingDataType: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
-		return @_scope.data.getDataType(@_bindStr)
+		return @_scope.data.getDataType(@_bind)
 
 	_isRootOfTarget: (changedPath, targetPath) ->
 		if !changedPath or !targetPath then return true
@@ -476,9 +514,9 @@ cola.DataItemsWidgetMixin =
 	_alias: "item"
 
 	_bindSetter: (bindStr) ->
-		return if @_bindStr == bindStr
+		return if @_bind == bindStr
 
-		@_bindStr = bindStr
+		@_bind = bindStr
 		@_itemsRetrieved = false
 
 		delete @_simpleBindPath

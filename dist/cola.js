@@ -9834,7 +9834,7 @@
                 break;
               }
             }
-            if (child) {
+            if (child == null) {
               child = $.xCreate(node, context);
             }
             if (child) {
@@ -10871,7 +10871,7 @@
 
   _extendWidget = function(superCls, definition) {
     var cls, def, prop, ref, template;
-    cls = function() {
+    cls = function(config) {
       if (!cls.attributes._inited || !cls.events._inited) {
         cola.preprocessClass(cls);
       }
@@ -10895,16 +10895,27 @@
           };
         })(this));
       }
-      cls.__super__.constructor.apply(this, arguments);
+      this.on("attributeChange", (function(_this) {
+        return function(self, arg) {
+          var attr;
+          attr = arg.attribute;
+          if (typeof attr === "string" && _this.constructor.attributes.$has(attr)) {
+            _this._widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+          }
+        };
+      })(this));
+      this._widgetModel = new cola.WidgetModel(this, (config != null ? config.scope : void 0) || cola.currentScope);
+      cls.__super__.constructor.call(this, config);
     };
     extend(cls, superCls);
     cls.tagName = ((ref = definition.tagName) != null ? ref.toUpperCase() : void 0) || "";
     if (definition.parentWidget) {
       cls.parentWidget = definition.parentWidget;
     }
-    if (definition.attributes) {
-      cls.attributes = definition.attributes;
-    }
+    cls.attributes = definition.attributes || {};
+    cls.attributes.template = {
+      readOnlyAfterCreate: true
+    };
     if (definition.events) {
       cls.events = definition.events;
     }
@@ -10914,6 +10925,46 @@
         defaultValue: template
       };
     }
+    cls.prototype._createDom = function() {
+      var dom;
+      if (this._template) {
+        dom = cola.xRender(this._template || {}, this._widgetModel);
+        this._domCreated = true;
+        return dom;
+      } else {
+        return superCls.prototype._createDom.apply(this);
+      }
+    };
+    cls.prototype._initDom = function(dom) {
+      var attr, attrName, cssName, l, len1, ref1, templateDom;
+      superCls.prototype._initDom.call(this, dom);
+      if (this._template && !this._domCreated) {
+        templateDom = this.xRender(this._template);
+        if (templateDom) {
+          ref1 = dom.attributes;
+          for (l = 0, len1 = ref1.length; l < len1; l++) {
+            attr = ref1[l];
+            attrName = attr.name;
+            if (!attrName === "style") {
+              if (!dom.hasAttribute(attrName)) {
+                dom.setAttribute(attrName, attr.value);
+              }
+            }
+          }
+          for (cssName in templateDom.style) {
+            if (dom.style[cssName] === "") {
+              dom.style[cssName] = templateDom.style[cssName];
+            }
+          }
+          while (templateDom.firstChild) {
+            dom.appendChild(templateDom.firstChild);
+          }
+        }
+      }
+    };
+    cls.prototype.xRender = function(template) {
+      return cola.xRender(template, this._widgetModel);
+    };
     for (prop in definition) {
       def = definition[prop];
       if (definition.hasOwnProperty(prop) && typeof def === "function") {
@@ -11109,7 +11160,7 @@
   cola.DataWidgetMixin = {
     _bindSetter: function(bindStr) {
       var bindInfo, bindProcessor, expression, i, l, len1, len2, n, p, path, paths, ref;
-      if (this._bindStr === bindStr) {
+      if (this._bind === bindStr) {
         return;
       }
       if (this._bindInfo) {
@@ -11123,7 +11174,7 @@
         }
         delete this._bindInfo;
       }
-      this._bindStr = bindStr;
+      this._bind = bindStr;
       if (bindStr && this._scope) {
         this._bindInfo = bindInfo = {};
         bindInfo.expression = expression = cola._compileExpression(bindStr);
@@ -11219,23 +11270,23 @@
         return;
       }
       if (!this._bindInfo.isWriteable) {
-        throw new cola.Exception("Expression \"" + this._bindStr + "\" is not writable.");
+        throw new cola.Exception("Expression \"" + this._bind + "\" is not writable.");
       }
-      this._scope.set(this._bindStr, value);
+      this._scope.set(this._bind, value);
     },
     _getBindingProperty: function() {
       var ref;
       if (!(((ref = this._bindInfo) != null ? ref.expression : void 0) && this._bindInfo.isWriteable)) {
         return;
       }
-      return this._scope.data.getProperty(this._bindStr);
+      return this._scope.data.getProperty(this._bind);
     },
     _getBindingDataType: function() {
       var ref;
       if (!(((ref = this._bindInfo) != null ? ref.expression : void 0) && this._bindInfo.isWriteable)) {
         return;
       }
-      return this._scope.data.getDataType(this._bindStr);
+      return this._scope.data.getDataType(this._bind);
     },
     _isRootOfTarget: function(changedPath, targetPath) {
       var i, isRoot, l, len1, len2, len3, n, o, part, targetPaths;
@@ -11275,10 +11326,10 @@
     _alias: "item",
     _bindSetter: function(bindStr) {
       var expression;
-      if (this._bindStr === bindStr) {
+      if (this._bind === bindStr) {
         return;
       }
-      this._bindStr = bindStr;
+      this._bind = bindStr;
       this._itemsRetrieved = false;
       delete this._simpleBindPath;
       if (bindStr) {
@@ -12182,63 +12233,9 @@
   cola.TemplateWidget = (function(superClass) {
     extend(TemplateWidget, superClass);
 
-    TemplateWidget.attributes = {
-      template: {
-        readOnlyAfterCreate: true
-      }
-    };
-
-    function TemplateWidget(config) {
-      this._widgetModel = new cola.WidgetModel(this, (config != null ? config.scope : void 0) || cola.currentScope);
-      TemplateWidget.__super__.constructor.call(this, config);
+    function TemplateWidget() {
+      return TemplateWidget.__super__.constructor.apply(this, arguments);
     }
-
-    TemplateWidget.prototype.set = function(attr, value, ignoreError) {
-      TemplateWidget.__super__.set.call(this, attr, value, ignoreError);
-      if (typeof attr === "string" && this.constructor.attributes.$has(attr)) {
-        this._widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
-      }
-      return this;
-    };
-
-    TemplateWidget.prototype._createDom = function() {
-      var dom;
-      if (this._template) {
-        dom = cola.xRender(this._template || {}, this._widgetModel);
-        this._domCreated = true;
-        return dom;
-      } else {
-        return TemplateWidget.__super__._createDom.call(this);
-      }
-    };
-
-    TemplateWidget.prototype._initDom = function(dom) {
-      var attr, attrName, cssName, l, len1, ref, templateDom;
-      TemplateWidget.__super__._initDom.call(this, dom);
-      if (this._template && !this._domCreated) {
-        templateDom = cola.xRender(this._template || {}, this._widgetModel);
-        if (templateDom) {
-          ref = dom.attributes;
-          for (l = 0, len1 = ref.length; l < len1; l++) {
-            attr = ref[l];
-            attrName = attr.name;
-            if (!attrName === "style") {
-              if (!dom.hasAttribute(attrName)) {
-                dom.setAttribute(attrName, attr.value);
-              }
-            }
-          }
-          for (cssName in templateDom.style) {
-            if (dom.style[cssName] === "") {
-              dom.style[cssName] = templateDom.style[cssName];
-            }
-          }
-          while (templateDom.firstChild) {
-            dom.appendChild(templateDom.firstChild);
-          }
-        }
-      }
-    };
 
     return TemplateWidget;
 
@@ -22800,8 +22797,8 @@
       }
       template = this._getTemplate();
       if (template) {
-        if (this._bindStr) {
-          $fly(template).attr("c-repeat", this._bindStr);
+        if (this._bind) {
+          $fly(template).attr("c-repeat", this._bind);
         }
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
@@ -24294,8 +24291,8 @@
       }
       template = this._getTemplate();
       if (template) {
-        if (this._bindStr) {
-          $fly(template).attr("c-repeat", this._bindStr);
+        if (this._bind) {
+          $fly(template).attr("c-repeat", this._bind);
         }
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
