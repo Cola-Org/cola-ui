@@ -1178,6 +1178,12 @@
     };
 
     Element.attributes = {
+      model: {
+        readOnly: true,
+        getter: function() {
+          return this._scope;
+        }
+      },
       tag: {
         getter: function() {
           if (this._tag) {
@@ -5590,10 +5596,9 @@
           for (l = 0, len1 = name.length; l < len1; l++) {
             dataType = name[l];
             if (!(dataType instanceof cola.DataType)) {
-              if (dataType.name) {
-                if (dataType.lazy === false) {
-                  dataType = new cola.EntityDataType(dataType);
-                } else {
+              if (dataType.lazy !== false) {
+                dataType = new cola.EntityDataType(dataType);
+                if (dataType.name) {
                   this.data.regDefinition(dataType.name, dataType);
                 }
               }
@@ -5602,12 +5607,12 @@
         } else {
           dataType = name;
           if (!(dataType instanceof cola.DataType)) {
-            if (dataType.name) {
-              if (dataType.lazy === false) {
-                dataType = new cola.EntityDataType(dataType);
-              } else {
+            if (dataType.lazy !== false) {
+              dataType = new cola.EntityDataType(dataType);
+              if (dataType.name) {
                 this.data.regDefinition(dataType.name, dataType);
               }
+              return dataType;
             }
           }
         }
@@ -6644,6 +6649,8 @@
               throw new cola.Exception("Unrecognized DataType \"" + config + "\".");
             }
             propertyDef.set("dataType", dataType);
+          } else if (config instanceof cola.DataType) {
+            propertyDef.set("dataType", config);
           } else {
             propertyDef.set(config);
           }
@@ -10913,6 +10920,12 @@
       cls.parentWidget = definition.parentWidget;
     }
     cls.attributes = definition.attributes || {};
+    cls.attributes.widgetModel = {
+      readOnly: true,
+      getter: function() {
+        return this._widgetModel;
+      }
+    };
     cls.attributes.template = {
       readOnlyAfterCreate: true
     };
@@ -11254,7 +11267,7 @@
         }
       }
     },
-    _readBindingValue: function(dataCtx) {
+    readBindingValue: function(dataCtx) {
       var ref;
       if (!((ref = this._bindInfo) != null ? ref.expression : void 0)) {
         return;
@@ -11264,7 +11277,7 @@
       }
       return this._bindInfo.expression.evaluate(this._scope, "async", dataCtx);
     },
-    _writeBindingValue: function(value) {
+    writeBindingValue: function(value) {
       var ref;
       if (!((ref = this._bindInfo) != null ? ref.expression : void 0)) {
         return;
@@ -11274,14 +11287,14 @@
       }
       this._scope.set(this._bind, value);
     },
-    _getBindingProperty: function() {
+    getBindingProperty: function() {
       var ref;
       if (!(((ref = this._bindInfo) != null ? ref.expression : void 0) && this._bindInfo.isWriteable)) {
         return;
       }
       return this._scope.data.getProperty(this._bind);
     },
-    _getBindingDataType: function() {
+    getBindingDataType: function() {
       var ref;
       if (!(((ref = this._bindInfo) != null ? ref.expression : void 0) && this._bindInfo.isWriteable)) {
         return;
@@ -18029,7 +18042,7 @@
     };
 
     AbstractEditor.prototype._post = function() {
-      this._writeBindingValue(this._value);
+      this.writeBindingValue(this._value);
     };
 
     AbstractEditor.prototype._filterDataMessage = function(path, type, arg) {
@@ -18054,7 +18067,7 @@
           }
         }
       } else {
-        value = this._readBindingValue();
+        value = this.readBindingValue();
         if (this._dataType) {
           value = this._dataType.parse(value);
         }
@@ -18488,7 +18501,7 @@
     AbstractInput.prototype._bindSetter = function(bindStr) {
       var dataType;
       AbstractInput.__super__._bindSetter.call(this, bindStr);
-      dataType = this._getBindingDataType();
+      dataType = this.getBindingDataType();
       if (dataType) {
         cola.DataType.dataTypeSetter.call(this, dataType);
       }
@@ -18819,7 +18832,7 @@
           _this._refreshInputValue(_this._value);
           _this.fire("blur", _this);
           if ((_this._value == null) || _this._value === "" && ((ref = _this._bindInfo) != null ? ref.isWriteable : void 0)) {
-            propertyDef = _this._getBindingProperty();
+            propertyDef = _this.getBindingProperty();
             if ((propertyDef != null ? propertyDef._required : void 0) && propertyDef._validators) {
               entity = _this._scope.get(_this._bindInfo.entityPath);
               if (entity) {
@@ -21135,7 +21148,7 @@
           _this._refreshInputValue(_this._value);
           _this.fire("blur", _this);
           if ((_this._value == null) || _this._value === "" && ((ref = _this._bindInfo) != null ? ref.isWriteable : void 0)) {
-            propertyDef = _this._getBindingProperty();
+            propertyDef = _this.getBindingProperty();
             if ((propertyDef != null ? propertyDef._required : void 0) && propertyDef._validators) {
               entity = _this._scope.get(_this._bindInfo.entityPath);
               if (entity) {

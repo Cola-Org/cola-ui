@@ -118,7 +118,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	_bindSetter: (bindStr) ->
 		super(bindStr)
-		dataType = @_getBindingDataType()
+		dataType = @getBindingDataType()
 		if dataType then cola.DataType.dataTypeSetter.call(@, dataType)
 		return
 
@@ -368,7 +368,7 @@ class cola.Input extends cola.AbstractInput
 			@fire("blur", @)
 
 			if !@_value? or @_value is "" and @_bindInfo?.isWriteable
-				propertyDef = @_getBindingProperty()
+				propertyDef = @getBindingProperty()
 				if propertyDef?._required and propertyDef._validators
 					entity = @_scope.get(@_bindInfo.entityPath)
 					entity.validate(@_bindInfo.property) if entity

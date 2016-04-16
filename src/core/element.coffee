@@ -97,6 +97,10 @@ class cola.Element
 		return
 
 	@attributes:
+		model:
+			readOnly: true
+			getter: () -> @_scope
+
 		tag:
 			getter: ->
 				return if @_tag then @_tag.join(tagSplitter) else null

@@ -405,7 +405,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			@fire("blur", @)
 
 			if !@_value? or @_value is "" and @_bindInfo?.isWriteable
-				propertyDef = @_getBindingProperty()
+				propertyDef = @getBindingProperty()
 				if propertyDef?._required and propertyDef._validators
 					entity = @_scope.get(@_bindInfo.entityPath)
 					entity.validate(@_bindInfo.property) if entity

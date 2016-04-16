@@ -58,7 +58,7 @@ class cola.AbstractEditor extends cola.Widget
 		return @
 
 	_post: ()->
-		@_writeBindingValue(@_value)
+		@writeBindingValue(@_value)
 		return
 
 	_filterDataMessage: (path, type, arg) ->
@@ -79,7 +79,7 @@ class cola.AbstractEditor extends cola.Widget
 				if form and form instanceof cola.Form
 					form.setFieldMessages(@, keyMessage)
 		else
-			value = @_readBindingValue()
+			value = @readBindingValue()
 			if @_dataType
 				value = @_dataType.parse(value)
 			@_modelValue = value

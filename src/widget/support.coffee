@@ -222,6 +222,11 @@ _extendWidget = (superCls, definition) ->
 	cls.parentWidget = definition.parentWidget if definition.parentWidget
 
 	cls.attributes = definition.attributes or {}
+
+	cls.attributes.widgetModel =
+		readOnly: true
+		getter: () -> @_widgetModel
+
 	cls.attributes.template =
 		readOnlyAfterCreate: true
 
@@ -472,23 +477,23 @@ cola.DataWidgetMixin =
 				@_scope.data.unbind(path.join("."), @_bindProcessor)
 		return
 
-	_readBindingValue: (dataCtx) ->
+	readBindingValue: (dataCtx) ->
 		return unless @_bindInfo?.expression
 		dataCtx ?= {}
 		return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
 
-	_writeBindingValue: (value) ->
+	writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
 		if !@_bindInfo.isWriteable
 			throw new cola.Exception("Expression \"#{@_bind}\" is not writable.")
 		@_scope.set(@_bind, value)
 		return
 
-	_getBindingProperty: () ->
+	getBindingProperty: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
 		return @_scope.data.getProperty(@_bind)
 
-	_getBindingDataType: () ->
+	getBindingDataType: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
 		return @_scope.data.getDataType(@_bind)
 
