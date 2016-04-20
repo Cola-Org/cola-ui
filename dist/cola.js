@@ -822,7 +822,7 @@
     }
 
     Exception.processException = function(ex) {
-      var error1, ex2, scope;
+      var ex2, scope;
       if (cola.Exception.ignoreAll) {
         return;
       }
@@ -859,8 +859,8 @@
               cola.Exception.safeShowException(ex);
             }
           }
-        } catch (error1) {
-          ex2 = error1;
+        } catch (_error) {
+          ex2 = _error;
           cola.Exception.removeException(ex2);
           if (ex2.safeShowException) {
             ex2.safeShowException();
@@ -8242,7 +8242,7 @@
         dataType: "text",
         cache: true
       }).done(function(script) {
-        var e, error1, head, scriptElement;
+        var e, head, scriptElement;
         scriptElement = $.xCreate({
           tagName: "script",
           language: "javascript",
@@ -8260,8 +8260,8 @@
             _jsCache[url] = context.suspendedInitFuncs;
           }
           cola.callback(callback, true);
-        } catch (error1) {
-          e = error1;
+        } catch (_error) {
+          e = _error;
           cola.callback(callback, false, e);
         }
       }).fail(function(xhr) {
@@ -10184,7 +10184,7 @@
       return features;
     },
     classname: function(attrValue) {
-      var classConfig, classExpr, className, error1, expression, feature, features;
+      var classConfig, classExpr, className, expression, feature, features;
       if (!attrValue) {
         return false;
       }
@@ -10195,7 +10195,7 @@
           feature = new cola._DomClassFeature(expression);
           features.push(feature);
         }
-      } catch (error1) {
+      } catch (_error) {
         classConfig = cola.util.parseStyleLikeString(attrValue);
         for (className in classConfig) {
           classExpr = classConfig[className];
@@ -15016,7 +15016,7 @@
     };
 
     IFrame.prototype.getContentWindow = function() {
-      var contentWindow, e, error;
+      var contentWindow, e;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -15024,8 +15024,8 @@
         if (this._doms.iframe) {
           contentWindow = this._doms.iframe.contentWindow;
         }
-      } catch (error) {
-        e = error;
+      } catch (_error) {
+        e = _error;
       }
       return contentWindow;
     };
@@ -20372,6 +20372,9 @@
         $dom.css("height", height);
       }
       $dom.removeClass(direction === "down" ? "direction-up" : "direction-down").addClass("direction-" + direction).toggleClass("x-over", boxWidth > dropdownDom.offsetWidth).css("left", left).css("top", top).css("min-width", dropdownDom.offsetWidth).css("max-width", document.body.clientWidth);
+      $dom.css({
+        zIndex: cola.floatWidget.zIndex()
+      });
       this._animation = "fade";
       DropBox.__super__.show.call(this, options, callback);
     };
@@ -21193,12 +21196,16 @@
       var format, inputType;
       inputType = this._inputType;
       if (value instanceof Date) {
-        if (inputType === "date") {
-          format = DEFAULT_DATE_DISPLAY_FORMAT;
-        } else if (inputType === "time") {
-          format = DEFAULT_TIME_DISPLAY_FORMAT;
+        if (value.toDateString() === "Invalid Date") {
+          value = "";
+        } else {
+          if (inputType === "date") {
+            format = DEFAULT_DATE_DISPLAY_FORMAT;
+          } else if (inputType === "time") {
+            format = DEFAULT_TIME_DISPLAY_FORMAT;
+          }
+          value = (new XDate(value)).toString(format);
         }
-        value = (new XDate(value)).toString(format);
       }
       return DatePicker.__super__._refreshInputValue.call(this, value);
     };
@@ -21223,6 +21230,13 @@
       DatePicker.__super__.open.call(this);
       value = this.get("value");
       if (!value) {
+        value = new Date();
+      } else {
+        if (!(value instanceof Date)) {
+          value = Date.parse(value);
+        }
+      }
+      if (value.toDateString() === "Invalid Date") {
         value = new Date();
       }
       return this._dataGrid.setCurrentDate(value);
@@ -22872,7 +22886,7 @@
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
-      var activeSpan, e, error, pos;
+      var activeSpan, e, pos;
       this.fire("change", this, {
         index: index
       });
@@ -22885,8 +22899,8 @@
             if (activeSpan != null) {
               activeSpan.className = "active";
             }
-          } catch (error) {
-            e = error;
+          } catch (_error) {
+            e = _error;
           }
         }
         if (this._scroller) {
@@ -29571,14 +29585,14 @@
       };
       this._pagerItemConfig = {
         firstPage: {
-          icon: "angle double left",
+          icon: "large angle double left",
           click: function() {
             var ref;
             return (ref = pager._getBindItems()) != null ? ref.firstPage() : void 0;
           }
         },
         prevPage: {
-          icon: "angle left",
+          icon: "large angle left",
           click: function() {
             var data;
             data = pager._getBindItems();
@@ -29640,7 +29654,7 @@
           }
         },
         nextPage: {
-          icon: "angle right",
+          icon: "large angle right",
           click: function() {
             var data;
             data = pager._getBindItems();
@@ -29648,7 +29662,7 @@
           }
         },
         lastPage: {
-          icon: "angle double right",
+          icon: "large angle double right",
           click: function() {
             var data;
             data = pager._getBindItems();

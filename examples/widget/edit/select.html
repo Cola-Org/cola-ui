@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
@@ -16,9 +16,8 @@
 				{name: "Python"},
 				{name: "Pascal"}
 			]);
-
-			model.widgetConfig({
-			});
+			model.set("person", {})
+			model.widgetConfig({});
 		});
 	</script>
 </head>
@@ -26,9 +25,10 @@
 
 <div c-widget="select; options:{{languages}}"></div>
 
-<div c-widget="select; options:{{languages}}">
+<div c-widget="select; options:{{languages}};">
 	<div c-widget="button; caption:Test"></div>
 </div>
+
 
 </body>
 </html>

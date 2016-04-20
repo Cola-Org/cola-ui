@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../../include-all.js"></script>
 	<style>
 	</style>
@@ -109,27 +109,32 @@
 				{name: "Pascal"}
 			]);
 
-			setTimeout(function() {
+			setTimeout(function () {
 				model.set("items", [
-					{ k: "1", v: "A"},
-					{ k: "2", v: "B"}
+					{k: "1", v: "A"},
+					{k: "2", v: "B"}
 				]);
 			}, 300);
 
 			model.action({
-				pickValue: function(self) {
+				pickValue: function (self) {
 					dropdown = cola.findDropDown(self);
 					if (dropdown) {
 						dropdown.close("Yeah!");
 					}
+				},
+				setPersonClass: function (clazz) {
+					var id = clazz.get("id");
+					model.set("pserson.classId", id);
 				}
+
 			});
 
 			model.widgetConfig({
 				button1: {
 					$type: "button",
 					caption: "Test",
-					click: function() {
+					click: function () {
 						model.set("selected", null);
 					}
 				},
@@ -166,8 +171,8 @@
 					content: {
 						$type: "table",
 						bind: "language in languages",
-						columns: [{ bind: ".name" }],
-						itemClick: function(self, arg) {
+						columns: [{bind: ".name"}],
+						itemClick: function (self, arg) {
 							var dropdown = cola.findDropDown(self);
 							if (dropdown) dropdown.close(arg.item);
 						}
@@ -184,6 +189,7 @@
 <div id="dropdown1"></div>
 
 <p></p>
+
 
 <div id="dropdown2">
 	<div c-widget="button; caption:Test"></div>
@@ -211,6 +217,7 @@
 <p></p>
 
 <div id="dropdown5"></div>
+
 
 </body>
 </html>

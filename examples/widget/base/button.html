@@ -7,16 +7,16 @@
 	<script src="../../include-all.js"></script>
 </head>
 <body style="padding: 20px;">
-<div c-widget="Button; caption:Cola"></div>
+<div c-widget="Button; caption:Cola; icon:setting"></div>
 <p></p>
-<div c-repeat="color in colors" c-widget="button; caption:{{color}}; class:{{color}}"></div>
+<div c-repeat="color in colors" c-class="color" c-widget="button; caption:{{color}}; "></div>
 <p></p>
-<div c-repeat="size in sizes" c-widget="button; caption:{{size}}; class:{{size}}"></div>
+<div c-repeat="size in sizes" c-widget="button; caption:size; class:size"></div>
 <p></p>
-<div c-repeat="ui in uis" c-widget="button; caption:{{ui}}; class:{{ui}}"></div>
+<div c-repeat="ui in uis" c-widget="button; caption:ui; class:ui"></div>
 <p></p>
 <div c-widget="ButtonGroup">
-	<div c-repeat="num in ['one','two','three','four']" c-widget="button; caption:{{num}};"></div>
+	<div c-repeat="num in ['one','two','three','four']" c-widget="button; caption:num;"></div>
 </div>
 <p></p>
 <div c-widget="ButtonGroup">

@@ -26,11 +26,11 @@ class cola.Pager extends cola.Menu
 
 		@_pagerItemConfig =
 			firstPage:
-				icon: "angle double left"
+				icon: "large angle double left"
 				click: ()-> pager._getBindItems()?.firstPage()
 
 			prevPage:
-				icon: "angle left"
+				icon: "large angle left"
 				click: ()->
 					data = pager._getBindItems()
 					data?.previousPage()
@@ -74,12 +74,12 @@ class cola.Pager extends cola.Menu
 							data?.gotoPage(pager._targetPageNo)
 
 			nextPage:
-				icon: "angle right"
+				icon: "large angle right"
 				click: ()->
 					data = pager._getBindItems()
 					data?.nextPage()
 			lastPage:
-				icon: "angle double right"
+				icon: "large angle double right"
 				click: ()->
 					data = pager._getBindItems()
 					data?.lastPage()

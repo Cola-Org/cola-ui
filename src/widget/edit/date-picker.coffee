@@ -361,9 +361,9 @@ DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 class cola.DatePicker extends cola.CustomDropdown
 	@attributes:
 		displayFormat:
-			defaultValue:DEFAULT_DATE_DISPLAY_FORMAT
+			defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
 		inputFormat:
-			defaultValue:DEFAULT_DATE_DISPLAY_FORMAT
+			defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
 		icon:
 			defaultValue: "calendar"
 		content:
@@ -434,12 +434,15 @@ class cola.DatePicker extends cola.CustomDropdown
 		inputType = @_inputType
 
 		if value instanceof Date
-			if inputType is "date"
-				format = DEFAULT_DATE_DISPLAY_FORMAT
-			else if inputType is "time"
-				format = DEFAULT_TIME_DISPLAY_FORMAT
+			if value.toDateString() is "Invalid Date"
+				value = ""
+			else
+				if inputType is "date"
+					format = DEFAULT_DATE_DISPLAY_FORMAT
+				else if inputType is "time"
+					format = DEFAULT_TIME_DISPLAY_FORMAT
 
-			value = (new XDate(value)).toString(format)
+				value = (new XDate(value)).toString(format)
 		return super(value)
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
@@ -456,6 +459,13 @@ class cola.DatePicker extends cola.CustomDropdown
 		value = @get("value")
 		unless value
 			value = new Date()
+		else
+			unless value instanceof Date
+				value = Date.parse(value)
+
+		if value.toDateString() is "Invalid Date"
+			value = new Date()
+
 		@_dataGrid.setCurrentDate(value)
 	_getDropdownContent: () ->
 		datePicker = @

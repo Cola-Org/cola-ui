@@ -156,6 +156,62 @@ template {
 .black-border {
   border-color: #1b1c1d;
 }
+.ui.fragment {
+  position: relative;
+  padding: 1em;
+  background-color: #fff;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  margin-bottom: 0.6em;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+.ui.fragment:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+.ui.fragment.basic {
+  background-color: transparent;
+}
+.ui.fragment.red:before {
+  background-color: rgba(219, 40, 40, 0.8);
+}
+.ui.fragment.orange:before {
+  background-color: rgba(242, 113, 28, 0.8);
+}
+.ui.fragment.yellow:before {
+  background-color: rgba(251, 189, 8, 0.8);
+}
+.ui.fragment.olive:before {
+  background-color: rgba(181, 204, 24, 0.8);
+}
+.ui.fragment.green:before {
+  background-color: rgba(33, 186, 69, 0.8);
+}
+.ui.fragment.teal:before {
+  background-color: rgba(0, 181, 173, 0.8);
+}
+.ui.fragment.blue:before {
+  background-color: rgba(33, 133, 208, 0.8);
+}
+.ui.fragment.violet:before {
+  background-color: rgba(100, 53, 201, 0.8);
+}
+.ui.fragment.purple:before {
+  background-color: rgba(163, 51, 200, 0.8);
+}
+.ui.fragment.pink:before {
+  background-color: rgba(255, 64, 129, 0.8);
+}
+.ui.fragment.brown:before {
+  background-color: rgba(165, 103, 63, 0.8);
+}
+.ui.fragment.grey:before {
+  background-color: rgba(118, 118, 118, 0.8);
+}
 
 .mobile .v-box,
 .mobile .h-box {

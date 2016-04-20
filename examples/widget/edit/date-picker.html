@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<script src="../../include-all.js"></script>
 	<style>
 	</style>
@@ -20,18 +20,30 @@
 				{name: "Javascript"},
 				{name: "Pascal"}
 			]);
+			model.describe("editItem", {
+				dataType: {
+					name: "Employee",
+					properties: {
+						birthDate: {dataType: "date"},
+						hireDate: {dataType: "date"}
+					}
+				}
+			});
 
-			var dateGrid=new cola.DateGrid({cellClick:function(self,arg){
-				console.log(arg)
-			}});
+			var dateGrid = new cola.DateGrid({
+				cellClick: function (self, arg) {
+					console.log(arg)
+				}
+			});
 
 			dateGrid.appendTo(document.getElementById("dateGrid"))
-			dateGrid.setState(2016,3)
-
+			dateGrid.setState(2016, 3)
+			model.set("editItem", {})
 			model.widgetConfig({
 				datePicker: {
 					$type: "datePicker",
-					openMode: "drop"
+					openMode: "drop",
+					bind: "editItem.birthDate"
 				}
 
 			});
@@ -42,7 +54,6 @@
 
 <div id="datePicker"></div>
 <div id="dateGrid"></div>
-
 
 
 </body>

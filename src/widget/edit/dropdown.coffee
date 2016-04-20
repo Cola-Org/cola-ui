@@ -395,9 +395,14 @@ class DropBox extends cola.Layer
 		.css("left", left).css("top", top)
 		.css("min-width", dropdownDom.offsetWidth)
 		.css("max-width",document.body.clientWidth)
+		$dom.css({
+			zIndex: cola.floatWidget.zIndex()
+		})
 
 		@_animation = "fade"
+
 		super(options, callback)
+
 		return
 
 	_onShow: () ->

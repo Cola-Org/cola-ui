@@ -111,8 +111,8 @@ class cola.Button extends cola.AbstractButton
 	_refreshIcon: ()->
 		return unless @_dom
 		$dom = @get$Dom()
-		@_classNamePool.remove("right labeled")
-		@_classNamePool.remove("left labeled")
+		@_classNamePool.remove("right")
+		@_classNamePool.remove("left")
 		@_classNamePool.remove("labeled")
 		@_classNamePool.remove("icon")
 
@@ -123,9 +123,9 @@ class cola.Button extends cola.AbstractButton
 		if icon
 			if caption
 				if iconPosition is "right"
-					@_classNamePool.add("right labeled")
+					@_classNamePool.add("right")
 				else
-					@_classNamePool.add("labeled")
+#					@_classNamePool.add("labeled")
 			@_classNamePool.add("icon")
 			@_doms.iconDom ?= document.createElement("i")
 			iconDom = @_doms.iconDom

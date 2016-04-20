@@ -93,3 +93,45 @@ template {
 .colored(border, @brown, brown, border-color);
 .colored(border, @grey, grey, border-color);
 .colored(border, @black, black, border-color);
+
+.ui.fragment {
+	position: relative;
+	padding: 1em;
+	background-color: #fff;
+	box-shadow: @floatingShadow;
+	margin-bottom: 0.6em;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+	&:before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 3px;
+	}
+	.mixin_fragment(@name,@color) {
+		&.@{name} {
+			&:before {
+				background-color: fadeout(@color, 20%);
+			}
+		}
+	}
+
+	&.basic {
+		background-color: transparent;
+	}
+
+	.mixin_fragment(red, @red);
+	.mixin_fragment(orange, @orange);
+	.mixin_fragment(yellow, @yellow);
+	.mixin_fragment(olive, @olive);
+	.mixin_fragment(green, @green);
+	.mixin_fragment(teal, @teal);
+	.mixin_fragment(blue, @blue);
+	.mixin_fragment(violet, @violet);
+	.mixin_fragment(purple, @purple);
+	.mixin_fragment(pink, @pink);
+	.mixin_fragment(brown, @brown);
+	.mixin_fragment(grey, @grey);
+}
