@@ -80,7 +80,7 @@ class cola.AbstractEditor extends cola.Widget
 					form.setFieldMessages(@, keyMessage)
 		else
 			value = @readBindingValue()
-			if @_dataType
+			if value? and @_dataType
 				value = @_dataType.parse(value)
 			@_modelValue = value
 			if @_setValue(value)

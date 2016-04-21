@@ -313,6 +313,7 @@ class cola.Entity
 			return @_get(prop, loadMode, callback, context)
 
 	_get: (prop, loadMode, callback, context) ->
+
 		loadData = (provider) ->
 			retValue = undefined
 			providerInvoker = provider.getInvoker(data: @)

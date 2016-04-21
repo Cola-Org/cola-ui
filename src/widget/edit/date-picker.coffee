@@ -359,6 +359,7 @@ DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
 DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 class cola.DatePicker extends cola.CustomDropdown
+	@tagName: "c-datepicker"
 	@attributes:
 		displayFormat:
 			defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
@@ -481,3 +482,5 @@ class cola.DatePicker extends cola.CustomDropdown
 
 
 		return @_dropdownContent
+
+cola.registerWidget(cola.DatePicker)
