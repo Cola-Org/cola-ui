@@ -5,6 +5,19 @@ $.xCreate.templateProcessors.push (template) ->
 		return dom
 	return
 
+$.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
+	return unless attrValue
+	if typeof attrValue == "string"
+		$dom.attr(attrName, attrValue)
+	else if context
+		configKey = cola.uniqueId()
+		$dom.attr("c-widget-config", configKey)
+		widgetConfigs = context.widgetConfigs
+		if !widgetConfigs
+			context.widgetConfigs = widgetConfigs = {}
+		widgetConfigs[configKey] = attrValue
+	return
+
 cola.xRender.nodeProcessors.push (node, context) ->
 	if node instanceof cola.Widget
 		widget = node
@@ -100,12 +113,17 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 	parentWidget = context.parentWidget
 	tagName = dom.tagName
 
-	widgetType = parentWidget?.childTagNames?[tagName]
-	widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
-	if widgetType
-		config = _compileWidgetDom(dom, widgetType)
+	configKey = dom.getAttribute("c-widget-config")
+	if configKey
+		dom.removeAttribute("c-widget-config")
+		config = context.widgetConfigs?[configKey]
 	else
-		config = _compileWidgetAttribute(scope, dom, context)
+		widgetType = parentWidget?.childTagNames?[tagName]
+		widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
+		if widgetType
+			config = _compileWidgetDom(dom, widgetType)
+		else
+			config = _compileWidgetAttribute(scope, dom, context)
 	return null unless config or jsonConfig
 
 	config ?= {}
