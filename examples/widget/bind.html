@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
+	<title>Dialog</title>
+	<script src="../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+
+<div class="ui buttons">
+	<a c-repeat="menu in menus" c-onclick="change(menu)" class="ui button">
+		<i c-class="menu.icon"></i>
+		<span c-bind="menu.label"></span>
+	</a>
+</div>
+
+
+<div c-repeat="menu in menus.menus" class="item active">
+	<div class="title menu-item"><i c-class="menu.icon"></i><span
+			c-bind="menu.label"></span></div>
+	<div class="content">
+		<div c-repeat="item in menu.menus" c-onclick="menuItemClick(item)"
+			 class="menu-item"><span
+				c-bind="item.label"></span>
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	cola(function (model) {
+		model.action("change", function (menu) {
+			model.get("menus").setCurrent(menu);
+		});
+
+		model.set("menus", [
+			{
+				icon: "iconfont icon-yonghuguanli",
+				label: "销售管理",
+				menus: [
+					{
+						icon: "iconfont icon-yonghuliebiao",
+						label: "销售订单",
+						menus: [
+							{
+								icon: "iconfont icon-03",
+								label: "全部订单"
+							},
+							{
+								icon: "iconfont icon-03",
+								label: "未完成订单"
+							},
+							{
+								icon: "iconfont icon-03",
+								label: "未收款订单"
+							}
+						]
+					}, {
+						icon: "iconfont icon-yonghuguanli",
+						label: "销售收款",
+						menus: [
+							{
+								icon: "iconfont icon-03",
+								label: "全部对账单"
+							},
+							{
+								icon: "iconfont icon-03",
+								label: "已收款对账单"
+							}
+						]
+					}, {
+						icon: "iconfont icon-zhucerenzheng",
+						label: "销售提成",
+						menus: [
+							{
+								icon: "iconfont icon-03",
+								label: "全部提成"
+							},
+							{
+								icon: "iconfont icon-03",
+								label: "未分配提成"
+							},
+							{
+								icon: "iconfont icon-03",
+								label: "已分配提成"
+							}
+						]
+					}
+				]
+			},
+			{
+				icon: "iconfont icon-yonghuguanli",
+				label: "用户管理",
+				menus: [
+					{
+						icon: "iconfont icon-yonghuliebiao",
+						label: "用户列表"
+					},
+					{
+						icon: "iconfont icon-yonghuguanli",
+						label: "用户组"
+					},
+					{
+						icon: "iconfont icon-zhucerenzheng",
+						label: "职位管理"
+					},
+					{
+						icon: "iconfont icon-03",
+						label: "批量邀请"
+					}
+				]
+			}])
+	})
+
+</script>
+
+</body>
+</html>
