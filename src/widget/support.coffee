@@ -269,7 +269,9 @@ _extendWidget = (superCls, definition) ->
 		if template and not @_domCreated
 			if typeof template is "string" and template.match(/^\#[\w\-\$]*$/)
 				@_template = document.getElementById(template.substring(1))
-				template = @_template.innerHTML if @_template
+				if @_template
+					template = @_template.innerHTML
+					$fly(@_template).remove()
 
 			templateDom = @xRender(template)
 			if templateDom
