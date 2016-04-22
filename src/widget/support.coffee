@@ -118,12 +118,12 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
 		dom.removeAttribute("c-widget-config")
 		config = context.widgetConfigs?[configKey]
 	else
-		widgetType = parentWidget?.childTagNames?[tagName]
-		widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
-		if widgetType
-			config = _compileWidgetDom(dom, widgetType)
-		else
-			config = _compileWidgetAttribute(scope, dom, context)
+		config = _compileWidgetAttribute(scope, dom, context)
+		if not config
+			widgetType = parentWidget?.childTagNames?[tagName]
+			widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
+			if widgetType
+				config = _compileWidgetDom(dom, widgetType)
 	return null unless config or jsonConfig
 
 	config ?= {}
@@ -265,8 +265,13 @@ _extendWidget = (superCls, definition) ->
 
 	cls::_initDom = (dom) ->
 		superCls::_initDom.call(@, dom)
-		if @_template and not @_domCreated
-			templateDom = @xRender(@_template)
+		template = @_template
+		if template and not @_domCreated
+			if typeof template is "string" and template.match(/^\#[\w\-\$]*$/)
+				@_template = document.getElementById(template.substring(1))
+				template = @_template.innerHTML if @_template
+
+			templateDom = @xRender(template)
 			if templateDom
 				for attr in dom.attributes
 					attrName = attr.name
