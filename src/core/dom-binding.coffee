@@ -18,8 +18,10 @@ class cola._DomBinding
 	destroy: () ->
 		_features = @features
 		if _features
-			while _features.length
-				@unbindFeature(_features[_features.length - 1])
+			i = _features.length - 1
+			while i >= 0
+				@unbindFeature(_features[i])
+				i--
 
 		delete @dom
 		delete @$dom
