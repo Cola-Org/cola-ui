@@ -1,0 +1,16 @@
+
+- name: cola.DatePicker
+  stereotype: class
+  super: cola.CustomDropdown
+  attributes:
+    - name: displayFormat
+      type: String
+      defaultValue: "yyyy-MM-dd"
+      description: |
+        显示值的格式化格式
+
+    - name: inputFormat
+      type: String
+      defaultValue: "yyyy-MM-dd"
+      description: |
+        输入时值的格式化格式

@@ -1,5 +1,21 @@
 ## RELEASE NOTES
 
+### Version 0.9.0 - April 25, 2016
+
+**新增控件**
+- **DataPicker** - 日期选择框
+
+**Bug 修复**
+- **Input** - 修复改进Input显示空值的逻辑，防止将Null显示为0或invalid date等内容的Bug
+- **Stack** - 修复 stack控件无法显示bug
+- **Tab** - 修复 tab在close所有标签时报错的bug
+- **Carousel** - 修复 Carousel控件，控制按钮无法切换的bug
+
+**小改进**
+- **列表型控件API** - hbox和v-box的.box overflow默认设定改为：visible
+- **Panel** - Panel控件改进为在无icon下，图标Dom自动隐藏
+- **Time-Line** - time-line控件新增皮肤以及多色主题
+- **Box布局** - hbox和v-box的.box overflow默认设定改为：visible
 ### Version 0.8.4 - April 05, 2016
 #### 建议原使用v0.8.3版本的用户更新之此版本。
 **Bug 修复**
