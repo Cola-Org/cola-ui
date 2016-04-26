@@ -86,11 +86,10 @@ class cola._DomBinding
 		holder = @[feature.id]
 		for p, i in holder
 			if p.path is path
+				@scope.data.unbind(path, holder[i])
 				holder.splice(i, 1)
 				break
 		if not holder.length then delete @[feature.id]
-
-		@scope.data.unbind(path, pipe)
 		return
 
 	refresh: (force) ->

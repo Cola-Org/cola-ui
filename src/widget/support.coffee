@@ -61,7 +61,7 @@ _compileWidgetDom = (dom, widgetType) ->
 		attrName = attr.name
 		if attrName.indexOf("c-") == 0
 			prop = attrName.slice(2)
-			if widgetType.attributes.$has(prop) or widgetType.events.$has(prop)
+			if (widgetType.attributes.$has(prop) or widgetType.events.$has(prop)) and prop isnt "class"
 				config[prop] = cola._compileExpression(attr.value)
 
 				removeAttrs ?= []

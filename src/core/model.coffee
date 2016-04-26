@@ -269,8 +269,9 @@ class cola.ItemsScope extends cola.SubScope
 		if expression
 			@alias = expression.alias
 			paths = []
-			for path in expression.paths
-				paths.push(path.split("."))
+			if expression.paths
+				for path in expression.paths
+					paths.push(path.split("."))
 			@expressionPath = paths
 
 			if not expression.paths and expression.hasCallStatement
@@ -281,7 +282,7 @@ class cola.ItemsScope extends cola.SubScope
 			@alias = "item"
 			@expressionPath = []
 
-		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+		if expression and typeof expression.paths?.length is 1 and not expression.hasCallStatement
 			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
