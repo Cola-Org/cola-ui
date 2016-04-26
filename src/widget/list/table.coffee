@@ -17,9 +17,10 @@ class cola.Table extends cola.AbstractTable
 	_doRefreshItems: () ->
 		return unless @_columnsInfo
 
-		if not @_columnsInfo.dataColumns.length and @_dataType and @_dataType instanceof cola.EntityDataType
+		dataType = @_getBindDataType()
+		if not @_columnsInfo.dataColumns.length and dataType and dataType instanceof cola.EntityDataType
 			columnConfigs = []
-			for propertyDef in @_dataType.getProperties().elements
+			for propertyDef in dataType.getProperties().elements
 				columnConfigs.push(
 					bind: propertyDef._property
 				)

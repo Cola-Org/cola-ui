@@ -779,7 +779,26 @@ class cola.DataModel extends cola.AbstractDataModel
 		return
 
 	getProperty: (path) ->
-		return @_rootDataType?.getProperty(path)
+		i = path.indexOf(".")
+		if i > 0
+			path1 = path.substring(0, i)
+			path2 = path.substring(i + 1)
+		else
+			path1 = null
+			path2 = path
+
+		dataModel = @
+		while dataModel
+			rootDataType = dataModel._rootDataType
+			if rootDataType
+				if path1
+					dataType = rootDataType.getProperty(path1)?.get("dataType")
+				else
+					dataType = rootDataType
+				if dataType then break
+			dataModel = dataModel.model.parent?.data
+
+		return dataType?.getProperty(path2)
 
 	getDataType: (path) ->
 		property = @getProperty(path)
