@@ -1,4 +1,4 @@
-/*! Cola UI - 0.8.5
+/*! Cola UI - 0.9.0
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10257,7 +10257,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.8.5
+/*! Cola UI - 0.9.0
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -12672,6 +12672,10 @@
         iconDom = this._doms.iconDom;
         $fly(iconDom).addClass(icon + " icon");
         if (iconDom.parentNode !== this._dom) {
+          if (!this._doms.captionDom) {
+            this._dom.appendChild(iconDom);
+            return;
+          }
           if (iconPosition === "right") {
             $fly(this._doms.captionDom).after(iconDom);
           } else {

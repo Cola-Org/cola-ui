@@ -120,10 +120,14 @@ class cola.Button extends cola.AbstractButton
 			iconDom = @_doms.iconDom
 			$fly(iconDom).addClass("#{icon} icon")
 			if iconDom.parentNode isnt @_dom
+				unless @_doms.captionDom
+					@_dom.appendChild(iconDom)
+					return
 				if iconPosition is "right"
 					$fly(@_doms.captionDom).after(iconDom)
 				else
 					$fly(@_doms.captionDom).before(iconDom)
+
 		else if @_doms.iconDom
 			@_classNamePool.remove("icon")
 			$fly(@_doms.iconDom).remove()
