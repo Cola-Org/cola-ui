@@ -1,5 +1,30 @@
 ## RELEASE NOTES
 
+### Version 0.9.0 - April 25, 2016
+
+**新增特性**
+- **自定义控件** - 新增自定义控件特性，用户可通过cola.defineWidget(type,config)自定义控件
+
+**新增控件**
+- **DataPicker** - 日期选择框
+
+**新增UI Class**
+- **ui fragment** - 提供侧边有点缀色的片段class 可通过class="ui fragment red" 
+可添加black、yellow、green、blue、orange、purple、red、pink、teal和basic获得不同的主题效果
+
+**Bug 修复**
+- **Core** - 修正action expression导致的死锁
+- **Input** - 修复改进Input显示空值的逻辑，防止将Null显示为0或invalid date等内容的Bug
+- **Stack** - 修复 stack控件无法显示bug
+- **Tab** - 修复 tab在close所有标签时报错的bug
+- **Carousel** - 修复 Carousel控件，控制按钮无法切换的bug
+
+**小改进**
+- **Provider** - 改进Provider的parameter中的参数定义方式。今后统一用{{xxx}}来定义，其中@开头的表达式表示从本Entity中提取数值。$pageNo、$pageSize等是特殊的内置变量
+- **Panel** - Panel控件改进为在无icon下，图标Dom自动隐藏
+- **Time-Line** - time-line控件新增皮肤以及多色主题
+- **Box布局** - hbox和v-box的.box overflow默认设定改为：visible
+
 ### Version 0.8.4 - April 05, 2016
 #### 建议原使用v0.8.3版本的用户更新之此版本。
 **Bug 修复**

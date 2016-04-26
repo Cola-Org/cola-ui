@@ -7,18 +7,24 @@
 	<script src="../../include-all.js"></script>
 </head>
 <body style="padding: 20px;">
-<div c-widget="Button; caption:Cola; icon:setting"></div>
+<div c-widget="Button; caption:按钮; icon:setting"></div>
+<div c-widget="Button; caption:按钮; icon:setting; iconPosition:right"></div>
 <p></p>
+
 <div c-repeat="color in colors" c-class="color" c-widget="button; caption:{{color}}; "></div>
 <p></p>
-<div c-repeat="size in sizes" c-widget="button; caption:size; class:size"></div>
+
+<div c-repeat="size in sizes" c-widget="button; caption:{{size}}; class:{{size}}"></div>
 <p></p>
-<div c-repeat="ui in uis" c-widget="button; caption:ui; class:ui"></div>
+
+<div c-repeat="ui in uis" c-widget="button; caption:{{ui}}; class:{{ui}}"></div>
 <p></p>
+
 <div c-widget="ButtonGroup">
-	<div c-repeat="num in ['one','two','three','four']" c-widget="button; caption:num;"></div>
+	<div c-repeat="num in nums" c-widget="button; caption:{{num}};"></div>
 </div>
 <p></p>
+
 <div c-widget="ButtonGroup">
 	<div c-widget="Button; class:green">添加</div>
 	<div c-widget="Separator;"></div>
@@ -30,6 +36,7 @@
 		model.set("colors", ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"]);
 		model.set("sizes", ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]);
 		model.set("uis", ["default", "basic", "negative", "positive", "secondary", "primary"]);
+		model.set("nums", ['one', 'two', 'three', 'four']);
 	});
 </script>
 </body>

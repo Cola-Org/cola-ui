@@ -154,7 +154,6 @@ module.exports = (grunt) ->
 					"dest/work/cola/coffee/widget.coffee": sources.coffee.widgetAll
 		"cola-ui-license":
 			options:
-
 				license: """
 /*! Cola UI - #{pkg.version}
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
@@ -176,11 +175,13 @@ module.exports = (grunt) ->
 			"3rd":
 				files:
 					"dist/3rd.js": sources.lib.js
-
 			cola:
 				files:
 					"dist/cola.js": ["dist/cola-core.js", "dist/cola-widget.js"]
-
+			all:
+				files:
+					"dist/all/javascript.js": ["dist/3rd.js", "dist/semantic.js", "dist/cola.js"]
+					"dist/all/css.js": ["dist/semantic.css", "dist/cola.css"]
 		cssmin:
 			target:
 				files: [
@@ -253,9 +254,10 @@ module.exports = (grunt) ->
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 	                             "coffee:i18n",
-	                             "less:build", "cola-ui-license", "concat",
+	                             "less:build", "cola-ui-license", "concat:3rd", "concat:cola",
 	                             "clean:core-widget", "copy:semantic",
 	                             "uglify:build",
 	                             "cssmin",
 #								 "compress",
                                  "clean:workTemp"]
+	grunt.registerTask "concat-all", ["build","concat:all"]

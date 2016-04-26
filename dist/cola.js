@@ -9443,11 +9443,13 @@
     }
 
     _DomBinding.prototype.destroy = function() {
-      var _features;
+      var _features, i;
       _features = this.features;
       if (_features) {
-        while (_features.length) {
-          this.unbindFeature(_features[_features.length - 1]);
+        i = _features.length - 1;
+        while (i >= 0) {
+          this.unbindFeature(_features[i]);
+          i--;
         }
       }
       delete this.dom;
@@ -10584,6 +10586,24 @@
     }
   });
 
+  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
+    var configKey, widgetConfigs;
+    if (!attrValue) {
+      return;
+    }
+    if (typeof attrValue === "string") {
+      $dom.attr(attrName, attrValue);
+    } else if (context) {
+      configKey = cola.uniqueId();
+      $dom.attr("c-widget-config", configKey);
+      widgetConfigs = context.widgetConfigs;
+      if (!widgetConfigs) {
+        context.widgetConfigs = widgetConfigs = {};
+      }
+      widgetConfigs[configKey] = attrValue;
+    }
+  };
+
   cola.xRender.nodeProcessors.push(function(node, context) {
     var dom, widget;
     if (node instanceof cola.Widget) {
@@ -10715,7 +10735,7 @@
   };
 
   cola._userDomCompiler.$.push(function(scope, dom, attr, context) {
-    var config, constr, jsonConfig, k, parentWidget, ref, tagName, v, widgetType;
+    var config, configKey, constr, jsonConfig, k, parentWidget, ref, ref1, tagName, v, widgetType;
     if (cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)) {
       return null;
     }
@@ -10727,14 +10747,21 @@
     }
     parentWidget = context.parentWidget;
     tagName = dom.tagName;
-    widgetType = parentWidget != null ? (ref = parentWidget.childTagNames) != null ? ref[tagName] : void 0 : void 0;
-    if (widgetType == null) {
-      widgetType = WIDGET_TAGS_REGISTRY[tagName];
-    }
-    if (widgetType) {
-      config = _compileWidgetDom(dom, widgetType);
+    configKey = dom.getAttribute("c-widget-config");
+    if (configKey) {
+      dom.removeAttribute("c-widget-config");
+      config = (ref = context.widgetConfigs) != null ? ref[configKey] : void 0;
     } else {
       config = _compileWidgetAttribute(scope, dom, context);
+      if (!config) {
+        widgetType = parentWidget != null ? (ref1 = parentWidget.childTagNames) != null ? ref1[tagName] : void 0 : void 0;
+        if (widgetType == null) {
+          widgetType = WIDGET_TAGS_REGISTRY[tagName];
+        }
+        if (widgetType) {
+          config = _compileWidgetDom(dom, widgetType);
+        }
+      }
     }
     if (!(config || jsonConfig)) {
       return null;
@@ -10951,8 +10978,16 @@
     cls.prototype._initDom = function(dom) {
       var attr, attrName, cssName, l, len1, ref1, templateDom;
       superCls.prototype._initDom.call(this, dom);
-      if (this._template && !this._domCreated) {
-        templateDom = this.xRender(this._template);
+      template = this._template;
+      if (template && !this._domCreated) {
+        if (typeof template === "string" && template.match(/^\#[\w\-\$]*$/)) {
+          this._template = document.getElementById(template.substring(1));
+          if (this._template) {
+            template = this._template.innerHTML;
+            $fly(this._template).remove();
+          }
+        }
+        templateDom = this.xRender(template);
         if (templateDom) {
           ref1 = dom.attributes;
           for (l = 0, len1 = ref1.length; l < len1; l++) {
@@ -12622,26 +12657,14 @@
     };
 
     Button.prototype._refreshIcon = function() {
-      var $dom, base, caption, icon, iconDom, iconPosition;
+      var base, caption, icon, iconDom, iconPosition;
       if (!this._dom) {
         return;
       }
-      $dom = this.get$Dom();
-      this._classNamePool.remove("right labeled");
-      this._classNamePool.remove("left labeled");
-      this._classNamePool.remove("labeled");
-      this._classNamePool.remove("icon");
       icon = this.get("icon");
       iconPosition = this.get("iconPosition");
       caption = this.get("caption");
       if (icon) {
-        if (caption) {
-          if (iconPosition === "right") {
-            this._classNamePool.add("right labeled");
-          } else {
-            this._classNamePool.add("labeled");
-          }
-        }
         this._classNamePool.add("icon");
         if ((base = this._doms).iconDom == null) {
           base.iconDom = document.createElement("i");
@@ -12649,9 +12672,14 @@
         iconDom = this._doms.iconDom;
         $fly(iconDom).addClass(icon + " icon");
         if (iconDom.parentNode !== this._dom) {
-          $dom.append(iconDom);
+          if (iconPosition === "right") {
+            $fly(this._doms.captionDom).after(iconDom);
+          } else {
+            $fly(this._doms.captionDom).before(iconDom);
+          }
         }
       } else if (this._doms.iconDom) {
+        this._classNamePool.remove("icon");
         $fly(this._doms.iconDom).remove();
       }
     };
@@ -18068,7 +18096,7 @@
         }
       } else {
         value = this.readBindingValue();
-        if (this._dataType) {
+        if ((value != null) && this._dataType) {
           value = this._dataType.parse(value);
         }
         this._modelValue = value;
@@ -21086,6 +21114,8 @@
       return DatePicker.__super__.constructor.apply(this, arguments);
     }
 
+    DatePicker.tagName = "c-datepicker";
+
     DatePicker.attributes = {
       displayFormat: {
         defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
@@ -21264,6 +21294,8 @@
     return DatePicker;
 
   })(cola.CustomDropdown);
+
+  cola.registerWidget(cola.DatePicker);
 
   oldErrorTemplate = $.fn.form.settings.templates.error;
 

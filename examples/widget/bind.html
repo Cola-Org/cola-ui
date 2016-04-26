@@ -10,14 +10,14 @@
 <body style="padding: 20px;">
 
 <div class="ui buttons">
-	<a c-repeat="menu in menus" c-onclick="change(menu)" class="ui button">
+	<a c-repeat="menu in tmenus" c-onclick="change(menu)" class="ui button">
 		<i c-class="menu.icon"></i>
 		<span c-bind="menu.label"></span>
 	</a>
 </div>
 
 
-<div c-repeat="menu in menus.menus" class="item active">
+<div c-repeat="menu in tmenus.menus" class="item active">
 	<div class="title menu-item"><i c-class="menu.icon"></i><span
 			c-bind="menu.label"></span></div>
 	<div class="content">
@@ -32,10 +32,10 @@
 <script type="text/javascript">
 	cola(function (model) {
 		model.action("change", function (menu) {
-			model.get("menus").setCurrent(menu);
+			model.get("tmenus").setCurrent(menu);
 		});
 
-		model.set("menus", [
+		model.set("tmenus", [
 			{
 				icon: "iconfont icon-yonghuguanli",
 				label: "销售管理",

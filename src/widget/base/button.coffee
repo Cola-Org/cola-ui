@@ -110,31 +110,23 @@ class cola.Button extends cola.AbstractButton
 
 	_refreshIcon: ()->
 		return unless @_dom
-		$dom = @get$Dom()
-		@_classNamePool.remove("right")
-		@_classNamePool.remove("left")
-		@_classNamePool.remove("labeled")
-		@_classNamePool.remove("icon")
-
 		icon = @get("icon")
 		iconPosition = @get("iconPosition")
 		caption = @get("caption")
 
 		if icon
-			if caption
-				if iconPosition is "right"
-					@_classNamePool.add("right")
-				else
-#					@_classNamePool.add("labeled")
 			@_classNamePool.add("icon")
 			@_doms.iconDom ?= document.createElement("i")
 			iconDom = @_doms.iconDom
 			$fly(iconDom).addClass("#{icon} icon")
-
-			$dom.append(iconDom) if iconDom.parentNode isnt @_dom
+			if iconDom.parentNode isnt @_dom
+				if iconPosition is "right"
+					$fly(@_doms.captionDom).after(iconDom)
+				else
+					$fly(@_doms.captionDom).before(iconDom)
 		else if @_doms.iconDom
+			@_classNamePool.remove("icon")
 			$fly(@_doms.iconDom).remove()
-
 		return
 
 	_doRefreshDom: ()->
