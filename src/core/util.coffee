@@ -14,9 +14,9 @@ cola.util.capitalize = (text) ->
 	return text.charAt(0).toUpperCase() + text.slice(1);
 
 cola.util.isSimpleValue = (value) ->
-	if value == null or value == undefined then return false
+	if value == null or value == undefined then return true
 	type = typeof value
-	return type != "object" and type != "function" or type instanceof Date
+	return type != "object" and type != "function" or value instanceof Date or value instanceof Array
 
 cola.util.each = (array, fn) ->
 	for item, i in array

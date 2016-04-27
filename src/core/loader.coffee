@@ -178,7 +178,8 @@ _loadJs = (context, url, callback) ->
 _cssCache = {}
 
 _loadCss = (url, callback) ->
-	if not _cssCache[url]
+	linkElement = _cssCache[url]
+	if not linkElement
 		linkElement = $.xCreate(
 			tagName: "link"
 			rel: "stylesheet"
@@ -202,17 +203,26 @@ _loadCss = (url, callback) ->
 			)
 
 		head = document.querySelector("head") or document.documentElement
+		linkElement.setAttribute("_refNum", "1");
 		head.appendChild(linkElement)
 		_cssCache[url] = linkElement
 
 		if cola.os.android and cola.os.version < 4.4
 			cola.callback(callback, true)
+		return true
 	else
+		refNum = parseInt(linkElement.getAttribute("_refNum")) or 1
+		linkElement.setAttribute("_refNum", (refNum + 1) + "")
 		cola.callback(callback, true)
-	return
+		return false
 
 _unloadCss = (url) ->
-	if _cssCache[url]
-		$fly(_cssCache[url]).remove()
-		delete _cssCache[url]
+	linkElement = _cssCache[url]
+	if linkElement
+		refNum = parseInt(linkElement.getAttribute("_refNum")) or 1
+		if refNum > 1
+			linkElement.setAttribute("_refNum", (refNum - 1) + "")
+		else
+			delete _cssCache[url]
+			$fly(linkElement).remove()
 	return

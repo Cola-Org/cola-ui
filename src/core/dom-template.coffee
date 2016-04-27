@@ -21,9 +21,15 @@ cola._rootFunc = () ->
 		oldScope = cola.currentScope
 		cola.currentScope = model
 		try
+			if not model._dom
+				model._dom = dom
+			else
+				model._dom = model._dom.concat(dom)
+			delete model._$dom
+
 			fn?(model, param)
 
-			if !dom
+			if not dom
 				viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS)
 				if viewDoms?.length then dom = viewDoms
 			dom ?= document.body
