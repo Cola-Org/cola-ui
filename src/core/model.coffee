@@ -115,6 +115,7 @@ class cola.Model extends cola.Scope
 		@parent = parent if parent
 
 		@data = new cola.DataModel(@)
+		parent.data.bind("**", @) if parent
 
 		@action = (name, action) ->
 			store = @action
@@ -146,6 +147,9 @@ class cola.Model extends cola.Scope
 		cola.removeModel(@name) if @name
 		@data.destroy?()
 		return
+
+	_processMessage: (bindingPath, path, type, arg) ->
+		return @data._onDataMessage(path, type, arg)
 
 class cola.SubScope extends cola.Scope
 
