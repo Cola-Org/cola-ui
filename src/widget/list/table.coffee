@@ -313,7 +313,7 @@ class cola.Table extends cola.AbstractTable
 
 		if @getListeners("renderCell")
 			if @fire("renderCell", @,
-				{item: item, column: colInfo.column, dom: dom, scope: itemScope}) == false
+				{item: item, column: column, dom: dom, scope: itemScope}) == false
 				return
 
 		if isNew

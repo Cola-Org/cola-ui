@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.0
+/*! Cola UI - 0.9.1
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -6665,8 +6665,31 @@
     };
 
     DataModel.prototype.getProperty = function(path) {
-      var ref;
-      return (ref = this._rootDataType) != null ? ref.getProperty(path) : void 0;
+      var dataModel, dataType, i, path1, path2, ref, ref1, rootDataType;
+      i = path.indexOf(".");
+      if (i > 0) {
+        path1 = path.substring(0, i);
+        path2 = path.substring(i + 1);
+      } else {
+        path1 = null;
+        path2 = path;
+      }
+      dataModel = this;
+      while (dataModel) {
+        rootDataType = dataModel._rootDataType;
+        if (rootDataType) {
+          if (path1) {
+            dataType = (ref = rootDataType.getProperty(path1)) != null ? ref.get("dataType") : void 0;
+          } else {
+            dataType = rootDataType;
+          }
+          if (dataType) {
+            break;
+          }
+        }
+        dataModel = (ref1 = dataModel.model.parent) != null ? ref1.data : void 0;
+      }
+      return dataType != null ? dataType.getProperty(path2) : void 0;
     };
 
     DataModel.prototype.getDataType = function(path) {
@@ -10257,7 +10280,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.0
+/*! Cola UI - 0.9.1
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -28947,13 +28970,14 @@
     };
 
     Table.prototype._doRefreshItems = function() {
-      var col, colInfo, colgroup, column, columnConfigs, i, l, len1, len2, n, nextCol, propertyDef, ref, ref1, tbody, tfoot, thead;
+      var col, colInfo, colgroup, column, columnConfigs, dataType, i, l, len1, len2, n, nextCol, propertyDef, ref, ref1, tbody, tfoot, thead;
       if (!this._columnsInfo) {
         return;
       }
-      if (!this._columnsInfo.dataColumns.length && this._dataType && this._dataType instanceof cola.EntityDataType) {
+      dataType = this._getBindDataType();
+      if (!this._columnsInfo.dataColumns.length && dataType && dataType instanceof cola.EntityDataType) {
         columnConfigs = [];
-        ref = this._dataType.getProperties().elements;
+        ref = dataType.getProperties().elements;
         for (l = 0, len1 = ref.length; l < len1; l++) {
           propertyDef = ref[l];
           columnConfigs.push({
@@ -29326,7 +29350,7 @@
       if (this.getListeners("renderCell")) {
         if (this.fire("renderCell", this, {
           item: item,
-          column: colInfo.column,
+          column: column,
           dom: dom,
           scope: itemScope
         }) === false) {
