@@ -129,7 +129,7 @@ class cola.Expression
 			exprStr = exprStr.substring(0, i)
 
 			watchPaths = []
-			for path in watchPathStr.split(",")
+			for path in watchPathStr.split(/[,;]/)
 				path = cola.util.trim(path)
 				continue unless path
 				if path.indexOf(".") > 0

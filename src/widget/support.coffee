@@ -167,31 +167,43 @@ cola.registerTypeResolver "widget", (config) ->
 
 cola.registerType("widget", "_default", cola.Widget)
 
-cola.widget = (config, namespace) ->
+cola.widget = (config, namespace, model) ->
 	return null unless config
 	if typeof config == "string"
 		ele = window[config]
 		return null unless ele
 		if ele.nodeType
 			widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY)
+			if model and widget._scope isnt model
+				widget = null
 			return if widget instanceof cola.Widget then widget else null
 		else
 			group = []
 			for e in ele
 				widget = cola.util.userData(e, cola.constants.DOM_ELEMENT_KEY)
-				group.push(widget) if widget instanceof cola.Widget
-			return if group.length then cola.Element.createGroup(group) else null
+				if widget instanceof cola.Widget and (not model or widget._scope is model)
+					group.push(widget)
+			if not group.length
+				return null
+			else if group.length is 1
+				return group[0]
+			else
+				return cola.Element.createGroup(group)
 	else
 		if config instanceof Array
 			group = []
 			for c in config
-				group.push(cola.widget(c))
+				group.push(cola.widget(c, namespace, model))
 			return cola.Element.createGroup(group)
 		else if config.nodeType == 1
 			widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY)
+			if model and widget._scope isnt model
+				widget = null
 			return if widget instanceof cola.Widget then widget else null
 		else
 			constr = config.$constr or cola.resolveType(namespace or "widget", config, cola.Widget)
+			if model and not config.scope
+				config.scope = model
 			return new constr(config)
 
 cola.findWidget = (dom, type) ->
@@ -206,6 +218,8 @@ cola.findWidget = (dom, type) ->
 				return widget
 		dom = dom.parentNode
 	return null
+
+cola.Model::widget = (config) -> cola.widget(config, null, @)
 
 ###
 User Widget

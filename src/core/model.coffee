@@ -151,6 +151,10 @@ class cola.Model extends cola.Scope
 	_processMessage: (bindingPath, path, type, arg) ->
 		return @data._onDataMessage(path, type, arg)
 
+	$: (selector) ->
+		@_$dom ?= $(@_dom)
+		return @_$dom.find(selector)
+
 class cola.SubScope extends cola.Scope
 
 	watchPath: (path) ->
