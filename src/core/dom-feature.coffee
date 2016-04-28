@@ -82,11 +82,14 @@ class cola._EventFeature extends cola._ExpressionFeature
 	constructor: (@expression, @event) ->
 
 	init: (domBinding) ->
-		domBinding.$dom.on(@event, () =>
+		domBinding.$dom.on(@event, (evt) =>
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
 			try
-				return @evaluate(domBinding, false, null, "never")
+				return @evaluate(domBinding, false, {
+					vars:
+						$event: evt
+				}, "never")
 			finally
 				cola.currentScope = oldScope
 		)

@@ -246,8 +246,8 @@ class cola.Element
 					@on(attr, (self, arg) ->
 						expression.evaluate(scope, "never", {
 							vars:
-								self: self
-								arg: arg
+								$self: self
+								$arg: arg
 						})
 						return
 					, ignoreError)
