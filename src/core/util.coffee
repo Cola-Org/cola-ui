@@ -137,12 +137,12 @@ cola.util.formatDate = (date, format) ->
 	return "" unless date?
 	if not (date instanceof XDate)
 		date = new XDate(date)
-	return date.toString(format)
+	return date.toString(format or cola.setting("defaultDateFormat"))
 
 cola.util.formatNumber = (number, format) ->
 	return "" unless number?
 	return number if isNaN(number)
-	return formatNumber(format, number)
+	return formatNumber(format or cola.setting("defaultNumberFormat"), number)
 
 cola.util.format = (value, format) ->
 	if value instanceof Date

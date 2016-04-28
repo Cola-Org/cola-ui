@@ -3,6 +3,8 @@ _toJSON = (data) ->
 		if typeof data is "object"
 			if data instanceof cola.Entity or data instanceof cola.EntityList
 				data = data.toJSON()
+			else if data instanceof Date
+				data = cola.util.formatDate(data, cola.setting("defaultSubmitDateFormat"))
 			else
 				rawData = data
 				data = {}
@@ -27,6 +29,8 @@ $.ajax = (url, settings) ->
 				data = {}
 				for p, v of rawData
 					data[p] = _toJSON(v)
+			else if data instanceof Date
+				data = _toJSON(data)
 		else if typeof data is "function"
 			data = undefined
 		settings.data = data

@@ -96,7 +96,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			carousel._scroller = new Swipe(carousel._dom, {
 				vertical: carousel._orientation == "vertical",
 				disableScroll: false,
-				continuous: true,
+				continuous: false,
 				callback: (pos)->
 					carousel.setCurrentIndex(pos)
 					return
