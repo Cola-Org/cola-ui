@@ -103,6 +103,7 @@ class cola.AjaxService extends cola.Definition
 				options[p] = v
 
 		options.url = @getUrl(context)
+		options.method = @_method if @_method
 		options.data = @_parameter
 		return options
 
