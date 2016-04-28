@@ -98,26 +98,11 @@ cola.defaultAction["top"] = (collection, top = 1) ->
 		return i < top
 	return items
 
-cola.defaultAction.formatDate = (date, format) ->
-	return "" unless date?
-	if not (date instanceof XDate)
-		date = new XDate(date)
-	return date.toString(format)
+cola.defaultAction.formatDate = cola.util.formatDate
 
-cola.defaultAction.formatNumber = (number, format) ->
-	return "" unless number?
-	return number if isNaN(number)
-	return formatNumber(format, number)
+cola.defaultAction.formatNumber = cola.util.formatNumber
 
-cola.defaultAction.format = (value, format) ->
-	if value instanceof Date
-		return cola.defaultAction.formatDate(value, format)
-	else if isFinite(value)
-		return cola.defaultAction.formatNumber(value, format)
-	else if value is null or value is undefined
-		return ""
-	else
-		return value
+cola.defaultAction.format = cola.util.format
 
 _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
 cola.defaultAction.number2Word = (number) -> _numberWords[number]

@@ -133,6 +133,27 @@ cola.util.waitForAll = (funcs, callback) ->
 		func(subCallback)
 	return
 
+cola.util.formatDate = (date, format) ->
+	return "" unless date?
+	if not (date instanceof XDate)
+		date = new XDate(date)
+	return date.toString(format)
+
+cola.util.formatNumber = (number, format) ->
+	return "" unless number?
+	return number if isNaN(number)
+	return formatNumber(format, number)
+
+cola.util.format = (value, format) ->
+	if value instanceof Date
+		return cola.util.formatDate(value, format)
+	else if isFinite(value)
+		return cola.util.formatNumber(value, format)
+	else if value is null or value is undefined
+		return ""
+	else
+		return value
+
 # OO
 
 cola.util.isSuperClass = (superCls, cls) ->
