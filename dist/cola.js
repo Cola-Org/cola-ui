@@ -352,10 +352,10 @@
   cola.util.isSimpleValue = function(value) {
     var type;
     if (value === null || value === void 0) {
-      return false;
+      return true;
     }
     type = typeof value;
-    return type !== "object" && type !== "function" || type instanceof Date;
+    return type !== "object" && type !== "function" || value instanceof Date || value instanceof Array;
   };
 
   cola.util.each = function(array, fn) {
@@ -516,6 +516,38 @@
       };
       subCallback.scope = subCallback;
       func(subCallback);
+    }
+  };
+
+  cola.util.formatDate = function(date, format) {
+    if (date == null) {
+      return "";
+    }
+    if (!(date instanceof XDate)) {
+      date = new XDate(date);
+    }
+    return date.toString(format || cola.setting("defaultDateFormat"));
+  };
+
+  cola.util.formatNumber = function(number, format) {
+    if (number == null) {
+      return "";
+    }
+    if (isNaN(number)) {
+      return number;
+    }
+    return formatNumber(format || cola.setting("defaultNumberFormat"), number);
+  };
+
+  cola.util.format = function(value, format) {
+    if (value instanceof Date) {
+      return cola.util.formatDate(value, format);
+    } else if (isFinite(value)) {
+      return cola.util.formatNumber(value, format);
+    } else if (value === null || value === void 0) {
+      return "";
+    } else {
+      return value;
     }
   };
 
@@ -742,7 +774,9 @@
 
   setting = {
     defaultCharset: "utf-8",
-    defaultDateFormat: "yyyy-mm-dd"
+    defaultNumberFormat: "#,##0.##",
+    defaultDateFormat: "yyyy-MM-dd",
+    defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss'T'"
   };
 
   cola.setting = function(key, value) {
@@ -1018,6 +1052,8 @@
       if (typeof data === "object") {
         if (data instanceof cola.Entity || data instanceof cola.EntityList) {
           data = data.toJSON();
+        } else if (data instanceof Date) {
+          data = cola.util.formatDate(data, cola.setting("defaultSubmitDateFormat"));
         } else {
           rawData = data;
           data = {};
@@ -1052,6 +1088,8 @@
             v = rawData[p];
             data[p] = _toJSON(v);
           }
+        } else if (data instanceof Date) {
+          data = _toJSON(data);
         }
       } else if (typeof data === "function") {
         data = void 0;
@@ -1399,8 +1437,8 @@
             this.on(attr, function(self, arg) {
               expression.evaluate(scope, "never", {
                 vars: {
-                  self: self,
-                  arg: arg
+                  $self: self,
+                  $arg: arg
                 }
               });
             }, ignoreError);
@@ -2141,10 +2179,10 @@
       this.raw = exprStr;
       i = exprStr.indexOf(" on ");
       if ((0 < i && i < (exprStr.length - 1))) {
-        exprStr = exprStr.substring(0, i);
         watchPathStr = exprStr.substring(i + 4);
+        exprStr = exprStr.substring(0, i);
         watchPaths = [];
-        ref = watchPathStr.split(",");
+        ref = watchPathStr.split(/[,;]/);
         for (l = 0, len1 = ref.length; l < len1; l++) {
           path = ref[l];
           path = cola.util.trim(path);
@@ -5689,6 +5727,9 @@
         this.parent = parent;
       }
       this.data = new cola.DataModel(this);
+      if (parent) {
+        parent.data.bind("**", this);
+      }
       this.action = function(name, action) {
         var a, config, fn, n, scope, store;
         store = this.action;
@@ -5734,6 +5775,17 @@
       if (typeof (base = this.data).destroy === "function") {
         base.destroy();
       }
+    };
+
+    Model.prototype._processMessage = function(bindingPath, path, type, arg) {
+      return this.data._onDataMessage(path, type, arg);
+    };
+
+    Model.prototype.$ = function(selector) {
+      if (this._$dom == null) {
+        this._$dom = $(this._dom);
+      }
+      return this._$dom.find(selector);
     };
 
     return Model;
@@ -5921,15 +5973,17 @@
     };
 
     ItemsScope.prototype.setExpression = function(expression) {
-      var l, len1, path, paths, ref;
+      var l, len1, path, paths, ref, ref1;
       this.expression = expression;
       if (expression) {
         this.alias = expression.alias;
         paths = [];
-        ref = expression.paths;
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          path = ref[l];
-          paths.push(path.split("."));
+        if (expression.paths) {
+          ref = expression.paths;
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            path = ref[l];
+            paths.push(path.split("."));
+          }
         }
         this.expressionPath = paths;
         if (!expression.paths && expression.hasCallStatement) {
@@ -5941,7 +5995,7 @@
         this.alias = "item";
         this.expressionPath = [];
       }
-      if (expression && typeof expression.paths.length === 1 && !expression.hasCallStatement) {
+      if (expression && typeof ((ref1 = expression.paths) != null ? ref1.length : void 0) === 1 && !expression.hasCallStatement) {
         this.dataType = this.parent.data.getDataType(expression.paths[0]);
       }
     };
@@ -7354,37 +7408,11 @@
     return items;
   };
 
-  cola.defaultAction.formatDate = function(date, format) {
-    if (date == null) {
-      return "";
-    }
-    if (!(date instanceof XDate)) {
-      date = new XDate(date);
-    }
-    return date.toString(format);
-  };
+  cola.defaultAction.formatDate = cola.util.formatDate;
 
-  cola.defaultAction.formatNumber = function(number, format) {
-    if (number == null) {
-      return "";
-    }
-    if (isNaN(number)) {
-      return number;
-    }
-    return formatNumber(format, number);
-  };
+  cola.defaultAction.formatNumber = cola.util.formatNumber;
 
-  cola.defaultAction.format = function(value, format) {
-    if (value instanceof Date) {
-      return cola.defaultAction.formatDate(value, format);
-    } else if (isFinite(value)) {
-      return cola.defaultAction.formatNumber(value, format);
-    } else if (value === null || value === void 0) {
-      return "";
-    } else {
-      return value;
-    }
-  };
+  cola.defaultAction.format = cola.util.format;
 
   _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
 
@@ -7540,6 +7568,9 @@
         }
       }
       options.url = this.getUrl(context);
+      if (this._method) {
+        options.method = this._method;
+      }
       options.data = this._parameter;
       return options;
     };
@@ -8300,8 +8331,9 @@
   _cssCache = {};
 
   _loadCss = function(url, callback) {
-    var head, linkElement;
-    if (!_cssCache[url]) {
+    var head, linkElement, refNum;
+    linkElement = _cssCache[url];
+    if (!linkElement) {
       linkElement = $.xCreate({
         tagName: "link",
         rel: "stylesheet",
@@ -8323,20 +8355,32 @@
         });
       }
       head = document.querySelector("head") || document.documentElement;
+      linkElement.setAttribute("_refNum", "1");
       head.appendChild(linkElement);
       _cssCache[url] = linkElement;
       if (cola.os.android && cola.os.version < 4.4) {
         cola.callback(callback, true);
       }
+      return true;
     } else {
+      refNum = parseInt(linkElement.getAttribute("_refNum")) || 1;
+      linkElement.setAttribute("_refNum", (refNum + 1) + "");
       cola.callback(callback, true);
+      return false;
     }
   };
 
   _unloadCss = function(url) {
-    if (_cssCache[url]) {
-      $fly(_cssCache[url]).remove();
-      delete _cssCache[url];
+    var linkElement, refNum;
+    linkElement = _cssCache[url];
+    if (linkElement) {
+      refNum = parseInt(linkElement.getAttribute("_refNum")) || 1;
+      if (refNum > 1) {
+        linkElement.setAttribute("_refNum", (refNum - 1) + "");
+      } else {
+        delete _cssCache[url];
+        $fly(linkElement).remove();
+      }
     }
   };
 
@@ -8832,12 +8876,16 @@
 
     _EventFeature.prototype.init = function(domBinding) {
       domBinding.$dom.on(this.event, (function(_this) {
-        return function() {
+        return function(evt) {
           var oldScope;
           oldScope = cola.currentScope;
           cola.currentScope = domBinding.scope;
           try {
-            return _this.evaluate(domBinding, false, null, "never");
+            return _this.evaluate(domBinding, false, {
+              vars: {
+                $event: evt
+              }
+            }, "never");
           } finally {
             cola.currentScope = oldScope;
           }
@@ -9570,6 +9618,7 @@
       for (i = l = 0, len1 = holder.length; l < len1; i = ++l) {
         p = holder[i];
         if (p.path === path) {
+          this.scope.data.unbind(path, holder[i]);
           holder.splice(i, 1);
           break;
         }
@@ -9577,7 +9626,6 @@
       if (!holder.length) {
         delete this[feature.id];
       }
-      this.scope.data.unbind(path, pipe);
     };
 
     _DomBinding.prototype.refresh = function(force) {
@@ -9760,6 +9808,12 @@
       oldScope = cola.currentScope;
       cola.currentScope = model;
       try {
+        if (!model._dom) {
+          model._dom = dom;
+        } else {
+          model._dom = model._dom.concat(dom);
+        }
+        delete model._$dom;
         if (typeof fn === "function") {
           fn(model, param);
         }
@@ -10690,7 +10744,7 @@
       attrName = attr.name;
       if (attrName.indexOf("c-") === 0) {
         prop = attrName.slice(2);
-        if (widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) {
+        if ((widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) && prop !== "class") {
           config[prop] = cola._compileExpression(attr.value);
           if (removeAttrs == null) {
             removeAttrs = [];
@@ -10843,7 +10897,7 @@
 
   cola.registerType("widget", "_default", cola.Widget);
 
-  cola.widget = function(config, namespace) {
+  cola.widget = function(config, namespace, model) {
     var c, constr, e, ele, group, l, len1, len2, n, widget;
     if (!config) {
       return null;
@@ -10855,6 +10909,9 @@
       }
       if (ele.nodeType) {
         widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY);
+        if (model && widget._scope !== model) {
+          widget = null;
+        }
         if (widget instanceof cola.Widget) {
           return widget;
         } else {
@@ -10865,14 +10922,16 @@
         for (l = 0, len1 = ele.length; l < len1; l++) {
           e = ele[l];
           widget = cola.util.userData(e, cola.constants.DOM_ELEMENT_KEY);
-          if (widget instanceof cola.Widget) {
+          if (widget instanceof cola.Widget && (!model || widget._scope === model)) {
             group.push(widget);
           }
         }
-        if (group.length) {
-          return cola.Element.createGroup(group);
-        } else {
+        if (!group.length) {
           return null;
+        } else if (group.length === 1) {
+          return group[0];
+        } else {
+          return cola.Element.createGroup(group);
         }
       }
     } else {
@@ -10880,11 +10939,14 @@
         group = [];
         for (n = 0, len2 = config.length; n < len2; n++) {
           c = config[n];
-          group.push(cola.widget(c));
+          group.push(cola.widget(c, namespace, model));
         }
         return cola.Element.createGroup(group);
       } else if (config.nodeType === 1) {
         widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY);
+        if (model && widget._scope !== model) {
+          widget = null;
+        }
         if (widget instanceof cola.Widget) {
           return widget;
         } else {
@@ -10892,6 +10954,9 @@
         }
       } else {
         constr = config.$constr || cola.resolveType(namespace || "widget", config, cola.Widget);
+        if (model && !config.scope) {
+          config.scope = model;
+        }
         return new constr(config);
       }
     }
@@ -10917,6 +10982,10 @@
       dom = dom.parentNode;
     }
     return null;
+  };
+
+  cola.Model.prototype.widget = function(config) {
+    return cola.widget(config, null, this);
   };
 
 
@@ -22899,7 +22968,7 @@
         return carousel._scroller = new Swipe(carousel._dom, {
           vertical: carousel._orientation === "vertical",
           disableScroll: false,
-          continuous: true,
+          continuous: false,
           callback: function(pos) {
             carousel.setCurrentIndex(pos);
           }

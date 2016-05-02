@@ -3467,12 +3467,14 @@ textarea:not([rows]) {
 }
 
 .ui.sub-view {
+  display: block;
   overflow: hidden;
 }
 .ui.sub-view > .content {
   height: 100%;
 }
 .ui.iframe {
+  display: block;
   position: relative;
 }
 .ui.iframe iframe {
@@ -4012,6 +4014,7 @@ textarea:not([rows]) {
 }
 
 .ui.carousel {
+  display: block;
   overflow: hidden;
   position: relative;
 }
