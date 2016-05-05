@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.1
+/*! Cola UI - 0.9.2
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10334,7 +10334,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.1
+/*! Cola UI - 0.9.2
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -17842,18 +17842,33 @@
     };
 
     Panel.prototype.collapsedChange = function() {
-      var $dom, collapsed;
+      var $dom, collapsed, currentHeight, headerHeight, height, initialHeight;
       $dom = this._$dom;
       collapsed = this.isCollapsed();
       if (this.fire("beforeCollapsedChange", this, {}) === false) {
         return this;
       }
+      initialHeight = this.get("height");
+      if (!initialHeight) {
+        currentHeight = $dom.outerHeight();
+        $dom.css("height", "initial");
+        height = $dom.outerHeight();
+        $dom.css("height", currentHeight);
+      }
       $dom.toggleClass("collapsed", !collapsed);
-      setTimeout((function(_this) {
-        return function() {
-          return _this.fire("collapsedChange", _this, {});
-        };
-      })(this), 300);
+      headerHeight = $(this._headerContent).outerHeight();
+      $dom.transit({
+        duration: 300,
+        height: collapsed ? height || this.get("height") : headerHeight,
+        complete: (function(_this) {
+          return function() {
+            if (collapsed && !initialHeight) {
+              $dom.css("height", "initial");
+            }
+            return _this.fire("collapsedChange", _this, {});
+          };
+        })(this)
+      });
     };
 
     Panel.prototype.isCollapsed = function() {
@@ -17915,7 +17930,7 @@
       var headerContent, l, len1, node, nodes, template, toolsDom;
       this._regDefaultTempaltes();
       Panel.__super__._initDom.call(this, dom);
-      headerContent = $.xCreate({
+      this._headerContent = headerContent = $.xCreate({
         tagName: "div",
         "class": "content"
       });

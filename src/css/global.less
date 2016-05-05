@@ -1,5 +1,5 @@
 @import "est/all.less";
-
+@import (optional) "semantic/site-variables.less";
 @small-px: 768;
 @medium-px: 1024;
 @large-px: 1440;
@@ -18,6 +18,7 @@
 @xlarge-max: unit(@xlarge-width, em);
 @breakPoint: (1 / @basePx);
 @small-min: 0em;
+
 
 @medium-min: unit((@small-width+@breakPoint), em);
 @large-min: unit((@medium-width+@breakPoint), em);
@@ -49,11 +50,5 @@
 @column-gutter: @default-spacing;
 @row-width: 100%;
 @default-float: left;
-
-@type    : 'global';
-@element : 'reset';
-
-@import (reference) '../../semantic-src/theme.config';
-@fontName: "Roboto", "Helvetica Neue", "Microsoft YaHei", "Lato";
 
 @floatingShadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);

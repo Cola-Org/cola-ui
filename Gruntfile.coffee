@@ -25,6 +25,7 @@ module.exports = (grunt) ->
 					"dest/dev/widget/edit.js": sources.coffee.edit
 					"dest/dev/widget/collection.js": sources.coffee.collection
 					"dest/dev/widget/list.js": sources.coffee.list
+					"dest/dev/i18n/zh/cola.js": sources.i18n["zh"]
 
 			"cola-core":
 				options:

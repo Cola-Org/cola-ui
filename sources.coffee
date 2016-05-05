@@ -137,6 +137,7 @@ sources =
 			"src/css/pager.less"
 			"src/css/time-line.less"
 			"src/css/panel.less"
+			"src/css/semantic/input-overrides.less"
 		]
 
 	lib:
