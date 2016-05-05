@@ -25,10 +25,23 @@ class cola.Panel extends cola.AbstractContainer
 		$dom = @_$dom
 		collapsed = @isCollapsed()
 		return @ if @fire("beforeCollapsedChange", @, {}) is false
+		initialHeight = @get("height")
+		unless initialHeight
+			currentHeight = $dom.outerHeight()
+			$dom.css("height", "initial")
+			height = $dom.outerHeight()
+			$dom.css("height", currentHeight)
+
 		$dom.toggleClass("collapsed", !collapsed)
-		setTimeout(()=>
-			@fire("collapsedChange", @, {})
-		, 300);
+		headerHeight = $(@_headerContent).outerHeight()
+
+		$dom.transit({
+			duration: 300,
+			height: if collapsed then height or @get("height") else headerHeight
+			complete: ()=>
+				if collapsed and !initialHeight then $dom.css("height", "initial");
+				@fire("collapsedChange", @, {})
+		})
 		return
 
 	isCollapsed: ()->
@@ -65,7 +78,7 @@ class cola.Panel extends cola.AbstractContainer
 	_initDom: (dom)->
 		@_regDefaultTempaltes()
 		super(dom)
-		headerContent = $.xCreate({
+		@_headerContent = headerContent = $.xCreate({
 			tagName: "div"
 			class: "content"
 		})
