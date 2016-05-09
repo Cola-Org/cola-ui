@@ -301,7 +301,7 @@ _extendWidget = (superCls, definition) ->
 					dom.appendChild(templateDom.firstChild)
 		return
 
-	cls::xRender = (template) -> cola.xRender(template, @_widgetModel)
+	cls::xRender = (template, context) -> cola.xRender(template, @_widgetModel, context)
 
 	for prop, def of definition
 		if definition.hasOwnProperty(prop) and typeof def is "function"
