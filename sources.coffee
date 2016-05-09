@@ -61,6 +61,7 @@ sources =
 			"src/widget/edit/dropdown.coffee"
 			"src/widget/edit/date-picker.coffee"
 			"src/widget/edit/form.coffee"
+			"src/widget/edit/textarea.coffee"
 		]
 		layout: [
 			"src/widget/layout/segment.coffee"
@@ -118,6 +119,7 @@ sources =
 			"src/css/table.less"
 			"src/css/input.less"
 			"src/css/dropdown.less"
+			"src/css/date-picker.less"
 			"src/css/iframe.less"
 			"src/css/message-box.less"
 			"src/css/layer.less"
@@ -138,6 +140,7 @@ sources =
 			"src/css/time-line.less"
 			"src/css/panel.less"
 			"src/css/semantic/input-overrides.less"
+			"src/css/textarea.less"
 		]
 
 	lib:

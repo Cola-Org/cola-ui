@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<script src="../../include-all.js"></script>
+	<meta charset="UTF-8"/>
+	<script type="text/javascript">
+		cola(function (model) {
+			function textareaValue(self, arg) {
+				console.log(self.get("value"))
+			}
+			model.set("description", "备注信息……");
+			model.widgetConfig({
+				textarea1: {
+					$type: "textarea",
+					postOnInput: true,
+					focus: textareaValue,
+					blur: textareaValue,
+					keyDown: textareaValue,
+					keyPress: textareaValue,
+					bind: "description"
+				}
+			})
+		});
+	</script>
+</head>
+<body style="padding:20px;">
+<textarea id="textarea1"></textarea>
+
+<div class="ui horizontal divider">Error:className=error</div>
+<textarea c-bind="description" class="error"></textarea>
+
+<div class="ui horizontal divider"> c-widget 定义</div>
+<div c-widget="#textarea1; readOnly:true"></div>
+<div class="ui horizontal divider"> Semantic Form 内部定义</div>
+<div class="ui form">
+	<div class="field">
+		<div>
+			<textarea c-bind="description"></textarea></div>
+	</div>
+</div>
+</body>
+</html>

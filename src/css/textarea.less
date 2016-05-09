@@ -1,0 +1,72 @@
+@import (reference) "global";
+@import (reference) "./semantic/input-variables";
+
+/* Text Area */
+@textAreaResize: vertical;
+@textAreaLineHeight: 1.2857;
+@textAreaMinHeight: 8em;
+@textAreaMaxHeight: 24em;
+@textAreaBackground: @inputBackground;
+@textAreaBorder: @border;
+@textAreaTransition: @transition;
+
+@textAreaFocusBackground: #FFFFFF;
+@textAreaFocusBorderColor: #85B7D9;
+@textAreaFocusColor: rgba(0, 0, 0, 0.95);
+@textAreaFocusBoxShadow: @focusBoxShadow;
+@textAreaFocusBorderRadius: @borderRadius;
+
+@textAreaErrorColor: #9F3A38;
+@textAreaBorderColor: #E0B4B4;
+@textAreaBackgroundColor: #FFF6F6;
+@textAreaErrorFocusColor: rgba(255, 80, 80, 0.7);
+
+.ui.input.textarea {
+	width: 100%;
+}
+
+textarea {
+	margin: 0em;
+	-webkit-appearance: none;
+	tap-highlight-color: rgba(255, 255, 255, 0);
+	padding: 0.78571429em 1em;
+	background: #FFFFFF;
+	border: 1px solid rgba(34, 36, 38, 0.15);
+	outline: none;
+	color: rgba(0, 0, 0, 0.87);
+	border-radius: 0.28571429rem;
+	box-shadow: 0em 0em 0em 0em transparent inset;
+	-webkit-transition: color 0.1s ease, border-color 0.1s ease;
+	transition: color 0.1s ease, border-color 0.1s ease;
+	font-size: 1em;
+	line-height: 1.2857;
+	resize: vertical;
+	vertical-align: top;
+	width: 100%;
+}
+
+textarea:not([rows]) {
+	height: 12em;
+	min-height: 6em;
+	max-height: 24em;
+}
+
+textarea:focus {
+	color: @textAreaFocusColor;
+	border-color: @textAreaFocusBorderColor;
+	border-radius: @textAreaFocusBorderRadius;
+	background: @textAreaFocusBackground;
+	box-shadow: @textAreaFocusBoxShadow;
+	-webkit-appearance: none;
+}
+
+textarea {
+	vertical-align: top;
+}
+
+textarea.error {
+	background: @textAreaBackgroundColor;
+	border-color: @textAreaBorderColor;
+	color: @textAreaErrorColor;
+	box-shadow: @errorBoxShadow;
+}
