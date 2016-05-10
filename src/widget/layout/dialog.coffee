@@ -1,6 +1,6 @@
 class cola.Dialog extends cola.Layer
 	@tagName: "c-dialog"
-	@CLASS_NAME: "dialog transition v-box hidden"
+	@CLASS_NAME: "dialog transition hidden"
 
 	@attributes:
 		context: null
@@ -89,14 +89,20 @@ class cola.Dialog extends cola.Layer
 			$(@_closeBtn).remove()
 
 	_onShow: ()->
-		height = @_dom.offsetHeight
-		actionsDom = @_doms.actions
-		if actionsDom
-			actionsHeight = actionsDom.offsetHeight
-			headerHeight = 0
-			if @_doms.header then headerHeight = @_doms.header.offsetHeight
-			minHeight = height - actionsHeight - headerHeight
-			$(@_doms.content).css("min-height", "#{minHeight}px")
+		if @_doms.content
+			height = @_dom.offsetHeight
+			pHeight = $(window).height()
+			css = "min-height";
+			if height > pHeight
+				height = pHeight
+				css = "height"
+			actionsDom = @_doms.actions
+			if actionsDom
+				actionsHeight = actionsDom.offsetHeight
+				headerHeight = 0
+				if @_doms.header then headerHeight = @_doms.header.offsetHeight
+				minHeight = height - actionsHeight - headerHeight
+				$(@_doms.content).css(css, "#{minHeight}px")
 		super()
 
 	_transition: (options, callback)->
@@ -128,10 +134,7 @@ class cola.Dialog extends cola.Layer
 				@_dom.appendChild(dom)
 		else
 			@_dom.appendChild(dom)
-		flex = if target is "content" then "flex-box" else "box"
-		$fly(dom).addClass(flex)
 		@_doms[target] = dom
-
 		return dom
 
 	_parseDom: (dom)->
@@ -176,11 +179,15 @@ class cola.Dialog extends cola.Layer
 			})
 			if @_dimmerClose
 				$(_dimmerDom).on("click", ()=> @hide())
-			if cola.device.desktop
-				document.body.appendChild(_dimmerDom)
-			else
-				container = @_context or @_dom.parentNode
-				container.appendChild(_dimmerDom)
+
+			container = @_context or @_dom.parentNode
+			if typeof container == "string"
+				if container == "body"
+					container = document.body
+				else if container == "parent"
+					container = @_dom.parentNode
+
+			container.appendChild(_dimmerDom)
 			@_doms.modalLayer = _dimmerDom
 
 		$(_dimmerDom).css({
