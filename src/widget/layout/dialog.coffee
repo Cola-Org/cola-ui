@@ -176,8 +176,13 @@ class cola.Dialog extends cola.Layer
 			})
 			if @_dimmerClose
 				$(_dimmerDom).on("click", ()=> @hide())
-			@_dom.parentNode.appendChild(_dimmerDom)
+			if cola.device.desktop
+				document.body.appendChild(_dimmerDom)
+			else
+				container = @_context or @_dom.parentNode
+				container.appendChild(_dimmerDom)
 			@_doms.modalLayer = _dimmerDom
+
 		$(_dimmerDom).css({
 			opacity: @get("modalOpacity")
 			zIndex: cola.floatWidget.zIndex()
