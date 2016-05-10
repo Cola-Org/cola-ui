@@ -176,11 +176,8 @@ class cola.Dialog extends cola.Layer
 			})
 			if @_dimmerClose
 				$(_dimmerDom).on("click", ()=> @hide())
-			if cola.device.desktop
-				document.body.appendChild(_dimmerDom)
-			else
-				container = @_context or @_dom.parentNode
-				container.appendChild(_dimmerDom)
+			container = @_context or @_dom.parentNode
+			container.appendChild(_dimmerDom)
 			@_doms.modalLayer = _dimmerDom
 
 		$(_dimmerDom).css({
