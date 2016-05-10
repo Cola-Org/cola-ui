@@ -1,5 +1,6 @@
 @import (reference) "../global";
 @import (reference) "input-variables";
+
 .ui.input > .editor {
 	-webkit-appearance: none !important;
 	margin: 0em;
@@ -234,4 +235,22 @@
 
 .ui.fluid.input > .editor {
 	width: 0px !important;
+}
+
+.flex-unsupported {
+	.ui.input {
+		display: -webkit-box !important;
+		display: -moz-box !important;
+		> input {
+			-webkit-box-flex: 1 !important;
+			-moz-box-flex: 1 !important;
+			display: block !important;
+		}
+		> :not(input) {
+			-webkit-box-flex: 0 !important;
+			-moz-box-flex: 0 !important;
+			display: block !important;
+		}
+	}
+
 }

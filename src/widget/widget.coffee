@@ -2,7 +2,8 @@ ACTIVE_PINCH_REG = /^pinch/i
 ACTIVE_ROTATE_REG = /^rotate/i
 PAN_VERTICAL_events = ["panUp", "panDown"]
 SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"]
-
+if typeof document.documentElement.style.flex != "string"
+	$(document.documentElement).addClass("flex-unsupported")
 ###
     ClassName池对象
     用于刷新组件时频繁的编辑class name提高性能

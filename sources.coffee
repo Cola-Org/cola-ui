@@ -140,6 +140,7 @@ sources =
 			"src/css/time-line.less"
 			"src/css/panel.less"
 			"src/css/semantic/input-overrides.less"
+			"src/css/semantic/segment-overrides.less"
 			"src/css/textarea.less"
 		]
 
