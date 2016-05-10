@@ -243,6 +243,7 @@ class cola.Provider extends cola.AjaxService
 			}
 
 		options.data = parameter
+		options.dataType ?= "json"
 		return options
 
 	translateResult: (result, invokerOptions) ->
