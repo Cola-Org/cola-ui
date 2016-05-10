@@ -1,4 +1,3 @@
-
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.Textarea extends cola.AbstractEditor
@@ -7,7 +6,8 @@ class cola.Textarea extends cola.AbstractEditor
 		postOnInput:
 			type: "boolean"
 			defaultValue: false
-
+		placeholder:
+			refreshDom: true
 		value:
 			setter: (value) ->
 				if @_dataType
@@ -105,5 +105,5 @@ class cola.Textarea extends cola.AbstractEditor
 		return unless @_dom
 		super()
 		@_refreshInputValue(@_value)
-		$fly(@_doms.input).prop("readOnly", @_readOnly)
+		$fly(@_doms.input).prop("readOnly", @_readOnly).attr("placeholder", @_placeholder)
 

@@ -440,101 +440,104 @@ do->
 			@_doms ?= {}
 			cDom = $.xCreate({
 				tagName: "div"
-				content: [
-					{
-						tagName: "div"
-						class: "header"
-						contextKey: "header"
-						content: [
-							{
-								tagName: "div"
-								class: "month"
-								content: [
-									{
-										tagName: "span"
-										class: "button prev"
-										contextKey: "prevMonthButton"
-									}
-									{
-										tagName: "span"
-										class: "button next"
-										contextKey: "nextMonthButton"
-									}
-									{
-										tagName: "div"
-										class: "label"
-										contextKey: "monthLabel"
-									}
-								]
-							}
-							{
-								tagName: "div"
-								class: "year"
-								content: [
-									{
-										tagName: "span"
-										class: "button prev"
-										contextKey: "prevYearButton"
-									}
-									{
-										tagName: "span"
-										class: "button next"
-										contextKey: "nextYearButton"
-									}
-									{
-										tagName: "div"
-										class: "label"
-										contextKey: "yearLabel"
-									}
-								]
-							}
-						]
-					}
-					{
-						tagName: "table"
-						cellPadding: 0
-						cellSpacing: 0
-						border: 0
-						class: "date-header"
-						contextKey: "dateHeader"
-						content: [
-							{
-								tagName: "tr"
-								class: "header"
-								content: [
-									{
-										tagName: "td"
-										content: weeks[0]
-									}
-									{
-										tagName: "td"
-										content: weeks[1]
-									}
-									{
-										tagName: "td"
-										content: weeks[2]
-									}
-									{
-										tagName: "td"
-										content: weeks[3]
-									}
-									{
-										tagName: "td"
-										content: weeks[4]
-									}
-									{
-										tagName: "td"
-										content: weeks[5]
-									}
-									{
-										tagName: "td"
-										content: weeks[6]
-									}
-								]
-							}
-						]
-					}
-				]
+				content: {
+					tagName: "div"
+					class: "caption-panel"
+					content: [
+						{
+							tagName: "div"
+							class: "header"
+							contextKey: "header"
+							content: [
+								{
+									tagName: "div"
+									class: "month"
+									content: [
+										{
+											tagName: "span"
+											class: "button prev"
+											contextKey: "prevMonthButton"
+										}
+										{
+											tagName: "span"
+											class: "button next"
+											contextKey: "nextMonthButton"
+										}
+										{
+											tagName: "div"
+											class: "label"
+											contextKey: "monthLabel"
+										}
+									]
+								}
+								{
+									tagName: "div"
+									class: "year"
+									content: [
+										{
+											tagName: "span"
+											class: "button prev"
+											contextKey: "prevYearButton"
+										}
+										{
+											tagName: "span"
+											class: "button next"
+											contextKey: "nextYearButton"
+										}
+										{
+											tagName: "div"
+											class: "label"
+											contextKey: "yearLabel"
+										}
+									]
+								}
+							]
+						}
+						{
+							tagName: "table"
+							cellPadding: 0
+							cellSpacing: 0
+							border: 0
+							class: "date-header"
+							contextKey: "dateHeader"
+							content: [
+								{
+									tagName: "tr"
+									content: [
+										{
+											tagName: "td"
+											content: weeks[0]
+										}
+										{
+											tagName: "td"
+											content: weeks[1]
+										}
+										{
+											tagName: "td"
+											content: weeks[2]
+										}
+										{
+											tagName: "td"
+											content: weeks[3]
+										}
+										{
+											tagName: "td"
+											content: weeks[4]
+										}
+										{
+											tagName: "td"
+											content: weeks[5]
+										}
+										{
+											tagName: "td"
+											content: weeks[6]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
 			}, @_doms)
 
 			picker = cal._datePicker = new cola.calendar.SwipePicker({

@@ -247,7 +247,7 @@ class cola.Pager extends cola.Menu
 		infoItem = pager._pagerItemMap["info"]
 		if infoItem
 			infoItemDom = if infoItem.nodeType is 1 then infoItem else  infoItem.getDom()
-			$(infoItemDom).text("第#{pageNo}页/共#{pageCount}页")
+			$(infoItemDom).text(cola.resource("cola.pager.info", pageNo, pageCount))
 		gotoInput = pager._pagerItemMap["goto"]?.get("control")
 		if gotoInput then cola.widget(gotoInput)?.set("value", pageNo)
 	_onItemsRefresh: ()-> @pagerItemsRefresh()

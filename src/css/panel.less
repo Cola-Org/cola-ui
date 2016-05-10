@@ -107,17 +107,20 @@
 			bottom: 0;
 		}
 	}
+	&.crowded {
+		padding: @panelPadding 0 0 0 !important;
+		> .header {
+			margin-bottom: 0;
+		}
 
+	}
 	&.basic {
 		box-shadow: none;
 		> .header {
 			> .content {
-
 				&:before {
 					border: none;
-
 				}
-
 			}
 		}
 	}
@@ -127,7 +130,6 @@
 				border-left: 2.5px solid @color;
 			}
 		}
-
 	}
 	.mixin_panel_color(red, @red);
 	.mixin_panel_color(orange, @orange);

@@ -41,7 +41,7 @@ class cola.AbstractList extends cola.ItemsView
 	_onItemsWrapperScroll: () ->
 		realItems = @_realItems
 		if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
-			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and  (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
+			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
 				itemsWrapper = @_doms.itemsWrapper
 				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
 					@_loadingNextPage = true
@@ -127,11 +127,11 @@ class cola.AbstractList extends cola.ItemsView
 				})
 			pullComplete: (evt, pullPane, pullState, done) =>
 				if @fire("pullComplete", @, {
-						event: evt
-						pullPane: pullPane
-						direction: pullState
-						done: done
-					}) is false
+					event: evt
+					pullPane: pullPane
+					direction: pullState
+					done: done
+				}) is false
 					return
 
 				if pullState == "down"

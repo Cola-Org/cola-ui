@@ -7,6 +7,179 @@
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
+/*******************************
+         Site Settings
+*******************************/
+/*-------------------
+       Fonts
+--------------------*/
+/*-------------------
+      Base Sizes
+--------------------*/
+/* This is the single variable that controls them all */
+/* The size of page text  */
+/*-------------------
+    Border Radius
+--------------------*/
+/* See Power-user section below
+   for explanation of @px variables
+*/
+/*-------------------
+    Brand Colors
+--------------------*/
+/*--------------
+  Page Heading
+---------------*/
+/*--------------
+   Form Input
+---------------*/
+/* This adjusts the default form input across all elements */
+/* Line Height Default For Inputs in Browser */
+/*-------------------
+        Sizes
+--------------------*/
+/*
+  Sizes are all expressed in terms of 14px/em (default em)
+  This ensures these "ratios" remain constant despite changes in EM
+*/
+/*-------------------
+        Page
+--------------------*/
+/*-------------------
+      Paragraph
+--------------------*/
+/*-------------------
+       Links
+--------------------*/
+/*-------------------
+  Highlighted Text
+--------------------*/
+/*-------------------
+       Loader
+--------------------*/
+/*-------------------
+        Grid
+--------------------*/
+/*-------------------
+     Transitions
+--------------------*/
+/*-------------------
+     Breakpoints
+--------------------*/
+/*-------------------
+      Site Colors
+--------------------*/
+/*---  Colors  ---*/
+/*---  Light Colors  ---*/
+/*---   Neutrals  ---*/
+/*--- Colored Backgrounds ---*/
+/*--- Colored Headers ---*/
+/*--- Colored Text ---*/
+/*-------------------
+     Alpha Colors
+--------------------*/
+/*-------------------
+       Accents
+--------------------*/
+/* Differentiating Neutrals */
+/* Differentiating Layers */
+/*******************************
+           Power-User
+*******************************/
+/*-------------------
+    Emotive Colors
+--------------------*/
+/* Positive */
+/* Negative */
+/* Info */
+/* Warning */
+/*-------------------
+        Paths
+--------------------*/
+/*-------------------
+       Em Sizes
+--------------------*/
+/*
+  This rounds @size values to the closest pixel then expresses that value in (r)em.
+  This ensures all size values round to exact pixels
+*/
+/* em */
+/* rem */
+/*-------------------
+  Exact Pixel Values
+--------------------*/
+/*
+  These are used to specify exact pixel values in em
+  for things like borders that remain constantly
+  sized as emSize adjusts
+
+  Since there are many more sizes than names for sizes,
+  these are named by their original pixel values.
+
+*/
+/*-------------------
+       Icons
+--------------------*/
+/* Maximum Glyph Width of Icon */
+/*-------------------
+     Neutral Text
+--------------------*/
+/*-------------------
+     Brand Colors
+--------------------*/
+/*-------------------
+      Borders
+--------------------*/
+/*-------------------
+    Derived Values
+--------------------*/
+/* Loaders Position Offset */
+/* Rendered Scrollbar Width */
+/* Maximum Single Character Glyph Width, aka Capital "W" */
+/* Used to match floats with text */
+/* Header Spacing */
+/* Minimum Mobile Width */
+/* Positive / Negative Dupes */
+/* Responsive */
+/* Columns */
+/*******************************
+             States
+*******************************/
+/*-------------------
+      Disabled
+--------------------*/
+/*-------------------
+        Hover
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Focus
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+    Down (:active)
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Active
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
 
 template {
   display: none;
@@ -3208,193 +3381,6 @@ textarea:not([rows]) {
   color: #ffffff;
 }
 
-.ui.input > .editor {
-  -webkit-appearance: none !important;
-  margin: 0em;
-  max-width: 100%;
-  flex: 1 0 auto;
-  outline: none;
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-  text-align: left;
-  line-height: 1.2142em;
-  font-family: "Roboto", "Helvetica Neue", "Microsoft YaHei", "Lato", 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  padding: 0.67861429em 1em;
-  background: #ffffff;
-  border: 1px solid rgba(34, 36, 38, 0.15);
-  color: rgba(0, 0, 0, 0.87);
-  border-radius: 0.28571429rem;
-  transition: background-color 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
-  box-shadow: none;
-}
-/*--------------------
-      Placeholder
----------------------*/
-/* browsers require these rules separate */
-.ui.input > .editor::-webkit-input-placeholder {
-  color: rgba(0, 0, 0, 0.4);
-}
-.ui.input > .editor::-moz-placeholder {
-  color: rgba(0, 0, 0, 0.4);
-}
-.ui.input > .editor::-ms-input-placeholder {
-  color: rgba(0, 0, 0, 0.4);
-}
-/*******************************
-            States
-*******************************/
-/*--------------------
-        Active
----------------------*/
-.ui.input > .editor:active,
-.ui.input.down > .editor {
-  border-color: rgba(0, 0, 0, 0.3);
-  background: #fafafa;
-  color: rgba(0, 0, 0, 0.87);
-  box-shadow: none;
-}
-.ui.input.focus > .editor,
-.ui.input > .editor:focus {
-  border-color: rgba(34, 36, 38, 0.35);
-  background: #ffffff;
-  color: rgba(0, 0, 0, 0.8);
-  box-shadow: none;
-}
-.ui.input.focus > .editor::-webkit-input-placeholder,
-.ui.input > .editor:focus > .editor::-webkit-input-placeholder {
-  color: rgba(0, 0, 0, 0.87);
-}
-.ui.input.focus > .editor::-moz-placeholder,
-.ui.input > .editor:focus > .editor::-moz-placeholder {
-  color: rgba(0, 0, 0, 0.87);
-}
-.ui.input.focus > .editor::-ms-input-placeholder,
-.ui.input > .editor:focus > .editor::-ms-input-placeholder {
-  color: rgba(0, 0, 0, 0.87);
-}
-/*--------------------
-        Error
----------------------*/
-.ui.input.error > .editor {
-  background-color: #fff6f6;
-  border-color: #e0b4b4;
-  color: #db2828;
-  box-shadow: none;
-}
-/* Error Placeholder */
-.ui.input.error > .editor ::-webkit-input-placeholder {
-  color: rgba(255, 80, 80, 0.4);
-}
-.ui.input.error > .editor ::-moz-placeholder {
-  color: rgba(255, 80, 80, 0.4);
-}
-.ui.input.error > .editor ::-ms-input-placeholder {
-  color: rgba(255, 80, 80, 0.4);
-}
-/* Focused Error Placeholder */
-.ui.input.error > .editor :focus::-webkit-input-placeholder {
-  color: rgba(255, 80, 80, 0.7);
-}
-.ui.input.error > .editor :focus::-moz-placeholder {
-  color: rgba(255, 80, 80, 0.7);
-}
-.ui.input.error > .editor :focus::-ms-input-placeholder {
-  color: rgba(255, 80, 80, 0.7);
-}
-/*******************************
-           Variations
-*******************************/
-/*--------------------
-      Transparent
----------------------*/
-.ui.transparent.input > .editor {
-  border-color: transparent !important;
-  background-color: transparent !important;
-  padding: 0em !important;
-  box-shadow: none !important;
-}
-.ui.transparent.icon.input > .editor {
-  padding-left: 0em !important;
-  padding-right: 2em !important;
-}
-.ui.transparent[class*="left icon"].input > .editor {
-  padding-left: 2em !important;
-  padding-right: 0em !important;
-}
-.ui.transparent.inverted.input > .editor {
-  color: inherit;
-}
-.ui.transparent.inverted.input > .editor::-webkit-input-placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-.ui.transparent.inverted.input > .editor::-moz-placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-.ui.transparent.inverted.input > .editor::-ms-input-placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-.ui.icon.input > .editor {
-  padding-right: 2.67142857em !important;
-}
-.ui[class*="left icon"].input > .editor {
-  padding-left: 2.67142857em !important;
-  padding-right: 1em !important;
-}
-/* Focus */
-.ui.icon.input > .editor:focus ~ i.icon {
-  opacity: 1;
-}
-/* Regular Label on Left */
-.ui.labeled.input:not([class*="corner labeled"]):not([class*="right labeled"]) > .editor {
-  border-left: none;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-}
-.ui[class*="right labeled"].input > .editor {
-  border-right: none;
-  border-top-right-radius: 0px !important;
-  border-bottom-right-radius: 0px !important;
-}
-/* Spacing with corner label */
-.ui[class*="corner labeled"]:not(.left).labeled.input > .editor {
-  padding-right: 2.5em !important;
-}
-.ui[class*="corner labeled"].icon.input:not(.left) > .editor {
-  padding-right: 3.25em !important;
-}
-/* Left Labeled */
-.ui[class*="corner labeled"].left.labeled.input > .editor {
-  padding-left: 2.5em !important;
-}
-.ui[class*="corner labeled"].icon.input.left > .editor {
-  padding-left: 3.25em !important;
-}
-/* Button on Right */
-.ui.action.input:not([class*="left action"]) > .editor {
-  border-right: none;
-  border-top-right-radius: 0px !important;
-  border-bottom-right-radius: 0px !important;
-}
-.ui[class*="left action"].input > .editor {
-  border-left: none;
-  border-top-left-radius: 0px !important;
-  border-bottom-left-radius: 0px !important;
-}
-/*--------------------
-       Inverted
----------------------*/
-/* Standard */
-.ui.inverted.input > .editor {
-  border: none;
-}
-/*--------------------
-        Fluid
----------------------*/
-.ui.fluid.input {
-  display: flex;
-}
-.ui.fluid.input > .editor {
-  width: 0px !important;
-}
 
 .ui.input.select > .editor.placeholder:not(:focus) {
   color: #999999;
@@ -3464,6 +3450,13 @@ textarea:not([rows]) {
   border-radius: 0.28571429rem;
   border-top-width: 1px;
   border-bottom-width: 1px;
+}
+
+.ui.date.input > input {
+  font-family: Arial, sans-serif;
+}
+.ui.date.input i.calendar.icon {
+  cursor: pointer !important;
 }
 
 .ui.sub-view {
@@ -4980,13 +4973,14 @@ textarea:not([rows]) {
 .calendar {
   overflow: hidden;
   position: relative;
+  font-family: Arial, sans-serif;
 }
 .calendar table {
   width: 100%;
 }
 .calendar .header {
   height: 2.25em;
-  padding: 0.25em 2.5em;
+  padding: 0.25em 1.2em;
 }
 .calendar .header .button {
   display: inline-block;
@@ -5031,6 +5025,11 @@ textarea:not([rows]) {
 }
 .calendar .date-header td {
   text-align: center;
+  transform: scale(0.9);
+  color: rgba(0, 0, 0, 0.5);
+}
+.calendar .date-header .header {
+  padding: 0;
 }
 .calendar .popup-wrapper {
   position: absolute;
@@ -5091,118 +5090,9 @@ textarea:not([rows]) {
   cursor: pointer;
 }
 .calendar .date-table-wrapper .date-table td.selected div.label {
-  padding: 0;
   background: #00b5ad;
   color: #FFF;
   border-radius: 50%;
-}
-.calendar.red .header .button {
-  color: #db2828;
-}
-.calendar.red .date-header {
-  border-bottom: 1px solid #db2828;
-}
-.calendar.red .date-table-wrapper .date-table td.selected div.label {
-  background: #db2828;
-}
-.calendar.orange .header .button {
-  color: #f2711c;
-}
-.calendar.orange .date-header {
-  border-bottom: 1px solid #f2711c;
-}
-.calendar.orange .date-table-wrapper .date-table td.selected div.label {
-  background: #f2711c;
-}
-.calendar.yellow .header .button {
-  color: #fbbd08;
-}
-.calendar.yellow .date-header {
-  border-bottom: 1px solid #fbbd08;
-}
-.calendar.yellow .date-table-wrapper .date-table td.selected div.label {
-  background: #fbbd08;
-}
-.calendar.olive .header .button {
-  color: #b5cc18;
-}
-.calendar.olive .date-header {
-  border-bottom: 1px solid #b5cc18;
-}
-.calendar.olive .date-table-wrapper .date-table td.selected div.label {
-  background: #b5cc18;
-}
-.calendar.green .header .button {
-  color: #21ba45;
-}
-.calendar.green .date-header {
-  border-bottom: 1px solid #21ba45;
-}
-.calendar.green .date-table-wrapper .date-table td.selected div.label {
-  background: #21ba45;
-}
-.calendar.teal .header .button {
-  color: #00b5ad;
-}
-.calendar.teal .date-header {
-  border-bottom: 1px solid #00b5ad;
-}
-.calendar.teal .date-table-wrapper .date-table td.selected div.label {
-  background: #00b5ad;
-}
-.calendar.blue .header .button {
-  color: #2185d0;
-}
-.calendar.blue .date-header {
-  border-bottom: 1px solid #2185d0;
-}
-.calendar.blue .date-table-wrapper .date-table td.selected div.label {
-  background: #2185d0;
-}
-.calendar.violet .header .button {
-  color: #6435c9;
-}
-.calendar.violet .date-header {
-  border-bottom: 1px solid #6435c9;
-}
-.calendar.violet .date-table-wrapper .date-table td.selected div.label {
-  background: #6435c9;
-}
-.calendar.purple .header .button {
-  color: #a333c8;
-}
-.calendar.purple .date-header {
-  border-bottom: 1px solid #a333c8;
-}
-.calendar.purple .date-table-wrapper .date-table td.selected div.label {
-  background: #a333c8;
-}
-.calendar.pink .header .button {
-  color: #ff4081;
-}
-.calendar.pink .date-header {
-  border-bottom: 1px solid #ff4081;
-}
-.calendar.pink .date-table-wrapper .date-table td.selected div.label {
-  background: #ff4081;
-}
-.calendar.brown .header .button {
-  color: #a5673f;
-}
-.calendar.brown .date-header {
-  border-bottom: 1px solid #a5673f;
-}
-.calendar.brown .date-table-wrapper .date-table td.selected div.label {
-  background: #a5673f;
-}
-.calendar.grey .header .button {
-  color: #767676;
-}
-.calendar.grey .date-header {
-  border-bottom: 1px solid #767676;
-}
-.calendar.grey .date-table-wrapper .date-table td.selected div.label {
-  background: #767676;
 }
 .calendar.inverted {
   background-color: #1b1c1d;
@@ -5225,77 +5115,51 @@ textarea:not([rows]) {
   background: #fff;
   color: #1b1c1d;
 }
-.calendar.inverted.red {
-  background-color: #db2828;
+.calendar.material .header {
+  height: 1.75em;
 }
-.calendar.inverted.red .date-table-wrapper .date-table td.selected div.label {
-  color: #db2828;
+.calendar.material .header .button {
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  font-size: 1em;
 }
-.calendar.inverted.orange {
-  background-color: #f2711c;
+.calendar.material .header .label {
+  margin: 0 1.5em;
+  line-height: 1.5em;
+  font-size: 1em;
 }
-.calendar.inverted.orange .date-table-wrapper .date-table td.selected div.label {
-  color: #f2711c;
+.calendar.material .date-header td {
+  transform: scale(0.8);
+  color: rgba(0, 0, 0, 0.5);
 }
-.calendar.inverted.yellow {
-  background-color: #fbbd08;
+.calendar.material .caption-panel {
+  background-color: #fbfbfb;
 }
-.calendar.inverted.yellow .date-table-wrapper .date-table td.selected div.label {
-  color: #fbbd08;
+.calendar.material .date-table-wrapper {
+  position: relative;
+  min-width: 100px;
 }
-.calendar.inverted.olive {
-  background-color: #b5cc18;
+.calendar.material .date-table-wrapper .date-table {
+  height: auto;
 }
-.calendar.inverted.olive .date-table-wrapper .date-table td.selected div.label {
-  color: #b5cc18;
+.calendar.material .date-table-wrapper .date-table > tbody > tr > td:last-child,
+.calendar.material .date-table-wrapper .date-table > tbody > tr > td:first-child {
+  background: rgba(0, 181, 173, 0.1);
 }
-.calendar.inverted.green {
-  background-color: #21ba45;
+.calendar.material .date-table-wrapper .date-table td {
+  text-align: center;
+  padding: 0.2em 0;
 }
-.calendar.inverted.green .date-table-wrapper .date-table td.selected div.label {
-  color: #21ba45;
+.calendar.material .date-table-wrapper .date-table td div.label {
+  border-radius: 1px;
 }
-.calendar.inverted.teal {
-  background-color: #00b5ad;
+.calendar.material .date-table-wrapper .date-table td.selected div.label {
+  background: #00b5ad;
 }
-.calendar.inverted.teal .date-table-wrapper .date-table td.selected div.label {
-  color: #00b5ad;
-}
-.calendar.inverted.blue {
-  background-color: #2185d0;
-}
-.calendar.inverted.blue .date-table-wrapper .date-table td.selected div.label {
-  color: #2185d0;
-}
-.calendar.inverted.violet {
-  background-color: #6435c9;
-}
-.calendar.inverted.violet .date-table-wrapper .date-table td.selected div.label {
-  color: #6435c9;
-}
-.calendar.inverted.purple {
-  background-color: #a333c8;
-}
-.calendar.inverted.purple .date-table-wrapper .date-table td.selected div.label {
-  color: #a333c8;
-}
-.calendar.inverted.pink {
-  background-color: #ff4081;
-}
-.calendar.inverted.pink .date-table-wrapper .date-table td.selected div.label {
-  color: #ff4081;
-}
-.calendar.inverted.brown {
-  background-color: #a5673f;
-}
-.calendar.inverted.brown .date-table-wrapper .date-table td.selected div.label {
-  color: #a5673f;
-}
-.calendar.inverted.grey {
-  background-color: #767676;
-}
-.calendar.inverted.grey .date-table-wrapper .date-table td.selected div.label {
-  color: #767676;
+.calendar.material .date-table-wrapper .date-table td:hover:not(.selected) div.label {
+  color: #fff;
+  background: rgba(0, 181, 173, 0.5);
 }
 .ui.drop-box.drop-container > .ui.calendar {
   font-size: 0.9em;
@@ -5316,6 +5180,7 @@ textarea:not([rows]) {
   font-size: 1em;
 }
 .ui.drop-box.drop-container > .ui.calendar .date-header td {
+  transform: scale(0.8);
   color: rgba(0, 0, 0, 0.5);
 }
 .ui.drop-box.drop-container > .ui.calendar .date-table-wrapper {
@@ -5326,9 +5191,23 @@ textarea:not([rows]) {
 .ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table {
   height: auto;
 }
+.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table > tbody > tr > td:last-child,
+.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table > tbody > tr > td:first-child {
+  background: rgba(0, 181, 173, 0.1);
+}
 .ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td {
   text-align: center;
   padding: 0.2em 0;
+}
+.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td div.label {
+  border-radius: 1px;
+}
+.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td.selected div.label {
+  background: #00b5ad;
+}
+.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td:hover:not(.selected) div.label {
+  color: #fff;
+  background: rgba(0, 181, 173, 0.5);
 }
 
 .ui.stack {
@@ -5387,6 +5266,179 @@ html.ios body {
   color: rgba(40, 40, 40, 0.3);
 }
 
+/*******************************
+         Site Settings
+*******************************/
+/*-------------------
+       Fonts
+--------------------*/
+/*-------------------
+      Base Sizes
+--------------------*/
+/* This is the single variable that controls them all */
+/* The size of page text  */
+/*-------------------
+    Border Radius
+--------------------*/
+/* See Power-user section below
+   for explanation of @px variables
+*/
+/*-------------------
+    Brand Colors
+--------------------*/
+/*--------------
+  Page Heading
+---------------*/
+/*--------------
+   Form Input
+---------------*/
+/* This adjusts the default form input across all elements */
+/* Line Height Default For Inputs in Browser */
+/*-------------------
+        Sizes
+--------------------*/
+/*
+  Sizes are all expressed in terms of 14px/em (default em)
+  This ensures these "ratios" remain constant despite changes in EM
+*/
+/*-------------------
+        Page
+--------------------*/
+/*-------------------
+      Paragraph
+--------------------*/
+/*-------------------
+       Links
+--------------------*/
+/*-------------------
+  Highlighted Text
+--------------------*/
+/*-------------------
+       Loader
+--------------------*/
+/*-------------------
+        Grid
+--------------------*/
+/*-------------------
+     Transitions
+--------------------*/
+/*-------------------
+     Breakpoints
+--------------------*/
+/*-------------------
+      Site Colors
+--------------------*/
+/*---  Colors  ---*/
+/*---  Light Colors  ---*/
+/*---   Neutrals  ---*/
+/*--- Colored Backgrounds ---*/
+/*--- Colored Headers ---*/
+/*--- Colored Text ---*/
+/*-------------------
+     Alpha Colors
+--------------------*/
+/*-------------------
+       Accents
+--------------------*/
+/* Differentiating Neutrals */
+/* Differentiating Layers */
+/*******************************
+           Power-User
+*******************************/
+/*-------------------
+    Emotive Colors
+--------------------*/
+/* Positive */
+/* Negative */
+/* Info */
+/* Warning */
+/*-------------------
+        Paths
+--------------------*/
+/*-------------------
+       Em Sizes
+--------------------*/
+/*
+  This rounds @size values to the closest pixel then expresses that value in (r)em.
+  This ensures all size values round to exact pixels
+*/
+/* em */
+/* rem */
+/*-------------------
+  Exact Pixel Values
+--------------------*/
+/*
+  These are used to specify exact pixel values in em
+  for things like borders that remain constantly
+  sized as emSize adjusts
+
+  Since there are many more sizes than names for sizes,
+  these are named by their original pixel values.
+
+*/
+/*-------------------
+       Icons
+--------------------*/
+/* Maximum Glyph Width of Icon */
+/*-------------------
+     Neutral Text
+--------------------*/
+/*-------------------
+     Brand Colors
+--------------------*/
+/*-------------------
+      Borders
+--------------------*/
+/*-------------------
+    Derived Values
+--------------------*/
+/* Loaders Position Offset */
+/* Rendered Scrollbar Width */
+/* Maximum Single Character Glyph Width, aka Capital "W" */
+/* Used to match floats with text */
+/* Header Spacing */
+/* Minimum Mobile Width */
+/* Positive / Negative Dupes */
+/* Responsive */
+/* Columns */
+/*******************************
+             States
+*******************************/
+/*-------------------
+      Disabled
+--------------------*/
+/*-------------------
+        Hover
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Focus
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+    Down (:active)
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Active
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
 @-webkit-keyframes breathe {
   0% {
     opacity: .5;
@@ -5845,6 +5897,179 @@ html.ios body {
   border-color: #7e7e7e;
 }
 
+/*******************************
+         Site Settings
+*******************************/
+/*-------------------
+       Fonts
+--------------------*/
+/*-------------------
+      Base Sizes
+--------------------*/
+/* This is the single variable that controls them all */
+/* The size of page text  */
+/*-------------------
+    Border Radius
+--------------------*/
+/* See Power-user section below
+   for explanation of @px variables
+*/
+/*-------------------
+    Brand Colors
+--------------------*/
+/*--------------
+  Page Heading
+---------------*/
+/*--------------
+   Form Input
+---------------*/
+/* This adjusts the default form input across all elements */
+/* Line Height Default For Inputs in Browser */
+/*-------------------
+        Sizes
+--------------------*/
+/*
+  Sizes are all expressed in terms of 14px/em (default em)
+  This ensures these "ratios" remain constant despite changes in EM
+*/
+/*-------------------
+        Page
+--------------------*/
+/*-------------------
+      Paragraph
+--------------------*/
+/*-------------------
+       Links
+--------------------*/
+/*-------------------
+  Highlighted Text
+--------------------*/
+/*-------------------
+       Loader
+--------------------*/
+/*-------------------
+        Grid
+--------------------*/
+/*-------------------
+     Transitions
+--------------------*/
+/*-------------------
+     Breakpoints
+--------------------*/
+/*-------------------
+      Site Colors
+--------------------*/
+/*---  Colors  ---*/
+/*---  Light Colors  ---*/
+/*---   Neutrals  ---*/
+/*--- Colored Backgrounds ---*/
+/*--- Colored Headers ---*/
+/*--- Colored Text ---*/
+/*-------------------
+     Alpha Colors
+--------------------*/
+/*-------------------
+       Accents
+--------------------*/
+/* Differentiating Neutrals */
+/* Differentiating Layers */
+/*******************************
+           Power-User
+*******************************/
+/*-------------------
+    Emotive Colors
+--------------------*/
+/* Positive */
+/* Negative */
+/* Info */
+/* Warning */
+/*-------------------
+        Paths
+--------------------*/
+/*-------------------
+       Em Sizes
+--------------------*/
+/*
+  This rounds @size values to the closest pixel then expresses that value in (r)em.
+  This ensures all size values round to exact pixels
+*/
+/* em */
+/* rem */
+/*-------------------
+  Exact Pixel Values
+--------------------*/
+/*
+  These are used to specify exact pixel values in em
+  for things like borders that remain constantly
+  sized as emSize adjusts
+
+  Since there are many more sizes than names for sizes,
+  these are named by their original pixel values.
+
+*/
+/*-------------------
+       Icons
+--------------------*/
+/* Maximum Glyph Width of Icon */
+/*-------------------
+     Neutral Text
+--------------------*/
+/*-------------------
+     Brand Colors
+--------------------*/
+/*-------------------
+      Borders
+--------------------*/
+/*-------------------
+    Derived Values
+--------------------*/
+/* Loaders Position Offset */
+/* Rendered Scrollbar Width */
+/* Maximum Single Character Glyph Width, aka Capital "W" */
+/* Used to match floats with text */
+/* Header Spacing */
+/* Minimum Mobile Width */
+/* Positive / Negative Dupes */
+/* Responsive */
+/* Columns */
+/*******************************
+             States
+*******************************/
+/*-------------------
+      Disabled
+--------------------*/
+/*-------------------
+        Hover
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Focus
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+    Down (:active)
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Active
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
 .ui.panel {
   box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
   padding: 0.6em;
@@ -5981,4 +6206,192 @@ html.ios body {
 }
 .ui.panel.grey > .header {
   border-left: 2.5px solid #767676;
+}
+
+.ui.input > .editor {
+  -webkit-appearance: none !important;
+  margin: 0em;
+  max-width: 100%;
+  flex: 1 0 auto;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  text-align: left;
+  line-height: 1.2142em;
+  font-family: 'Open Sans', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  padding: 0.67861429em 1em;
+  background: #ffffff;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 0.28571429rem;
+  transition: background-color 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  box-shadow: none;
+}
+/*--------------------
+      Placeholder
+---------------------*/
+/* browsers require these rules separate */
+.ui.input > .editor::-webkit-input-placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+.ui.input > .editor::-moz-placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+.ui.input > .editor::-ms-input-placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+/*******************************
+            States
+*******************************/
+/*--------------------
+        Active
+---------------------*/
+.ui.input > .editor:active,
+.ui.input.down > .editor {
+  border-color: rgba(0, 0, 0, 0.3);
+  background: #fafafa;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: none;
+}
+.ui.input.focus > .editor,
+.ui.input > .editor:focus {
+  border-color: rgba(34, 36, 38, 0.35);
+  background: #ffffff;
+  color: rgba(0, 0, 0, 0.8);
+  box-shadow: none;
+}
+.ui.input.focus > .editor::-webkit-input-placeholder,
+.ui.input > .editor:focus > .editor::-webkit-input-placeholder {
+  color: rgba(0, 0, 0, 0.87);
+}
+.ui.input.focus > .editor::-moz-placeholder,
+.ui.input > .editor:focus > .editor::-moz-placeholder {
+  color: rgba(0, 0, 0, 0.87);
+}
+.ui.input.focus > .editor::-ms-input-placeholder,
+.ui.input > .editor:focus > .editor::-ms-input-placeholder {
+  color: rgba(0, 0, 0, 0.87);
+}
+/*--------------------
+        Error
+---------------------*/
+.ui.input.error > .editor {
+  background-color: #fff6f6;
+  border-color: #e0b4b4;
+  color: #db2828;
+  box-shadow: none;
+}
+/* Error Placeholder */
+.ui.input.error > .editor ::-webkit-input-placeholder {
+  color: rgba(255, 80, 80, 0.4);
+}
+.ui.input.error > .editor ::-moz-placeholder {
+  color: rgba(255, 80, 80, 0.4);
+}
+.ui.input.error > .editor ::-ms-input-placeholder {
+  color: rgba(255, 80, 80, 0.4);
+}
+/* Focused Error Placeholder */
+.ui.input.error > .editor :focus::-webkit-input-placeholder {
+  color: rgba(255, 80, 80, 0.7);
+}
+.ui.input.error > .editor :focus::-moz-placeholder {
+  color: rgba(255, 80, 80, 0.7);
+}
+.ui.input.error > .editor :focus::-ms-input-placeholder {
+  color: rgba(255, 80, 80, 0.7);
+}
+/*******************************
+           Variations
+*******************************/
+/*--------------------
+      Transparent
+---------------------*/
+.ui.transparent.input > .editor {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  padding: 0em !important;
+  box-shadow: none !important;
+}
+.ui.transparent.icon.input > .editor {
+  padding-left: 0em !important;
+  padding-right: 2em !important;
+}
+.ui.transparent[class*="left icon"].input > .editor {
+  padding-left: 2em !important;
+  padding-right: 0em !important;
+}
+.ui.transparent.inverted.input > .editor {
+  color: inherit;
+}
+.ui.transparent.inverted.input > .editor::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.ui.transparent.inverted.input > .editor::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.ui.transparent.inverted.input > .editor::-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.ui.icon.input > .editor {
+  padding-right: 2.67142857em !important;
+}
+.ui[class*="left icon"].input > .editor {
+  padding-left: 2.67142857em !important;
+  padding-right: 1em !important;
+}
+/* Focus */
+.ui.icon.input > .editor:focus ~ i.icon {
+  opacity: 1;
+}
+/* Regular Label on Left */
+.ui.labeled.input:not([class*="corner labeled"]):not([class*="right labeled"]) > .editor {
+  border-left: none;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.ui[class*="right labeled"].input > .editor {
+  border-right: none;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+/* Spacing with corner label */
+.ui[class*="corner labeled"]:not(.left).labeled.input > .editor {
+  padding-right: 2.5em !important;
+}
+.ui[class*="corner labeled"].icon.input:not(.left) > .editor {
+  padding-right: 3.25em !important;
+}
+/* Left Labeled */
+.ui[class*="corner labeled"].left.labeled.input > .editor {
+  padding-left: 2.5em !important;
+}
+.ui[class*="corner labeled"].icon.input.left > .editor {
+  padding-left: 3.25em !important;
+}
+/* Button on Right */
+.ui.action.input:not([class*="left action"]) > .editor {
+  border-right: none;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+.ui[class*="left action"].input > .editor {
+  border-left: none;
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+/*--------------------
+       Inverted
+---------------------*/
+/* Standard */
+.ui.inverted.input > .editor {
+  border: none;
+}
+/*--------------------
+        Fluid
+---------------------*/
+.ui.fluid.input {
+  display: flex;
+}
+.ui.fluid.input > .editor {
+  width: 0px !important;
 }

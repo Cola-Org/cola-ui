@@ -20,4 +20,6 @@ cola.resource(
 
 	"cola.message.approve": "Ok"
 	"cola.message.deny": "Cancel"
+
+	"cola.pager.info": "Page:{0}\/{1}"
 )

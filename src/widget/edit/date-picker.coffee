@@ -28,6 +28,7 @@ class cola.DateGrid extends cola.RenderableElement
 		weeks = allWeeks.split(",")
 		headerDom = $.xCreate({
 			tagName: "div"
+			class:"caption-panel",
 			content: [
 				{
 					tagName: "div"
@@ -97,7 +98,6 @@ class cola.DateGrid extends cola.RenderableElement
 					content: [
 						{
 							tagName: "tr"
-							class: "header"
 							content: [
 								{
 									tagName: "td"
@@ -360,6 +360,7 @@ DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 class cola.DatePicker extends cola.CustomDropdown
 	@tagName: "c-datepicker"
+	@CLASS_NAME:"date input drop"
 	@attributes:
 		displayFormat:
 			defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
