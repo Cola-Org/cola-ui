@@ -510,31 +510,6 @@ template {
   color: #db2828;
   transform: scale(0.5);
 }
-/* Text Area */
-textarea {
-  margin: 0em;
-  -webkit-appearance: none;
-  tap-highlight-color: rgba(255, 255, 255, 0);
-  padding: 0.78571429em 1em;
-  background: #FFFFFF;
-  border: 1px solid rgba(34, 36, 38, 0.15);
-  outline: none;
-  color: rgba(0, 0, 0, 0.87);
-  border-radius: 0.28571429rem;
-  box-shadow: 0em 0em 0em 0em transparent inset;
-  -webkit-transition: color 0.1s ease, border-color 0.1s ease;
-  transition: color 0.1s ease, border-color 0.1s ease;
-  font-size: 1em;
-  line-height: 1.2857;
-  resize: vertical;
-  vertical-align: top;
-  width: 100%;
-}
-textarea:not([rows]) {
-  height: 12em;
-  min-height: 8em;
-  max-height: 24em;
-}
 
 [class*="block-grid-"] {
   display: block;
@@ -3950,6 +3925,7 @@ textarea:not([rows]) {
   font-size: 1em;
   line-height: 1.4;
   padding: 1.5rem;
+  overflow: auto;
   background: #ffffff;
 }
 .ui.dialog > .image.content {
@@ -5116,18 +5092,18 @@ textarea:not([rows]) {
   color: #1b1c1d;
 }
 .calendar.material .header {
-  height: 1.75em;
+  padding: 0.25em 0.5em;
 }
 .calendar.material .header .button {
   width: 1.5em;
   height: 1.5em;
   line-height: 1.5em;
-  font-size: 1em;
+  font-size: 1.15em;
 }
 .calendar.material .header .label {
   margin: 0 1.5em;
   line-height: 1.5em;
-  font-size: 1em;
+  font-size: 1.15em;
 }
 .calendar.material .date-header td {
   transform: scale(0.8);
@@ -6165,6 +6141,12 @@ html.ios body {
   border: 1px solid #d8d8dc;
   bottom: 0;
 }
+.ui.panel.crowded {
+  padding: 0.6em 0 0 0 !important;
+}
+.ui.panel.crowded > .header {
+  margin-bottom: 0;
+}
 .ui.panel.basic {
   box-shadow: none;
 }
@@ -6394,4 +6376,68 @@ html.ios body {
 }
 .ui.fluid.input > .editor {
   width: 0px !important;
+}
+.flex-unsupported .ui.input {
+  display: -webkit-box !important;
+  display: -moz-box !important;
+}
+.flex-unsupported .ui.input > input {
+  -webkit-box-flex: 1 !important;
+  -moz-box-flex: 1 !important;
+  display: block !important;
+}
+.flex-unsupported .ui.input > :not(input) {
+  -webkit-box-flex: 0 !important;
+  -moz-box-flex: 0 !important;
+  display: block !important;
+}
+
+.ui.segment.crowded {
+  padding: 0 !important;
+}
+
+/* Text Area */
+.ui.input.textarea {
+  width: 100%;
+}
+textarea {
+  margin: 0em;
+  -webkit-appearance: none;
+  tap-highlight-color: rgba(255, 255, 255, 0);
+  padding: 0.78571429em 1em;
+  background: #FFFFFF;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  outline: none;
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 0.28571429rem;
+  box-shadow: 0em 0em 0em 0em transparent inset;
+  -webkit-transition: color 0.1s ease, border-color 0.1s ease;
+  transition: color 0.1s ease, border-color 0.1s ease;
+  font-size: 1em;
+  line-height: 1.2857;
+  resize: vertical;
+  vertical-align: top;
+  width: 100%;
+}
+textarea:not([rows]) {
+  height: 12em;
+  min-height: 6em;
+  max-height: 24em;
+}
+textarea:focus {
+  color: rgba(0, 0, 0, 0.95);
+  border-color: #85b7d9;
+  border-radius: 0.28571429rem;
+  background: #ffffff;
+  box-shadow: none;
+  -webkit-appearance: none;
+}
+textarea {
+  vertical-align: top;
+}
+textarea.error {
+  background: #fff6f6;
+  border-color: #e0b4b4;
+  color: #9f3a38;
+  box-shadow: none;
 }

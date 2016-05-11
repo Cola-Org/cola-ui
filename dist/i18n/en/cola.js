@@ -17,7 +17,8 @@
     "cola.messageBox.error.title": "Error",
     "cola.messageBox.question.title": "Confirm",
     "cola.message.approve": "Ok",
-    "cola.message.deny": "Cancel"
+    "cola.message.deny": "Cancel",
+    "cola.pager.info": "Page:{0}\/{1}"
   });
 
 }).call(this);

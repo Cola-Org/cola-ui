@@ -61,6 +61,7 @@ class cola.Tree extends cola.AbstractList
 				if bind
 					@_itemsScope.setExpression(bind._expression)
 				return
+
 		currentNode:
 			readOnly: true
 		currentItemAlias:
@@ -112,7 +113,6 @@ class cola.Tree extends cola.AbstractList
 		"node":
 			tagName: "span"
 			"c-bind": "$default"
-
 	_initDom: (dom) ->
 		super(dom)
 		$fly(@_doms.itemsWrapper)
@@ -142,6 +142,11 @@ class cola.Tree extends cola.AbstractList
 			@_bind.retrieveChildNodes(@_rootNode)
 			itemsScope._retrieveItems = (dataCtx) => @_bind.retrieveChildNodes(@_rootNode, null, dataCtx)
 		return
+
+	_setCurrentItemDom: (currentItemDom)->
+		return unless currentItemDom
+		node = cola.util.userData(currentItemDom, "item")
+		if node then @_setCurrentNode(node)
 
 	_setCurrentNode: (node) ->
 		return if @_currentNode == node
@@ -299,6 +304,8 @@ class cola.Tree extends cola.AbstractList
 		@_setCurrentNode(node)
 		return super(evt)
 
+
+
 	_expandButtonClick: (evt)->
 		buttonDom = evt.currentTarget
 		return unless buttonDom
@@ -313,6 +320,13 @@ class cola.Tree extends cola.AbstractList
 
 		evt.stopPropagation()
 		return false
+
+	findNode: (entity)->
+		itemId = cola.Entity._getEntityId(entity)
+		return unless itemId
+
+		itemDom = @_itemDomMap[itemId]
+		return cola.util.userData(itemDom, "item")
 
 	expand: (node) ->
 		itemDom = @_itemDomMap[node._id]

@@ -1043,7 +1043,8 @@
     "cola.messageBox.error.title": "Error",
     "cola.messageBox.question.title": "Confirm",
     "cola.message.approve": "Ok",
-    "cola.message.deny": "Cancel"
+    "cola.message.deny": "Cancel",
+    "cola.pager.info": "Page:{0}\/{1}"
   });
 
   _toJSON = function(data) {
@@ -7797,6 +7798,9 @@
         };
       }
       options.data = parameter;
+      if (options.dataType == null) {
+        options.dataType = "json";
+      }
       return options;
     };
 
@@ -11102,8 +11106,8 @@
         }
       }
     };
-    cls.prototype.xRender = function(template) {
-      return cola.xRender(template, this._widgetModel);
+    cls.prototype.xRender = function(template, context) {
+      return cola.xRender(template, this._widgetModel, context);
     };
     for (prop in definition) {
       def = definition[prop];
@@ -11585,6 +11589,10 @@
   PAN_VERTICAL_events = ["panUp", "panDown"];
 
   SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"];
+
+  if (typeof document.documentElement.style.flex !== "string") {
+    $(document.documentElement).addClass("flex-unsupported");
+  }
 
 
   /*
@@ -16694,7 +16702,7 @@
 
     Dialog.tagName = "c-dialog";
 
-    Dialog.CLASS_NAME = "dialog transition v-box hidden";
+    Dialog.CLASS_NAME = "dialog transition hidden";
 
     Dialog.attributes = {
       context: null,
@@ -16819,17 +16827,25 @@
     };
 
     Dialog.prototype._onShow = function() {
-      var actionsDom, actionsHeight, headerHeight, height, minHeight;
-      height = this._dom.offsetHeight;
-      actionsDom = this._doms.actions;
-      if (actionsDom) {
-        actionsHeight = actionsDom.offsetHeight;
-        headerHeight = 0;
-        if (this._doms.header) {
-          headerHeight = this._doms.header.offsetHeight;
+      var actionsDom, actionsHeight, css, headerHeight, height, minHeight, pHeight;
+      if (this._doms.content) {
+        height = this._dom.offsetHeight;
+        pHeight = $(window).height();
+        css = "min-height";
+        if (height > pHeight) {
+          height = pHeight;
+          css = "height";
         }
-        minHeight = height - actionsHeight - headerHeight;
-        $(this._doms.content).css("min-height", minHeight + "px");
+        actionsDom = this._doms.actions;
+        if (actionsDom) {
+          actionsHeight = actionsDom.offsetHeight;
+          headerHeight = 0;
+          if (this._doms.header) {
+            headerHeight = this._doms.header.offsetHeight;
+          }
+          minHeight = height - actionsHeight - headerHeight;
+          $(this._doms.content).css(css, minHeight + "px");
+        }
       }
       return Dialog.__super__._onShow.call(this);
     };
@@ -16857,7 +16873,7 @@
     };
 
     Dialog.prototype._makeContentDom = function(target) {
-      var afterEl, dom, flex;
+      var afterEl, dom;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -16879,8 +16895,6 @@
       } else {
         this._dom.appendChild(dom);
       }
-      flex = target === "content" ? "flex-box" : "box";
-      $fly(dom).addClass(flex);
       this._doms[target] = dom;
       return dom;
     };
@@ -16930,7 +16944,7 @@
     };
 
     Dialog.prototype._showModalLayer = function() {
-      var _dimmerDom;
+      var _dimmerDom, container;
       if (this._doms == null) {
         this._doms = {};
       }
@@ -16948,7 +16962,15 @@
             };
           })(this));
         }
-        document.body.appendChild(_dimmerDom);
+        container = this._context || this._dom.parentNode;
+        if (typeof container === "string") {
+          if (container === "body") {
+            container = document.body;
+          } else if (container === "parent") {
+            container = this._dom.parentNode;
+          }
+        }
+        container.appendChild(_dimmerDom);
         this._doms.modalLayer = _dimmerDom;
       }
       $(_dimmerDom).css({
@@ -21623,6 +21645,175 @@
   cola.Element.mixin(cola.Form, cola.DataWidgetMixin);
 
   cola.registerWidget(cola.Form);
+
+  isIE11 = /Trident\/7\./.test(navigator.userAgent);
+
+  cola.Textarea = (function(superClass) {
+    extend(Textarea, superClass);
+
+    function Textarea() {
+      return Textarea.__super__.constructor.apply(this, arguments);
+    }
+
+    Textarea.CLASS_NAME = "textarea";
+
+    Textarea.attributes = {
+      postOnInput: {
+        type: "boolean",
+        defaultValue: false
+      },
+      placeholder: {
+        refreshDom: true
+      },
+      value: {
+        setter: function(value) {
+          if (this._dataType) {
+            value = this._dataType.parse(value);
+          }
+          return this._setValue(value);
+        }
+      }
+    };
+
+    Textarea.events = {
+      focus: null,
+      blur: null,
+      keyDown: null,
+      keyPress: null
+    };
+
+    Textarea.prototype.destroy = function() {
+      if (!this._destroyed) {
+        Textarea.__super__.destroy.call(this);
+        delete this._doms;
+      }
+    };
+
+    Textarea.prototype._bindSetter = function(bindStr) {
+      var dataType;
+      Textarea.__super__._bindSetter.call(this, bindStr);
+      dataType = this.getBindingDataType();
+      if (dataType) {
+        cola.DataType.dataTypeSetter.call(this, dataType);
+      }
+    };
+
+    Textarea.prototype.focus = function() {
+      var ref;
+      if ((ref = this._doms.input) != null) {
+        ref.focus();
+      }
+    };
+
+    Textarea.prototype._initDom = function(dom) {
+      var doPost, input;
+      Textarea.__super__._initDom.call(this, dom);
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      if (dom.nodeName !== "TEXTAREA") {
+        input = $.xCreate({
+          tagName: "textarea"
+        });
+        this._doms.input = input;
+        dom.appendChild(input);
+      } else {
+        this._doms.input = dom;
+      }
+      doPost = (function(_this) {
+        return function() {
+          var readOnly, value;
+          readOnly = _this._readOnly;
+          if (!readOnly) {
+            value = $(_this._doms.input).val();
+            _this.set("value", value);
+          }
+        };
+      })(this);
+      $(this._doms.input).on("change", (function(_this) {
+        return function() {
+          doPost();
+        };
+      })(this)).on("focus", (function(_this) {
+        return function() {
+          _this._inputFocused = true;
+          _this._refreshInputValue(_this._value);
+          if (!_this._finalReadOnly) {
+            _this.addClass("focused");
+          }
+          _this.fire("focus", _this);
+        };
+      })(this)).on("blur", (function(_this) {
+        return function() {
+          var entity, propertyDef, ref;
+          _this._inputFocused = false;
+          _this.removeClass("focused");
+          _this._refreshInputValue(_this._value);
+          _this.fire("blur", _this);
+          if ((_this._value == null) || _this._value === "" && ((ref = _this._bindInfo) != null ? ref.isWriteable : void 0)) {
+            propertyDef = _this.getBindingProperty();
+            if ((propertyDef != null ? propertyDef._required : void 0) && propertyDef._validators) {
+              entity = _this._scope.get(_this._bindInfo.entityPath);
+              if (entity) {
+                entity.validate(_this._bindInfo.property);
+              }
+            }
+          }
+        };
+      })(this)).on("input", (function(_this) {
+        return function() {
+          if (_this._postOnInput) {
+            doPost();
+          }
+        };
+      })(this)).on("keydown", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          return _this.fire("keyDown", _this, arg);
+        };
+      })(this)).on("keypress", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          if (_this.fire("keyPress", _this, arg) === false) {
+            return;
+          }
+          if (event.keyCode === 13 && isIE11) {
+            return doPost();
+          }
+        };
+      })(this));
+    };
+
+    Textarea.prototype._refreshInputValue = function(value) {
+      $fly(this._doms.input).val(value != null ? value + "" || "" : void 0);
+    };
+
+    Textarea.prototype._doRefreshDom = function() {
+      if (!this._dom) {
+        return;
+      }
+      Textarea.__super__._doRefreshDom.call(this);
+      this._refreshInputValue(this._value);
+      return $fly(this._doms.input).prop("readOnly", this._readOnly).attr("placeholder", this._placeholder);
+    };
+
+    return Textarea;
+
+  })(cola.AbstractEditor);
 
   cola.AbstractItemGroup = (function(superClass) {
     extend(AbstractItemGroup, superClass);
@@ -28018,11 +28209,11 @@
           if (_this._autoExpand) {
             itemDom = _this._findItemDom(evt.currentTarget);
             if (!itemDom) {
-              return;
+              return false;
             }
             node = cola.util.userData(itemDom, "item");
             if (!node) {
-              return;
+              return false;
             }
             if (node.get("expanded")) {
               _this.collapse(node);
@@ -28031,6 +28222,7 @@
             }
             return false;
           }
+          return false;
         };
       })(this));
       itemsScope = this._itemsScope;
@@ -28045,6 +28237,17 @@
             return _this._bind.retrieveChildNodes(_this._rootNode, null, dataCtx);
           };
         })(this);
+      }
+    };
+
+    Tree.prototype._setCurrentItemDom = function(currentItemDom) {
+      var node;
+      if (!currentItemDom) {
+        return;
+      }
+      node = cola.util.userData(currentItemDom, "item");
+      if (node) {
+        return this._setCurrentNode(node);
       }
     };
 
@@ -28251,6 +28454,16 @@
       node.set("expanded", !node.get("expanded"));
       evt.stopPropagation();
       return false;
+    };
+
+    Tree.prototype.findNode = function(entity) {
+      var itemDom, itemId;
+      itemId = cola.Entity._getEntityId(entity);
+      if (!itemId) {
+        return;
+      }
+      itemDom = this._itemDomMap[itemId];
+      return cola.util.userData(itemDom, "item");
     };
 
     Tree.prototype.expand = function(node) {
@@ -30076,7 +30289,7 @@
       infoItem = pager._pagerItemMap["info"];
       if (infoItem) {
         infoItemDom = infoItem.nodeType === 1 ? infoItem : infoItem.getDom();
-        $(infoItemDom).text("第" + pageNo + "页/共" + pageCount + "页");
+        $(infoItemDom).text(cola.resource("cola.pager.info", pageNo, pageCount));
       }
       gotoInput = (ref4 = pager._pagerItemMap["goto"]) != null ? ref4.get("control") : void 0;
       if (gotoInput) {

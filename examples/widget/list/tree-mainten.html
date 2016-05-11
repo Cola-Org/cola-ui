@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+
+			model.set("node", {
+				nodes: [
+					{
+						name: "中国",
+						nodes: [
+							{
+								name: "上海",
+								nodes: [
+									{
+										name: "浦东新区"
+									},
+									{
+										name: "杨浦"
+									},
+									{
+										name: "松江"
+									}, {
+										name: "徐汇区"
+									}
+								]
+							}, {
+								name: "内蒙古",
+								nodes: [
+									{
+										name: "兴安盟"
+									}, {
+										name: "通辽"
+									}, {
+										name: "锡林郭勒"
+									}, {
+										name: "呼伦贝尔"
+									}, {
+										name: "赤峰"
+									}
+								]
+							}
+						]
+					}
+				]
+			});
+
+			model.action({
+				remove: function (node) {
+					node.remove();
+				},
+				add: function () {
+					var nodes = model.get("currentEditItem.nodes");
+					if (!nodes) {
+						model.set("currentEditItem.nodes", []);
+						nodes = model.get("currentEditItem.nodes")
+					}
+					var entity=nodes.insert({
+						name: "New Node"
+					});
+					var tree = cola.widget("tree");
+
+					var currentNode = tree.findNode(model.get("currentEditItem"));
+					tree.expand(currentNode);
+					tree.set("currentItem",entity);
+					event && event.stopPropagation();
+				}
+			});
+
+			model.widgetConfig({
+				tree: {
+					$type: "tree",
+					autoCollapse: false,
+					autoExpand: true,
+					highlightCurrentItem: true,
+					bind: {
+						recursive: true,
+						expandedProperty: "expanded",
+						textProperty: "name",
+						expression: "node in node.nodes"
+					},
+					itemClick: function (self, arg) {
+						console.log(arg)
+					},
+					currentNodeChange: function (self, arg) {
+						var current = self.get("currentNode");
+						model.set("currentEditItem", current ? current.get("data") : null);
+					}
+				}
+			});
+		});
+	</script>
+	<style>
+		.current > .tree.node .node-operation {
+			display: inline-block;
+		}
+
+		.node-operation {
+			display: none;
+			float: right;
+		}
+	</style>
+
+</head>
+<body style="padding:1em;margin:0;">
+<div class="h-box" style="height: 100%">
+	<div class="flex-box">
+		<div style="padding: 2px">
+			<div c-widget="Panel; caption:行政区域; height:100%">
+				<div class="content">
+					<div id="tree">
+						<template name="node-default">
+							<div>
+								<span c-bind="node.name"></span>
+
+								<div class="node-operation">
+									<i class="icon link plus" c-onclick="add()"></i>
+									<i class="icon link trash outline"></i>
+								</div>
+							</div>
+						</template>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex-box">
+		<div style="padding: 2px">
+			<div c-widget="Panel; caption:详细信息; height:100%">
+				<div class="content">
+					<div class="ui form inline">
+						<div class="inline field">
+							<label>行政区域名称</label>
+							<div c-widget="input; bind:currentEditItem.name; inputOnPost:true"></div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+</body>
+</html>

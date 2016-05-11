@@ -17,7 +17,8 @@
     "cola.messageBox.error.title": "错误",
     "cola.messageBox.question.title": "确认框",
     "cola.message.approve": "确认",
-    "cola.message.deny": "取消"
+    "cola.message.deny": "取消",
+    "cola.pager.info": "第{0}页\/共{1}页"
   });
 
 }).call(this);
