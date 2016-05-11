@@ -120,15 +120,16 @@ class cola.Tree extends cola.AbstractList
 		.delegate(".tree.item", "click", (evt) =>
 			if @_autoExpand
 				itemDom = @_findItemDom(evt.currentTarget)
-				return unless itemDom
+				return false unless itemDom
 				node = cola.util.userData(itemDom, "item")
-				return unless node
+				return false unless node
 
 				if node.get("expanded")
 					@collapse(node)
 				else if node.get("hasChild") isnt false
 					@expand(node)
 				return false
+			return false
 		)
 
 		itemsScope = @_itemsScope
