@@ -399,6 +399,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 		return @
 
 class cola.TabButton extends cola.tab.AbstractTabButton
+	@tagName: "c-tabButton"
 	@CLASS_NAME: "tab-button"
 	@parentWidget: cola.Tab
 

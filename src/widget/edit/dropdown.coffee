@@ -362,7 +362,7 @@ class DropBox extends cola.Layer
 		boxHeight = $dom.height()
 		$dom.addClass("hidden")
 
-		rect = dropdownDom.getBoundingClientRect()
+		rect = $fly(dropdownDom).offset()
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
 		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight
