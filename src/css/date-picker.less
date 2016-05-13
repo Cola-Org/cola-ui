@@ -8,3 +8,82 @@
 		cursor: pointer !important;
 	}
 }
+
+.ui.year-month-grid {
+	.header {
+		padding: 0.25em 1em 0.5em;
+		//background-color: #f4f4f4;
+		border-bottom: 1px solid @teal;
+		> .year {
+			.display(box);
+
+			> .button {
+				display: block;
+				.box-flex(0);
+				width: 2.5em;
+				height: 1.5em;
+				line-height: 1.5em;
+				text-align: center;
+				color: @teal;
+				cursor: pointer;
+				font-style: normal;
+				font-weight: normal;
+				font-size: 1.25em;
+
+				&.prev:before {
+					font-family: Icons;
+					content: "\f104";
+				}
+				&.next:before {
+					font-family: Icons;
+					content: "\f105";
+				}
+			}
+
+			> .label {
+				-webkit-box-flex: 1;
+				-moz-box-flex: 1;
+				display: block;
+				text-align: center;
+				line-height: 1.5em;
+				cursor: pointer;
+				font-size: 1.25em;
+				color: #454545;
+				> span {
+
+				}
+			}
+		}
+
+	}
+
+	.table-wrapper {
+		table {
+			width: 100%;
+			min-height: 12em;
+			td {
+				min-width: 4em;
+				text-align: center;
+				height: 2em;
+				position: relative;
+				border: 1px solid transparent;
+				cursor: pointer;
+				&:hover {
+					background-color: #f4f4f4;
+				}
+				> div {
+					padding: 0.4em 0.8em;
+					display: inline-block;
+					border-radius: 2px;
+					width: 5em;
+				}
+				&.selected {
+					> div {
+						background-color: @teal;
+						color: @invertedTextColor;
+					}
+				}
+			}
+		}
+	}
+}

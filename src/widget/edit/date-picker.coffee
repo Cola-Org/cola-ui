@@ -28,7 +28,7 @@ class cola.DateGrid extends cola.RenderableElement
 		weeks = allWeeks.split(",")
 		headerDom = $.xCreate({
 			tagName: "div"
-			class:"caption-panel",
+			class: "caption-panel",
 			content: [
 				{
 					tagName: "div"
@@ -360,7 +360,7 @@ DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
 DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 class cola.DatePicker extends cola.CustomDropdown
 	@tagName: "c-datepicker"
-	@CLASS_NAME:"date input drop"
+	@CLASS_NAME: "date input drop"
 	@attributes:
 		displayFormat:
 			defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
@@ -469,19 +469,282 @@ class cola.DatePicker extends cola.CustomDropdown
 			value = new Date()
 
 		@_dataGrid.setCurrentDate(value)
+
 	_getDropdownContent: () ->
 		datePicker = @
 		if !@_dropdownContent
 			@_dataGrid = dateGrid = new cola.DateGrid({
 				cellClick: (self, arg)=>
 					value = $fly(arg.element).attr("cell-date")
-
 					d = Date.parse(value)
 					datePicker.close(new Date(d))
 			})
 			@_dropdownContent = dateGrid.getDom()
+		return @_dropdownContent
+class cola.YearMonthGrid extends cola.RenderableElement
+	@CLASS_NAME: "year-month-grid"
+	@tagName: "c-yearMonthGrid"
+	@attributes:
+		value:
+			refreshDom: true
+		autoSelect:
+			defaultValue: true
+	@events:
+		cellClick: null
+		refreshCellDom: null
 
+	_initDom: (dom)->
+		picker = @
+		@_doms ?= {}
+		headerDom = $.xCreate(
+			{
+				tagName: "div"
+				class: "header"
+				contextKey: "header"
+				content: [
+					{
+						tagName: "div"
+						class: "year"
+						content: [
+							{
+								tagName: "div"
+								class: "button prev"
+								contextKey: "prevYearButton"
+								click: ()->
+									picker.prevYear()
+							}
+							{
+								tagName: "div"
+								class: "label"
+								contextKey: "yearLabel"
+							}
+							{
+								tagName: "div"
+								class: "button next"
+								contextKey: "nextYearButton"
+								click: ()->
+									picker.nextYear()
+							}
+
+						]
+					}
+				]
+
+			}, @_doms)
+
+		table = $.xCreate({
+			tagName: "table"
+			cellSpacing: 0
+			content: {
+				tagName: "tbody",
+				contextKey: "body"
+			}
+		}, @_doms)
+
+		i = 0
+		while i < 3
+			tr = document.createElement("tr")
+			j = 0
+			while j < 4
+				td = document.createElement("td")
+				@doRenderCell(td, i, j)
+				tr.appendChild(td)
+				j++
+
+			@_doms.body.appendChild(tr)
+			i++
+
+		$fly(table).on("click", (event)->
+			position = cola.calendar.getCellPosition(event)
+			if position and position.element
+				return if position.row >= picker._rowCount
+				if picker._autoSelect
+					cell = picker._doms.body.rows[position.row].cells[position.column]
+					picker.selectCell(cell)
+
+				picker.fire("cellClick", picker, position)
+		)
+		dom.appendChild(headerDom)
+		@_doms.tableWrapper = $.xCreate({
+			tagName: "div"
+			class: "table-wrapper"
+		})
+		@_doms.tableWrapper.appendChild(table)
+		dom.appendChild(@_doms.tableWrapper)
+		return dom
+
+	doFireRefreshEvent: (eventArg) ->
+		@fire("refreshCellDom", @, eventArg)
+		return @
+
+	refreshHeader: ()->
+		if @_doms
+			yearLabel = @_doms.yearLabel
+			$fly(yearLabel).text(@_year || "")
+
+	_doRefreshDom: ()->
+		date = new Date()
+		if @_value
+			values = @_value.split("-")
+			@_year = parseInt(values[0])
+			@_month = parseInt(values[1])
+		else
+			@_year ?= date.getFullYear()
+			@_month ?= date.getMonth() + 1
+			month = if @_month < 10 then "0#{@_month}" else @_month
+			@_value = "#{@_year}-#{month}"
+		super()
+		return unless @_dom
+		@refreshHeader()
+		@refreshGrid()
+
+	doRenderCell: (cell, row, column)->
+		content = column + 1 + row * 4
+		monthNames = cola.resource("cola.date.monthNames")
+		$(cell).attr("month", content)
+		cell.appendChild($.xCreate({
+			tagName: "div"
+			content: monthNames.split(",")[content - 1]
+		}))
+		return
+
+	selectCell: (cell)->
+		month = $(cell).attr("month")
+		year = @_year
+		if parseInt(month) <10
+			month="0#{month}"
+
+		@set("value", "#{year}-#{month}")
+	setState: (year, month)->
+		oldYear = @_year
+		oldMonth = @_month
+
+		if oldYear != year || oldMonth != month
+			@_year = year
+			@_month = month
+			if @_dom
+				@refreshHeader()
+				@refreshGrid()
+
+	refreshGrid: ()->
+		values = @_value.split("-")
+		year = parseInt(values[0])
+		month =parseInt(values[1])
+		$dom = $(@_dom)
+		$dom.find(".selected").removeClass("selected")
+		if @_year == year
+			$($dom.find("td[month='#{month}']")[0]).addClass("selected");
+
+	prevYear: ()->
+		year = @_year
+		month = @_month
+
+		@setState(year - 1, month) if year != undefined && month != undefined
+		return @
+
+	setYear: (newYear)->
+		year = @_year
+		month = @_month
+		@setState(newYear, month) if year != undefined && month != undefined
+
+	nextYear: ()->
+		year = @_year
+		month = @_month
+
+		@setState(year + 1, month) if year != undefined && month != undefined
+		return @
+	onCalDateChange: () ->
+		return @ unless @_dom
+		return @
+
+class cola.YearMonthDropDown extends cola.CustomDropdown
+	@tagName: "c-yearmonthdropdown"
+	@CLASS_NAME: "year-month input date drop"
+	@attributes:
+		icon:
+			defaultValue: "calendar"
+	@events:
+		focus: null
+		blur: null
+		keyDown: null
+		keyPress: null
+	_initDom: (dom)->
+		super(dom)
+		doPost = ()=>
+			readOnly = @_readOnly
+			if !readOnly
+				value = $(@_doms.input).val()
+				@set("value", value)
+			return
+
+		$(@_doms.input).on("change", ()=>
+			doPost()
+			return
+		).on("focus", ()=>
+			@_inputFocused = true
+			@_refreshInputValue(@_value)
+			@addClass("focused") if not @_finalReadOnly
+			@fire("focus", @)
+			return
+		).on("blur", ()=>
+			@_inputFocused = false
+			@removeClass("focused")
+			@_refreshInputValue(@_value)
+			@fire("blur", @)
+
+			if !@_value? or @_value is "" and @_bindInfo?.isWriteable
+				propertyDef = @getBindingProperty()
+				if propertyDef?._required and propertyDef._validators
+					entity = @_scope.get(@_bindInfo.entityPath)
+					entity.validate(@_bindInfo.property) if entity
+			return
+		).on("keydown", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altlKey: event.altlKey
+				event: event
+			@fire("keyDown", @, arg)
+		).on("keypress", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altlKey: event.altlKey
+				event: event
+			if @fire("keyPress", @, arg) == false then return
+
+			if event.keyCode == 13 && isIE11 then doPost()
+		)
+		return
+
+	_refreshInput: ()->
+		$inputDom = $fly(@_doms.input)
+		$inputDom.attr("name", @_name) if @_name
+		$inputDom.attr("placeholder", @get("placeholder"))
+		$inputDom.prop("readOnly", @_finalReadOnly)
+		@get("actionButton")?.set("disabled", @_finalReadOnly)
+		$inputDom.prop("type", "text").css("text-align", "left")
+
+		@_refreshInputValue(@_value)
+		return
+	open: () ->
+		super()
+		value = @get("value")
+		unless value
+			date = new Date()
+			value = "#{date.getFullYear()}-#{date.getMonth() + 1}"
+		@_dataGrid.set("value", value)
+	_getDropdownContent: () ->
+		datePicker = @
+		if !@_dropdownContent
+			@_dataGrid = dateGrid = new cola.YearMonthGrid({
+				cellClick: (self, arg)=>
+					datePicker.close(self.get("value"))
+			})
+			@_dropdownContent = dateGrid.getDom()
 
 		return @_dropdownContent
-
 cola.registerWidget(cola.DatePicker)
+cola.registerWidget(cola.YearMonthDropDown)
