@@ -33,16 +33,16 @@ $.xCreate = xCreate = (template, context) ->
 
 	content = template.content
 	if content?
-		if cola.util.isSimpleValue(content)
-			if typeof content == "string" and content.charAt(0) == '^'
+		if typeof content == "string"
+			if content.charAt(0) == '^'
 				appendChild(el, document.createElement(content.substring(1)))
 			else
 				$el.text(content)
 		else
 			if content instanceof Array
 				for part in content
-					if cola.util.isSimpleValue(part)
-						if typeof part == "string" and part.charAt(0) == '^'
+					if typeof part == "string"
+						if part.charAt(0) == '^'
 							appendChild(el, document.createElement(part.substring(1)))
 						else
 							appendChild(el, document.createTextNode(part))
