@@ -366,17 +366,18 @@ class DropBox extends cola.Layer
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
 		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight
-		height=0
+
 		if bottomSpace >= boxHeight
 			direction = "down"
 		else
 			topSpace = rect.top
 			if topSpace > bottomSpace
 				direction = "up"
-#				height = topSpace
+				if boxHeight > topSpace then height = topSpace
 			else
 				direction = "down"
-#				height = bottomSpace
+				if boxHeight > bottomSpace then height = bottomSpace
+
 		if direction == "down"
 			top = rect.top + dropdownDom.clientHeight
 		else
@@ -390,11 +391,12 @@ class DropBox extends cola.Layer
 
 		if height then $dom.css("height", height)
 		$dom
-		.removeClass(if direction == "down" then "direction-up" else "direction-down").addClass("direction-" + direction)
-		.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
-		.css("left", left).css("top", top)
-		.css("min-width", dropdownDom.offsetWidth)
-		.css("max-width",document.body.clientWidth).css("min-height",boxHeight)
+			.removeClass(if direction == "down" then "direction-up" else "direction-down").addClass("direction-" + direction)
+			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
+			.css("left", left).css("top", top)
+			.css("min-width", dropdownDom.offsetWidth)
+			.css("max-width",document.body.clientWidth)
+
 		$dom.css({
 			zIndex: cola.floatWidget.zIndex()
 		})
