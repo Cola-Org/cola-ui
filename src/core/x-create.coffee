@@ -2,6 +2,12 @@
 oldIE = `!-[1,]`
 
 $.xCreate = xCreate = (template, context) ->
+
+	isSimpleValue = (value) ->
+		if value == null or value == undefined then return true
+		type = typeof value
+		return type isnt "object" and type isnt "function" or value instanceof Date
+
 	if template instanceof Array
 		elements = []
 		for part in template
@@ -33,16 +39,16 @@ $.xCreate = xCreate = (template, context) ->
 
 	content = template.content
 	if content?
-		if typeof content == "string"
-			if content.charAt(0) == '^'
+		if isSimpleValue(content)
+			if typeof content == "string" and content.charAt(0) == '^'
 				appendChild(el, document.createElement(content.substring(1)))
 			else
 				$el.text(content)
 		else
 			if content instanceof Array
 				for part in content
-					if typeof part == "string"
-						if part.charAt(0) == '^'
+					if isSimpleValue(part)
+						if typeof part == "string" and part.charAt(0) == '^'
 							appendChild(el, document.createElement(part.substring(1)))
 						else
 							appendChild(el, document.createTextNode(part))
