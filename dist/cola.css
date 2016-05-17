@@ -3433,6 +3433,74 @@ template {
 .ui.date.input i.calendar.icon {
   cursor: pointer !important;
 }
+.ui.year-month-grid .header {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid #00b5ad;
+}
+.ui.year-month-grid .header > .year {
+  display: -webkit-box;
+  display: -moz-box;
+}
+.ui.year-month-grid .header > .year > .button {
+  display: block;
+  -webkit-box-flex: 0;
+  -moz-box-flex: 0;
+  width: 2.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  text-align: center;
+  color: #00b5ad;
+  cursor: pointer;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 1.25em;
+}
+.ui.year-month-grid .header > .year > .button.prev:before {
+  font-family: Icons;
+  content: "\f104";
+}
+.ui.year-month-grid .header > .year > .button.next:before {
+  font-family: Icons;
+  content: "\f105";
+}
+.ui.year-month-grid .header > .year > .label {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  display: block;
+  text-align: center;
+  line-height: 1.5em;
+  cursor: pointer;
+  font-size: 1.25em;
+  color: #454545;
+}
+.ui.year-month-grid .table-wrapper table {
+  width: 100%;
+  min-height: 12em;
+}
+.ui.year-month-grid .table-wrapper table td {
+  min-width: 4em;
+  text-align: center;
+  height: 2em;
+  position: relative;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.ui.year-month-grid .table-wrapper table td:hover {
+  background-color: #f4f4f4;
+}
+.ui.year-month-grid .table-wrapper table td > div {
+  padding: 0.4em 0.8em;
+  display: inline-block;
+  border-radius: 2px;
+  width: 5em;
+}
+.ui.year-month-grid .table-wrapper table td.selected > div {
+  background-color: #00b5ad;
+  color: rgba(255, 255, 255, 0.9);
+}
+.ui.drop-box.drop-container .ui.year-month-grid {
+  font-size: 0.9em;
+}
 
 .ui.sub-view {
   display: block;
@@ -5435,13 +5503,13 @@ html.ios body {
   position: absolute;
   border: 1px solid #e0e0e0;
   left: 8em;
-  top: 2em;
-  bottom: 0;
+  top: 1.6em;
+  bottom: 0em;
   content: "";
 }
 .ui.time-line > .items > .item .label {
   position: absolute;
-  top: 0.3em;
+  top: 0em;
   width: 8em;
   display: inline-block;
   text-align: right;
@@ -5449,7 +5517,8 @@ html.ios body {
 }
 .ui.time-line > .items > .item .content {
   margin-left: 10em;
-  padding-bottom: 1em;
+  padding-bottom: 0.4em;
+  margin-bottom: 0.4em;
 }
 .ui.time-line > .items > .item .content p {
   color: rgba(103, 106, 108, 0.7);
@@ -5458,7 +5527,7 @@ html.ios body {
 .ui.time-line > .items > .item > .icon {
   position: absolute;
   left: 7em;
-  top: 0;
+  top: -0.4em;
   display: inline-block;
   width: 2em;
   height: 2em;
@@ -5493,8 +5562,9 @@ html.ios body {
 }
 .ui.time-line.log > .items > .item > .content {
   position: relative;
-  padding: 0.8em 1em;
+  padding: 0.4em 1em;
   color: rgba(255, 255, 255, 0.95);
+  border-radius: 0.2em;
 }
 .ui.time-line.log > .items > .item > .content strong {
   display: block;
@@ -5505,16 +5575,6 @@ html.ios body {
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.85em;
   padding: 1em 0;
-}
-.ui.time-line.log > .items > .item > .content:after {
-  position: absolute;
-  left: 0;
-  top: 0.2em;
-  right: 0;
-  content: "";
-  bottom: 0.2em;
-  z-index: -1;
-  border-radius: 0.2em;
 }
 .ui.time-line.log > .items > .item > .content:before {
   width: 0;
@@ -5543,14 +5603,12 @@ html.ios body {
 }
 .ui.time-line.log > .items > .item:nth-of-type(even) > .content {
   position: relative;
-}
-.ui.time-line.log > .items > .item:nth-of-type(even) > .content:after {
   background-color: #1ab394;
 }
 .ui.time-line.log > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #1ab394;
 }
-.ui.time-line.log > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log > .items > .item:nth-of-type(odd) > .content {
   background-color: #1dcaa6;
 }
 .ui.time-line.log > .items > .item:nth-of-type(odd) > .content:before {
@@ -5570,13 +5628,13 @@ html.ios body {
 .ui.time-line.log.red > .items > .item > .label > .date-time {
   color: #dd3535;
 }
-.ui.time-line.log.red > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.red > .items > .item:nth-of-type(even) > .content {
   background-color: #dd3535;
 }
 .ui.time-line.log.red > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #dd3535;
 }
-.ui.time-line.log.red > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.red > .items > .item:nth-of-type(odd) > .content {
   background-color: #e14b4b;
 }
 .ui.time-line.log.red > .items > .item:nth-of-type(odd) > .content:before {
@@ -5596,13 +5654,13 @@ html.ios body {
 .ui.time-line.log.orange > .items > .item > .label > .date-time {
   color: #f37a2a;
 }
-.ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content {
   background-color: #f37a2a;
 }
 .ui.time-line.log.orange > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #f37a2a;
 }
-.ui.time-line.log.orange > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.orange > .items > .item:nth-of-type(odd) > .content {
   background-color: #f48943;
 }
 .ui.time-line.log.orange > .items > .item:nth-of-type(odd) > .content:before {
@@ -5622,13 +5680,13 @@ html.ios body {
 .ui.time-line.log.yellow > .items > .item > .label > .date-time {
   color: #fbc117;
 }
-.ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content {
   background-color: #fbc117;
 }
 .ui.time-line.log.yellow > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #fbc117;
 }
-.ui.time-line.log.yellow > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.yellow > .items > .item:nth-of-type(odd) > .content {
   background-color: #fcc830;
 }
 .ui.time-line.log.yellow > .items > .item:nth-of-type(odd) > .content:before {
@@ -5648,13 +5706,13 @@ html.ios body {
 .ui.time-line.log.olive > .items > .item > .label > .date-time {
   color: #c1da1a;
 }
-.ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content {
   background-color: #c1da1a;
 }
 .ui.time-line.log.olive > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #c1da1a;
 }
-.ui.time-line.log.olive > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.olive > .items > .item:nth-of-type(odd) > .content {
   background-color: #cde627;
 }
 .ui.time-line.log.olive > .items > .item:nth-of-type(odd) > .content:before {
@@ -5674,13 +5732,13 @@ html.ios body {
 .ui.time-line.log.green > .items > .item > .label > .date-time {
   color: #23c74a;
 }
-.ui.time-line.log.green > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.green > .items > .item:nth-of-type(even) > .content {
   background-color: #23c74a;
 }
 .ui.time-line.log.green > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #23c74a;
 }
-.ui.time-line.log.green > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.green > .items > .item:nth-of-type(odd) > .content {
   background-color: #2bd954;
 }
 .ui.time-line.log.green > .items > .item:nth-of-type(odd) > .content:before {
@@ -5700,13 +5758,13 @@ html.ios body {
 .ui.time-line.log.teal > .items > .item > .label > .date-time {
   color: #00c4bc;
 }
-.ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content {
   background-color: #00c4bc;
 }
 .ui.time-line.log.teal > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #00c4bc;
 }
-.ui.time-line.log.teal > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.teal > .items > .item:nth-of-type(odd) > .content {
   background-color: #00ded4;
 }
 .ui.time-line.log.teal > .items > .item:nth-of-type(odd) > .content:before {
@@ -5726,13 +5784,13 @@ html.ios body {
 .ui.time-line.log.blue > .items > .item > .label > .date-time {
   color: #248ddc;
 }
-.ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content {
   background-color: #248ddc;
 }
 .ui.time-line.log.blue > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #248ddc;
 }
-.ui.time-line.log.blue > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.blue > .items > .item:nth-of-type(odd) > .content {
   background-color: #3a99e0;
 }
 .ui.time-line.log.blue > .items > .item:nth-of-type(odd) > .content:before {
@@ -5752,13 +5810,13 @@ html.ios body {
 .ui.time-line.log.violet > .items > .item > .label > .date-time {
   color: #6d41cd;
 }
-.ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content {
   background-color: #6d41cd;
 }
 .ui.time-line.log.violet > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #6d41cd;
 }
-.ui.time-line.log.violet > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.violet > .items > .item:nth-of-type(odd) > .content {
   background-color: #7d55d2;
 }
 .ui.time-line.log.violet > .items > .item:nth-of-type(odd) > .content:before {
@@ -5778,13 +5836,13 @@ html.ios body {
 .ui.time-line.log.purple > .items > .item > .label > .date-time {
   color: #aa3dcd;
 }
-.ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content {
   background-color: #aa3dcd;
 }
 .ui.time-line.log.purple > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #aa3dcd;
 }
-.ui.time-line.log.purple > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.purple > .items > .item:nth-of-type(odd) > .content {
   background-color: #b251d3;
 }
 .ui.time-line.log.purple > .items > .item:nth-of-type(odd) > .content:before {
@@ -5804,13 +5862,13 @@ html.ios body {
 .ui.time-line.log.pink > .items > .item > .label > .date-time {
   color: #ff4f8b;
 }
-.ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content {
   background-color: #ff4f8b;
 }
 .ui.time-line.log.pink > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #ff4f8b;
 }
-.ui.time-line.log.pink > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.pink > .items > .item:nth-of-type(odd) > .content {
   background-color: #ff699c;
 }
 .ui.time-line.log.pink > .items > .item:nth-of-type(odd) > .content:before {
@@ -5830,13 +5888,13 @@ html.ios body {
 .ui.time-line.log.brown > .items > .item > .label > .date-time {
   color: #b06e43;
 }
-.ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content {
   background-color: #b06e43;
 }
 .ui.time-line.log.brown > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #b06e43;
 }
-.ui.time-line.log.brown > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.brown > .items > .item:nth-of-type(odd) > .content {
   background-color: #bc7b50;
 }
 .ui.time-line.log.brown > .items > .item:nth-of-type(odd) > .content:before {
@@ -5856,13 +5914,13 @@ html.ios body {
 .ui.time-line.log.grey > .items > .item > .label > .date-time {
   color: #7e7e7e;
 }
-.ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content:after {
+.ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content {
   background-color: #7e7e7e;
 }
 .ui.time-line.log.grey > .items > .item:nth-of-type(even) > .content:before {
   border-right-color: #7e7e7e;
 }
-.ui.time-line.log.grey > .items > .item:nth-of-type(odd) > .content:after {
+.ui.time-line.log.grey > .items > .item:nth-of-type(odd) > .content {
   background-color: #8a8a8a;
 }
 .ui.time-line.log.grey > .items > .item:nth-of-type(odd) > .content:before {
@@ -6440,4 +6498,18 @@ textarea.error {
   border-color: #e0b4b4;
   color: #9f3a38;
   box-shadow: none;
+}
+
+#c-notify-tip-container {
+  position: fixed;
+  z-index: 10000000;
+  bottom: 0;
+  right: 0;
+  padding: 1em;
+  height: auto;
+  width: 22em;
+}
+.ui.notify-tip {
+  width: 100%;
+  display: inline-block;
 }

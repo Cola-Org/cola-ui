@@ -52,7 +52,15 @@
   oldIE = !-[1,];
 
   $.xCreate = xCreate = function(template, context) {
-    var $el, child, content, el, element, elements, l, len1, len2, len3, o, part, q, ref, tagName, templateProcessor;
+    var $el, child, content, el, element, elements, isSimpleValue, l, len1, len2, len3, o, part, q, ref, tagName, templateProcessor;
+    isSimpleValue = function(value) {
+      var type;
+      if (value === null || value === void 0) {
+        return true;
+      }
+      type = typeof value;
+      return type !== "object" && type !== "function" || value instanceof Date;
+    };
     if (template instanceof Array) {
       elements = [];
       for (l = 0, len1 = template.length; l < len1; l++) {
@@ -94,8 +102,8 @@
     setAttrs(el, $el, template, context);
     content = template.content;
     if (content != null) {
-      if (typeof content === "string") {
-        if (content.charAt(0) === '^') {
+      if (isSimpleValue(content)) {
+        if (typeof content === "string" && content.charAt(0) === '^') {
           appendChild(el, document.createElement(content.substring(1)));
         } else {
           $el.text(content);
@@ -104,8 +112,8 @@
         if (content instanceof Array) {
           for (q = 0, len3 = content.length; q < len3; q++) {
             part = content[q];
-            if (typeof part === "string") {
-              if (part.charAt(0) === '^') {
+            if (isSimpleValue(part)) {
+              if (typeof part === "string" && part.charAt(0) === '^') {
                 appendChild(el, document.createElement(part.substring(1)));
               } else {
                 appendChild(el, document.createTextNode(part));
@@ -17768,6 +17776,8 @@
       return TabButton.__super__.constructor.apply(this, arguments);
     }
 
+    TabButton.tagName = "c-tabButton";
+
     TabButton.CLASS_NAME = "tab-button";
 
     TabButton.parentWidget = cola.Tab;
@@ -20502,7 +20512,7 @@
       boxWidth = $dom.width();
       boxHeight = $dom.height();
       $dom.addClass("hidden");
-      rect = dropdownDom.getBoundingClientRect();
+      rect = $fly(dropdownDom).offset();
       clientWidth = document.body.offsetWidth;
       clientHeight = document.body.clientHeight;
       bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight;
@@ -20512,10 +20522,14 @@
         topSpace = rect.top;
         if (topSpace > bottomSpace) {
           direction = "up";
-          height = topSpace;
+          if (boxHeight > topSpace) {
+            height = topSpace;
+          }
         } else {
           direction = "down";
-          height = bottomSpace;
+          if (boxHeight > bottomSpace) {
+            height = bottomSpace;
+          }
         }
       }
       if (direction === "down") {
@@ -21289,12 +21303,12 @@
           if (!readOnly) {
             value = $(_this._doms.input).val();
             inputFormat = _this._inputFormat || _this._displayFormat || DEFAULT_DATE_DISPLAY_FORMAT;
-            if (inputFormat) {
+            if (inputFormat && value) {
               value = inputFormat + "||" + value;
               xDate = new XDate(value);
               value = xDate.toDate();
-              _this.set("value", value);
             }
+            _this.set("value", value);
           }
         };
       })(this);
@@ -21433,7 +21447,387 @@
 
   })(cola.CustomDropdown);
 
+  cola.YearMonthGrid = (function(superClass) {
+    extend(YearMonthGrid, superClass);
+
+    function YearMonthGrid() {
+      return YearMonthGrid.__super__.constructor.apply(this, arguments);
+    }
+
+    YearMonthGrid.CLASS_NAME = "year-month-grid";
+
+    YearMonthGrid.tagName = "c-yearMonthGrid";
+
+    YearMonthGrid.attributes = {
+      value: {
+        refreshDom: true
+      },
+      autoSelect: {
+        defaultValue: true
+      }
+    };
+
+    YearMonthGrid.events = {
+      cellClick: null,
+      refreshCellDom: null
+    };
+
+    YearMonthGrid.prototype._initDom = function(dom) {
+      var headerDom, i, j, picker, table, td, tr;
+      picker = this;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      headerDom = $.xCreate({
+        tagName: "div",
+        "class": "header",
+        contextKey: "header",
+        content: [
+          {
+            tagName: "div",
+            "class": "year",
+            content: [
+              {
+                tagName: "div",
+                "class": "button prev",
+                contextKey: "prevYearButton",
+                click: function() {
+                  return picker.prevYear();
+                }
+              }, {
+                tagName: "div",
+                "class": "label",
+                contextKey: "yearLabel"
+              }, {
+                tagName: "div",
+                "class": "button next",
+                contextKey: "nextYearButton",
+                click: function() {
+                  return picker.nextYear();
+                }
+              }
+            ]
+          }
+        ]
+      }, this._doms);
+      table = $.xCreate({
+        tagName: "table",
+        cellSpacing: 0,
+        content: {
+          tagName: "tbody",
+          contextKey: "body"
+        }
+      }, this._doms);
+      i = 0;
+      while (i < 3) {
+        tr = document.createElement("tr");
+        j = 0;
+        while (j < 4) {
+          td = document.createElement("td");
+          this.doRenderCell(td, i, j);
+          tr.appendChild(td);
+          j++;
+        }
+        this._doms.body.appendChild(tr);
+        i++;
+      }
+      $fly(table).on("click", function(event) {
+        var cell, position;
+        position = cola.calendar.getCellPosition(event);
+        if (position && position.element) {
+          if (position.row >= picker._rowCount) {
+            return;
+          }
+          if (picker._autoSelect) {
+            cell = picker._doms.body.rows[position.row].cells[position.column];
+            picker.selectCell(cell);
+          }
+          return picker.fire("cellClick", picker, position);
+        }
+      });
+      dom.appendChild(headerDom);
+      this._doms.tableWrapper = $.xCreate({
+        tagName: "div",
+        "class": "table-wrapper"
+      });
+      this._doms.tableWrapper.appendChild(table);
+      dom.appendChild(this._doms.tableWrapper);
+      return dom;
+    };
+
+    YearMonthGrid.prototype.doFireRefreshEvent = function(eventArg) {
+      this.fire("refreshCellDom", this, eventArg);
+      return this;
+    };
+
+    YearMonthGrid.prototype.refreshHeader = function() {
+      var yearLabel;
+      if (this._doms) {
+        yearLabel = this._doms.yearLabel;
+        return $fly(yearLabel).text(this._year || "");
+      }
+    };
+
+    YearMonthGrid.prototype._doRefreshDom = function() {
+      var date, month, values;
+      date = new Date();
+      if (this._value) {
+        values = this._value.split("-");
+        this._year = parseInt(values[0]);
+        this._month = parseInt(values[1]);
+      } else {
+        if (this._year == null) {
+          this._year = date.getFullYear();
+        }
+        if (this._month == null) {
+          this._month = date.getMonth() + 1;
+        }
+        month = this._month < 10 ? "0" + this._month : this._month;
+        this._value = this._year + "-" + month;
+      }
+      YearMonthGrid.__super__._doRefreshDom.call(this);
+      if (!this._dom) {
+        return;
+      }
+      this.refreshHeader();
+      return this.refreshGrid();
+    };
+
+    YearMonthGrid.prototype.doRenderCell = function(cell, row, column) {
+      var content, monthNames;
+      content = column + 1 + row * 4;
+      monthNames = cola.resource("cola.date.monthNames");
+      $(cell).attr("month", content);
+      cell.appendChild($.xCreate({
+        tagName: "div",
+        content: monthNames.split(",")[content - 1]
+      }));
+    };
+
+    YearMonthGrid.prototype.selectCell = function(cell) {
+      var month, year;
+      month = $(cell).attr("month");
+      year = this._year;
+      if (parseInt(month) < 10) {
+        month = "0" + month;
+      }
+      return this.set("value", year + "-" + month);
+    };
+
+    YearMonthGrid.prototype.setState = function(year, month) {
+      var oldMonth, oldYear;
+      oldYear = this._year;
+      oldMonth = this._month;
+      if (oldYear !== year || oldMonth !== month) {
+        this._year = year;
+        this._month = month;
+        if (this._dom) {
+          this.refreshHeader();
+          return this.refreshGrid();
+        }
+      }
+    };
+
+    YearMonthGrid.prototype.refreshGrid = function() {
+      var $dom, month, values, year;
+      values = this._value.split("-");
+      year = parseInt(values[0]);
+      month = parseInt(values[1]);
+      $dom = $(this._dom);
+      $dom.find(".selected").removeClass("selected");
+      if (this._year === year) {
+        return $($dom.find("td[month='" + month + "']")[0]).addClass("selected");
+      }
+    };
+
+    YearMonthGrid.prototype.prevYear = function() {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        this.setState(year - 1, month);
+      }
+      return this;
+    };
+
+    YearMonthGrid.prototype.setYear = function(newYear) {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        return this.setState(newYear, month);
+      }
+    };
+
+    YearMonthGrid.prototype.nextYear = function() {
+      var month, year;
+      year = this._year;
+      month = this._month;
+      if (year !== void 0 && month !== void 0) {
+        this.setState(year + 1, month);
+      }
+      return this;
+    };
+
+    YearMonthGrid.prototype.onCalDateChange = function() {
+      if (!this._dom) {
+        return this;
+      }
+      return this;
+    };
+
+    return YearMonthGrid;
+
+  })(cola.RenderableElement);
+
+  cola.YearMonthDropDown = (function(superClass) {
+    extend(YearMonthDropDown, superClass);
+
+    function YearMonthDropDown() {
+      return YearMonthDropDown.__super__.constructor.apply(this, arguments);
+    }
+
+    YearMonthDropDown.tagName = "c-yearmonthdropdown";
+
+    YearMonthDropDown.CLASS_NAME = "year-month input date drop";
+
+    YearMonthDropDown.attributes = {
+      icon: {
+        defaultValue: "calendar"
+      }
+    };
+
+    YearMonthDropDown.events = {
+      focus: null,
+      blur: null,
+      keyDown: null,
+      keyPress: null
+    };
+
+    YearMonthDropDown.prototype._initDom = function(dom) {
+      var doPost;
+      YearMonthDropDown.__super__._initDom.call(this, dom);
+      doPost = (function(_this) {
+        return function() {
+          var readOnly, value;
+          readOnly = _this._readOnly;
+          if (!readOnly) {
+            value = $(_this._doms.input).val();
+            _this.set("value", value);
+          }
+        };
+      })(this);
+      $(this._doms.input).on("change", (function(_this) {
+        return function() {
+          doPost();
+        };
+      })(this)).on("focus", (function(_this) {
+        return function() {
+          _this._inputFocused = true;
+          _this._refreshInputValue(_this._value);
+          if (!_this._finalReadOnly) {
+            _this.addClass("focused");
+          }
+          _this.fire("focus", _this);
+        };
+      })(this)).on("blur", (function(_this) {
+        return function() {
+          var entity, propertyDef, ref;
+          _this._inputFocused = false;
+          _this.removeClass("focused");
+          _this._refreshInputValue(_this._value);
+          _this.fire("blur", _this);
+          if ((_this._value == null) || _this._value === "" && ((ref = _this._bindInfo) != null ? ref.isWriteable : void 0)) {
+            propertyDef = _this.getBindingProperty();
+            if ((propertyDef != null ? propertyDef._required : void 0) && propertyDef._validators) {
+              entity = _this._scope.get(_this._bindInfo.entityPath);
+              if (entity) {
+                entity.validate(_this._bindInfo.property);
+              }
+            }
+          }
+        };
+      })(this)).on("keydown", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          return _this.fire("keyDown", _this, arg);
+        };
+      })(this)).on("keypress", (function(_this) {
+        return function(event) {
+          var arg;
+          arg = {
+            keyCode: event.keyCode,
+            shiftKey: event.shiftKey,
+            ctrlKey: event.ctrlKey,
+            altlKey: event.altlKey,
+            event: event
+          };
+          if (_this.fire("keyPress", _this, arg) === false) {
+            return;
+          }
+          if (event.keyCode === 13 && isIE11) {
+            return doPost();
+          }
+        };
+      })(this));
+    };
+
+    YearMonthDropDown.prototype._refreshInput = function() {
+      var $inputDom, ref;
+      $inputDom = $fly(this._doms.input);
+      if (this._name) {
+        $inputDom.attr("name", this._name);
+      }
+      $inputDom.attr("placeholder", this.get("placeholder"));
+      $inputDom.prop("readOnly", this._finalReadOnly);
+      if ((ref = this.get("actionButton")) != null) {
+        ref.set("disabled", this._finalReadOnly);
+      }
+      $inputDom.prop("type", "text").css("text-align", "left");
+      this._refreshInputValue(this._value);
+    };
+
+    YearMonthDropDown.prototype.open = function() {
+      var date, value;
+      YearMonthDropDown.__super__.open.call(this);
+      value = this.get("value");
+      if (!value) {
+        date = new Date();
+        value = (date.getFullYear()) + "-" + (date.getMonth() + 1);
+      }
+      return this._dataGrid.set("value", value);
+    };
+
+    YearMonthDropDown.prototype._getDropdownContent = function() {
+      var dateGrid, datePicker;
+      datePicker = this;
+      if (!this._dropdownContent) {
+        this._dataGrid = dateGrid = new cola.YearMonthGrid({
+          cellClick: (function(_this) {
+            return function(self, arg) {
+              return datePicker.close(self.get("value"));
+            };
+          })(this)
+        });
+        this._dropdownContent = dateGrid.getDom();
+      }
+      return this._dropdownContent;
+    };
+
+    return YearMonthDropDown;
+
+  })(cola.CustomDropdown);
+
   cola.registerWidget(cola.DatePicker);
+
+  cola.registerWidget(cola.YearMonthDropDown);
 
   oldErrorTemplate = $.fn.form.settings.templates.error;
 
