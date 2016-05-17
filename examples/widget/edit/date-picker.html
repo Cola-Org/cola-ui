@@ -2,24 +2,13 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
 	<script src="../../include-all.js"></script>
 	<style>
 	</style>
 	<script type="text/javascript">
 		cola(function (model) {
-			model.set("languages", [
-				{name: "Javascript"},
-				{name: "Java"},
-				{name: "C"},
-				{name: "C++"},
-				{name: "Coffee"},
-				{name: "Ruby"},
-				{name: "R"},
-				{name: "Python"},
-				{name: "Pascal"},
-				{name: "Javascript"},
-				{name: "Pascal"}
-			]);
+
 			model.describe("editItem", {
 				dataType: {
 					name: "Employee",
@@ -37,24 +26,34 @@
 			});
 
 			dateGrid.appendTo(document.getElementById("dateGrid"))
-			dateGrid.setState(2016, 3)
-			model.set("editItem", {})
+			dateGrid.setState(2016, 3);
+			model.set("editItem", {});
 			model.widgetConfig({
 				datePicker: {
 					$type: "datePicker",
 					openMode: "drop",
 					bind: "editItem.birthDate"
+				},
+				yearMonthDropDown:{
+					$type:"YearMonthDropDown",
+					openMode:"drop"
 				}
-
 			});
+
+			var yearMonthGrid=new cola.YearMonthGrid()
+
+			yearMonthGrid.appendTo(document.getElementById("yearMonthGrid"))
+			yearMonthGrid.get$Dom().width(400)
 		});
 	</script>
 </head>
 <body style="padding:20px;">
-
 <div id="datePicker"></div>
-<div id="dateGrid"></div>
-
+<!--<div id="dateGrid" style="width: 200px" class="ui drop-box drop-container"></div>-->
+<!--<div id="yearMonthGrid" class="ui segment" style=" background-color: #fff;  width: 400px">-->
+<div class="ui segment" style=" background-color: #fff;  width: 400px">
+<div  id="yearMonthDropDown"></div>
+</div>
 
 </body>
 </html>

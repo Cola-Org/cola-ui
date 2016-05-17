@@ -8,8 +8,23 @@
 
 </head>
 <body style="padding: 20px;">
-<div id="calendar" c-widget="calendar"></div>
+<ul class="ui segment small-block-grid-2">
+	<li>
+		<div c-widget="Panel; caption:个人日程; width:400; height:300">
+			<div c-widget="calendar"></div>
+		</div>
+	</li>
+	<li>
+		<div class="crowded" c-widget="Panel; caption:个人日程; width:400; height:300">
+			<div c-widget="calendar" class="material"></div>
+		</div>
+	</li>
+</ul>
 
-<script src="calendar.js"></script>
+<script type="text/javascript">
+	cola(function (model) {
+
+	});
+</script>
 </body>
 </html>

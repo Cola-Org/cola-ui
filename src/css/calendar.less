@@ -228,72 +228,11 @@
 			.transform(scale(0.8));
 			color: rgba(0, 0, 0, 0.5);
 		}
-		.caption-panel{
+		.caption-panel {
 			background-color: #fbfbfb;
 		}
 		.date-table-wrapper {
 			position: relative;
-			min-width: 100px;
-			.date-table {
-				> tbody {
-					> tr > td {
-						&:last-child, &:first-child {
-							background: fadeout(@default-calender-color, 90%);
-						}
-					}
-				}
-				height: auto;
-				td {
-					text-align: center;
-					padding: 0.2em 0;
-					div.label {
-						border-radius: 1px;
-					}
-					&.selected {
-						div.label {
-							background: #00b5ad;
-						}
-					}
-					&:hover:not(.selected) {
-						div.label {
-							color: #fff;
-							background: fadeout(@default-calender-color, 50%);
-						}
-					}
-				}
-			}
-		}
-	}
-
-}
-
-.ui.drop-box.drop-container {
-	> .ui.calendar {
-		font-size: 0.9em;
-
-		.header {
-			height: 1.75em;
-			padding: 0.25em 0.5em;
-
-			.button {
-				width: 1.5em;
-				height: 1.5em;
-				line-height: 1.5em;
-				font-size: 1em;
-			}
-			.label {
-				margin: 0 1.5em;
-				line-height: 1.5em;
-				font-size: 1em;
-			}
-		}
-		.date-header td {
-			.transform(scale(0.8));
-			color: rgba(0, 0, 0, 0.5);
-		}
-		.date-table-wrapper {
-			position: relative;
-			min-height: 100px;
 			min-width: 100px;
 			.date-table {
 				> tbody {

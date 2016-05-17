@@ -8,37 +8,37 @@
 
 </head>
 <body style="padding: 20px;">
-<div id="showDialog"></div>
+<div c-widget="button; caption:显示层; click:showLayer"></div>
+<div id="layer" style="background-color: #fff">
+	<div c-widget="button; caption:显示Dailog; click:showDialog"></div>
+	<div id="modalDialog">
 
-<div id="showModalDialog"></div>
-<div id="dialog" c-widget="dialog"></div>
-<div id="modalDialog" c-widget="dialog; dimmerClose:true">
-	<div class="actions">
-		<div c-widget="button; caption:确认"></div>
+		<div c-widget="Widget; height:500px"></div>
+		<div class="actions">
+			<div c-widget="button; caption:确认"></div>
+		</div>
 	</div>
 </div>
 
 <script type="text/javascript">
 	cola(function (model) {
-
+		model.action({
+			showDialog: function () {
+				cola.widget("modalDialog").show();
+			},
+			showLayer: function () {
+				cola.widget("layer").show();
+			}
+		});
 		model.widgetConfig({
-			showDialog: {
-				$type: "button",
-				caption: "显示",
-				click: function () {
-					cola.widget("dialog").show();
-				}
+			layer: {
+				$type: "Layer"
 			},
-			showModalDialog:{
-				$type: "button",
-				caption: "显示模态",
-
-				click: function () {
-					cola.widget("modalDialog").show();
-				}
-			},
-			dialog: {
-				width: "40%", height: "40%"
+			modalDialog: {
+				$type: "Dialog",
+				animation:"fade down",
+				dimmerClose: true,
+				context: "parent"
 			}
 		});
 	})

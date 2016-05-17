@@ -7,67 +7,24 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			var sn = 0;
-
-//			var items = [];
-//			var i = 0;
-//			for (var attr in document.body) {
-////				if (++i > 30) break;
-//				items.push({
-//					name: attr
-//				});
-//			}
-			model.set("a", 123);
-
 			model.describe("items", {
 				provider: {
-					url: "languages.json",
-					pageSize: 10,
-					parameter: {
-						sss: "{{a*3}}"
-					}
+					url: "languages{{$pageNo}}.json",
+					pageSize: 10
 				}
 			});
 
 			model.widgetConfig({
-				pagerExample: {
-					$type: "pager",
-					bind: "items",
-					items: ["|<", "<", "info"]
-				},
-				pager1: {
-					$type: "Pager",
-					bind: "items"
+				pager:{
+					$type:"Pager",
+					bind:"item in items"
 				},
 				listScroll: {
 					$type: "listView",
-//					class: "striped",
 					bind: "item in items",
 					allowNoCurrent: false,
-//					group: true,
-//					indexBar: true,
-					pullDown: true,
-					pullUp: true,
-					itemSlide: "both",
 					height: "100%",
-//					currentPageOnly: true,
 					autoLoadPage: true
-//					columns: "row 2 4",
-//					highlightCurrentItem: false,
-//					getGroupString: function (arg) {
-//						var name = arg.item.get("name");
-//						if (name) arg.result = name.charAt(0).toUpperCase();
-//					},
-//					pullStep: function (arg) {
-//						$("#divPullDown").text((arg.distance < arg.theshold) ? "继续下拉以刷新" : "释放以刷新");
-//					},
-//					pullComplete: function (arg) {
-//						$("#divPullDown").text("正在刷新...");
-//						setTimeout(arg.done, 1000);
-//					},
-//					itemClick: function(self, arg) {
-//						self.showItemSlidePane(arg.item, "right");
-//					}
 				}
 
 			});
@@ -77,7 +34,7 @@
 	</style>
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
-<div id="pager1"></div>
+<div id="pager"></div>
 <div class="flex-box">
 	<div id="listScroll">
 		<template name="default">
@@ -87,18 +44,6 @@
 		</template>
 	</div>
 </div>
-<div id="pagerExample"></div>
-<div c-widget="pager; bind:items">
-	<a page-code="|<" class="item"></a>
-	<a page-code="<" class="item"></a>
-	<a page-code="info" class="item"></a>
-	<a page-code=">" class="item"></a>
-	<a page-code=">|" class="item"></a>
 
-	<div class="right menu">
-		<div page-code="goto" class="item"></div>
-
-	</div>
-</div>
 </body>
 </html>

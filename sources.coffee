@@ -71,7 +71,7 @@ sources =
 			"src/widget/layout/sidebar.coffee"
 			"src/widget/layout/tab.coffee"
 			"src/widget/layout/panel.coffee"
-			"src/widget/layout/notify-tip.coffee"
+			"src/widget/base/notify-tip.coffee"
 		]
 		collection: [
 			"src/widget/collection/item-group.coffee"
@@ -96,7 +96,6 @@ sources =
 			"src/widget/list/table.coffee"
 			"src/widget/list/pager.coffee"
 			"src/widget/list/time-line.coffee"
-#			"src/widget/edit/color-picker.coffee"
 		]
 	i18n:
 		en: [
@@ -144,7 +143,6 @@ sources =
 			"src/css/semantic/input-overrides.less"
 			"src/css/semantic/segment-overrides.less"
 			"src/css/textarea.less"
-#			"src/css/color-picker.less"
 			"src/css/notify-tip.less"
 		]
 

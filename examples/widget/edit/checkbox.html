@@ -8,8 +8,19 @@
 
 
 </head>
-<body style="padding: 20px;" class="">
+<body style="padding: 20px;">
+
+<div c-widget="Toggle; onValue:{{d.on}}; offValue:{{d.off}}; bind:currentValue"></div>
+<span c-bind="currentValue"></span>
 <script type="text/javascript">
+	cola(function (model) {
+		model.set("currentValue",123)
+		model.set("d",{
+			on:122,
+			off:123
+		})
+	});
+
 
 	function createWidget(configs) {
 		configs.forEach(function (config) {
@@ -25,36 +36,34 @@
 	createWidget([
 		{
 			$type: "Checkbox",
-			label:"已阅读所有条款！"
-		},{
+			label: "已阅读所有条款！"
+		}, {
 			$type: "Slider",
-			label:"开启"
-		},{
+			label: "开启"
+		}, {
 			$type: "Toggle",
-			label:"开关"
-		},{
+			label: "开关"
+		}, {
 			$type: "Segment",
 			content: [
 				{
 					$type: "RadioButton",
-					name:"name",
-					label:"1"
+					name: "name",
+					label: "1"
 				},
 				{
 					$type: "RadioButton",
-					name:"id",
-					label:"2"
+					name: "id",
+					label: "2"
 				},
 				{
 					$type: "RadioButton",
-					name:"id",
-					label:"3"
+					name: "id",
+					label: "3"
 				}
 			]
 		}
 	]);
-
-
 
 
 </script>

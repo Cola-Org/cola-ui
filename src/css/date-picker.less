@@ -1,4 +1,60 @@
 @import (reference) "global";
+@default-calender-color:@teal;
+.ui.calendar.mild {
+	.header {
+		height: 1.75em;
+		padding: 0.25em 0.5em;
+
+		.button {
+			width: 1.5em;
+			height: 1.5em;
+			line-height: 1.5em;
+			font-size: 1em;
+		}
+		.label {
+			margin: 0 1.5em;
+			line-height: 1.5em;
+			font-size: 1em;
+		}
+	}
+	.date-header td {
+		.transform(scale(0.8));
+		color: rgba(0, 0, 0, 0.5);
+	}
+	.date-table-wrapper {
+		position: relative;
+		min-height: 100px;
+		min-width: 100px;
+		.date-table {
+			> tbody {
+				> tr > td {
+					&:last-child, &:first-child {
+						background: fadeout(@default-calender-color, 90%);
+					}
+				}
+			}
+			height: auto;
+			td {
+				text-align: center;
+				padding: 0.2em 0;
+				div.label {
+					border-radius: 1px;
+				}
+				&.selected {
+					div.label {
+						background: #00b5ad;
+					}
+				}
+				&:hover:not(.selected) {
+					div.label {
+						color: #fff;
+						background: fadeout(@default-calender-color, 50%);
+					}
+				}
+			}
+		}
+	}
+}
 
 .ui.date.input {
 	> input {
@@ -10,9 +66,9 @@
 }
 
 .ui.year-month-grid {
+	//font-size: 0.9em;
 	.header {
-		padding: 0.25em 1em 0.5em;
-		//background-color: #f4f4f4;
+		padding: 0.5em 1em;
 		border-bottom: 1px solid @teal;
 		> .year {
 			.display(box);
@@ -87,3 +143,4 @@
 		}
 	}
 }
+

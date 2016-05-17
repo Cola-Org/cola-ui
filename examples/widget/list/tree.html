@@ -41,16 +41,22 @@
 						model.set("currentNode.nodes", []);
 						nodes = model.get("currentNode.nodes")
 					}
-					nodes.insert({
-						name: "New Node"
-					});
+//					var entity = nodes.insert({
+//						name: "New Node"
+//					});
+					var tree = cola.widget("tree");
+					var currentNode = tree.findNode(model.get("currentNode"));
+					debugger
+					tree.expand(currentNode);
+
+
 				}
 			});
 
 			model.widgetConfig({
 				tree: {
 					$type: "tree",
-					class: "navigator",
+
 					pullDown: true,
 					pullUp: true,
 					autoCollapse: true,
@@ -59,6 +65,7 @@
 						recursive: true,
 						expandedProperty: "expanded",
 						checkedProperty: "checked",
+						textProperty: "name",
 						expression: "node in node.nodes"
 					},
 					currentNodeChange: function (self, arg) {
@@ -74,14 +81,12 @@
 <body style="padding:0px;margin:0;" class="v-box">
 <div class="box">
 	<div c-widget="input; bind:currentNode.name"></div>
-	<div c-widget="button; caption:Add; click:add()"></div>
+	<div c-widget="button; caption:Add; click:add"></div>
 	<div c-widget="checkbox; bind:currentNode.checked"></div>
 </div>
 <div class="flex-box">
 	<div id="tree" style="height:100%">
-		<template name="node-normal">
-			<span c-bind="node.name" style="margin-right:8px"></span>
-		</template>
+
 	</div>
 </div>
 </body>

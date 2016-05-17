@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8">
+	<title>Entity</title>
+	<script src="../include-all.js"></script>
+
+</head>
+<body style="padding: 20px;">
+
+<div class="ui button" c-onclick="test()">
+	Test
+</div>
+
+
+<script type="text/javascript">
+	cola(function (model) {
+		model.action("test", function (menu) {
+			console.log(model.get("person").state);
+		});
+		model.dataType({
+			name: "Person",
+			properties: {
+				name: {
+					validators: [
+						"required", {
+							$type: "length",
+							min: 4,
+							max: 20
+						}
+					]
+				},
+				sex: {
+					dataType: "boolean",
+					defaultValue: true,
+					validators: ["required"]
+				},
+				birthDate: {
+					dataType: "date"
+				},
+
+				phone: {
+					validators: ["required"]
+				}
+			}
+		});
+
+
+		model.describe("person", "Person");
+		model.set("person", {id: "001"});
+	})
+
+
+</script>
+
+</body>
+</html>

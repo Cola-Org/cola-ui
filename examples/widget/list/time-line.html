@@ -46,21 +46,25 @@
 	</script>
 </head>
 <body style="padding: 20px;">
-<div class="circular log" c-widget="timeLine; bind:item in items;">
-	<template name="content">
 
-		<strong c-bind="item.content.title"></strong>
+	<div class="ui segment">
+		<div class="circular" c-widget="timeLine; bind:item in items;">
+			<template name="content">
 
-		<p c-bind="item.content.description"></p>
+				<strong c-bind="item.content.title"></strong>
 
-	</template>
-	<template name="icon">
-		<i c-classname="'icon '+item.icon"></i>
-	</template>
-	<template name="label">
-		<div c-bind="item.time.date" class="date"></div>
-		<div c-bind="item.time.time" class="date-time"></div>
-	</template>
-</div>
+				<p c-bind="item.content.description"></p>
+
+			</template>
+			<template name="icon">
+				<i c-classname="'icon '+item.icon"></i>
+			</template>
+			<template name="label">
+				<div c-bind="item.time.date" class="date"></div>
+				<div c-bind="item.time.time" class="date-time"></div>
+			</template>
+		</div>
+	</div>
+
 </body>
 </html>

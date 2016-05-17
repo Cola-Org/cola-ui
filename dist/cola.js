@@ -10356,7 +10356,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_events, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_events, TEMP_TEMPLATE, WIDGET_TAGS_REGISTRY, _columnsSetter, _compileWidgetAttribute, _compileWidgetDom, _createGroupArray, _destroyRenderableElement, _extendWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_events, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_events, TEMP_TEMPLATE, TipManager, WIDGET_TAGS_REGISTRY, _columnsSetter, _compileWidgetAttribute, _compileWidgetDom, _createGroupArray, _destroyRenderableElement, _extendWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -18118,6 +18118,161 @@
 
   })(cola.Panel);
 
+  TipManager = [];
+
+  cola.NotifyTip = (function(superClass) {
+    extend(NotifyTip, superClass);
+
+    function NotifyTip() {
+      return NotifyTip.__super__.constructor.apply(this, arguments);
+    }
+
+    NotifyTip.tagName = "c-notify-tip";
+
+    NotifyTip.CLASS_NAME = "transition hidden notify-tip message";
+
+    NotifyTip.attributes = {
+      type: {
+        defaultValue: "info",
+        "enum": ["info", "warning", "error", "success"]
+      },
+      message: {
+        refreshDom: true
+      },
+      description: {
+        refreshDom: true
+      },
+      showDuration: null
+    };
+
+    NotifyTip.prototype._initDom = function(dom) {
+      var notifyTip;
+      NotifyTip.__super__._initDom.call(this, dom);
+      notifyTip = this;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      $(dom).xAppend([
+        {
+          tagName: "i",
+          "class": "close icon",
+          contextKey: "closeBtn"
+        }, {
+          tagName: "div",
+          "class": "header",
+          contextKey: "header"
+        }, {
+          tagName: "p",
+          contextKey: "description"
+        }
+      ], this._doms);
+      return $(this._doms.closeBtn).on("click", function() {
+        return notifyTip.hide();
+      });
+    };
+
+    NotifyTip.prototype._doRefreshDom = function() {
+      if (!this._dom) {
+        return;
+      }
+      NotifyTip.__super__._doRefreshDom.call(this);
+      $(this._doms.header).text(this._message || "");
+      return $(this._doms.description).text(this._description || "");
+    };
+
+    NotifyTip.prototype._doTransition = function(options, callback) {
+      var isShow, notifyTip;
+      notifyTip = this;
+      isShow = options.target === "show";
+      if (isShow) {
+        this.get$Dom().addClass(this._type);
+        if (this._showDuration) {
+          setTimeout(function() {
+            return notifyTip.hide();
+          }, parseInt(this._showDuration));
+        }
+      } else {
+        options.animation = "scale";
+      }
+      return NotifyTip.__super__._doTransition.call(this, options, callback);
+    };
+
+    NotifyTip.prototype._onHide = function() {
+      NotifyTip.__super__._onHide.call(this);
+      return this.destroy();
+    };
+
+    NotifyTip.prototype.close = NotifyTip.hide;
+
+    return NotifyTip;
+
+  })(cola.Layer);
+
+  cola.NotifyTipManager = {
+    show: function(options) {
+      var container, dom, tip;
+      if (typeof options === "string") {
+        options = {
+          message: options
+        };
+      }
+      tip = new cola.NotifyTip(options);
+      dom = tip.getDom();
+      container = $("#c-notify-tip-container");
+      if (container.length === 0) {
+        container = $.xCreate({
+          tagName: "div",
+          id: "c-notify-tip-container"
+        });
+        document.body.appendChild(container);
+      }
+      $(container).append(dom);
+      tip.show();
+      return tip;
+    },
+    info: function(options) {
+      if (typeof options === "string") {
+        options = {
+          message: options
+        };
+      }
+      options.type = "info";
+      return cola.NotifyTipManager.show(options);
+    },
+    warning: function(options) {
+      if (typeof options === "string") {
+        options = {
+          message: options
+        };
+      }
+      options.type = "warning";
+      return cola.NotifyTipManager.show(options);
+    },
+    error: function(options) {
+      if (typeof options === "string") {
+        options = {
+          message: options
+        };
+      }
+      options.type = "error";
+      return cola.NotifyTipManager.show(options);
+    },
+    success: function(options) {
+      if (typeof options === "string") {
+        options = {
+          message: options
+        };
+      }
+      options.type = "success";
+      return cola.NotifyTipManager.show(options);
+    },
+    clear: function() {
+      return $("#c-notify-tip-container").find(">.notify-tip").each(function() {
+        return cola.widget(this).hide();
+      });
+    }
+  };
+
   cola.AbstractEditor = (function(superClass) {
     extend(AbstractEditor, superClass);
 
@@ -20816,7 +20971,7 @@
       return DateGrid.__super__.constructor.apply(this, arguments);
     }
 
-    DateGrid.CLASS_NAME = "calendar";
+    DateGrid.CLASS_NAME = "calendar mild";
 
     DateGrid.attributes = {
       columnCount: {
@@ -21438,6 +21593,7 @@
             };
           })(this)
         });
+        dateGrid.setCurrentDate(new Date());
         this._dropdownContent = dateGrid.getDom();
       }
       return this._dropdownContent;
@@ -27669,7 +27825,7 @@
     };
 
     CascadeBind.prototype.retrieveChildNodes = function(parentNode, callback, dataCtx) {
-      var base, childItems, childLoader, funcs, hasChild, isRoot, items, originChildItems, originRecursiveItems, recursiveItems, recursiveLoader, ref, ref1;
+      var childItems, childLoader, funcs, hasChild, isRoot, items, originChildItems, originRecursiveItems, recursiveItems, recursiveLoader, ref, ref1;
       isRoot = !parentNode._parent;
       hasChild = false;
       funcs = [];
@@ -27715,11 +27871,10 @@
           hasChild = true;
         }
       }
-      if (funcs.length && callback) {
+      if (funcs.length) {
         cola.util.waitForAll(funcs, {
           scope: this,
           complete: function(success, result) {
-            var base;
             if (success) {
               hasChild = false;
               if (this._recursive || isRoot) {
@@ -27740,29 +27895,21 @@
                 childItems = this._child._expression.evaluate(parentNode._scope, "never", dataCtx);
                 originChildItems = dataCtx.originData;
               }
-              if (hasChild) {
-                this._wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems);
-              } else {
-                parentNode._hasChild = false;
+              this._wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems);
+              parentNode._hasChild = hasChild;
+              if (callback) {
+                cola.callback(callback, true);
               }
-              if (typeof (base = parentNode._itemsScope).onItemsRefresh === "function") {
-                base.onItemsRefresh();
-              }
-              cola.callback(callback, true);
             } else {
-              cola.callback(callback, false, result);
+              if (callback) {
+                cola.callback(callback, false, result);
+              }
             }
           }
         });
       } else {
-        if (hasChild) {
-          this._wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems);
-        } else {
-          parentNode._hasChild = false;
-        }
-        if (typeof (base = parentNode._itemsScope).onItemsRefresh === "function") {
-          base.onItemsRefresh();
-        }
+        this._wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems);
+        parentNode._hasChild = hasChild;
         if (callback) {
           cola.callback(callback, true);
         }
@@ -28938,6 +29085,10 @@
         $nodesWrapper.slideUp(150);
       }
       node._expanded = false;
+    };
+
+    Tree.prototype._onItemsRefresh = function() {
+      this._refreshItems();
     };
 
     Tree.prototype._onItemRemove = function(arg) {

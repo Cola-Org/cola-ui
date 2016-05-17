@@ -5,9 +5,9 @@ class cola.NotifyTip extends cola.Layer
 	@CLASS_NAME: "transition hidden notify-tip message"
 	@attributes:
 		type:
-			defaultValue: "info"
+			defaultValue: ""
 			enum: [
-				"info", "warning", "error", "success"
+				"info", "warning", "error", "success", ""
 			]
 		message:
 			refreshDom: true
@@ -60,7 +60,6 @@ class cola.NotifyTip extends cola.Layer
 		@destroy()
 	close: @hide
 
-
 cola.NotifyTipManager =
 	show: (options)->
 		if typeof options == "string"
@@ -108,6 +107,7 @@ cola.NotifyTipManager =
 			}
 		options.type = "success"
 		cola.NotifyTipManager.show(options)
+
 	clear: ()->
 		$("#c-notify-tip-container").find(">.notify-tip").each(()->
 			cola.widget(@).hide()

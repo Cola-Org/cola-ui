@@ -73,3 +73,10 @@
     - name: autoExpand
       type: boolean
       label: 是否在用户点击某个树节点时自动展开该节点
+  methods:
+    - name: findNode
+      label: 获得Entity对应的树节点
+      arguments:
+        - name: entity
+          type: cola.Entity
+          return cola.TreeNode
