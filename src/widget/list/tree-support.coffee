@@ -117,7 +117,7 @@ class cola.CascadeBind extends cola.Element
 				originChildItems = dataCtx.originData
 				hasChild = true
 
-		if funcs.length and callback
+		if funcs.length
 			cola.util.waitForAll(funcs, {
 				scope: @
 				complete: (success, result) ->
@@ -138,25 +138,21 @@ class cola.CascadeBind extends cola.Element
 							childItems = @_child._expression.evaluate(parentNode._scope, "never", dataCtx)
 							originChildItems = dataCtx.originData
 
-						if hasChild
-							@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
-								originChildItems)
-						else
-							parentNode._hasChild = false
-						parentNode._itemsScope.onItemsRefresh?()
-						cola.callback(callback, true)
+						@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
+							originChildItems)
+						parentNode._hasChild = hasChild
+
+#						parentNode._itemsScope.onItemsRefresh?()
+						if callback then cola.callback(callback, true)
 					else
-						cola.callback(callback, false, result)
+						if callback then cola.callback(callback, false, result)
 					return
 			})
 		else
-			if hasChild
-				@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems)
-			else
-				parentNode._hasChild = false
-			parentNode._itemsScope.onItemsRefresh?()
-			if callback
-				cola.callback(callback, true)
+			@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems)
+			parentNode._hasChild = hasChild
+#			parentNode._itemsScope.onItemsRefresh?()
+			if callback then cola.callback(callback, true)
 		return
 
 	hasChildItems: (parentScope) ->

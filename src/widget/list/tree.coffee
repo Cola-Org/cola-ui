@@ -113,6 +113,7 @@ class cola.Tree extends cola.AbstractList
 		"node":
 			tagName: "span"
 			"c-bind": "$default"
+
 	_initDom: (dom) ->
 		super(dom)
 		$fly(@_doms.itemsWrapper)
@@ -305,7 +306,6 @@ class cola.Tree extends cola.AbstractList
 		return super(evt)
 
 
-
 	_expandButtonClick: (evt)->
 		buttonDom = evt.currentTarget
 		return unless buttonDom
@@ -387,6 +387,10 @@ class cola.Tree extends cola.AbstractList
 			$nodesWrapper.slideUp(150)
 
 		node._expanded = false
+		return
+
+	_onItemsRefresh: () ->
+		@_refreshItems()
 		return
 
 	_onItemRemove: (arg) ->
