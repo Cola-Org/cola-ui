@@ -7,6 +7,7 @@
 	<script src="../../include-all.js"></script>
 </head>
 <body style="padding: 20px;">
+<div c-widget="button; caption:default; click:show"></div>
 <div c-widget="button; caption:info; click:info"></div>
 <div c-widget="button; caption:warning; click:warning"></div>
 <div c-widget="button; caption:error; click:error"></div>
@@ -15,31 +16,35 @@
 <script type="text/javascript">
 	cola(function (model) {
 		model.action({
-			info: function () {
+			show:function () {
 				cola.NotifyTipManager.show({
 					message: "系统消息",
 					description: "今晚19：00准时看新闻联播哦！",
 					showDuration: 5000
 				})
 			},
+			info: function () {
+				cola.NotifyTipManager.info({
+					message: "系统消息",
+					description: "今晚19：00准时看新闻联播哦！",
+					showDuration: 5000
+				})
+			},
 			warning: function () {
-				cola.NotifyTipManager.show({
+				cola.NotifyTipManager.warning({
 					message: "系统警告",
-					type: "warning",
 					description: "您所执行的后台任务出现警告请查看控制台！"
 				})
 			},
 			error: function () {
-				cola.NotifyTipManager.show({
+				cola.NotifyTipManager.error({
 					message: "系统报错",
-					type: "error",
 					description: "您所执行的后台任务出现错误请查看控制台！"
 				})
 			},
 			success: function () {
-				cola.NotifyTipManager.show({
+				cola.NotifyTipManager.success({
 					message: "提交成功",
-					type: "success",
 					description: "后台任务执行成功！"
 				})
 			},

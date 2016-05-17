@@ -3427,6 +3427,51 @@ template {
   border-bottom-width: 1px;
 }
 
+.ui.calendar.mild .header {
+  height: 1.75em;
+  padding: 0.25em 0.5em;
+}
+.ui.calendar.mild .header .button {
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  font-size: 1em;
+}
+.ui.calendar.mild .header .label {
+  margin: 0 1.5em;
+  line-height: 1.5em;
+  font-size: 1em;
+}
+.ui.calendar.mild .date-header td {
+  transform: scale(0.8);
+  color: rgba(0, 0, 0, 0.5);
+}
+.ui.calendar.mild .date-table-wrapper {
+  position: relative;
+  min-height: 100px;
+  min-width: 100px;
+}
+.ui.calendar.mild .date-table-wrapper .date-table {
+  height: auto;
+}
+.ui.calendar.mild .date-table-wrapper .date-table > tbody > tr > td:last-child,
+.ui.calendar.mild .date-table-wrapper .date-table > tbody > tr > td:first-child {
+  background: rgba(0, 181, 173, 0.1);
+}
+.ui.calendar.mild .date-table-wrapper .date-table td {
+  text-align: center;
+  padding: 0.2em 0;
+}
+.ui.calendar.mild .date-table-wrapper .date-table td div.label {
+  border-radius: 1px;
+}
+.ui.calendar.mild .date-table-wrapper .date-table td.selected div.label {
+  background: #00b5ad;
+}
+.ui.calendar.mild .date-table-wrapper .date-table td:hover:not(.selected) div.label {
+  color: #fff;
+  background: rgba(0, 181, 173, 0.5);
+}
 .ui.date.input > input {
   font-family: Arial, sans-serif;
 }
@@ -3497,9 +3542,6 @@ template {
 .ui.year-month-grid .table-wrapper table td.selected > div {
   background-color: #00b5ad;
   color: rgba(255, 255, 255, 0.9);
-}
-.ui.drop-box.drop-container .ui.year-month-grid {
-  font-size: 0.9em;
 }
 
 .ui.sub-view {
@@ -5202,54 +5244,6 @@ template {
   background: #00b5ad;
 }
 .calendar.material .date-table-wrapper .date-table td:hover:not(.selected) div.label {
-  color: #fff;
-  background: rgba(0, 181, 173, 0.5);
-}
-.ui.drop-box.drop-container > .ui.calendar {
-  font-size: 0.9em;
-}
-.ui.drop-box.drop-container > .ui.calendar .header {
-  height: 1.75em;
-  padding: 0.25em 0.5em;
-}
-.ui.drop-box.drop-container > .ui.calendar .header .button {
-  width: 1.5em;
-  height: 1.5em;
-  line-height: 1.5em;
-  font-size: 1em;
-}
-.ui.drop-box.drop-container > .ui.calendar .header .label {
-  margin: 0 1.5em;
-  line-height: 1.5em;
-  font-size: 1em;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-header td {
-  transform: scale(0.8);
-  color: rgba(0, 0, 0, 0.5);
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper {
-  position: relative;
-  min-height: 100px;
-  min-width: 100px;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table {
-  height: auto;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table > tbody > tr > td:last-child,
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table > tbody > tr > td:first-child {
-  background: rgba(0, 181, 173, 0.1);
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td {
-  text-align: center;
-  padding: 0.2em 0;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td div.label {
-  border-radius: 1px;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td.selected div.label {
-  background: #00b5ad;
-}
-.ui.drop-box.drop-container > .ui.calendar .date-table-wrapper .date-table td:hover:not(.selected) div.label {
   color: #fff;
   background: rgba(0, 181, 173, 0.5);
 }
