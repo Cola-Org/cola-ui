@@ -165,6 +165,9 @@ class cola.Tree extends cola.AbstractList
 
 		@_currentNode = node
 
+		if @_currentItemAlias
+			@_scope.set(@_currentItemAlias, node?._data)
+
 		if node
 			itemDom = @_itemDomMap[node._id]
 			if itemDom and @_highlightCurrentItem
@@ -202,9 +205,6 @@ class cola.Tree extends cola.AbstractList
 				contentDom = @_cloneTemplate(template)
 				$fly(contentDom).addClass("node-content")
 				nodeDom.appendChild(contentDom)
-
-		if !@_currentNode
-			@_setCurrentNode(node)
 		return itemDom
 
 	_getDefaultBindPath: (node) ->
@@ -213,6 +213,10 @@ class cola.Tree extends cola.AbstractList
 			return (node._alias) + "." + textProperty
 
 	_refreshItemDom: (itemDom, node, parentScope) ->
+		nodeScope = cola.util.userData(itemDom, "scope")
+		if nodeScope?.data.getTargetData() isnt node
+			collapsed = true
+
 		nodeScope = super(itemDom, node, parentScope)
 		node._scope = nodeScope
 
@@ -228,16 +232,19 @@ class cola.Tree extends cola.AbstractList
 						click: () -> tree._onCheckboxClick(node)
 					)
 
-		if node.get("expanded")
+		if not collapsed and node.get("expanded")
 			if node._hasExpanded
 				@_refreshChildNodes(itemDom, node)
 			else
 				@expand(node)
 		else
+			if collapsed then @collapse(node, true)
 			nodeDom = itemDom.firstChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
 
-		if node == @_currentNode and @_highlightCurrentItem
+		if not @_currentNode
+			@_setCurrentNode(node)
+		else if node == @_currentNode and @_highlightCurrentItem
 			$fly(itemDom).addClass("current")
 		return nodeScope
 
@@ -328,7 +335,7 @@ class cola.Tree extends cola.AbstractList
 		itemDom = @_itemDomMap[itemId]
 		return cola.util.userData(itemDom, "item")
 
-	expand: (node) ->
+	expand: (node, noAnimation = true) ->
 		itemDom = @_itemDomMap[node._id]
 		return unless itemDom
 
@@ -355,7 +362,10 @@ class cola.Tree extends cola.AbstractList
 
 				$nodesWrapper = $fly(itemDom.lastChild)
 				if $nodesWrapper.hasClass("child-nodes")
-					$nodesWrapper.slideDown(150)
+					if noAnimation
+						$nodesWrapper.show()
+					else
+						$nodesWrapper.slideDown(150)
 			else
 				$fly(nodeDom).addClass("leaf")
 			node._expanded = true
@@ -369,7 +379,7 @@ class cola.Tree extends cola.AbstractList
 		)
 		return
 
-	collapse: (node) ->
+	collapse: (node, noAnimation = true) ->
 		itemDom = @_itemDomMap[node._id]
 		return unless itemDom
 
@@ -384,10 +394,20 @@ class cola.Tree extends cola.AbstractList
 		$fly(itemDom.firstChild).removeClass("expanded")
 		$nodesWrapper = $fly(itemDom.lastChild)
 		if $nodesWrapper.hasClass("child-nodes")
-			$nodesWrapper.slideUp(150)
+			if noAnimation
+				$nodesWrapper.hide()
+			else
+				$nodesWrapper.slideUp(150)
 
 		node._expanded = false
 		return
+
+	_refreshItems: () ->
+		if @_currentNode
+			itemDom = @_itemDomMap[@_currentNode._id]
+			delete @_currentNode
+			$fly(itemDom).removeClass("current") if itemDom
+		return super()
 
 	_onItemsRefresh: () ->
 		@_refreshItems()
