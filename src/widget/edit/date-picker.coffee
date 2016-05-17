@@ -1,5 +1,5 @@
 class cola.DateGrid extends cola.RenderableElement
-	@CLASS_NAME: "calendar"
+	@CLASS_NAME: "calendar mild"
 	@attributes:
 		columnCount:
 			type: "number"
@@ -384,11 +384,11 @@ class cola.DatePicker extends cola.CustomDropdown
 			if !readOnly
 				value = $(@_doms.input).val()
 				inputFormat = @_inputFormat or @_displayFormat or DEFAULT_DATE_DISPLAY_FORMAT
-				if inputFormat
+				if inputFormat and value
 					value = inputFormat + "||" + value
 					xDate = new XDate(value)
 					value = xDate.toDate()
-					@set("value", value)
+				@set("value", value)
 			return
 
 		$(@_doms.input).on("change", ()=>
@@ -479,6 +479,7 @@ class cola.DatePicker extends cola.CustomDropdown
 					d = Date.parse(value)
 					datePicker.close(new Date(d))
 			})
+			dateGrid.setCurrentDate(new Date())
 			@_dropdownContent = dateGrid.getDom()
 		return @_dropdownContent
 class cola.YearMonthGrid extends cola.RenderableElement

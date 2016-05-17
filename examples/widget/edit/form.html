@@ -2,57 +2,67 @@
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="UTF-8"/>
 	<script src="../../include-all.js"></script>
 	<style>
+
+
+		/*.ui.form .ui.input {*/
+		/*border: 1px solid #fcb059;*/
+		/*display: -webkit-box !important;*/
+		/*display: -moz-box !important;*/
+		/*}*/
+
+		/*.ui.form .ui.input > input {*/
+		/*-webkit-box-flex: 1 !important;*/
+		/*-moz-box-flex: 1 !important;*/
+		/*display: block !important;*/
+		/*}*/
+
+		/*.ui.form .ui.input > :not(input) {*/
+		/*-webkit-box-flex: 0 !important;*/
+		/*-moz-box-flex: 0 !important;*/
+		/*display: block !important;*/
+		/*}*/
+
+		/*.flex-unsupported body {*/
+			/*background-color: #0000ed !important;*/
+
+		/*}*/
+
+
 	</style>
 	<script type="text/javascript">
-		cola.ready(function () {
-//			cola.widget("form1").setMessages([{
-//				type: "error",
-//				text: "AAAAAAAAAAAAAA"
-//			}]);
-//			$(".ui.form").form({
-//				on: "disabled",
-//				inline: true
-//			});
-		});
+
 
 		cola(function (model) {
-			model.describe({
-				id: {
-					validators: ["required", new cola.CustomValidator({
-						func: function (value) {
-							console.log(value)
-						}
-					}),function(value,ddd){
-						console.log(value)
-					}]
-				},
-				num: {
-					dataType: "int",
-					validators: [{
-						$type: "number",
-						min: 1,
-						max: 100
-					}]
-				}
-			});
-
+			model.set("supportFlex", typeof document.documentElement.style.flex === "string");
 			model.widgetConfig({});
 		});
+
+
 	</script>
 </head>
 <body style="padding:20px;">
-
+<div c-bind="supportFlex"></div>
 <div id="form1" c-widget="form">
 	<div class="field">
-		<div c-widget="input; bind:id"></div>
+		<div c-widget="input; bind:id">
+			<div c-widget="Button; caption:提交"></div>
+		</div>
 	</div>
 	<div class="field">
 		<div c-widget="input; bind:num"></div>
 	</div>
-	<!--<div class="ui error message"></div>-->
+	<div class="field">
+		<div class="ui left icon input loading">
+			<input type="text" placeholder="Search...">
+			<i class="search icon"></i>
+		</div>
+	</div>
+
 </div>
+
 
 </body>
 </html>

@@ -6,6 +6,7 @@
 @timeLineContentMarginLeft: @timeLineLeftWidth + @timeLineIconSize;
 @timeLineLineColor: #e0e0e0;
 @timeLineDefaultIconColor: #18a689;
+@timeLineItemMarginBottom:0.4em;
 
 @-webkit-keyframes breathe {
 	0% {
@@ -27,13 +28,13 @@
 				position: absolute;
 				border: 1px solid @timeLineLineColor;
 				left: @timeLineLeftWidth;
-				top: @timeLineIconSize;
-				bottom: 0;
+				top: @timeLineIconSize - @timeLineItemMarginBottom;
+				bottom:0em;
 				content: "";
 			}
-			.label{
+			.label {
 				position: absolute;
-				top: 0.3em;
+				top: 0em;
 				width: @timeLineLeftWidth;
 				display: inline-block;
 				text-align: right;
@@ -42,7 +43,8 @@
 
 			.content {
 				margin-left: @timeLineContentMarginLeft;
-				padding-bottom: 1em;
+				padding-bottom: @timeLineItemMarginBottom;
+				margin-bottom: @timeLineItemMarginBottom;
 				p {
 					color: rgba(103, 106, 108, 0.7);
 					padding: 0.4em 0
@@ -51,7 +53,7 @@
 			> .icon {
 				position: absolute;
 				left: @timeLineIconMarginLeft;
-				top: 0;
+				top: -0.4em;
 				display: inline-block;
 				width: @timeLineIconSize;
 				height: @timeLineIconSize;
@@ -111,29 +113,18 @@
 				}
 				> .content {
 					position: relative;
-					padding: 0.8em 1em;
+					padding: 0.4em 1em;
 					color: @titleColor;
+					border-radius: 0.2em;
 					strong {
 						display: block;
 						border-bottom: 1px solid @titleBorderColor;
 						line-height: 2em;
-
 					}
 					p {
 						color: @cupFontColor;
 						font-size: 0.85em;
 						padding: 1em 0;
-					}
-					&:after {
-						position: absolute;
-						left: 0;
-						top: 0.2em;
-						right: 0;
-						content: "";
-						bottom: 0.2em;
-						z-index: -1;
-						border-radius: 0.2em;
-
 					}
 					&:before {
 						width: 0;
@@ -147,7 +138,7 @@
 						border-bottom: 0.4em solid transparent;
 					}
 				}
-				> .label{
+				> .label {
 					top: 0.1em;
 					> * {
 						display: list-item;
@@ -165,9 +156,7 @@
 			> .item:nth-of-type(even) {
 				> .content {
 					position: relative;
-					&:after {
-						background-color: @evenBkgColor;
-					}
+					background-color: @evenBkgColor;
 					&:before {
 						border-right-color: @evenBkgColor;
 					}
@@ -175,14 +164,11 @@
 			}
 			> .item:nth-of-type(odd) {
 				> .content {
-					&:after {
-						background-color: @oddBkgColor;
-					}
+					background-color: @oddBkgColor;
 					&:before {
 						border-right-color: @oddBkgColor;
 					}
 				}
-
 			}
 		}
 
@@ -196,8 +182,8 @@
 
 	}
 	.mixin_message_color(@name,@color) {
-		@mOddBkgColor:lighten(@color, 8%);
-		@mEvenBkgColor:lighten(@color, 3%);
+		@mOddBkgColor: lighten(@color, 8%);
+		@mEvenBkgColor: lighten(@color, 3%);
 		&.log.@{name} {
 			> .items {
 				> .item {
@@ -207,7 +193,7 @@
 					.icon {
 						color: @color;
 					}
-					> .label{
+					> .label {
 						> .date-time {
 							color: @mEvenBkgColor;
 						}
@@ -215,19 +201,16 @@
 				}
 				> .item:nth-of-type(even) {
 					> .content {
-						&:after{
-							background-color: @mEvenBkgColor;
-						}
-						 &:before {
+						background-color: @mEvenBkgColor;
+						&:before {
 							border-right-color: @mEvenBkgColor;
 						}
 					}
 				}
 				> .item:nth-of-type(odd) {
 					> .content {
-						&:after{
-							background-color: @mOddBkgColor;
-						}
+
+						background-color: @mOddBkgColor;
 						&:before {
 							border-right-color: @mOddBkgColor;
 						}

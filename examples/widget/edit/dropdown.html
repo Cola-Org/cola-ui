@@ -109,12 +109,12 @@
 				{name: "Pascal"}
 			]);
 
-			setTimeout(function () {
-				model.set("items", [
-					{k: "1", v: "A"},
-					{k: "2", v: "B"}
-				]);
-			}, 300);
+
+			model.set("items", [
+				{k: "1", v: "A"},
+				{k: "2", v: "B"}
+			]);
+
 
 			model.action({
 				pickValue: function (self) {
@@ -129,6 +129,9 @@
 				}
 
 			});
+
+
+			model.set("currentSelected", 1)
 
 			model.widgetConfig({
 				button1: {
@@ -177,6 +180,13 @@
 							if (dropdown) dropdown.close(arg.item);
 						}
 					}
+				},
+				mappingDropDown: {
+					$type: "dropdown",
+					items: "{{item in items}}",
+					valueProperty: "k",
+					textProperty: "v",
+					bind: "currentSelected"
 				}
 			});
 		});
@@ -217,7 +227,7 @@
 <p></p>
 
 <div id="dropdown5"></div>
-
+<div id="mappingDropDown"></div>
 
 </body>
 </html>

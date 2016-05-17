@@ -37,7 +37,7 @@ function includeAll(root) {
 	writeScriptlet("widget/collection.js");
 	writeScriptlet("widget/list.js");
 
-	//writeScriptlet("i18n/zh-Hans/cola.js");
+	writeScriptlet("i18n/zh/cola.js");
 }
 
 includeAll(location.protocol + "//" + location.host + "/cola-ui/dest/dev/");
