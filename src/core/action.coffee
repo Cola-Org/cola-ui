@@ -106,3 +106,5 @@ cola.defaultAction.format = cola.util.format
 
 _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
 cola.defaultAction.number2Word = (number) -> _numberWords[number]
+
+cola.defaultAction.backgroundImage = (url) -> if url then "url(#{url})" else "none"
