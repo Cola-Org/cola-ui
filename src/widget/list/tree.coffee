@@ -409,10 +409,6 @@ class cola.Tree extends cola.AbstractList
 			$fly(itemDom).removeClass("current") if itemDom
 		return super()
 
-	_onItemsRefresh: () ->
-		@_refreshItems()
-		return
-
 	_onItemRemove: (arg) ->
 		nodeId = _getEntityId(arg.entity)
 		node = @_nodeMap[nodeId]

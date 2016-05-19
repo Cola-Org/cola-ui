@@ -142,7 +142,7 @@ class cola.CascadeBind extends cola.Element
 							originChildItems)
 						parentNode._hasChild = hasChild
 
-#						parentNode._itemsScope.onItemsRefresh?()
+						parentNode._itemsScope.onItemsRefresh?()
 						if callback then cola.callback(callback, true)
 					else
 						if callback then cola.callback(callback, false, result)
@@ -151,7 +151,7 @@ class cola.CascadeBind extends cola.Element
 		else
 			@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems)
 			parentNode._hasChild = hasChild
-#			parentNode._itemsScope.onItemsRefresh?()
+			parentNode._itemsScope.onItemsRefresh?()
 			if callback then cola.callback(callback, true)
 		return
 
