@@ -162,11 +162,42 @@ class cola.Tab extends cola.Widget
 		tabsWrap = $dom.find(">.tab-bar>.tabs")
 		oldPosition = tabsWrap.css(style)
 		oldPosition = parseInt(oldPosition.replace("px", ""))
-		oldPosition + size
 		if next
-			tabsWrap.css(style, (oldPosition - size) + "px")
+			size = -1 * size
+
+		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		direction = @_direction
+		horizontal = direction is "top" or direction is "bottom"
+		lastTab = buttons[buttons.length - 1]
+		firstTab = buttons[0]
+		$tabBar = $dom.find(">.tab-bar")
+		tabBarOffset = $tabBar.offset()
+		controlBtn = $tabBar.find(".next-button")
+		if horizontal
+			firstLeft = $(firstTab).offset().left + size
+			lastLeft = $(lastTab).offset().left + size
+			lastWidth = $(lastTab).outerWidth()
+			if next
+				l = tabBarOffset.left + $tabBar.outerWidth() - controlBtn.outerWidth()
+				if lastLeft + lastWidth < l
+					size = size + l - (lastLeft + lastWidth)
+			else
+				l = tabBarOffset.left + controlBtn.outerWidth()
+				if firstLeft > l
+					size = size - (firstLeft - l)
 		else
-			tabsWrap.css(style, (oldPosition + size) + "px")
+			firstTop = $(firstTab).offset().top + size
+			lastTop = $(lastTab).offset().top + size
+			lastHeight = $(lastTab).outerHeight()
+			if next
+				t = tabBarOffset.top + $tabBar.outerHeight() - controlBtn.outerHeight()
+				if lastTop + lastHeight < t
+					size = size + t - (lastTop + lastHeight)
+			else
+				t = tabBarOffset.top + controlBtn.outerHeight()
+				if firstTop > t
+					size = size - (firstTop - t)
+		tabsWrap.css(style, (oldPosition + size) + "px")
 		@refreshNavButtons()
 
 	_doRefreshDom: ()->
@@ -216,13 +247,10 @@ class cola.Tab extends cola.Widget
 		$(dom).delegate("> .tab-bar > .tabs > .tab-button", "click", (event)->
 			activeExclusive(this, event)
 		)
-
+		renderTabs.push(this)
 		return @ unless @_tabs
 		@_tabRender(tab) for tab in @_tabs
 		@setCurrentTab(@_currentTab or 0)
-
-		renderTabs.push(this)
-
 		setTimeout(()=>
 			@refreshNavButtons()
 		, 150)
