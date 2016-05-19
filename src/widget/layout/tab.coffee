@@ -1,3 +1,10 @@
+renderTabs = []
+$(window).resize(()->
+	for tab in renderTabs
+		tab.refreshNavButtons()
+	return
+)
+
 class cola.Tab extends cola.Widget
 	@tagName: "c-tab"
 	@CLASS_NAME: "c-tab"
@@ -10,7 +17,7 @@ class cola.Tab extends cola.Widget
 			setter: (value)->
 				oldValue = @_direction
 				if oldValue and oldValue isnt value and @_dom
-					@get$Dom().removeClass("#{oldValue}-bar")
+					@get$Dom().removeClass("#{oldValue}-tab")
 				@_direction = value
 				return @
 
@@ -47,13 +54,129 @@ class cola.Tab extends cola.Widget
 		tab.set("contentContainer", container)
 		contentDom = tab.getContentDom()
 		container.appendChild(contentDom) if contentDom
+
+	_makeControlBtn: ()->
+		tabBar = $(@_dom).find(">.tab-bar")
+		tabControl = @
+		tabBar.prepend($.xCreate({
+			tagName: "div"
+			class: "pre-button control-button"
+		}))
+		tabBar.append($.xCreate({
+			tagName: "div"
+			class: "next-button control-button"
+		}))
+		tabBar.find(">.next-button").on("click", ()->
+			if $(@).hasClass("disabled") then return
+			tabControl._doMove(true)
+		)
+		tabBar.find(">.pre-button").on("click", ()->
+			if $(@).hasClass("disabled") then return
+			tabControl._doMove(false)
+		)
+		return
+
+	_getTabButtonsSize: ()->
+		$dom = @_$dom or $(@_dom)
+		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		direction = @_direction
+		horizontal = direction is "top" or direction is "bottom"
+		lastTab = buttons[buttons.length - 1]
+		firstTab = buttons[0]
+		if horizontal
+			firstLeft = $(firstTab).offset().left
+			lastLeft = $(lastTab).offset().left
+			return lastLeft + $(lastTab).outerWidth() - firstLeft
+		else
+			firstTop = $(firstTab).offset().top
+			lastTop = $(lastTab).offset().top
+			return lastTop + $(lastTab).outerHeight() - firstTop
+
+	refreshNavButtons: ()->
+		$dom = @_$dom or $(@_dom)
+		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		visible = false
+		direction = @_direction
+		tabsWrap = $dom.find(">.tab-bar>.tabs")
+		horizontal = direction is "top" or direction is "bottom"
+		tabBar = $dom.find(">.tab-bar")
+		style = if horizontal then "left" else "top"
+		unless horizontal
+			setTimeout(()->
+				tabBar.css("width", tabsWrap.width() + "px")
+			, 100)
+
+
+		if buttons.length <= 1
+			$dom.find(".control-button").toggleClass("visible", false)
+			tabsWrap.css(style, "0px")
+			return
+		lastTab = buttons[buttons.length - 1]
+		firstTab = buttons[0]
+		buttonsSize = @_getTabButtonsSize()
+		if horizontal
+			tabBarWidth = $dom.find(">.tab-bar").innerWidth()
+			firstLeft = $(firstTab).offset().left
+			visible = tabBarWidth < buttonsSize
+		else
+			tabBarHeight = $dom.find(">.tab-bar").innerHeight()
+			firstTop = $(firstTab).offset().top
+			visible = tabBarHeight < buttonsSize
+
+		if visible
+			controlButtons = tabBar.find(">.control-button")
+			if controlButtons.length < 1 then @_makeControlBtn()
+			if horizontal
+				oldPosition = tabsWrap.css("left")
+				oldPosition = parseInt(oldPosition.replace("px", ""))
+				if oldPosition == 0
+					tabsWrap.css("left", tabBar.find(">.next-button").width() + "px");
+				left = $dom.find(">.tab-bar").offset().left
+				lastELeft = $(lastTab).offset().left + $(lastTab).outerWidth()
+				tabBar.find(">.next-button").toggleClass("disabled", lastELeft < left + tabBarWidth)
+				tabBar.find(">.pre-button").toggleClass("disabled", firstLeft > left)
+			else
+				oldPosition = tabsWrap.css("top")
+				oldPosition = parseInt(oldPosition.replace("px", ""))
+				tabsWrap.css("left", "0px");
+				if oldPosition == 0
+					tabsWrap.css("top", tabBar.find(">.next-button").height() + "px");
+				top = $dom.find(">.tab-bar").offset().top
+
+				lastETop = $(lastTab).offset().top + $(lastTab).outerHeight()
+				tabBar.find(">.next-button").toggleClass("disabled", lastETop < top + tabBarHeight)
+				tabBar.find(">.pre-button").toggleClass("disabled", firstTop > top)
+
+		$dom.find(".control-button").toggleClass("visible", visible)
+		unless  visible then  tabsWrap.css(style, "0px")
+		return
+
+	_doMove: (next)->
+		$dom = @_$dom or $(@_dom)
+		direction = @_direction
+		horizontal = direction is "top" or direction is "bottom"
+		style = if horizontal then "left" else "top"
+		size = @_getTabButtonsSize() / $dom.find(">.tab-bar>.tabs>.tab-button").length
+		if horizontal then size = size / 2
+
+		tabsWrap = $dom.find(">.tab-bar>.tabs")
+		oldPosition = tabsWrap.css(style)
+		oldPosition = parseInt(oldPosition.replace("px", ""))
+		oldPosition + size
+		if next
+			tabsWrap.css(style, (oldPosition - size) + "px")
+		else
+			tabsWrap.css(style, (oldPosition + size) + "px")
+		@refreshNavButtons()
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-		@_classNamePool.remove("top-bar")
-		@_classNamePool.add("#{@_direction}-bar")
-
+		@_classNamePool.remove("top-tab")
+		@_classNamePool.add("#{@_direction}-tab")
+		@refreshNavButtons()
 		return
+
 	setCurrentTab: (index)->
 		oldTab = @get("currentTab")
 		newTab = @getTab(index)
@@ -97,8 +220,20 @@ class cola.Tab extends cola.Widget
 		return @ unless @_tabs
 		@_tabRender(tab) for tab in @_tabs
 		@setCurrentTab(@_currentTab or 0)
+
+		renderTabs.push(this)
+
+		setTimeout(()=>
+			@refreshNavButtons()
+		, 150)
 		return @
 
+	destroy: ()->
+		return if @_destroyed
+		i = renderTabs.indexOf(@)
+		if i > -1
+			renderTabs.splice(i, 1)
+		super()
 	_parseTabBarDom: (dom)->
 		@_doms ?= {}
 
@@ -208,6 +343,7 @@ class cola.Tab extends cola.Widget
 		@_tabs.push(tab)
 		tab.set("parent", @)
 		@_tabRender(tab)if @_dom
+		@refreshNavButtons()
 
 		return @
 	getTab: (index)->
@@ -243,6 +379,7 @@ class cola.Tab extends cola.Widget
 			contentContainer = obj.get("contentContainer")
 			obj.remove()
 			$(contentContainer).remove() if contentContainer?.parentNode is @_doms.contents
+		@refreshNavButtons()
 		return true
 
 	clear: ()->
