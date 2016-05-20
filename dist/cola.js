@@ -20500,10 +20500,13 @@
       }).on("blur", function() {
         $fly(valueContent).removeClass("placeholder");
       });
+      if (!this._skipSetIcon) {
+        this.set("icon", "dropdown");
+      }
     };
 
     AbstractDropdown.prototype._parseDom = function(dom) {
-      var child, skipSetIcon;
+      var child;
       if (!dom) {
         return;
       }
@@ -20513,13 +20516,10 @@
         child = this._doms.input.nextSibling;
         while (child) {
           if (child.nodeType === 1 && child.nodeName !== "TEMPLATE") {
-            skipSetIcon = true;
+            this._skipSetIcon = true;
             break;
           }
           child = child.nextSibling;
-        }
-        if (!skipSetIcon) {
-          this.set("icon", "dropdown");
         }
       }
     };
@@ -21032,6 +21032,11 @@
           valueContent.appendChild(this._cloneTemplate(template));
         }
       }
+    };
+
+    Dropdown.prototype._initDom = function(dom) {
+      this._regDefaultTempaltes();
+      return Dropdown.__super__._initDom.call(this, dom);
     };
 
     Dropdown.prototype.open = function() {

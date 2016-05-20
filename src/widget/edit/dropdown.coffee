@@ -67,6 +67,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			$fly(valueContent).removeClass("placeholder")
 			return
 		)
+
+		unless @_skipSetIcon
+			@set("icon", "dropdown")
 		return
 
 	_parseDom: (dom)->
@@ -78,11 +81,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			child = @_doms.input.nextSibling
 			while child
 				if child.nodeType == 1 and child.nodeName != "TEMPLATE"
-					skipSetIcon = true
+					@_skipSetIcon = true
 					break
 				child = child.nextSibling
-			if !skipSetIcon
-				@set("icon", "dropdown")
+
 		return
 
 	_createEditorDom: () ->
@@ -491,7 +493,9 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if template
 				valueContent.appendChild(@_cloneTemplate(template))
 		return
-
+	_initDom:(dom)->
+		@_regDefaultTempaltes()
+		super(dom)
 	open: () ->
 		super()
 		list = @_list
