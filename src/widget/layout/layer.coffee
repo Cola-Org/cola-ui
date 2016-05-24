@@ -78,7 +78,12 @@ class cola.Layer extends cola.AbstractLayer
 				"horizontal flip", "vertical flip"
 			]
 	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
-	_transitionStart: ()->
+	_transitionStart: (type)->
+		$dom = @get$Dom()
+		if type is "show"
+			$dom.css({
+				zIndex: cola.floatWidget.zIndex()
+			})
 
 	_doTransition: (options, callback)->
 		layer = @
@@ -136,7 +141,7 @@ class cola.Layer extends cola.AbstractLayer
 				configs.x = 0
 
 			$dom.removeClass("hidden").addClass("visible").transit(configs)
-			@_transitionStart()
+			@_transitionStart(options.target)
 		return
 
 cola.registerWidget(cola.Layer)
