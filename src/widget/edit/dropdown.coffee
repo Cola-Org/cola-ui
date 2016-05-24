@@ -45,6 +45,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		beforeOpen: null
 		open: null
 		close: null
+		selectData: null
 
 	_initDom: (dom) ->
 		super(dom)
@@ -344,6 +345,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_currentItem = item
 		@_skipFindCurrentItem = true
 		@set("value", value)
+		@fire("selectData", @, { data: item })
 		@_skipFindCurrentItem = false
 		@refresh()
 		return
@@ -398,10 +400,6 @@ class DropBox extends cola.Layer
 			.css("left", left).css("top", top)
 			.css("min-width", dropdownDom.offsetWidth)
 			.css("max-width",document.body.clientWidth)
-
-		$dom.css({
-			zIndex: cola.floatWidget.zIndex()
-		})
 
 		@_animation = "fade"
 
