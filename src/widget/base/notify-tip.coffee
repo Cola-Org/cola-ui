@@ -47,6 +47,9 @@ class cola.NotifyTip extends cola.Layer
 		notifyTip = @
 		isShow = options.target is "show"
 		if isShow
+			if cola.device.mobile
+				options.animation = "scale"
+
 			@get$Dom().addClass(@_type)
 			if @_showDuration
 				setTimeout(()->
@@ -58,6 +61,10 @@ class cola.NotifyTip extends cola.Layer
 	_onHide: ()->
 		super()
 		@destroy()
+		container=$("#c-notify-tip-container")
+		if container.children().length ==0
+			container.remove()
+
 	close: @hide
 
 cola.NotifyTipManager =

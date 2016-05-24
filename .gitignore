@@ -1,3 +1,5 @@
 .idea
 /dest
 /node_modules
+/src/css/color-picker.less
+/src/widget/edit/color-picker.coffee
