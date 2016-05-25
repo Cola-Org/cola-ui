@@ -2,7 +2,11 @@ oldErrorTemplate = $.fn.form.settings.templates.error
 $.fn.form.settings.templates.error = (errors) ->
 	if errors.length is 1 and errors[0]?.form instanceof cola.Form
 		errors = errors[0].form._errors
-	return oldErrorTemplate.call(@, errors)
+
+	if errors.length is 0
+		return ""
+	else
+		return oldErrorTemplate.call(@, errors)
 
 class cola.Form extends cola.Widget
 	@tagName: "c-form"
