@@ -255,8 +255,11 @@ $ () ->
 		)
 		$(document.body).delegate("a.state", "click", () ->
 			href = @getAttribute("href")
-			cola.setRoutePath(href) if href
-			return false
+			if href
+				target = @getAttribute("target")
+				if not target or target is "_self"
+					cola.setRoutePath(href)
+					return false
 		)
 
 		path = _getHashPath()

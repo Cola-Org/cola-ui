@@ -462,3 +462,10 @@ class cola.Widget extends cola.RenderableElement
 cola.floatWidget =
 	_zIndex: 1100
 	zIndex: ()-> return ++cola.floatWidget._zIndex
+
+cola.Exception.showException = (exception) ->
+	if ex instanceof cola.Exception or ex instanceof Error
+		msg = ex.message
+	else
+		msg = ex + ""
+	cola.alert(msg)
