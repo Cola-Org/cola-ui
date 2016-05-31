@@ -130,7 +130,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		if @_items
 			return {items: @_items}
 		else
-			return super()
+			return @_getItems()
 	
 	setCurrentIndex: (index)->
 		@fire("change", @, {index: index})
