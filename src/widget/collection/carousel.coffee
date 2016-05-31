@@ -18,7 +18,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		change: null
 	
 	getContentContainer: ()->
-		@_createItemsWrap(dom) unless @_doms.wrap
+		@_createItemsWrap(@_dom) unless @_doms.wrap
 		return @_doms.wrap
 	
 	_parseDom: (dom)->
