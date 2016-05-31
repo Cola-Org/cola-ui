@@ -43,7 +43,7 @@ class cola.AbstractList extends cola.ItemsView
 		if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
 			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
 				itemsWrapper = @_doms.itemsWrapper
-				if itemsWrapper.scrollTop + itemsWrapper.clientHeight == itemsWrapper.scrollHeight
+				if Math.abs((itemsWrapper.scrollTop + itemsWrapper.clientHeight) - itemsWrapper.scrollHeight) < 6
 					@_loadingNextPage = true
 					$fly(itemsWrapper).find(">.tail-padding >.ui.loader").addClass("active")
 					realItems.loadPage(realItems.pageNo + 1, () =>

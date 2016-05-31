@@ -90,7 +90,8 @@ class cola.RenderableElement extends cola.Element
 	_createDom: ()->
 		dom = document.createElement(@constructor.tagName or "div")
 		className = @constructor.CLASS_NAME or ""
-		dom.className = "ui #{className}"
+		if (className)
+			$fly(dom).addClass("ui #{className}")
 		return dom
 
 	_doSet: (attr, attrConfig, value) ->
@@ -102,9 +103,9 @@ class cola.RenderableElement extends cola.Element
 		cola.util.cancelDelay(@, "_refreshDom")
 
 		return unless @_dom
-		@_classNamePool.add("ui")
 		className = @constructor.CLASS_NAME
 		if className
+			@_classNamePool.add("ui")
 			names = $.trim(className).split(" ")
 			@_classNamePool.add(name) for name in names
 
@@ -200,7 +201,6 @@ class cola.RenderableElement extends cola.Element
 Dorado 基础组件
 ###
 class cola.Widget extends cola.RenderableElement
-	@CLASS_NAME: "control"
 	@SEMANTIC_CLASS: ["left floated", "right floated"]
 
 	@attributes:

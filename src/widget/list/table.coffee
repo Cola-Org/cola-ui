@@ -515,6 +515,6 @@ class cola.Table extends cola.AbstractTable
 	_onItemsWrapperScroll: () ->
 		@_refreshFixedHeader() if @_showHeader
 		@_refreshFixedFooter() if @_showFooter
-		return
+		return super()
 
 cola.registerWidget(cola.Table)

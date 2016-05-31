@@ -289,9 +289,9 @@ _extendWidget = (superCls, definition) ->
 
 			templateDom = @xRender(template)
 			if templateDom
-				for attr in dom.attributes
+				for attr in templateDom.attributes
 					attrName = attr.name
-					if not attrName is "style"
+					if attrName isnt "style"
 						dom.setAttribute(attrName, attr.value) if not dom.hasAttribute(attrName)
 
 				for cssName of templateDom.style
