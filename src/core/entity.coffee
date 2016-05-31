@@ -797,6 +797,7 @@ class cola.Entity
 	toJSON: (options) ->
 		state = options?.state or false
 		oldData = options?.oldData or false
+		simpleValue = options?.simpleValue or false
 
 		data = @_data
 		json = {}
@@ -804,7 +805,7 @@ class cola.Entity
 			if value
 				if value instanceof cola.AjaxServiceInvoker
 					continue
-				else if value instanceof _Entity or value instanceof _EntityList
+				else if (value instanceof _Entity or value instanceof _EntityList) and not simpleValue
 					value = value.toJSON(options)
 			json[prop] = value
 
