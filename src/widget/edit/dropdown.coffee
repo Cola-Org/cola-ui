@@ -70,7 +70,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		)
 
 		unless @_skipSetIcon
-			@set("icon", "dropdown")
+			unless @_icon then @set("icon", "dropdown")
 		return
 
 	_parseDom: (dom)->
