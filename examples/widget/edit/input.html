@@ -58,16 +58,20 @@
 	<div class="field">
 		<div c-widget="input; bind:id; postOnInput"></div>
 	</div>
+
 	<div class="field">
-		<div c-widget="input; bind:num"></div>
+		<div c-widget="input; bind:num; inputType:number;"></div>
 	</div>
+
 	<span c-bind="id"></span>
 
 	<div class="field">
 		<div id="inputEventTest" c-widget="input;"></div>
 	</div>
 
-
+	<div class="field">
+		<input type="number">
+	</div>
 </div>
 <div class="fluid" c-widget="Input; placeholder:搜索99位同学; icon:search; iconPosition:left; bind:username; keydown:query"></div>
 </body>
