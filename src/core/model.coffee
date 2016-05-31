@@ -625,6 +625,10 @@ class cola.AbstractDataModel
 				rootData.set(prop, data, context)
 		return
 
+	reset: (name) ->
+		@_rootData?.reset(name)
+		return @
+
 	flush: (name, loadMode) ->
 		@_rootData?.flush(name, loadMode)
 		return @

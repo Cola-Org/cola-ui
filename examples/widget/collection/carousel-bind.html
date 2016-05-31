@@ -7,6 +7,8 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
+
+
 			model.action({
 				setData: function () {
 					model.set("items", [
@@ -23,13 +25,13 @@
 	</script>
 </head>
 <body style="padding: 20px;">
-<div c-widget="button; caption:setData; click:setData"></div>
-<div c-widget="Carousel; bind:item in items; height:400;">
+<c-button caption="setData" c-click="setData()"></c-button>
+<c-carousel bind="item in items" height="400">
 	<template>
 		<a href="#" style="display:block">
 			<img c-widget="image; src:{{item.image}}; class:centered;"/>
 		</a>
 	</template>
-</div>
+</c-carousel>
 </body>
 </html>

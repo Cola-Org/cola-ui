@@ -14,28 +14,24 @@
 					name: attr
 				});
 			}
-			model.set("items", items);
-//			model.describe("items", {
-//				provider: "languages.json"
-//			});
-
-			console.dir(model.get("items").find({
-				name: "attributes"
-			}));
+//			model.set("items", items);
+			model.describe("items", {
+				provider: "languages.json"
+			});
 
 			model.widgetConfig({
 				listScroll: {
 					$type: "listView",
-					class: "striped",
+//					class: "striped",
 					bind: "item in sort(items,'name')",
-					allowNoCurrent: false,
-					group: true,
-					indexBar: true,
-					pullDown: true,
-					pullUp: true,
-					itemSlide: "both",
-					height: "100%",
-					columns: "row 2 4",
+//					allowNoCurrent: false,
+//					group: true,
+//					indexBar: true,
+//					pullDown: true,
+//					pullUp: true,
+//					itemSlide: "both",
+//					height: "100%",
+//					columns: "row 2 4",
 //					highlightCurrentItem: false,
 					getGroupString: function (arg) {
 						var name = arg.item.get("name");

@@ -3818,7 +3818,7 @@
               value = this._jsonToEntity(value, null, true, provider);
             } else if (value instanceof Date) {
 
-            } else {
+            } else if (!(value instanceof _Entity || value instanceof _EntityList)) {
               value = this._jsonToEntity(value, null, false, provider);
             }
           }
@@ -6467,6 +6467,14 @@
       }
     };
 
+    AbstractDataModel.prototype.reset = function(name) {
+      var ref;
+      if ((ref = this._rootData) != null) {
+        ref.reset(name);
+      }
+      return this;
+    };
+
     AbstractDataModel.prototype.flush = function(name, loadMode) {
       var ref;
       if ((ref = this._rootData) != null) {
@@ -8726,12 +8734,15 @@
         }
       });
       $(document.body).delegate("a.state", "click", function() {
-        var href;
+        var href, target;
         href = this.getAttribute("href");
         if (href) {
-          cola.setRoutePath(href);
+          target = this.getAttribute("target");
+          if (!target || target === "_self") {
+            cola.setRoutePath(href);
+            return false;
+          }
         }
-        return false;
       });
       path = _getHashPath();
       if (path) {
@@ -12292,6 +12303,16 @@
     zIndex: function() {
       return ++cola.floatWidget._zIndex;
     }
+  };
+
+  cola.Exception.showException = function(exception) {
+    var msg;
+    if (ex instanceof cola.Exception || ex instanceof Error) {
+      msg = ex.message;
+    } else {
+      msg = ex + "";
+    }
+    return cola.alert(msg);
   };
 
   cola.WidgetDataModel = (function(superClass) {
@@ -16621,7 +16642,15 @@
 
     Layer.SLIDE_ANIMATIONS = ["slide left", "slide right", "slide up", "slide down"];
 
-    Layer.prototype._transitionStart = function() {};
+    Layer.prototype._transitionStart = function(type) {
+      var $dom;
+      $dom = this.get$Dom();
+      if (type === "show") {
+        return $dom.css({
+          zIndex: cola.floatWidget.zIndex()
+        });
+      }
+    };
 
     Layer.prototype._doTransition = function(options, callback) {
       var $dom, animation, configs, duration, height, isHorizontal, isShow, layer, onComplete, width, x, y;
@@ -16699,7 +16728,7 @@
           configs.x = 0;
         }
         $dom.removeClass("hidden").addClass("visible").transit(configs);
-        this._transitionStart();
+        this._transitionStart(options.target);
       }
     };
 
@@ -18394,6 +18423,9 @@
       notifyTip = this;
       isShow = options.target === "show";
       if (isShow) {
+        if (cola.device.mobile) {
+          options.animation = "scale";
+        }
         this.get$Dom().addClass(this._type);
         if (this._showDuration) {
           setTimeout(function() {
@@ -18407,8 +18439,13 @@
     };
 
     NotifyTip.prototype._onHide = function() {
+      var container;
       NotifyTip.__super__._onHide.call(this);
-      return this.destroy();
+      this.destroy();
+      container = $("#c-notify-tip-container");
+      if (container.children().length === 0) {
+        return container.remove();
+      }
     };
 
     NotifyTip.prototype.close = NotifyTip.hide;
@@ -20474,7 +20511,8 @@
     AbstractDropdown.events = {
       beforeOpen: null,
       open: null,
-      close: null
+      close: null,
+      selectData: null
     };
 
     AbstractDropdown.prototype._initDom = function(dom) {
@@ -20845,6 +20883,9 @@
       this._currentItem = item;
       this._skipFindCurrentItem = true;
       this.set("value", value);
+      this.fire("selectData", this, {
+        data: item
+      });
       this._skipFindCurrentItem = false;
       this.refresh();
     };
@@ -20914,9 +20955,6 @@
         $dom.css("height", height);
       }
       $dom.removeClass(direction === "down" ? "direction-up" : "direction-down").addClass("direction-" + direction).toggleClass("x-over", boxWidth > dropdownDom.offsetWidth).css("left", left).css("top", top).css("min-width", dropdownDom.offsetWidth).css("max-width", document.body.clientWidth);
-      $dom.css({
-        zIndex: cola.floatWidget.zIndex()
-      });
       this._animation = "fade";
       DropBox.__super__.show.call(this, options, callback);
     };
@@ -22206,7 +22244,11 @@
     if (errors.length === 1 && ((ref = errors[0]) != null ? ref.form : void 0) instanceof cola.Form) {
       errors = errors[0].form._errors;
     }
-    return oldErrorTemplate.call(this, errors);
+    if (errors.length === 0) {
+      return "";
+    } else {
+      return oldErrorTemplate.call(this, errors);
+    }
   };
 
   cola.Form = (function(superClass) {

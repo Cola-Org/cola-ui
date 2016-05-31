@@ -3906,6 +3906,9 @@ template {
 .ui.message-box.mobile.tradition.error .header {
   background-color: #db2828;
 }
+.mobile .ui.message-box {
+  min-width: 300px !important;
+}
 
 .ui.layer {
   position: absolute;
@@ -6164,4 +6167,9 @@ textarea.error {
 .ui.notify-tip {
   width: 100%;
   display: inline-block;
+}
+.mobile #c-notify-tip-container {
+  left: 1em;
+  right: 1em;
+  width: auto;
 }
