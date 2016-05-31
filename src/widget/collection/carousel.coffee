@@ -18,7 +18,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		change: null
 	
 	getContentContainer: ()->
-		@_createItemsWrap(dom) unless @_doms.wrap
+		@_createItemsWrap(@_dom) unless @_doms.wrap
 		return @_doms.wrap
 	
 	_parseDom: (dom)->
@@ -130,7 +130,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		if @_items
 			return {items: @_items}
 		else
-			return super()
+			return @_getItems()
 	
 	setCurrentIndex: (index)->
 		@fire("change", @, {index: index})

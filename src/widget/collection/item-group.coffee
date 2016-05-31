@@ -13,7 +13,6 @@ class cola.AbstractItemGroup extends cola.Widget
 				return @
 
 	constructor: (config) ->
-		@_items = []
 		super(config)
 	getContentContainer: ()->return @getDom()
 	getItems: ()->return @_items
@@ -28,6 +27,8 @@ class cola.AbstractItemGroup extends cola.Widget
 		return itemDom
 
 	_addItemToDom: (item)->
+		unless @_dom then return
+
 		container = @getContentContainer()
 		itemDom = @getItemDom(item)
 		container.appendChild(itemDom) if itemDom.parentNode isnt container
