@@ -23,6 +23,9 @@ class cola.Sidebar extends cola.AbstractLayer
 			defaultValue: true
 
 	_doTransition: (options, callback)->
+
+		$(window.document.body).toggleClass("hide-overflow", options.target is "show")
+
 		if @get("modal")
 			if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
 		sidebar = @
@@ -126,6 +129,7 @@ class cola.Sidebar extends cola.AbstractLayer
 		$(_dimmerDom).transit({
 				opacity: 0
 				complete: ()->
+
 					$(_dimmerDom).removeClass("active").css({
 						zIndex: 0
 					})

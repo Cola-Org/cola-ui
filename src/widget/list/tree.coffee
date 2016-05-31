@@ -214,7 +214,8 @@ class cola.Tree extends cola.AbstractList
 
 	_refreshItemDom: (itemDom, node, parentScope) ->
 		nodeScope = cola.util.userData(itemDom, "scope")
-		if nodeScope?.data.getTargetData() isnt node
+		# TODO 尝试修复新增节点数据时父节点自动收缩的bug
+		if nodeScope?.data.getTargetData() isnt node.get("data")
 			collapsed = true
 
 		nodeScope = super(itemDom, node, parentScope)
@@ -227,8 +228,13 @@ class cola.Tree extends cola.AbstractList
 				if checkboxDom
 					tree = @
 					checkbox = cola.widget(checkboxDom)
+					# TODO 尝试修复Checkbox 默认第三态的bug
+					dataPath = nodeScope.data.alias + "." + node._bind._checkedProperty
+					checkedPropValue = nodeScope.get(dataPath)
+					if typeof checkedPropValue == "undefined"
+						nodeScope.set(dataPath, false)
 					checkbox.set(
-						bind: nodeScope.data.alias + "." + node._bind._checkedProperty
+						bind: dataPath
 						click: () -> tree._onCheckboxClick(node)
 					)
 
