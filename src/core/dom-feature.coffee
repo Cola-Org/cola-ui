@@ -17,6 +17,10 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			@watchingMoreMessage = @expression.hasCallStatement
 
 	evaluate: (domBinding, dynaExpressionOnly, dataCtx, loadMode = "async") ->
+		dataCtx ?= {}
+		dataCtx.vars ?= {}
+		dataCtx.vars.$dom = domBinding.dom
+
 		if dynaExpressionOnly
 			result = @dynaExpression?.evaluate(domBinding.scope, loadMode, dataCtx)
 		else
