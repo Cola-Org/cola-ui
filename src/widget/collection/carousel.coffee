@@ -5,7 +5,10 @@ class cola.Carousel extends cola.AbstractItemGroup
 	@attributes:
 		bind:
 			readonlyAfterCreate: true
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr) ->
+				if bindStr then delete @_item
+				@_bindSetter(bindStr)
+				return
 		orientation:
 			defaultValue: "horizontal"
 			enum: ["horizontal", "vertical"]

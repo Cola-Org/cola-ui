@@ -264,10 +264,16 @@ _extendWidget = (superCls, definition) ->
 
 	if definition.events then cls.events = definition.events
 
-	template = definition.template
-	if template
+	if definition.template
+		template = definition.template
+		if typeof template is "string" and template.match(/^\#[\w\-\$]*$/)
+			template = document.getElementById(template.substring(1))
+			if template
+				definition.template = template.innerHTML
+				$fly(template).remove()
+
 		cls.attributes.template =
-			defaultValue: template
+			defaultValue: definition.template
 
 	cls::_createDom = () ->
 		if @_template
@@ -281,12 +287,6 @@ _extendWidget = (superCls, definition) ->
 		superCls::_initDom.call(@, dom)
 		template = @_template
 		if template and not @_domCreated
-			if typeof template is "string" and template.match(/^\#[\w\-\$]*$/)
-				@_template = document.getElementById(template.substring(1))
-				if @_template
-					template = @_template.innerHTML
-					$fly(@_template).remove()
-
 			templateDom = @xRender(template)
 			if templateDom
 				for attr in templateDom.attributes

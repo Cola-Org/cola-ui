@@ -125,7 +125,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_setValue: (value) ->
 		if not @_skipFindCurrentItem
-			if !@_itemsIndex
+			if not @_itemsIndex
 				if @_items and value and @_valueProperty
 					@_itemsIndex = index = {}
 					valueProperty = @_valueProperty
@@ -147,8 +147,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		input = @_doms.input
 		input.value = ""
 		item = @_currentItem
-		if not item? and not @_textProperty
-			item = @_value
+		if not item?
+			if not @_textProperty
+				item = @_value
+			else
+				item = {}
+				item[@_textProperty] = @_value
 
 		if item
 			input.placeholder = ""

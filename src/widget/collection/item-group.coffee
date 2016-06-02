@@ -13,6 +13,7 @@ class cola.AbstractItemGroup extends cola.Widget
 				return @
 
 	constructor: (config) ->
+		@_items = []
 		super(config)
 	getContentContainer: ()->return @getDom()
 	getItems: ()->return @_items
