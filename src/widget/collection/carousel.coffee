@@ -16,7 +16,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 	
 	@events:
 		change: null
-	
+		beforeChange: null
+
 	getContentContainer: ()->
 		@_createItemsWrap(@_dom) unless @_doms.wrap
 		return @_doms.wrap
@@ -74,7 +75,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		})
 		dom.appendChild(@_doms.wrap)
 		return null
-	
+
 	_initDom: (dom)->
 		@_createIndicatorContainer(dom) unless @_doms.indicators
 		@_createItemsWrap(dom) unless @_doms.wrap
@@ -84,6 +85,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			if @_bind
 				$fly(template).attr("c-repeat", @_bind)
 			@_doms.wrap.appendChild(template)
+
 			cola.xRender(template, @_scope)
 		
 		if @_getDataItems().items
@@ -133,7 +135,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 			return @_getItems()
 	
 	setCurrentIndex: (index)->
-		@fire("change", @, {index: index})
+		if @fire("beforeChange", @, {index: index}) is false then return;
+
 		@_currentIndex = index
 		if @_dom
 			if @_doms.indicators
@@ -145,6 +148,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			if @_scroller
 				pos = @_scroller.getPos()
 				if pos isnt index then @_scroller.slide(index)
+		@fire("change", @, {index: index})
 		return @
 	
 	refreshIndicators: ()->
@@ -155,18 +159,23 @@ class cola.Carousel extends cola.AbstractItemGroup
 			itemsCount = 0
 		
 		return unless @_doms?.indicators
-		indicatorCount = @_doms.indicators.children.length
-		
+
+		indicatorDoms = $(@_doms.indicators).find(">span");
+		indicatorCount = indicatorDoms.length
 		if indicatorCount < itemsCount
 			i = indicatorCount
 			while i < itemsCount
 				span = document.createElement("span")
-				@_doms.indicators.appendChild(span)
+				if i > 0
+					$($(@_doms.indicators).find(">span")[i - 1]).before(span)
+				else
+					$fly(@_doms.indicators).prepend(span)
 				i++
 		else if indicatorCount > itemsCount
 			i = itemsCount
 			while i < indicatorCount
-				$(@_doms.indicators.firstChild).remove()
+				indicators = $(@_doms.indicators).find(">span")
+				$(indicators[indicators.length - 1]).remove()
 				i++
 		@_currentIndex ?= -1
 		currentIndex = @_currentIndex

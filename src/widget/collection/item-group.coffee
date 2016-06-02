@@ -11,6 +11,8 @@ class cola.AbstractItemGroup extends cola.Widget
 			setter: (value)->
 				@setCurrentIndex(value)
 				return @
+	@events:
+		renderItem: null
 
 	constructor: (config) ->
 		super(config)
@@ -31,7 +33,10 @@ class cola.AbstractItemGroup extends cola.Widget
 
 		container = @getContentContainer()
 		itemDom = @getItemDom(item)
+
 		container.appendChild(itemDom) if itemDom.parentNode isnt container
+		@fire("renderItem", @, {dom: itemDom, item: item})
+
 		return
 
 	_itemsRender: ()->
@@ -60,7 +65,9 @@ class cola.AbstractItemGroup extends cola.Widget
 		item = cola.xRender(config, @_scope)
 		return @ unless item
 		active = cola.util.hasClass(item, "active")
+		@_items ?= []
 		@_items.push(item)
+
 		@_addItemToDom(item)
 		@setCurrentIndex(@_items.indexOf(item)) if active
 		@_doOnItemsChange()
