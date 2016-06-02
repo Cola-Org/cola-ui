@@ -4346,9 +4346,10 @@
     };
 
     Entity.prototype.toJSON = function(options) {
-      var data, json, oldData, prop, state;
+      var data, json, oldData, prop, simpleValue, state;
       state = (options != null ? options.state : void 0) || false;
       oldData = (options != null ? options.oldData : void 0) || false;
+      simpleValue = (options != null ? options.simpleValue : void 0) || false;
       data = this._data;
       json = {};
       for (prop in data) {
@@ -4356,7 +4357,7 @@
         if (value) {
           if (value instanceof cola.AjaxServiceInvoker) {
             continue;
-          } else if (value instanceof _Entity || value instanceof _EntityList) {
+          } else if ((value instanceof _Entity || value instanceof _EntityList) && !simpleValue) {
             value = value.toJSON(options);
           }
         }
@@ -11112,11 +11113,11 @@
         }
         templateDom = this.xRender(template);
         if (templateDom) {
-          ref1 = dom.attributes;
+          ref1 = templateDom.attributes;
           for (n = 0, len1 = ref1.length; n < len1; n++) {
             attr = ref1[n];
             attrName = attr.name;
-            if (!attrName === "style") {
+            if (attrName !== "style") {
               if (!dom.hasAttribute(attrName)) {
                 dom.setAttribute(attrName, attr.value);
               }
@@ -11759,7 +11760,9 @@
       var className, dom;
       dom = document.createElement(this.constructor.tagName || "div");
       className = this.constructor.CLASS_NAME || "";
-      dom.className = "ui " + className;
+      if (className) {
+        $fly(dom).addClass("ui " + className);
+      }
       return dom;
     };
 
@@ -11776,9 +11779,9 @@
       if (!this._dom) {
         return;
       }
-      this._classNamePool.add("ui");
       className = this.constructor.CLASS_NAME;
       if (className) {
+        this._classNamePool.add("ui");
         names = $.trim(className).split(" ");
         for (n = 0, len1 = names.length; n < len1; n++) {
           name = names[n];
@@ -11916,8 +11919,6 @@
     function Widget() {
       return Widget.__super__.constructor.apply(this, arguments);
     }
-
-    Widget.CLASS_NAME = "control";
 
     Widget.SEMANTIC_CLASS = ["left floated", "right floated"];
 
@@ -12400,7 +12401,7 @@
             return method.apply(widget, arguments);
           };
         }
-        return cola.defaultAction[name];
+        return widget._scope.action(name);
       };
     }
 
@@ -17076,6 +17077,7 @@
 
     Sidebar.prototype._doTransition = function(options, callback) {
       var $dom, configs, direction, duration, height, isHorizontal, isShow, onComplete, sidebar, width, x, y;
+      $(window.document.body).toggleClass("hide-overflow", options.target === "show");
       if (this.get("modal")) {
         if (options.target === "show") {
           this._showModalLayer();
@@ -20539,7 +20541,9 @@
         $fly(valueContent).removeClass("placeholder");
       });
       if (!this._skipSetIcon) {
-        this.set("icon", "dropdown");
+        if (!this._icon) {
+          this.set("icon", "dropdown");
+        }
       }
     };
 
@@ -22646,8 +22650,11 @@
       }
     };
 
+    AbstractItemGroup.events = {
+      renderItem: null
+    };
+
     function AbstractItemGroup(config) {
-      this._items = [];
       AbstractItemGroup.__super__.constructor.call(this, config);
     }
 
@@ -22675,11 +22682,18 @@
 
     AbstractItemGroup.prototype._addItemToDom = function(item) {
       var container, itemDom;
+      if (!this._dom) {
+        return;
+      }
       container = this.getContentContainer();
       itemDom = this.getItemDom(item);
       if (itemDom.parentNode !== container) {
         container.appendChild(itemDom);
       }
+      this.fire("renderItem", this, {
+        dom: itemDom,
+        item: item
+      });
     };
 
     AbstractItemGroup.prototype._itemsRender = function() {
@@ -22734,6 +22748,9 @@
         return this;
       }
       active = cola.util.hasClass(item, "active");
+      if (this._items == null) {
+        this._items = [];
+      }
       this._items.push(item);
       this._addItemToDom(item);
       if (active) {
@@ -23878,12 +23895,13 @@
     };
 
     Carousel.events = {
-      change: null
+      change: null,
+      beforeChange: null
     };
 
     Carousel.prototype.getContentContainer = function() {
       if (!this._doms.wrap) {
-        this._createItemsWrap(dom);
+        this._createItemsWrap(this._dom);
       }
       return this._doms.wrap;
     };
@@ -24026,15 +24044,17 @@
           items: this._items
         };
       } else {
-        return Carousel.__super__._getDataItems.call(this);
+        return this._getItems();
       }
     };
 
     Carousel.prototype.setCurrentIndex = function(index) {
       var activeSpan, e, pos;
-      this.fire("change", this, {
+      if (this.fire("beforeChange", this, {
         index: index
-      });
+      }) === false) {
+        return;
+      }
       this._currentIndex = index;
       if (this._dom) {
         if (this._doms.indicators) {
@@ -24055,11 +24075,14 @@
           }
         }
       }
+      this.fire("change", this, {
+        index: index
+      });
       return this;
     };
 
     Carousel.prototype.refreshIndicators = function() {
-      var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
+      var currentIndex, i, indicatorCount, indicatorDoms, indicators, items, itemsCount, ref, span;
       items = this._getDataItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
@@ -24069,18 +24092,24 @@
       if (!((ref = this._doms) != null ? ref.indicators : void 0)) {
         return;
       }
-      indicatorCount = this._doms.indicators.children.length;
+      indicatorDoms = $(this._doms.indicators).find(">span");
+      indicatorCount = indicatorDoms.length;
       if (indicatorCount < itemsCount) {
         i = indicatorCount;
         while (i < itemsCount) {
           span = document.createElement("span");
-          this._doms.indicators.appendChild(span);
+          if (i > 0) {
+            $($(this._doms.indicators).find(">span")[i - 1]).before(span);
+          } else {
+            $fly(this._doms.indicators).prepend(span);
+          }
           i++;
         }
       } else if (indicatorCount > itemsCount) {
         i = itemsCount;
         while (i < indicatorCount) {
-          $(this._doms.indicators.firstChild).remove();
+          indicators = $(this._doms.indicators).find(">span");
+          $(indicators[indicators.length - 1]).remove();
           i++;
         }
       }
@@ -26475,7 +26504,7 @@
       if (!this._currentPageOnly && this._autoLoadPage && !this._loadingNextPage && (realItems === this._realOriginItems || !this._realOriginItems)) {
         if (realItems instanceof cola.EntityList && realItems.pageSize > 0 && (realItems.pageNo < realItems.pageCount || !realItems.pageCountDetermined)) {
           itemsWrapper = this._doms.itemsWrapper;
-          if (itemsWrapper.scrollTop + itemsWrapper.clientHeight === itemsWrapper.scrollHeight) {
+          if (Math.abs((itemsWrapper.scrollTop + itemsWrapper.clientHeight) - itemsWrapper.scrollHeight) < 6) {
             this._loadingNextPage = true;
             $fly(itemsWrapper).find(">.tail-padding >.ui.loader").addClass("active");
             realItems.loadPage(realItems.pageNo + 1, (function(_this) {
@@ -29126,9 +29155,9 @@
     };
 
     Tree.prototype._refreshItemDom = function(itemDom, node, parentScope) {
-      var checkbox, checkboxDom, collapsed, nodeDom, nodeScope, tree;
+      var checkbox, checkboxDom, checkedPropValue, collapsed, dataPath, nodeDom, nodeScope, tree;
       nodeScope = cola.util.userData(itemDom, "scope");
-      if ((nodeScope != null ? nodeScope.data.getTargetData() : void 0) !== node) {
+      if ((nodeScope != null ? nodeScope.data.getTargetData() : void 0) !== node.get("data")) {
         collapsed = true;
       }
       nodeScope = Tree.__super__._refreshItemDom.call(this, itemDom, node, parentScope);
@@ -29140,8 +29169,13 @@
           if (checkboxDom) {
             tree = this;
             checkbox = cola.widget(checkboxDom);
+            dataPath = nodeScope.data.alias + "." + node._bind._checkedProperty;
+            checkedPropValue = nodeScope.get(dataPath);
+            if (typeof checkedPropValue === "undefined") {
+              nodeScope.set(dataPath, false);
+            }
             checkbox.set({
-              bind: nodeScope.data.alias + "." + node._bind._checkedProperty,
+              bind: dataPath,
               click: function() {
                 return tree._onCheckboxClick(node);
               }
@@ -30740,6 +30774,7 @@
       if (this._showFooter) {
         this._refreshFixedFooter();
       }
+      return Table.__super__._onItemsWrapperScroll.call(this);
     };
 
     return Table;
