@@ -463,7 +463,7 @@ cola.floatWidget =
 	_zIndex: 1100
 	zIndex: ()-> return ++cola.floatWidget._zIndex
 
-cola.Exception.showException = (exception) ->
+cola.Exception.showException = (ex) ->
 	if ex instanceof cola.Exception or ex instanceof Error
 		msg = ex.message
 	else

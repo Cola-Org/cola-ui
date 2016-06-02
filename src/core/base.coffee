@@ -195,14 +195,6 @@ Exception
 
 exceptionStack = []
 
-alertException = (ex) ->
-	if ex instanceof cola.Exception or ex instanceof Error
-		msg = ex.message
-	else
-		msg = ex + ""
-	alert?(msg)
-	return
-
 class cola.Exception
 	constructor: (@message, @error)->
 		if @error then console?.trace?(@error)
@@ -252,13 +244,15 @@ class cola.Exception
 		if i > -1 then exceptionStack.splice(i, 1)
 		return
 
-	@safeShowException: (exception) ->
-		alertException(exception)
+	@safeShowException: (ex) ->
+		if ex instanceof cola.Exception or ex instanceof Error
+			msg = ex.message
+		else
+			msg = ex + ""
+			alert?(msg)
 		return
 
-	@showException: (exception) ->
-		alertException(exception)
-		return
+	@showException: (ex) -> @safeShowException(ex)
 
 class cola.AbortException extends cola.Exception
 	constructor: () ->
