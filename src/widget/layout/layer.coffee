@@ -25,7 +25,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		beforeHide: null
 
 	_onShow: ()->
-		@get$Dom.css({
+		@get$Dom().css({
 			zIndex: cola.floatWidget.zIndex()
 		})
 	_onHide: ()->
