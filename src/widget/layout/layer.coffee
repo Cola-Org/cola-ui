@@ -25,6 +25,11 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		beforeHide: null
 
 	_onShow: ()->
+		$dom = @get$Dom()
+		if type is "show"
+			$dom.css({
+				zIndex: cola.floatWidget.zIndex()
+			})
 	_onHide: ()->
 	_transition: (options, callback)->
 		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
@@ -79,12 +84,6 @@ class cola.Layer extends cola.AbstractLayer
 			]
 	@SLIDE_ANIMATIONS: ["slide left", "slide right", "slide up", "slide down"]
 	_transitionStart: (type)->
-		$dom = @get$Dom()
-		if type is "show"
-			$dom.css({
-				zIndex: cola.floatWidget.zIndex()
-			})
-
 	_doTransition: (options, callback)->
 		layer = @
 		onComplete = ->

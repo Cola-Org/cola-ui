@@ -29,9 +29,6 @@ class cola.Sidebar extends cola.AbstractLayer
 		if @get("modal")
 			if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
 		sidebar = @
-		@get$Dom().css({
-			zIndex: cola.floatWidget.zIndex()
-		})
 		onComplete = ->
 			if typeof callback == "function"
 				callback.call(sidebar)

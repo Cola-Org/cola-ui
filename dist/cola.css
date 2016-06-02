@@ -349,6 +349,9 @@ template {
 .ui.fragment.basic {
   background-color: transparent;
 }
+.ui.fragment.crowd {
+  padding: 0em;
+}
 .ui.fragment.red:before {
   background-color: rgba(219, 40, 40, 0.8);
 }
@@ -4948,6 +4951,9 @@ html.ios body {
 .ui.sidebar.animation {
   display: block !important;
 }
+.hide-overflow {
+  overflow: hidden !important;
+}
 
 .ui.menu.pager .goto.ui.input {
   width: 6.25em;
@@ -6105,7 +6111,7 @@ html.ios body {
   display: block !important;
 }
 
-.ui.segment.crowded {
+.ui.segment.crowd {
   padding: 0 !important;
 }
 
