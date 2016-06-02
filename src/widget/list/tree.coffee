@@ -75,6 +75,8 @@ class cola.Tree extends cola.AbstractList
 
 		autoCollapse: null
 		autoExpand: null
+		lazyRenderChildNodes:
+			defaultValue: true
 
 	@events:
 		beforeCurrentNodeChange: null
@@ -215,7 +217,7 @@ class cola.Tree extends cola.AbstractList
 	_refreshItemDom: (itemDom, node, parentScope) ->
 		nodeScope = cola.util.userData(itemDom, "scope")
 		# TODO 尝试修复新增节点数据时父节点自动收缩的bug
-		if nodeScope?.data.getTargetData() isnt node.get("data")
+		if nodeScope and nodeScope.data.getTargetData() isnt node.get("data")
 			collapsed = true
 
 		nodeScope = super(itemDom, node, parentScope)
@@ -238,13 +240,18 @@ class cola.Tree extends cola.AbstractList
 						click: () -> tree._onCheckboxClick(node)
 					)
 
+
 		if not collapsed and node.get("expanded")
 			if node._hasExpanded
 				@_refreshChildNodes(itemDom, node)
 			else
 				@expand(node)
 		else
-			if collapsed then @collapse(node, true)
+			if node._hasExpanded
+				if collapsed then @collapse(node, true)
+			else if not @_lazyRenderChildNodes
+				@_prepareChildNode(node, false)
+
 			nodeDom = itemDom.firstChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
 
@@ -341,13 +348,13 @@ class cola.Tree extends cola.AbstractList
 		itemDom = @_itemDomMap[itemId]
 		return cola.util.userData(itemDom, "item")
 
-	expand: (node, noAnimation = true) ->
+	_prepareChildNode: (node, expand, noAnimation, callback) ->
 		itemDom = @_itemDomMap[node._id]
 		return unless itemDom
 
 		tree = @
 		itemsScope = node._itemsScope
-		if !itemsScope
+		if not itemsScope
 			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope)
 			itemsScope.alias = node._alias
 			itemsScope._retrieveItems = (dataCtx) -> node._bind.retrieveChildNodes(node, null, dataCtx)
@@ -359,29 +366,35 @@ class cola.Tree extends cola.AbstractList
 			itemsScope.onItemRemove = (arg) -> tree._onItemRemove(arg)
 
 		nodeDom = itemDom.firstChild
-		$fly(nodeDom).addClass("expanding")
+		$fly(nodeDom).addClass("expanding") if expand
 		node._bind.retrieveChildNodes(node, () ->
-			$fly(nodeDom).removeClass("expanding")
+			$fly(nodeDom).removeClass("expanding") if expand
 			if node._children
 				tree._refreshChildNodes(itemDom, node, true)
-				$fly(nodeDom).addClass("expanded")
+				$fly(nodeDom).addClass("expanded") if expand
 
 				$nodesWrapper = $fly(itemDom.lastChild)
-				if $nodesWrapper.hasClass("child-nodes")
+				if expand and $nodesWrapper.hasClass("child-nodes")
 					if noAnimation
 						$nodesWrapper.show()
 					else
 						$nodesWrapper.slideDown(150)
 			else
 				$fly(nodeDom).addClass("leaf")
-			node._expanded = true
+			node._expanded = true if expand
 			node._hasExpanded = true
 
-			if tree._autoCollapse and node._parent?._children
+			callback?.call(tree)
+			return
+		)
+		return
+
+	expand: (node, noAnimation = true) ->
+		@_prepareChildNode(node, true, noAnimation, () =>
+			if @_autoCollapse and node._parent?._children
 				for brotherNode in node._parent._children
 					if brotherNode isnt node and brotherNode.get("expanded")
-						tree.collapse(brotherNode)
-			return
+						@collapse(brotherNode)
 		)
 		return
 
