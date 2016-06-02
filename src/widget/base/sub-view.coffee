@@ -20,8 +20,6 @@ class cola.SubView extends cola.Widget
 			readOnlyAfterCreate: true
 
 		showLoadingContent: null
-		showDimmer:
-			defaultValue: false
 
 	@events:
 		load: null
@@ -43,15 +41,20 @@ class cola.SubView extends cola.Widget
 		return
 
 	load: (options, callback) ->
+		if typeof options is "function"
+			callback = options
+			options = null
+
 		dom = @_dom
 		@unload()
 
-		@_parentModel = options.parentModel
-		@_modelName = options.modelName
-		@_url = options.url
-		@_jsUrl = options.jsUrl
-		@_cssUrl = options.cssUrl
-		@_param = options.param
+		if options
+			@_parentModel = options.parentModel
+			@_modelName = options.modelName
+			@_url = options.url
+			@_jsUrl = options.jsUrl
+			@_cssUrl = options.cssUrl
+			@_param = options.param
 
 		if @_parentModel instanceof cola.Scope
 			parentModel = @_parentModel
@@ -72,16 +75,15 @@ class cola.SubView extends cola.Widget
 		if not @_showLoadingContent
 			$content.css("visibility", "hidden")
 
-		if @_showDimmer
+		$dimmer = $dom.find(">.ui.dimmer")
+		if $dimmer.length is 0
+			$dom.xAppend(
+				class: "ui inverted dimmer"
+				content:
+					class: "ui loader"
+			)
 			$dimmer = $dom.find(">.ui.dimmer")
-			if $dimmer.length is 0
-				$dom.xAppend(
-					class: "ui inverted dimmer"
-					content:
-						class: "ui loader"
-				)
-				$dimmer = $dom.find(">.ui.dimmer")
-			$dimmer.addClass("active")
+		$dimmer.addClass("active")
 
 		cola.loadSubView($content[0],
 			{
@@ -95,8 +97,7 @@ class cola.SubView extends cola.Widget
 						if not @_showLoadingContent
 							$dom.find(">.content").css("visibility", "")
 
-						if @_showDimmer
-							$dom.find(">.ui.dimmer").removeClass("active")
+						$dom.find(">.ui.dimmer").removeClass("active")
 
 						@_loading = false
 						if success
@@ -112,7 +113,11 @@ class cola.SubView extends cola.Widget
 		return
 
 	loadIfNecessary: (options, callback) ->
-		if @_url == options.url
+		if typeof options is "function"
+			callback = options
+			options = null
+
+		if @_url == options?.url
 			cola.callback(callback, true)
 		else
 			@load(options, callback)
@@ -122,13 +127,9 @@ class cola.SubView extends cola.Widget
 		return unless @_dom
 
 		cola.unloadSubView($fly(@_dom).find(">.content")[0], {
+			htmlUrl: @_url
 			cssUrl: @_cssUrl
 		})
-
-		delete @_url
-		delete @_jsUrl
-		delete @_cssUrl
-		delete @_param
 
 		dom = @_dom
 		model = cola.util.userData(dom, "_model")
@@ -137,6 +138,8 @@ class cola.SubView extends cola.Widget
 
 		@fire("unload", @)
 		return
+
+	reload: (callback) -> @load(callback)
 
 cola.registerWidget(cola.SubView)
 
