@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _RESERVE_NAMES, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, alertException, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -830,18 +830,6 @@
 
   exceptionStack = [];
 
-  alertException = function(ex) {
-    var msg;
-    if (ex instanceof cola.Exception || ex instanceof Error) {
-      msg = ex.message;
-    } else {
-      msg = ex + "";
-    }
-    if (typeof alert === "function") {
-      alert(msg);
-    }
-  };
-
   cola.Exception = (function() {
     function Exception(message3, error1) {
       this.message = message3;
@@ -921,12 +909,20 @@
       }
     };
 
-    Exception.safeShowException = function(exception) {
-      alertException(exception);
+    Exception.safeShowException = function(ex) {
+      var msg;
+      if (ex instanceof cola.Exception || ex instanceof Error) {
+        msg = ex.message;
+      } else {
+        msg = ex + "";
+        if (typeof alert === "function") {
+          alert(msg);
+        }
+      }
     };
 
-    Exception.showException = function(exception) {
-      alertException(exception);
+    Exception.showException = function(ex) {
+      return this.safeShowException(ex);
     };
 
     return Exception;
@@ -5584,11 +5580,6 @@
   Model and Scope
    */
 
-  _RESERVE_NAMES = {
-    self: null,
-    arg: null
-  };
-
   cola.model = function(name, model) {
     if (arguments.length === 2) {
       if (model) {
@@ -8799,6 +8790,13 @@
       if (loadMode == null) {
         loadMode = "async";
       }
+      if (dataCtx == null) {
+        dataCtx = {};
+      }
+      if (dataCtx.vars == null) {
+        dataCtx.vars = {};
+      }
+      dataCtx.vars.$dom = domBinding.dom;
       if (dynaExpressionOnly) {
         result = (ref = this.dynaExpression) != null ? ref.evaluate(domBinding.scope, loadMode, dataCtx) : void 0;
       } else {
@@ -11055,13 +11053,20 @@
       }
       this.on("attributeChange", (function(_this) {
         return function(self, arg) {
-          var attr;
+          var attr, value;
           attr = arg.attribute;
-          if (typeof attr === "string" && _this.constructor.attributes.$has(attr)) {
-            _this._widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+          if (_this.constructor.attributes.$has(attr)) {
+            _this._widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+            value = _this._get(attr);
+            if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
+              _this._entityProps[attr] = value;
+            } else {
+              delete _this._entityProps[attr];
+            }
           }
         };
       })(this));
+      this._entityProps = {};
       this._widgetModel = new cola.WidgetModel(this, (config != null ? config.scope : void 0) || cola.currentScope);
       cls.__super__.constructor.call(this, config);
     };
@@ -11083,10 +11088,17 @@
     if (definition.events) {
       cls.events = definition.events;
     }
-    template = definition.template;
-    if (template) {
+    if (definition.template) {
+      template = definition.template;
+      if (typeof template === "string" && template.match(/^\#[\w\-\$]*$/)) {
+        template = document.getElementById(template.substring(1));
+        if (template) {
+          definition.template = template.innerHTML;
+          $fly(template).remove();
+        }
+      }
       cls.attributes.template = {
-        defaultValue: template
+        defaultValue: definition.template
       };
     }
     cls.prototype._createDom = function() {
@@ -11104,13 +11116,6 @@
       superCls.prototype._initDom.call(this, dom);
       template = this._template;
       if (template && !this._domCreated) {
-        if (typeof template === "string" && template.match(/^\#[\w\-\$]*$/)) {
-          this._template = document.getElementById(template.substring(1));
-          if (this._template) {
-            template = this._template.innerHTML;
-            $fly(this._template).remove();
-          }
-        }
         templateDom = this.xRender(template);
         if (templateDom) {
           ref1 = templateDom.attributes;
@@ -12306,7 +12311,7 @@
     }
   };
 
-  cola.Exception.showException = function(exception) {
+  cola.Exception.showException = function(ex) {
     var msg;
     if (ex instanceof cola.Exception || ex instanceof Error) {
       msg = ex.message;
@@ -12346,7 +12351,31 @@
     };
 
     WidgetDataModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+      var attr, e, entity, isParent, ref, relativePath, targetPath, value;
       this._onDataMessage(path, type, arg);
+      entity = arg.entity || arg.entityList;
+      if (entity) {
+        ref = this.widget._entityProps;
+        for (attr in ref) {
+          value = ref[attr];
+          isParent = false;
+          e = entity;
+          while (e) {
+            if (e === value) {
+              isParent = true;
+              break;
+            }
+            e = e._parent;
+          }
+          if (isParent) {
+            targetPath = value.getPath();
+            if (targetPath != null ? targetPath.length : void 0) {
+              relativePath = path.slice(targetPath.length);
+              this._onDataMessage(["@" + attr].concat(relativePath), type, arg);
+            }
+          }
+        }
+      }
     };
 
     WidgetDataModel.prototype.getDataType = function(path) {
@@ -12404,6 +12433,8 @@
         return widget._scope.action(name);
       };
     }
+
+    WidgetModel.prototype.repeatNotification = true;
 
     WidgetModel.prototype._processMessage = function(bindingPath, path, type, arg) {
       if (this.messageTimestamp >= arg.timestamp) {
@@ -15279,10 +15310,7 @@
       param: {
         readOnlyAfterCreate: true
       },
-      showLoadingContent: null,
-      showDimmer: {
-        defaultValue: false
-      }
+      showLoadingContent: null
     };
 
     SubView.events = {
@@ -15311,14 +15339,20 @@
 
     SubView.prototype.load = function(options, callback) {
       var $content, $dimmer, $dom, dom, model, parentModel, parentModelName;
+      if (typeof options === "function") {
+        callback = options;
+        options = null;
+      }
       dom = this._dom;
       this.unload();
-      this._parentModel = options.parentModel;
-      this._modelName = options.modelName;
-      this._url = options.url;
-      this._jsUrl = options.jsUrl;
-      this._cssUrl = options.cssUrl;
-      this._param = options.param;
+      if (options) {
+        this._parentModel = options.parentModel;
+        this._modelName = options.modelName;
+        this._url = options.url;
+        this._jsUrl = options.jsUrl;
+        this._cssUrl = options.cssUrl;
+        this._param = options.param;
+      }
       if (this._parentModel instanceof cola.Scope) {
         parentModel = this._parentModel;
       } else {
@@ -15337,19 +15371,17 @@
       if (!this._showLoadingContent) {
         $content.css("visibility", "hidden");
       }
-      if (this._showDimmer) {
+      $dimmer = $dom.find(">.ui.dimmer");
+      if ($dimmer.length === 0) {
+        $dom.xAppend({
+          "class": "ui inverted dimmer",
+          content: {
+            "class": "ui loader"
+          }
+        });
         $dimmer = $dom.find(">.ui.dimmer");
-        if ($dimmer.length === 0) {
-          $dom.xAppend({
-            "class": "ui inverted dimmer",
-            content: {
-              "class": "ui loader"
-            }
-          });
-          $dimmer = $dom.find(">.ui.dimmer");
-        }
-        $dimmer.addClass("active");
       }
+      $dimmer.addClass("active");
       cola.loadSubView($content[0], {
         model: model,
         htmlUrl: this._url,
@@ -15362,9 +15394,7 @@
               if (!_this._showLoadingContent) {
                 $dom.find(">.content").css("visibility", "");
               }
-              if (_this._showDimmer) {
-                $dom.find(">.ui.dimmer").removeClass("active");
-              }
+              $dom.find(">.ui.dimmer").removeClass("active");
               _this._loading = false;
               if (success) {
                 _this.fire("load", _this);
@@ -15381,7 +15411,11 @@
     };
 
     SubView.prototype.loadIfNecessary = function(options, callback) {
-      if (this._url === options.url) {
+      if (typeof options === "function") {
+        callback = options;
+        options = null;
+      }
+      if (this._url === (options != null ? options.url : void 0)) {
         cola.callback(callback, true);
       } else {
         this.load(options, callback);
@@ -15394,12 +15428,9 @@
         return;
       }
       cola.unloadSubView($fly(this._dom).find(">.content")[0], {
+        htmlUrl: this._url,
         cssUrl: this._cssUrl
       });
-      delete this._url;
-      delete this._jsUrl;
-      delete this._cssUrl;
-      delete this._param;
       dom = this._dom;
       model = cola.util.userData(dom, "_model");
       if (model != null) {
@@ -15407,6 +15438,10 @@
       }
       cola.util.removeUserData(dom, "_model");
       this.fire("unload", this);
+    };
+
+    SubView.prototype.reload = function(callback) {
+      return this.load(callback);
     };
 
     return SubView;
@@ -16563,7 +16598,11 @@
       beforeHide: null
     };
 
-    AbstractLayer.prototype._onShow = function() {};
+    AbstractLayer.prototype._onShow = function() {
+      return this.get$Dom().css({
+        zIndex: cola.floatWidget.zIndex()
+      });
+    };
 
     AbstractLayer.prototype._onHide = function() {};
 
@@ -16643,15 +16682,7 @@
 
     Layer.SLIDE_ANIMATIONS = ["slide left", "slide right", "slide up", "slide down"];
 
-    Layer.prototype._transitionStart = function(type) {
-      var $dom;
-      $dom = this.get$Dom();
-      if (type === "show") {
-        return $dom.css({
-          zIndex: cola.floatWidget.zIndex()
-        });
-      }
-    };
+    Layer.prototype._transitionStart = function(type) {};
 
     Layer.prototype._doTransition = function(options, callback) {
       var $dom, animation, configs, duration, height, isHorizontal, isShow, layer, onComplete, width, x, y;
@@ -17086,9 +17117,6 @@
         }
       }
       sidebar = this;
-      this.get$Dom().css({
-        zIndex: cola.floatWidget.zIndex()
-      });
       onComplete = function() {
         if (typeof callback === "function") {
           callback.call(sidebar);
@@ -20649,8 +20677,13 @@
       input = this._doms.input;
       input.value = "";
       item = this._currentItem;
-      if ((item == null) && !this._textProperty) {
-        item = this._value;
+      if (item == null) {
+        if (!this._textProperty) {
+          item = this._value;
+        } else {
+          item = {};
+          item[this._textProperty] = this._value;
+        }
       }
       if (item) {
         input.placeholder = "";
@@ -22655,6 +22688,7 @@
     };
 
     function AbstractItemGroup(config) {
+      this._items = [];
       AbstractItemGroup.__super__.constructor.call(this, config);
     }
 
@@ -23879,7 +23913,10 @@
       bind: {
         readonlyAfterCreate: true,
         setter: function(bindStr) {
-          return this._bindSetter(bindStr);
+          if (bindStr) {
+            delete this._item;
+          }
+          this._bindSetter(bindStr);
         }
       },
       orientation: {
@@ -28981,7 +29018,10 @@
         }
       },
       autoCollapse: null,
-      autoExpand: null
+      autoExpand: null,
+      lazyRenderChildNodes: {
+        defaultValue: true
+      }
     };
 
     Tree.events = {
@@ -29157,7 +29197,7 @@
     Tree.prototype._refreshItemDom = function(itemDom, node, parentScope) {
       var checkbox, checkboxDom, checkedPropValue, collapsed, dataPath, nodeDom, nodeScope, tree;
       nodeScope = cola.util.userData(itemDom, "scope");
-      if ((nodeScope != null ? nodeScope.data.getTargetData() : void 0) !== node.get("data")) {
+      if (nodeScope && nodeScope.data.getTargetData() !== node.get("data")) {
         collapsed = true;
       }
       nodeScope = Tree.__super__._refreshItemDom.call(this, itemDom, node, parentScope);
@@ -29190,8 +29230,12 @@
           this.expand(node);
         }
       } else {
-        if (collapsed) {
-          this.collapse(node, true);
+        if (node._hasExpanded) {
+          if (collapsed) {
+            this.collapse(node, true);
+          }
+        } else if (!this._lazyRenderChildNodes) {
+          this._prepareChildNode(node, false);
         }
         nodeDom = itemDom.firstChild;
         $fly(nodeDom).toggleClass("leaf", node.get("hasChild") === false);
@@ -29313,11 +29357,8 @@
       return cola.util.userData(itemDom, "item");
     };
 
-    Tree.prototype.expand = function(node, noAnimation) {
+    Tree.prototype._prepareChildNode = function(node, expand, noAnimation, callback) {
       var itemDom, itemsScope, nodeDom, tree;
-      if (noAnimation == null) {
-        noAnimation = true;
-      }
       itemDom = this._itemDomMap[node._id];
       if (!itemDom) {
         return;
@@ -29344,15 +29385,21 @@
         };
       }
       nodeDom = itemDom.firstChild;
-      $fly(nodeDom).addClass("expanding");
+      if (expand) {
+        $fly(nodeDom).addClass("expanding");
+      }
       node._bind.retrieveChildNodes(node, function() {
-        var $nodesWrapper, brotherNode, len1, n, ref, ref1;
-        $fly(nodeDom).removeClass("expanding");
+        var $nodesWrapper;
+        if (expand) {
+          $fly(nodeDom).removeClass("expanding");
+        }
         if (node._children) {
           tree._refreshChildNodes(itemDom, node, true);
-          $fly(nodeDom).addClass("expanded");
+          if (expand) {
+            $fly(nodeDom).addClass("expanded");
+          }
           $nodesWrapper = $fly(itemDom.lastChild);
-          if ($nodesWrapper.hasClass("child-nodes")) {
+          if (expand && $nodesWrapper.hasClass("child-nodes")) {
             if (noAnimation) {
               $nodesWrapper.show();
             } else {
@@ -29362,18 +29409,38 @@
         } else {
           $fly(nodeDom).addClass("leaf");
         }
-        node._expanded = true;
+        if (expand) {
+          node._expanded = true;
+        }
         node._hasExpanded = true;
-        if (tree._autoCollapse && ((ref = node._parent) != null ? ref._children : void 0)) {
-          ref1 = node._parent._children;
-          for (n = 0, len1 = ref1.length; n < len1; n++) {
-            brotherNode = ref1[n];
-            if (brotherNode !== node && brotherNode.get("expanded")) {
-              tree.collapse(brotherNode);
-            }
-          }
+        if (callback != null) {
+          callback.call(tree);
         }
       });
+    };
+
+    Tree.prototype.expand = function(node, noAnimation) {
+      if (noAnimation == null) {
+        noAnimation = true;
+      }
+      this._prepareChildNode(node, true, noAnimation, (function(_this) {
+        return function() {
+          var brotherNode, len1, n, ref, ref1, results;
+          if (_this._autoCollapse && ((ref = node._parent) != null ? ref._children : void 0)) {
+            ref1 = node._parent._children;
+            results = [];
+            for (n = 0, len1 = ref1.length; n < len1; n++) {
+              brotherNode = ref1[n];
+              if (brotherNode !== node && brotherNode.get("expanded")) {
+                results.push(_this.collapse(brotherNode));
+              } else {
+                results.push(void 0);
+              }
+            }
+            return results;
+          }
+        };
+      })(this));
     };
 
     Tree.prototype.collapse = function(node, noAnimation) {

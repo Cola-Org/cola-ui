@@ -239,11 +239,17 @@ _extendWidget = (superCls, definition) ->
 
 		@on("attributeChange", (self, arg) =>
 			attr = arg.attribute
-			if typeof attr is "string" and @constructor.attributes.$has(attr)
-				@_widgetModel.data._onDataMessage(attr.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+			if @constructor.attributes.$has(attr)
+				@_widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+				value = @_get(attr)
+				if value and (value instanceof cola.Entity or value instanceof cola.EntityList)
+					@_entityProps[attr] = value
+				else
+					delete @_entityProps[attr]
 			return
 		)
 
+		@_entityProps = {}
 		@_widgetModel = new cola.WidgetModel(@, config?.scope or cola.currentScope)
 		cls.__super__.constructor.call(@, config)
 		return

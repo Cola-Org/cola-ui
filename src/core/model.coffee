@@ -9,10 +9,6 @@ else
 Model and Scope
 ###
 
-_RESERVE_NAMES =
-	self: null
-	arg: null
-
 cola.model = (name, model) ->
 	if arguments.length == 2
 		if model

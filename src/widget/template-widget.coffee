@@ -18,6 +18,23 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		@_onDataMessage(path, type, arg)
+
+		entity = arg.entity or arg.entityList
+		if entity
+			for attr, value of @widget._entityProps
+				isParent = false
+				e = entity
+				while e
+					if e is value
+						isParent = true
+						break
+					e = e._parent
+
+				if isParent
+					targetPath = value.getPath()
+					if targetPath?.length
+						relativePath = path.slice(targetPath.length)
+						@_onDataMessage(["@" + attr].concat(relativePath), type, arg)
 		return
 
 	getDataType: (path) ->
@@ -48,6 +65,8 @@ class cola.WidgetModel extends cola.SubScope
 			if method instanceof Function
 				return () -> method.apply(widget, arguments)
 			return widget._scope.action(name)
+
+	repeatNotification: true
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
