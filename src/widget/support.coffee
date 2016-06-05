@@ -208,16 +208,42 @@ cola.widget = (config, namespace, model) ->
 
 cola.findWidget = (dom, type) ->
 	if type and typeof type == "string"
-		type = cola.resolveType("widget", {$type: type})
+		typeName = type
+		type = WIDGET_TAGS_REGISTRY[typeName]
+		type = cola.resolveType("widget", { $type: typeName }) unless type
 		return null unless type
 
-	while dom
-		widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
-		if widget
-			if not type or widget instanceof type
-				return widget
-		dom = dom.parentNode
-	return null
+	if dom instanceof cola.Widget
+		dom = dom.getDom()
+
+	find = (win, dom, type) ->
+		parentDom = dom.parentNode
+		while parentDom
+			dom = parentDom
+			widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
+			if widget
+				if not type or widget instanceof type
+					return widget
+			parentDom = dom.parentNode
+
+		if win.parent
+			try
+				parentFrames = win.parent.jQuery("iframe,frame")
+			catch
+				# do nothing
+
+			if parentFrames
+				frame = null
+				parentFrames.each () ->
+					if @contentWindow is win
+						frame = @
+						return false
+
+				if frame
+					widget = find(win.parent, frame, type)
+		return widget
+
+	return find(window, dom, type)
 
 cola.Model::widget = (config) -> cola.widget(config, null, @)
 
