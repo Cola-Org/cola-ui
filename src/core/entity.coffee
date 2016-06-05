@@ -113,77 +113,129 @@ _matchValue = (value, propFilter) ->
 		else
 			return (value + "").indexOf(propFilter.value) > -1
 
-cola._filterCollection = (collection, criteria, caseSensitive, strict) ->
-	return collection unless collection and criteria
+cola._trimCriteria = (criteria, option = {}) ->
+	return criteria if not criteria?
 
 	if cola.util.isSimpleValue(criteria)
-		if not caseSensitive then criteria = (criteria + "").toLowerCase()
+		if not option.caseSensitive then criteria = (criteria + "").toLowerCase()
 		criteria =
 			"$": {
 				value: criteria
-				caseSensitive: caseSensitive
-				strict: strict
+				caseSensitive: option.caseSensitive
+				strict: option.strict
 			}
-
-	if typeof criteria == "object"
+	else if typeof criteria is "object"
 		for prop, propFilter of criteria
 			if typeof propFilter == "string"
 				criteria[prop] = {
 					value: propFilter.toLowerCase()
-					caseSensitive: caseSensitive
-					strict: strict
+					caseSensitive: option.caseSensitive
+					strict: option.strict
 				}
 			else
-				propFilter.caseSensitive ?= caseSensitive
+				propFilter.caseSensitive ?= option.caseSensitive
 				if not propFilter.caseSensitive and typeof propFilter.value == "string"
 					propFilter.value = propFilter.value.toLowerCase()
 
-				propFilter.strict ?= strict
+				propFilter.strict ?= option.strict
 				if not propFilter.strict
 					propFilter.value = if propFilter.value then propFilter.value + "" else ""
+	return criteria
 
-		filtered = []
-		filtered.$origin = collection.$origin or collection
-		cola.each collection, (item) ->
-			matches = false
+cola._filterCollection = (collection, criteria, option = {}) ->
+	return null unless collection
 
-			if cola.util.isSimpleValue(item)
-				if criteria.$
-					matches = _matchValue(v, criteria.$)
-			else
-				for prop, propFilter of criteria
-					if prop == "$"
-						if item instanceof cola.Entity
-							data = item._data
-						else
-							data = item
+	filtered = []
+	filtered.$origin = collection.$origin or collection
 
-						for p, v of data
-							if _matchValue(v, propFilter)
-								matches = true
-								break
-						if matches then break
-					else if item instanceof cola.Entity
-						if _matchValue(item.get(prop), propFilter)
-							matches = true
-							break
+	if not option.mode
+		option.mode = if collection instanceof cola.EntityList then "entity" else "json"
+
+	cola.each(collection, (item) ->
+		children = if option.deep then [] else null
+		if not criteria? or cola._filterEntity(item, criteria, option, children)
+			filtered.push(item)
+			if option.one then return false
+
+		if children
+			Array::push.apply(filtered, children)
+		return
+	)
+	return filtered
+
+cola._filterEntity = (entity, criteria, option = {}, children) ->
+
+	_searchChildren = (value) ->
+		if option.mode is "entity"
+			if value instanceof cola.EntityList
+				r = cola._filterCollection(value, criteria, option)
+				Array::push.apply(children, r)
+			else if value instanceof cola.Entity
+				r = []
+				cola._filterEntity(value, criteria, option, r)
+				Array::push.apply(children, r)
+
+		else
+			if typeof value is "array"
+				r = cola._filterCollection(value, criteria, option)
+				Array::push.apply(children, r)
+			else if typeof value is "object" and not (value instanceof Date)
+				r = []
+				cola._filterEntity(value, criteria, option, r)
+				Array::push.apply(children, r)
+		return
+
+	return false unless entity
+
+	if not option.mode
+		option.mode = if entity instanceof cola.Entity then "entity" else "json"
+
+	matches = false
+	if not criteria?
+		matches = true
+	else if typeof criteria is "object"
+		if cola.util.isSimpleValue(entity)
+			if criteria.$
+				matches = _matchValue(v, criteria.$)
+		else
+			for prop, propFilter of criteria
+				data = null
+				if prop == "$"
+					if option.mode is "entity"
+						data = entity._data
 					else
-						if _matchValue(item[prop], propFilter)
+						data = entity
+
+					for p, v of data
+						if _matchValue(v, propFilter)
 							matches = true
-							break
-			if matches
-				filtered.push(item)
-			return
-		return filtered
-	else if typeof criteria == "function"
-		filtered = []
-		filtered.$origin = collection.$origin or collection
-		cola.each collection, (item) ->
-			filtered.push(item) if criteria(item, caseSensitive, strict)
-			return
-		return filtered
-	else
-		return collection
+							break unless children
+
+					if matches and not children then break
+
+				else if option.mode is "entity"
+					if _matchValue(entity.get(prop), propFilter)
+						matches = true
+						break unless children
+
+				else
+					if _matchValue(entity[prop], propFilter)
+						matches = true
+						break unless children
+
+	else if typeof criteria is "function"
+		matches = criteria(entity, option)
+
+	if children and (not option.one or not matches)
+		if not data?
+			if option.mode is "entity"
+				data = entity._data
+			else
+				data = entity
+		for p, v of data
+			_searchChildren(v)
+
+	return matches
 
 cola._sortCollection = (collection, comparator, caseSensitive) ->
 	return null unless collection
@@ -469,11 +521,12 @@ class cola.Entity
 										messages.push(message)
 					if messages
 						for message in messages
-							if message is VALIDATION_ERROR
+							if message is "error"
 								throw new cola.Exception(message.text)
 
 			if @_disableWriteObservers == 0
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
+					oldValue._setDataModel(null)
 					delete oldValue._parent
 					delete oldValue._parentProperty
 				if @state == _Entity.STATE_NONE then @setState(_Entity.STATE_MODIFIED)
@@ -486,7 +539,7 @@ class cola.Entity
 
 				value._parent = @
 				value._parentProperty = prop
-				value._setObserver(@_observer)
+				value._setDataModel(@_dataModel)
 				value._onPathChange()
 				@_mayHasSubEntity = true
 
@@ -657,14 +710,22 @@ class cola.Entity
 			provider._loadMode = oldLoadMode
 		return
 
-	_setObserver: (observer) ->
-		return if @_observer == observer
-		@_observer = observer
+	_setDataModel: (dataModel) ->
+		return if @_dataModel == dataModel
+
+		if @_dataModel
+			@_dataModel.onEntityDetach(@)
+
+		@_dataModel = dataModel
+
+		if dataModel
+			dataModel.onEntityAttach(@)
+
 		if @_mayHasSubEntity
 			data = @_data
 			for p, value of data
 				if value and (value instanceof _Entity or value instanceof _EntityList)
-					value._setObserver(observer)
+					value._setDataModel(dataModel)
 		return
 
 	watch: _watch
@@ -675,7 +736,7 @@ class cola.Entity
 		delete @_pathCache
 		if @_mayHasSubEntity
 			data = @_data
-			for p , value of data
+			for p, value of data
 				if value and (value instanceof _Entity or value instanceof _EntityList)
 					value._onPathChange()
 		return
@@ -709,7 +770,7 @@ class cola.Entity
 		return
 
 	_doNotify: (path, type, arg) ->
-		@_observer?.onMessage(path, type, arg)
+		@_dataModel?._onDataMessage(path, type, arg)
 		return
 
 	_validate: (prop) ->
@@ -751,7 +812,7 @@ class cola.Entity
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
-		return not (keyMessage?.type is VALIDATION_ERROR)
+		return not (keyMessage?.type is "error")
 
 	_addMessage: (prop, message) ->
 		messageHolder = @_messageHolder
@@ -908,7 +969,7 @@ class Page extends LinkedList
 				entityList.current = entity
 				entityList._setCurrentPage(entity._page)
 
-		entity._setObserver(entityList._observer)
+		entity._setDataModel(entityList._dataModel)
 		entity._onPathChange()
 		@entityCount++ if entity.state != _Entity.STATE_DELETED
 		return
@@ -917,7 +978,7 @@ class Page extends LinkedList
 		super(entity)
 		delete entity._page
 		delete entity._parent
-		entity._setObserver(null)
+		entity._setDataModel(null)
 		entity._onPathChange()
 		@entityCount-- if entity.state != _Entity.STATE_DELETED
 		return
@@ -927,7 +988,7 @@ class Page extends LinkedList
 		while entity
 			delete entity._page
 			delete entity._parent
-			entity._setObserver(null)
+			entity._setDataModel(null)
 			entity._onPathChange()
 			entity = entity._next
 		@entityCount = 0
@@ -979,9 +1040,9 @@ class cola.EntityList extends LinkedList
 		page.initData(array)
 		return
 
-	_setObserver: (observer) ->
-		return if @_observer == observer
-		@_observer = observer
+	_setDataModel: (dataModel) ->
+		return if @_dataModel == dataModel
+		@_dataModel = dataModel
 
 		page = @_first
 		if !page then return
@@ -989,7 +1050,7 @@ class cola.EntityList extends LinkedList
 		next = page._first
 		while page
 			if next
-				next._setObserver(observer)
+				next._setDataModel(dataModel)
 				next = next._next
 			else
 				page = page._next
@@ -1347,7 +1408,7 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_observer?.onMessage(@getPath(true), type, arg)
+			@_dataModel?._onDataMessage(@getPath(true), type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher(["*"], type, arg)
@@ -1444,72 +1505,20 @@ class cola.EntityList extends LinkedList
 					next = page?._first
 		return array
 
-	filter: (criteria) ->
-		return cola._filterCollection(@, criteria)
+	filter: (criteria, option) ->
+		criteria = cola._trimCriteria(criteria, option)
+		return cola._filterCollection(@, criteria, option)
 
-	where: (criteria) ->
-		return cola._filterCollection(@, criteria, true, true)
+	where: (criteria, option = {}) ->
+		if option.caseSensitive is undefined then option.caseSensitive = true
+		if option.strict is undefined then option.strict = true
+		criteria = cola._trimCriteria(criteria, option)
+		return cola._filterCollection(@, criteria, option)
 
-	find: (criteria) ->
-		return null unless criteria
-
-		if cola.util.isSimpleValue(criteria)
-			criteria =
-				"$": {
-					value: criteria
-					caseSensitive: true
-					strict: true
-				}
-
-		result = null
-		if typeof criteria == "object"
-			for prop, propFilter of criteria
-				if typeof propFilter == "string"
-					criteria[prop] = {
-						value: propFilter.toLowerCase()
-						caseSensitive: true
-						strict: true
-					}
-				else
-					propFilter.caseSensitive ?= true
-					propFilter.strict ?= true
-
-			cola.each @, (item) ->
-				matches = false
-
-				if cola.util.isSimpleValue(item)
-					if criteria.$
-						matches = _matchValue(v, criteria.$)
-				else
-					for prop, propFilter of criteria
-						if prop == "$"
-							if item instanceof cola.Entity
-								data = item._data
-							else
-								data = item
-
-							for p, v of data
-								if _matchValue(v, propFilter)
-									matches = true
-									break
-							if matches then break
-						else if item instanceof cola.Entity
-							if _matchValue(item.get(prop), propFilter)
-								matches = true
-								break
-						else
-							if _matchValue(item[prop], propFilter)
-								matches = true
-								break
-				if matches then result = item
-				return
-		else if typeof criteria == "function"
-			filtered = []
-			filtered.$origin = collection.$origin or collection
-			cola.each collection, (item) ->
-				if criteria(item) then result = item
-				return
-		return result
+	find: (criteria, option) ->
+		option.one = true
+		result = cola.util.where(@, criteria, option)
+		return result?[0]
 
 ############################
 
@@ -1579,11 +1588,6 @@ _Entity._getEntityId = (entity) ->
 		entity._id ?= cola.uniqueId()
 		return entity._id
 
-VALIDATION_NONE = "none"
-VALIDATION_INFO = "info"
-VALIDATION_WARN = "warning"
-VALIDATION_ERROR = "error"
-
 TYPE_SEVERITY =
 	VALIDATION_INFO: 1
 	VALIDATION_WARN: 2
@@ -1637,7 +1641,7 @@ class cola.Entity.MessageHolder
 						keyMessage = message
 					else
 						continue
-					if keyMessage.type is VALIDATION_ERROR
+					if keyMessage.type is "error"
 						break
 			topKeyChanged = @keyMessage["$"] != keyMessage
 			if topKeyChanged then @keyMessage["$"] = keyMessage
@@ -1682,3 +1686,109 @@ cola.each = (collection, fn, options) ->
 		else
 			cola.util.each(collection, fn)
 	return
+
+###
+util
+###
+
+cola.util.filter = (data, criteria, option) ->
+	criteria = cola._trimCriteria(criteria, option)
+	return cola._filterCollection(data, criteria, option)
+
+cola.util.where = (data, criteria, option = {}) ->
+	if option.caseSensitive is undefined then option.caseSensitive = true
+	if option.strict is undefined then option.strict = true
+	criteria = cola._trimCriteria(criteria, option)
+	return cola._filterCollection(data, criteria, option)
+
+cola.util.find = (data, criteria, option) ->
+	option.one = true
+	result = cola.util.where(data, criteria, option)
+	return result?[0]
+
+###
+index
+###
+
+class EntityIndex
+	constructor: (@data, @property, @option = {}) ->
+		@model = model = @data._dataModel?.model
+		if not model
+			throw new cola.Exception("The Entity or EntityList is not belongs to any Model.")
+
+		@deep = @option.deep
+		@isCollection = @data instanceof cola.EntityList
+		if not @deep and not @isCollection
+			throw new cola.Exception("Can not build index for single Entity.")
+
+		@index = {}
+		@idMap = {}
+		@buildIndex()
+		
+		model.data.addEntityListener(@)
+		return
+		
+	buildIndex: () ->
+		data = @data
+		if data instanceof cola.Entity
+			@_buildIndexForEntity(data)
+		else if data instanceof cola.EntityList
+			@_buildIndexForEntityList(data)
+		return
+
+	_buildIndexForEntityList: (entityList) ->
+		entityList.each (entity) =>
+			@_buildIndexForEntity(entity)
+			return
+		return
+
+	_buildIndexForEntity: (entity) ->
+		value = entity.get(@property)
+		@index[value + ""] = entity
+		@idMap[entity.id] = true
+
+		if @deep
+			data = entity._data
+			for p, v of data
+				if v
+					if v instanceof cola.Entity
+						@_buildIndexForEntity(v)
+					else if v instanceof cola.EntityList
+						@_buildIndexForEntityList(v)
+		return
+		
+	onEntityAttach: (entity) ->
+		if @deep
+			p = entity
+			while p
+				if p == @data
+					valid = true
+					break
+				p = p._parent
+		else if @isCollection
+			valid = entity._parent is @data
+		else
+			valid = entity is @data
+			
+		if valid
+			value = entity.get(@property)
+			@idMap[entity.id] = true
+			@index[value + ""] = entity
+		return
+		
+	onEntityDetach: (entity) ->
+		if @idMap[entity.id]
+			value = entity.get(@property)
+			delete @idMap[entity.id]
+			delete @index[value + ""]
+		return
+		
+	find: (value) ->
+		return @index[value + ""]
+		
+	destroy: () ->
+		@model.data.removeEntityListener(@)
+		return
+
+cola.util.buildIndex = (data, property, option) ->
+	return new EntityIndex(data, property, option)

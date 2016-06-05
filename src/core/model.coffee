@@ -753,15 +753,12 @@ class cola.DataModel extends cola.AbstractDataModel
 		return new cola.Entity(null, rootDataType)
 
 	_getRootData: () ->
-		if !@_rootData?
+		if not @_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
 			@_rootData = rootData = @_createRootData(@_rootDataType)
 			rootData.state = cola.Entity.STATE_NEW
 			dataModel = @
-			rootData._setObserver(
-				onMessage: (path, type, arg) ->
-					dataModel._onDataMessage(path, type, arg)
-			)
+			rootData._setDataModel(dataModel)
 		return @_rootData
 
 	describe: (property, config) ->
@@ -849,6 +846,31 @@ class cola.DataModel extends cola.AbstractDataModel
 			definition = @_definitionStore[name]
 			delete @_definitionStore[name]
 		return definition
+
+	addEntityListener: (listener) ->
+		@_entityListeners ?= []
+		@_entityListeners.push(listener)
+		return
+
+	removeEntityListener: (listener) ->
+		return unless @_entityListeners
+		if listener
+			i = @_entityListeners.indexOf(listener)
+			if i > -1
+				@_entityListeners.splice(i, 1)
+		return
+
+	onEntityAttach: (entity) ->
+		if @_entityListeners
+			for listener in  @_entityListeners
+				listener.onEntityAttach(entity)
+		return
+
+	onEntityDetach: (entity) ->
+		if @_entityListeners
+			for listener in  @_entityListeners
+				listener.onEntityDetach(entity)
+		return
 
 class cola.AliasDataModel extends cola.AbstractDataModel
 	constructor: (@model, @alias, @dataType) ->
