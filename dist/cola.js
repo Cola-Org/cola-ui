@@ -10947,7 +10947,7 @@
   };
 
   _compileWidgetDom = function(dom, widgetType) {
-    var attr, attrName, config, len1, len2, n, o, prop, ref, removeAttrs;
+    var attr, attrName, config, isEvent, len1, len2, n, o, prop, ref, removeAttrs;
     if (!widgetType.attributes._inited || !widgetType.events._inited) {
       cola.preprocessClass(widgetType);
     }
@@ -10961,17 +10961,51 @@
       attrName = attr.name;
       if (attrName.indexOf("c-") === 0) {
         prop = attrName.slice(2);
-        if ((widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) && prop !== "class") {
-          config[prop] = cola._compileExpression(attr.value);
+        if (widgetType.attributes.$has(prop) && prop !== "class") {
+          if (prop === "bind") {
+            config[prop] = attr.value;
+          } else {
+            config[prop] = cola._compileExpression(attr.value);
+          }
           if (removeAttrs == null) {
             removeAttrs = [];
           }
           removeAttrs.push(attrName);
+        } else {
+          isEvent = widgetType.events.$has(prop);
+          if (!isEvent && prop.indexOf("on") === 0) {
+            if (widgetType.events.$has(prop.slice(2))) {
+              isEvent = true;
+              prop = prop.slice(2);
+            }
+          }
+          if (isEvent) {
+            config[prop] = cola._compileExpression(attr.value);
+            if (removeAttrs == null) {
+              removeAttrs = [];
+            }
+            removeAttrs.push(attrName);
+          }
         }
       } else {
         prop = attrName;
-        if (widgetType.attributes.$has(prop) || widgetType.events.$has(prop)) {
+        if (widgetType.attributes.$has(prop)) {
           config[prop] = attr.value;
+        } else {
+          isEvent = widgetType.events.$has(prop);
+          if (!isEvent && prop.indexOf("on") === 0) {
+            if (widgetType.events.$has(prop.slice(2))) {
+              isEvent = true;
+              prop = prop.slice(2);
+              if (removeAttrs == null) {
+                removeAttrs = [];
+              }
+              removeAttrs.push(attrName);
+            }
+          }
+          if (isEvent) {
+            config[prop] = attr.value;
+          }
         }
       }
     }
@@ -11408,6 +11442,7 @@
   TEMP_TEMPLATE = null;
 
   cola.TemplateSupport = {
+    _templateSupport: true,
     destroy: function() {
       var name;
       if (this._templates) {
@@ -11554,6 +11589,7 @@
   };
 
   cola.DataWidgetMixin = {
+    _dataWidget: true,
     _bindSetter: function(bindStr) {
       var bindInfo, bindProcessor, expression, i, len1, len2, n, o, p, path, paths, ref;
       if (this._bind === bindStr) {
@@ -11719,6 +11755,7 @@
   };
 
   cola.DataItemsWidgetMixin = {
+    _dataItemsWidget: true,
     _alias: "item",
     _bindSetter: function(bindStr) {
       var expression;

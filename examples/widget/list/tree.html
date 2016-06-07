@@ -17,7 +17,7 @@
 						checked: Math.random() > 0.5,
 						expanded: Math.random() > 0.7
 					};
-					if (deepth < 4) generateNodes(child, deepth + 1);
+					if (deepth < 2) generateNodes(child, deepth + 1);
 					children.push(child);
 				}
 				if (node) {
@@ -61,6 +61,7 @@
 					pullUp: true,
 					autoCollapse: true,
 					autoExpand: true,
+					lazyRenderChildNodes: false,
 					bind: {
 						recursive: true,
 						expandedProperty: "expanded",

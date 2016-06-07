@@ -59,17 +59,43 @@ _compileWidgetDom = (dom, widgetType) ->
 	removeAttrs = null
 	for attr in dom.attributes
 		attrName = attr.name
-		if attrName.indexOf("c-") == 0
+		if attrName.indexOf("c-") is 0
 			prop = attrName.slice(2)
-			if (widgetType.attributes.$has(prop) or widgetType.events.$has(prop)) and prop isnt "class"
-				config[prop] = cola._compileExpression(attr.value)
+			if widgetType.attributes.$has(prop) and prop isnt "class"
+				if prop is "bind"
+					config[prop] = attr.value
+				else
+					config[prop] = cola._compileExpression(attr.value)
 
 				removeAttrs ?= []
 				removeAttrs.push(attrName)
+			else
+				isEvent = widgetType.events.$has(prop)
+				if not isEvent and prop.indexOf("on") is 0
+					if widgetType.events.$has(prop.slice(2))
+						isEvent = true
+						prop = prop.slice(2)
+
+				if isEvent
+					config[prop] = cola._compileExpression(attr.value)
+					removeAttrs ?= []
+					removeAttrs.push(attrName)
 		else
 			prop = attrName
-			if widgetType.attributes.$has(prop) or widgetType.events.$has(prop)
+			if widgetType.attributes.$has(prop)
 				config[prop] = attr.value
+			else
+				isEvent = widgetType.events.$has(prop)
+				if not isEvent and prop.indexOf("on") is 0
+					if widgetType.events.$has(prop.slice(2))
+						isEvent = true
+						prop = prop.slice(2)
+						
+						removeAttrs ?= []
+						removeAttrs.push(attrName)
+
+				if isEvent
+					config[prop] = attr.value
 
 	if removeAttrs
 		dom.removeAttribute(attr) for attr in removeAttrs
@@ -372,6 +398,8 @@ Template
 TEMP_TEMPLATE = null
 
 cola.TemplateSupport =
+	_templateSupport: true
+
 	destroy: () ->
 		if @_templates
 			delete @_templates[name] for name of @_templates
@@ -470,6 +498,8 @@ cola.TemplateSupport =
 			return template.cloneNode(true)
 
 cola.DataWidgetMixin =
+	_dataWidget: true
+
 	_bindSetter: (bindStr) ->
 		return if @_bind == bindStr
 
@@ -587,6 +617,7 @@ cola.DataWidgetMixin =
 			return true
 
 cola.DataItemsWidgetMixin =
+	_dataItemsWidget: true
 	_alias: "item"
 
 	_bindSetter: (bindStr) ->

@@ -4,43 +4,8 @@
 	<meta charset="utf-8">
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
-		cola(function(model) {
-			model.action({
-				query: function(arg) {
-					console.log(arg.value);
-					cola.widget("groupList").refresh();
-				},
-				showDetail: function(user) {
-					console.log(user);
-					cola.widget("userDetailLayer").toggle();
-				}
-			});
-			model.describe("users", {
-				provider: "../data/users.json"
-			});
-			model.widgetConfig({
-				groupList: {
-					$type: "listView",
-					bind: "user in users",
-					textProperty: "cname",
-					group: false,
-					indexBar:true,
-					groupCollapsible: false,
-					getGroupString: function(arg) {
-						var label = arg.item.get("pyname");
-						if (label) arg.result = label.charAt(0);
-					},
-					filterItem: function(){
-						console.log("==");
-						var queryName = model.get("username");
-						return item.get("pyname").indexof(queryName)>-1 || item.get("cname").indexOf(queryName)>-1;
-					}
-				}
-			});
-		});
 		cola(function (model) {
 			model.set({
-				name:"张三s",
 				todos: [
 					{ title: "meeting", done: true },
 					{ title: "date" },
