@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, VALIDATION_ERROR, VALIDATION_INFO, VALIDATION_NONE, VALIDATION_WARN, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -3345,105 +3345,179 @@
     }
   };
 
-  cola._filterCollection = function(collection, criteria, caseSensitive, strict) {
-    var filtered, prop, propFilter;
-    if (!(collection && criteria)) {
-      return collection;
+  cola._trimCriteria = function(criteria, option) {
+    var prop, propFilter;
+    if (option == null) {
+      option = {};
+    }
+    if (criteria == null) {
+      return criteria;
     }
     if (cola.util.isSimpleValue(criteria)) {
-      if (!caseSensitive) {
+      if (!option.caseSensitive) {
         criteria = (criteria + "").toLowerCase();
       }
       criteria = {
         "$": {
           value: criteria,
-          caseSensitive: caseSensitive,
-          strict: strict
+          caseSensitive: option.caseSensitive,
+          strict: option.strict
         }
       };
-    }
-    if (typeof criteria === "object") {
+    } else if (typeof criteria === "object") {
       for (prop in criteria) {
         propFilter = criteria[prop];
         if (typeof propFilter === "string") {
           criteria[prop] = {
             value: propFilter.toLowerCase(),
-            caseSensitive: caseSensitive,
-            strict: strict
+            caseSensitive: option.caseSensitive,
+            strict: option.strict
           };
         } else {
           if (propFilter.caseSensitive == null) {
-            propFilter.caseSensitive = caseSensitive;
+            propFilter.caseSensitive = option.caseSensitive;
           }
           if (!propFilter.caseSensitive && typeof propFilter.value === "string") {
             propFilter.value = propFilter.value.toLowerCase();
           }
           if (propFilter.strict == null) {
-            propFilter.strict = strict;
+            propFilter.strict = option.strict;
           }
           if (!propFilter.strict) {
             propFilter.value = propFilter.value ? propFilter.value + "" : "";
           }
         }
       }
-      filtered = [];
-      filtered.$origin = collection.$origin || collection;
-      cola.each(collection, function(item) {
-        var data, matches, p, v;
-        matches = false;
-        if (cola.util.isSimpleValue(item)) {
-          if (criteria.$) {
-            matches = _matchValue(v, criteria.$);
-          }
-        } else {
-          for (prop in criteria) {
-            propFilter = criteria[prop];
-            if (prop === "$") {
-              if (item instanceof cola.Entity) {
-                data = item._data;
-              } else {
-                data = item;
-              }
-              for (p in data) {
-                v = data[p];
-                if (_matchValue(v, propFilter)) {
-                  matches = true;
+    }
+    return criteria;
+  };
+
+  cola._filterCollection = function(collection, criteria, option) {
+    var filtered;
+    if (option == null) {
+      option = {};
+    }
+    if (!collection) {
+      return null;
+    }
+    filtered = [];
+    filtered.$origin = collection.$origin || collection;
+    if (!option.mode) {
+      option.mode = collection instanceof cola.EntityList ? "entity" : "json";
+    }
+    cola.each(collection, function(item) {
+      var children;
+      children = option.deep ? [] : null;
+      if ((criteria == null) || cola._filterEntity(item, criteria, option, children)) {
+        filtered.push(item);
+        if (option.one) {
+          return false;
+        }
+      }
+      if (children) {
+        Array.prototype.push.apply(filtered, children);
+      }
+    });
+    return filtered;
+  };
+
+  cola._filterEntity = function(entity, criteria, option, children) {
+    var _searchChildren, data, matches, p, prop, propFilter, v;
+    if (option == null) {
+      option = {};
+    }
+    _searchChildren = function(value) {
+      var r;
+      if (option.mode === "entity") {
+        if (value instanceof cola.EntityList) {
+          r = cola._filterCollection(value, criteria, option);
+          Array.prototype.push.apply(children, r);
+        } else if (value instanceof cola.Entity) {
+          r = [];
+          cola._filterEntity(value, criteria, option, r);
+          Array.prototype.push.apply(children, r);
+        }
+      } else {
+        if (typeof value === "array") {
+          r = cola._filterCollection(value, criteria, option);
+          Array.prototype.push.apply(children, r);
+        } else if (typeof value === "object" && !(value instanceof Date)) {
+          r = [];
+          cola._filterEntity(value, criteria, option, r);
+          Array.prototype.push.apply(children, r);
+        }
+      }
+    };
+    if (!entity) {
+      return false;
+    }
+    if (!option.mode) {
+      option.mode = entity instanceof cola.Entity ? "entity" : "json";
+    }
+    matches = false;
+    if (criteria == null) {
+      matches = true;
+    } else if (typeof criteria === "object") {
+      if (cola.util.isSimpleValue(entity)) {
+        if (criteria.$) {
+          matches = _matchValue(v, criteria.$);
+        }
+      } else {
+        for (prop in criteria) {
+          propFilter = criteria[prop];
+          data = null;
+          if (prop === "$") {
+            if (option.mode === "entity") {
+              data = entity._data;
+            } else {
+              data = entity;
+            }
+            for (p in data) {
+              v = data[p];
+              if (_matchValue(v, propFilter)) {
+                matches = true;
+                if (!children) {
                   break;
                 }
               }
-              if (matches) {
+            }
+            if (matches && !children) {
+              break;
+            }
+          } else if (option.mode === "entity") {
+            if (_matchValue(entity.get(prop), propFilter)) {
+              matches = true;
+              if (!children) {
                 break;
               }
-            } else if (item instanceof cola.Entity) {
-              if (_matchValue(item.get(prop), propFilter)) {
-                matches = true;
-                break;
-              }
-            } else {
-              if (_matchValue(item[prop], propFilter)) {
-                matches = true;
+            }
+          } else {
+            if (_matchValue(entity[prop], propFilter)) {
+              matches = true;
+              if (!children) {
                 break;
               }
             }
           }
         }
-        if (matches) {
-          filtered.push(item);
-        }
-      });
-      return filtered;
+      }
     } else if (typeof criteria === "function") {
-      filtered = [];
-      filtered.$origin = collection.$origin || collection;
-      cola.each(collection, function(item) {
-        if (criteria(item, caseSensitive, strict)) {
-          filtered.push(item);
-        }
-      });
-      return filtered;
-    } else {
-      return collection;
+      matches = criteria(entity, option);
     }
+    if (children && (!option.one || !matches)) {
+      if (data == null) {
+        if (option.mode === "entity") {
+          data = entity._data;
+        } else {
+          data = entity;
+        }
+      }
+      for (p in data) {
+        v = data[p];
+        _searchChildren(v);
+      }
+    }
+    return matches;
   };
 
   cola._sortCollection = function(collection, comparator, caseSensitive) {
@@ -3849,7 +3923,7 @@
             if (messages) {
               for (o = 0, len2 = messages.length; o < len2; o++) {
                 message = messages[o];
-                if (message === VALIDATION_ERROR) {
+                if (message === "error") {
                   throw new cola.Exception(message.text);
                 }
               }
@@ -3858,6 +3932,7 @@
         }
         if (this._disableWriteObservers === 0) {
           if ((oldValue != null) && (oldValue instanceof _Entity || oldValue instanceof _EntityList)) {
+            oldValue._setDataModel(null);
             delete oldValue._parent;
             delete oldValue._parentProperty;
           }
@@ -3872,7 +3947,7 @@
           }
           value._parent = this;
           value._parentProperty = prop;
-          value._setObserver(this._observer);
+          value._setDataModel(this._dataModel);
           value._onPathChange();
           this._mayHasSubEntity = true;
         }
@@ -4100,18 +4175,24 @@
       }
     };
 
-    Entity.prototype._setObserver = function(observer) {
+    Entity.prototype._setDataModel = function(dataModel) {
       var data, p;
-      if (this._observer === observer) {
+      if (this._dataModel === dataModel) {
         return;
       }
-      this._observer = observer;
+      if (this._dataModel) {
+        this._dataModel.onEntityDetach(this);
+      }
+      this._dataModel = dataModel;
+      if (dataModel) {
+        dataModel.onEntityAttach(this);
+      }
       if (this._mayHasSubEntity) {
         data = this._data;
         for (p in data) {
           value = data[p];
           if (value && (value instanceof _Entity || value instanceof _EntityList)) {
-            value._setObserver(observer);
+            value._setDataModel(dataModel);
           }
         }
       }
@@ -4183,8 +4264,8 @@
 
     Entity.prototype._doNotify = function(path, type, arg) {
       var ref;
-      if ((ref = this._observer) != null) {
-        ref.onMessage(path, type, arg);
+      if ((ref = this._dataModel) != null) {
+        ref._onDataMessage(path, type, arg);
       }
     };
 
@@ -4254,7 +4335,7 @@
           entity: this
         });
       }
-      return !((keyMessage != null ? keyMessage.type : void 0) === VALIDATION_ERROR);
+      return !((keyMessage != null ? keyMessage.type : void 0) === "error");
     };
 
     Entity.prototype._addMessage = function(prop, message) {
@@ -4503,7 +4584,7 @@
           entityList._setCurrentPage(entity._page);
         }
       }
-      entity._setObserver(entityList._observer);
+      entity._setDataModel(entityList._dataModel);
       entity._onPathChange();
       if (entity.state !== _Entity.STATE_DELETED) {
         this.entityCount++;
@@ -4514,7 +4595,7 @@
       Page.__super__._removeElement.call(this, entity);
       delete entity._page;
       delete entity._parent;
-      entity._setObserver(null);
+      entity._setDataModel(null);
       entity._onPathChange();
       if (entity.state !== _Entity.STATE_DELETED) {
         this.entityCount--;
@@ -4527,7 +4608,7 @@
       while (entity) {
         delete entity._page;
         delete entity._parent;
-        entity._setObserver(null);
+        entity._setDataModel(null);
         entity._onPathChange();
         entity = entity._next;
       }
@@ -4599,12 +4680,12 @@
       page.initData(array);
     };
 
-    EntityList.prototype._setObserver = function(observer) {
+    EntityList.prototype._setDataModel = function(dataModel) {
       var next, page;
-      if (this._observer === observer) {
+      if (this._dataModel === dataModel) {
         return;
       }
-      this._observer = observer;
+      this._dataModel = dataModel;
       page = this._first;
       if (!page) {
         return;
@@ -4612,7 +4693,7 @@
       next = page._first;
       while (page) {
         if (next) {
-          next._setObserver(observer);
+          next._setDataModel(dataModel);
           next = next._next;
         } else {
           page = page._next;
@@ -5088,8 +5169,8 @@
     EntityList.prototype._notify = function(type, arg) {
       var ref;
       if (this._disableObserverCount === 0) {
-        if ((ref = this._observer) != null) {
-          ref.onMessage(this.getPath(true), type, arg);
+        if ((ref = this._dataModel) != null) {
+          ref._onDataMessage(this.getPath(true), type, arg);
         }
         if (type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_INSERT || type === cola.constants.MESSAGE_REMOVE) {
           this._triggerWatcher(["*"], type, arg);
@@ -5218,100 +5299,30 @@
       return array;
     };
 
-    EntityList.prototype.filter = function(criteria) {
-      return cola._filterCollection(this, criteria);
+    EntityList.prototype.filter = function(criteria, option) {
+      criteria = cola._trimCriteria(criteria, option);
+      return cola._filterCollection(this, criteria, option);
     };
 
-    EntityList.prototype.where = function(criteria) {
-      return cola._filterCollection(this, criteria, true, true);
+    EntityList.prototype.where = function(criteria, option) {
+      if (option == null) {
+        option = {};
+      }
+      if (option.caseSensitive === void 0) {
+        option.caseSensitive = true;
+      }
+      if (option.strict === void 0) {
+        option.strict = true;
+      }
+      criteria = cola._trimCriteria(criteria, option);
+      return cola._filterCollection(this, criteria, option);
     };
 
-    EntityList.prototype.find = function(criteria) {
-      var filtered, prop, propFilter, result;
-      if (!criteria) {
-        return null;
-      }
-      if (cola.util.isSimpleValue(criteria)) {
-        criteria = {
-          "$": {
-            value: criteria,
-            caseSensitive: true,
-            strict: true
-          }
-        };
-      }
-      result = null;
-      if (typeof criteria === "object") {
-        for (prop in criteria) {
-          propFilter = criteria[prop];
-          if (typeof propFilter === "string") {
-            criteria[prop] = {
-              value: propFilter.toLowerCase(),
-              caseSensitive: true,
-              strict: true
-            };
-          } else {
-            if (propFilter.caseSensitive == null) {
-              propFilter.caseSensitive = true;
-            }
-            if (propFilter.strict == null) {
-              propFilter.strict = true;
-            }
-          }
-        }
-        cola.each(this, function(item) {
-          var data, matches, p, v;
-          matches = false;
-          if (cola.util.isSimpleValue(item)) {
-            if (criteria.$) {
-              matches = _matchValue(v, criteria.$);
-            }
-          } else {
-            for (prop in criteria) {
-              propFilter = criteria[prop];
-              if (prop === "$") {
-                if (item instanceof cola.Entity) {
-                  data = item._data;
-                } else {
-                  data = item;
-                }
-                for (p in data) {
-                  v = data[p];
-                  if (_matchValue(v, propFilter)) {
-                    matches = true;
-                    break;
-                  }
-                }
-                if (matches) {
-                  break;
-                }
-              } else if (item instanceof cola.Entity) {
-                if (_matchValue(item.get(prop), propFilter)) {
-                  matches = true;
-                  break;
-                }
-              } else {
-                if (_matchValue(item[prop], propFilter)) {
-                  matches = true;
-                  break;
-                }
-              }
-            }
-          }
-          if (matches) {
-            result = item;
-          }
-        });
-      } else if (typeof criteria === "function") {
-        filtered = [];
-        filtered.$origin = collection.$origin || collection;
-        cola.each(collection, function(item) {
-          if (criteria(item)) {
-            result = item;
-          }
-        });
-      }
-      return result;
+    EntityList.prototype.find = function(criteria, option) {
+      var result;
+      option.one = true;
+      result = cola.util.where(this, criteria, option);
+      return result != null ? result[0] : void 0;
     };
 
     return EntityList;
@@ -5409,14 +5420,6 @@
     }
   };
 
-  VALIDATION_NONE = "none";
-
-  VALIDATION_INFO = "info";
-
-  VALIDATION_WARN = "warning";
-
-  VALIDATION_ERROR = "error";
-
   TYPE_SEVERITY = {
     VALIDATION_INFO: 1,
     VALIDATION_WARN: 2,
@@ -5483,7 +5486,7 @@
             } else {
               continue;
             }
-            if (keyMessage.type === VALIDATION_ERROR) {
+            if (keyMessage.type === "error") {
               break;
             }
           }
@@ -5564,6 +5567,149 @@
         cola.util.each(collection, fn);
       }
     }
+  };
+
+
+  /*
+  util
+   */
+
+  cola.util.filter = function(data, criteria, option) {
+    criteria = cola._trimCriteria(criteria, option);
+    return cola._filterCollection(data, criteria, option);
+  };
+
+  cola.util.where = function(data, criteria, option) {
+    if (option == null) {
+      option = {};
+    }
+    if (option.caseSensitive === void 0) {
+      option.caseSensitive = true;
+    }
+    if (option.strict === void 0) {
+      option.strict = true;
+    }
+    criteria = cola._trimCriteria(criteria, option);
+    return cola._filterCollection(data, criteria, option);
+  };
+
+  cola.util.find = function(data, criteria, option) {
+    var result;
+    option.one = true;
+    result = cola.util.where(data, criteria, option);
+    return result != null ? result[0] : void 0;
+  };
+
+
+  /*
+  index
+   */
+
+  EntityIndex = (function() {
+    function EntityIndex(data1, property1, option1) {
+      var model, ref;
+      this.data = data1;
+      this.property = property1;
+      this.option = option1 != null ? option1 : {};
+      this.model = model = (ref = this.data._dataModel) != null ? ref.model : void 0;
+      if (!model) {
+        throw new cola.Exception("The Entity or EntityList is not belongs to any Model.");
+      }
+      this.deep = this.option.deep;
+      this.isCollection = this.data instanceof cola.EntityList;
+      if (!this.deep && !this.isCollection) {
+        throw new cola.Exception("Can not build index for single Entity.");
+      }
+      this.index = {};
+      this.idMap = {};
+      this.buildIndex();
+      model.data.addEntityListener(this);
+      return;
+    }
+
+    EntityIndex.prototype.buildIndex = function() {
+      var data;
+      data = this.data;
+      if (data instanceof cola.Entity) {
+        this._buildIndexForEntity(data);
+      } else if (data instanceof cola.EntityList) {
+        this._buildIndexForEntityList(data);
+      }
+    };
+
+    EntityIndex.prototype._buildIndexForEntityList = function(entityList) {
+      entityList.each((function(_this) {
+        return function(entity) {
+          _this._buildIndexForEntity(entity);
+        };
+      })(this));
+    };
+
+    EntityIndex.prototype._buildIndexForEntity = function(entity) {
+      var data, p, v;
+      value = entity.get(this.property);
+      this.index[value + ""] = entity;
+      this.idMap[entity.id] = true;
+      if (this.deep) {
+        data = entity._data;
+        for (p in data) {
+          v = data[p];
+          if (v) {
+            if (v instanceof cola.Entity) {
+              this._buildIndexForEntity(v);
+            } else if (v instanceof cola.EntityList) {
+              this._buildIndexForEntityList(v);
+            }
+          }
+        }
+      }
+    };
+
+    EntityIndex.prototype.onEntityAttach = function(entity) {
+      var p, valid;
+      if (this.deep) {
+        p = entity;
+        while (p) {
+          if (p === this.data) {
+            valid = true;
+            break;
+          }
+          p = p._parent;
+        }
+      } else if (this.isCollection) {
+        valid = entity._parent === this.data;
+      } else {
+        valid = entity === this.data;
+      }
+      if (valid) {
+        value = entity.get(this.property);
+        this.idMap[entity.id] = true;
+        this.index[value + ""] = entity;
+      }
+    };
+
+    EntityIndex.prototype.onEntityDetach = function(entity) {
+      if (this.idMap[entity.id]) {
+        value = entity.get(this.property);
+        delete this.idMap[entity.id];
+        delete this.index[value + ""];
+      }
+    };
+
+    EntityIndex.prototype.find = function(value) {
+      return this.index[value + ""];
+    };
+
+    EntityIndex.prototype.destroy = function() {
+      this.model.data.removeEntityListener(this);
+    };
+
+    return EntityIndex;
+
+  })();
+
+  cola.util.buildIndex = function(data, property, option) {
+    return new EntityIndex(data, property, option);
   };
 
   if (typeof exports !== "undefined" && exports !== null) {
@@ -6686,11 +6832,7 @@
         this._rootData = rootData = this._createRootData(this._rootDataType);
         rootData.state = cola.Entity.STATE_NEW;
         dataModel = this;
-        rootData._setObserver({
-          onMessage: function(path, type, arg) {
-            return dataModel._onDataMessage(path, type, arg);
-          }
-        });
+        rootData._setDataModel(dataModel);
       }
       return this._rootData;
     };
@@ -6805,6 +6947,48 @@
         delete this._definitionStore[name];
       }
       return definition;
+    };
+
+    DataModel.prototype.addEntityListener = function(listener) {
+      if (this._entityListeners == null) {
+        this._entityListeners = [];
+      }
+      this._entityListeners.push(listener);
+    };
+
+    DataModel.prototype.removeEntityListener = function(listener) {
+      var i;
+      if (!this._entityListeners) {
+        return;
+      }
+      if (listener) {
+        i = this._entityListeners.indexOf(listener);
+        if (i > -1) {
+          this._entityListeners.splice(i, 1);
+        }
+      }
+    };
+
+    DataModel.prototype.onEntityAttach = function(entity) {
+      var l, len1, listener, ref;
+      if (this._entityListeners) {
+        ref = this._entityListeners;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          listener = ref[l];
+          listener.onEntityAttach(entity);
+        }
+      }
+    };
+
+    DataModel.prototype.onEntityDetach = function(entity) {
+      var l, len1, listener, ref;
+      if (this._entityListeners) {
+        ref = this._entityListeners;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          listener = ref[l];
+          listener.onEntityDetach(entity);
+        }
+      }
     };
 
     return DataModel;
@@ -7391,7 +7575,10 @@
     }
   };
 
-  cola.defaultAction.filter = cola._filterCollection;
+  cola.defaultAction.filter = function(collection, criteria, option) {
+    criteria = cola._trimCriteria(criteria, option);
+    return cola._filterCollection(collection, criteria, option);
+  };
 
   cola.defaultAction.sort = cola._sortCollection;
 
@@ -8127,7 +8314,7 @@
   }
 
   cola.loadSubView = function(targetDom, context) {
-    var cssUrl, cssUrls, failed, htmlUrl, jsUrl, jsUrls, l, len1, len2, len3, len4, loadingUrls, o, q, r, ref, ref1, resourceLoadCallback;
+    var cssUrl, cssUrls, failed, htmlUrl, jsUrl, jsUrls, l, len1, len2, len3, len4, loadingUrls, o, q, ref, ref1, resourceLoadCallback, u;
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
@@ -8233,8 +8420,8 @@
       }
     }
     if (cssUrls) {
-      for (r = 0, len4 = cssUrls.length; r < len4; r++) {
-        cssUrl = cssUrls[r];
+      for (u = 0, len4 = cssUrls.length; u < len4; u++) {
+        cssUrl = cssUrls[u];
         _loadCss(cssUrl, {
           complete: function(success, result) {
             return resourceLoadCallback(success, result, cssUrl);
@@ -9997,7 +10184,7 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, o, parts, q, r, ref, ref1, removeAttr, removeAttrs, result, tailDom, u, v, x;
+    var attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, o, parts, q, ref, ref1, removeAttr, removeAttrs, result, tailDom, u, v, x, y;
     if (dom.nodeType === 8) {
       return dom;
     }
@@ -10111,8 +10298,8 @@
               if (feature instanceof cola._BindingFeature) {
                 features.push(feature);
               } else if (feature instanceof Array) {
-                for (r = 0, len4 = feature.length; r < len4; r++) {
-                  f = feature[r];
+                for (u = 0, len4 = feature.length; u < len4; u++) {
+                  f = feature[u];
                   features.push(f);
                 }
               }
@@ -10122,8 +10309,8 @@
       }
     }
     if (removeAttrs) {
-      for (u = 0, len5 = removeAttrs.length; u < len5; u++) {
-        removeAttr = removeAttrs[u];
+      for (x = 0, len5 = removeAttrs.length; x < len5; x++) {
+        removeAttr = removeAttrs[x];
         dom.removeAttribute(removeAttr);
       }
     }
@@ -10155,8 +10342,8 @@
       if (context.inRepeatTemplate || bindingType === "repeat") {
         cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers);
       } else {
-        for (x = 0, len6 = initializers.length; x < len6; x++) {
-          initializer = initializers[x];
+        for (y = 0, len6 = initializers.length; y < len6; y++) {
+          initializer = initializers[y];
           initializer(scope, dom);
         }
       }
@@ -10993,25 +11180,57 @@
   };
 
   cola.findWidget = function(dom, type) {
-    var widget;
+    var find, typeName;
     if (type && typeof type === "string") {
-      type = cola.resolveType("widget", {
-        $type: type
-      });
+      typeName = type;
+      type = WIDGET_TAGS_REGISTRY[typeName];
+      if (!type) {
+        type = cola.resolveType("widget", {
+          $type: typeName
+        });
+      }
       if (!type) {
         return null;
       }
     }
-    while (dom) {
-      widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY);
-      if (widget) {
-        if (!type || widget instanceof type) {
-          return widget;
+    if (dom instanceof cola.Widget) {
+      dom = dom.getDom();
+    }
+    find = function(win, dom, type) {
+      var frame, parentDom, parentFrames, widget;
+      parentDom = dom.parentNode;
+      while (parentDom) {
+        dom = parentDom;
+        widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY);
+        if (widget) {
+          if (!type || widget instanceof type) {
+            return widget;
+          }
+        }
+        parentDom = dom.parentNode;
+      }
+      if (win.parent) {
+        try {
+          parentFrames = win.parent.jQuery("iframe,frame");
+        } catch (_error) {
+
+        }
+        if (parentFrames) {
+          frame = null;
+          parentFrames.each(function() {
+            if (this.contentWindow === win) {
+              frame = this;
+              return false;
+            }
+          });
+          if (frame) {
+            widget = find(win.parent, frame, type);
+          }
         }
       }
-      dom = dom.parentNode;
-    }
-    return null;
+      return widget;
+    };
+    return find(window, dom, type);
   };
 
   cola.Model.prototype.widget = function(config) {
@@ -22785,6 +23004,9 @@
       if (this._items == null) {
         this._items = [];
       }
+      if (this._items.indexOf(item) >= 0) {
+        return;
+      }
       this._items.push(item);
       this._addItemToDom(item);
       if (active) {
@@ -23975,8 +24197,12 @@
         }
         child = child.nextSibling;
       }
-      if (!doms.indicators) {
-        this._createIndicatorContainer(dom);
+      if (doms.indicators) {
+        this.refreshIndicators();
+      } else {
+        if (!doms.indicators) {
+          this._createIndicatorContainer(dom);
+        }
       }
       if (!doms.wrap) {
         this._createItemsWrap(dom);
@@ -24076,12 +24302,12 @@
     };
 
     Carousel.prototype._getDataItems = function() {
-      if (this._items) {
+      if (this._bind) {
+        return this._getItems();
+      } else {
         return {
           items: this._items
         };
-      } else {
-        return this._getItems();
       }
     };
 
@@ -24119,7 +24345,7 @@
     };
 
     Carousel.prototype.refreshIndicators = function() {
-      var currentIndex, i, indicatorCount, indicatorDoms, indicators, items, itemsCount, ref, span;
+      var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
       items = this._getDataItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
@@ -24129,8 +24355,8 @@
       if (!((ref = this._doms) != null ? ref.indicators : void 0)) {
         return;
       }
-      indicatorDoms = $(this._doms.indicators).find(">span");
-      indicatorCount = indicatorDoms.length;
+      $(this._doms.indicators).find(">span").remove();
+      indicatorCount = 0;
       if (indicatorCount < itemsCount) {
         i = indicatorCount;
         while (i < itemsCount) {
@@ -24140,13 +24366,6 @@
           } else {
             $fly(this._doms.indicators).prepend(span);
           }
-          i++;
-        }
-      } else if (indicatorCount > itemsCount) {
-        i = itemsCount;
-        while (i < indicatorCount) {
-          indicators = $(this._doms.indicators).find(">span");
-          $(indicators[indicators.length - 1]).remove();
           i++;
         }
       }
@@ -24224,6 +24443,7 @@
     Carousel.prototype._itemDomsChanged = function() {
       setTimeout((function(_this) {
         return function() {
+          _this._items = [];
           _this._parseDom(_this._dom);
         };
       })(this), 0);
