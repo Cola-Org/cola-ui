@@ -16,14 +16,26 @@ class cola.TableColumn extends cola.Element
 		visible:
 			type:"boolean"
 			defaultValue: true
+			refreshStructure: true
 		headerTemplate: null
 
 	@events:
 		renderHeader: null
+		headerClick: null
 
 	constructor: (config) ->
 		super(config)
 		if !@_name then @_name = cola.uniqueId()
+
+		@on("attributeChange", (self, arg) =>
+			return unless @_table
+			attrConfig = @constructor.attributes[arg.attribute]
+			return unless attrConfig
+			if attrConfig.refreshStructure
+				@_table._collectionColumnsInfo()
+			
+			return
+		)
 
 	_setTable: (table) ->
 		@_table._unregColumn(@) if @_table
@@ -58,6 +70,8 @@ class cola.TableContentColumn extends cola.TableColumn
 	@events:
 		renderCell: null
 		renderFooter: null
+		cellClick: null
+		footerClick: null
 
 class cola.TableDataColumn extends cola.TableContentColumn
 	@attributes:
@@ -67,6 +81,9 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		property: null
 		bind: null
 		template: null
+		sortable:
+			defaultValue: true
+		sortDirection: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@attributes:
@@ -203,11 +220,19 @@ class cola.AbstractTable extends cola.AbstractList
 		selectedProperty:
 			defaultValue: "selected"
 
+		sortable: null
+		sortMode:
+			defaultValue: "remote" # local/remote
+
 	@events:
 		renderRow: null
 		renderCell: null
 		renderHeaderCell: null
 		renderFooterCell: null
+		cellClick: null
+		headerClick: null
+		footerClick: null
+		sortDirectionChange: null
 
 	@TEMPLATES:
 		"default":
@@ -346,6 +371,16 @@ class cola.AbstractTable extends cola.AbstractList
 					}
 				]
 		}, @_doms)
+
+		$fly(@_doms.tbody).delegate(">tr >td", "click", (evt) =>
+			columnName = evt.currentTarget._name
+			column = @getColumn(columnName)
+			eventArg =
+				column: column
+			if column.fire("cellClick", @, eventArg) isnt false
+				@fire("cellClick", @, eventArg)
+			return
+		)
 		return
 
 	_parseDom: (dom)->

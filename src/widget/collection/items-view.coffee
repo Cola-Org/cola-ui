@@ -198,7 +198,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_refreshItems: () ->
-		if !@_dom
+		if not @_dom
 			@_refreshItemsScheduled = true
 			return
 		@_doRefreshItems(@_doms.itemsWrapper)
@@ -208,7 +208,6 @@ class cola.ItemsView extends cola.Widget
 
 		ret = @_getItems()
 		items = ret.items
-		#		isSameItems = (@_realOriginItems or @_realItems) is (ret.originItems or items)
 		@_realOriginItems = ret.originItems
 
 		if @_convertItems and items

@@ -4,10 +4,10 @@
 @tableHeadLineColor: darken(@offWhite, 4%);
 @tableFootLineColor: @tableHeadLineColor;
 @tableRowLineColor: @tableHeadLineColor;
-@tableColLineColor: transparent;
-@tableHeadCellPadding: 0.4em 6px;
-@tableFootCellPadding: 0.4em 6px;
-@tableCellPadding: 0.6em 6px;
+@tableColLineColor: @tableHeadLineColor;
+@tableHeadCellPadding: 0.4em 0.4em;
+@tableFootCellPadding: 0.4em 0.4em;
+@tableCellPadding: 0.6em 0.4em;
 
 @tableHeadBackground: @white;
 @tableFootBackground: @tableHeadBackground;
@@ -41,8 +41,30 @@
 				background: @tableHeadBackground;
 				border-color: @tableHeadLineColor @tableColLineColor;
 				> div {
+					position: relative;
 					overflow: hidden;
 					padding: @tableHeadCellPadding;
+				}
+
+				&.sortable > div{
+					padding-right: 1.25em;
+					&:after {
+						content: "\f0dc";
+						font-family: Icons;
+						position: absolute;
+						right: 0.25em;
+						top: 0.4em;
+						color: @disabledTextColor;
+					}
+				}
+
+				&.sortable.asc > div:after{
+					content: "\f0de";
+					color: @darkTextColor ;
+				}
+				&.sortable.desc > div:after{
+					content: "\f0dd";
+					color: @darkTextColor ;
 				}
 			}
 		}

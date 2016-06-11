@@ -14,6 +14,63 @@ class cola.Table extends cola.AbstractTable
 			return
 		return
 
+	_convertItems: (items) ->
+		items = super(items)
+		if @_sortCriteria
+			items = cola._sortCollection(items, @_sortCriteria)
+		return items
+		
+	_sysHeaderClick: (column) ->
+		if @get("sortable") and column instanceof cola.TableDataColumn and column.get("sortable")
+			sortDirection = column.get("sortDirection")
+			if sortDirection is "asc" then sortDirection = "desc"
+			else if sortDirection is "desc" then sortDirection = null
+			else sortDirection = "asc"
+			column.set("sortDirection", sortDirection)
+
+			if @fire("sortDirectionChange", @, {
+				column: column
+				sortDirection: sortDirection
+			}) is false
+				return
+
+			collection = @_realOriginItems or @_realItems
+			if not collection then return
+
+			if not sortDirection
+				criteria = null
+			else
+				criteria = if sortDirection is "asc" then "+" else "-"
+				property = column._bind
+				if not property or property.match(/\(/) then return
+
+				if property.charCodeAt(0) is 46 # `.`
+					property = property.slice(1)
+				else if @_alias and property.indexOf("." + @_alias) is 0
+					property = property.slice(@_alias.length + 1)
+				criteria += property
+
+			if @_sortMode is "remote"
+				if collection instanceof cola.EntityList
+					provider = collection._providerInvoker?.ajaxService
+					if provider
+						parameter = provider.get("parameter")
+						if not parameter
+							provider.set("parameter", parameter = {})
+						else if typeof parameter isnt "object" or parameter instanceof Date
+							throw new cola.Exception("Can not set sort parameter automatically.")
+						parameter.sort = criteria
+
+						collection.flush()
+						processed = true
+
+				if not processed
+					throw new cola.Exception("Remote sort not supported.")
+			else
+				@_sortCriteria = criteria
+				@_refreshItems()
+		return
+
 	_doRefreshItems: () ->
 		return unless @_columnsInfo
 
@@ -58,12 +115,25 @@ class cola.Table extends cola.AbstractTable
 
 		if @_showHeader
 			thead = @_doms.thead
-			if !thead
+			if not thead
 				$fly(tbody).xInsertBefore({
 					tagName: "thead"
 					contextKey: "thead"
 				}, @_doms)
+
 				thead = @_doms.thead
+
+				$fly(thead).delegate("th", "click", (evt) =>
+					columnName = evt.currentTarget._name
+					column = @getColumn(columnName)
+					eventArg =
+						column: column
+					if column.fire("headerClick", @, eventArg) isnt false
+						if @fire("headerClick", @, eventArg) isnt false
+							@_sysHeaderClick(column)
+					return
+				)
+
 			@_refreshHeader(thead)
 
 		super(tbody)
@@ -75,7 +145,17 @@ class cola.Table extends cola.AbstractTable
 					tagName: "tfoot"
 					contextKey: "tfoot"
 				}, @_doms)
+
 				tfoot = @_doms.tfoot
+				$fly(tfoot).delegate("td", "click", (evt) ->
+					columnName = evt.currentTarget._name
+					column = @getColumn(columnName)
+					eventArg =
+					  column: column
+					if column.fire("footerClick", @, eventArg) isnt false
+						@fire("footerClick", @, eventArg)
+					return
+				)
 			@_refreshFooter(tfoot)
 
 			if !@_fixedFooterVisible
@@ -165,6 +245,10 @@ class cola.Table extends cola.AbstractTable
 	_refreshHeaderCell: (dom, columnInfo, isNew) ->
 		column = columnInfo.column
 		dom.style.textAlign = column._align or "left"
+
+		$cell = $fly(dom.parentNode)
+		$cell.toggleClass("sortable", !!column._sortable).removeClass("asc desc")
+		if column._sortDirection then $cell.addClass(column._sortDirection)
 
 		if column.renderHeader
 			if column.renderHeader(dom) != true
