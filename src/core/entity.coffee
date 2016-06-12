@@ -567,10 +567,10 @@ class cola.Entity
 				@validate(prop)
 		return value
 
-	remove: () ->
+	remove: (detach) ->
 		if @_parent
 			if @_parent instanceof _EntityList
-				@_parent.remove(@)
+				@_parent.remove(@, detach)
 			else
 				@setState(_Entity.STATE_DELETED)
 				@_parent.set(@_parentProperty, null)
@@ -747,6 +747,7 @@ class cola.Entity
 
 	enableObservers: () ->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
+		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
 		return @
 
 	notifyObservers: () ->
@@ -884,6 +885,7 @@ class LinkedList
 		else
 			if !insertMode || insertMode == "end"
 				element._previous = @_last
+				delete element._next
 				@_last._next = element
 				@_last = element
 			else if insertMode == "before"
@@ -901,6 +903,7 @@ class LinkedList
 				element._next = next
 				if @_last == refEntity then @_last = element
 			else if insertMode == "begin"
+				delete element._previous
 				element._next = @_first
 				@_first._previous = element
 				@_first = element
@@ -911,8 +914,8 @@ class LinkedList
 	_removeElement: (element) ->
 		previous = element._previous
 		next = element._next
-		previous?._next = next;
-		next?._previous = previous;
+		previous?._next = next
+		next?._previous = previous
 		if @_first == element then @_first = next
 		if @_last == element then @_last = previous
 		@_size++
@@ -1273,6 +1276,8 @@ class cola.EntityList extends LinkedList
 		if entity instanceof _Entity
 			if entity._parent and entity._parent != @
 				throw new cola.Exception("Entity is already belongs to another owner. \"#{@._parentProperty or "Unknown"}\".")
+			if entity.state is _Entity.STATE_DELETED
+				entity.setState(_Entity.STATE_NONE)
 		else
 			entity = new _Entity(entity, @dataType)
 			entity.setState(_Entity.STATE_NEW)
@@ -1281,7 +1286,7 @@ class cola.EntityList extends LinkedList
 		page._insertElement(entity, insertMode, refEntity)
 		page.dontAutoSetCurrent = false
 
-		if entity.state != _Entity.STATE_DELETED then @entityCount++
+		if entity.state isnt _Entity.STATE_DELETED then @entityCount++
 
 		@timestamp = cola.sequenceNo()
 		@_notify(cola.constants.MESSAGE_INSERT, {

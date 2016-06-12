@@ -173,7 +173,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				else if domBinding.itemDomBindingMap
 					refEntityId = cola.Entity._getEntityId(arg.refEntity)
 					if refEntityId
-						refDom = domBinding.itemDomBindingMap[refEntityId]?
+						refDom = domBinding.itemDomBindingMap[refEntityId]?.dom
 						if refDom
 							if insertMode == "before"
 								$fly(refDom).before(itemDom)

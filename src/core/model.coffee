@@ -946,14 +946,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		@_onDataMessage(path, type, arg)
 
 		targetPath = @_targetPath
-		if targetPath?.length
+		if targetPath?.length and targetPath.length < path?.length
 			matching = true
 
 			for targetPart, i in targetPath
 				part = path[i]
 				if part and part.charCodeAt(0) == 33 # `!`
 					part = part.substring(1)
-				if part != targetPart
+				if part isnt targetPart
 					matching = false
 					break
 

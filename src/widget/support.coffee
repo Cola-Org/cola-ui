@@ -345,10 +345,15 @@ _extendWidget = (superCls, definition) ->
 		template = @_template
 		if template and not @_domCreated
 			templateDom = @xRender(template)
+			if templateDom?.nodeType is 11	# fragment
+				templateDom = templateDom.firstElementChild
+
 			if templateDom
 				for attr in templateDom.attributes
 					attrName = attr.name
-					if attrName isnt "style"
+					if attrName is "class"
+						$fly(dom).addClass(attr.value)
+					else if attrName isnt "style"
 						dom.setAttribute(attrName, attr.value) if not dom.hasAttribute(attrName)
 
 				for cssName of templateDom.style
