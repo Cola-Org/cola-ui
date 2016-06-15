@@ -115,9 +115,9 @@ class cola.AjaxService extends cola.Definition
 
 class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 
-	#pageSize
-	#pageNo
-	#detectEnd
+	# pageSize
+	# pageNo
+	# detectEnd
 
 	_replaceSysParams: (options) ->
 		url = options.originUrl or options.url

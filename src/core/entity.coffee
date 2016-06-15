@@ -883,12 +883,12 @@ class LinkedList
 		if !@_first
 			@_first = @_last = element
 		else
-			if !insertMode || insertMode == "end"
+			if not insertMode || insertMode is "end"
 				element._previous = @_last
 				delete element._next
 				@_last._next = element
 				@_last = element
-			else if insertMode == "before"
+			else if insertMode is "before"
 				previous = refEntity._previous
 				previous?._next = element
 				refEntity._previous = element
@@ -1026,9 +1026,9 @@ class cola.EntityList extends LinkedList
 	_disableObserverCount: 0
 
 # totalEntityCount
-#_parent
-#_parentProperty
-#_providerInvoker
+# _parent
+# _parentProperty
+# _providerInvoker
 
 	constructor: (array, dataType) ->
 		@id = cola.uniqueId()

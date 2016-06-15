@@ -52,11 +52,11 @@ class cola.Table extends cola.AbstractTable
 
 			if @_sortMode is "remote"
 				if collection instanceof cola.EntityList
-					provider = collection._providerInvoker?.ajaxService
-					if provider
-						parameter = provider.get("parameter")
+					invoker = collection._providerInvoker
+					if invoker
+						parameter = invoker.invokerOptions.data
 						if not parameter
-							provider.set("parameter", parameter = {})
+							invoker.invokerOptions.data = parameter = {}
 						else if typeof parameter isnt "object" or parameter instanceof Date
 							throw new cola.Exception("Can not set sort parameter automatically.")
 						parameter.sort = criteria
