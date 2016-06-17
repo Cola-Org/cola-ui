@@ -86,6 +86,8 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		sortDirection: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
+	@events:
+		change: null
 	@attributes:
 		width:
 			defaultValue: "42px"
@@ -97,6 +99,8 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
+				change: (self,arg) =>
+					@fire("change",this,{checkbox:self,oldValue:arg.oldValue,value:arg.value})
 				click: (self) =>
 					@selectAll(self.get("checked"))
 					return
