@@ -3987,10 +3987,10 @@
       return value;
     };
 
-    Entity.prototype.remove = function() {
+    Entity.prototype.remove = function(detach) {
       if (this._parent) {
         if (this._parent instanceof _EntityList) {
-          this._parent.remove(this);
+          this._parent.remove(this, detach);
         } else {
           this.setState(_Entity.STATE_DELETED);
           this._parent.set(this._parentProperty, null);
@@ -4233,6 +4233,11 @@
       } else {
         this._disableObserverCount--;
       }
+      if (this._disableObserverCount < 1) {
+        this._disableObserverCount = 0;
+      } else {
+        this._disableObserverCount--;
+      }
       return this;
     };
 
@@ -4465,6 +4470,7 @@
       } else {
         if (!insertMode || insertMode === "end") {
           element._previous = this._last;
+          delete element._next;
           this._last._next = element;
           this._last = element;
         } else if (insertMode === "before") {
@@ -4490,6 +4496,7 @@
             this._last = element;
           }
         } else if (insertMode === "begin") {
+          delete element._previous;
           element._next = this._first;
           this._first._previous = element;
           this._first = element;
@@ -4992,6 +4999,9 @@
       if (entity instanceof _Entity) {
         if (entity._parent && entity._parent !== this) {
           throw new cola.Exception("Entity is already belongs to another owner. \"" + (this._parentProperty || "Unknown") + "\".");
+        }
+        if (entity.state === _Entity.STATE_DELETED) {
+          entity.setState(_Entity.STATE_NONE);
         }
       } else {
         entity = new _Entity(entity, this.dataType);
@@ -7095,7 +7105,7 @@
       var i, l, len1, matching, part, relativePath, targetPart, targetPath;
       this._onDataMessage(path, type, arg);
       targetPath = this._targetPath;
-      if (targetPath != null ? targetPath.length : void 0) {
+      if ((targetPath != null ? targetPath.length : void 0) && targetPath.length < (path != null ? path.length : void 0)) {
         matching = true;
         for (i = l = 0, len1 = targetPath.length; l < len1; i = ++l) {
           targetPart = targetPath[i];
@@ -9182,7 +9192,7 @@
       };
       scope.onItemInsert = (function(_this) {
         return function(arg) {
-          var entity, headDom, i, iScope, id, index, insertMode, itemDom, itemsScope, ref, refDom, refEntityId, refItemScope, tailDom, templateDom;
+          var entity, headDom, i, iScope, id, index, insertMode, itemDom, itemsScope, ref, ref1, refDom, refEntityId, refItemScope, tailDom, templateDom;
           headDom = domBinding.dom;
           tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY);
           templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY);
@@ -9209,7 +9219,7 @@
             } else if (domBinding.itemDomBindingMap) {
               refEntityId = cola.Entity._getEntityId(arg.refEntity);
               if (refEntityId) {
-                refDom = domBinding.itemDomBindingMap[refEntityId] != null;
+                refDom = (ref = domBinding.itemDomBindingMap[refEntityId]) != null ? ref.dom : void 0;
                 if (refDom) {
                   if (insertMode === "before") {
                     $fly(refDom).before(itemDom);
@@ -9219,9 +9229,9 @@
                 }
               }
             }
-            ref = itemsScope.itemScopeMap;
-            for (id in ref) {
-              iScope = ref[id];
+            ref1 = itemsScope.itemScopeMap;
+            for (id in ref1) {
+              iScope = ref1[id];
               i = iScope.data.getIndex();
               if (i >= index && iScope.data.getTargetData() !== entity) {
                 iScope.data.setIndex(i + 1);
@@ -11308,14 +11318,12 @@
         return function(self, arg) {
           var attr, value;
           attr = arg.attribute;
-          if (_this.constructor.attributes.$has(attr)) {
-            _this._widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
-            value = _this._get(attr);
-            if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
-              _this._entityProps[attr] = value;
-            } else {
-              delete _this._entityProps[attr];
-            }
+          _this._widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+          value = _this._get(attr);
+          if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
+            _this._entityProps[attr] = value;
+          } else {
+            delete _this._entityProps[attr];
           }
         };
       })(this));
@@ -11370,12 +11378,17 @@
       template = this._template;
       if (template && !this._domCreated) {
         templateDom = this.xRender(template);
+        if ((templateDom != null ? templateDom.nodeType : void 0) === 11) {
+          templateDom = templateDom.firstElementChild;
+        }
         if (templateDom) {
           ref1 = templateDom.attributes;
           for (n = 0, len1 = ref1.length; n < len1; n++) {
             attr = ref1[n];
             attrName = attr.name;
-            if (attrName !== "style") {
+            if (attrName === "class") {
+              $fly(dom).addClass(attr.value);
+            } else if (attrName !== "style") {
               if (!dom.hasAttribute(attrName)) {
                 dom.setAttribute(attrName, attr.value);
               }
@@ -15647,6 +15660,9 @@
         callback: {
           complete: (function(_this) {
             return function(success, result) {
+              _this._currentUrl = _this._url;
+              _this._currentJsUrl = _this._jsUrl;
+              _this._currentCssUrl = _this._cssUrl;
               if (!_this._showLoadingContent) {
                 $dom.find(">.content").css("visibility", "");
               }
@@ -15671,7 +15687,7 @@
         callback = options;
         options = null;
       }
-      if (this._url === (options != null ? options.url : void 0)) {
+      if (this._currentUrl && this._currentUrl === (options != null ? options.url : void 0) && this._currentJsUrl === options.jsUrl && this._currentCssUrl === options.cssUrl) {
         cola.callback(callback, true);
       } else {
         this.load(options, callback);
@@ -15687,6 +15703,8 @@
         htmlUrl: this._url,
         cssUrl: this._cssUrl
       });
+      delete this._currentUrl;
+      delete this._currentCssUrl;
       dom = this._dom;
       model = cola.util.userData(dom, "_model");
       if (model != null) {
@@ -21828,7 +21846,7 @@
 
     DateGrid.prototype.getDateCellDom = function(date) {
       var value;
-      value = new XDate(date).toString("yyyy-M-d");
+      value = new XDate(date).toString("yyyy-MM-dd");
       return $(this._dom).find("td[cell-date='" + value + "']")[0];
     };
 
@@ -21858,7 +21876,7 @@
     };
 
     DateGrid.prototype.doRefreshCell = function(cell, row, column) {
-      var cellState, state, ym;
+      var cellState, d, month, state, ym;
       state = this._state;
       if (!state) {
         return;
@@ -21866,7 +21884,15 @@
       cellState = state[row * 7 + column];
       $fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text);
       ym = this.getYMForState(cellState);
-      return $fly(cell).attr("cell-date", ym.year + "-" + (ym.month + 1) + "-" + cellState.text);
+      month = ym.month + 1;
+      d = cellState.text;
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (parseInt(d) < 10) {
+        d = "0" + d;
+      }
+      return $fly(cell).attr("cell-date", ym.year + "-" + month + "-" + d);
     };
 
     DateGrid.prototype.setState = function(year, month) {
@@ -23040,9 +23066,6 @@
       active = cola.util.hasClass(item, "active");
       if (this._items == null) {
         this._items = [];
-      }
-      if (this._items.indexOf(item) >= 0) {
-        return;
       }
       this._items.push(item);
       this._addItemToDom(item);
@@ -24234,12 +24257,8 @@
         }
         child = child.nextSibling;
       }
-      if (doms.indicators) {
-        this.refreshIndicators();
-      } else {
-        if (!doms.indicators) {
-          this._createIndicatorContainer(dom);
-        }
+      if (!doms.indicators) {
+        this._createIndicatorContainer(dom);
       }
       if (!doms.wrap) {
         this._createItemsWrap(dom);
@@ -24339,12 +24358,12 @@
     };
 
     Carousel.prototype._getDataItems = function() {
-      if (this._bind) {
-        return this._getItems();
-      } else {
+      if (this._items) {
         return {
           items: this._items
         };
+      } else {
+        return this._getItems();
       }
     };
 
@@ -24382,7 +24401,7 @@
     };
 
     Carousel.prototype.refreshIndicators = function() {
-      var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
+      var currentIndex, i, indicatorCount, indicatorDoms, indicators, items, itemsCount, ref, span;
       items = this._getDataItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
@@ -24392,8 +24411,8 @@
       if (!((ref = this._doms) != null ? ref.indicators : void 0)) {
         return;
       }
-      $(this._doms.indicators).find(">span").remove();
-      indicatorCount = 0;
+      indicatorDoms = $(this._doms.indicators).find(">span");
+      indicatorCount = indicatorDoms.length;
       if (indicatorCount < itemsCount) {
         i = indicatorCount;
         while (i < itemsCount) {
@@ -24403,6 +24422,13 @@
           } else {
             $fly(this._doms.indicators).prepend(span);
           }
+          i++;
+        }
+      } else if (indicatorCount > itemsCount) {
+        i = itemsCount;
+        while (i < indicatorCount) {
+          indicators = $(this._doms.indicators).find(">span");
+          $(indicators[indicators.length - 1]).remove();
           i++;
         }
       }
@@ -24480,7 +24506,6 @@
     Carousel.prototype._itemDomsChanged = function() {
       setTimeout((function(_this) {
         return function() {
-          _this._items = [];
           _this._parseDom(_this._dom);
         };
       })(this), 0);
@@ -29913,13 +29938,15 @@
       caption: null,
       visible: {
         type: "boolean",
-        defaultValue: true
+        defaultValue: true,
+        refreshStructure: true
       },
       headerTemplate: null
     };
 
     TableColumn.events = {
-      renderHeader: null
+      renderHeader: null,
+      headerClick: null
     };
 
     function TableColumn(config) {
@@ -29927,6 +29954,21 @@
       if (!this._name) {
         this._name = cola.uniqueId();
       }
+      this.on("attributeChange", (function(_this) {
+        return function(self, arg) {
+          var attrConfig;
+          if (!_this._table) {
+            return;
+          }
+          attrConfig = _this.constructor.attributes[arg.attribute];
+          if (!attrConfig) {
+            return;
+          }
+          if (attrConfig.refreshStructure) {
+            _this._table._collectionColumnsInfo();
+          }
+        };
+      })(this));
     }
 
     TableColumn.prototype._setTable = function(table) {
@@ -29996,7 +30038,9 @@
 
     TableContentColumn.events = {
       renderCell: null,
-      renderFooter: null
+      renderFooter: null,
+      cellClick: null,
+      footerClick: null
     };
 
     return TableContentColumn;
@@ -30017,7 +30061,11 @@
       },
       property: null,
       bind: null,
-      template: null
+      template: null,
+      sortable: {
+        defaultValue: true
+      },
+      sortDirection: null
     };
 
     return TableDataColumn;
@@ -30208,6 +30256,10 @@
       },
       selectedProperty: {
         defaultValue: "selected"
+      },
+      sortable: null,
+      sortMode: {
+        defaultValue: "remote"
       }
     };
 
@@ -30215,7 +30267,11 @@
       renderRow: null,
       renderCell: null,
       renderHeaderCell: null,
-      renderFooterCell: null
+      renderFooterCell: null,
+      cellClick: null,
+      headerClick: null,
+      footerClick: null,
+      sortDirectionChange: null
     };
 
     AbstractTable.TEMPLATES = {
@@ -30403,6 +30459,19 @@
           ]
         }
       }, this._doms);
+      $fly(this._doms.tbody).delegate(">tr >td", "click", (function(_this) {
+        return function(evt) {
+          var column, columnName, eventArg;
+          columnName = evt.currentTarget._name;
+          column = _this.getColumn(columnName);
+          eventArg = {
+            column: column
+          };
+          if (column.fire("cellClick", _this, eventArg) !== false) {
+            _this.fire("cellClick", _this, eventArg);
+          }
+        };
+      })(this));
     };
 
     AbstractTable.prototype._parseDom = function(dom) {
@@ -30468,6 +30537,76 @@
       })(this));
     };
 
+    Table.prototype._convertItems = function(items) {
+      items = Table.__super__._convertItems.call(this, items);
+      if (this._sortCriteria) {
+        items = cola._sortCollection(items, this._sortCriteria);
+      }
+      return items;
+    };
+
+    Table.prototype._sysHeaderClick = function(column) {
+      var collection, criteria, invoker, parameter, processed, property, sortDirection;
+      if (this.get("sortable") && column instanceof cola.TableDataColumn && column.get("sortable")) {
+        sortDirection = column.get("sortDirection");
+        if (sortDirection === "asc") {
+          sortDirection = "desc";
+        } else if (sortDirection === "desc") {
+          sortDirection = null;
+        } else {
+          sortDirection = "asc";
+        }
+        column.set("sortDirection", sortDirection);
+        if (this.fire("sortDirectionChange", this, {
+          column: column,
+          sortDirection: sortDirection
+        }) === false) {
+          return;
+        }
+        collection = this._realOriginItems || this._realItems;
+        if (!collection) {
+          return;
+        }
+        if (!sortDirection) {
+          criteria = null;
+        } else {
+          criteria = sortDirection === "asc" ? "+" : "-";
+          property = column._bind;
+          if (!property || property.match(/\(/)) {
+            return;
+          }
+          if (property.charCodeAt(0) === 46) {
+            property = property.slice(1);
+          } else if (this._alias && property.indexOf("." + this._alias) === 0) {
+            property = property.slice(this._alias.length + 1);
+          }
+          criteria += property;
+        }
+        if (this._sortMode === "remote") {
+          if (collection instanceof cola.EntityList) {
+            invoker = collection._providerInvoker;
+            if (invoker) {
+              parameter = invoker.invokerOptions.data;
+              if (!parameter) {
+                invoker.invokerOptions.data = parameter = {};
+              } else if (typeof parameter !== "object" || parameter instanceof Date) {
+                throw new cola.Exception("Can not set sort parameter automatically.");
+              }
+              parameter.sort = criteria;
+              collection.flush();
+              processed = true;
+            }
+          }
+          if (!processed) {
+            throw new cola.Exception("Remote sort not supported.");
+          }
+        } else {
+          this._sortCriteria = criteria;
+          this._refreshItems();
+        }
+      }
+    };
+
     Table.prototype._doRefreshItems = function() {
       var col, colInfo, colgroup, column, columnConfigs, dataType, i, len1, len2, n, nextCol, o, propertyDef, ref, ref1, tbody, tfoot, thead;
       if (!this._columnsInfo) {
@@ -30524,6 +30663,21 @@
             contextKey: "thead"
           }, this._doms);
           thead = this._doms.thead;
+          $fly(thead).delegate("th", "click", (function(_this) {
+            return function(evt) {
+              var columnName, eventArg;
+              columnName = evt.currentTarget._name;
+              column = _this.getColumn(columnName);
+              eventArg = {
+                column: column
+              };
+              if (column.fire("headerClick", _this, eventArg) !== false) {
+                if (_this.fire("headerClick", _this, eventArg) !== false) {
+                  _this._sysHeaderClick(column);
+                }
+              }
+            };
+          })(this));
         }
         this._refreshHeader(thead);
       }
@@ -30536,6 +30690,17 @@
             contextKey: "tfoot"
           }, this._doms);
           tfoot = this._doms.tfoot;
+          $fly(tfoot).delegate("td", "click", function(evt) {
+            var columnName, eventArg;
+            columnName = evt.currentTarget._name;
+            column = this.getColumn(columnName);
+            eventArg = {
+              column: column
+            };
+            if (column.fire("footerClick", this, eventArg) !== false) {
+              this.fire("footerClick", this, eventArg);
+            }
+          });
         }
         this._refreshFooter(tfoot);
         if (!this._fixedFooterVisible) {
@@ -30650,9 +30815,14 @@
     };
 
     Table.prototype._refreshHeaderCell = function(dom, columnInfo, isNew) {
-      var caption, column, dataType, propertyDef, template, templateName;
+      var $cell, caption, column, dataType, propertyDef, template, templateName;
       column = columnInfo.column;
       dom.style.textAlign = column._align || "left";
+      $cell = $fly(dom.parentNode);
+      $cell.toggleClass("sortable", !!column._sortable).removeClass("asc desc");
+      if (column._sortDirection) {
+        $cell.addClass(column._sortDirection);
+      }
       if (column.renderHeader) {
         if (column.renderHeader(dom) !== true) {
           return;

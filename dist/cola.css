@@ -3083,20 +3083,40 @@ template {
 .ui.widget-table table td {
   border-width: 1px;
   border-style: solid;
-  border-color: #edf0f3 transparent;
+  border-color: #edf0f3 #edf0f3;
 }
 .ui.widget-table table thead th {
   font-weight: normal;
   background: #ffffff;
-  border-color: #edf0f3 transparent;
+  border-color: #edf0f3 #edf0f3;
 }
 .ui.widget-table table thead th > div {
+  position: relative;
   overflow: hidden;
-  padding: 0.4em 6px;
+  padding: 0.4em 0.4em;
+}
+.ui.widget-table table thead th.sortable > div {
+  padding-right: 1.25em;
+}
+.ui.widget-table table thead th.sortable > div:after {
+  content: "\f0dc";
+  font-family: Icons;
+  position: absolute;
+  right: 0.25em;
+  top: 0.4em;
+  color: rgba(40, 40, 40, 0.3);
+}
+.ui.widget-table table thead th.sortable.asc > div:after {
+  content: "\f0de";
+  color: rgba(0, 0, 0, 0.85);
+}
+.ui.widget-table table thead th.sortable.desc > div:after {
+  content: "\f0dd";
+  color: rgba(0, 0, 0, 0.85);
 }
 .ui.widget-table table tbody td > div {
   overflow: hidden;
-  padding: 0.6em 6px;
+  padding: 0.6em 0.4em;
 }
 .ui.widget-table table tbody tr:first-child td {
   border-top: 2px solid #edf0f3;
@@ -3106,11 +3126,11 @@ template {
 }
 .ui.widget-table table tfoot td {
   background: #ffffff;
-  border-color: #edf0f3 transparent;
+  border-color: #edf0f3 #edf0f3;
 }
 .ui.widget-table table tfoot td > div {
   overflow: hidden;
-  padding: 0.4em 6px;
+  padding: 0.4em 0.4em;
 }
 .ui.widget-table table .ui.checkbox.in-cell {
   margin-top: 0.25em;

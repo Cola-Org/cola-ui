@@ -94,6 +94,10 @@ class cola.SubView extends cola.Widget
 				param: @_param
 				callback: {
 					complete:(success, result) =>
+						@_currentUrl = @_url
+						@_currentJsUrl = @_jsUrl
+						@_currentCssUrl = @_cssUrl
+
 						if not @_showLoadingContent
 							$dom.find(">.content").css("visibility", "")
 
@@ -117,7 +121,7 @@ class cola.SubView extends cola.Widget
 			callback = options
 			options = null
 
-		if @_url == options?.url
+		if @_currentUrl and @_currentUrl is options?.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl
 			cola.callback(callback, true)
 		else
 			@load(options, callback)
@@ -130,6 +134,9 @@ class cola.SubView extends cola.Widget
 			htmlUrl: @_url
 			cssUrl: @_cssUrl
 		})
+
+		delete @_currentUrl
+		delete @_currentCssUrl
 
 		dom = @_dom
 		model = cola.util.userData(dom, "_model")
