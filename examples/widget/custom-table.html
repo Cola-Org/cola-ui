@@ -41,9 +41,15 @@
                             sum += parseFloat(entity.get("price") || 0)
                         });
                         scope.set("product.sum", sum);
-                    }, add: function () {
+                    },
+                    add: function () {
                         var product = scope.get("product");
                         product.get("items").insert({price: 1})
+                    },
+                    remove: function () {
+                        $(tableDom).remove();
+                        product.remove(true);
+                        scope.destroy();
                     }
                 });
 
@@ -61,13 +67,17 @@
                                         },
                                         {
                                             tagName: "c-button", caption: "Add", click: "add"
+                                        },
+                                        {
+                                            tagName: "c-button", caption: "Remove", click: "remove"
                                         }
+
                                     ]
                                 }
                             },
                             {
                                 tagName: "span",
-                                "c-bind": "product.sum",
+                                "c-bind": "'本类合计:'+formatNumber(product.sum,'#,##0.00')",
                                 "c-watch": "changeData on product.items.price"
                             }
                         ]
@@ -92,7 +102,6 @@
                     createCategory(name);
                     model.set("name", "")
                 }
-
             });
         })
     </script>
@@ -106,7 +115,7 @@
 
     <div class="right menu">
         <div class="control item">
-            <span c-bind="sum" c-watch="sumAction on categories.**"></span>
+            <span c-bind="'总计:'+formatNumber(sum,'#,##0.00')" c-watch="sumAction on !categories.**"></span>
         </div>
     </div>
 </c-menu>
