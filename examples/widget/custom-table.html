@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="UTF-8"/>
+    <script src="../include-all.js"></script>
+    <style>
+        .category-name {
+            font-weight: bold;
+        }
+
+        .action-bar {
+            height: 40px;
+        }
+    </style>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.set("categories", []);
+            model.set("sum", 0);
+            model.widgetConfig({
+                tableConfig: {
+                    $type: "table", highlightCurrentItem: true, changeCurrentItem: true,
+                    currentPageOnly: true, sortable: false,
+                    columns: [
+                        {property: "productName", caption: "产品名称"},
+                        {property: "specification", caption: "规格"},
+                        {property: "priceWay", caption: "计价方式"},
+                        {property: "price", caption: "价格", template: "input-column"}
+                    ]
+                }
+            });
+            function createCategory(name) {
+                var product = model.get("categories").insert({sum: 1, items: [{price: 1}]});
+                var scope = new cola.Model(cola.uniqueId(), model);
+                scope.set("product", product);
+                scope.action({
+                    changeData: function () {
+                        var product = scope.get("product");
+                        var sum = 0;
+                        product.get("items").each(function (entity) {
+                            sum += parseFloat(entity.get("price") || 0)
+                        });
+                        scope.set("product.sum", sum);
+                    }, add: function () {
+                        var product = scope.get("product");
+                        product.get("items").insert({price: 1})
+                    }
+                });
+
+                var tableDom = cola.xRender({
+                    tagName: "div", class: "ui segment",
+                    content: [{
+                        tagName: "div", class: "h-box action-bar",
+                        content: [
+                            {
+                                class: "flex-box",
+                                content: {
+                                    content: [
+                                        {
+                                            tagName: "span", content: name, class: "category-name"
+                                        },
+                                        {
+                                            tagName: "c-button", caption: "Add", click: "add"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                tagName: "span",
+                                "c-bind": "product.sum",
+                                "c-watch": "changeData on product.items.price"
+                            }
+                        ]
+                    }, {
+                        "c-widget": "#tableConfig; bind:item in product.items"
+                    }]
+                }, scope);
+                document.body.appendChild(tableDom);
+            }
+
+            model.action({
+                sumAction: function () {
+                    var categories = model.get("categories");
+                    var sum = 0;
+                    categories.each(function (entity) {
+                        sum += parseFloat(entity.get("sum") || 0);
+                    });
+                    model.set("sum", sum);
+                },
+                addCategory: function () {
+                    var name = model.get("name");
+                    createCategory(name);
+                    model.set("name", "")
+                }
+
+            });
+        })
+    </script>
+</head>
+<body style="padding:20px;">
+<c-menu>
+    <div class="control item">
+        <c-input c-bind="name"></c-input>
+    </div>
+    <a c-widget="item;caption:新增分类; click:addCategory"></a>
+
+    <div class="right menu">
+        <div class="control item">
+            <span c-bind="sum" c-watch="sumAction on categories.**"></span>
+        </div>
+    </div>
+</c-menu>
+
+
+</body>
+</html>
