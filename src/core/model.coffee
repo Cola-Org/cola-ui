@@ -908,6 +908,22 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		else
 			return @parent.describe(property, config)
 
+	getProperty: (path) ->
+		i = path.indexOf(".")
+		if i > 0
+			if path.substring(0, i) == @alias
+				dataType = if @_targetData instanceof cola.Entity or @_targetData instanceof cola.EntityList then @_targetData.dataType else null
+				if dataType
+					property = dataType.getProperty(path.substring(i + 1))
+					dataType = property?.get("dataType")
+				return dataType
+			else
+				return @parent.getDataType(path)
+		else if path == @alias
+			return if @_targetData instanceof cola.Entity or @_targetData instanceof cola.EntityList then @_targetData.dataType else null
+		else
+			return @parent.getProperty(path)
+
 	getDataType: (path) ->
 		i = path.indexOf(".")
 		if i > 0
