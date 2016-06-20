@@ -49,12 +49,11 @@ _findWidgetConfig = (scope, name) ->
         scope = scope.parent
     return widgetConfig
 
-_compileWidgetDom = (dom, widgetType) ->
+_compileWidgetDom = (dom, widgetType, config = {}) ->
     if not widgetType.attributes._inited or not widgetType.events._inited
         cola.preprocessClass(widgetType)
 
-    config =
-        $constr: widgetType
+    config.$constr = widgetType
 
     removeAttrs = null
     for attr in dom.attributes
@@ -145,11 +144,11 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
         config = context.widgetConfigs?[configKey]
     else
         config = _compileWidgetAttribute(scope, dom, context)
-        if not config
+        if not config or (not config.$type and not config.$constr)
             widgetType = parentWidget?.childTagNames?[tagName]
             widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
             if widgetType
-                config = _compileWidgetDom(dom, widgetType)
+                config = _compileWidgetDom(dom, widgetType, config)
     return null unless config or jsonConfig
 
     config ?= {}
