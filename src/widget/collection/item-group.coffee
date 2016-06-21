@@ -67,6 +67,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		return @ unless item
 		active = cola.util.hasClass(item, "active")
 		@_items ?= []
+		if @_items.indexOf(item) >= 0 then return
 		@_items.push(item)
 
 		@_addItemToDom(item)
