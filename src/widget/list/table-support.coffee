@@ -81,8 +81,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
         property: null
         bind: null
         template: null
-        sortable:
-            defaultValue: true
+        sortable: null
         sortDirection: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
@@ -227,7 +226,6 @@ class cola.AbstractTable extends cola.AbstractList
         selectedProperty:
             defaultValue: "selected"
 
-        sortable: null
         sortMode:
             defaultValue: "remote" # local/remote
 

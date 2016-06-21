@@ -21,7 +21,7 @@ class cola.Table extends cola.AbstractTable
 		return items
 		
 	_sysHeaderClick: (column) ->
-		if @get("sortable") and column instanceof cola.TableDataColumn and column.get("sortable")
+		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
 			if sortDirection is "asc" then sortDirection = "desc"
 			else if sortDirection is "desc" then sortDirection = null
