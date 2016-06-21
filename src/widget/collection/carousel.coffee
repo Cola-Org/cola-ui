@@ -47,8 +47,10 @@ class cola.Carousel extends cola.AbstractItemGroup
 				else if child.nodeName == "TEMPLATE"
 					@_regTemplate(child)
 			child = child.nextSibling
-		
-		@_createIndicatorContainer(dom) unless doms.indicators
+		if doms.indicators
+			@refreshIndicators()
+		else
+			@_createIndicatorContainer(dom)
 		@_createItemsWrap(dom) unless doms.wrap
 		return
 	
@@ -132,11 +134,11 @@ class cola.Carousel extends cola.AbstractItemGroup
 		return
 	
 	_getDataItems: () ->
-		if @_items
-			return {items: @_items}
-		else
+		if @_bind
 			return @_getItems()
-	
+		else
+			return {items: @_items};
+
 	setCurrentIndex: (index)->
 		if @fire("beforeChange", @, {index: index}) is false then return;
 
@@ -163,8 +165,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 		
 		return unless @_doms?.indicators
 
-		indicatorDoms = $(@_doms.indicators).find(">span");
-		indicatorCount = indicatorDoms.length
+		$(@_doms.indicators).find(">span").remove();
+		indicatorCount = 0
 		if indicatorCount < itemsCount
 			i = indicatorCount
 			while i < itemsCount
@@ -173,12 +175,6 @@ class cola.Carousel extends cola.AbstractItemGroup
 					$($(@_doms.indicators).find(">span")[i - 1]).before(span)
 				else
 					$fly(@_doms.indicators).prepend(span)
-				i++
-		else if indicatorCount > itemsCount
-			i = itemsCount
-			while i < indicatorCount
-				indicators = $(@_doms.indicators).find(">span")
-				$(indicators[indicators.length - 1]).remove()
 				i++
 		@_currentIndex ?= -1
 		currentIndex = @_currentIndex
@@ -203,7 +199,11 @@ class cola.Carousel extends cola.AbstractItemGroup
 		if items and @_scroller
 			pos = @_scroller.getPos()
 			if pos == 0
-				@goTo(_items.length - 1)
+				if items instanceof cola.EntityList
+					@goTo(items.entityCount - 1)
+				else
+					@goTo(items.length - 1)
+
 			else
 				@_scroller.prev()
 		
@@ -230,7 +230,10 @@ class cola.Carousel extends cola.AbstractItemGroup
 	
 	_itemDomsChanged: () ->
 		setTimeout(()=>
+			@_items = [];
+
 			@_parseDom(@_dom)
+
 			return
 		, 0)
 		return
