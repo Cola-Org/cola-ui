@@ -58,14 +58,16 @@ class cola.SubView extends cola.Widget
 
 		if @_parentModel instanceof cola.Scope
 			parentModel = @_parentModel
+		else if @_scope
+			parentModel = @_scope
 		else
 			parentModelName = @_parentModel or cola.constants.DEFAULT_PATH
 			parentModel = cola.model(parentModelName)
 
 		if @_modelName
-			model = new cola.Model(@_modelName, parentModel or @_scope)
+			model = new cola.Model(@_modelName, parentModel)
 		else
-			model = new cola.Model(parentModel or @_scope)
+			model = new cola.Model(parentModel)
 		cola.util.userData(dom, "_model", model)
 
 		@_loading = true
@@ -128,11 +130,11 @@ class cola.SubView extends cola.Widget
 		return
 
 	unload: () ->
-		return unless @_dom
+		return unless @_dom or @_currentUrl
 
 		cola.unloadSubView($fly(@_dom).find(">.content")[0], {
-			htmlUrl: @_url
-			cssUrl: @_cssUrl
+			htmlUrl: @_currentUrl
+			cssUrl: @_currentCssUrl
 		})
 
 		delete @_currentUrl

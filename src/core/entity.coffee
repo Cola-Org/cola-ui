@@ -1441,7 +1441,7 @@ class cola.EntityList extends LinkedList
 			}
 			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 			page.loadData(
-				complete: (success, result)  =>
+				complete: (success, result) =>
 					cola.callback(callback, success, result)
 					@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 			)
