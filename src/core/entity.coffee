@@ -1396,6 +1396,10 @@ class cola.EntityList extends LinkedList
 			page._clearElements()
 			page = page._next
 
+		delete @_currentPage
+		delete @_first
+		delete @_last
+
 		@timestamp = cola.sequenceNo()
 		return @
 
@@ -1429,7 +1433,7 @@ class cola.EntityList extends LinkedList
 
 		@_reset()
 		page = @_findPage(@pageNo)
-		if !page then @_createPage(@pageNo)
+		page ?= @_createPage(@pageNo)
 
 		if loadMode is "async"
 			notifyArg = {
