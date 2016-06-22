@@ -5182,6 +5182,8 @@ html.ios body {
 .ui.time-line > .items {
   list-style: none;
   padding: 0;
+  height: 100%;
+  overflow: auto;
 }
 .ui.time-line > .items > .item {
   position: relative;

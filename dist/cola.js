@@ -5147,6 +5147,9 @@
         page._clearElements();
         page = page._next;
       }
+      delete this._currentPage;
+      delete this._first;
+      delete this._last;
       this.timestamp = cola.sequenceNo();
       return this;
     };
@@ -5199,8 +5202,8 @@
       }
       this._reset();
       page = this._findPage(this.pageNo);
-      if (!page) {
-        this._createPage(this.pageNo);
+      if (page == null) {
+        page = this._createPage(this.pageNo);
       }
       if (loadMode === "async") {
         notifyArg = {
@@ -7055,6 +7058,31 @@
       }
     };
 
+    AliasDataModel.prototype.getProperty = function(path) {
+      var dataType, i, property;
+      i = path.indexOf(".");
+      if (i > 0) {
+        if (path.substring(0, i) === this.alias) {
+          dataType = this._targetData instanceof cola.Entity || this._targetData instanceof cola.EntityList ? this._targetData.dataType : null;
+          if (dataType) {
+            property = dataType.getProperty(path.substring(i + 1));
+            dataType = property != null ? property.get("dataType") : void 0;
+          }
+          return dataType;
+        } else {
+          return this.parent.getDataType(path);
+        }
+      } else if (path === this.alias) {
+        if (this._targetData instanceof cola.Entity || this._targetData instanceof cola.EntityList) {
+          return this._targetData.dataType;
+        } else {
+          return null;
+        }
+      } else {
+        return this.parent.getProperty(path);
+      }
+    };
+
     AliasDataModel.prototype.getDataType = function(path) {
       var dataType, i, property, ref;
       i = path.indexOf(".");
@@ -8328,7 +8356,7 @@
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
-      var error, errorMessage, i, initFunc, l, len1, ref;
+      var error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, ref;
       if (success) {
         if (!failed) {
           i = loadingUrls.indexOf(url);
@@ -8337,6 +8365,10 @@
           }
           if (loadingUrls.length === 0) {
             $fly(targetDom).removeClass("loading");
+            if (targetDom.hasAttribute(cola.constants.IGNORE_DIRECTIVE)) {
+              hasIgnoreDirective = true;
+              targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE);
+            }
             if (context.suspendedInitFuncs.length) {
               ref = context.suspendedInitFuncs;
               for (l = 0, len1 = ref.length; l < len1; l++) {
@@ -8345,6 +8377,9 @@
               }
             } else {
               cola(targetDom, context.model);
+            }
+            if (hasIgnoreDirective) {
+              targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
             }
             if (cola.getListeners("ready")) {
               cola.fire("ready", cola);
@@ -10110,7 +10145,7 @@
   };
 
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
+    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1, templateNode;
     if (!template) {
       return;
     }
@@ -10119,14 +10154,28 @@
     if (template.nodeType) {
       dom = template;
     } else if (typeof template === "string") {
-      documentFragment = document.createDocumentFragment();
-      div = document.createElement("div");
-      div.innerHTML = template;
-      child = div.firstChild;
-      while (child) {
-        next = child.nextSibling;
-        documentFragment.appendChild(child);
-        child = next;
+      if (template.match(/^\#[\w\-\$]*$/)) {
+        templateNode = document.getElementById(template.substring(1));
+        if (templateNode) {
+          if (template.nodeName === "TEMPLATE") {
+            template = templateNode.innerHTML;
+            $fly(templateNode).remove();
+          }
+        } else {
+          template = null;
+          dom = templateNode;
+        }
+      }
+      if (template) {
+        documentFragment = document.createDocumentFragment();
+        div = document.createElement("div");
+        div.innerHTML = template;
+        child = div.firstChild;
+        while (child) {
+          next = child.nextSibling;
+          documentFragment.appendChild(child);
+          child = next;
+        }
       }
     } else {
       cola.currentScope = model;
@@ -10956,14 +11005,15 @@
     return widgetConfig;
   };
 
-  _compileWidgetDom = function(dom, widgetType) {
-    var attr, attrName, config, isEvent, len1, len2, n, o, prop, ref, removeAttrs;
+  _compileWidgetDom = function(dom, widgetType, config) {
+    var attr, attrName, isEvent, len1, len2, n, o, prop, ref, removeAttrs;
+    if (config == null) {
+      config = {};
+    }
     if (!widgetType.attributes._inited || !widgetType.events._inited) {
       cola.preprocessClass(widgetType);
     }
-    config = {
-      $constr: widgetType
-    };
+    config.$constr = widgetType;
     removeAttrs = null;
     ref = dom.attributes;
     for (n = 0, len1 = ref.length; n < len1; n++) {
@@ -11091,13 +11141,13 @@
       config = (ref = context.widgetConfigs) != null ? ref[configKey] : void 0;
     } else {
       config = _compileWidgetAttribute(scope, dom, context);
-      if (!config) {
+      if (!config || (!config.$type && !config.$constr)) {
         widgetType = parentWidget != null ? (ref1 = parentWidget.childTagNames) != null ? ref1[tagName] : void 0 : void 0;
         if (widgetType == null) {
           widgetType = WIDGET_TAGS_REGISTRY[tagName];
         }
         if (widgetType) {
-          config = _compileWidgetDom(dom, widgetType);
+          config = _compileWidgetDom(dom, widgetType, config);
         }
       }
     }
@@ -11382,15 +11432,17 @@
           templateDom = templateDom.firstElementChild;
         }
         if (templateDom) {
-          ref1 = templateDom.attributes;
-          for (n = 0, len1 = ref1.length; n < len1; n++) {
-            attr = ref1[n];
-            attrName = attr.name;
-            if (attrName === "class") {
-              $fly(dom).addClass(attr.value);
-            } else if (attrName !== "style") {
-              if (!dom.hasAttribute(attrName)) {
-                dom.setAttribute(attrName, attr.value);
+          if (templateDom.attributes) {
+            ref1 = templateDom.attributes;
+            for (n = 0, len1 = ref1.length; n < len1; n++) {
+              attr = ref1[n];
+              attrName = attr.name;
+              if (attrName === "class") {
+                $fly(dom).addClass(attr.value);
+              } else if (attrName !== "style") {
+                if (!dom.hasAttribute(attrName)) {
+                  dom.setAttribute(attrName, attr.value);
+                }
               }
             }
           }
@@ -11472,7 +11524,7 @@
       child = this._dom.firstChild;
       while (child) {
         if (child.nodeName === "TEMPLATE") {
-          this._regTemplate(child);
+          this.regTemplate(child);
         }
         child = child.nextSibling;
       }
@@ -11491,7 +11543,7 @@
         child = next;
       }
     },
-    _regTemplate: function(name, template) {
+    regTemplate: function(name, template) {
       if (arguments.length === 1) {
         template = name;
         if (template.nodeType) {
@@ -11513,10 +11565,10 @@
         if (((ref1 = this._templates) != null ? ref1.hasOwnProperty(name) : void 0) || !template) {
           continue;
         }
-        this._regTemplate(name, template);
+        this.regTemplate(name, template);
       }
     },
-    _getTemplate: function(name, defaultName) {
+    getTemplate: function(name, defaultName) {
       var c, child, html, k, ref, template, templs, widgetConfigs;
       if (name == null) {
         name = "default";
@@ -13514,6 +13566,7 @@
         self._scrolling(left, top, zoom);
       }, options);
       this._bindEvents();
+      ZyngaScroller.__super__.constructor.call(this, options);
     }
 
     ZyngaScroller.prototype.scrollSize = function(dir, container, content) {
@@ -15589,12 +15642,14 @@
     };
 
     SubView.prototype._initDom = function(dom) {
-      var $dom;
+      var $dom, content;
       $dom = $fly(dom);
       if ($dom.find(">.content").length === 0) {
-        $dom.xAppend({
+        content = {
           "class": "content"
-        });
+        };
+        content[cola.constants.IGNORE_DIRECTIVE] = true;
+        $dom.xAppend(content);
       }
       if (this._url) {
         this.load({
@@ -15624,14 +15679,16 @@
       }
       if (this._parentModel instanceof cola.Scope) {
         parentModel = this._parentModel;
+      } else if (this._scope) {
+        parentModel = this._scope;
       } else {
         parentModelName = this._parentModel || cola.constants.DEFAULT_PATH;
         parentModel = cola.model(parentModelName);
       }
       if (this._modelName) {
-        model = new cola.Model(this._modelName, parentModel || this._scope);
+        model = new cola.Model(this._modelName, parentModel);
       } else {
-        model = new cola.Model(parentModel || this._scope);
+        model = new cola.Model(parentModel);
       }
       cola.util.userData(dom, "_model", model);
       this._loading = true;
@@ -15696,12 +15753,12 @@
 
     SubView.prototype.unload = function() {
       var dom, model;
-      if (!this._dom) {
+      if (!(this._dom || this._currentUrl)) {
         return;
       }
       cola.unloadSubView($fly(this._dom).find(">.content")[0], {
-        htmlUrl: this._url,
-        cssUrl: this._cssUrl
+        htmlUrl: this._currentUrl,
+        cssUrl: this._currentCssUrl
       });
       delete this._currentUrl;
       delete this._currentCssUrl;
@@ -18521,7 +18578,7 @@
         "class": "caption"
       });
       headerContent.appendChild(this._doms.caption);
-      template = this._getTemplate("tools");
+      template = this.getTemplate("tools");
       cola.xRender(template, this._scope);
       toolsDom = this._doms.tools = $.xCreate({
         "class": "tools"
@@ -18612,7 +18669,7 @@
       while (child) {
         if (child.nodeType === 1) {
           if (child.nodeName === "TEMPLATE") {
-            this._regTemplate(child);
+            this.regTemplate(child);
           } else {
             $child = $(child);
             if (!$child.hasClass("content")) {
@@ -20993,7 +21050,7 @@
       if (property) {
         context.defaultPath += "." + property;
       }
-      template = this._getTemplate("value-content");
+      template = this.getTemplate("value-content");
       if (template) {
         if (template instanceof Array) {
           for (n = 0, len1 = template.length; n < len1; n++) {
@@ -21376,7 +21433,7 @@
       var template;
       Dropdown.__super__._initValueContent.call(this, valueContent, context);
       if (!valueContent.firstChild) {
-        template = this._getTemplate("default");
+        template = this.getTemplate();
         if (template) {
           valueContent.appendChild(this._cloneTemplate(template));
         }
@@ -21426,7 +21483,7 @@
         } else {
           templateName = "list";
         }
-        template = this._getTemplate(templateName);
+        template = this.getTemplate(templateName);
         this._dropdownContent = template = cola.xRender(template, this._scope);
         this._list = list = cola.widget(this._doms.list);
         if (this._templates) {
@@ -21437,12 +21494,12 @@
               if (name === "default") {
                 hasDefaultTemplate = true;
               }
-              list._regTemplate(name, templ);
+              list.regTemplate(name, templ);
             }
           }
         }
         if (!hasDefaultTemplate) {
-          list._regTemplate("default", {
+          list.regTemplate("default", {
             tagName: "li",
             "c-bind": "$default"
           });
@@ -21514,7 +21571,7 @@
         if (this._content) {
           dropdownContent = this._content;
         } else {
-          dropdownContent = this._getTemplate();
+          dropdownContent = this.getTemplate();
         }
         this._dropdownContent = cola.xRender(dropdownContent, this._scope);
       }
@@ -23067,6 +23124,9 @@
       if (this._items == null) {
         this._items = [];
       }
+      if (this._items.indexOf(item) >= 0) {
+        return;
+      }
       this._items.push(item);
       this._addItemToDom(item);
       if (active) {
@@ -23206,7 +23266,7 @@
         if (!itemsWrapper && nodeName === "UL") {
           itemsWrapper = child;
         } else if (nodeName === "TEMPLATE") {
-          this._regTemplate(child);
+          this.regTemplate(child);
         } else {
           dom.removeChild(child);
         }
@@ -24252,12 +24312,14 @@
           } else if (!doms.indicators && cola.util.hasClass(child, "indicators")) {
             doms.indicators = child;
           } else if (child.nodeName === "TEMPLATE") {
-            this._regTemplate(child);
+            this.regTemplate(child);
           }
         }
         child = child.nextSibling;
       }
-      if (!doms.indicators) {
+      if (doms.indicators) {
+        this.refreshIndicators();
+      } else {
         this._createIndicatorContainer(dom);
       }
       if (!doms.wrap) {
@@ -24304,7 +24366,7 @@
       if (!this._doms.wrap) {
         this._createItemsWrap(dom);
       }
-      template = this._getTemplate();
+      template = this.getTemplate();
       if (template) {
         if (this._bind) {
           $fly(template).attr("c-repeat", this._bind);
@@ -24358,12 +24420,12 @@
     };
 
     Carousel.prototype._getDataItems = function() {
-      if (this._items) {
+      if (this._bind) {
+        return this._getItems();
+      } else {
         return {
           items: this._items
         };
-      } else {
-        return this._getItems();
       }
     };
 
@@ -24401,7 +24463,7 @@
     };
 
     Carousel.prototype.refreshIndicators = function() {
-      var currentIndex, i, indicatorCount, indicatorDoms, indicators, items, itemsCount, ref, span;
+      var currentIndex, i, indicatorCount, items, itemsCount, ref, span;
       items = this._getDataItems().items;
       if (items) {
         itemsCount = items instanceof cola.EntityList ? items.entityCount : items.length;
@@ -24411,8 +24473,8 @@
       if (!((ref = this._doms) != null ? ref.indicators : void 0)) {
         return;
       }
-      indicatorDoms = $(this._doms.indicators).find(">span");
-      indicatorCount = indicatorDoms.length;
+      $(this._doms.indicators).find(">span").remove();
+      indicatorCount = 0;
       if (indicatorCount < itemsCount) {
         i = indicatorCount;
         while (i < itemsCount) {
@@ -24422,13 +24484,6 @@
           } else {
             $fly(this._doms.indicators).prepend(span);
           }
-          i++;
-        }
-      } else if (indicatorCount > itemsCount) {
-        i = itemsCount;
-        while (i < indicatorCount) {
-          indicators = $(this._doms.indicators).find(">span");
-          $(indicators[indicators.length - 1]).remove();
           i++;
         }
       }
@@ -24463,7 +24518,11 @@
       if (items && this._scroller) {
         pos = this._scroller.getPos();
         if (pos === 0) {
-          this.goTo(_items.length - 1);
+          if (items instanceof cola.EntityList) {
+            this.goTo(items.entityCount - 1);
+          } else {
+            this.goTo(items.length - 1);
+          }
         } else {
           this._scroller.prev();
         }
@@ -24506,6 +24565,7 @@
     Carousel.prototype._itemDomsChanged = function() {
       setTimeout((function(_this) {
         return function() {
+          _this._items = [];
           _this._parseDom(_this._dom);
         };
       })(this), 0);
@@ -25797,7 +25857,7 @@
             doms.wrap = child;
             parseItem(child);
           } else if (child.nodeName === "TEMPLATE") {
-            this._regTemplate(child);
+            this.regTemplate(child);
           }
         }
         child = child.nextSibling;
@@ -25809,7 +25869,7 @@
       if (!this._doms.wrap) {
         this._createItemsWrap(dom);
       }
-      template = this._getTemplate();
+      template = this.getTemplate();
       if (template) {
         if (this._bind) {
           $fly(template).attr("c-repeat", this._bind);
@@ -26857,7 +26917,7 @@
 
     AbstractList.prototype._refreshEmptyItemDom = function() {
       var emptyItemDom, items, itemsWrapper;
-      emptyItemDom = this._emptyItemDom = this._getTemplate("empty-item");
+      emptyItemDom = this._emptyItemDom = this.getTemplate("empty-item");
       if (emptyItemDom) {
         items = this._realItems;
         if (items instanceof cola.EntityList && items.entityCount === 0 || items instanceof Array && items.length === 0) {
@@ -26881,7 +26941,7 @@
         this._pullAction = null;
         if (this._pullDown) {
           hasPullAction = true;
-          pullDownPane = this._getTemplate("pull-down-pane");
+          pullDownPane = this.getTemplate("pull-down-pane");
           if (pullDownPane == null) {
             pullDownPane = $.xCreate({
               tagName: "div"
@@ -26891,7 +26951,7 @@
         }
         if (this._pullUp) {
           hasPullAction = true;
-          pullUpPane = this._getTemplate("pull-up-pane");
+          pullUpPane = this.getTemplate("pull-up-pane");
           if (pullUpPane == null) {
             pullUpPane = $.xCreate({
               tagName: "div"
@@ -27517,7 +27577,7 @@
 
     ListView.prototype._createNewItem = function(itemType, item) {
       var $itemDom, itemDom, klass, template;
-      template = this._getTemplate(itemType);
+      template = this.getTemplate(itemType);
       if (template) {
         itemDom = this._cloneTemplate(template);
       } else {
@@ -27922,8 +27982,8 @@
 
     ListView.prototype._initItemSlide = function() {
       var itemScope, itemsWrapper, leftSlidePaneTemplate, rightSlidePaneTemplate;
-      leftSlidePaneTemplate = this._getTemplate("slide-left-pane");
-      rightSlidePaneTemplate = this._getTemplate("slide-right-pane");
+      leftSlidePaneTemplate = this.getTemplate("slide-left-pane");
+      rightSlidePaneTemplate = this.getTemplate("slide-right-pane");
       if (!(leftSlidePaneTemplate || rightSlidePaneTemplate)) {
         return;
       }
@@ -28029,7 +28089,7 @@
           }
         }
         this._itemSlideDirection = direction;
-        this._itemSlidePane = slidePane = this._getTemplate("slide-" + direction + "-pane");
+        this._itemSlidePane = slidePane = this.getTemplate("slide-" + direction + "-pane");
         if (slidePane) {
           itemScope = cola.util.userData(slidePane, "scope");
           itemScope.data.setTargetData(item);
@@ -28878,7 +28938,7 @@
       child = dom.firstChild;
       while (child) {
         if (child.nodeName === "TEMPLATE") {
-          this._regTemplate(child);
+          this.regTemplate(child);
         }
         child = child.nextSibling;
       }
@@ -29452,13 +29512,13 @@
 
     Tree.prototype._createNewItem = function(itemType, node) {
       var contentDom, itemDom, nodeDom, template;
-      template = this._getTemplate(itemType);
+      template = this.getTemplate(itemType);
       itemDom = this._cloneTemplate(template);
       $fly(itemDom).addClass("tree item " + itemType);
       itemDom._itemType = itemType;
       nodeDom = itemDom.firstChild;
       if (nodeDom && cola.util.hasClass(nodeDom, "node")) {
-        template = this._getTemplate("node-" + itemType, "node");
+        template = this.getTemplate("node-" + itemType, "node");
         if (template) {
           contentDom = this._cloneTemplate(template);
           $fly(contentDom).addClass("node-content");
@@ -30062,9 +30122,7 @@
       property: null,
       bind: null,
       template: null,
-      sortable: {
-        defaultValue: true
-      },
+      sortable: null,
       sortDirection: null
     };
 
@@ -30078,6 +30136,10 @@
     function TableSelectColumn() {
       return TableSelectColumn.__super__.constructor.apply(this, arguments);
     }
+
+    TableSelectColumn.events = {
+      change: null
+    };
 
     TableSelectColumn.attributes = {
       width: {
@@ -30094,9 +30156,27 @@
         this._headerCheckbox = checkbox = new cola.Checkbox({
           "class": "in-cell",
           triState: true,
+          change: (function(_this) {
+            return function(self, arg) {
+              if (typeof arg.value !== "boolean") {
+                return _this.fire("change", _this, {
+                  checkbox: self,
+                  oldValue: arg.oldValue,
+                  value: arg.value
+                });
+              }
+            };
+          })(this),
           click: (function(_this) {
             return function(self) {
-              _this.selectAll(self.get("checked"));
+              var checked;
+              checked = self.get("checked");
+              _this.selectAll(checked);
+              _this.fire("change", _this, {
+                checkbox: self,
+                oldValue: !checked,
+                value: checked
+              });
             };
           })(this)
         });
@@ -30257,7 +30337,6 @@
       selectedProperty: {
         defaultValue: "selected"
       },
-      sortable: null,
       sortMode: {
         defaultValue: "remote"
       }
@@ -30487,7 +30566,7 @@
         next = child.nextSibling;
         nodeName = child.nodeName.toLowerCase();
         if (nodeName === "template") {
-          this._regTemplate(child);
+          this.regTemplate(child);
         } else {
           dom.removeChild(child);
         }
@@ -30498,7 +30577,7 @@
 
     AbstractTable.prototype._createNewItem = function(itemType, item) {
       var itemDom, template;
-      template = this._getTemplate(itemType);
+      template = this.getTemplate(itemType);
       itemDom = this._cloneTemplate(template);
       $fly(itemDom).addClass("table item " + itemType);
       itemDom._itemType = itemType;
@@ -30547,7 +30626,7 @@
 
     Table.prototype._sysHeaderClick = function(column) {
       var collection, criteria, invoker, parameter, processed, property, sortDirection;
-      if (this.get("sortable") && column instanceof cola.TableDataColumn && column.get("sortable")) {
+      if (column instanceof cola.TableDataColumn && column.get("sortable")) {
         sortDirection = column.get("sortDirection");
         if (sortDirection === "asc") {
           sortDirection = "desc";
@@ -30848,7 +30927,7 @@
         if (template === void 0) {
           templateName = column._headerTemplate;
           if (templateName) {
-            template = this._getTemplate(templateName);
+            template = this.getTemplate(templateName);
           }
           column._realHeaderTemplate = template || null;
         }
@@ -30941,7 +31020,7 @@
         if (template === void 0) {
           templateName = column._footerTemplate;
           if (templateName) {
-            template = this._getTemplate(templateName);
+            template = this.getTemplate(templateName);
           }
           column._realFooterTemplate = template || null;
         }
@@ -31031,7 +31110,7 @@
         if (template === void 0) {
           templateName = column._template;
           if (templateName) {
-            template = this._getTemplate(templateName);
+            template = this.getTemplate(templateName);
           }
           column._realTemplate = template || null;
         }
@@ -31729,14 +31808,14 @@
 
     TimeLine.prototype._createNewItem = function(itemType, item) {
       var container, contentDom, itemDom, len1, n, name, ref, template;
-      template = this._getTemplate(itemType);
+      template = this.getTemplate(itemType);
       itemDom = this._cloneTemplate(template);
       $fly(itemDom).addClass("item " + itemType);
       itemDom._itemType = itemType;
       ref = ["content", "icon", "label"];
       for (n = 0, len1 = ref.length; n < len1; n++) {
         name = ref[n];
-        template = this._getTemplate(name);
+        template = this.getTemplate(name);
         contentDom = this._cloneTemplate(template, true);
         container = $.xCreate({
           tagName: "div",
