@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, Page, TYPE_SEVERITY, USER_DATA_KEY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _cssCache, _destroyDomBinding, _doRenderDomTemplate, _evalDataPath, _findRouter, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -10608,22 +10608,6 @@
     }
   };
 
-}).call(this);
-
-/*! Cola UI - 0.9.2
- * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
- *
- * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
- * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
- *
- * If you are unsure which license is appropriate for your use, please contact the sales department
- * at http://www.bstek.com/contact.
- */
-(function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, PAN_VERTICAL_events, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, SWIPE_VERTICAL_events, TEMP_TEMPLATE, TipManager, WIDGET_TAGS_REGISTRY, _columnsSetter, _compileWidgetAttribute, _compileWidgetDom, _createGroupArray, _destroyRenderableElement, _extendWidget, _findWidgetConfig, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, renderTabs, slotAttributeGetter, slotAttributeSetter,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
   (function() {
     var escape, isStyleFuncSupported;
     escape = function(text) {
@@ -10706,11 +10690,11 @@
   };
 
   cola.util.hasClass = function(dom, className) {
-    var domClassName, len1, n, name, names;
+    var domClassName, l, len1, name, names;
     names = className.split(/\s+/g);
     domClassName = dom.className ? (" " + dom.className + " ").replace(cola.constants.CLASS_REG, " ") : " ";
-    for (n = 0, len1 = names.length; n < len1; n++) {
-      name = names[n];
+    for (l = 0, len1 = names.length; l < len1; l++) {
+      name = names[l];
       if (domClassName.indexOf(" " + name + " ") < 0) {
         return false;
       }
@@ -10795,11 +10779,11 @@
   };
 
   cola.util.getType = (function() {
-    var classToType, len1, n, name, ref;
+    var classToType, l, len1, name, ref;
     classToType = {};
     ref = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
-    for (n = 0, len1 = ref.length; n < len1; n++) {
-      name = ref[n];
+    for (l = 0, len1 = ref.length; l < len1; l++) {
+      name = ref[l];
       classToType["[object " + name + "]"] = name.toLowerCase();
     }
     return function(obj) {
@@ -10824,111 +10808,6 @@
     }
     return rect;
   };
-
-  (function() {
-    var cancelTranslateElement, cssPrefix, docStyle, engine, getTranslate, helperElem, perspectiveProperty, transformProperty, transformStyleName, transitionEndProperty, transitionProperty, transitionStyleName, translate3d, translateElement, vendorPrefix;
-    docStyle = window.document.documentElement.style;
-    translate3d = false;
-    if (window.opera && Object.prototype.toString.call(opera) === '[object Opera]') {
-      engine = 'presto';
-    } else if ('MozAppearance' in docStyle) {
-      engine = 'gecko';
-    } else if ('WebkitAppearance' in docStyle) {
-      engine = 'webkit';
-    } else if (typeof navigator.cpuClass === 'string') {
-      engine = 'trident';
-    }
-    vendorPrefix = {
-      trident: 'ms',
-      gecko: 'Moz',
-      webkit: 'Webkit',
-      presto: 'O'
-    }[engine];
-    cssPrefix = {
-      trident: '-ms-',
-      gecko: '-moz-',
-      webkit: '-webkit-',
-      presto: '-o-'
-    }[engine];
-    helperElem = document.createElement("div");
-    perspectiveProperty = vendorPrefix + "Perspective";
-    transformProperty = vendorPrefix + "Transform";
-    transformStyleName = cssPrefix + "transform";
-    transitionProperty = vendorPrefix + "Transition";
-    transitionStyleName = cssPrefix + "transition";
-    transitionEndProperty = vendorPrefix.toLowerCase() + "TransitionEnd";
-    if (helperElem.style[perspectiveProperty] !== void 0) {
-      translate3d = true;
-    }
-    getTranslate = function(element) {
-      var matches, result, transform;
-      result = {
-        left: 0,
-        top: 0
-      };
-      if (element === null || element.style === null) {
-        return result;
-      }
-      transform = element.style[transformProperty];
-      matches = /translate\(\s*(-?\d+(\.?\d+?)?)px,\s*(-?\d+(\.\d+)?)px\)\s*translateZ\(0px\)/g.exec(transform);
-      if (matches) {
-        result.left = +matches[1];
-        result.top = +matches[3];
-      }
-      return result;
-    };
-    cancelTranslateElement = function(element) {
-      var transformValue;
-      if (element === null || element.style === null) {
-        return;
-      }
-      transformValue = element.style[transformProperty];
-      if (transformValue) {
-        transformValue = transformValue.replace(/translate\(\s*(-?\d+(\.?\d+?)?)px,\s*(-?\d+(\.\d+)?)px\)\s*translateZ\(0px\)/g, "");
-        return element.style[transformProperty] = transformValue;
-      }
-    };
-    translateElement = function(element, x, y) {
-      var translate, value;
-      if (x === null && y === null) {
-        return;
-      }
-      if (element === null || element.style === null) {
-        return;
-      }
-      if (!element.style[transformProperty] && x === 0 && y === 0) {
-        return;
-      }
-      if (x === null || y === null) {
-        translate = getTranslate(element);
-        if (x == null) {
-          x = translate.left;
-        }
-        if (y == null) {
-          y = translate.top;
-        }
-      }
-      cancelTranslateElement(element);
-      value = ' translate(' + (x ? x + 'px' : '0px') + ',' + (y ? y + 'px' : '0px') + ')';
-      if (translate3d) {
-        value += ' translateZ(0px)';
-      }
-      element.style[transformProperty] += value;
-      return element;
-    };
-    return cola.Fx = {
-      transitionEndProperty: transitionEndProperty,
-      translate3d: translate3d,
-      transformProperty: transformProperty,
-      transformStyleName: transformStyleName,
-      transitionProperty: transitionProperty,
-      transitionStyleName: transitionStyleName,
-      perspectiveProperty: perspectiveProperty,
-      getElementTranslate: getTranslate,
-      translateElement: translateElement,
-      cancelTranslateElement: cancelTranslateElement
-    };
-  })();
 
   $.xCreate.templateProcessors.push(function(template) {
     var dom;
@@ -11006,7 +10885,7 @@
   };
 
   _compileWidgetDom = function(dom, widgetType, config) {
-    var attr, attrName, isEvent, len1, len2, n, o, prop, ref, removeAttrs;
+    var attr, attrName, isEvent, l, len1, len2, o, prop, ref, removeAttrs;
     if (config == null) {
       config = {};
     }
@@ -11016,8 +10895,8 @@
     config.$constr = widgetType;
     removeAttrs = null;
     ref = dom.attributes;
-    for (n = 0, len1 = ref.length; n < len1; n++) {
-      attr = ref[n];
+    for (l = 0, len1 = ref.length; l < len1; l++) {
+      attr = ref[l];
       attrName = attr.name;
       if (attrName.indexOf("c-") === 0) {
         prop = attrName.slice(2);
@@ -11079,7 +10958,7 @@
   };
 
   _compileWidgetAttribute = function(scope, dom, context) {
-    var config, importConfig, importName, importNames, ip, iv, len1, n, p, v, widgetConfigStr;
+    var config, importConfig, importName, importNames, ip, iv, l, len1, p, v, widgetConfigStr;
     widgetConfigStr = dom.getAttribute("c-widget");
     if (widgetConfigStr) {
       dom.removeAttribute("c-widget");
@@ -11106,8 +10985,8 @@
           }
         }
         if (importNames) {
-          for (n = 0, len1 = importNames.length; n < len1; n++) {
-            importName = importNames[n];
+          for (l = 0, len1 = importNames.length; l < len1; l++) {
+            importName = importNames[l];
             importConfig = _findWidgetConfig(scope, importName);
             if (importConfig) {
               for (ip in importConfig) {
@@ -11209,7 +11088,7 @@
   cola.registerType("widget", "_default", cola.Widget);
 
   cola.widget = function(config, namespace, model) {
-    var c, constr, e, ele, group, len1, len2, n, o, widget;
+    var c, constr, e, ele, group, l, len1, len2, o, widget;
     if (!config) {
       return null;
     }
@@ -11230,8 +11109,8 @@
         }
       } else {
         group = [];
-        for (n = 0, len1 = ele.length; n < len1; n++) {
-          e = ele[n];
+        for (l = 0, len1 = ele.length; l < len1; l++) {
+          e = ele[l];
           widget = cola.util.userData(e, cola.constants.DOM_ELEMENT_KEY);
           if (widget instanceof cola.Widget && (!model || widget._scope === model)) {
             group.push(widget);
@@ -11366,7 +11245,7 @@
       }
       this.on("attributeChange", (function(_this) {
         return function(self, arg) {
-          var attr, value;
+          var attr;
           attr = arg.attribute;
           _this._widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
           value = _this._get(attr);
@@ -11423,7 +11302,7 @@
       }
     };
     cls.prototype._initDom = function(dom) {
-      var attr, attrName, cssName, len1, n, ref1, templateDom;
+      var attr, attrName, cssName, l, len1, ref1, templateDom;
       superCls.prototype._initDom.call(this, dom);
       template = this._template;
       if (template && !this._domCreated) {
@@ -11434,8 +11313,8 @@
         if (templateDom) {
           if (templateDom.attributes) {
             ref1 = templateDom.attributes;
-            for (n = 0, len1 = ref1.length; n < len1; n++) {
-              attr = ref1[n];
+            for (l = 0, len1 = ref1.length; l < len1; l++) {
+              attr = ref1[l];
               attrName = attr.name;
               if (attrName === "class") {
                 $fly(dom).addClass(attr.value);
@@ -11499,10 +11378,869 @@
 
   cola.registerWidget = cola.defineWidget;
 
+  ACTIVE_PINCH_REG = /^pinch/i;
+
+  ACTIVE_ROTATE_REG = /^rotate/i;
+
+  PAN_VERTICAL_events = ["panUp", "panDown"];
+
+  SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"];
+
+  if (typeof document.documentElement.style.flex !== "string") {
+    $(document.documentElement).addClass("flex-unsupported");
+  }
+
 
   /*
-  Template
+      ClassName池对象
+      用于刷新组件时频繁的编辑class name提高性能
    */
+
+  cola.ClassNamePool = (function() {
+    function ClassNamePool(domClass, semanticList) {
+      if (semanticList == null) {
+        semanticList = [];
+      }
+      this.elements = [];
+      domClass = domClass ? (" " + domClass + " ").replace(cola.constants.CLASS_REG, " ") : " ";
+      semanticList.forEach((function(_this) {
+        return function(name) {
+          var klass;
+          klass = " " + name + " ";
+          if (domClass.indexOf(klass) > -1) {
+            domClass = domClass.replace(klass, " ");
+            _this.add(name);
+          }
+        };
+      })(this));
+      $.trim(domClass).split(" ").forEach((function(_this) {
+        return function(klass) {
+          _this.add(klass);
+        };
+      })(this));
+    }
+
+    ClassNamePool.prototype.add = function(className) {
+      var index;
+      if (!className) {
+        return;
+      }
+      index = this.elements.indexOf(className);
+      if (index > -1) {
+        return;
+      }
+      return this.elements.push(className);
+    };
+
+    ClassNamePool.prototype.remove = function(className) {
+      var i;
+      i = this.elements.indexOf(className);
+      if (i > -1) {
+        this.elements.splice(i, 1);
+      }
+      return this;
+    };
+
+    ClassNamePool.prototype.destroy = function() {
+      return delete this["elements"];
+    };
+
+    ClassNamePool.prototype.join = function() {
+      return this.elements.join(" ");
+    };
+
+    ClassNamePool.prototype.toggle = function(className, status) {
+      if (!!status) {
+        this.add(className);
+      } else {
+        this.remove(className);
+      }
+    };
+
+    return ClassNamePool;
+
+  })();
+
+  _destroyRenderableElement = function(node, data) {
+    var element;
+    element = data[cola.constants.DOM_ELEMENT_KEY];
+    if (!(typeof element === "function" ? element(_destroyed) : void 0)) {
+      element._domRemoved = true;
+      element.destroy();
+    }
+  };
+
+
+  /*
+      可渲染元素
+   */
+
+  cola.RenderableElement = (function(superClass) {
+    extend(RenderableElement, superClass);
+
+    RenderableElement.events = {
+      initDom: null,
+      refreshDom: null
+    };
+
+    function RenderableElement(config) {
+      var dom;
+      if (config) {
+        dom = config.dom;
+        if (dom) {
+          delete config.dom;
+        }
+      }
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      RenderableElement.__super__.constructor.call(this, config);
+      if (dom) {
+        this._setDom(dom, true);
+      }
+    }
+
+    RenderableElement.prototype._initDom = function(dom) {};
+
+    RenderableElement.prototype._parseDom = function(dom) {};
+
+    RenderableElement.prototype._setDom = function(dom, parseChild) {
+      var arg;
+      if (!dom) {
+        return;
+      }
+      this._dom = dom;
+      cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, this);
+      cola.util.onNodeDispose(dom, _destroyRenderableElement);
+      if (parseChild) {
+        this._parseDom(dom);
+      }
+      this._initDom(dom);
+      arg = {
+        dom: dom
+      };
+      this.fire("initDom", this, arg);
+      this._refreshDom();
+      this._rendered = true;
+    };
+
+    RenderableElement.prototype._createDom = function() {
+      var className, dom;
+      dom = document.createElement(this.constructor.tagName || "div");
+      className = this.constructor.CLASS_NAME || "";
+      if (className) {
+        $fly(dom).addClass("ui " + className);
+      }
+      return dom;
+    };
+
+    RenderableElement.prototype._doSet = function(attr, attrConfig, value) {
+      if ((attrConfig != null ? attrConfig.refreshDom : void 0) && this._dom) {
+        cola.util.delay(this, "refreshDom", 50, this._refreshDom);
+      }
+      return RenderableElement.__super__._doSet.call(this, attr, attrConfig, value);
+    };
+
+    RenderableElement.prototype._doRefreshDom = function() {
+      var className, l, len1, name, names;
+      cola.util.cancelDelay(this, "_refreshDom");
+      if (!this._dom) {
+        return;
+      }
+      className = this.constructor.CLASS_NAME;
+      if (className) {
+        this._classNamePool.add("ui");
+        names = $.trim(className).split(" ");
+        for (l = 0, len1 = names.length; l < len1; l++) {
+          name = names[l];
+          this._classNamePool.add(name);
+        }
+      }
+      this._resetDimension();
+    };
+
+    RenderableElement.prototype._refreshDom = function() {
+      var newClassName;
+      if (!(this._dom || !this._destroyed)) {
+        return;
+      }
+      this._classNamePool = new cola.ClassNamePool(this._dom.className, this.constructor.SEMANTIC_CLASS);
+      this._doRefreshDom();
+      newClassName = $.trim(this._classNamePool.join());
+      this._dom.className = newClassName;
+      this._classNamePool.destroy();
+      delete this["_classNamePool"];
+    };
+
+    RenderableElement.prototype._resetDimension = function() {};
+
+    RenderableElement.prototype.getDom = function() {
+      var dom;
+      if (this._destroyed) {
+        return null;
+      }
+      if (!this._dom) {
+        dom = this._createDom();
+        this._setDom(dom);
+      }
+      return this._dom;
+    };
+
+    RenderableElement.prototype.get$Dom = function() {
+      if (this._destroyed) {
+        return null;
+      }
+      if (this._$dom == null) {
+        this._$dom = $(this.getDom());
+      }
+      return this._$dom;
+    };
+
+    RenderableElement.prototype.refresh = function() {
+      var arg;
+      if (!this._dom) {
+        return this;
+      }
+      this._refreshDom();
+      arg = {
+        dom: this._dom
+      };
+      this.fire("refreshDom", this, arg);
+      return this;
+    };
+
+    RenderableElement.prototype.appendTo = function(parentNode) {
+      if (parentNode && this.getDom()) {
+        $(parentNode).append(this._dom);
+      }
+      return this;
+    };
+
+    RenderableElement.prototype.remove = function() {
+      this.get$Dom().remove();
+      return this;
+    };
+
+    RenderableElement.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      cola.util.cancelDelay(this, "refreshDom");
+      if (this._dom) {
+        if (!this._domRemoved) {
+          this.remove();
+        }
+        delete this._dom;
+        delete this._$dom;
+      }
+      RenderableElement.__super__.destroy.call(this);
+      this._destroyed = true;
+    };
+
+    RenderableElement.prototype.addClass = function(value, continuous) {
+      if (continuous) {
+        cola.util.addClass(this._dom, value, true);
+      } else {
+        this.get$Dom().addClass(value);
+      }
+      return this;
+    };
+
+    RenderableElement.prototype.removeClass = function(value, continuous) {
+      if (continuous) {
+        cola.util.removeClass(this._dom, value, true);
+      } else {
+        this.get$Dom().removeClass(value);
+      }
+      return this;
+    };
+
+    RenderableElement.prototype.toggleClass = function(value, state, continuous) {
+      if (continuous) {
+        cola.util.toggleClass(this._dom, value, state, true);
+      } else {
+        this.get$Dom().toggleClass(value, state);
+      }
+      return this;
+    };
+
+    RenderableElement.prototype.hasClass = function(value, continuous) {
+      if (continuous) {
+        return cola.util.hasClass(this._dom, value, true);
+      } else {
+        return this.get$Dom().hasClass(value);
+      }
+    };
+
+    return RenderableElement;
+
+  })(cola.Element);
+
+
+  /*
+  Dorado 基础组件
+   */
+
+  cola.Widget = (function(superClass) {
+    extend(Widget, superClass);
+
+    function Widget() {
+      return Widget.__super__.constructor.apply(this, arguments);
+    }
+
+    Widget.SEMANTIC_CLASS = ["left floated", "right floated"];
+
+    Widget.attributes = {
+      display: {
+        defaultValue: true,
+        refreshDom: true,
+        type: "boolean"
+      },
+      float: {
+        refreshDom: true,
+        "enum": ["left", "right", ""],
+        defaultValue: "",
+        setter: function(value) {
+          var oldValue;
+          oldValue = this["_float"];
+          if (this._dom && oldValue && oldValue !== value) {
+            cola.util.removeClass(this._dom, oldValue + " floated", true);
+          }
+          this["_float"] = value;
+        }
+      },
+      "class": {
+        refreshDom: true,
+        setter: function(value) {
+          var oldValue;
+          oldValue = this["_class"];
+          if (oldValue && this._dom && oldValue !== value) {
+            this.get$Dom().removeClass(oldValue);
+          }
+          this["_class"] = value;
+        }
+      },
+      popup: null,
+      dimmer: {
+        setter: function(value) {
+          var k, v;
+          if (this._dimmer == null) {
+            this._dimmer = {};
+          }
+          for (k in value) {
+            v = value[k];
+            this._dimmer[k] = v;
+          }
+        }
+      },
+      height: {
+        refreshDom: true
+      },
+      width: {
+        refreshDom: true
+      }
+    };
+
+    Widget.events = {
+      click: {
+        $event: "click"
+      },
+      dblClick: {
+        $event: "dblclick"
+      },
+      mouseDown: {
+        $event: "mousedown"
+      },
+      mouseUp: {
+        $event: "mouseup"
+      },
+      tap: {
+        hammerEvent: "tap"
+      },
+      press: {
+        hammerEvent: "press"
+      },
+      panStart: {
+        hammerEvent: "panstart"
+      },
+      panMove: {
+        hammerEvent: "panmove"
+      },
+      panEnd: {
+        hammerEvent: "panend"
+      },
+      panCancel: {
+        hammerEvent: "pancancel"
+      },
+      panLeft: {
+        hammerEvent: "panleft"
+      },
+      panRight: {
+        hammerEvent: "panright"
+      },
+      panUp: {
+        hammerEvent: "panup"
+      },
+      panDown: {
+        hammerEvent: "pandown"
+      },
+      pinchStart: {
+        hammerEvent: "pinchstart"
+      },
+      pinchMove: {
+        hammerEvent: "pinchmove"
+      },
+      pinchEnd: {
+        hammerEvent: "pinchend"
+      },
+      pinchCancel: {
+        hammerEvent: "pinchcancel"
+      },
+      pinchIn: {
+        hammerEvent: "pinchin"
+      },
+      pinchOut: {
+        hammerEvent: "pinchout"
+      },
+      rotateStart: {
+        hammerEvent: "rotatestart"
+      },
+      rotateMove: {
+        hammerEvent: "rotatemove"
+      },
+      rotateEnd: {
+        hammerEvent: "rotateend"
+      },
+      rotateCancel: {
+        hammerEvent: "rotatecancel"
+      },
+      swipeLeft: {
+        hammerEvent: "swipeleft"
+      },
+      swipeRight: {
+        hammerEvent: "swiperight"
+      },
+      swipeUp: {
+        hammerEvent: "swipeup"
+      },
+      swipeDown: {
+        hammerEvent: "swipedown"
+      }
+    };
+
+    Widget.prototype._initDom = function(dom) {
+      var popup, popupOptions;
+      Widget.__super__._initDom.call(this, dom);
+      popup = this._popup;
+      if (popup) {
+        popupOptions = {};
+        if (typeof popup === "string" || (popup.constructor === Object.prototype.constructor && popup.tagName) || popup.nodeType === 1) {
+          popupOptions.html = cola.xRender(popup);
+        } else if (popup.constructor === Object.prototype.constructor) {
+          popupOptions = popup;
+          if (popupOptions.content) {
+            popupOptions.html = cola.xRender(popupOptions.content);
+          } else if (popupOptions.html) {
+            popupOptions.html = cola.xRender(popupOptions.html);
+          }
+        }
+        return $(dom).popup(popupOptions);
+      }
+    };
+
+    Widget.prototype._setDom = function(dom, parseChild) {
+      var eventName;
+      if (!dom) {
+        return;
+      }
+      Widget.__super__._setDom.call(this, dom, parseChild);
+      for (eventName in this.constructor.events) {
+        if (this.getListeners(eventName)) {
+          this._bindEvent(eventName);
+        }
+      }
+    };
+
+    Widget.prototype._on = function(eventName, listener, alias) {
+      Widget.__super__._on.call(this, eventName, listener, alias);
+      if (this._dom) {
+        this._bindEvent(eventName);
+      }
+      return this;
+    };
+
+    Widget.prototype.fire = function(eventName, self, arg) {
+      var eventConfig;
+      if (!this._eventRegistry) {
+        return;
+      }
+      eventConfig = this.constructor.events.$get(eventName);
+      if (this.constructor.attributes.hasOwnProperty("disabled") && this.get("disabled") && eventConfig && (eventConfig.$event || eventConfig.hammerEvent)) {
+        return;
+      }
+      if (!this["_hasFireTapEvent"]) {
+        this["_hasFireTapEvent"] = eventName === "tap";
+      }
+      if (eventName === "click" && this["_hasFireTapEvent"]) {
+        return;
+      }
+      return Widget.__super__.fire.call(this, eventName, self, arg);
+    };
+
+    Widget.prototype._doRefreshDom = function() {
+      var l, len1, name, ref;
+      if (!this._dom) {
+        return;
+      }
+      Widget.__super__._doRefreshDom.call(this);
+      if (this._float) {
+        this._classNamePool.add(this._float + " floated");
+      }
+      this._classNamePool.toggle("display-none", !!!this._display);
+      if (!this._rendered && this._class) {
+        ref = this._class.split(" ");
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          name = ref[l];
+          this._classNamePool.add(name);
+        }
+      }
+    };
+
+    Widget.prototype._bindEvent = function(eventName) {
+      var $dom, eventConfig;
+      if (!this._dom) {
+        return;
+      }
+      if (this._bindedEvents == null) {
+        this._bindedEvents = {};
+      }
+      if (this._bindedEvents[eventName]) {
+        return;
+      }
+      $dom = this.get$Dom();
+      eventConfig = this.constructor.events.$get(eventName);
+      if (eventConfig != null ? eventConfig.$event : void 0) {
+        $dom.on(eventConfig.$event, (function(_this) {
+          return function(evt) {
+            var arg;
+            arg = {
+              dom: _this._dom,
+              event: evt
+            };
+            return _this.fire(eventName, _this, arg);
+          };
+        })(this));
+        this._bindedEvents[eventName] = true;
+        return;
+      }
+      if (eventConfig != null ? eventConfig.hammerEvent : void 0) {
+        if (this._hammer == null) {
+          this._hammer = new Hammer(this._dom, {});
+        }
+        if (ACTIVE_PINCH_REG.test(eventName)) {
+          this._hammer.get("pinch").set({
+            enable: true
+          });
+        }
+        if (ACTIVE_ROTATE_REG.test(eventName)) {
+          this._hammer.get("rotate").set({
+            enable: true
+          });
+        }
+        if (PAN_VERTICAL_events.indexOf(eventName) >= 0) {
+          this._hammer.get("pan").set({
+            direction: Hammer.DIRECTION_ALL
+          });
+        }
+        if (SWIPE_VERTICAL_events.indexOf(eventName) >= 0) {
+          this._hammer.get("swipe").set({
+            direction: Hammer.DIRECTION_ALL
+          });
+        }
+        this._hammer.on(eventConfig.hammerEvent, (function(_this) {
+          return function(evt) {
+            var arg;
+            arg = {
+              dom: _this._dom,
+              event: evt,
+              eventName: eventName
+            };
+            return _this.fire(eventName, _this, arg);
+          };
+        })(this));
+        this._bindedEvents[eventName] = true;
+        return;
+      }
+    };
+
+    Widget.prototype._resetDimension = function() {
+      var $dom, height, unit, width;
+      $dom = this.get$Dom();
+      unit = cola.constants.WIDGET_DIMENSION_UNIT;
+      height = this.get("height");
+      if (isFinite(height)) {
+        height = "" + (parseInt(height)) + unit;
+      }
+      if (height) {
+        $dom.css("height", height);
+      }
+      width = this.get("width");
+      if (isFinite(width)) {
+        width = "" + (parseInt(width)) + unit;
+      }
+      if (width) {
+        $dom.css("width", width);
+      }
+    };
+
+    Widget.prototype.showDimmer = function(options) {
+      var $dom, content, dimmer, dimmerContent, k, v;
+      if (options == null) {
+        options = {};
+      }
+      if (!this._dom) {
+        return this;
+      }
+      content = options.content;
+      if (!content && this._dimmer) {
+        content = this._dimmer.content;
+      }
+      if (content) {
+        if (typeof content === "string") {
+          dimmerContent = $.xCreate({
+            tagName: "div",
+            content: content
+          });
+        } else if (content.constructor === Object.prototype.constructor && content.tagName) {
+          dimmerContent = $.xCreate(content);
+        } else if (content.nodeType === 1) {
+          dimmerContent = content;
+        }
+      }
+      if (this._dimmer == null) {
+        this._dimmer = {};
+      }
+      for (k in options) {
+        v = options[k];
+        if (k !== "content") {
+          this._dimmer[k] = v;
+        }
+      }
+      $dom = this.get$Dom();
+      dimmer = $dom.dimmer("get dimmer");
+      if (dimmerContent) {
+        if (dimmer) {
+          $(dimmer).empty();
+        } else {
+          $dom.dimmer("create");
+        }
+        $dom.dimmer("add content", dimmerContent);
+      }
+      $dom.dimmer(this._dimmer);
+      $dom.dimmer("show");
+      return this;
+    };
+
+    Widget.prototype.hideDimmer = function() {
+      if (!this._dom) {
+        return this;
+      }
+      this.get$Dom().dimmer("hide");
+      return this;
+    };
+
+    Widget.prototype.destroy = function() {
+      if (this._destroyed) {
+        return;
+      }
+      if (this._dom) {
+        delete this._hammer;
+        delete this._bindedEvents;
+        delete this._parent;
+        delete this._doms;
+      }
+      Widget.__super__.destroy.call(this);
+      this._destroyed = true;
+    };
+
+    return Widget;
+
+  })(cola.RenderableElement);
+
+  cola.floatWidget = {
+    _zIndex: 1100,
+    zIndex: function() {
+      return ++cola.floatWidget._zIndex;
+    }
+  };
+
+  cola.Exception.showException = function(ex) {
+    var msg;
+    if (ex instanceof cola.Exception || ex instanceof Error) {
+      msg = ex.message;
+    } else {
+      msg = ex + "";
+    }
+    return cola.alert(msg);
+  };
+
+  cola.WidgetDataModel = (function(superClass) {
+    extend(WidgetDataModel, superClass);
+
+    function WidgetDataModel(model, widget1) {
+      this.widget = widget1;
+      WidgetDataModel.__super__.constructor.call(this, model);
+    }
+
+    WidgetDataModel.prototype.get = function(path, loadMode, context) {
+      var ref;
+      if (path.charCodeAt(0) === 64) {
+        return this.widget.get(path.substring(1));
+      } else {
+        return (ref = this.model.parent) != null ? ref.data.get(path, loadMode, context) : void 0;
+      }
+    };
+
+    WidgetDataModel.prototype.set = function(path, value) {
+      var ref;
+      if (path.charCodeAt(0) === 64) {
+        this.widget.set(path.substring(1), value);
+        this._onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+      } else {
+        if ((ref = this.model.parent) != null) {
+          ref.data.set(path, value);
+        }
+      }
+    };
+
+    WidgetDataModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+      var attr, e, entity, isParent, ref, relativePath, targetPath;
+      this._onDataMessage(path, type, arg);
+      entity = arg.entity || arg.entityList;
+      if (entity) {
+        ref = this.widget._entityProps;
+        for (attr in ref) {
+          value = ref[attr];
+          isParent = false;
+          e = entity;
+          while (e) {
+            if (e === value) {
+              isParent = true;
+              break;
+            }
+            e = e._parent;
+          }
+          if (isParent) {
+            targetPath = value.getPath();
+            if (targetPath != null ? targetPath.length : void 0) {
+              relativePath = path.slice(targetPath.length);
+              this._onDataMessage(["@" + attr].concat(relativePath), type, arg);
+            }
+          }
+        }
+      }
+    };
+
+    WidgetDataModel.prototype.getDataType = function(path) {
+      var ref;
+      if (path.charCodeAt(0) === 64) {
+        return null;
+      } else {
+        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
+      }
+    };
+
+    WidgetDataModel.prototype.getProperty = function(path) {
+      var ref;
+      if (path.charCodeAt(0) === 64) {
+        return null;
+      } else {
+        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
+      }
+    };
+
+    WidgetDataModel.prototype.flush = function(name, loadMode) {
+      var ref;
+      if (path.charCodeAt(0) !== 64) {
+        if ((ref = this.model.parent) != null) {
+          ref.data.getDataType(name, loadMode);
+        }
+      }
+      return this;
+    };
+
+    return WidgetDataModel;
+
+  })(cola.AbstractDataModel);
+
+  cola.WidgetModel = (function(superClass) {
+    extend(WidgetModel, superClass);
+
+    function WidgetModel(widget1, parent1) {
+      var ref, widget;
+      this.widget = widget1;
+      this.parent = parent1;
+      widget = this.widget;
+      this.data = new cola.WidgetDataModel(this, widget);
+      if ((ref = this.parent) != null) {
+        ref.data.bind("**", this);
+      }
+      this.action = function(name) {
+        var method;
+        method = widget[name];
+        if (method instanceof Function) {
+          return function() {
+            return method.apply(widget, arguments);
+          };
+        }
+        return widget._scope.action(name);
+      };
+    }
+
+    WidgetModel.prototype.repeatNotification = true;
+
+    WidgetModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+      if (this.messageTimestamp >= arg.timestamp) {
+        return;
+      }
+      return this.data._processMessage(bindingPath, path, type, arg);
+    };
+
+    return WidgetModel;
+
+  })(cola.SubScope);
+
+  cola.TemplateWidget = (function(superClass) {
+    extend(TemplateWidget, superClass);
+
+    function TemplateWidget() {
+      return TemplateWidget.__super__.constructor.apply(this, arguments);
+    }
+
+    return TemplateWidget;
+
+  })(cola.Widget);
+
+}).call(this);
+
+/*! Cola UI - 0.9.2
+ * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
+ *
+ * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
+ * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
+ *
+ * If you are unsure which license is appropriate for your use, please contact the sales department
+ * at http://www.bstek.com/contact.
+ */
+
+/*
+Template
+ */
+
+(function() {
+  var BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, TEMP_TEMPLATE, TipManager, _columnsSetter, _createGroupArray, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, renderTabs, slotAttributeGetter, slotAttributeSetter,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   TEMP_TEMPLATE = null;
 
@@ -11912,6 +12650,111 @@
     }
   };
 
+  (function() {
+    var cancelTranslateElement, cssPrefix, docStyle, engine, getTranslate, helperElem, perspectiveProperty, transformProperty, transformStyleName, transitionEndProperty, transitionProperty, transitionStyleName, translate3d, translateElement, vendorPrefix;
+    docStyle = window.document.documentElement.style;
+    translate3d = false;
+    if (window.opera && Object.prototype.toString.call(opera) === '[object Opera]') {
+      engine = 'presto';
+    } else if ('MozAppearance' in docStyle) {
+      engine = 'gecko';
+    } else if ('WebkitAppearance' in docStyle) {
+      engine = 'webkit';
+    } else if (typeof navigator.cpuClass === 'string') {
+      engine = 'trident';
+    }
+    vendorPrefix = {
+      trident: 'ms',
+      gecko: 'Moz',
+      webkit: 'Webkit',
+      presto: 'O'
+    }[engine];
+    cssPrefix = {
+      trident: '-ms-',
+      gecko: '-moz-',
+      webkit: '-webkit-',
+      presto: '-o-'
+    }[engine];
+    helperElem = document.createElement("div");
+    perspectiveProperty = vendorPrefix + "Perspective";
+    transformProperty = vendorPrefix + "Transform";
+    transformStyleName = cssPrefix + "transform";
+    transitionProperty = vendorPrefix + "Transition";
+    transitionStyleName = cssPrefix + "transition";
+    transitionEndProperty = vendorPrefix.toLowerCase() + "TransitionEnd";
+    if (helperElem.style[perspectiveProperty] !== void 0) {
+      translate3d = true;
+    }
+    getTranslate = function(element) {
+      var matches, result, transform;
+      result = {
+        left: 0,
+        top: 0
+      };
+      if (element === null || element.style === null) {
+        return result;
+      }
+      transform = element.style[transformProperty];
+      matches = /translate\(\s*(-?\d+(\.?\d+?)?)px,\s*(-?\d+(\.\d+)?)px\)\s*translateZ\(0px\)/g.exec(transform);
+      if (matches) {
+        result.left = +matches[1];
+        result.top = +matches[3];
+      }
+      return result;
+    };
+    cancelTranslateElement = function(element) {
+      var transformValue;
+      if (element === null || element.style === null) {
+        return;
+      }
+      transformValue = element.style[transformProperty];
+      if (transformValue) {
+        transformValue = transformValue.replace(/translate\(\s*(-?\d+(\.?\d+?)?)px,\s*(-?\d+(\.\d+)?)px\)\s*translateZ\(0px\)/g, "");
+        return element.style[transformProperty] = transformValue;
+      }
+    };
+    translateElement = function(element, x, y) {
+      var translate, value;
+      if (x === null && y === null) {
+        return;
+      }
+      if (element === null || element.style === null) {
+        return;
+      }
+      if (!element.style[transformProperty] && x === 0 && y === 0) {
+        return;
+      }
+      if (x === null || y === null) {
+        translate = getTranslate(element);
+        if (x == null) {
+          x = translate.left;
+        }
+        if (y == null) {
+          y = translate.top;
+        }
+      }
+      cancelTranslateElement(element);
+      value = ' translate(' + (x ? x + 'px' : '0px') + ',' + (y ? y + 'px' : '0px') + ')';
+      if (translate3d) {
+        value += ' translateZ(0px)';
+      }
+      element.style[transformProperty] += value;
+      return element;
+    };
+    return cola.Fx = {
+      transitionEndProperty: transitionEndProperty,
+      translate3d: translate3d,
+      transformProperty: transformProperty,
+      transformStyleName: transformStyleName,
+      transitionProperty: transitionProperty,
+      transitionStyleName: transitionStyleName,
+      perspectiveProperty: perspectiveProperty,
+      getElementTranslate: getTranslate,
+      translateElement: translateElement,
+      cancelTranslateElement: cancelTranslateElement
+    };
+  })();
+
   cola.semantic = {
 
     /*
@@ -11935,849 +12778,6 @@
       };
     }
   };
-
-  ACTIVE_PINCH_REG = /^pinch/i;
-
-  ACTIVE_ROTATE_REG = /^rotate/i;
-
-  PAN_VERTICAL_events = ["panUp", "panDown"];
-
-  SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"];
-
-  if (typeof document.documentElement.style.flex !== "string") {
-    $(document.documentElement).addClass("flex-unsupported");
-  }
-
-
-  /*
-      ClassName池对象
-      用于刷新组件时频繁的编辑class name提高性能
-   */
-
-  cola.ClassNamePool = (function() {
-    function ClassNamePool(domClass, semanticList) {
-      if (semanticList == null) {
-        semanticList = [];
-      }
-      this.elements = [];
-      domClass = domClass ? (" " + domClass + " ").replace(cola.constants.CLASS_REG, " ") : " ";
-      semanticList.forEach((function(_this) {
-        return function(name) {
-          var klass;
-          klass = " " + name + " ";
-          if (domClass.indexOf(klass) > -1) {
-            domClass = domClass.replace(klass, " ");
-            _this.add(name);
-          }
-        };
-      })(this));
-      $.trim(domClass).split(" ").forEach((function(_this) {
-        return function(klass) {
-          _this.add(klass);
-        };
-      })(this));
-    }
-
-    ClassNamePool.prototype.add = function(className) {
-      var index;
-      if (!className) {
-        return;
-      }
-      index = this.elements.indexOf(className);
-      if (index > -1) {
-        return;
-      }
-      return this.elements.push(className);
-    };
-
-    ClassNamePool.prototype.remove = function(className) {
-      var i;
-      i = this.elements.indexOf(className);
-      if (i > -1) {
-        this.elements.splice(i, 1);
-      }
-      return this;
-    };
-
-    ClassNamePool.prototype.destroy = function() {
-      return delete this["elements"];
-    };
-
-    ClassNamePool.prototype.join = function() {
-      return this.elements.join(" ");
-    };
-
-    ClassNamePool.prototype.toggle = function(className, status) {
-      if (!!status) {
-        this.add(className);
-      } else {
-        this.remove(className);
-      }
-    };
-
-    return ClassNamePool;
-
-  })();
-
-  _destroyRenderableElement = function(node, data) {
-    var element;
-    element = data[cola.constants.DOM_ELEMENT_KEY];
-    if (!(typeof element === "function" ? element(_destroyed) : void 0)) {
-      element._domRemoved = true;
-      element.destroy();
-    }
-  };
-
-
-  /*
-      可渲染元素
-   */
-
-  cola.RenderableElement = (function(superClass) {
-    extend(RenderableElement, superClass);
-
-    RenderableElement.events = {
-      initDom: null,
-      refreshDom: null
-    };
-
-    function RenderableElement(config) {
-      var dom;
-      if (config) {
-        dom = config.dom;
-        if (dom) {
-          delete config.dom;
-        }
-      }
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      RenderableElement.__super__.constructor.call(this, config);
-      if (dom) {
-        this._setDom(dom, true);
-      }
-    }
-
-    RenderableElement.prototype._initDom = function(dom) {};
-
-    RenderableElement.prototype._parseDom = function(dom) {};
-
-    RenderableElement.prototype._setDom = function(dom, parseChild) {
-      var arg;
-      if (!dom) {
-        return;
-      }
-      this._dom = dom;
-      cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, this);
-      cola.util.onNodeDispose(dom, _destroyRenderableElement);
-      if (parseChild) {
-        this._parseDom(dom);
-      }
-      this._initDom(dom);
-      arg = {
-        dom: dom
-      };
-      this.fire("initDom", this, arg);
-      this._refreshDom();
-      this._rendered = true;
-    };
-
-    RenderableElement.prototype._createDom = function() {
-      var className, dom;
-      dom = document.createElement(this.constructor.tagName || "div");
-      className = this.constructor.CLASS_NAME || "";
-      if (className) {
-        $fly(dom).addClass("ui " + className);
-      }
-      return dom;
-    };
-
-    RenderableElement.prototype._doSet = function(attr, attrConfig, value) {
-      if ((attrConfig != null ? attrConfig.refreshDom : void 0) && this._dom) {
-        cola.util.delay(this, "refreshDom", 50, this._refreshDom);
-      }
-      return RenderableElement.__super__._doSet.call(this, attr, attrConfig, value);
-    };
-
-    RenderableElement.prototype._doRefreshDom = function() {
-      var className, len1, n, name, names;
-      cola.util.cancelDelay(this, "_refreshDom");
-      if (!this._dom) {
-        return;
-      }
-      className = this.constructor.CLASS_NAME;
-      if (className) {
-        this._classNamePool.add("ui");
-        names = $.trim(className).split(" ");
-        for (n = 0, len1 = names.length; n < len1; n++) {
-          name = names[n];
-          this._classNamePool.add(name);
-        }
-      }
-      this._resetDimension();
-    };
-
-    RenderableElement.prototype._refreshDom = function() {
-      var newClassName;
-      if (!(this._dom || !this._destroyed)) {
-        return;
-      }
-      this._classNamePool = new cola.ClassNamePool(this._dom.className, this.constructor.SEMANTIC_CLASS);
-      this._doRefreshDom();
-      newClassName = $.trim(this._classNamePool.join());
-      this._dom.className = newClassName;
-      this._classNamePool.destroy();
-      delete this["_classNamePool"];
-    };
-
-    RenderableElement.prototype._resetDimension = function() {};
-
-    RenderableElement.prototype.getDom = function() {
-      var dom;
-      if (this._destroyed) {
-        return null;
-      }
-      if (!this._dom) {
-        dom = this._createDom();
-        this._setDom(dom);
-      }
-      return this._dom;
-    };
-
-    RenderableElement.prototype.get$Dom = function() {
-      if (this._destroyed) {
-        return null;
-      }
-      if (this._$dom == null) {
-        this._$dom = $(this.getDom());
-      }
-      return this._$dom;
-    };
-
-    RenderableElement.prototype.refresh = function() {
-      var arg;
-      if (!this._dom) {
-        return this;
-      }
-      this._refreshDom();
-      arg = {
-        dom: this._dom
-      };
-      this.fire("refreshDom", this, arg);
-      return this;
-    };
-
-    RenderableElement.prototype.appendTo = function(parentNode) {
-      if (parentNode && this.getDom()) {
-        $(parentNode).append(this._dom);
-      }
-      return this;
-    };
-
-    RenderableElement.prototype.remove = function() {
-      this.get$Dom().remove();
-      return this;
-    };
-
-    RenderableElement.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      cola.util.cancelDelay(this, "refreshDom");
-      if (this._dom) {
-        if (!this._domRemoved) {
-          this.remove();
-        }
-        delete this._dom;
-        delete this._$dom;
-      }
-      RenderableElement.__super__.destroy.call(this);
-      this._destroyed = true;
-    };
-
-    RenderableElement.prototype.addClass = function(value, continuous) {
-      if (continuous) {
-        cola.util.addClass(this._dom, value, true);
-      } else {
-        this.get$Dom().addClass(value);
-      }
-      return this;
-    };
-
-    RenderableElement.prototype.removeClass = function(value, continuous) {
-      if (continuous) {
-        cola.util.removeClass(this._dom, value, true);
-      } else {
-        this.get$Dom().removeClass(value);
-      }
-      return this;
-    };
-
-    RenderableElement.prototype.toggleClass = function(value, state, continuous) {
-      if (continuous) {
-        cola.util.toggleClass(this._dom, value, state, true);
-      } else {
-        this.get$Dom().toggleClass(value, state);
-      }
-      return this;
-    };
-
-    RenderableElement.prototype.hasClass = function(value, continuous) {
-      if (continuous) {
-        return cola.util.hasClass(this._dom, value, true);
-      } else {
-        return this.get$Dom().hasClass(value);
-      }
-    };
-
-    return RenderableElement;
-
-  })(cola.Element);
-
-
-  /*
-  Dorado 基础组件
-   */
-
-  cola.Widget = (function(superClass) {
-    extend(Widget, superClass);
-
-    function Widget() {
-      return Widget.__super__.constructor.apply(this, arguments);
-    }
-
-    Widget.SEMANTIC_CLASS = ["left floated", "right floated"];
-
-    Widget.attributes = {
-      display: {
-        defaultValue: true,
-        refreshDom: true,
-        type: "boolean"
-      },
-      float: {
-        refreshDom: true,
-        "enum": ["left", "right", ""],
-        defaultValue: "",
-        setter: function(value) {
-          var oldValue;
-          oldValue = this["_float"];
-          if (this._dom && oldValue && oldValue !== value) {
-            cola.util.removeClass(this._dom, oldValue + " floated", true);
-          }
-          this["_float"] = value;
-        }
-      },
-      "class": {
-        refreshDom: true,
-        setter: function(value) {
-          var oldValue;
-          oldValue = this["_class"];
-          if (oldValue && this._dom && oldValue !== value) {
-            this.get$Dom().removeClass(oldValue);
-          }
-          this["_class"] = value;
-        }
-      },
-      popup: null,
-      dimmer: {
-        setter: function(value) {
-          var k, v;
-          if (this._dimmer == null) {
-            this._dimmer = {};
-          }
-          for (k in value) {
-            v = value[k];
-            this._dimmer[k] = v;
-          }
-        }
-      },
-      height: {
-        refreshDom: true
-      },
-      width: {
-        refreshDom: true
-      }
-    };
-
-    Widget.events = {
-      click: {
-        $event: "click"
-      },
-      dblClick: {
-        $event: "dblclick"
-      },
-      mouseDown: {
-        $event: "mousedown"
-      },
-      mouseUp: {
-        $event: "mouseup"
-      },
-      tap: {
-        hammerEvent: "tap"
-      },
-      press: {
-        hammerEvent: "press"
-      },
-      panStart: {
-        hammerEvent: "panstart"
-      },
-      panMove: {
-        hammerEvent: "panmove"
-      },
-      panEnd: {
-        hammerEvent: "panend"
-      },
-      panCancel: {
-        hammerEvent: "pancancel"
-      },
-      panLeft: {
-        hammerEvent: "panleft"
-      },
-      panRight: {
-        hammerEvent: "panright"
-      },
-      panUp: {
-        hammerEvent: "panup"
-      },
-      panDown: {
-        hammerEvent: "pandown"
-      },
-      pinchStart: {
-        hammerEvent: "pinchstart"
-      },
-      pinchMove: {
-        hammerEvent: "pinchmove"
-      },
-      pinchEnd: {
-        hammerEvent: "pinchend"
-      },
-      pinchCancel: {
-        hammerEvent: "pinchcancel"
-      },
-      pinchIn: {
-        hammerEvent: "pinchin"
-      },
-      pinchOut: {
-        hammerEvent: "pinchout"
-      },
-      rotateStart: {
-        hammerEvent: "rotatestart"
-      },
-      rotateMove: {
-        hammerEvent: "rotatemove"
-      },
-      rotateEnd: {
-        hammerEvent: "rotateend"
-      },
-      rotateCancel: {
-        hammerEvent: "rotatecancel"
-      },
-      swipeLeft: {
-        hammerEvent: "swipeleft"
-      },
-      swipeRight: {
-        hammerEvent: "swiperight"
-      },
-      swipeUp: {
-        hammerEvent: "swipeup"
-      },
-      swipeDown: {
-        hammerEvent: "swipedown"
-      }
-    };
-
-    Widget.prototype._initDom = function(dom) {
-      var popup, popupOptions;
-      Widget.__super__._initDom.call(this, dom);
-      popup = this._popup;
-      if (popup) {
-        popupOptions = {};
-        if (typeof popup === "string" || (popup.constructor === Object.prototype.constructor && popup.tagName) || popup.nodeType === 1) {
-          popupOptions.html = cola.xRender(popup);
-        } else if (popup.constructor === Object.prototype.constructor) {
-          popupOptions = popup;
-          if (popupOptions.content) {
-            popupOptions.html = cola.xRender(popupOptions.content);
-          } else if (popupOptions.html) {
-            popupOptions.html = cola.xRender(popupOptions.html);
-          }
-        }
-        return $(dom).popup(popupOptions);
-      }
-    };
-
-    Widget.prototype._setDom = function(dom, parseChild) {
-      var eventName;
-      if (!dom) {
-        return;
-      }
-      Widget.__super__._setDom.call(this, dom, parseChild);
-      for (eventName in this.constructor.events) {
-        if (this.getListeners(eventName)) {
-          this._bindEvent(eventName);
-        }
-      }
-    };
-
-    Widget.prototype._on = function(eventName, listener, alias) {
-      Widget.__super__._on.call(this, eventName, listener, alias);
-      if (this._dom) {
-        this._bindEvent(eventName);
-      }
-      return this;
-    };
-
-    Widget.prototype.fire = function(eventName, self, arg) {
-      var eventConfig;
-      if (!this._eventRegistry) {
-        return;
-      }
-      eventConfig = this.constructor.events.$get(eventName);
-      if (this.constructor.attributes.hasOwnProperty("disabled") && this.get("disabled") && eventConfig && (eventConfig.$event || eventConfig.hammerEvent)) {
-        return;
-      }
-      if (!this["_hasFireTapEvent"]) {
-        this["_hasFireTapEvent"] = eventName === "tap";
-      }
-      if (eventName === "click" && this["_hasFireTapEvent"]) {
-        return;
-      }
-      return Widget.__super__.fire.call(this, eventName, self, arg);
-    };
-
-    Widget.prototype._doRefreshDom = function() {
-      var len1, n, name, ref;
-      if (!this._dom) {
-        return;
-      }
-      Widget.__super__._doRefreshDom.call(this);
-      if (this._float) {
-        this._classNamePool.add(this._float + " floated");
-      }
-      this._classNamePool.toggle("display-none", !!!this._display);
-      if (!this._rendered && this._class) {
-        ref = this._class.split(" ");
-        for (n = 0, len1 = ref.length; n < len1; n++) {
-          name = ref[n];
-          this._classNamePool.add(name);
-        }
-      }
-    };
-
-    Widget.prototype._bindEvent = function(eventName) {
-      var $dom, eventConfig;
-      if (!this._dom) {
-        return;
-      }
-      if (this._bindedEvents == null) {
-        this._bindedEvents = {};
-      }
-      if (this._bindedEvents[eventName]) {
-        return;
-      }
-      $dom = this.get$Dom();
-      eventConfig = this.constructor.events.$get(eventName);
-      if (eventConfig != null ? eventConfig.$event : void 0) {
-        $dom.on(eventConfig.$event, (function(_this) {
-          return function(evt) {
-            var arg;
-            arg = {
-              dom: _this._dom,
-              event: evt
-            };
-            return _this.fire(eventName, _this, arg);
-          };
-        })(this));
-        this._bindedEvents[eventName] = true;
-        return;
-      }
-      if (eventConfig != null ? eventConfig.hammerEvent : void 0) {
-        if (this._hammer == null) {
-          this._hammer = new Hammer(this._dom, {});
-        }
-        if (ACTIVE_PINCH_REG.test(eventName)) {
-          this._hammer.get("pinch").set({
-            enable: true
-          });
-        }
-        if (ACTIVE_ROTATE_REG.test(eventName)) {
-          this._hammer.get("rotate").set({
-            enable: true
-          });
-        }
-        if (PAN_VERTICAL_events.indexOf(eventName) >= 0) {
-          this._hammer.get("pan").set({
-            direction: Hammer.DIRECTION_ALL
-          });
-        }
-        if (SWIPE_VERTICAL_events.indexOf(eventName) >= 0) {
-          this._hammer.get("swipe").set({
-            direction: Hammer.DIRECTION_ALL
-          });
-        }
-        this._hammer.on(eventConfig.hammerEvent, (function(_this) {
-          return function(evt) {
-            var arg;
-            arg = {
-              dom: _this._dom,
-              event: evt,
-              eventName: eventName
-            };
-            return _this.fire(eventName, _this, arg);
-          };
-        })(this));
-        this._bindedEvents[eventName] = true;
-        return;
-      }
-    };
-
-    Widget.prototype._resetDimension = function() {
-      var $dom, height, unit, width;
-      $dom = this.get$Dom();
-      unit = cola.constants.WIDGET_DIMENSION_UNIT;
-      height = this.get("height");
-      if (isFinite(height)) {
-        height = "" + (parseInt(height)) + unit;
-      }
-      if (height) {
-        $dom.css("height", height);
-      }
-      width = this.get("width");
-      if (isFinite(width)) {
-        width = "" + (parseInt(width)) + unit;
-      }
-      if (width) {
-        $dom.css("width", width);
-      }
-    };
-
-    Widget.prototype.showDimmer = function(options) {
-      var $dom, content, dimmer, dimmerContent, k, v;
-      if (options == null) {
-        options = {};
-      }
-      if (!this._dom) {
-        return this;
-      }
-      content = options.content;
-      if (!content && this._dimmer) {
-        content = this._dimmer.content;
-      }
-      if (content) {
-        if (typeof content === "string") {
-          dimmerContent = $.xCreate({
-            tagName: "div",
-            content: content
-          });
-        } else if (content.constructor === Object.prototype.constructor && content.tagName) {
-          dimmerContent = $.xCreate(content);
-        } else if (content.nodeType === 1) {
-          dimmerContent = content;
-        }
-      }
-      if (this._dimmer == null) {
-        this._dimmer = {};
-      }
-      for (k in options) {
-        v = options[k];
-        if (k !== "content") {
-          this._dimmer[k] = v;
-        }
-      }
-      $dom = this.get$Dom();
-      dimmer = $dom.dimmer("get dimmer");
-      if (dimmerContent) {
-        if (dimmer) {
-          $(dimmer).empty();
-        } else {
-          $dom.dimmer("create");
-        }
-        $dom.dimmer("add content", dimmerContent);
-      }
-      $dom.dimmer(this._dimmer);
-      $dom.dimmer("show");
-      return this;
-    };
-
-    Widget.prototype.hideDimmer = function() {
-      if (!this._dom) {
-        return this;
-      }
-      this.get$Dom().dimmer("hide");
-      return this;
-    };
-
-    Widget.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      if (this._dom) {
-        delete this._hammer;
-        delete this._bindedEvents;
-        delete this._parent;
-        delete this._doms;
-      }
-      Widget.__super__.destroy.call(this);
-      this._destroyed = true;
-    };
-
-    return Widget;
-
-  })(cola.RenderableElement);
-
-  cola.floatWidget = {
-    _zIndex: 1100,
-    zIndex: function() {
-      return ++cola.floatWidget._zIndex;
-    }
-  };
-
-  cola.Exception.showException = function(ex) {
-    var msg;
-    if (ex instanceof cola.Exception || ex instanceof Error) {
-      msg = ex.message;
-    } else {
-      msg = ex + "";
-    }
-    return cola.alert(msg);
-  };
-
-  cola.WidgetDataModel = (function(superClass) {
-    extend(WidgetDataModel, superClass);
-
-    function WidgetDataModel(model, widget1) {
-      this.widget = widget1;
-      WidgetDataModel.__super__.constructor.call(this, model);
-    }
-
-    WidgetDataModel.prototype.get = function(path, loadMode, context) {
-      var ref;
-      if (path.charCodeAt(0) === 64) {
-        return this.widget.get(path.substring(1));
-      } else {
-        return (ref = this.model.parent) != null ? ref.data.get(path, loadMode, context) : void 0;
-      }
-    };
-
-    WidgetDataModel.prototype.set = function(path, value) {
-      var ref;
-      if (path.charCodeAt(0) === 64) {
-        this.widget.set(path.substring(1), value);
-        this._onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
-      } else {
-        if ((ref = this.model.parent) != null) {
-          ref.data.set(path, value);
-        }
-      }
-    };
-
-    WidgetDataModel.prototype._processMessage = function(bindingPath, path, type, arg) {
-      var attr, e, entity, isParent, ref, relativePath, targetPath, value;
-      this._onDataMessage(path, type, arg);
-      entity = arg.entity || arg.entityList;
-      if (entity) {
-        ref = this.widget._entityProps;
-        for (attr in ref) {
-          value = ref[attr];
-          isParent = false;
-          e = entity;
-          while (e) {
-            if (e === value) {
-              isParent = true;
-              break;
-            }
-            e = e._parent;
-          }
-          if (isParent) {
-            targetPath = value.getPath();
-            if (targetPath != null ? targetPath.length : void 0) {
-              relativePath = path.slice(targetPath.length);
-              this._onDataMessage(["@" + attr].concat(relativePath), type, arg);
-            }
-          }
-        }
-      }
-    };
-
-    WidgetDataModel.prototype.getDataType = function(path) {
-      var ref;
-      if (path.charCodeAt(0) === 64) {
-        return null;
-      } else {
-        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
-      }
-    };
-
-    WidgetDataModel.prototype.getProperty = function(path) {
-      var ref;
-      if (path.charCodeAt(0) === 64) {
-        return null;
-      } else {
-        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
-      }
-    };
-
-    WidgetDataModel.prototype.flush = function(name, loadMode) {
-      var ref;
-      if (path.charCodeAt(0) !== 64) {
-        if ((ref = this.model.parent) != null) {
-          ref.data.getDataType(name, loadMode);
-        }
-      }
-      return this;
-    };
-
-    return WidgetDataModel;
-
-  })(cola.AbstractDataModel);
-
-  cola.WidgetModel = (function(superClass) {
-    extend(WidgetModel, superClass);
-
-    function WidgetModel(widget1, parent1) {
-      var ref, widget;
-      this.widget = widget1;
-      this.parent = parent1;
-      widget = this.widget;
-      this.data = new cola.WidgetDataModel(this, widget);
-      if ((ref = this.parent) != null) {
-        ref.data.bind("**", this);
-      }
-      this.action = function(name) {
-        var method;
-        method = widget[name];
-        if (method instanceof Function) {
-          return function() {
-            return method.apply(widget, arguments);
-          };
-        }
-        return widget._scope.action(name);
-      };
-    }
-
-    WidgetModel.prototype.repeatNotification = true;
-
-    WidgetModel.prototype._processMessage = function(bindingPath, path, type, arg) {
-      if (this.messageTimestamp >= arg.timestamp) {
-        return;
-      }
-      return this.data._processMessage(bindingPath, path, type, arg);
-    };
-
-    return WidgetModel;
-
-  })(cola.SubScope);
-
-  cola.TemplateWidget = (function(superClass) {
-    extend(TemplateWidget, superClass);
-
-    function TemplateWidget() {
-      return TemplateWidget.__super__.constructor.apply(this, arguments);
-    }
-
-    return TemplateWidget;
-
-  })(cola.Widget);
 
   containerEmptyChildren = [];
 

@@ -8,10 +8,7 @@ module.exports = (grunt) ->
 			build: ["dest/work", "dist"]
 			workTemp: ["dest/work/cola"]
 			dev: ["dest/dev"]
-			"core-widget": [
-				"dist/cola-core.js"
-				"dist/cola-widget.js"
-			]
+			"core-widget": ["dist/cola-widget.js"]
 		coffee:
 			dev:
 				options:

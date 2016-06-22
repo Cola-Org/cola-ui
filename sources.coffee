@@ -25,14 +25,15 @@ sources =
 			"src/core/dom-feature.coffee"
 			"src/core/dom-binding.coffee"
 			"src/core/dom-template.coffee"
-		]
-		widget: [
 			"src/widget/util.coffee"
-			"src/widget/fx.coffee"
 			"src/widget/support.coffee"
-			"src/widget/semantic-overrides.coffee"
 			"src/widget/widget.coffee"
 			"src/widget/template-widget.coffee"
+		]
+		widget: [
+			"src/widget/mixins.coffee"
+			"src/widget/fx.coffee"
+			"src/widget/semantic-overrides.coffee"
 		]
 		base: [
 			"src/widget/base/abstract-container.coffee"
