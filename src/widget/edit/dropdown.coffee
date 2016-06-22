@@ -495,9 +495,11 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if template
 				valueContent.appendChild(@_cloneTemplate(template))
 		return
+		
 	_initDom:(dom)->
 		@_regDefaultTempaltes()
 		super(dom)
+
 	open: () ->
 		super()
 		list = @_list

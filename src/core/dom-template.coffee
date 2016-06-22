@@ -85,14 +85,25 @@ cola.xRender = (template, model, context) ->
 	if template.nodeType
 		dom = template
 	else if typeof template == "string"
-		documentFragment = document.createDocumentFragment()
-		div = document.createElement("div")
-		div.innerHTML = template
-		child = div.firstChild
-		while child
-			next = child.nextSibling
-			documentFragment.appendChild(child)
-			child = next
+		if template.match(/^\#[\w\-\$]*$/)
+			templateNode = document.getElementById(template.substring(1))
+			if templateNode
+				if template.nodeName is "TEMPLATE"
+					template = templateNode.innerHTML
+					$fly(templateNode).remove()
+			else
+				template = null
+				dom = templateNode
+
+		if template
+			documentFragment = document.createDocumentFragment()
+			div = document.createElement("div")
+			div.innerHTML = template
+			child = div.firstChild
+			while child
+				next = child.nextSibling
+				documentFragment.appendChild(child)
+				child = next
 	else
 		cola.currentScope = model
 		try

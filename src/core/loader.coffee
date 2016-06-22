@@ -9,11 +9,19 @@ cola.loadSubView = (targetDom, context) ->
 				if i > -1 then loadingUrls.splice(i, 1)
 				if loadingUrls.length == 0
 					$fly(targetDom).removeClass("loading")
+					
+					if targetDom.hasAttribute(cola.constants.IGNORE_DIRECTIVE)
+						hasIgnoreDirective = true
+						targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE)
+					
 					if context.suspendedInitFuncs.length
 						for initFunc in context.suspendedInitFuncs
 							initFunc(targetDom, context.model, context.param)
 					else
 						cola(targetDom, context.model)
+
+					if hasIgnoreDirective
+						targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)
 
 					if cola.getListeners("ready")
 						cola.fire("ready", cola)

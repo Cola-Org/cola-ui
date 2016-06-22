@@ -112,7 +112,7 @@ _compileWidgetAttribute = (scope, dom, context) ->
             importNames = null
             for p, v of config
                 importName = null
-                if p.charCodeAt(0) == 35
+                if p.charCodeAt(0) == 35 # `#`
                     importName = p.substring(1)
                 else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
                     importName = v.substring(1)
