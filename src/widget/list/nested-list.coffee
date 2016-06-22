@@ -119,7 +119,7 @@ class cola.NestedList extends cola.Widget
 		return unless dom
 		child = dom.firstChild
 		while child
-			@_regTemplate(child) if child.nodeName == "TEMPLATE"
+			@regTemplate(child) if child.nodeName == "TEMPLATE"
 			child = child.nextSibling
 		return
 

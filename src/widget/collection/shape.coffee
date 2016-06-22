@@ -58,7 +58,7 @@ class cola.Shape extends cola.AbstractItemGroup
 					doms.wrap = child
 					parseItem(child)
 				else if child.nodeName == "TEMPLATE"
-					@_regTemplate(child)
+					@regTemplate(child)
 			child = child.nextSibling
 
 		return
@@ -66,7 +66,7 @@ class cola.Shape extends cola.AbstractItemGroup
 	_initDom: (dom)->
 		@_createItemsWrap(dom) unless @_doms.wrap
 
-		template = @_getTemplate()
+		template = @getTemplate()
 		if template
 			if @_bind
 				$fly(template).attr("c-repeat", @_bind)

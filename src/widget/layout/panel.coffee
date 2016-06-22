@@ -94,7 +94,7 @@ class cola.Panel extends cola.AbstractContainer
 		})
 		headerContent.appendChild(@_doms.caption)
 
-		template = @_getTemplate("tools")
+		template = @getTemplate("tools")
 		cola.xRender(template, @_scope)
 		toolsDom = @_doms.tools = $.xCreate({
 			class: "tools"
@@ -165,7 +165,7 @@ class cola.Panel extends cola.AbstractContainer
 		while child
 			if child.nodeType == 1
 				if child.nodeName == "TEMPLATE"
-					@_regTemplate(child)
+					@regTemplate(child)
 				else
 					$child = $(child)
 					unless $child.hasClass("content")

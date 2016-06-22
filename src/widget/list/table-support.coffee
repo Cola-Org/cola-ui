@@ -395,7 +395,7 @@ class cola.AbstractTable extends cola.AbstractList
             next = child.nextSibling
             nodeName = child.nodeName.toLowerCase()
             if nodeName == "template"
-                @_regTemplate(child)
+                @regTemplate(child)
             else
                 dom.removeChild(child)
             child = next
@@ -403,7 +403,7 @@ class cola.AbstractTable extends cola.AbstractList
         return
 
     _createNewItem: (itemType, item) ->
-        template = @_getTemplate(itemType)
+        template = @getTemplate(itemType)
         itemDom = @_cloneTemplate(template)
         $fly(itemDom).addClass("table item " + itemType)
         itemDom._itemType = itemType

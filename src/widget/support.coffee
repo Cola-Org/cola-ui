@@ -255,7 +255,7 @@ cola.findWidget = (dom, type) ->
             try
                 parentFrames = win.parent.jQuery("iframe,frame")
             catch
-# do nothing
+                # do nothing
 
             if parentFrames
                 frame = null
@@ -414,7 +414,7 @@ cola.TemplateSupport =
         child = @_dom.firstChild
         while child
             if child.nodeName == "TEMPLATE"
-                @_regTemplate(child)
+                @regTemplate(child)
             child = child.nextSibling
         @_regDefaultTempaltes()
         return
@@ -429,7 +429,7 @@ cola.TemplateSupport =
             child = next
         return
 
-    _regTemplate: (name, template) ->
+    regTemplate: (name, template) ->
         if arguments.length == 1
             template = name
             if template.nodeType
@@ -444,10 +444,10 @@ cola.TemplateSupport =
         for name, template of @constructor.TEMPLATES
             if @_templates?.hasOwnProperty(name) or !template
                 continue
-            @_regTemplate(name, template)
+            @regTemplate(name, template)
         return
 
-    _getTemplate: (name = "default", defaultName) ->
+    getTemplate: (name = "default", defaultName) ->
         return null unless @_templates
         template = @_templates[name]
         if !template and defaultName

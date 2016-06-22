@@ -189,20 +189,20 @@ class cola.Tree extends cola.AbstractList
 		return itemType or "default"
 
 	_createNewItem: (itemType, node) ->
-		template = @_getTemplate(itemType)
+		template = @getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
 		$fly(itemDom).addClass("tree item " + itemType)
 		itemDom._itemType = itemType
 
 		nodeDom = itemDom.firstChild
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
-			template = @_getTemplate("node-" + itemType, "node")
+			template = @getTemplate("node-" + itemType, "node")
 			if template
 #				if template instanceof Array
 #					span = document.createElement("span")
 #					span.appendChild(templ) for templ in template
 #					template = span
-#					@_regTemplate("node-" + itemType, template)
+#					@regTemplate("node-" + itemType, template)
 
 				contentDom = @_cloneTemplate(template)
 				$fly(contentDom).addClass("node-content")

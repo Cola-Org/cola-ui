@@ -45,7 +45,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 				else if !doms.indicators and cola.util.hasClass(child, "indicators")
 					doms.indicators = child
 				else if child.nodeName == "TEMPLATE"
-					@_regTemplate(child)
+					@regTemplate(child)
 			child = child.nextSibling
 		if doms.indicators
 			@refreshIndicators()
@@ -85,7 +85,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		@_createIndicatorContainer(dom) unless @_doms.indicators
 		@_createItemsWrap(dom) unless @_doms.wrap
 		
-		template = @_getTemplate()
+		template = @getTemplate()
 		if template
 			if @_bind
 				$fly(template).attr("c-repeat", @_bind)

@@ -67,7 +67,7 @@ class cola.AbstractList extends cola.ItemsView
 		return items
 
 	_refreshEmptyItemDom: () ->
-		emptyItemDom = @_emptyItemDom = @_getTemplate("empty-item")
+		emptyItemDom = @_emptyItemDom = @getTemplate("empty-item")
 		if emptyItemDom
 			items = @_realItems
 			if items instanceof cola.EntityList and items.entityCount is 0 or items instanceof Array and items.length is 0
@@ -88,13 +88,13 @@ class cola.AbstractList extends cola.ItemsView
 			@_pullAction = null
 			if @_pullDown
 				hasPullAction = true
-				pullDownPane = @_getTemplate("pull-down-pane")
+				pullDownPane = @getTemplate("pull-down-pane")
 				pullDownPane ?= $.xCreate(tagName: "div")
 				@_doms.pullDownPane = pullDownPane
 
 			if @_pullUp
 				hasPullAction = true
-				pullUpPane = @_getTemplate("pull-up-pane")
+				pullUpPane = @getTemplate("pull-up-pane")
 				pullUpPane ?= $.xCreate(tagName: "div")
 				@_doms.pullUpPane = pullUpPane
 

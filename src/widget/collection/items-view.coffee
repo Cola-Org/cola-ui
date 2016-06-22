@@ -52,7 +52,7 @@ class cola.ItemsView extends cola.Widget
 			if !itemsWrapper and nodeName == "UL"
 				itemsWrapper = child
 			else if nodeName == "TEMPLATE"
-				@_regTemplate(child)
+				@regTemplate(child)
 			else
 				dom.removeChild(child)
 			child = next

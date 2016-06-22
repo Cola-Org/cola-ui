@@ -213,7 +213,7 @@ class cola.ListView extends cola.AbstractList
 			return (item._alias or @_alias) + "." + @_textProperty
 
 	_createNewItem: (itemType, item) ->
-		template = @_getTemplate(itemType)
+		template = @getTemplate(itemType)
 		if template
 			itemDom = @_cloneTemplate(template)
 		else
@@ -548,8 +548,8 @@ class cola.ListView extends cola.AbstractList
 		return
 
 	_initItemSlide: () ->
-		leftSlidePaneTemplate = @_getTemplate("slide-left-pane")
-		rightSlidePaneTemplate = @_getTemplate("slide-right-pane")
+		leftSlidePaneTemplate = @getTemplate("slide-left-pane")
+		rightSlidePaneTemplate = @getTemplate("slide-right-pane")
 		return unless leftSlidePaneTemplate or rightSlidePaneTemplate
 
 		itemsWrapper = @_doms.itemsWrapper
@@ -630,7 +630,7 @@ class cola.ListView extends cola.AbstractList
 
 			@_itemSlideDirection = direction
 
-			@_itemSlidePane = slidePane = @_getTemplate("slide-" + direction + "-pane")
+			@_itemSlidePane = slidePane = @getTemplate("slide-" + direction + "-pane")
 			if slidePane
 				itemScope = cola.util.userData(slidePane, "scope")
 				itemScope.data.setTargetData(item)

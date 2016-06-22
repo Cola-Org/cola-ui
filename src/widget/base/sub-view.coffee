@@ -29,7 +29,9 @@ class cola.SubView extends cola.Widget
 	_initDom: (dom)->
 		$dom = $fly(dom)
 		if $dom.find(">.content").length is 0
-			$dom.xAppend(class: "content")
+			content = { class: "content" }
+			content[cola.constants.IGNORE_DIRECTIVE] = true
+			$dom.xAppend(content)
 
 		if @_url
 			@load(

@@ -267,7 +267,7 @@ class cola.Table extends cola.AbstractTable
 			if template == undefined
 				templateName = column._headerTemplate
 				if templateName
-					template = @_getTemplate(templateName)
+					template = @getTemplate(templateName)
 				column._realHeaderTemplate = template or null
 			if template
 				template = @_cloneTemplate(template)
@@ -340,7 +340,7 @@ class cola.Table extends cola.AbstractTable
 			if template == undefined
 				templateName = column._footerTemplate
 				if templateName
-					template = @_getTemplate(templateName)
+					template = @getTemplate(templateName)
 				column._realFooterTemplate = template or null
 			if template
 				template = @_cloneTemplate(template)
@@ -405,7 +405,7 @@ class cola.Table extends cola.AbstractTable
 			if template == undefined
 				templateName = column._template
 				if templateName
-					template = @_getTemplate(templateName)
+					template = @getTemplate(templateName)
 				column._realTemplate = template or null
 			if template
 				template = @_cloneTemplate(template)

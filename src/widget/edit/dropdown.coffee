@@ -186,7 +186,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if  property
 			context.defaultPath += "." + property
 
-		template = @_getTemplate("value-content")
+		template = @getTemplate("value-content")
 		if template
 			if template instanceof Array
 				for t in template
@@ -491,7 +491,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 	_initValueContent: (valueContent, context) ->
 		super(valueContent, context)
 		if !valueContent.firstChild
-			template = @_getTemplate("default")
+			template = @getTemplate()
 			if template
 				valueContent.appendChild(@_cloneTemplate(template))
 		return
@@ -527,7 +527,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				templateName = "filterable-list"
 			else
 				templateName = "list"
-			template = @_getTemplate(templateName)
+			template = @getTemplate(templateName)
 			@_dropdownContent = template = cola.xRender(template, @_scope)
 
 			@_list = list = cola.widget(@_doms.list)
@@ -535,9 +535,9 @@ class cola.Dropdown extends cola.AbstractDropdown
 				for name, templ of @_templates
 					if ["list", "filterable-list", "value-content"].indexOf(name) < 0
 						if name == "default" then hasDefaultTemplate = true
-						list._regTemplate(name, templ)
+						list.regTemplate(name, templ)
 			if !hasDefaultTemplate
-				list._regTemplate("default", {
+				list.regTemplate("default", {
 					tagName: "li"
 					"c-bind": "$default"
 				})
@@ -583,7 +583,7 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			if @_content
 				dropdownContent = @_content
 			else
-				dropdownContent = @_getTemplate()
+				dropdownContent = @getTemplate()
 			@_dropdownContent = cola.xRender(dropdownContent, @_scope)
 		return @_dropdownContent
 
