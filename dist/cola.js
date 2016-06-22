@@ -15670,12 +15670,24 @@
       dom = this._dom;
       this.unload();
       if (options) {
-        this._parentModel = options.parentModel;
-        this._modelName = options.modelName;
-        this._url = options.url;
-        this._jsUrl = options.jsUrl;
-        this._cssUrl = options.cssUrl;
-        this._param = options.param;
+        if (options.parentModel) {
+          this._parentModel = options.parentModel;
+        }
+        if (options.modelName) {
+          this._modelName = options.modelName;
+        }
+        if (options.url) {
+          this._url = options.url;
+        }
+        if (options.jsUrl) {
+          this._jsUrl = options.jsUrl;
+        }
+        if (options.cssUrl) {
+          this._cssUrl = options.cssUrl;
+        }
+        if (options.param) {
+          this._param = options.param;
+        }
       }
       if (this._parentModel instanceof cola.Scope) {
         parentModel = this._parentModel;

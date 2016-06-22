@@ -51,12 +51,12 @@ class cola.SubView extends cola.Widget
 		@unload()
 
 		if options
-			@_parentModel = options.parentModel
-			@_modelName = options.modelName
-			@_url = options.url
-			@_jsUrl = options.jsUrl
-			@_cssUrl = options.cssUrl
-			@_param = options.param
+			@_parentModel = options.parentModel if options.parentModel
+			@_modelName = options.modelName if options.modelName
+			@_url = options.url if options.url
+			@_jsUrl = options.jsUrl if options.jsUrl
+			@_cssUrl = options.cssUrl if options.cssUrl
+			@_param = options.param if options.param
 
 		if @_parentModel instanceof cola.Scope
 			parentModel = @_parentModel
