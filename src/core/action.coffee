@@ -84,8 +84,9 @@ _matchValue = (value, propFilter) ->
 
 cola.defaultAction.filter = (collection, criteria, option) ->
 	criteria = cola._trimCriteria(criteria, option)
-	return cola._filterCollection(collection, criteria, option)
-cola.defaultAction.sort = cola._sortCollection
+	return cola.util.filter(collection, criteria, option)
+	
+cola.defaultAction.sort = cola.util.sort
 
 cola.defaultAction["top"] = (collection, top = 1) ->
 	return null unless collection

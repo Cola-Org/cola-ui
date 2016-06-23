@@ -17,7 +17,7 @@ class cola.Table extends cola.AbstractTable
 	_convertItems: (items) ->
 		items = super(items)
 		if @_sortCriteria
-			items = cola._sortCollection(items, @_sortCriteria)
+			items = cola.util.sort(items, @_sortCriteria)
 		return items
 		
 	_sysHeaderClick: (column) ->

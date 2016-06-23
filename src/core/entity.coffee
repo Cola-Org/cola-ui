@@ -142,7 +142,7 @@ cola._trimCriteria = (criteria, option = {}) ->
 					propFilter.value = if propFilter.value then propFilter.value + "" else ""
 	return criteria
 
-cola._filterCollection = (collection, criteria, option = {}) ->
+_filterCollection = (collection, criteria, option = {}) ->
 	return null unless collection
 
 	filtered = []
@@ -153,7 +153,7 @@ cola._filterCollection = (collection, criteria, option = {}) ->
 
 	cola.each(collection, (item) ->
 		children = if option.deep then [] else null
-		if not criteria? or cola._filterEntity(item, criteria, option, children)
+		if not criteria? or _filterEntity(item, criteria, option, children)
 			filtered.push(item)
 			if option.one then return false
 
@@ -163,25 +163,25 @@ cola._filterCollection = (collection, criteria, option = {}) ->
 	)
 	return filtered
 
-cola._filterEntity = (entity, criteria, option = {}, children) ->
+_filterEntity = (entity, criteria, option = {}, children) ->
 
 	_searchChildren = (value) ->
 		if option.mode is "entity"
 			if value instanceof cola.EntityList
-				r = cola._filterCollection(value, criteria, option)
+				r = _filterCollection(value, criteria, option)
 				Array::push.apply(children, r)
 			else if value instanceof cola.Entity
 				r = []
-				cola._filterEntity(value, criteria, option, r)
+				_filterEntity(value, criteria, option, r)
 				Array::push.apply(children, r)
 
 		else
 			if typeof value is "array"
-				r = cola._filterCollection(value, criteria, option)
+				r = _filterCollection(value, criteria, option)
 				Array::push.apply(children, r)
 			else if typeof value is "object" and not (value instanceof Date)
 				r = []
-				cola._filterEntity(value, criteria, option, r)
+				_filterEntity(value, criteria, option, r)
 				Array::push.apply(children, r)
 		return
 
@@ -237,7 +237,7 @@ cola._filterEntity = (entity, criteria, option = {}, children) ->
 
 	return matches
 
-cola._sortCollection = (collection, comparator, caseSensitive) ->
+_sortCollection = (collection, comparator, caseSensitive) ->
 	return null unless collection
 	return collection if not comparator? or comparator == "$none"
 
@@ -1490,13 +1490,13 @@ class cola.EntityList extends LinkedList
 
 	filter: (criteria, option) ->
 		criteria = cola._trimCriteria(criteria, option)
-		return cola._filterCollection(@, criteria, option)
+		return _filterCollection(@, criteria, option)
 
 	where: (criteria, option = {}) ->
 		if option.caseSensitive is undefined then option.caseSensitive = true
 		if option.strict is undefined then option.strict = true
 		criteria = cola._trimCriteria(criteria, option)
-		return cola._filterCollection(@, criteria, option)
+		return _filterCollection(@, criteria, option)
 
 	find: (criteria, option) ->
 		option.one = true
@@ -1676,18 +1676,21 @@ util
 
 cola.util.filter = (data, criteria, option) ->
 	criteria = cola._trimCriteria(criteria, option)
-	return cola._filterCollection(data, criteria, option)
+	return _filterCollection(data, criteria, option)
 
 cola.util.where = (data, criteria, option = {}) ->
 	if option.caseSensitive is undefined then option.caseSensitive = true
 	if option.strict is undefined then option.strict = true
 	criteria = cola._trimCriteria(criteria, option)
-	return cola._filterCollection(data, criteria, option)
+	return _filterCollection(data, criteria, option)
 
 cola.util.find = (data, criteria, option) ->
 	option.one = true
 	result = cola.util.where(data, criteria, option)
 	return result?[0]
+	
+cola.util.sort = (collection, comparator, caseSensitive) ->
+	return _sortCollection(collection, comparator, caseSensitive)
 
 ###
 index

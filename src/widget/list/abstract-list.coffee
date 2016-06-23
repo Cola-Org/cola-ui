@@ -58,12 +58,12 @@ class cola.AbstractList extends cola.ItemsView
 			arg = {
 				filterCriteria: @_filterCriteria
 			}
-			items = cola._filterCollection(items, (item) =>
+			items = cola.util.filter(items, (item) =>
 				arg.item = item
 				return @fire("filterItem", @, arg)
 			)
 		else if @_filterCriteria
-			items = cola._filterCollection(items, @_filterCriteria)
+			items = cola.util.filter(items, @_filterCriteria)
 		return items
 
 	_refreshEmptyItemDom: () ->
