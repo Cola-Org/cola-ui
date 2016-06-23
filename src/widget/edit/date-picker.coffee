@@ -163,7 +163,8 @@ class cola.DateGrid extends cola.RenderableElement
                 return if position.row >= picker._rowCount
                 if picker._autoSelect
                     picker.setSelectionCell(position.row, position.column)
-
+                    value = $fly(position.element).attr("cell-date")
+                    picker._currentDate = new Date(Date.parse(value))
                 picker.fire("cellClick", picker, position)
         )
         dom.appendChild(headerDom)
@@ -272,6 +273,7 @@ class cola.DateGrid extends cola.RenderableElement
         return $(@_dom).find("td[cell-date='#{value}']")[0]
 
     setCurrentDate: (date)->
+        @_currentDate = date;
         month = date.getMonth()
         year = date.getFullYear()
         @setState(year, month)
@@ -360,17 +362,13 @@ class cola.DateGrid extends cola.RenderableElement
 
         return @
 DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd"
-DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
-DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
-DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
+DEFAULT_DATE_TIME_DISPLAY_FORMAT = "yyyy-MM-dd HH:mm:ss"
 class cola.DatePicker extends cola.CustomDropdown
     @tagName: "c-datepicker"
     @CLASS_NAME: "date input drop"
     @attributes:
-        displayFormat:
-            defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
-        inputFormat:
-            defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
+        displayFormat: null
+        inputFormat: null
         icon:
             defaultValue: "calendar"
         content:
@@ -388,7 +386,12 @@ class cola.DatePicker extends cola.CustomDropdown
             readOnly = @_readOnly
             if !readOnly
                 value = $(@_doms.input).val()
-                inputFormat = @_inputFormat or @_displayFormat or DEFAULT_DATE_DISPLAY_FORMAT
+                inputFormat = @_inputFormat or @_displayFormat
+                unless inputFormat
+                    if @_inputType == "date"
+                        inputFormat = DEFAULT_DATE_DISPLAY_FORMAT
+                    else
+                        inputFormat = DEFAULT_DATE_TIME_DISPLAY_FORMAT
                 if inputFormat and value
                     value = inputFormat + "||" + value
                     xDate = new XDate(value)
@@ -439,18 +442,19 @@ class cola.DatePicker extends cola.CustomDropdown
         return
     _refreshInputValue: (value) ->
         inputType = @_inputType
-
         if value instanceof Date
             if value.toDateString() is "Invalid Date"
                 value = ""
             else
-                if inputType is "date"
-                    format = DEFAULT_DATE_DISPLAY_FORMAT
-                else if inputType is "time"
-                    format = DEFAULT_TIME_DISPLAY_FORMAT
-
+                format = @_inputFormat or @_displayFormat
+                unless format
+                    if inputType is "date"
+                        format = DEFAULT_DATE_DISPLAY_FORMAT
+                    else if inputType is "time"
+                        format = DEFAULT_DATE_TIME_DISPLAY_FORMAT
                 value = (new XDate(value)).toString(format)
         return super(value)
+
     _refreshInput: ()->
         $inputDom = $fly(@_doms.input)
         $inputDom.attr("name", @_name) if @_name
@@ -458,9 +462,9 @@ class cola.DatePicker extends cola.CustomDropdown
         $inputDom.prop("readOnly", @_finalReadOnly)
         @get("actionButton")?.set("disabled", @_finalReadOnly)
         $inputDom.prop("type", "text").css("text-align", "left")
-
         @_refreshInputValue(@_value)
         return
+
     open: () ->
         super()
         value = @get("value")
@@ -468,14 +472,82 @@ class cola.DatePicker extends cola.CustomDropdown
             value = new Date()
         else
             unless value instanceof Date
-                value = Date.parse(value)
-
+                value = new Date(Date.parse(value))
         if value.toDateString() is "Invalid Date"
             value = new Date()
 
         @_dataGrid.setCurrentDate(value)
-
+        @_timeEditor?.set({
+            hour: value.getHours()
+            minute: value.getMinutes()
+            second: value.getSeconds()
+        })
     _getDropdownContent: () ->
+        if @_inputType == "date" then @_getDateDropdownContent() else @_getDateTimeDropdownContent()
+    _getDateTimeDropdownContent: () ->
+        datePicker = @
+        datePicker._selectedDate = null;
+        if !@_dropdownContent
+            @_dataGrid = dateGrid = new cola.DateGrid({
+                cellClick: (self, arg)=>
+                    value = $fly(arg.element).attr("cell-date")
+                    datePicker._selectedDate = value
+            })
+            currentDate = new Date()
+            dateGrid.setCurrentDate(currentDate)
+            context = {}
+            container = $.xCreate({
+                class: "v-box date-time-picker"
+                content: [
+                    {
+                        class: "flex-box", contextKey: "dateGridBox"
+                    },
+                    {
+                        class: "box", contextKey: "timeBox",
+                        content: {
+                            class: "h-box"
+                            content: [
+                                {
+                                    class: "label box", content: "#{cola.resource("cola.date.time")}:"
+                                },
+                                {
+                                    class: "flex-box"
+                                    content: {
+                                        contextKey: "timeEditorBox"
+                                    }
+                                },
+                                {
+                                    class: "box actions"
+                                    content: {
+                                        class: "ui button primary", content: cola.resource("cola.message.approve")
+                                        contextKey: "approveBtn"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }, context)
+
+            @_timeEditor = new cola.TimeEditor({
+                hour: currentDate.getHours()
+                minute: currentDate.getMinutes()
+                second: currentDate.getSeconds()
+            })
+
+            context.dateGridBox.appendChild(dateGrid.getDom())
+            context.timeEditorBox.appendChild(@_timeEditor.getDom())
+            $(context.approveBtn).on("click", ()->
+                date = datePicker._dataGrid._currentDate
+                date.setHours(datePicker._timeEditor.get("hour"))
+                date.setMinutes(datePicker._timeEditor.get("minute"))
+                date.setSeconds(datePicker._timeEditor.get("second"))
+                datePicker.close(date)
+            )
+            @_dropdownContent = container
+        return @_dropdownContent
+
+    _getDateDropdownContent: () ->
         datePicker = @
         if !@_dropdownContent
             @_dataGrid = dateGrid = new cola.DateGrid({
@@ -487,6 +559,7 @@ class cola.DatePicker extends cola.CustomDropdown
             dateGrid.setCurrentDate(new Date())
             @_dropdownContent = dateGrid.getDom()
         return @_dropdownContent
+
 class cola.YearMonthGrid extends cola.RenderableElement
     @CLASS_NAME: "year-month-grid"
     @tagName: "c-yearMonthGrid"
@@ -742,6 +815,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
             date = new Date()
             value = "#{date.getFullYear()}-#{date.getMonth() + 1}"
         @_dataGrid.set("value", value)
+
     _getDropdownContent: () ->
         datePicker = @
         if !@_dropdownContent
@@ -752,5 +826,96 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
             @_dropdownContent = dateGrid.getDom()
 
         return @_dropdownContent
+class cola.TimeEditor extends cola.Widget
+    @CLASS_NAME: "ui time-editor"
+    @attributes:
+        hour:
+            defaultValue: "00"
+            refreshDom: true
+        minute:
+            defaultValue: "00"
+            refreshDom: true
+        second:
+            defaultValue: "00"
+            refreshDom: true
+    @events:
+        change: null
+    _initDom: (dom)->
+        @_doms ?= {}
+        childDom = $.xCreate({
+            class: "time-wrapper"
+            content: [
+                {
+                    class: "edit ui input"
+                    content: {
+                        tagName: "input",
+                        class: "hour",
+                        contextKey: "hour"
+                    }
+                }
+                {
+                    class: "separator", content: ":"
+                }
+                {
+                    class: "edit ui input"
+                    content: {
+                        tagName: "input",
+                        class: "minute",
+                        contextKey: "minute"
+                    }
+                }
+                {
+                    class: "separator", content: ":"
+                }
+                {
+                    class: "edit ui input"
+                    content: {
+                        tagName: "input",
+                        class: "second",
+                        contextKey: "second"
+                    }
+                }
+            ]
+        }, @_doms)
+
+        doPost = (input)=>
+            @["_#{input.className}"] = parseInt($(input).val() || "00")
+            @fire("change", @, {
+                hour: @_hour, minute: @_minute, second: @_second
+            })
+
+        $(childDom).find("input").keyup(()->
+            val = this.value.replace(/[^\d]/g, '')
+            if event.keyCode == 37 or event.keyCode == 39
+                return
+
+            if event.keyCode != 8 and val
+                intVal = parseInt(this.value)
+                if event.keyCode == 38
+                    intVal++
+                else if event.keyCode == 40
+                    intVal--
+                max = if this.className == "hour" then 24 else 60
+                if intVal >= max
+                    this.value = max - 1
+                else if intVal <= 0
+                    this.value = if val.length >= 2 then "00" else "0"
+                else if intVal > 0 and intVal < 10
+                    this.value = if val.length >= 2 then  "0#{intVal}" else intVal
+                else
+                    this.value = intVal
+
+            doPost(this)
+        )
+
+        dom.appendChild(childDom)
+
+    _doRefreshDom: ()->
+        super()
+        for v in ["hour", "minute", "second"]
+            $fly(@_doms[v]).val(@["_#{v}"])
+        return
+
+
 cola.registerWidget(cola.DatePicker)
 cola.registerWidget(cola.YearMonthDropDown)
