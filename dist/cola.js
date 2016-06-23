@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.2
+/*! Cola UI - 0.9.7
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1036,6 +1036,7 @@
     "cola.date.dayNamesShort": "S,M,T,W,T,F,S",
     "cola.date.amDesignator": "AM",
     "cola.date.pmDesignator": "PM",
+    "cola.date.time": "Time",
     "cola.validator.error.required": "Cannot be empty.",
     "cola.validator.error.length": "Length is not within the correct range.",
     "cola.validator.error.number": "Value is not within the correct range.",
@@ -3392,7 +3393,7 @@
     return criteria;
   };
 
-  cola._filterCollection = function(collection, criteria, option) {
+  _filterCollection = function(collection, criteria, option) {
     var filtered;
     if (option == null) {
       option = {};
@@ -3408,7 +3409,7 @@
     cola.each(collection, function(item) {
       var children;
       children = option.deep ? [] : null;
-      if ((criteria == null) || cola._filterEntity(item, criteria, option, children)) {
+      if ((criteria == null) || _filterEntity(item, criteria, option, children)) {
         filtered.push(item);
         if (option.one) {
           return false;
@@ -3421,7 +3422,7 @@
     return filtered;
   };
 
-  cola._filterEntity = function(entity, criteria, option, children) {
+  _filterEntity = function(entity, criteria, option, children) {
     var _searchChildren, data, matches, p, prop, propFilter, v;
     if (option == null) {
       option = {};
@@ -3430,20 +3431,20 @@
       var r;
       if (option.mode === "entity") {
         if (value instanceof cola.EntityList) {
-          r = cola._filterCollection(value, criteria, option);
+          r = _filterCollection(value, criteria, option);
           Array.prototype.push.apply(children, r);
         } else if (value instanceof cola.Entity) {
           r = [];
-          cola._filterEntity(value, criteria, option, r);
+          _filterEntity(value, criteria, option, r);
           Array.prototype.push.apply(children, r);
         }
       } else {
         if (typeof value === "array") {
-          r = cola._filterCollection(value, criteria, option);
+          r = _filterCollection(value, criteria, option);
           Array.prototype.push.apply(children, r);
         } else if (typeof value === "object" && !(value instanceof Date)) {
           r = [];
-          cola._filterEntity(value, criteria, option, r);
+          _filterEntity(value, criteria, option, r);
           Array.prototype.push.apply(children, r);
         }
       }
@@ -3520,7 +3521,7 @@
     return matches;
   };
 
-  cola._sortCollection = function(collection, comparator, caseSensitive) {
+  _sortCollection = function(collection, comparator, caseSensitive) {
     var c, comparatorFunc, comparatorProps, l, len1, origin, part, prop, propDesc, ref;
     if (!collection) {
       return null;
@@ -5191,39 +5192,6 @@
       }
     };
 
-    EntityList.prototype.flush = function(loadMode) {
-      var callback, notifyArg, page;
-      if (this._providerInvoker == null) {
-        throw new cola.Exception("Provider undefined.");
-      }
-      if (loadMode && (typeof loadMode === "function" || typeof loadMode === "object")) {
-        callback = loadMode;
-        loadMode = "async";
-      }
-      this._reset();
-      page = this._findPage(this.pageNo);
-      if (page == null) {
-        page = this._createPage(this.pageNo);
-      }
-      if (loadMode === "async") {
-        notifyArg = {
-          data: this
-        };
-        this._notify(cola.constants.MESSAGE_LOADING_START, notifyArg);
-        page.loadData({
-          complete: (function(_this) {
-            return function(success, result) {
-              cola.callback(callback, success, result);
-              return _this._notify(cola.constants.MESSAGE_LOADING_END, notifyArg);
-            };
-          })(this)
-        });
-      } else {
-        page.loadData();
-      }
-      return this;
-    };
-
     EntityList.prototype.each = function(fn, options) {
       var deleted, i, next, page, pageNo;
       page = this._first;
@@ -5314,7 +5282,7 @@
 
     EntityList.prototype.filter = function(criteria, option) {
       criteria = cola._trimCriteria(criteria, option);
-      return cola._filterCollection(this, criteria, option);
+      return _filterCollection(this, criteria, option);
     };
 
     EntityList.prototype.where = function(criteria, option) {
@@ -5328,7 +5296,7 @@
         option.strict = true;
       }
       criteria = cola._trimCriteria(criteria, option);
-      return cola._filterCollection(this, criteria, option);
+      return _filterCollection(this, criteria, option);
     };
 
     EntityList.prototype.find = function(criteria, option) {
@@ -5589,7 +5557,7 @@
 
   cola.util.filter = function(data, criteria, option) {
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(data, criteria, option);
+    return _filterCollection(data, criteria, option);
   };
 
   cola.util.where = function(data, criteria, option) {
@@ -5603,7 +5571,7 @@
       option.strict = true;
     }
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(data, criteria, option);
+    return _filterCollection(data, criteria, option);
   };
 
   cola.util.find = function(data, criteria, option) {
@@ -5611,6 +5579,10 @@
     option.one = true;
     result = cola.util.where(data, criteria, option);
     return result != null ? result[0] : void 0;
+  };
+
+  cola.util.sort = function(collection, comparator, caseSensitive) {
+    return _sortCollection(collection, comparator, caseSensitive);
   };
 
 
@@ -7615,10 +7587,10 @@
 
   cola.defaultAction.filter = function(collection, criteria, option) {
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(collection, criteria, option);
+    return cola.util.filter(collection, criteria, option);
   };
 
-  cola.defaultAction.sort = cola._sortCollection;
+  cola.defaultAction.sort = cola.util.sort;
 
   cola.defaultAction["top"] = function(collection, top) {
     var i, items;
@@ -12223,7 +12195,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.2
+/*! Cola UI - 0.9.7
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -12238,7 +12210,7 @@ Template
  */
 
 (function() {
-  var BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, TEMP_TEMPLATE, TipManager, _columnsSetter, _createGroupArray, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, renderTabs, slotAttributeGetter, slotAttributeSetter,
+  var BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_DATE_TIME_DISPLAY_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, TEMP_TEMPLATE, TipManager, _columnsSetter, _createGroupArray, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, oldErrorTemplate, renderTabs, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -21767,7 +21739,7 @@ Template
         i++;
       }
       $fly(table).on("click", function(event) {
-        var position;
+        var position, value;
         position = cola.calendar.getCellPosition(event);
         if (position && position.element) {
           if (position.row >= picker._rowCount) {
@@ -21775,6 +21747,8 @@ Template
           }
           if (picker._autoSelect) {
             picker.setSelectionCell(position.row, position.column);
+            value = $fly(position.element).attr("cell-date");
+            picker._currentDate = new Date(Date.parse(value));
           }
           return picker.fire("cellClick", picker, position);
         }
@@ -21921,6 +21895,7 @@ Template
 
     DateGrid.prototype.setCurrentDate = function(date) {
       var month, year;
+      this._currentDate = date;
       month = date.getMonth();
       year = date.getFullYear();
       this.setState(year, month);
@@ -22046,11 +22021,7 @@ Template
 
   DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd";
 
-  DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd";
-
-  DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss";
-
-  DEFAULT_TIME_INPUT_FORMAT = "HHmmss";
+  DEFAULT_DATE_TIME_DISPLAY_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   cola.DatePicker = (function(superClass) {
     extend(DatePicker, superClass);
@@ -22064,12 +22035,8 @@ Template
     DatePicker.CLASS_NAME = "date input drop";
 
     DatePicker.attributes = {
-      displayFormat: {
-        defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
-      },
-      inputFormat: {
-        defaultValue: DEFAULT_DATE_DISPLAY_FORMAT
-      },
+      displayFormat: null,
+      inputFormat: null,
       icon: {
         defaultValue: "calendar"
       },
@@ -22097,7 +22064,14 @@ Template
           readOnly = _this._readOnly;
           if (!readOnly) {
             value = $(_this._doms.input).val();
-            inputFormat = _this._inputFormat || _this._displayFormat || DEFAULT_DATE_DISPLAY_FORMAT;
+            inputFormat = _this._inputFormat || _this._displayFormat;
+            if (!inputFormat) {
+              if (_this._inputType === "date") {
+                inputFormat = DEFAULT_DATE_DISPLAY_FORMAT;
+              } else {
+                inputFormat = DEFAULT_DATE_TIME_DISPLAY_FORMAT;
+              }
+            }
             if (inputFormat && value) {
               value = inputFormat + "||" + value;
               xDate = new XDate(value);
@@ -22176,10 +22150,13 @@ Template
         if (value.toDateString() === "Invalid Date") {
           value = "";
         } else {
-          if (inputType === "date") {
-            format = DEFAULT_DATE_DISPLAY_FORMAT;
-          } else if (inputType === "time") {
-            format = DEFAULT_TIME_DISPLAY_FORMAT;
+          format = this._inputFormat || this._displayFormat;
+          if (!format) {
+            if (inputType === "date") {
+              format = DEFAULT_DATE_DISPLAY_FORMAT;
+            } else {
+              format = DEFAULT_DATE_TIME_DISPLAY_FORMAT;
+            }
           }
           value = (new XDate(value)).toString(format);
         }
@@ -22203,23 +22180,106 @@ Template
     };
 
     DatePicker.prototype.open = function() {
-      var value;
+      var ref, value;
       DatePicker.__super__.open.call(this);
       value = this.get("value");
       if (!value) {
         value = new Date();
       } else {
         if (!(value instanceof Date)) {
-          value = Date.parse(value);
+          value = new Date(Date.parse(value));
         }
       }
       if (value.toDateString() === "Invalid Date") {
         value = new Date();
       }
-      return this._dataGrid.setCurrentDate(value);
+      this._dataGrid.setCurrentDate(value);
+      return (ref = this._timeEditor) != null ? ref.set({
+        hour: value.getHours(),
+        minute: value.getMinutes(),
+        second: value.getSeconds()
+      }) : void 0;
     };
 
     DatePicker.prototype._getDropdownContent = function() {
+      if (this._inputType === "date") {
+        return this._getDateDropdownContent();
+      } else {
+        return this._getDateTimeDropdownContent();
+      }
+    };
+
+    DatePicker.prototype._getDateTimeDropdownContent = function() {
+      var container, context, dateGrid, datePicker;
+      datePicker = this;
+      datePicker._selectedDate = null;
+      if (!this._dropdownContent) {
+        this._dataGrid = dateGrid = new cola.DateGrid({
+          cellClick: (function(_this) {
+            return function(self, arg) {
+              var value;
+              value = $fly(arg.element).attr("cell-date");
+              return datePicker._selectedDate = value;
+            };
+          })(this)
+        });
+        currentDate = new Date();
+        dateGrid.setCurrentDate(currentDate);
+        context = {};
+        container = $.xCreate({
+          "class": "v-box date-time-picker",
+          content: [
+            {
+              "class": "flex-box",
+              contextKey: "dateGridBox"
+            }, {
+              "class": "box",
+              contextKey: "timeBox",
+              content: {
+                "class": "h-box",
+                content: [
+                  {
+                    "class": "label box",
+                    content: (cola.resource("cola.date.time")) + ":"
+                  }, {
+                    "class": "flex-box",
+                    content: {
+                      contextKey: "timeEditorBox"
+                    }
+                  }, {
+                    "class": "box actions",
+                    content: {
+                      "class": "ui button primary",
+                      content: cola.resource("cola.message.approve"),
+                      contextKey: "approveBtn"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }, context);
+        this._timeEditor = new cola.TimeEditor({
+          hour: currentDate.getHours(),
+          minute: currentDate.getMinutes(),
+          second: currentDate.getSeconds()
+        });
+        context.dateGridBox.appendChild(dateGrid.getDom());
+        context.timeEditorBox.appendChild(this._timeEditor.getDom());
+        $(context.approveBtn).on("click", function() {
+          var date;
+          date = datePicker._dataGrid._currentDate;
+          date.setHours(datePicker._timeEditor.get("hour"));
+          date.setMinutes(datePicker._timeEditor.get("minute"));
+          date.setSeconds(datePicker._timeEditor.get("second"));
+          return datePicker.close(date);
+        });
+        this._dropdownContent = container;
+      }
+      return this._dropdownContent;
+    };
+
+    DatePicker.prototype._getDateDropdownContent = function() {
       var dateGrid, datePicker;
       datePicker = this;
       if (!this._dropdownContent) {
@@ -22620,6 +22680,125 @@ Template
     return YearMonthDropDown;
 
   })(cola.CustomDropdown);
+
+  cola.TimeEditor = (function(superClass) {
+    extend(TimeEditor, superClass);
+
+    function TimeEditor() {
+      return TimeEditor.__super__.constructor.apply(this, arguments);
+    }
+
+    TimeEditor.CLASS_NAME = "ui time-editor";
+
+    TimeEditor.attributes = {
+      hour: {
+        defaultValue: "00",
+        refreshDom: true
+      },
+      minute: {
+        defaultValue: "00",
+        refreshDom: true
+      },
+      second: {
+        defaultValue: "00",
+        refreshDom: true
+      }
+    };
+
+    TimeEditor.events = {
+      change: null
+    };
+
+    TimeEditor.prototype._initDom = function(dom) {
+      var childDom, doPost;
+      if (this._doms == null) {
+        this._doms = {};
+      }
+      childDom = $.xCreate({
+        "class": "time-wrapper",
+        content: [
+          {
+            "class": "edit ui input",
+            content: {
+              tagName: "input",
+              "class": "hour",
+              contextKey: "hour"
+            }
+          }, {
+            "class": "separator",
+            content: ":"
+          }, {
+            "class": "edit ui input",
+            content: {
+              tagName: "input",
+              "class": "minute",
+              contextKey: "minute"
+            }
+          }, {
+            "class": "separator",
+            content: ":"
+          }, {
+            "class": "edit ui input",
+            content: {
+              tagName: "input",
+              "class": "second",
+              contextKey: "second"
+            }
+          }
+        ]
+      }, this._doms);
+      doPost = (function(_this) {
+        return function(input) {
+          _this["_" + input.className] = parseInt($(input).val() || "00");
+          return _this.fire("change", _this, {
+            hour: _this._hour,
+            minute: _this._minute,
+            second: _this._second
+          });
+        };
+      })(this);
+      $(childDom).find("input").keyup(function() {
+        var intVal, max, val;
+        val = this.value.replace(/[^\d]/g, '');
+        if (event.keyCode === 37 || event.keyCode === 39) {
+          return;
+        }
+        if (event.keyCode !== 8 && val) {
+          intVal = parseInt(this.value);
+          if (event.keyCode === 38) {
+            intVal++;
+          } else if (event.keyCode === 40) {
+            intVal--;
+          }
+          max = this.className === "hour" ? 24 : 60;
+          if (intVal >= max) {
+            this.value = max - 1;
+          } else if (intVal <= 0) {
+            this.value = val.length >= 2 ? "00" : "0";
+          } else if (intVal > 0 && intVal < 10) {
+            this.value = val.length >= 2 ? "0" + intVal : intVal;
+          } else {
+            this.value = intVal;
+          }
+        }
+        return doPost(this);
+      });
+      return dom.appendChild(childDom);
+    };
+
+    TimeEditor.prototype._doRefreshDom = function() {
+      var len1, n, ref, v;
+      TimeEditor.__super__._doRefreshDom.call(this);
+      ref = ["hour", "minute", "second"];
+      for (n = 0, len1 = ref.length; n < len1; n++) {
+        v = ref[n];
+        $fly(this._doms[v]).val(this["_" + v]);
+      }
+    };
+
+    return TimeEditor;
+
+  })(cola.Widget);
 
   cola.registerWidget(cola.DatePicker);
 
@@ -23484,23 +23663,23 @@ Template
         items = this._convertItems(items);
       }
       this._realItems = items;
+      documentFragment = null;
+      nextItemDom = itemsWrapper.firstChild;
+      currentItem = items != null ? items.current : void 0;
+      if (this._currentItemDom) {
+        if (!currentItem) {
+          currentItem = cola.util.userData(this._currentItemDom, "item");
+        }
+        $fly(this._currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS);
+        delete this._currentItemDom;
+      }
+      this._currentItem = currentItem;
+      this._itemsScope.resetItemScopeMap();
+      if (typeof this._refreshEmptyItemDom === "function") {
+        this._refreshEmptyItemDom();
+      }
+      lastItem = null;
       if (items) {
-        documentFragment = null;
-        nextItemDom = itemsWrapper.firstChild;
-        currentItem = items.current;
-        if (this._currentItemDom) {
-          if (!currentItem) {
-            currentItem = cola.util.userData(this._currentItemDom, "item");
-          }
-          $fly(this._currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS);
-          delete this._currentItemDom;
-        }
-        this._currentItem = currentItem;
-        this._itemsScope.resetItemScopeMap();
-        if (typeof this._refreshEmptyItemDom === "function") {
-          this._refreshEmptyItemDom();
-        }
-        lastItem = null;
         cola.each(items, (function(_this) {
           return function(item) {
             var _nextItemDom, itemDom, itemType;
@@ -23539,40 +23718,40 @@ Template
         })(this), {
           currentPage: this._currentPageOnly
         });
-        if (nextItemDom) {
-          itemDom = nextItemDom;
-          while (itemDom) {
-            nextItemDom = itemDom.nextSibling;
-            if (!cola.util.hasClass(itemDom, "protected")) {
-              itemsWrapper.removeChild(itemDom);
-              if (itemDom._itemId) {
-                delete this._itemDomMap[itemDom._itemId];
-              }
+      }
+      if (nextItemDom) {
+        itemDom = nextItemDom;
+        while (itemDom) {
+          nextItemDom = itemDom.nextSibling;
+          if (!cola.util.hasClass(itemDom, "protected")) {
+            itemsWrapper.removeChild(itemDom);
+            if (itemDom._itemId) {
+              delete this._itemDomMap[itemDom._itemId];
             }
-            itemDom = nextItemDom;
           }
+          itemDom = nextItemDom;
         }
-        delete this._currentItem;
-        if (this._currentItemDom && this._highlightCurrentItem) {
-          $fly(this._currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS);
-        }
-        if (documentFragment) {
-          itemsWrapper.appendChild(documentFragment);
-        }
-        if (!this._currentPageOnly && this._autoLoadPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
-          currentPageNo = lastItem != null ? (ref = lastItem._page) != null ? ref.pageNo : void 0 : void 0;
-          if (currentPageNo && (currentPageNo < items.pageCount || !items.pageCountDetermined)) {
-            if (!this._loadingNextPage && itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {
-              this._showLoadingTip();
-              items.loadPage(currentPageNo + 1, (function(_this) {
-                return function() {
-                  _this._hideLoadingTip();
-                };
-              })(this));
-            } else {
-              if (typeof this._appendTailDom === "function") {
-                this._appendTailDom(itemsWrapper);
-              }
+      }
+      delete this._currentItem;
+      if (this._currentItemDom && this._highlightCurrentItem) {
+        $fly(this._currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS);
+      }
+      if (documentFragment) {
+        itemsWrapper.appendChild(documentFragment);
+      }
+      if (!this._currentPageOnly && this._autoLoadPage && (items === this._realOriginItems || !this._realOriginItems) && items instanceof cola.EntityList && items.pageSize > 0) {
+        currentPageNo = lastItem != null ? (ref = lastItem._page) != null ? ref.pageNo : void 0 : void 0;
+        if (currentPageNo && (currentPageNo < items.pageCount || !items.pageCountDetermined)) {
+          if (!this._loadingNextPage && itemsWrapper.scrollHeight === itemsWrapper.clientHeight && (itemsWrapper.scrollTop = 0)) {
+            this._showLoadingTip();
+            items.loadPage(currentPageNo + 1, (function(_this) {
+              return function() {
+                _this._hideLoadingTip();
+              };
+            })(this));
+          } else {
+            if (typeof this._appendTailDom === "function") {
+              this._appendTailDom(itemsWrapper);
             }
           }
         }
@@ -26915,14 +27094,14 @@ Template
         arg = {
           filterCriteria: this._filterCriteria
         };
-        items = cola._filterCollection(items, (function(_this) {
+        items = cola.util.filter(items, (function(_this) {
           return function(item) {
             arg.item = item;
             return _this.fire("filterItem", _this, arg);
           };
         })(this));
       } else if (this._filterCriteria) {
-        items = cola._filterCollection(items, this._filterCriteria);
+        items = cola.util.filter(items, this._filterCriteria);
       }
       return items;
     };
@@ -30631,7 +30810,7 @@ Template
     Table.prototype._convertItems = function(items) {
       items = Table.__super__._convertItems.call(this, items);
       if (this._sortCriteria) {
-        items = cola._sortCollection(items, this._sortCriteria);
+        items = cola.util.sort(items, this._sortCriteria);
       }
       return items;
     };

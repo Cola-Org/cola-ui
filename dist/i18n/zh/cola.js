@@ -6,6 +6,7 @@
     "cola.date.dayNamesShort": "日,一,二,三,四,五,六",
     "cola.date.amDesignator": "上午",
     "cola.date.pmDesignator": "下午",
+    "cola.date.time": "时间",
     "cola.validator.error.required": "不能为空。",
     "cola.validator.error.length": "长度不在正确的范围内。",
     "cola.validator.error.number": "数值不在正确的范围内。",

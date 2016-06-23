@@ -214,23 +214,23 @@ class cola.ItemsView extends cola.Widget
 			items = @_convertItems(items)
 		@_realItems = items
 
+		documentFragment = null
+		nextItemDom = itemsWrapper.firstChild
+		currentItem = items?.current
+
+		if @_currentItemDom
+			if !currentItem
+				currentItem = cola.util.userData(@_currentItemDom, "item")
+			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
+			delete @_currentItemDom
+		@_currentItem = currentItem
+
+		@_itemsScope.resetItemScopeMap()
+
+		@_refreshEmptyItemDom?()
+
+		lastItem = null
 		if items
-			documentFragment = null
-			nextItemDom = itemsWrapper.firstChild
-			currentItem = items.current
-
-			if @_currentItemDom
-				if !currentItem
-					currentItem = cola.util.userData(@_currentItemDom, "item")
-				$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
-				delete @_currentItemDom
-			@_currentItem = currentItem
-
-			@_itemsScope.resetItemScopeMap()
-
-			@_refreshEmptyItemDom?()
-
-			lastItem = null
 			cola.each(items, (item) =>
 				lastItem = item
 				itemType = @_getItemType(item)
@@ -260,33 +260,33 @@ class cola.ItemsView extends cola.Widget
 				return
 			, { currentPage: @_currentPageOnly })
 
-			if nextItemDom
+		if nextItemDom
+			itemDom = nextItemDom
+			while itemDom
+				nextItemDom = itemDom.nextSibling
+				if not cola.util.hasClass(itemDom, "protected")
+					itemsWrapper.removeChild(itemDom)
+					delete @_itemDomMap[itemDom._itemId] if itemDom._itemId
 				itemDom = nextItemDom
-				while itemDom
-					nextItemDom = itemDom.nextSibling
-					if not cola.util.hasClass(itemDom, "protected")
-						itemsWrapper.removeChild(itemDom)
-						delete @_itemDomMap[itemDom._itemId] if itemDom._itemId
-					itemDom = nextItemDom
 
-			delete @_currentItem
-			if @_currentItemDom and @_highlightCurrentItem
-				$fly(@_currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+		delete @_currentItem
+		if @_currentItemDom and @_highlightCurrentItem
+			$fly(@_currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 
-			if documentFragment
-				itemsWrapper.appendChild(documentFragment)
+		if documentFragment
+			itemsWrapper.appendChild(documentFragment)
 
-			if not @_currentPageOnly and @_autoLoadPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
-				currentPageNo = lastItem?._page?.pageNo
-				if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
-					if not @_loadingNextPage and itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
-						@_showLoadingTip()
-						items.loadPage(currentPageNo + 1, () =>
-							@_hideLoadingTip()
-							return
-						)
-					else
-						@_appendTailDom?(itemsWrapper)
+		if not @_currentPageOnly and @_autoLoadPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
+			currentPageNo = lastItem?._page?.pageNo
+			if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
+				if not @_loadingNextPage and itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
+					@_showLoadingTip()
+					items.loadPage(currentPageNo + 1, () =>
+						@_hideLoadingTip()
+						return
+					)
+				else
+					@_appendTailDom?(itemsWrapper)
 		return
 
 	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope) ->

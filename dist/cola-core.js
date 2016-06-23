@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.2
+/*! Cola UI - 0.9.7
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1036,6 +1036,7 @@
     "cola.date.dayNamesShort": "S,M,T,W,T,F,S",
     "cola.date.amDesignator": "AM",
     "cola.date.pmDesignator": "PM",
+    "cola.date.time": "Time",
     "cola.validator.error.required": "Cannot be empty.",
     "cola.validator.error.length": "Length is not within the correct range.",
     "cola.validator.error.number": "Value is not within the correct range.",
@@ -3392,7 +3393,7 @@
     return criteria;
   };
 
-  cola._filterCollection = function(collection, criteria, option) {
+  _filterCollection = function(collection, criteria, option) {
     var filtered;
     if (option == null) {
       option = {};
@@ -3408,7 +3409,7 @@
     cola.each(collection, function(item) {
       var children;
       children = option.deep ? [] : null;
-      if ((criteria == null) || cola._filterEntity(item, criteria, option, children)) {
+      if ((criteria == null) || _filterEntity(item, criteria, option, children)) {
         filtered.push(item);
         if (option.one) {
           return false;
@@ -3421,7 +3422,7 @@
     return filtered;
   };
 
-  cola._filterEntity = function(entity, criteria, option, children) {
+  _filterEntity = function(entity, criteria, option, children) {
     var _searchChildren, data, matches, p, prop, propFilter, v;
     if (option == null) {
       option = {};
@@ -3430,20 +3431,20 @@
       var r;
       if (option.mode === "entity") {
         if (value instanceof cola.EntityList) {
-          r = cola._filterCollection(value, criteria, option);
+          r = _filterCollection(value, criteria, option);
           Array.prototype.push.apply(children, r);
         } else if (value instanceof cola.Entity) {
           r = [];
-          cola._filterEntity(value, criteria, option, r);
+          _filterEntity(value, criteria, option, r);
           Array.prototype.push.apply(children, r);
         }
       } else {
         if (typeof value === "array") {
-          r = cola._filterCollection(value, criteria, option);
+          r = _filterCollection(value, criteria, option);
           Array.prototype.push.apply(children, r);
         } else if (typeof value === "object" && !(value instanceof Date)) {
           r = [];
-          cola._filterEntity(value, criteria, option, r);
+          _filterEntity(value, criteria, option, r);
           Array.prototype.push.apply(children, r);
         }
       }
@@ -3520,7 +3521,7 @@
     return matches;
   };
 
-  cola._sortCollection = function(collection, comparator, caseSensitive) {
+  _sortCollection = function(collection, comparator, caseSensitive) {
     var c, comparatorFunc, comparatorProps, l, len1, origin, part, prop, propDesc, ref;
     if (!collection) {
       return null;
@@ -5191,39 +5192,6 @@
       }
     };
 
-    EntityList.prototype.flush = function(loadMode) {
-      var callback, notifyArg, page;
-      if (this._providerInvoker == null) {
-        throw new cola.Exception("Provider undefined.");
-      }
-      if (loadMode && (typeof loadMode === "function" || typeof loadMode === "object")) {
-        callback = loadMode;
-        loadMode = "async";
-      }
-      this._reset();
-      page = this._findPage(this.pageNo);
-      if (page == null) {
-        page = this._createPage(this.pageNo);
-      }
-      if (loadMode === "async") {
-        notifyArg = {
-          data: this
-        };
-        this._notify(cola.constants.MESSAGE_LOADING_START, notifyArg);
-        page.loadData({
-          complete: (function(_this) {
-            return function(success, result) {
-              cola.callback(callback, success, result);
-              return _this._notify(cola.constants.MESSAGE_LOADING_END, notifyArg);
-            };
-          })(this)
-        });
-      } else {
-        page.loadData();
-      }
-      return this;
-    };
-
     EntityList.prototype.each = function(fn, options) {
       var deleted, i, next, page, pageNo;
       page = this._first;
@@ -5314,7 +5282,7 @@
 
     EntityList.prototype.filter = function(criteria, option) {
       criteria = cola._trimCriteria(criteria, option);
-      return cola._filterCollection(this, criteria, option);
+      return _filterCollection(this, criteria, option);
     };
 
     EntityList.prototype.where = function(criteria, option) {
@@ -5328,7 +5296,7 @@
         option.strict = true;
       }
       criteria = cola._trimCriteria(criteria, option);
-      return cola._filterCollection(this, criteria, option);
+      return _filterCollection(this, criteria, option);
     };
 
     EntityList.prototype.find = function(criteria, option) {
@@ -5589,7 +5557,7 @@
 
   cola.util.filter = function(data, criteria, option) {
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(data, criteria, option);
+    return _filterCollection(data, criteria, option);
   };
 
   cola.util.where = function(data, criteria, option) {
@@ -5603,7 +5571,7 @@
       option.strict = true;
     }
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(data, criteria, option);
+    return _filterCollection(data, criteria, option);
   };
 
   cola.util.find = function(data, criteria, option) {
@@ -5611,6 +5579,10 @@
     option.one = true;
     result = cola.util.where(data, criteria, option);
     return result != null ? result[0] : void 0;
+  };
+
+  cola.util.sort = function(collection, comparator, caseSensitive) {
+    return _sortCollection(collection, comparator, caseSensitive);
   };
 
 
@@ -7615,10 +7587,10 @@
 
   cola.defaultAction.filter = function(collection, criteria, option) {
     criteria = cola._trimCriteria(criteria, option);
-    return cola._filterCollection(collection, criteria, option);
+    return cola.util.filter(collection, criteria, option);
   };
 
-  cola.defaultAction.sort = cola._sortCollection;
+  cola.defaultAction.sort = cola.util.sort;
 
   cola.defaultAction["top"] = function(collection, top) {
     var i, items;
