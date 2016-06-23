@@ -450,7 +450,7 @@ class cola.DatePicker extends cola.CustomDropdown
                 unless format
                     if inputType is "date"
                         format = DEFAULT_DATE_DISPLAY_FORMAT
-                    else if inputType is "time"
+                    else
                         format = DEFAULT_DATE_TIME_DISPLAY_FORMAT
                 value = (new XDate(value)).toString(format)
         return super(value)
