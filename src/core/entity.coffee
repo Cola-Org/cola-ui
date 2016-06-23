@@ -1423,32 +1423,6 @@ class cola.EntityList extends LinkedList
 				@_triggerWatcher(["*"], type, arg)
 		return
 
-	flush: (loadMode) ->
-		if !@_providerInvoker?
-			throw new cola.Exception("Provider undefined.")
-
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
-			callback = loadMode
-			loadMode = "async"
-
-		@_reset()
-		page = @_findPage(@pageNo)
-		page ?= @_createPage(@pageNo)
-
-		if loadMode is "async"
-			notifyArg = {
-				data: @
-			}
-			@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-			page.loadData(
-				complete: (success, result) =>
-					cola.callback(callback, success, result)
-					@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-			)
-		else
-			page.loadData()
-		return @
-
 	each: (fn, options) ->
 		page = @_first
 		return @ unless page
