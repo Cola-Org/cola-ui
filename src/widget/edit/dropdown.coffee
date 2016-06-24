@@ -373,7 +373,8 @@ class DropBox extends cola.Layer
 		rect = $fly(dropdownDom).offset()
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
-		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight
+		scrollTop = document.body.scrollTop
+		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight - scrollTop
 
 		if bottomSpace >= boxHeight
 			direction = "down"
