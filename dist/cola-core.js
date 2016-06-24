@@ -3199,7 +3199,7 @@
     if (!markNoncurrent && this._pathCache) {
       return this._pathCache;
     }
-    parent = this._parent;
+    parent = this.parent;
     if (parent == null) {
       return;
     }
@@ -3222,7 +3222,7 @@
         }
       }
       self = parent;
-      parent = parent._parent;
+      parent = parent.parent;
     }
     path = path.reverse();
     if (!markNoncurrent) {
@@ -3322,11 +3322,11 @@
         }
       }
     }
-    if (this._parent) {
+    if (this.parent) {
       if (this._parentProperty) {
         path.unshift(this._parentProperty);
       }
-      this._parent._triggerWatcher(path, type, arg);
+      this.parent._triggerWatcher(path, type, arg);
     }
   };
 
@@ -3934,7 +3934,7 @@
         if (this._disableWriteObservers === 0) {
           if ((oldValue != null) && (oldValue instanceof _Entity || oldValue instanceof _EntityList)) {
             oldValue._setDataModel(null);
-            delete oldValue._parent;
+            delete oldValue.parent;
             delete oldValue._parentProperty;
           }
           if (this.state === _Entity.STATE_NONE) {
@@ -3943,10 +3943,10 @@
         }
         this._data[prop] = value;
         if ((value != null) && (value instanceof _Entity || value instanceof _EntityList)) {
-          if (value._parent && value._parent !== this) {
+          if (value.parent && value.parent !== this) {
             throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"" + prop + "\"");
           }
-          value._parent = this;
+          value.parent = this;
           value._parentProperty = prop;
           value._setDataModel(this._dataModel);
           value._onPathChange();
@@ -3989,12 +3989,12 @@
     };
 
     Entity.prototype.remove = function(detach) {
-      if (this._parent) {
-        if (this._parent instanceof _EntityList) {
-          this._parent.remove(this, detach);
+      if (this.parent) {
+        if (this.parent instanceof _EntityList) {
+          this.parent.remove(this, detach);
         } else {
           this.setState(_Entity.STATE_DELETED);
-          this._parent.set(this._parentProperty, null);
+          this.parent.set(this._parentProperty, null);
         }
       } else {
         this.setState(_Entity.STATE_DELETED);
@@ -4040,7 +4040,7 @@
       }
       brother = new _Entity(data, this.dataType);
       brother.setState(_Entity.STATE_NEW);
-      parent = this._parent;
+      parent = this.parent;
       if (parent && parent instanceof _EntityList) {
         parent.insert(brother);
       }
@@ -4584,7 +4584,7 @@
       Page.__super__._insertElement.call(this, entity, insertMode, refEntity);
       entityList = this.entityList;
       entity._page = this;
-      entity._parent = entityList;
+      entity.parent = entityList;
       delete entity._parentProperty;
       if (!this.dontAutoSetCurrent && (entityList.current == null)) {
         if (entity.state !== _Entity.STATE_DELETED) {
@@ -4602,7 +4602,7 @@
     Page.prototype._removeElement = function(entity) {
       Page.__super__._removeElement.call(this, entity);
       delete entity._page;
-      delete entity._parent;
+      delete entity.parent;
       entity._setDataModel(null);
       entity._onPathChange();
       if (entity.state !== _Entity.STATE_DELETED) {
@@ -4615,7 +4615,7 @@
       entity = this._first;
       while (entity) {
         delete entity._page;
-        delete entity._parent;
+        delete entity.parent;
         entity._setDataModel(null);
         entity._onPathChange();
         entity = entity._next;
@@ -4743,7 +4743,7 @@
 
     EntityList.prototype._findPrevious = function(entity) {
       var page, previous;
-      if (entity && entity._parent !== this) {
+      if (entity && entity.parent !== this) {
         return;
       }
       if (entity) {
@@ -4769,7 +4769,7 @@
 
     EntityList.prototype._findNext = function(entity) {
       var next, page;
-      if (entity && entity._parent !== this) {
+      if (entity && entity.parent !== this) {
         return;
       }
       if (entity) {
@@ -4974,7 +4974,7 @@
     EntityList.prototype.insert = function(entity, insertMode, refEntity) {
       var page;
       if (insertMode === "before" || insertMode === "after") {
-        if (refEntity && refEntity._parent !== this) {
+        if (refEntity && refEntity.parent !== this) {
           refEntity = null;
         }
         if (refEntity == null) {
@@ -4998,7 +4998,7 @@
         }
       }
       if (entity instanceof _Entity) {
-        if (entity._parent && entity._parent !== this) {
+        if (entity.parent && entity.parent !== this) {
           throw new cola.Exception("Entity is already belongs to another owner. \"" + (this._parentProperty || "Unknown") + "\".");
         }
         if (entity.state === _Entity.STATE_DELETED) {
@@ -5035,7 +5035,7 @@
           return void 0;
         }
       }
-      if (entity._parent !== this) {
+      if (entity.parent !== this) {
         return void 0;
       }
       if (entity === this.current) {
@@ -5073,7 +5073,7 @@
       if (this.current === entity || (entity != null ? entity.state : void 0) === cola.Entity.STATE_DELETED) {
         return this;
       }
-      if (entity && entity._parent !== this) {
+      if (entity && entity.parent !== this) {
         return this;
       }
       oldCurrent = this.current;
@@ -5585,6 +5585,14 @@
     return _sortCollection(collection, comparator, caseSensitive);
   };
 
+  cola.util.flush = function(data, loadMode) {
+    if (data instanceof cola.Entity || data instanceof cola.EntityList) {
+      if (data.parent instanceof cola.Entity && data._parentProperty) {
+        data.parent.flush(data._parentProperty, loadMode);
+      }
+    }
+  };
+
 
   /*
   index
@@ -5659,10 +5667,10 @@
             valid = true;
             break;
           }
-          p = p._parent;
+          p = p.parent;
         }
       } else if (this.isCollection) {
-        valid = entity._parent === this.data;
+        valid = entity.parent === this.data;
       } else {
         valid = entity === this.data;
       }
@@ -6258,18 +6266,18 @@
       if (items || originItems) {
         while (item) {
           if (item instanceof cola.Entity) {
-            matched = item._parent === items;
+            matched = item.parent === items;
             if (!matched && originItems) {
               if (multiOriginItems) {
                 for (l = 0, len1 = originItems.length; l < len1; l++) {
                   oi = originItems[l];
-                  if (item._parent === oi) {
+                  if (item.parent === oi) {
                     matched = true;
                     break;
                   }
                 }
               } else {
-                matched = item._parent === originItems;
+                matched = item.parent === originItems;
               }
             }
             if (matched) {
@@ -6281,7 +6289,7 @@
               }
             }
           }
-          item = item._parent;
+          item = item.parent;
         }
       }
       return null;
@@ -6377,7 +6385,7 @@
           this.refreshItems();
           allProcessed = true;
         } else {
-          parent = (ref = arg.entity) != null ? ref._parent : void 0;
+          parent = (ref = arg.entity) != null ? ref.parent : void 0;
           if (parent === this.items || this.isOriginItems(arg.parent)) {
             this.refreshItem(arg);
           }
@@ -6561,7 +6569,7 @@
         }
       }
       if (!provider || hasValue) {
-        if (data && (data instanceof cola.Entity || data instanceof cola.EntityList) && data._parent && data !== rootData._data[prop]) {
+        if (data && (data instanceof cola.Entity || data instanceof cola.EntityList) && data.parent && data !== rootData._data[prop]) {
           if (this._aliasMap == null) {
             this._aliasMap = {};
           }
@@ -12100,7 +12108,7 @@
               isParent = true;
               break;
             }
-            e = e._parent;
+            e = e.parent;
           }
           if (isParent) {
             targetPath = value.getPath();

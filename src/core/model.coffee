@@ -384,19 +384,19 @@ class cola.ItemsScope extends cola.SubScope
 		if items or originItems
 			while item
 				if item instanceof cola.Entity
-					matched = (item._parent == items)
+					matched = (item.parent == items)
 					if !matched and originItems
 						if multiOriginItems
 							for oi in originItems
-								if item._parent == oi
+								if item.parent == oi
 									matched = true
 									break
 						else
-							matched = (item._parent == originItems)
+							matched = (item.parent == originItems)
 					if matched
 						itemId = cola.Entity._getEntityId(item)
 						return if itemId then itemScopeMap[itemId] else null
-				item = item._parent
+				item = item.parent
 		return null
 
 	isRootOfTarget: (changedPath, targetPaths) ->
@@ -455,7 +455,7 @@ class cola.ItemsScope extends cola.SubScope
 				@refreshItems()
 				allProcessed = true
 			else
-				parent = arg.entity?._parent
+				parent = arg.entity?.parent
 				if parent == @items or @isOriginItems(arg.parent)
 					@refreshItem(arg)
 
@@ -596,7 +596,7 @@ class cola.AbstractDataModel
 				property.set("dataType", data.$dataType) if data.$dataType
 
 		if !provider or hasValue
-			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data._parent and data != rootData._data[prop] # is alias
+			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
 
 				path = data.getPath("always")

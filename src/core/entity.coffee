@@ -10,7 +10,7 @@ else
 _getEntityPath = (markNoncurrent) ->
 	if !markNoncurrent and @_pathCache then return @_pathCache
 
-	parent = @_parent
+	parent = @parent
 	if !parent? then return
 
 	path = []
@@ -27,7 +27,7 @@ _getEntityPath = (markNoncurrent) ->
 			else
 				path.push(part)
 		self = parent
-		parent = parent._parent
+		parent = parent.parent
 	path = path.reverse()
 	if !markNoncurrent then @_pathCache = path
 	return path
@@ -96,9 +96,9 @@ _triggerWatcher = (path, type, arg) ->
 				for watch in holder.watchers
 					watch.call(@, path, type, arg)
 
-	if @_parent
+	if @parent
 		path.unshift(@_parentProperty) if @_parentProperty
-		@_parent._triggerWatcher(path, type, arg)
+		@parent._triggerWatcher(path, type, arg)
 	return
 
 _matchValue = (value, propFilter) ->
@@ -527,17 +527,17 @@ class cola.Entity
 			if @_disableWriteObservers == 0
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
 					oldValue._setDataModel(null)
-					delete oldValue._parent
+					delete oldValue.parent
 					delete oldValue._parentProperty
 				if @state == _Entity.STATE_NONE then @setState(_Entity.STATE_MODIFIED)
 
 			@_data[prop] = value
 
 			if value? and (value instanceof _Entity or value instanceof _EntityList)
-				if value._parent and value._parent != @
+				if value.parent and value.parent != @
 					throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"#{prop}\"")
 
-				value._parent = @
+				value.parent = @
 				value._parentProperty = prop
 				value._setDataModel(@_dataModel)
 				value._onPathChange()
@@ -568,12 +568,12 @@ class cola.Entity
 		return value
 
 	remove: (detach) ->
-		if @_parent
-			if @_parent instanceof _EntityList
-				@_parent.remove(@, detach)
+		if @parent
+			if @parent instanceof _EntityList
+				@parent.remove(@, detach)
 			else
 				@setState(_Entity.STATE_DELETED)
-				@_parent.set(@_parentProperty, null)
+				@parent.set(@_parentProperty, null)
 		else
 			@setState(_Entity.STATE_DELETED)
 		return @
@@ -610,7 +610,7 @@ class cola.Entity
 
 		brother = new _Entity(data, @dataType)
 		brother.setState(_Entity.STATE_NEW)
-		parent = @_parent
+		parent = @parent
 		if parent and parent instanceof _EntityList
 			parent.insert(brother)
 		return brother
@@ -964,7 +964,7 @@ class Page extends LinkedList
 
 		entityList = @entityList
 		entity._page = @
-		entity._parent = entityList
+		entity.parent = entityList
 		delete entity._parentProperty
 
 		if !@dontAutoSetCurrent and !entityList.current?
@@ -980,7 +980,7 @@ class Page extends LinkedList
 	_removeElement: (entity) ->
 		super(entity)
 		delete entity._page
-		delete entity._parent
+		delete entity.parent
 		entity._setDataModel(null)
 		entity._onPathChange()
 		@entityCount-- if entity.state != _Entity.STATE_DELETED
@@ -990,7 +990,7 @@ class Page extends LinkedList
 		entity = @_first
 		while entity
 			delete entity._page
-			delete entity._parent
+			delete entity.parent
 			entity._setDataModel(null)
 			entity._onPathChange()
 			entity = entity._next
@@ -1087,7 +1087,7 @@ class cola.EntityList extends LinkedList
 		return
 
 	_findPrevious: (entity) ->
-		return if entity and entity._parent != @
+		return if entity and entity.parent != @
 
 		if entity
 			page = entity._page
@@ -1108,7 +1108,7 @@ class cola.EntityList extends LinkedList
 		return
 
 	_findNext: (entity) ->
-		return if entity and entity._parent != @
+		return if entity and entity.parent != @
 
 		if entity
 			page = entity._page
@@ -1257,7 +1257,7 @@ class cola.EntityList extends LinkedList
 
 	insert: (entity, insertMode, refEntity) ->
 		if insertMode == "before" or insertMode == "after"
-			if refEntity and refEntity._parent != @
+			if refEntity and refEntity.parent != @
 				refEntity = null
 			refEntity ?= @current
 			if refEntity then page = refEntity._page
@@ -1274,7 +1274,7 @@ class cola.EntityList extends LinkedList
 				page = @_currentPage
 
 		if entity instanceof _Entity
-			if entity._parent and entity._parent != @
+			if entity.parent and entity.parent != @
 				throw new cola.Exception("Entity is already belongs to another owner. \"#{@._parentProperty or "Unknown"}\".")
 			if entity.state is _Entity.STATE_DELETED
 				entity.setState(_Entity.STATE_NONE)
@@ -1304,7 +1304,7 @@ class cola.EntityList extends LinkedList
 			entity = @current
 			if !entity? then return undefined
 
-		return undefined if entity._parent != @
+		return undefined if entity.parent != @
 
 		if entity == @current
 			changeCurrent = true
@@ -1335,7 +1335,7 @@ class cola.EntityList extends LinkedList
 	setCurrent: (entity) ->
 		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
 
-		return @ if entity and entity._parent != @
+		return @ if entity and entity.parent != @
 
 		oldCurrent = @current
 		oldCurrent._onPathChange() if oldCurrent
@@ -1692,6 +1692,12 @@ cola.util.find = (data, criteria, option) ->
 cola.util.sort = (collection, comparator, caseSensitive) ->
 	return _sortCollection(collection, comparator, caseSensitive)
 
+cola.util.flush = (data, loadMode) ->
+	if data instanceof cola.Entity or data instanceof cola.EntityList
+		if data.parent instanceof cola.Entity and data._parentProperty
+			data.parent.flush(data._parentProperty, loadMode)			
+	return
+
 ###
 index
 ###
@@ -1750,9 +1756,9 @@ class EntityIndex
 				if p == @data
 					valid = true
 					break
-				p = p._parent
+				p = p.parent
 		else if @isCollection
-			valid = entity._parent is @data
+			valid = entity.parent is @data
 		else
 			valid = entity is @data
 			

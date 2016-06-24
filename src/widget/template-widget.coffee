@@ -28,7 +28,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 					if e is value
 						isParent = true
 						break
-					e = e._parent
+					e = e.parent
 
 				if isParent
 					targetPath = value.getPath()

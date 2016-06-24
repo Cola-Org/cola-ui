@@ -374,8 +374,8 @@ class cola.ItemsView extends cola.Widget
 		item = cola.util.userData(itemDom, "item")
 		if itemDom._itemType == "default"
 			if item
-				if @_changeCurrentItem and item._parent instanceof cola.EntityList
-					item._parent.setCurrent(item)
+				if @_changeCurrentItem and item.parent instanceof cola.EntityList
+					item.parent.setCurrent(item)
 				else
 					@_setCurrentItemDom(itemDom)
 
