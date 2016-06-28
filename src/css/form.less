@@ -8,10 +8,14 @@
 		font-family: Icons;
 		content: "\f069";
 		position: absolute;
-		right: 0;
+		margin-left: 0.5em;
 		top: 50%;
 		margin-top: -10px;
 		color: @red;
 		.transform(scale(0.5))
 	}
+	>label:after{
+		content: "" !important;
+	}
+
 }
