@@ -4437,6 +4437,9 @@
       json = {};
       for (prop in data) {
         value = data[prop];
+        if (prop.charCodeAt(0) === 36) {
+          continue;
+        }
         if (value) {
           if (value instanceof cola.AjaxServiceInvoker) {
             continue;
@@ -8717,21 +8720,23 @@
       } else {
         realPath = path;
       }
-      if (replace) {
-        window.history.replaceState(null, null, realPath);
-      } else {
-        window.history.pushState(null, null, realPath);
-      }
       if (location.pathname !== realPath) {
-        realPath = location.pathname + location.search + location.hash;
-        if (pathRoot && realPath.indexOf(pathRoot) === 0) {
-          path = realPath.substring(pathRoot.length);
+        if (replace) {
+          window.history.replaceState(null, null, realPath);
+        } else {
+          window.history.pushState(null, null, realPath);
         }
+        if (location.pathname !== realPath) {
+          realPath = location.pathname + location.search + location.hash;
+          if (pathRoot && realPath.indexOf(pathRoot) === 0) {
+            path = realPath.substring(pathRoot.length);
+          }
+          window.history.replaceState({
+            path: path
+          }, null, realPath);
+        }
+        _onStateChange(path);
       }
-      window.history.replaceState({
-        path: path
-      }, null, realPath);
-      _onStateChange(path);
     }
   };
 
@@ -15671,8 +15676,6 @@ Template
       }
       if (this._parentModel instanceof cola.Scope) {
         parentModel = this._parentModel;
-      } else if (this._scope) {
-        parentModel = this._scope;
       } else {
         parentModelName = this._parentModel || cola.constants.DEFAULT_PATH;
         parentModel = cola.model(parentModelName);
@@ -21270,7 +21273,7 @@ Template
     };
 
     DropBox.prototype.show = function(options, callback) {
-      var $dom, bottomSpace, boxHeight, boxWidth, clientHeight, clientWidth, direction, dropdownDom, height, left, rect, top, topSpace;
+      var $dom, bottomSpace, boxHeight, boxWidth, clientHeight, clientWidth, direction, dropdownDom, height, left, rect, scrollTop, top, topSpace;
       $dom = this.get$Dom();
       dropdownDom = this._dropdown._doms.input;
       $dom.css("height", "").removeClass("hidden");
@@ -21280,7 +21283,8 @@ Template
       rect = $fly(dropdownDom).offset();
       clientWidth = document.body.offsetWidth;
       clientHeight = document.body.clientHeight;
-      bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight;
+      scrollTop = document.body.scrollTop;
+      bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight - scrollTop;
       if (bottomSpace >= boxHeight) {
         direction = "down";
       } else {

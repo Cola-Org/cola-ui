@@ -864,6 +864,9 @@ class cola.Entity
 		data = @_data
 		json = {}
 		for prop, value of data
+			if prop.charCodeAt(0) is 36 # `$`
+				continue
+				
 			if value
 				if value instanceof cola.AjaxServiceInvoker
 					continue

@@ -4437,6 +4437,9 @@
       json = {};
       for (prop in data) {
         value = data[prop];
+        if (prop.charCodeAt(0) === 36) {
+          continue;
+        }
         if (value) {
           if (value instanceof cola.AjaxServiceInvoker) {
             continue;
@@ -8717,21 +8720,23 @@
       } else {
         realPath = path;
       }
-      if (replace) {
-        window.history.replaceState(null, null, realPath);
-      } else {
-        window.history.pushState(null, null, realPath);
-      }
       if (location.pathname !== realPath) {
-        realPath = location.pathname + location.search + location.hash;
-        if (pathRoot && realPath.indexOf(pathRoot) === 0) {
-          path = realPath.substring(pathRoot.length);
+        if (replace) {
+          window.history.replaceState(null, null, realPath);
+        } else {
+          window.history.pushState(null, null, realPath);
         }
+        if (location.pathname !== realPath) {
+          realPath = location.pathname + location.search + location.hash;
+          if (pathRoot && realPath.indexOf(pathRoot) === 0) {
+            path = realPath.substring(pathRoot.length);
+          }
+          window.history.replaceState({
+            path: path
+          }, null, realPath);
+        }
+        _onStateChange(path);
       }
-      window.history.replaceState({
-        path: path
-      }, null, realPath);
-      _onStateChange(path);
     }
   };
 

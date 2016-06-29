@@ -85,22 +85,23 @@ cola.setRoutePath = (path, replace) ->
 			realPath = cola.util.concatUrl(pathRoot, path)
 		else
 			realPath = path
-#		realPath += location.search
 
-		if replace
-			window.history.replaceState(null, null, realPath)
-		else
-			window.history.pushState(null, null, realPath)
+		if location.pathname isnt realPath
+			if replace
+				window.history.replaceState(null, null, realPath)
+			else
+				window.history.pushState(null, null, realPath)
 
-		if location.pathname isnt realPath # 处理 ../ ./ 的情况
-			realPath = location.pathname + location.search + location.hash
-			if pathRoot and realPath.indexOf(pathRoot) is 0
-				path = realPath.substring(pathRoot.length)
+			if location.pathname isnt realPath # 处理 ../ ./ 的情况
+				realPath = location.pathname + location.search + location.hash
+				if pathRoot and realPath.indexOf(pathRoot) is 0
+					path = realPath.substring(pathRoot.length)
 
-		window.history.replaceState({
-			path: path
-		}, null, realPath)
-		_onStateChange(path)
+				window.history.replaceState({
+					path: path
+				}, null, realPath)
+
+			_onStateChange(path)
 	return
 
 _findRouter = (path) ->
