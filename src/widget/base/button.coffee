@@ -115,7 +115,6 @@ class cola.Button extends cola.AbstractButton
 		caption = @get("caption")
 
 		if icon
-			@_classNamePool.add("icon")
 			@_doms.iconDom ?= document.createElement("i")
 			iconDom = @_doms.iconDom
 			$fly(iconDom).addClass("#{icon} icon")

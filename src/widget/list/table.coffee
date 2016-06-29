@@ -19,7 +19,7 @@ class cola.Table extends cola.AbstractTable
 		if @_sortCriteria
 			items = cola.util.sort(items, @_sortCriteria)
 		return items
-		
+
 	_sysHeaderClick: (column) ->
 		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
@@ -42,7 +42,9 @@ class cola.Table extends cola.AbstractTable
 			else
 				criteria = if sortDirection is "asc" then "+" else "-"
 				property = column._bind
-				if not property or property.match(/\(/) then return
+				if not property or property.match(/\(/)
+					property = column._property
+				if not property then return
 
 				if property.charCodeAt(0) is 46 # `.`
 					property = property.slice(1)
@@ -60,8 +62,7 @@ class cola.Table extends cola.AbstractTable
 						else if typeof parameter isnt "object" or parameter instanceof Date
 							throw new cola.Exception("Can not set sort parameter automatically.")
 						parameter.sort = criteria
-
-						collection.flush()
+						cola.util.flush(collection)
 						processed = true
 
 				if not processed

@@ -6,7 +6,7 @@ class cola.AbstractItemGroup extends cola.Widget
 				@addItem(item) for item in value
 				return @
 		currentIndex:
-			type: "boolean"
+			type: "number"
 			defaultValue: -1
 			setter: (value)->
 				@setCurrentIndex(value)
