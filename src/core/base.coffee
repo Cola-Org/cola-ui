@@ -43,8 +43,9 @@ if window?
 		else
 			if (s = ua.match(/(android)\s+([\d.]+)/))
 				cola.os.android = parseFloat(s[1]) or -1
-				if(s = ua.match(/micromessenger\/([\d.]+)/)) then cola.browser.weixin = parseFloat(s[1]) or -1
 			else if (s = ua.match(/(windows)[\D]*([\d]+)/)) then cola.os.windows = parseFloat(s[1]) or -1
+
+		if (s = ua.match(/micromessenger\/([\d.]+)/)) then cola.browser.weixin = parseFloat(s[1]) or -1
 
 		cola.device.mobile = !!(`("ontouchstart" in window)` and ua.match(/(mobile)/))
 		cola.device.desktop = !cola.device.mobile
