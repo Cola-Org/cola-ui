@@ -1338,7 +1338,8 @@ class cola.EntityList extends LinkedList
 	setCurrent: (entity) ->
 		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
 
-		return @ if entity and entity.parent != @
+		if entity and entity.parent != @
+			throw new cola.Exception("The entity is not belongs to this EntityList.")
 
 		oldCurrent = @current
 		oldCurrent._onPathChange() if oldCurrent

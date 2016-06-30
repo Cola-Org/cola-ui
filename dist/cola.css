@@ -499,7 +499,7 @@ template {
 }
 
 .field.required {
-  padding-right: 1em;
+  padding-right: 1em !important;
   position: relative;
 }
 .field.required:after {
@@ -507,11 +507,14 @@ template {
   font-family: Icons;
   content: "\f069";
   position: absolute;
-  right: 0;
+  margin-left: 4px;
   top: 50%;
   margin-top: -10px;
   color: #db2828;
   transform: scale(0.5);
+}
+.field.required > label:after {
+  content: "" !important;
 }
 
 [class*="block-grid-"] {
@@ -5228,7 +5231,7 @@ html.ios body {
 }
 .ui.time-line > .items {
   list-style: none;
-  padding: 0;
+  padding: 0.6em 0;
   height: 100%;
   overflow: auto;
 }
@@ -5844,7 +5847,12 @@ html.ios body {
 .ui.panel {
   box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
   padding: 0.6em;
+  display: block;
+  margin-bottom: 0.8em;
   overflow: hidden;
+}
+.ui.panel:last-child {
+  margin-bottom: 0;
 }
 .ui.panel > .header {
   margin: -0.6em -0.6em 0.6em -0.6em;

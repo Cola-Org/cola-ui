@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterContextPathChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -5077,7 +5077,7 @@
         return this;
       }
       if (entity && entity.parent !== this) {
-        return this;
+        throw new cola.Exception("The entity is not belongs to this EntityList.");
       }
       oldCurrent = this.current;
       if (oldCurrent) {
@@ -8637,6 +8637,21 @@
     return path || "";
   };
 
+  ignoreRouterContextPathChange = false;
+
+  cola.on("settingChange", function(self, arg) {
+    var path, tPath;
+    if (arg.key === "routerContextPath") {
+      path = cola.setting("routerContextPath");
+      tPath = trimPath(path);
+      if (tPath !== path) {
+        ignoreRouterContextPathChange = true;
+        cola.setting("routerContextPath", tPath);
+        ignoreRouterContextPathChange = false;
+      }
+    }
+  });
+
   cola.route = function(path, router) {
     var hasVariable, i, l, len1, len2, name, nameParts, o, optional, part, parts, pathParts, ref, variable;
     if (routerRegistry == null) {
@@ -8722,9 +8737,13 @@
       }
       if (location.pathname !== realPath) {
         if (replace) {
-          window.history.replaceState(null, null, realPath);
+          window.history.replaceState({
+            path: realPath
+          }, null, realPath);
         } else {
-          window.history.pushState(null, null, realPath);
+          window.history.pushState({
+            path: realPath
+          }, null, realPath);
         }
         if (location.pathname !== realPath) {
           realPath = location.pathname + location.search + location.hash;
@@ -8732,7 +8751,8 @@
             path = realPath.substring(pathRoot.length);
           }
           window.history.replaceState({
-            path: path
+            path: realPath,
+            originPath: path
           }, null, realPath);
         }
         _onStateChange(path);
@@ -8745,7 +8765,9 @@
     if (!routerRegistry) {
       return null;
     }
-    path || (path = trimPath(cola.setting("defaultRouterPath")));
+    if (path == null) {
+      path = trimPath(cola.setting("defaultRouterPath"));
+    }
     pathParts = path ? path.split(/[\/\?\#]/) : [];
     ref = routerRegistry.elements;
     for (l = 0, len1 = ref.length; l < len1; l++) {
@@ -8908,7 +8930,7 @@
   };
 
   _onStateChange = function(path) {
-    var i, router;
+    var i, router, routerContextPath;
     if (cola.setting("routerMode") !== "state") {
       return;
     }
@@ -8921,6 +8943,10 @@
       if (i > -1) {
         path = path.substring(0, i);
       }
+    }
+    routerContextPath = cola.setting("routerContextPath");
+    if (routerContextPath && path.indexOf(routerContextPath) === 0) {
+      path = path.slice(routerContextPath.length);
     }
     if (path === currentRoutePath) {
       return;

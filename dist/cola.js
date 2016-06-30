@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterContextPathChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -5077,7 +5077,7 @@
         return this;
       }
       if (entity && entity.parent !== this) {
-        return this;
+        throw new cola.Exception("The entity is not belongs to this EntityList.");
       }
       oldCurrent = this.current;
       if (oldCurrent) {
@@ -8637,6 +8637,21 @@
     return path || "";
   };
 
+  ignoreRouterContextPathChange = false;
+
+  cola.on("settingChange", function(self, arg) {
+    var path, tPath;
+    if (arg.key === "routerContextPath") {
+      path = cola.setting("routerContextPath");
+      tPath = trimPath(path);
+      if (tPath !== path) {
+        ignoreRouterContextPathChange = true;
+        cola.setting("routerContextPath", tPath);
+        ignoreRouterContextPathChange = false;
+      }
+    }
+  });
+
   cola.route = function(path, router) {
     var hasVariable, i, l, len1, len2, name, nameParts, o, optional, part, parts, pathParts, ref, variable;
     if (routerRegistry == null) {
@@ -8722,9 +8737,13 @@
       }
       if (location.pathname !== realPath) {
         if (replace) {
-          window.history.replaceState(null, null, realPath);
+          window.history.replaceState({
+            path: realPath
+          }, null, realPath);
         } else {
-          window.history.pushState(null, null, realPath);
+          window.history.pushState({
+            path: realPath
+          }, null, realPath);
         }
         if (location.pathname !== realPath) {
           realPath = location.pathname + location.search + location.hash;
@@ -8732,7 +8751,8 @@
             path = realPath.substring(pathRoot.length);
           }
           window.history.replaceState({
-            path: path
+            path: realPath,
+            originPath: path
           }, null, realPath);
         }
         _onStateChange(path);
@@ -8745,7 +8765,9 @@
     if (!routerRegistry) {
       return null;
     }
-    path || (path = trimPath(cola.setting("defaultRouterPath")));
+    if (path == null) {
+      path = trimPath(cola.setting("defaultRouterPath"));
+    }
     pathParts = path ? path.split(/[\/\?\#]/) : [];
     ref = routerRegistry.elements;
     for (l = 0, len1 = ref.length; l < len1; l++) {
@@ -8908,7 +8930,7 @@
   };
 
   _onStateChange = function(path) {
-    var i, router;
+    var i, router, routerContextPath;
     if (cola.setting("routerMode") !== "state") {
       return;
     }
@@ -8921,6 +8943,10 @@
       if (i > -1) {
         path = path.substring(0, i);
       }
+    }
+    routerContextPath = cola.setting("routerContextPath");
+    if (routerContextPath && path.indexOf(routerContextPath) === 0) {
+      path = path.slice(routerContextPath.length);
     }
     if (path === currentRoutePath) {
       return;
@@ -13140,7 +13166,6 @@ Template
       iconPosition = this.get("iconPosition");
       caption = this.get("caption");
       if (icon) {
-        this._classNamePool.add("icon");
         if ((base = this._doms).iconDom == null) {
           base.iconDom = document.createElement("i");
         }
@@ -18438,6 +18463,8 @@ Template
 
     Panel.CLASS_NAME = "panel";
 
+    Panel.tagName = "c-panel";
+
     Panel.attributes = {
       collapsible: {
         type: "boolean",
@@ -18695,6 +18722,8 @@ Template
 
     FieldSet.CLASS_NAME = "panel fieldset";
 
+    FieldSet.tagName = "c-fieldset";
+
     return FieldSet;
 
   })(cola.Panel);
@@ -18708,9 +18737,17 @@ Template
 
     GroupBox.CLASS_NAME = "panel groupbox";
 
+    GroupBox.tagName = "c-groupbox";
+
     return GroupBox;
 
   })(cola.Panel);
+
+  cola.registerWidget(cola.Panel);
+
+  cola.registerWidget(cola.FieldSet);
+
+  cola.registerWidget(cola.GroupBox);
 
   TipManager = [];
 
@@ -23042,12 +23079,18 @@ Template
 
     Textarea.CLASS_NAME = "textarea";
 
+    Textarea.tagName = "c-textarea";
+
     Textarea.attributes = {
       postOnInput: {
         type: "boolean",
         defaultValue: false
       },
       placeholder: {
+        refreshDom: true
+      },
+      rows: {
+        type: "number",
         refreshDom: true
       },
       value: {
@@ -23193,12 +23236,15 @@ Template
       }
       Textarea.__super__._doRefreshDom.call(this);
       this._refreshInputValue(this._value);
-      return $fly(this._doms.input).prop("readOnly", this._readOnly).attr("placeholder", this._placeholder);
+      $fly(this._doms.input).prop("readOnly", this._readOnly).attr("placeholder", this._placeholder);
+      return this._rows && $fly(this._doms.input).attr("rows", this._rows);
     };
 
     return Textarea;
 
   })(cola.AbstractEditor);
+
+  cola.registerWidget(cola.Textarea);
 
   cola.AbstractItemGroup = (function(superClass) {
     extend(AbstractItemGroup, superClass);
@@ -23216,7 +23262,7 @@ Template
         }
       },
       currentIndex: {
-        type: "boolean",
+        type: "number",
         defaultValue: -1,
         setter: function(value) {
           this.setCurrentIndex(value);
@@ -30855,6 +30901,9 @@ Template
           criteria = sortDirection === "asc" ? "+" : "-";
           property = column._bind;
           if (!property || property.match(/\(/)) {
+            property = column._property;
+          }
+          if (!property) {
             return;
           }
           if (property.charCodeAt(0) === 46) {
@@ -30875,7 +30924,7 @@ Template
                 throw new cola.Exception("Can not set sort parameter automatically.");
               }
               parameter.sort = criteria;
-              collection.flush();
+              cola.util.flush(collection);
               processed = true;
             }
           }
@@ -31686,25 +31735,29 @@ Template
     }
 
     Pager.prototype._parseDom = function(dom) {
+      var hasPageItem, len1, n, name;
       Pager.__super__._parseDom.call(this, dom);
-      if (this._items) {
-        if (this._items.length === 0) {
-          return this.addItem("pages");
+      hasPageItem = false;
+      for (n = 0, len1 = _pagesItems.length; n < len1; n++) {
+        name = _pagesItems[n];
+        if (this._pagerItemMap[name]) {
+          hasPageItem = true;
+          break;
         }
-      } else {
-        this._items = [];
-        return this.addItem("pages");
       }
+      if (!hasPageItem) {
+        this.addItem("pages");
+      }
+      return this._items != null ? this._items : this._items = [];
     };
 
     Pager.prototype._parsePageItem = function(childNode, right) {
-      var beforeChild, itemConfig, itemDom, len1, menuItem, n, pageCode, pageItem, pageItemKey, propName, results;
+      var beforeChild, itemConfig, itemDom, len1, menuItem, n, pageCode, pageItem, pageItemKey, propName;
       pageCode = $fly(childNode).attr("page-code");
       if (!pageCode) {
         return;
       }
       if (pageCode === "pages") {
-        results = [];
         for (n = 0, len1 = _pagesItems.length; n < len1; n++) {
           pageItemKey = _pagesItems[n];
           pageItem = this._pagerItemConfig[pageItemKey];
@@ -31733,15 +31786,14 @@ Template
             }
             beforeChild = itemDom;
           }
-          results.push(this._pagerItemMap[pageItemKey] = menuItem);
+          this._pagerItemMap[pageItemKey] = menuItem;
         }
-        return results;
       } else {
         propName = _pageCodeMap[pageCode];
         if (propName) {
           itemConfig = this._pagerItemConfig[propName];
           itemConfig.dom = childNode;
-          if (cola.util.hasContent(childNode)) {
+          if ($(childNode).text()) {
             delete itemConfig["icon"];
           }
           menuItem = new cola.menu.MenuItem(itemConfig);
@@ -31774,7 +31826,7 @@ Template
             this.addItem(menuItem);
           }
         }
-        return this._pagerItemMap[propName] = menuItem;
+        this._pagerItemMap[propName] = menuItem;
       }
     };
 
@@ -31789,14 +31841,14 @@ Template
           }
           while (childNode) {
             if (childNode.nodeType === 1) {
-              menuItem = cola.widget(childNode);
-              if (menuItem) {
-                _this.addRightItem(menuItem);
-              } else if (cola.util.hasClass(childNode, "item")) {
-                pageCode = $fly(childNode).attr("page-code");
-                if (pageCode) {
-                  _this._parsePageItem(childNode, true);
-                } else {
+              pageCode = $fly(childNode).attr("page-code");
+              if (pageCode) {
+                _this._parsePageItem(childNode, true);
+              } else {
+                menuItem = cola.widget(childNode);
+                if (menuItem) {
+                  _this.addRightItem(menuItem);
+                } else if (cola.util.hasClass(childNode, "item")) {
                   menuItem = new cola.menu.MenuItem({
                     dom: childNode
                   });
@@ -31816,17 +31868,17 @@ Template
           continue;
         }
         if (childNode.nodeType === 1) {
-          menuItem = cola.widget(childNode);
-          if (menuItem) {
-            this.addItem(menuItem);
-          } else if (!this._rightMenuDom && cola.util.hasClass(childNode, "right menu")) {
-            this._rightMenuDom = childNode;
-            parseRightMenu(childNode);
-          } else if (cola.util.hasClass(childNode, "item")) {
-            pageCode = $fly(childNode).attr("page-code");
-            if (pageCode) {
-              this._parsePageItem(childNode);
-            } else {
+          pageCode = $fly(childNode).attr("page-code");
+          if (pageCode) {
+            this._parsePageItem(childNode);
+          } else {
+            menuItem = cola.widget(childNode);
+            if (menuItem) {
+              this.addItem(menuItem);
+            } else if (!this._rightMenuDom && cola.util.hasClass(childNode, "right menu")) {
+              this._rightMenuDom = childNode;
+              parseRightMenu(childNode);
+            } else if (cola.util.hasClass(childNode, "item")) {
               menuItem = new cola.menu.MenuItem({
                 dom: childNode
               });

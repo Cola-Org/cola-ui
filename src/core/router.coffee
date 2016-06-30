@@ -10,6 +10,18 @@ trimPath = (path) ->
 			path = path.substring(0, path.length - 1)
 	return path or ""
 
+ignoreRouterContextPathChange = false
+cola.on("settingChange", (self, arg) ->
+	if arg.key is "routerContextPath"
+		path = cola.setting("routerContextPath")
+		tPath = trimPath(path)
+		if tPath isnt path
+			ignoreRouterContextPathChange = true
+			cola.setting("routerContextPath", tPath)
+			ignoreRouterContextPathChange = false
+	return
+)
+
 # router.path
 # router.name
 # router.redirectTo
@@ -96,7 +108,7 @@ cola.setRoutePath = (path, replace) ->
 					path: realPath
 				}, null, realPath)
 
-			if location.pathname isnt realPath # 处理 ../ ./ 的情况
+			if location.pathname isnt realPath # 处理 ../ ./ 及 path前缀 等情况
 				realPath = location.pathname + location.search + location.hash
 				if pathRoot and realPath.indexOf(pathRoot) is 0
 					path = realPath.substring(pathRoot.length)
@@ -112,7 +124,7 @@ cola.setRoutePath = (path, replace) ->
 _findRouter = (path) ->
 	return null unless routerRegistry
 
-	path or= trimPath(cola.setting("defaultRouterPath"))
+	path ?= trimPath(cola.setting("defaultRouterPath"))
 
 	pathParts = if path then path.split(/[\/\?\#]/) else []
 	for router in routerRegistry.elements
@@ -243,6 +255,10 @@ _onStateChange = (path) ->
 		i = path.indexOf("?")
 		if i > -1
 			path = path.substring(0, i)
+
+	routerContextPath = cola.setting("routerContextPath")
+	if routerContextPath and path.indexOf(routerContextPath) is 0
+		path = path.slice(routerContextPath.length)
 
 	return if path == currentRoutePath
 	currentRoutePath = path
