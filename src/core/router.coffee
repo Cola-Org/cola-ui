@@ -88,9 +88,13 @@ cola.setRoutePath = (path, replace) ->
 
 		if location.pathname isnt realPath
 			if replace
-				window.history.replaceState(null, null, realPath)
+				window.history.replaceState({
+					path: realPath
+				}, null, realPath)
 			else
-				window.history.pushState(null, null, realPath)
+				window.history.pushState({
+					path: realPath
+				}, null, realPath)
 
 			if location.pathname isnt realPath # 处理 ../ ./ 的情况
 				realPath = location.pathname + location.search + location.hash
@@ -98,7 +102,8 @@ cola.setRoutePath = (path, replace) ->
 					path = realPath.substring(pathRoot.length)
 
 				window.history.replaceState({
-					path: path
+					path: realPath
+					originPath: path
 				}, null, realPath)
 
 			_onStateChange(path)
