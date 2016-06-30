@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterContextPathChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -620,12 +620,12 @@
       } else {
         if ((s = ua.match(/(android)\s+([\d.]+)/))) {
           cola.os.android = parseFloat(s[1]) || -1;
-          if ((s = ua.match(/micromessenger\/([\d.]+)/))) {
-            cola.browser.weixin = parseFloat(s[1]) || -1;
-          }
         } else if ((s = ua.match(/(windows)[\D]*([\d]+)/))) {
           cola.os.windows = parseFloat(s[1]) || -1;
         }
+      }
+      if ((s = ua.match(/micromessenger\/([\d.]+)/))) {
+        cola.browser.weixin = parseFloat(s[1]) || -1;
       }
       cola.device.mobile = !!(("ontouchstart" in window) && ua.match(/(mobile)/));
       cola.device.desktop = !cola.device.mobile;
@@ -8627,27 +8627,30 @@
 
   trimPath = function(path) {
     if (path) {
-      if (path.charCodeAt(0) === 47) {
-        path = path.substring(1);
+      if (path.charCodeAt(0) !== 47) {
+        path = "/" + path;
       }
       if (path.charCodeAt(path.length - 1) === 47) {
         path = path.substring(0, path.length - 1);
       }
     }
-    return path || "";
+    return path || "/";
   };
 
-  ignoreRouterContextPathChange = false;
+  ignoreRouterSettingChange = false;
 
   cola.on("settingChange", function(self, arg) {
     var path, tPath;
-    if (arg.key === "routerContextPath") {
-      path = cola.setting("routerContextPath");
+    if (ignoreRouterSettingChange) {
+      return;
+    }
+    if (arg.key === "routerContextPath" || arg.key === "defaultRouterPath") {
+      path = cola.setting(arg.key);
       tPath = trimPath(path);
       if (tPath !== path) {
-        ignoreRouterContextPathChange = true;
-        cola.setting("routerContextPath", tPath);
-        ignoreRouterContextPathChange = false;
+        ignoreRouterSettingChange = true;
+        cola.setting(arg.key, tPath);
+        ignoreRouterSettingChange = false;
       }
     }
   });
@@ -8662,8 +8665,8 @@
         enter: router
       };
     }
-    path = trimPath(path);
-    router.path = path;
+    router.path = path = trimPath(path);
+    path = path.slice(1);
     if (!router.name) {
       name = path || cola.constants.DEFAULT_PATH;
       parts = name.split(/[\/\-]/);
@@ -8701,7 +8704,7 @@
       }
       router.hasVariable = hasVariable;
     }
-    routerRegistry.add(path, router);
+    routerRegistry.add(router.path, router);
     return router;
   };
 
@@ -8713,8 +8716,8 @@
     return currentRouter;
   };
 
-  cola.setRoutePath = function(path, replace) {
-    var pathRoot, realPath, routerMode;
+  cola.setRoutePath = function(path, replace, alwaysNotify) {
+    var i, pathRoot, pathname, realPath, routerMode;
     if (path && path.charCodeAt(0) === 35) {
       routerMode = "hash";
       path = path.substring(1);
@@ -8728,6 +8731,9 @@
       if (window.location.hash !== path) {
         window.location.hash = path;
       }
+      if (alwaysNotify) {
+        _onHashChange();
+      }
     } else {
       pathRoot = cola.setting("routerContextPath");
       if (pathRoot && path.charCodeAt(0) === 47) {
@@ -8735,7 +8741,16 @@
       } else {
         realPath = path;
       }
-      if (location.pathname !== realPath) {
+      pathname = realPath;
+      i = pathname.indexOf("?");
+      if (i >= 0) {
+        pathname = pathname.substring(0, i);
+      }
+      i = pathname.indexOf("#");
+      if (i >= 0) {
+        pathname = pathname.substring(0, i);
+      }
+      if (location.pathname !== pathname) {
         if (replace) {
           window.history.replaceState({
             path: realPath
@@ -8745,10 +8760,10 @@
             path: realPath
           }, null, realPath);
         }
-        if (location.pathname !== realPath) {
+        if (location.pathname !== pathname) {
           realPath = location.pathname + location.search + location.hash;
           if (pathRoot && realPath.indexOf(pathRoot) === 0) {
-            path = realPath.substring(pathRoot.length);
+            path = "/" + realPath.substring(pathRoot.length);
           }
           window.history.replaceState({
             path: realPath,
@@ -8756,6 +8771,8 @@
           }, null, realPath);
         }
         _onStateChange(path);
+      } else if (alwaysNotify) {
+        _onStateChange(pathname);
       }
     }
   };
@@ -8766,8 +8783,9 @@
       return null;
     }
     if (path == null) {
-      path = trimPath(cola.setting("defaultRouterPath"));
+      path = cola.setting("defaultRouterPath");
     }
+    path = trimPath(path).slice(1);
     pathParts = path ? path.split(/[\/\?\#]/) : [];
     ref = routerRegistry.elements;
     for (l = 0, len1 = ref.length; l < len1; l++) {
@@ -8909,8 +8927,7 @@
     if ((path != null ? path.charCodeAt(0) : void 0) === 33) {
       path = path.substring(1);
     }
-    path = trimPath(path);
-    return path || "";
+    return trimPath(path);
   };
 
   _onHashChange = function() {
@@ -8944,9 +8961,11 @@
         path = path.substring(0, i);
       }
     }
-    routerContextPath = cola.setting("routerContextPath");
-    if (routerContextPath && path.indexOf(routerContextPath) === 0) {
-      path = path.slice(routerContextPath.length);
+    if (path.charCodeAt(0) === 47) {
+      routerContextPath = cola.setting("routerContextPath");
+      if (routerContextPath && path.indexOf(routerContextPath) === 0) {
+        path = "/" + path.slice(routerContextPath.length);
+      }
     }
     if (path === currentRoutePath) {
       return;
@@ -8965,7 +8984,7 @@
         var state;
         if (!location.hash) {
           state = window.history.state;
-          _onStateChange((state != null ? state.path : void 0) || "");
+          _onStateChange((state != null ? state.path : void 0) || "/");
         }
       });
       $(document.body).delegate("a.state", "click", function() {
@@ -8980,16 +8999,16 @@
         }
       });
       path = _getHashPath();
-      if (path) {
+      if (path !== "/") {
         router = _findRouter(path);
         if (router) {
           _switchRouter(router, path);
         }
       } else {
-        path = trimPath(cola.setting("defaultRouterPath"));
+        path = cola.setting("defaultRouterPath");
         router = _findRouter(path);
         if (router) {
-          cola.setRoutePath(path + location.search, true);
+          cola.setRoutePath(path + location.search, true, true);
         }
       }
     }, 0);

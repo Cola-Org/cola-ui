@@ -4,21 +4,23 @@ currentRouter = null
 
 trimPath = (path) ->
 	if path
-		if path.charCodeAt(0) == 47 # `/`
-			path = path.substring(1)
+		if path.charCodeAt(0) isnt 47 # `/`
+			path = "/" + path
 		if path.charCodeAt(path.length - 1) == 47 # `/`
 			path = path.substring(0, path.length - 1)
-	return path or ""
+	return path or "/"
 
-ignoreRouterContextPathChange = false
+ignoreRouterSettingChange = false
 cola.on("settingChange", (self, arg) ->
-	if arg.key is "routerContextPath"
-		path = cola.setting("routerContextPath")
+	return if ignoreRouterSettingChange
+
+	if arg.key is "routerContextPath" or arg.key is "defaultRouterPath"
+		path = cola.setting(arg.key)
 		tPath = trimPath(path)
 		if tPath isnt path
-			ignoreRouterContextPathChange = true
-			cola.setting("routerContextPath", tPath)
-			ignoreRouterContextPathChange = false
+			ignoreRouterSettingChange = true
+			cola.setting(arg.key, tPath)
+			ignoreRouterSettingChange = false
 	return
 )
 
@@ -40,8 +42,9 @@ cola.route = (path, router) ->
 		router =
 			enter: router
 
-	path = trimPath(path)
-	router.path = path
+	router.path = path = trimPath(path)
+
+	path = path.slice(1)
 	if not router.name
 		name = path or cola.constants.DEFAULT_PATH
 		parts = name.split(/[\/\-]/)
@@ -71,7 +74,7 @@ cola.route = (path, router) ->
 				pathParts.push(part)
 		router.hasVariable = hasVariable
 
-	routerRegistry.add(path, router)
+	routerRegistry.add(router.path, router)
 	return router
 
 cola.getCurrentRoutePath = () ->
@@ -80,7 +83,7 @@ cola.getCurrentRoutePath = () ->
 cola.getCurrentRouter = () ->
 	return currentRouter
 
-cola.setRoutePath = (path, replace) ->
+cola.setRoutePath = (path, replace, alwaysNotify) ->
 	if path and path.charCodeAt(0) == 35 # `#`
 		routerMode = "hash"
 		path = path.substring(1)
@@ -91,6 +94,9 @@ cola.setRoutePath = (path, replace) ->
 		if path.charCodeAt(0) != 47 # `/`
 			path = "/" + path
 		window.location.hash = path if window.location.hash != path
+
+		if alwaysNotify
+			_onHashChange()
 	else
 		pathRoot = cola.setting("routerContextPath")
 		if pathRoot and path.charCodeAt(0) is 47 # `/`
@@ -98,7 +104,15 @@ cola.setRoutePath = (path, replace) ->
 		else
 			realPath = path
 
-		if location.pathname isnt realPath
+		pathname = realPath
+		i = pathname.indexOf("?")
+		if i >= 0
+			pathname = pathname.substring(0, i)
+		i = pathname.indexOf("#")
+		if i >= 0
+			pathname = pathname.substring(0, i)
+
+		if location.pathname isnt pathname
 			if replace
 				window.history.replaceState({
 					path: realPath
@@ -108,10 +122,10 @@ cola.setRoutePath = (path, replace) ->
 					path: realPath
 				}, null, realPath)
 
-			if location.pathname isnt realPath # 处理 ../ ./ 及 path前缀 等情况
+			if location.pathname isnt pathname # 处理 ../ ./ 及 path前缀 等情况
 				realPath = location.pathname + location.search + location.hash
 				if pathRoot and realPath.indexOf(pathRoot) is 0
-					path = realPath.substring(pathRoot.length)
+					path = "/" + realPath.substring(pathRoot.length)
 
 				window.history.replaceState({
 					path: realPath
@@ -119,12 +133,15 @@ cola.setRoutePath = (path, replace) ->
 				}, null, realPath)
 
 			_onStateChange(path)
+		else if alwaysNotify
+			_onStateChange(pathname)
 	return
 
 _findRouter = (path) ->
 	return null unless routerRegistry
 
-	path ?= trimPath(cola.setting("defaultRouterPath"))
+	path ?= cola.setting("defaultRouterPath")
+	path = trimPath(path).slice(1)
 
 	pathParts = if path then path.split(/[\/\?\#]/) else []
 	for router in routerRegistry.elements
@@ -229,14 +246,13 @@ _getHashPath = () ->
 
 	if path?.charCodeAt(0) == 33 # `!`
 		path = path.substring(1)
-	path = trimPath(path)
-	return path or ""
+	return trimPath(path)
 
 _onHashChange = () ->
 	return if (cola.setting("routerMode") or "hash") isnt "hash"
 
 	path = _getHashPath()
-	return if path == currentRoutePath
+	return if path is currentRoutePath
 	currentRoutePath = path
 
 	router = _findRouter(path)
@@ -247,7 +263,6 @@ _onStateChange = (path) ->
 	return if cola.setting("routerMode") isnt "state"
 
 	path = trimPath(path)
-
 	i = path.indexOf("#")
 	if i > -1
 		path = path.substring(i + 1)
@@ -256,11 +271,12 @@ _onStateChange = (path) ->
 		if i > -1
 			path = path.substring(0, i)
 
-	routerContextPath = cola.setting("routerContextPath")
-	if routerContextPath and path.indexOf(routerContextPath) is 0
-		path = path.slice(routerContextPath.length)
+	if path.charCodeAt(0) is 47 # `/`
+		routerContextPath = cola.setting("routerContextPath")
+		if routerContextPath and path.indexOf(routerContextPath) is 0
+			path = "/" + path.slice(routerContextPath.length)
 
-	return if path == currentRoutePath
+	return if path is currentRoutePath
 	currentRoutePath = path
 
 	router = _findRouter(path)
@@ -272,7 +288,7 @@ $ () ->
 		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
 			if not location.hash
 				state = window.history.state
-				_onStateChange(state?.path or "")
+				_onStateChange(state?.path or "/")
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->
@@ -285,13 +301,13 @@ $ () ->
 		)
 
 		path = _getHashPath()
-		if path
+		if path isnt "/"
 			router = _findRouter(path)
 			if router then _switchRouter(router, path)
 		else
-			path = trimPath(cola.setting("defaultRouterPath"))
+			path = cola.setting("defaultRouterPath")
 			router = _findRouter(path)
-			if router then cola.setRoutePath(path + location.search, true)
+			if router then cola.setRoutePath(path + location.search, true, true)
 		return
 	, 0)
 	return
