@@ -204,7 +204,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			if attrValue
 				attrName = attrName.substring(2)
 
-				customDomCompiler = cola._userDomCompiler[attrName]
+				customDomCompiler = cola._userDomCompiler.hasOwnProperty(attrName) and cola._userDomCompiler[attrName]
 				if customDomCompiler
 					result = customDomCompiler(scope, dom, attr, context)
 					if result
@@ -219,7 +219,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 					if attrName.indexOf("on") == 0
 						feature = cola._domFeatureBuilder.event(attrValue, attrName, dom)
 					else
-						builder = cola._domFeatureBuilder[attrName]
+						builder = cola._domFeatureBuilder.hasOwnProperty(attrName) and cola._domFeatureBuilder[attrName]
 						feature = (builder or cola._domFeatureBuilder["$"]).call(cola._domFeatureBuilder, attrValue, attrName, dom)
 
 					if feature
