@@ -1,48 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<meta name="theme-color" content="#FF0000">
-	<meta charset="utf-8"/>
-	<script src="../../include-all.js"></script>
-	<script type="text/javascript">
-		cola(function (model) {
-			model.describe("items", {
-				provider: {
-					url: "languages{{$pageNo}}.json",
-					pageSize: 10
-				}
-			});
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta name="theme-color" content="#FF0000">
+    <meta charset="utf-8"/>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.describe("items", {
+                provider: {
+                    url: "languages{{$pageNo}}.json",
+                    pageSize: 10
+                }
+            });
 
-			model.widgetConfig({
-				pager:{
-					$type:"Pager",
-					bind:"item in items"
-				},
-				listScroll: {
-					$type: "listView",
-					bind: "item in items",
-					allowNoCurrent: false,
-					height: "100%",
-					autoLoadPage: true
-				}
+            model.widgetConfig({
+                pager: {
+                    $type: "Pager",
 
-			});
-		});
-	</script>
-	<style>
-	</style>
+                },
+                listScroll: {
+                    $type: "listView",
+                    bind: "item in items",
+                    allowNoCurrent: false,
+                    height: "100%",
+                    autoLoadPage: true
+                }
+
+            });
+        });
+    </script>
+    <style>
+    </style>
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
-<div id="pager"></div>
+<!--<c-pager c-bind="item in items">-->
+    <!--<a caption="zcxv"></a>-->
+    <!--<div class="right menu">-->
+        <!--<a page-code="pages" class="item"></a>-->
+    <!--</div>-->
+<!--</c-pager>-->
+<c-pager c-bind="item in items">
+    <a page-code="|<" class="item"></a>
+    <a page-code="<" class="item"></a>
+    <a page-code="info" class="item"></a>
+    <a page-code=">" class="item"></a>
+    <a page-code=">|" class="item"></a>
+</c-pager>
 <div class="flex-box">
-	<div id="listScroll">
-		<template name="default">
-			<li>
-				<div c-bind="item.name"></div>
-			</li>
-		</template>
-	</div>
+    <div id="listScroll">
+        <template name="default">
+            <li>
+                <div c-bind="item.name"></div>
+            </li>
+        </template>
+    </div>
 </div>
 
 </body>
