@@ -433,7 +433,7 @@ class cola.Tree extends cola.AbstractList
 		node = @_nodeMap[nodeId]
 
 		if node
-			if @_currentNode == node
+			if @_currentNode.data == node.data
 				children = node._parent._children
 				i = children.indexOf(node)
 				if i < children.length - 1
