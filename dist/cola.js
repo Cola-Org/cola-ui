@@ -8060,7 +8060,10 @@
       text = "";
     }
     if (cola.browser.mozilla) {
-      dom.innerHTML = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+      if (typeof text === "string") {
+        text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/\n/g, "<br>");
+      }
+      dom.innerHTML = text;
     } else {
       dom.innerText = text;
     }
@@ -16339,8 +16342,8 @@ Template
         }
       },
       _executeCallback: function(name) {
-        var config, fun;
-        fun = messageBox.currentOptions["_on" + name];
+        var config, fun, ref;
+        fun = (ref = messageBox.currentOptions) != null ? ref["on" + name] : void 0;
         if (!fun) {
           return;
         }
@@ -16368,7 +16371,7 @@ Template
         if (box.length) {
           dom = messageBox.getDom();
           $(dom).transition("stop all");
-          return messageBox.show(box[box.length]);
+          return messageBox.show(box[box.length - 1], true);
         }
       },
       getDom: function() {
@@ -16416,7 +16419,7 @@ Template
         $dom.transition(animation);
         return cola.commonDimmer.show();
       },
-      show: function(options) {
+      show: function(options, auto) {
         var level, settings;
         settings = messageBox.settings;
         level = options.level || messageBox.level.INFO;
@@ -16427,9 +16430,10 @@ Template
           options.icon = settings[level].icon;
         }
         options.level = level;
-        if (messageBox.currentOptions) {
+        if (!auto) {
           messageBox.box.unshift(options);
-        } else {
+        }
+        if (!messageBox.currentOptions) {
           messageBox._doShow(options);
         }
         return this;
