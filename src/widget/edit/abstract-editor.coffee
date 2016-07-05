@@ -78,7 +78,8 @@ class cola.AbstractEditor extends cola.Widget
 				form = cola.widget(@_formDom)
 				if form and form instanceof cola.Form
 					form.setFieldMessages(@, keyMessage)
-		else
+
+		unless type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			value = @readBindingValue()
 			if value? and @_dataType
 				value = @_dataType.parse(value)
