@@ -16330,6 +16330,7 @@ Template
         INFO: "info",
         QUESTION: "question"
       },
+      box: [],
       _getAnimation: function() {
         if (messageBox.dialogMode) {
           return "scale";
@@ -16338,22 +16339,66 @@ Template
         }
       },
       _executeCallback: function(name) {
-        var _eventName;
-        _eventName = "_on" + name;
-        if (!messageBox[_eventName]) {
+        var config, fun;
+        fun = messageBox.currentOptions["_on" + name];
+        if (!fun) {
           return;
         }
-        setTimeout(function() {
-          var config;
-          config = messageBox[_eventName];
-          if (typeof config === "function") {
-            config.apply(null, []);
-          }
-          return messageBox[_eventName] = null;
-        }, 0);
+        config = fun;
+        if (typeof config === "function") {
+          config.apply(null, []);
+        }
       },
-      _doShow: function() {
-        var $dom, animation, css, height, pHeight, pWidth, width;
+      _doApprove: function() {
+        messageBox._executeCallback("Approve");
+        messageBox._doHide();
+      },
+      _doDeny: function() {
+        messageBox._executeCallback("Deny");
+        messageBox._doHide();
+      },
+      _doHide: function() {
+        var box, dom;
+        $(messageBox._dom).transition(messageBox._settings.animation);
+        cola.commonDimmer.hide();
+        messageBox._executeCallback("Hide");
+        box = messageBox.box;
+        box.pop();
+        messageBox.currentOptions = null;
+        if (box.length) {
+          dom = messageBox.getDom();
+          $(dom).transition("stop all");
+          return messageBox.show(box[box.length]);
+        }
+      },
+      getDom: function() {
+        if (!messageBox._dom) {
+          createMessageBoxDom();
+        }
+        return messageBox._dom;
+      },
+      _doShow: function(options) {
+        var $dom, animation, className, css, dom, doms, height, isAlert, oldClassName, pHeight, pWidth, width;
+        messageBox.currentOptions = options;
+        dom = messageBox.getDom();
+        $dom = $(dom);
+        options = messageBox.currentOptions;
+        $dom.removeClass("warning error info question").addClass(options.level);
+        oldClassName = $dom.attr("_class");
+        className = options["class"] || messageBox["class"];
+        if (oldClassName !== className) {
+          if (oldClassName) {
+            $dom.removeClass(oldClassName);
+          }
+          $dom.addClass(className).attr("_class", className);
+        }
+        doms = messageBox._doms;
+        isAlert = options.mode === "alert";
+        $(doms.actions).toggleClass("hidden", isAlert);
+        $(doms.close).toggleClass("hidden", !isAlert);
+        $(doms.description).html(options.content);
+        $(doms.title).text(options.title);
+        doms.icon.className = options.icon;
         animation = messageBox._getAnimation();
         css = {
           zIndex: cola.floatWidget.zIndex()
@@ -16371,57 +16416,22 @@ Template
         $dom.transition(animation);
         return cola.commonDimmer.show();
       },
-      _doApprove: function() {
-        messageBox._executeCallback("Approve");
-        messageBox._doHide();
-      },
-      _doDeny: function() {
-        messageBox._executeCallback("Deny");
-        messageBox._doHide();
-      },
-      _doHide: function() {
-        $(messageBox._dom).transition(messageBox._settings.animation);
-        cola.commonDimmer.hide();
-        messageBox._executeCallback("Hide");
-      },
-      getDom: function() {
-        if (!messageBox._dom) {
-          createMessageBoxDom();
-        }
-        return messageBox._dom;
-      },
       show: function(options) {
-        var $dom, className, dom, doms, isAlert, level, oldClassName, settings;
-        dom = messageBox.getDom();
+        var level, settings;
         settings = messageBox.settings;
         level = options.level || messageBox.level.INFO;
-        $dom = $(dom);
         if (options.title == null) {
           options.title = cola.resource(settings[level].i18n);
         }
         if (options.icon == null) {
           options.icon = settings[level].icon;
         }
-        messageBox._onDeny = options.onDeny;
-        messageBox._onApprove = options.onApprove;
-        messageBox._onHide = options.onHide;
-        $dom.removeClass("warning error info question").addClass(level);
-        oldClassName = $dom.attr("_class");
-        className = options["class"] || messageBox["class"];
-        if (oldClassName !== className) {
-          if (oldClassName) {
-            $dom.removeClass(oldClassName);
-          }
-          $dom.addClass(className).attr("_class", className);
+        options.level = level;
+        if (messageBox.currentOptions) {
+          messageBox.box.unshift(options);
+        } else {
+          messageBox._doShow(options);
         }
-        doms = messageBox._doms;
-        isAlert = options.mode === "alert";
-        $(doms.actions).toggleClass("hidden", isAlert);
-        $(doms.close).toggleClass("hidden", !isAlert);
-        $(doms.description).html(options.content);
-        $(doms.title).text(options.title);
-        doms.icon.className = options.icon;
-        messageBox._doShow();
         return this;
       }
     };
@@ -19038,7 +19048,7 @@ Template
 
     AbstractEditor.prototype._processDataMessage = function(path, type, arg) {
       var $formDom, form, keyMessage, value;
-      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
+      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
         keyMessage = arg.entity.getKeyMessage(arg.property);
         this.set("state", keyMessage != null ? keyMessage.type : void 0);
         if (this._formDom === void 0) {
@@ -19050,10 +19060,11 @@ Template
         if (this._formDom) {
           form = cola.widget(this._formDom);
           if (form && form instanceof cola.Form) {
-            return form.setFieldMessages(this, keyMessage);
+            form.setFieldMessages(this, keyMessage);
           }
         }
-      } else {
+      }
+      if (type !== cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
         value = this.readBindingValue();
         if ((value != null) && this._dataType) {
           value = this._dataType.parse(value);
@@ -30101,7 +30112,7 @@ Template
       nodeId = _getEntityId(arg.entity);
       node = this._nodeMap[nodeId];
       if (node) {
-        if (this._currentNode === node) {
+        if (this._currentNode.data === node.data) {
           children = node._parent._children;
           i = children.indexOf(node);
           if (i < children.length - 1) {

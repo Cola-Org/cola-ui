@@ -42,22 +42,67 @@ do()->
 			ERROR: "error"
 			INFO: "info"
 			QUESTION: "question"
+		box: []
 
 		_getAnimation: ()->
 			return  if messageBox.dialogMode then "scale" else "slide up"
 
 		_executeCallback: (name)->
-			_eventName = "_on#{name}"
-			return unless messageBox[_eventName]
-			setTimeout(()->
-				config = messageBox[_eventName]
-				if typeof config == "function"
-					config.apply(null, [])
-				messageBox[_eventName] = null
-			, 0)
+			fun = messageBox.currentOptions?["on#{name}"]
+			return unless fun
+			config = fun
+			if typeof config == "function"
+				config.apply(null, [])
 			return
 
-		_doShow: ()->
+		_doApprove: ()->
+			messageBox._executeCallback("Approve")
+			messageBox._doHide()
+			return
+
+		_doDeny: ()->
+			messageBox._executeCallback("Deny")
+			messageBox._doHide()
+			return
+
+		_doHide: ()->
+			$(messageBox._dom).transition(messageBox._settings.animation)
+			cola.commonDimmer.hide()
+			messageBox._executeCallback("Hide")
+			box = messageBox.box
+			box.pop()
+			messageBox.currentOptions = null
+			if box.length
+				dom = messageBox.getDom()
+				$(dom).transition("stop all")
+				messageBox.show(box[box.length-1],true)
+
+		getDom: ()->
+			createMessageBoxDom() unless messageBox._dom
+			return messageBox._dom
+
+		_doShow: (options)->
+			messageBox.currentOptions = options
+			dom = messageBox.getDom()
+			$dom = $(dom)
+			options = messageBox.currentOptions
+			$dom.removeClass("warning error info question").addClass(options.level);
+
+			oldClassName = $dom.attr("_class")
+			className = options.class or messageBox.class
+			if oldClassName isnt className
+				$dom.removeClass(oldClassName) if oldClassName
+				$dom.addClass(className).attr("_class", className)
+
+			doms = messageBox._doms
+			isAlert = options.mode is "alert"
+			$(doms.actions).toggleClass("hidden", isAlert)
+			$(doms.close).toggleClass("hidden", !isAlert)
+			$(doms.description).html(options.content)
+			$(doms.title).text(options.title)
+
+			doms.icon.className = options.icon
+
 			animation = messageBox._getAnimation()
 			css = {
 				zIndex: cola.floatWidget.zIndex()
@@ -79,58 +124,21 @@ do()->
 
 			cola.commonDimmer.show()
 
-		_doApprove: ()->
-			messageBox._executeCallback("Approve")
-			messageBox._doHide()
-			return
-
-		_doDeny: ()->
-			messageBox._executeCallback("Deny")
-			messageBox._doHide()
-			return
-
-		_doHide: ()->
-			$(messageBox._dom).transition(messageBox._settings.animation)
-			cola.commonDimmer.hide()
-			messageBox._executeCallback("Hide")
-			return
-
-		getDom: ()->
-			createMessageBoxDom() unless messageBox._dom
-			return messageBox._dom
-
-		show: (options)->
-			dom = messageBox.getDom()
+		show: (options,auto)->
 			settings = messageBox.settings
 			level = options.level || messageBox.level.INFO
 
-			$dom = $(dom)
 			options.title ?= cola.resource(settings[level].i18n)
 			options.icon ?= settings[level].icon
-
-			messageBox._onDeny = options.onDeny
-			messageBox._onApprove = options.onApprove
-			messageBox._onHide = options.onHide
-			$dom.removeClass("warning error info question").addClass(level);
-
-			oldClassName = $dom.attr("_class")
-			className = options.class or messageBox.class
-			if oldClassName isnt className
-				$dom.removeClass(oldClassName) if oldClassName
-				$dom.addClass(className).attr("_class", className)
-
-			doms = messageBox._doms
-			isAlert = options.mode is "alert"
-			$(doms.actions).toggleClass("hidden", isAlert)
-			$(doms.close).toggleClass("hidden", !isAlert)
-			$(doms.description).html(options.content)
-			$(doms.title).text(options.title)
-
-			doms.icon.className = options.icon
-			messageBox._doShow()
+			options.level = level
+			unless auto then messageBox.box.unshift(options)
+			unless messageBox.currentOptions
+				messageBox._doShow(options)
 			return @
+
 	_getClassName: ()->
 		return if messageBox.dialogMode then "desktop" else "mobile layer"
+
 	createMessageBoxDom = ()->
 		messageBox._settings = {
 			dialogMode: messageBox.dialogMode
