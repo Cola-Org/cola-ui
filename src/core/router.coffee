@@ -8,7 +8,7 @@ trimPath = (path) ->
 			path = "/" + path
 		if path.charCodeAt(path.length - 1) == 47 # `/`
 			path = path.substring(0, path.length - 1)
-	return path or "/"
+	return path || ""
 
 ignoreRouterSettingChange = false
 cola.on("settingChange", (self, arg) ->
@@ -125,7 +125,7 @@ cola.setRoutePath = (path, replace, alwaysNotify) ->
 			if location.pathname isnt pathname # 处理 ../ ./ 及 path前缀 等情况
 				realPath = location.pathname + location.search + location.hash
 				if pathRoot and realPath.indexOf(pathRoot) is 0
-					path = "/" + realPath.substring(pathRoot.length)
+					path = realPath.substring(pathRoot.length)
 
 				window.history.replaceState({
 					path: realPath
@@ -274,7 +274,7 @@ _onStateChange = (path) ->
 	if path.charCodeAt(0) is 47 # `/`
 		routerContextPath = cola.setting("routerContextPath")
 		if routerContextPath and path.indexOf(routerContextPath) is 0
-			path = "/" + path.slice(routerContextPath.length)
+			path = path.slice(routerContextPath.length)
 
 	return if path is currentRoutePath
 	currentRoutePath = path
@@ -301,7 +301,7 @@ $ () ->
 		)
 
 		path = _getHashPath()
-		if path isnt "/"
+		if path
 			router = _findRouter(path)
 			if router then _switchRouter(router, path)
 		else

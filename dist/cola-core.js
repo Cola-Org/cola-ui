@@ -8637,7 +8637,7 @@
         path = path.substring(0, path.length - 1);
       }
     }
-    return path || "/";
+    return path || "";
   };
 
   ignoreRouterSettingChange = false;
@@ -8766,7 +8766,7 @@
         if (location.pathname !== pathname) {
           realPath = location.pathname + location.search + location.hash;
           if (pathRoot && realPath.indexOf(pathRoot) === 0) {
-            path = "/" + realPath.substring(pathRoot.length);
+            path = realPath.substring(pathRoot.length);
           }
           window.history.replaceState({
             path: realPath,
@@ -8967,7 +8967,7 @@
     if (path.charCodeAt(0) === 47) {
       routerContextPath = cola.setting("routerContextPath");
       if (routerContextPath && path.indexOf(routerContextPath) === 0) {
-        path = "/" + path.slice(routerContextPath.length);
+        path = path.slice(routerContextPath.length);
       }
     }
     if (path === currentRoutePath) {
@@ -9002,7 +9002,7 @@
         }
       });
       path = _getHashPath();
-      if (path !== "/") {
+      if (path) {
         router = _findRouter(path);
         if (router) {
           _switchRouter(router, path);
