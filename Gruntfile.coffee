@@ -254,8 +254,8 @@ module.exports = (grunt) ->
 	                             "coffee:i18n",
 	                             "less:build", "cola-ui-license", "concat:3rd", "concat:cola",
 	                             "clean:core-widget", "copy:semantic",
-#	                             "uglify:build",
-#	                             "cssmin",
+	                             "uglify:build",
+	                             "cssmin",
 #								 "compress",
                                  "clean:workTemp"]
 	grunt.registerTask "concat-all", ["build","concat:all"]
