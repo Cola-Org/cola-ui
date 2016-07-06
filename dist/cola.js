@@ -2679,9 +2679,9 @@
       data: null
     };
 
-    function AjaxValidator() {
-      AjaxValidator.__super__.constructor.call(this);
-      this.ajaxService = new cola.AjaxService();
+    function AjaxValidator(config) {
+      AjaxValidator.__super__.constructor.call(this, config);
+      this._ajaxService = new cola.AjaxService();
     }
 
     AjaxValidator.prototype._validate = function(data, callback) {
@@ -2707,7 +2707,7 @@
         method: this._method,
         ajaxOptions: this._ajaxOptions
       };
-      invoker = new cola.AjaxServiceInvoker(this.ajaxService, options);
+      invoker = new cola.AjaxServiceInvoker(this._ajaxService, options);
       if (callback) {
         return invoker.invokeAsync(callback);
       } else {
