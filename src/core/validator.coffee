@@ -167,6 +167,10 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		ajaxOptions: null
 		data: null
 
+	constructor: () ->
+		super()
+		@ajaxService = new cola.AjaxService()
+
 	_validate: (data, callback) ->
 		sendData = @_data
 		if not sendData? or sendData is ":data"
@@ -178,18 +182,13 @@ class cola.AjaxValidator extends cola.AsyncValidator
 				realSendData[p] = v
 			sendData = realSendData
 
-		options = {}
-		ajaxOptions = @_ajaxOptions
-		if ajaxOptions
-			for p, v of ajaxOptions
-				options[p] = v
-
-		options.async = !!callback
-		options.url = @_url
-		options.data = sendData
-		options.method = @_method
-
-		invoker = new cola.AjaxServiceInvoker(@, options)
+		options =
+			async: !!callback
+			url: @_url
+			data: sendData
+			method: @_method
+			ajaxOptions: @_ajaxOptions
+		invoker = new cola.AjaxServiceInvoker(@ajaxService, options)
 		if callback
 			return invoker.invokeAsync(callback)
 		else
