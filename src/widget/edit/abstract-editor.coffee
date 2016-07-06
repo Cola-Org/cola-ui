@@ -65,11 +65,14 @@ class cola.AbstractEditor extends cola.Widget
 		return cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or @_watchingMoreMessage
 
 	_processDataMessage: (path, type, arg) ->
-		if type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
-			keyMessage = arg.entity.getKeyMessage(arg.property)
-			@set("state", keyMessage?.type)
+		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE
+			if @_bindInfo?.isWriteable
+				entity = @_scope.get(@_bindInfo.entityPath)
+				if entity
+					keyMessage = entity.getKeyMessage(@_bindInfo.property)
+					@set("state", keyMessage?.type)
 
-			if @_formDom == undefined
+			if @_formDom is undefined
 				if @_fieldDom
 					$formDom = $fly(@_fieldDom).closest(".ui.form")
 				@_formDom = $formDom?[0] or null
@@ -79,13 +82,14 @@ class cola.AbstractEditor extends cola.Widget
 				if form and form instanceof cola.Form
 					form.setFieldMessages(@, keyMessage)
 
-		else
+		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			value = @readBindingValue()
 			if value? and @_dataType
 				value = @_dataType.parse(value)
 			@_modelValue = value
 			if @_setValue(value)
 				cola.util.delay(@, "refreshDom", 50, @_refreshDom)
-			return
+
+		return
 
 cola.Element.mixin(cola.AbstractEditor, cola.DataWidgetMixin)

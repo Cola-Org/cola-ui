@@ -19051,10 +19051,15 @@ Template
     };
 
     AbstractEditor.prototype._processDataMessage = function(path, type, arg) {
-      var $formDom, form, keyMessage, value;
-      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
-        keyMessage = arg.entity.getKeyMessage(arg.property);
-        this.set("state", keyMessage != null ? keyMessage.type : void 0);
+      var $formDom, entity, form, keyMessage, ref, value;
+      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || (cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE)) {
+        if ((ref = this._bindInfo) != null ? ref.isWriteable : void 0) {
+          entity = this._scope.get(this._bindInfo.entityPath);
+          if (entity) {
+            keyMessage = entity.getKeyMessage(this._bindInfo.property);
+            this.set("state", keyMessage != null ? keyMessage.type : void 0);
+          }
+        }
         if (this._formDom === void 0) {
           if (this._fieldDom) {
             $formDom = $fly(this._fieldDom).closest(".ui.form");
@@ -19064,10 +19069,11 @@ Template
         if (this._formDom) {
           form = cola.widget(this._formDom);
           if (form && form instanceof cola.Form) {
-            return form.setFieldMessages(this, keyMessage);
+            form.setFieldMessages(this, keyMessage);
           }
         }
-      } else {
+      }
+      if (type !== cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
         value = this.readBindingValue();
         if ((value != null) && this._dataType) {
           value = this._dataType.parse(value);
