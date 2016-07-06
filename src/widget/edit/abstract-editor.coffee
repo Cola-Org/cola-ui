@@ -65,7 +65,7 @@ class cola.AbstractEditor extends cola.Widget
 		return cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or @_watchingMoreMessage
 
 	_processDataMessage: (path, type, arg) ->
-		if type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type == cola.constants.MESSAGE_PROPERTY_CHANGE
+		if type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			keyMessage = arg.entity.getKeyMessage(arg.property)
 			@set("state", keyMessage?.type)
 
@@ -79,7 +79,7 @@ class cola.AbstractEditor extends cola.Widget
 				if form and form instanceof cola.Form
 					form.setFieldMessages(@, keyMessage)
 
-		unless type == cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+		else
 			value = @readBindingValue()
 			if value? and @_dataType
 				value = @_dataType.parse(value)
