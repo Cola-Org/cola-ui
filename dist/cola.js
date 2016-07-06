@@ -19052,7 +19052,7 @@ Template
 
     AbstractEditor.prototype._processDataMessage = function(path, type, arg) {
       var $formDom, form, keyMessage, value;
-      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
+      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
         keyMessage = arg.entity.getKeyMessage(arg.property);
         this.set("state", keyMessage != null ? keyMessage.type : void 0);
         if (this._formDom === void 0) {
@@ -19064,11 +19064,10 @@ Template
         if (this._formDom) {
           form = cola.widget(this._formDom);
           if (form && form instanceof cola.Form) {
-            form.setFieldMessages(this, keyMessage);
+            return form.setFieldMessages(this, keyMessage);
           }
         }
-      }
-      if (type !== cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) {
+      } else {
         value = this.readBindingValue();
         if ((value != null) && this._dataType) {
           value = this._dataType.parse(value);
@@ -30908,7 +30907,7 @@ Template
     };
 
     Table.prototype._sysHeaderClick = function(column) {
-      var collection, criteria, invoker, parameter, processed, property, sortDirection;
+      var collection, criteria, invoker, parameter, processed, property, provider, sortDirection;
       if (column instanceof cola.TableDataColumn && column.get("sortable")) {
         sortDirection = column.get("sortDirection");
         if (sortDirection === "asc") {
@@ -30954,6 +30953,14 @@ Template
               parameter = invoker.invokerOptions.data;
               if (!parameter) {
                 invoker.invokerOptions.data = parameter = {};
+              } else if (typeof parameter !== "object" || parameter instanceof Date) {
+                throw new cola.Exception("Can not set sort parameter automatically.");
+              }
+              parameter.sort = criteria;
+              provider = invoker.ajaxService;
+              parameter = provider.get("parameter");
+              if (!parameter) {
+                provider.set("parameter", parameter = {});
               } else if (typeof parameter !== "object" || parameter instanceof Date) {
                 throw new cola.Exception("Can not set sort parameter automatically.");
               }
