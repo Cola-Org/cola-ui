@@ -7371,7 +7371,7 @@
 
     ElementAttrBinding.prototype._refresh = function() {
       var element;
-      value = this.evaluate(this.attr);
+      value = this.evaluate();
       element = this.element;
       element._duringBindingRefresh = true;
       try {

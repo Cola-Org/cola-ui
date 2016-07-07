@@ -1137,7 +1137,7 @@ class cola.ElementAttrBinding
 		return @expression.evaluate(@scope, "async", dataCtx)
 
 	_refresh: () ->
-		value = @evaluate(@attr)
+		value = @evaluate()
 		element = @element
 		element._duringBindingRefresh = true
 		try
