@@ -4439,7 +4439,10 @@
         if (value) {
           if (value instanceof cola.AjaxServiceInvoker) {
             continue;
-          } else if ((value instanceof _Entity || value instanceof _EntityList) && !simpleValue) {
+          } else if (value instanceof _Entity || value instanceof _EntityList) {
+            if (simpleValue) {
+              continue;
+            }
             value = value.toJSON(options);
           }
         }

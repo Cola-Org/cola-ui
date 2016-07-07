@@ -4439,7 +4439,10 @@
         if (value) {
           if (value instanceof cola.AjaxServiceInvoker) {
             continue;
-          } else if ((value instanceof _Entity || value instanceof _EntityList) && !simpleValue) {
+          } else if (value instanceof _Entity || value instanceof _EntityList) {
+            if (simpleValue) {
+              continue;
+            }
             value = value.toJSON(options);
           }
         }
@@ -19048,7 +19051,7 @@ Template
 
     AbstractEditor.prototype._processDataMessage = function(path, type, arg) {
       var $formDom, entity, form, keyMessage, ref, value;
-      if (ype === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || (cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE)) {
+      if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || (cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE)) {
         if ((ref = this._bindInfo) != null ? ref.isWriteable : void 0) {
           entity = this._scope.get(this._bindInfo.entityPath);
           if (entity) {

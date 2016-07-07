@@ -870,7 +870,8 @@ class cola.Entity
 			if value
 				if value instanceof cola.AjaxServiceInvoker
 					continue
-				else if (value instanceof _Entity or value instanceof _EntityList) and not simpleValue
+				else if (value instanceof _Entity or value instanceof _EntityList)
+					if simpleValue then continue
 					value = value.toJSON(options)
 			json[prop] = value
 
