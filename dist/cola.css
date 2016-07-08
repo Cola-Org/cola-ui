@@ -498,24 +498,6 @@ template {
   justify-content: flex-end;
 }
 
-.field.required {
-  padding-right: 1em !important;
-  position: relative;
-}
-.field.required:after {
-  float: right;
-  font-family: Icons;
-  content: "\f069";
-  position: absolute;
-  margin-left: 4px;
-  top: 50%;
-  margin-top: -10px;
-  color: #db2828;
-  transform: scale(0.5);
-}
-.field.required > label:after {
-  content: "" !important;
-}
 
 [class*="block-grid-"] {
   display: block;
@@ -5880,6 +5862,9 @@ html.ios body {
   height: 2.8rem;
 }
 .ui.panel > .header > .content > .tools > * {
+  display: inline-block;
+}
+.ui.panel > .header > .content > .tools > i {
   height: inherit;
   position: relative;
   display: inline-block;
@@ -5887,7 +5872,7 @@ html.ios body {
   cursor: pointer;
   line-height: 2.8rem;
 }
-.ui.panel > .header > .content > .tools > *:before {
+.ui.panel > .header > .content > .tools > i:before {
   position: absolute;
 }
 .ui.panel > .header > .content > .tools .collapse-btn:before {

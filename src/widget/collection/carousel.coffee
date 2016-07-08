@@ -183,30 +183,17 @@ class cola.Carousel extends cola.AbstractItemGroup
 			jQuery("span:nth-child(" + (currentIndex + 1) + ")", @_doms.indicators).addClass("indicator-active")
 		
 		return @
-	
+
 	next: ()->
 		items = @_getDataItems().items
 		if items and @_scroller
-			pos = @_scroller.getPos()
-			if pos == (items.length - 1)
-				@goTo(0)
-			else
-				@_scroller.next()
+			@_scroller.next()
 		return @
-	
+
 	previous: ()->
 		items = @_getDataItems().items
 		if items and @_scroller
-			pos = @_scroller.getPos()
-			if pos == 0
-				if items instanceof cola.EntityList
-					@goTo(items.entityCount - 1)
-				else
-					@goTo(items.length - 1)
-
-			else
-				@_scroller.prev()
-		
+			@_scroller.prev()
 		return @
 	
 	refreshItems: ()->

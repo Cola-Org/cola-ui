@@ -19059,7 +19059,7 @@ Template
             this.set("state", keyMessage != null ? keyMessage.type : void 0);
           }
         }
-        if (this._formDom === void 0) {
+        if (!this._formDom) {
           if (this._fieldDom) {
             $formDom = $fly(this._fieldDom).closest(".ui.form");
           }
@@ -24786,33 +24786,19 @@ Template
     };
 
     Carousel.prototype.next = function() {
-      var items, pos;
+      var items;
       items = this._getDataItems().items;
       if (items && this._scroller) {
-        pos = this._scroller.getPos();
-        if (pos === (items.length - 1)) {
-          this.goTo(0);
-        } else {
-          this._scroller.next();
-        }
+        this._scroller.next();
       }
       return this;
     };
 
     Carousel.prototype.previous = function() {
-      var items, pos;
+      var items;
       items = this._getDataItems().items;
       if (items && this._scroller) {
-        pos = this._scroller.getPos();
-        if (pos === 0) {
-          if (items instanceof cola.EntityList) {
-            this.goTo(items.entityCount - 1);
-          } else {
-            this.goTo(items.length - 1);
-          }
-        } else {
-          this._scroller.prev();
-        }
+        this._scroller.prev();
       }
       return this;
     };

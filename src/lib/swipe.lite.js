@@ -44,7 +44,7 @@ function Swipe(container, options) {
 		length = slides.length;
 
 		// set continuous to false if only one slide
-		if (slides.length < 2) options.continuous = false;
+		options.continuous = slides.length >= 2;
 
 		//special case if two slides
 		if (browser.transitions && options.continuous && slides.length < 3) {
