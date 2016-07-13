@@ -14,6 +14,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
 
 	@attributes:
+		disabled:
+			type: "boolean"
+			refreshDom: true
+			defaultValue: false
 		items:
 			expressionType: "repeat"
 			setter: (items) ->
@@ -56,7 +60,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		}, @_doms)
 
 		$fly(dom).delegate(">.icon", "click", () =>
-			if @_opened then @close() else @open()
+			if @_opened
+				@close()
+			else
+				if @_disabled then return
+				@open()
 			return
 		)
 
@@ -89,10 +97,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_createEditorDom: () ->
+		dropdown=@
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
 			click: (evt) =>
+				if dropdown._disabled then return;
 				if @_openOnActive
 					if @_opened
 						input = evt.target
@@ -374,12 +384,12 @@ class DropBox extends cola.Layer
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
 		scrollTop = document.body.scrollTop
-		bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight - scrollTop
+		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight - scrollTop)
 
 		if bottomSpace >= boxHeight
 			direction = "down"
 		else
-			topSpace = rect.top
+			topSpace = rect.top - scrollTop
 			if topSpace > bottomSpace
 				direction = "up"
 				if boxHeight > topSpace then height = topSpace

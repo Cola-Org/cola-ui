@@ -75,7 +75,7 @@ do()->
 			if box.length
 				dom = messageBox.getDom()
 				$(dom).transition("stop all")
-				messageBox.show(box[box.length-1],true)
+				messageBox.show(box[box.length - 1], true)
 
 		getDom: ()->
 			createMessageBoxDom() unless messageBox._dom
@@ -124,7 +124,7 @@ do()->
 
 			cola.commonDimmer.show()
 
-		show: (options,auto)->
+		show: (options, auto)->
 			settings = messageBox.settings
 			level = options.level || messageBox.level.INFO
 
@@ -268,7 +268,7 @@ do()->
 				settings[key] = value for key,value of options
 		settings.content = msg
 		settings.level = messageBox.level.QUESTION
-		settings.title ?= messageBox.settings.question.title
+		settings.title ?= cola.resource(messageBox.settings.question.i18n)
 		settings.icon ?= messageBox.settings.question.icon
 		settings.mode = "confirm"
 		messageBox.show(settings)
