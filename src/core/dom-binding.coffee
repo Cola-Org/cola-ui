@@ -84,6 +84,7 @@ class cola._DomBinding
 
 	unbind: (path, feature) ->
 		holder = @[feature.id]
+		return unless holder
 		for p, i in holder
 			if p.path is path
 				@scope.data.unbind(path, holder[i])

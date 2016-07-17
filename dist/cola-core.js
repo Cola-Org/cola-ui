@@ -9909,6 +9909,9 @@
     _DomBinding.prototype.unbind = function(path, feature) {
       var holder, i, l, len1, p;
       holder = this[feature.id];
+      if (!holder) {
+        return;
+      }
       for (i = l = 0, len1 = holder.length; l < len1; i = ++l) {
         p = holder[i];
         if (p.path === path) {

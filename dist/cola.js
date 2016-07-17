@@ -9909,6 +9909,9 @@
     _DomBinding.prototype.unbind = function(path, feature) {
       var holder, i, l, len1, p;
       holder = this[feature.id];
+      if (!holder) {
+        return;
+      }
       for (i = l = 0, len1 = holder.length; l < len1; i = ++l) {
         p = holder[i];
         if (p.path === path) {
@@ -16589,7 +16592,7 @@ Template
       settings.content = msg;
       settings.level = messageBox.level.QUESTION;
       if (settings.title == null) {
-        settings.title = messageBox.settings.question.title;
+        settings.title = cola.resource(messageBox.settings.question.i18n);
       }
       if (settings.icon == null) {
         settings.icon = messageBox.settings.question.icon;
@@ -19054,6 +19057,9 @@ Template
       if (type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || (cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE)) {
         if ((ref = this._bindInfo) != null ? ref.isWriteable : void 0) {
           entity = this._scope.get(this._bindInfo.entityPath);
+          if (entity instanceof cola.EntityList) {
+            entity = entity.current;
+          }
           if (entity) {
             keyMessage = entity.getKeyMessage(this._bindInfo.property);
             this.set("state", keyMessage != null ? keyMessage.type : void 0);
@@ -20906,6 +20912,11 @@ Template
     AbstractDropdown.CLASS_NAME = "input drop";
 
     AbstractDropdown.attributes = {
+      disabled: {
+        type: "boolean",
+        refreshDom: true,
+        defaultValue: false
+      },
       items: {
         expressionType: "repeat",
         setter: function(items) {
@@ -20959,6 +20970,9 @@ Template
           if (_this._opened) {
             _this.close();
           } else {
+            if (_this._disabled) {
+              return;
+            }
             _this.open();
           }
         };
@@ -20996,12 +21010,17 @@ Template
     };
 
     AbstractDropdown.prototype._createEditorDom = function() {
+      var dropdown;
+      dropdown = this;
       return $.xCreate({
         tagName: "input",
         type: "text",
         click: (function(_this) {
           return function(evt) {
             var input;
+            if (dropdown._disabled) {
+              return;
+            }
             if (_this._openOnActive) {
               if (_this._opened) {
                 input = evt.target;
@@ -21359,11 +21378,11 @@ Template
       clientWidth = document.body.offsetWidth;
       clientHeight = document.body.clientHeight;
       scrollTop = document.body.scrollTop;
-      bottomSpace = clientHeight - rect.top - dropdownDom.clientHeight - scrollTop;
+      bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight - scrollTop);
       if (bottomSpace >= boxHeight) {
         direction = "down";
       } else {
-        topSpace = rect.top;
+        topSpace = rect.top - scrollTop;
         if (topSpace > bottomSpace) {
           direction = "up";
           if (boxHeight > topSpace) {
