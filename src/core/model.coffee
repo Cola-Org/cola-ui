@@ -203,7 +203,6 @@ class cola.SubScope extends cola.Scope
 				@parent.data.unbind("**", @)
 			else if @_watchPath
 				@_unwatchPath()
-		super()
 		return
 
 class cola.AliasScope extends cola.SubScope

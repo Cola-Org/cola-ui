@@ -6015,7 +6015,6 @@
           this._unwatchPath();
         }
       }
-      SubScope.__super__.destroy.call(this);
     };
 
     return SubScope;
