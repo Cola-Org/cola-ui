@@ -8956,11 +8956,6 @@
     i = path.indexOf("#");
     if (i > -1) {
       path = path.substring(i + 1);
-    } else {
-      i = path.indexOf("?");
-      if (i > -1) {
-        path = path.substring(0, i);
-      }
     }
     if (path.charCodeAt(0) === 47) {
       routerContextPath = cola.setting("routerContextPath");
@@ -8972,6 +8967,10 @@
       return;
     }
     currentRoutePath = path;
+    i = path.indexOf("?");
+    if (i > -1) {
+      path = path.substring(0, i);
+    }
     router = _findRouter(path);
     if (router) {
       _switchRouter(router, path);
@@ -8985,7 +8984,7 @@
         var state;
         if (!location.hash) {
           state = window.history.state;
-          _onStateChange((state != null ? state.path : void 0) || "/");
+          _onStateChange((state != null ? state.path : void 0) || (location.pathname + location.search + location.hash));
         }
       });
       $(document.body).delegate("a.state", "click", function() {

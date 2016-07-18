@@ -266,10 +266,6 @@ _onStateChange = (path) ->
 	i = path.indexOf("#")
 	if i > -1
 		path = path.substring(i + 1)
-	else
-		i = path.indexOf("?")
-		if i > -1
-			path = path.substring(0, i)
 
 	if path.charCodeAt(0) is 47 # `/`
 		routerContextPath = cola.setting("routerContextPath")
@@ -278,6 +274,10 @@ _onStateChange = (path) ->
 
 	return if path is currentRoutePath
 	currentRoutePath = path
+
+	i = path.indexOf("?")
+	if i > -1
+		path = path.substring(0, i)
 
 	router = _findRouter(path)
 	_switchRouter(router, path) if router
@@ -288,7 +288,7 @@ $ () ->
 		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
 			if not location.hash
 				state = window.history.state
-				_onStateChange(state?.path or "/")
+				_onStateChange(state?.path or (location.pathname + location.search + location.hash))
 			return
 		)
 		$(document.body).delegate("a.state", "click", () ->
