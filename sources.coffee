@@ -151,16 +151,23 @@ sources =
 		js: [
 			"src/lib/number-formatter.js"
 			"src/lib/xdate.js"
+			"src/lib/jsep.js"
+
 			"src/lib/swipe.lite.js"
 			"src/lib/jquery.transit.js"
-
-			"src/lib/jsep.js"
 
 			"src/lib/animate.js"
 			"src/lib/scroller.js"
 			"src/lib/easy-scroller.js"
 
 			"src/lib/fastclick.js"
+		]
+
+	"lib-core":
+		js: [
+			"src/lib/number-formatter.js"
+			"src/lib/xdate.js"
+			"src/lib/jsep.js"
 		]
 
 	semantic:

@@ -170,6 +170,9 @@ module.exports = (grunt) ->
 					"dist/cola-widget.js": "dist/cola-widget.js"
 					"dist/cola.css": "dist/cola.css"
 		concat:
+			"3rd-core":
+				files:
+					"dist/3rd-core.js": sources["lib-core"].js
 			"3rd":
 				files:
 					"dist/3rd.js": sources.lib.js
@@ -204,6 +207,7 @@ module.exports = (grunt) ->
 							"cola-widget.js"
 							"cola-core.js"
 							"3rd.js"
+							"3rd-core.js"
 							"semantic.js"
 						]
 						dest: "dist/gzip"
@@ -252,7 +256,7 @@ module.exports = (grunt) ->
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 	                             "coffee:i18n",
-	                             "less:build", "cola-ui-license", "concat:3rd", "concat:cola",
+	                             "less:build", "cola-ui-license", "concat:3rd-core", "concat:3rd", "concat:cola",
 	                             "clean:core-widget", "copy:semantic",
 	                             "uglify:build",
 	                             "cssmin",
