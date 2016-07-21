@@ -577,6 +577,8 @@
 
   uniqueIdSeed = 1;
 
+  uniqueIdSeed = 1;
+
   cola.uniqueId = function() {
     return "_id" + (uniqueIdSeed++);
   };
@@ -8372,12 +8374,12 @@
             cola.callback(context.callback, true);
           }
         }
-      } else {
+      } else if (!failed) {
         failed = true;
         error = result;
         if (cola.callback(context.callback, false, error) !== false) {
           if (error.xhr) {
-            errorMessage = error.status + " " + error.statusText;
+            errorMessage = error.status + " " + error.message;
           } else {
             errorMessage = error.message;
           }
@@ -8432,7 +8434,7 @@
     }
     context.suspendedInitFuncs = [];
     if (htmlUrl) {
-      _loadHtml(targetDom, htmlUrl, void 0, {
+      _loadHtml(targetDom, htmlUrl, context, {
         complete: function(success, result) {
           return resourceLoadCallback(success, result, htmlUrl);
         }
@@ -8451,7 +8453,7 @@
     if (cssUrls) {
       for (u = 0, len4 = cssUrls.length; u < len4; u++) {
         cssUrl = cssUrls[u];
-        _loadCss(cssUrl, {
+        _loadCss(context, cssUrl, {
           complete: function(success, result) {
             return resourceLoadCallback(success, result, cssUrl);
           }
@@ -8505,17 +8507,18 @@
     return resUrl;
   };
 
-  _loadHtml = function(targetDom, url, data, callback) {
-    $(targetDom).load(url, data, function(response, status, xhr) {
-      if (status === "error") {
-        cola.callback(callback, false, {
-          xhr: xhr,
-          status: xhr.status,
-          statusText: xhr.statusText
-        });
-      } else {
-        cola.callback(callback, true);
-      }
+  _loadHtml = function(targetDom, url, context, callback) {
+    $.ajax(url, {
+      timeout: context.timeout
+    }).done(function(html) {
+      $(targetDom).html(html);
+      cola.callback(callback, true);
+    }).fail(function(xhr, status, error) {
+      cola.callback(callback, false, {
+        xhr: xhr,
+        status: status,
+        message: error
+      });
     });
   };
 
@@ -8530,7 +8533,8 @@
     } else {
       $.ajax(url, {
         dataType: "text",
-        cache: true
+        cache: true,
+        timeout: context.timeout
       }).done(function(script) {
         var e, head, scriptElement;
         scriptElement = $.xCreate({
@@ -8554,11 +8558,11 @@
           e = _error;
           cola.callback(callback, false, e);
         }
-      }).fail(function(xhr) {
+      }).fail(function(xhr, status, error) {
         cola.callback(callback, false, {
           xhr: xhr,
-          status: xhr.status,
-          statusText: xhr.statusText
+          status: status,
+          message: error
         });
       });
     }
@@ -8566,8 +8570,8 @@
 
   _cssCache = {};
 
-  _loadCss = function(url, callback) {
-    var head, linkElement, refNum;
+  _loadCss = function(context, url, callback) {
+    var head, linkElement, refNum, timeoutTimerId;
     linkElement = _cssCache[url];
     if (!linkElement) {
       linkElement = $.xCreate({
@@ -8577,17 +8581,34 @@
         charset: cola.setting("defaultCharset"),
         href: url
       });
+      if (context.timeout) {
+        timeoutTimerId = setTimeout(function() {
+          $fly(linkElement).remove();
+          cola.callback(callback, false, {
+            status: "timeout"
+          });
+        }, context.timeout);
+      }
       if (!(cola.os.android && cola.os.version < 4.4)) {
         $(linkElement).one("load", function() {
+          if (timeoutTimerId) {
+            clearTimeout(timeoutTimerId);
+          }
           cola.callback(callback, true);
         }).on("readystatechange", function(evt) {
           var ref;
           if (((ref = evt.target) != null ? ref.readyState : void 0) === "complete") {
-            cola.callback(callback, true);
+            if (timeoutTimerId) {
+              clearTimeout(timeoutTimerId);
+            }
             $fly(this).off("readystatechange");
+            cola.callback(callback, true);
           }
-        }).one("error", function() {
-          cola.callback(callback, false);
+        }).one("error", function(evt) {
+          if (timeoutTimerId) {
+            clearTimeout(timeoutTimerId);
+          }
+          cola.callback(callback, false, evt);
         });
       }
       head = document.querySelector("head") || document.documentElement;
@@ -8595,6 +8616,9 @@
       head.appendChild(linkElement);
       _cssCache[url] = linkElement;
       if (cola.os.android && cola.os.version < 4.4) {
+        if (timeoutTimerId) {
+          clearTimeout(timeoutTimerId);
+        }
         cola.callback(callback, true);
       }
       return true;
