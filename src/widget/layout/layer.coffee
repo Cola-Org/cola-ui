@@ -25,10 +25,11 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		beforeHide: null
 
 	_onShow: ()->
+	_onHide: ()->
+	_zIndex: ()->
 		@get$Dom().css({
 			zIndex: cola.floatWidget.zIndex()
 		})
-	_onHide: ()->
 	_transition: (options, callback)->
 		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
 		@_doTransition(options, callback)
@@ -46,7 +47,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 			options = {}
 
 		options.target = "show"
-
+		@_zIndex()
 		@_transition(options, callback)
 		return @
 

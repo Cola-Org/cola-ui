@@ -8,7 +8,7 @@
 	<script src="../../include-all.js"></script>
 </head>
 <body class="demo">
-<div id="leftSide" c-widget="sidebar" style="overflow: hidden">
+<div id="leftSide" c-widget="sidebar" class="ui segment" style="overflow: hidden">
 	<div class="ui inverted vertical menu">
 		<a class="item">1</a>
 		<a class="item">2</a>
@@ -48,7 +48,6 @@
 		model.action({
 			show: function (self, arg) {
 				var sidebar = cola.widget(self.get("caption") + "Side");
-				debugger;
 				sidebar.show()
 			}
 		})

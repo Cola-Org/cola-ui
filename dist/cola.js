@@ -16982,13 +16982,15 @@ Template
       beforeHide: null
     };
 
-    AbstractLayer.prototype._onShow = function() {
+    AbstractLayer.prototype._onShow = function() {};
+
+    AbstractLayer.prototype._onHide = function() {};
+
+    AbstractLayer.prototype._zIndex = function() {
       return this.get$Dom().css({
         zIndex: cola.floatWidget.zIndex()
       });
     };
-
-    AbstractLayer.prototype._onHide = function() {};
 
     AbstractLayer.prototype._transition = function(options, callback) {
       if (this.fire("before" + (cola.util.capitalize(options.target)), this, {}) === false) {
@@ -17016,6 +17018,7 @@ Template
         options = {};
       }
       options.target = "show";
+      this._zIndex();
       this._transition(options, callback);
       return this;
     };
@@ -17496,6 +17499,7 @@ Template
       if (this.get("modal")) {
         if (options.target === "show") {
           this._showModalLayer();
+          this._zIndex();
         } else {
           this._hideModalLayer();
         }

@@ -27,7 +27,10 @@ class cola.Sidebar extends cola.AbstractLayer
 		$(window.document.body).toggleClass("hide-overflow", options.target is "show")
 
 		if @get("modal")
-			if options.target is "show" then @_showModalLayer() else @_hideModalLayer()
+			if options.target is "show"
+				@_showModalLayer()
+				@_zIndex()
+			else @_hideModalLayer()
 		sidebar = @
 		onComplete = ->
 			if typeof callback == "function"
