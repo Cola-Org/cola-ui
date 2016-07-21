@@ -7710,21 +7710,42 @@
           retValue = result;
         };
       })(this)).fail((function(_this) {
-        return function(xhr) {
-          var error;
-          error = xhr.responseJSON;
-          _this.invokeCallback(false, error);
-          ajaxService.fire("error", ajaxService, {
+        return function(xhr, status, message) {
+          var error, ret;
+          error = {
+            xhr: xhr,
+            status: status,
+            message: message,
+            data: xhr.responseJSON
+          };
+          ret = _this.invokeCallback(false, error);
+          if (ret !== void 0) {
+            retValue = ret;
+          }
+          if (retValue === false) {
+            return retValue;
+          }
+          ret = ajaxService.fire("error", ajaxService, {
             options: options,
             xhr: xhr,
             error: error
           });
-          ajaxService.fire("complete", ajaxService, {
+          if (ret !== void 0) {
+            retValue = ret;
+          }
+          if (retValue === false) {
+            return retValue;
+          }
+          ret = ajaxService.fire("complete", ajaxService, {
             success: false,
             xhr: xhr,
             options: options,
             error: error
           });
+          if (ret !== void 0) {
+            retValue = ret;
+          }
+          return retValue;
         };
       })(this));
       return retValue;
@@ -7759,6 +7780,7 @@
       url: null,
       method: null,
       parameter: null,
+      timeout: null,
       ajaxOptions: null
     };
 
@@ -7795,6 +7817,9 @@
       options.url = this.getUrl(context);
       if (this._method) {
         options.method = this._method;
+      }
+      if (this._timeout) {
+        options.timeout = this._timeout;
       }
       options.data = this._parameter;
       return options;
@@ -8513,11 +8538,11 @@
     }).done(function(html) {
       $(targetDom).html(html);
       cola.callback(callback, true);
-    }).fail(function(xhr, status, error) {
+    }).fail(function(xhr, status, message) {
       cola.callback(callback, false, {
         xhr: xhr,
         status: status,
-        message: error
+        message: message
       });
     });
   };
@@ -8558,11 +8583,11 @@
           e = _error;
           cola.callback(callback, false, e);
         }
-      }).fail(function(xhr, status, error) {
+      }).fail(function(xhr, status, message) {
         cola.callback(callback, false, {
           xhr: xhr,
           status: status,
-          message: error
+          message: message
         });
       });
     }

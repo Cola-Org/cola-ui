@@ -134,11 +134,11 @@ _loadHtml = (targetDom, url, context, callback) ->
 		$(targetDom).html(html)
 		cola.callback(callback, true)
 		return
-	).fail((xhr, status, error) ->
+	).fail((xhr, status, message) ->
 		cola.callback(callback, false, {
 			xhr: xhr
 			status: status
-			message: error
+			message: message
 		})
 		return
 	)
@@ -176,11 +176,11 @@ _loadJs = (context, url, callback) ->
 			catch e
 				cola.callback(callback, false, e)
 			return
-		).fail((xhr, status, error) ->
+		).fail((xhr, status, message) ->
 			cola.callback(callback, false, {
 				xhr: xhr
 				status: status
-				message: error
+				message: message
 			})
 			return
 		)
