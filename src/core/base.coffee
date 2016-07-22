@@ -9,6 +9,7 @@ else
 cola.version = "${version}"
 
 uniqueIdSeed = 1
+uniqueIdSeed = 1
 
 cola.uniqueId = () ->
 	return "_id" + (uniqueIdSeed++)

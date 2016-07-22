@@ -49,12 +49,24 @@ class cola.AjaxServiceInvoker
 				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result})
 			retValue = result
 			return
-		).fail( (xhr) =>
-			error = xhr.responseJSON
-			@invokeCallback(false, error)
-			ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
-			ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
-			return
+		).fail( (xhr, status, message) =>
+			error =
+				xhr: xhr
+				status: status
+				message: message
+				data: xhr.responseJSON
+
+			ret = @invokeCallback(false, error)
+			retValue = ret if ret isnt undefined
+			return retValue if retValue is false
+
+			ret = ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
+			retValue = ret if ret isnt undefined
+			return retValue if retValue is false
+
+			ret = ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
+			retValue = ret if ret isnt undefined
+			return retValue
 		)
 		return retValue
 
@@ -77,6 +89,7 @@ class cola.AjaxService extends cola.Definition
 		url: null
 		method: null
 		parameter: null
+		timeout: null
 		ajaxOptions: null
 
 	@events:
@@ -104,6 +117,7 @@ class cola.AjaxService extends cola.Definition
 
 		options.url = @getUrl(context)
 		options.method = @_method if @_method
+		options.timeout = @_timeout if @_timeout
 		options.data = @_parameter
 		return options
 

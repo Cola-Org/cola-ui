@@ -28,12 +28,12 @@ cola.loadSubView = (targetDom, context) ->
 						cola.off("ready")
 
 					cola.callback(context.callback, true)
-		else
+		else if not failed
 			failed = true
 			error = result
 			if cola.callback(context.callback, false, error) != false
 				if error.xhr
-					errorMessage = error.status + " " + error.statusText
+					errorMessage = error.status + " " + error.message
 				else
 					errorMessage = error.message
 				throw new cola.Exception("Failed to load resource from [#{url}]. " + errorMessage)
@@ -78,7 +78,7 @@ cola.loadSubView = (targetDom, context) ->
 	context.suspendedInitFuncs = []
 
 	if htmlUrl
-		_loadHtml(targetDom, htmlUrl, undefined, {
+		_loadHtml(targetDom, htmlUrl, context, {
 			complete: (success, result) ->
 				resourceLoadCallback(success, result, htmlUrl)
 		})
@@ -91,7 +91,7 @@ cola.loadSubView = (targetDom, context) ->
 
 	if cssUrls
 		for cssUrl in cssUrls
-			_loadCss(cssUrl, {
+			_loadCss(context, cssUrl, {
 				complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
 			})
 	return
@@ -127,18 +127,20 @@ _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
 			resUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
 	return resUrl
 
-_loadHtml = (targetDom, url, data, callback) ->
-	$(targetDom).load(url, data,
-		(response, status, xhr) ->
-			if status == "error"
-				cola.callback(callback, false, {
-					xhr: xhr
-					status: xhr.status
-					statusText: xhr.statusText
-				})
-			else
-				cola.callback(callback, true)
-			return
+_loadHtml = (targetDom, url, context, callback) ->
+	$.ajax(url, {
+		timeout: context.timeout
+	}).done((html) ->
+		$(targetDom).html(html)
+		cola.callback(callback, true)
+		return
+	).fail((xhr, status, message) ->
+		cola.callback(callback, false, {
+			xhr: xhr
+			status: status
+			message: message
+		})
+		return
 	)
 	return
 
@@ -153,6 +155,7 @@ _loadJs = (context, url, callback) ->
 		$.ajax(url, {
 			dataType: "text"
 			cache: true
+			timeout: context.timeout
 		}).done((script) ->
 			scriptElement = $.xCreate(
 				tagName: "script"
@@ -173,11 +176,11 @@ _loadJs = (context, url, callback) ->
 			catch e
 				cola.callback(callback, false, e)
 			return
-		).fail((xhr) ->
+		).fail((xhr, status, message) ->
 			cola.callback(callback, false, {
 				xhr: xhr
-				status: xhr.status
-				statusText: xhr.statusText
+				status: status
+				message: message
 			})
 			return
 		)
@@ -185,7 +188,7 @@ _loadJs = (context, url, callback) ->
 
 _cssCache = {}
 
-_loadCss = (url, callback) ->
+_loadCss = (context, url, callback) ->
 	linkElement = _cssCache[url]
 	if not linkElement
 		linkElement = $.xCreate(
@@ -196,17 +199,29 @@ _loadCss = (url, callback) ->
 			href: url
 		)
 
+		if context.timeout
+			timeoutTimerId = setTimeout(() ->
+				$fly(linkElement).remove()
+				cola.callback(callback, false, {
+					status: "timeout"
+				})
+				return
+			, context.timeout)
+
 		if not (cola.os.android and cola.os.version < 4.4)
 			$(linkElement).one("load", () ->
+				clearTimeout(timeoutTimerId) if timeoutTimerId
 				cola.callback(callback, true)
 				return
 			).on("readystatechange", (evt) ->
 				if evt.target?.readyState is "complete"
-					cola.callback(callback, true)
+					clearTimeout(timeoutTimerId) if timeoutTimerId
 					$fly(this).off("readystatechange")
+					cola.callback(callback, true)
 				return
-			).one("error", () ->
-				cola.callback(callback, false)
+			).one("error", (evt) ->
+				clearTimeout(timeoutTimerId) if timeoutTimerId
+				cola.callback(callback, false, evt)
 				return
 			)
 
@@ -216,6 +231,7 @@ _loadCss = (url, callback) ->
 		_cssCache[url] = linkElement
 
 		if cola.os.android and cola.os.version < 4.4
+			clearTimeout(timeoutTimerId) if timeoutTimerId
 			cola.callback(callback, true)
 		return true
 	else

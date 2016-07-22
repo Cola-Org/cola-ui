@@ -10,6 +10,8 @@ class cola.SubView extends cola.Widget
 			readOnlyAfterCreate: true
 		cssUrl:
 			readOnlyAfterCreate: true
+		timeout:
+			readOnlyAfterCreate: true
 		parentModel: null
 		modelName: null
 		model:
@@ -56,6 +58,7 @@ class cola.SubView extends cola.Widget
 			@_url = options.url if options.url
 			@_jsUrl = options.jsUrl if options.jsUrl
 			@_cssUrl = options.cssUrl if options.cssUrl
+			@_timeout = options.timeout if options.timeout
 			@_param = options.param if options.param
 
 		if @_parentModel instanceof cola.Scope
@@ -93,6 +96,7 @@ class cola.SubView extends cola.Widget
 				htmlUrl: @_url
 				jsUrl: @_jsUrl
 				cssUrl: @_cssUrl
+				timeout: @_timeout
 				param: @_param
 				callback: {
 					complete:(success, result) =>
@@ -107,13 +111,14 @@ class cola.SubView extends cola.Widget
 
 						@_loading = false
 						if success
-							@fire("load", @)
+							retValue = @fire("load", @)
 						else
-							@fire("loadError", @, {
+							retValue = @fire("loadError", @, {
 								error: result
 							})
-						cola.callback(callback, success, result)
-						return
+						ret = cola.callback(callback, success, result)
+						if ret isnt undefined then retValue = ret
+						return retValue
 				}
 			})
 		return
