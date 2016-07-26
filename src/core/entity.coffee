@@ -8,10 +8,10 @@ else
 #IMPORT_END
 
 _getEntityPath = (markNoncurrent) ->
-	if !markNoncurrent and @_pathCache then return @_pathCache
+	if not markNoncurrent and @_pathCache then return @_pathCache
 
 	parent = @parent
-	if !parent? then return
+	if not parent? then return
 
 	path = []
 	self = @
@@ -30,6 +30,19 @@ _getEntityPath = (markNoncurrent) ->
 		parent = parent.parent
 	path = path.reverse()
 	if !markNoncurrent then @_pathCache = path
+	return path
+
+_getEntityIdPath = () ->
+	if @_idPathCache then return @_idPathCache
+
+	path = []
+	self = @
+	while parent?
+		path.push(self.id)
+		self = parent
+		parent = parent.parent
+	path = path.reverse()
+	@_idPathCache = path
 	return path
 
 _watch = (path, watcher) ->
@@ -734,6 +747,8 @@ class cola.Entity
 
 	_onPathChange: () ->
 		delete @_pathCache
+		delete @_idPathCache
+
 		if @_mayHasSubEntity
 			data = @_data
 			for p, value of data
@@ -747,7 +762,6 @@ class cola.Entity
 
 	enableObservers: () ->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
-		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
 		return @
 
 	notifyObservers: () ->
@@ -759,11 +773,13 @@ class cola.Entity
 			delete arg.timestamp
 			path = @getPath(true)
 
-			if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type is cola.constants.MESSAGE_LOADING_START or type is cola.constants.MESSAGE_LOADING_END) and arg.property
-				if path
-					path = path.concat(arg.property)
-				else
-					path = [arg.property]
+			if not (type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE)
+				arg.idPath = @getIdPath()
+				if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type is cola.constants.MESSAGE_LOADING_START or type is cola.constants.MESSAGE_LOADING_END) and arg.property
+					if path
+						path = path.concat(arg.property)
+					else
+						path = [arg.property]
 			@_doNotify(path, type, arg)
 
 			if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REFRESH
@@ -1076,6 +1092,7 @@ class cola.EntityList extends LinkedList
 
 	_onPathChange: () ->
 		delete @_pathCache
+		delete @_idPathCache
 
 		page = @_first
 		if !page then return
@@ -1460,6 +1477,7 @@ class cola.EntityList extends LinkedList
 		return @
 
 	getPath: _getEntityPath
+	getIdPath: _getEntityIdPath
 
 	toJSON: (options) ->
 		deleted = options?.deleted
