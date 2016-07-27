@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta charset="UTF-8">
+	<title>银行区域信息维护</title>
+
+	<!--<link rel="stylesheet" type="text/css" href="testTree.css">-->
+	<script src="include-all.js"></script>
+	<script type="text/javascript">
+
+		(function() {
+			cola(function(model) {
+
+				$(".ui.accordion").accordion({
+					exclusive : false
+				});
+				model.dataType({
+					name : "Node",
+					properties : {
+						name : {
+							validators : [ "required" ]
+						},
+						nodes : {
+							dataType : "Node"
+						}
+					}
+				});
+				model.describe("nodes", {
+					dataType : "Node"
+				});
+				model.describe("currentEditItem", "Node");
+
+				model.set("nodes", [{"name":"江苏","nodes":[{"name":"南京","nodes":[{"name":"高淳县"},{"name":"溧阳县"}]},{"name":"苏州"}]},
+					{"name":"安徽","nodes":[{"name":"合肥"},{"name":"芜湖"}]}
+				]);
+				model.action({
+					remove: function (node) {
+						console.log(node)
+						node.remove(true);
+					},
+					add: function () {
+						var currentEditItem=model.get("currentEditItem");
+						var nodes = currentEditItem.get("nodes");
+						if (!nodes) {
+							currentEditItem.set("nodes", []);
+							nodes = currentEditItem.get("nodes");
+						}
+						var entity=nodes.insert({
+							name: "New Node"
+						});
+						var tree = cola.widget("tree");
+						var currentNode = tree.findNode(currentEditItem);
+						tree.expand(currentNode);
+						tree.set("currentItem",entity);
+						event && event.stopPropagation();
+					}
+				});
+
+				model.widgetConfig({
+					tree: {
+						$type: "tree",
+						highlightCurrentItem: true,
+						autoExpand : true,
+						autoCollapse : true,
+						currentItemAlias:"currentEditItem",
+						/* bind: {
+						 recursive: true,
+						 expandedProperty: "expanded",
+						 textProperty: "name",
+						 expression: "node in node.nodes"
+						 }, */
+						bind: {
+							expression: "node in nodes",
+							child: {
+								recursive: true,
+								expression: "node in node.nodes"
+							}
+						}
+
+					}
+				});
+				return window.cModel = model;
+			});
+		}).call(this);
+
+	</script>
+	<style>
+		.current>.tree.node .node-operation {
+			display: inline-block;
+		}
+
+		.node-operation {
+			display: none;
+			float: right;
+			padding-right: 0.5em;
+		}
+
+		.node-operation i {
+			margin-right: 0.5em;
+		}
+	</style>
+</head>
+<body>
+
+<div style="height:100%" class="h-box">
+	<div class="flex-box">
+		<div style="padding: 2px">
+			<div c-widget="Panel; caption:行政区域; height:100%">
+				<div class="content">
+					<div id="tree">
+						<template name="node-default">
+							<div><span c-bind="node.name"></span>
+								<div class="node-operation"><i c-onclick="add()" class="link icon plus"></i><i c-onclick="remove(node)" class="link icon trash outline"></i></div>
+							</div>
+						</template>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex-box">
+		<div style="padding: 2px">
+			<div c-widget="Panel; caption:详细信息; height:100%">
+				<div class="content">
+					<div class="ui form">
+						<div class="inline field">
+							<label>行政区域名称</label>
+							<div c-widget="input; bind:currentEditItem.name; postOnInput:true"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+
+</html>
