@@ -15,6 +15,9 @@
 @tabButtonSpacingColor: #d9d9d9;
 @hoveredBackgroundColor: #f7f7f7;
 @tabBoxShadowColor: #15a4fa;
+@base-flex: 0 1 auto;
+@center-flex: 1 1 auto;
+
 .ui.card-book {
 	overflow: hidden;
 	> .item {
@@ -151,6 +154,8 @@
 	&.top-tab, &.bottom-tab {
 		position: relative;
 		.box-orient(vertical);
+		-ms-flex-direction: column;
+		flex-direction: column;
 		> .tab-bar {
 			height: @lineHeight;
 			> .pre-button, > .next-button {
@@ -188,12 +193,18 @@
 	}
 	&.left-tab, &.right-tab, &.bottom-tab, &.top-tab {
 		.display(box);
+		display: -ms-flexbox;
+		display: flex;
 		> .tab-bar {
 			position: relative;
 			.box-flex(0);
+			-ms-flex: @base-flex;
+			flex: @base-flex;
 		}
 		> .contents {
 			.box-flex(1);
+			-ms-flex: @center-flex;
+			flex: @center-flex;
 			position: relative;
 			> .item {
 				position: absolute;
@@ -206,6 +217,8 @@
 	}
 	&.left-tab, &.right-tab {
 		.box-orient(horizontal);
+		-ms-flex-direction: row;
+		flex-direction: row;
 		> .tab-bar {
 			display: block;
 			> .pre-button, > .next-button {

@@ -2,6 +2,11 @@
 class cola.Stack extends cola.Widget
 	@tagName: "c-stack"
 	@CLASS_NAME: "stack"
+	@attributes:
+		touchable:
+			defaultValue: true
+			refreshDom: true
+			type: "boolean"
 
 	@events:
 		change: null
@@ -70,6 +75,7 @@ class cola.Stack extends cola.Widget
 		super(dom, parseChild)
 	_bindTouch: ()->
 		stack = @
+		if not @_touchable then return
 		$(@_dom).on("touchstart", (evt) ->
 			stack._onTouchStart(evt)
 			return
