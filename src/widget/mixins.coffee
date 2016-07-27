@@ -109,7 +109,7 @@ cola.DataWidgetMixin =
 	_dataWidget: true
 
 	_bindSetter: (bindStr) ->
-		return if @_bind == bindStr
+		return if @_bind is bindStr
 
 		if @_bindInfo
 			bindInfo = @_bindInfo
@@ -124,10 +124,11 @@ cola.DataWidgetMixin =
 			@_bindInfo = bindInfo = {}
 
 			bindInfo.expression = expression = cola._compileExpression(bindStr)
+			bindInfo.writeable = expression.writeable
+
 			if expression.repeat or expression.setAlias
 				throw new cola.Exception("Expression \"#{bindStr}\" must be a simple expression.")
-			if (expression.type == "MemberExpression" or expression.type == "Identifier") and not expression.hasCallStatement and not expression.convertors
-				bindInfo.isWriteable = true
+			if bindInfo.writeable
 				i = bindStr.lastIndexOf(".")
 				if i > 0
 					bindInfo.entityPath = bindStr.substring(0, i)
@@ -136,7 +137,7 @@ cola.DataWidgetMixin =
 					bindInfo.entityPath = null
 					bindInfo.property = bindStr
 
-			if !@_bindProcessor
+			if not @_bindProcessor
 				@_bindProcessor = bindProcessor = {
 					_processMessage: (bindingPath, path, type, arg) =>
 						if @_filterDataMessage
@@ -149,8 +150,7 @@ cola.DataWidgetMixin =
 						if @_bindInfo.watchingMoreMessage
 							cola.util.delay(@, "processMessage", 100, () ->
 								if @_processDataMessage
-									@_processDataMessage(@_bindInfo.watchingPaths[0],
-									  cola.constants.MESSAGE_REFRESH, {})
+									@_processDataMessage(@_bindInfo.watchingPaths[0], cola.constants.MESSAGE_REFRESH, {})
 								else
 									@_refreshBindingValue()
 								return
@@ -193,17 +193,17 @@ cola.DataWidgetMixin =
 
 	writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
-		if !@_bindInfo.isWriteable
+		if !@_bindInfo.writeable
 			throw new cola.Exception("Expression \"#{@_bind}\" is not writable.")
 		@_scope.set(@_bind, value)
 		return
 
 	getBindingProperty: () ->
-		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
+		return unless @_bindInfo?.expression and @_bindInfo.writeable
 		return @_scope.data.getProperty(@_bind)
 
 	getBindingDataType: () ->
-		return unless @_bindInfo?.expression and @_bindInfo.isWriteable
+		return unless @_bindInfo?.expression and @_bindInfo.writeable
 		return @_scope.data.getDataType(@_bind)
 
 	_isRootOfTarget: (changedPath, targetPath) ->

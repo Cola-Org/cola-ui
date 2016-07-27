@@ -7,8 +7,8 @@ else
 	cola = @cola
 #IMPORT_END
 
-_getEntityPath = (markNoncurrent) ->
-	if not markNoncurrent and @_pathCache then return @_pathCache
+_getEntityPath = () ->
+	if @_pathCache then return @_pathCache
 
 	parent = @parent
 	if not parent? then return
@@ -18,18 +18,11 @@ _getEntityPath = (markNoncurrent) ->
 	while parent?
 		if parent instanceof _EntityList then lastEntity = self
 		part = self._parentProperty
-		if part
-			if markNoncurrent and self instanceof _EntityList
-				if markNoncurrent == "always" or lastEntity and self.current != lastEntity
-					path.push("!" + part)
-				else
-					path.push(part)
-			else
-				path.push(part)
+		if part then path.push(part)
 		self = parent
 		parent = parent.parent
 	path = path.reverse()
-	if !markNoncurrent then @_pathCache = path
+	@_pathCache = path
 	return path
 
 _getEntityIdPath = () ->
@@ -698,6 +691,7 @@ class cola.Entity
 		return dataType
 
 	getPath: _getEntityPath
+	getIdPath: _getEntityIdPath
 
 	flush: (property, loadMode = "async") ->
 		propertyDef = @dataType.getProperty(property)
@@ -771,7 +765,7 @@ class cola.Entity
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			delete arg.timestamp
-			path = @getPath(true)
+			path = @getPath()
 
 			if not (type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE)
 				arg.idPath = @getIdPath()
@@ -1439,7 +1433,7 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_dataModel?._onDataMessage(@getPath(true), type, arg)
+			@_dataModel?._onDataMessage(@getPath(), type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher(["*"], type, arg)

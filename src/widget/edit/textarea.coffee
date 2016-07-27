@@ -73,7 +73,7 @@ class cola.Textarea extends cola.AbstractEditor
             @_refreshInputValue(@_value)
             @fire("blur", @)
 
-            if !@_value? or @_value is "" and @_bindInfo?.isWriteable
+            if !@_value? or @_value is "" and @_bindInfo?.writeable
                 propertyDef = @getBindingProperty()
                 if propertyDef?._required and propertyDef._validators
                     entity = @_scope.get(@_bindInfo.entityPath)

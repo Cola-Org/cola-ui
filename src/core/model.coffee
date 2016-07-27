@@ -111,6 +111,8 @@ class cola.Model extends cola.Scope
 		@parent = parent if parent
 
 		@data = new cola.DataModel(@)
+
+		# TODO: 根据其中是否存在突破私有范围的绑定来决定是否要监听parent
 		parent.data.bind("**", @) if parent
 
 		@action = (name, action) ->
@@ -424,9 +426,8 @@ class cola.ItemsScope extends cola.SubScope
 		if allProcessed
 			@messageTimestamp = arg.timestamp
 		else if @itemScopeMap
-			debugger
 			itemScope = @findItemDomBinding(arg.entity)
-			if itemScope
+			if false and itemScope
 				itemScope._processMessage(bindingPath, path, type, arg)
 			else
 				for id, itemScope of @itemScopeMap
@@ -630,61 +631,83 @@ class cola.AbstractDataModel
 		return @
 
 	bind: (path, processor) ->
-		if !@bindingRegistry
-			@bindingRegistry =
+		if path instanceof cola.Entity or path instanceof cola.EntityList
+			@_bindIdPath(path, processor)
+		else
+			if typeof path is "string"
+				path = path.split(".")
+			@_bindPath(path, processor)
+		return @
+
+	_bindPath: (path, processor) ->
+		if not @pathBindingRegistry
+			@pathBindingRegistry =
 				__path: ""
 				__processorMap: {}
 
-		if typeof path is "string"
-			path = path.split(".")
+		node = @pathBindingRegistry
+		for part in path
+			subNode = node[part]
+			if not subNode?
+				nodePath = if not node.__path then part else (node.__path + "." + part)
+				node[part] = subNode =
+					__path: nodePath
+					__processorMap: {}
+			node = subNode
 
-		if path
-			if @_bind(path, processor, false)
-				@_bind(path, processor, true)
-		return @
+		processor.id ?= cola.uniqueId()
+		node.__processorMap[processor.id] = processor
+		return
 
-	_bind: (path, processor, nonCurrent) ->
-		node = @bindingRegistry
-		if path
-			for part in path
-				if !nonCurrent and part.charCodeAt(0) is 33 # `!`
-					hasNonCurrent = true
-					part = part.substring(1)
+	_bindIdPath: (path, processor) ->
+		if not @idPathBindingRegistry
+			@idPathBindingRegistry =
+				__path: ""
+				__processorMap: {}
 
-				subNode = node[part]
-				if !subNode?
-					nodePath = if !node.__path then part else (node.__path + "." + part)
-					node[part] = subNode =
-						__path: nodePath
-						__processorMap: {}
-				node = subNode
+		node = @idPathBindingRegistry
+		for part in path
+			subNode = node[part]
+			if not subNode?
+				nodePath = if not node.__path then part else (node.__path + "." + part)
+				node[part] = subNode =
+					__path: nodePath
+					__processorMap: {}
+			node = subNode
 
-			processor.id ?= cola.uniqueId()
-			node.__processorMap[processor.id] = processor
-		return hasNonCurrent
+		processor.id ?= cola.uniqueId()
+		node.__processorMap[processor.id] = processor
+		return
 
 	unbind: (path, processor) ->
-		if !@bindingRegistry then return
+		if path instanceof cola.Entity or path instanceof cola.EntityList
+			if not @idPathBindingRegistry then return
+			_unbindIdPath(path, processor)
+		else
+			if not @pathBindingRegistry then return
 
-		if typeof path is "string"
-			path = path.split(".")
-
-		if path
-			if @_unbind(path, processor, false)
-				@_unbind(path, processor, true)
+			if typeof path is "string"
+				path = path.split(".")
+			@_unbindPath(path, processor)
 		return @
 
-	_unbind: (path, processor, nonCurrent) ->
-		node = @bindingRegistry
+	_unbindPath: (path, processor) ->
+		node = @pathBindingRegistry
 		for part in path
-			if !nonCurrent and part.charCodeAt(0) is 33 # `!`
-				hasNonCurrent = true
-				part = part.substring(1)
 			node = node[part]
-			if !node? then break
+			if not node? then break
 
 		delete node.__processorMap[processor.id] if node?
-		return hasNonCurrent
+		return
+
+	_unbindIdPath: (path, processor) ->
+		node = @idPathBindingRegistry
+		for part in path
+			node = node[part]
+			if not node? then break
+
+		delete node.__processorMap[processor.id] if node?
+		return
 
 	disableObservers: () ->
 		if @disableObserverCount < 0 then @disableObserverCount = 1 else @disableObserverCount++
@@ -699,7 +722,7 @@ class cola.AbstractDataModel
 		return @
 
 	_onDataMessage: (path, type, arg = {}) ->
-		return unless @bindingRegistry
+		return unless @pathBindingRegistry
 		return if @disableObserverCount > 0
 
 		oldScope = cola.currentScope
@@ -707,7 +730,7 @@ class cola.AbstractDataModel
 		try
 			arg.timestamp ?= cola.sequenceNo()
 			if path
-				node = @bindingRegistry
+				node = @pathBindingRegistry
 				lastIndex = path.length - 1
 				for part, i in path
 					if i is lastIndex then anyPropNode = node["*"]
@@ -718,7 +741,7 @@ class cola.AbstractDataModel
 					node = node[part]
 					break unless node
 			else
-				node = @bindingRegistry
+				node = @pathBindingRegistry
 				anyPropNode = node["*"]
 				@_processDataMessage(anyPropNode, null, type, arg) if anyPropNode
 				anyChildNode = node["**"]
@@ -948,15 +971,15 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	unregDefinition: (definition) ->
 		return @parent.unregDefinition(definition)
 
-	_bind: (path, processor, nonCurrent) ->
-		hasNonCurrent = super(path, processor, nonCurrent)
+	_bindPath: (path, processor) ->
+		super(path, processor)
 		i = path.indexOf(".")
 		if i > 0
 			if path.substring(0, i) != @alias
 				@model.watchAllMessages()
 		else if path != @alias
 			@model.watchAllMessages()
-		return hasNonCurrent
+		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		@_onDataMessage(path, type, arg)

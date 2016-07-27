@@ -153,6 +153,7 @@ class cola.Expression
 
 		@compile(exprStr)
 		@paths = watchPaths if watchPaths
+		@writeable = (@type == "MemberExpression" or @type == "Identifier") and not @hasCallStatement
 
 	compile: (exprStr) ->
 
@@ -255,6 +256,21 @@ class cola.Expression
 		if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 			dataCtx?.path = retValue.getPath()
 		return retValue
+
+	getParentPathInfo: () ->
+		return @parentPath if @parentPath isnt undefined
+		if @writeable
+			path = @parts[0]
+			if @type == "Identifier"
+				info =
+					parentPath: null
+					property: path
+			else
+				i = path.lastIndexOf(".")
+				info =
+					parentPath: path.substring(0, i)
+					property: path.substring(i + 1)
+		return info
 
 	toString: () ->
 		return @expression
