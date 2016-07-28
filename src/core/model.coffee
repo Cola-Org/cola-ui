@@ -426,12 +426,8 @@ class cola.ItemsScope extends cola.SubScope
 		if allProcessed
 			@messageTimestamp = arg.timestamp
 		else if @itemScopeMap
-			itemScope = @findItemDomBinding(arg.entity)
-			if false and itemScope
+			for id, itemScope of @itemScopeMap
 				itemScope._processMessage(bindingPath, path, type, arg)
-			else
-				for id, itemScope of @itemScopeMap
-					itemScope._processMessage(bindingPath, path, type, arg)
 		return
 
 	isOriginItems: (items) ->
@@ -451,48 +447,12 @@ class cola.ItemsScope extends cola.SubScope
 				@refreshItems()
 				allProcessed = true
 
-		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE # or type is cola.constants.MESSAGE_STATE_CHANGE
-			if @isRootOfTarget(path, targetPath)
-				@refreshItems()
-				allProcessed = true
-			else
-				parent = arg.entity?.parent
-				if parent is @items or @isOriginItems(arg.parent)
-					@refreshItem(arg)
-
 		else if type is cola.constants.MESSAGE_CURRENT_CHANGE
 			if arg.entityList is @items or @isOriginItems(arg.entityList)
 				@onCurrentItemChange?(arg)
 			else if @isRootOfTarget(path, targetPath)
 				@refreshItems()
 				allProcessed = true
-
-		else if type is cola.constants.MESSAGE_INSERT
-			if arg.entityList is @items
-				@insertItem(arg)
-				allProcessed = true
-			else if @isOriginItems(arg.entityList)
-				@retrieveItems()
-				@insertItem(arg)
-				allProcessed = true
-
-		else if type is cola.constants.MESSAGE_REMOVE
-			if arg.entityList is @items
-				@removeItem(arg)
-				allProcessed = true
-			else if @isOriginItems(arg.entityList)
-				items = @items
-				if items instanceof Array
-					i = items.indexOf(arg.entity)
-					if i > -1 then items.splice(i, 1)
-				@removeItem(arg)
-				allProcessed = true
-
-		else if type is cola.constants.MESSAGE_LOADING_START
-			if @isRootOfTarget(path, targetPath) then @itemsLoadingStart(arg)
-
-		else if type is cola.constants.MESSAGE_LOADING_END
-			if @isRootOfTarget(path, targetPath) then @itemsLoadingEnd(arg)
 
 		return allProcessed
 
@@ -631,41 +591,17 @@ class cola.AbstractDataModel
 		return @
 
 	bind: (path, processor) ->
-		if path instanceof cola.Entity or path instanceof cola.EntityList
-			@_bindIdPath(path, processor)
-		else
-			if typeof path is "string"
-				path = path.split(".")
-			@_bindPath(path, processor)
+		if typeof path is "string"
+			path = path.split(".")
+		@_bindPath(path, processor)
 		return @
 
 	_bindPath: (path, processor) ->
-		if not @pathBindingRegistry
-			@pathBindingRegistry =
-				__path: ""
-				__processorMap: {}
+		@pathBindingRegistry ?=
+			__path: ""
+			__processorMap: {}
 
 		node = @pathBindingRegistry
-		for part in path
-			subNode = node[part]
-			if not subNode?
-				nodePath = if not node.__path then part else (node.__path + "." + part)
-				node[part] = subNode =
-					__path: nodePath
-					__processorMap: {}
-			node = subNode
-
-		processor.id ?= cola.uniqueId()
-		node.__processorMap[processor.id] = processor
-		return
-
-	_bindIdPath: (path, processor) ->
-		if not @idPathBindingRegistry
-			@idPathBindingRegistry =
-				__path: ""
-				__processorMap: {}
-
-		node = @idPathBindingRegistry
 		for part in path
 			subNode = node[part]
 			if not subNode?
@@ -680,28 +616,15 @@ class cola.AbstractDataModel
 		return
 
 	unbind: (path, processor) ->
-		if path instanceof cola.Entity or path instanceof cola.EntityList
-			if not @idPathBindingRegistry then return
-			_unbindIdPath(path, processor)
-		else
-			if not @pathBindingRegistry then return
+		return unless @pathBindingRegistry
 
-			if typeof path is "string"
-				path = path.split(".")
-			@_unbindPath(path, processor)
+		if typeof path is "string"
+			path = path.split(".")
+		@_unbindPath(path, processor)
 		return @
 
 	_unbindPath: (path, processor) ->
 		node = @pathBindingRegistry
-		for part in path
-			node = node[part]
-			if not node? then break
-
-		delete node.__processorMap[processor.id] if node?
-		return
-
-	_unbindIdPath: (path, processor) ->
-		node = @idPathBindingRegistry
 		for part in path
 			node = node[part]
 			if not node? then break

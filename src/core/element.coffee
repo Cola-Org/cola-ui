@@ -9,13 +9,13 @@ else
 tagSplitter = " "
 
 doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
-	return if definitions == mergeDefinitions
+	return if definitions is mergeDefinitions
 	for name, mergeDefinition of mergeDefinitions
 		if definitions.$has(name)
 			definition = definitions[name]
 			if definition and mergeDefinition
 				for prop of mergeDefinition
-					if overwrite or !definition.hasOwnProperty(prop) then definition[prop] = mergeDefinition[prop]
+					if overwrite or not definition.hasOwnProperty(prop) then definition[prop] = mergeDefinition[prop]
 			else
 				definitions[name] = mergeDefinition
 		else
@@ -36,7 +36,7 @@ cola.preprocessClass = (classType) ->
 		# merge attributes
 		# TODO: 此处可以考虑预先计算出有无含默认值设置的属性，以便在对象创建时提高性能
 		attributes = classType.attributes
-		if !attributes._inited
+		if not attributes._inited
 			attributes._inited = true
 
 			for name, definition of attributes
@@ -54,7 +54,7 @@ cola.preprocessClass = (classType) ->
 
 		# merge events
 		events = classType.events
-		if !events._inited
+		if not events._inited
 			events._inited = true
 
 			for name, definition of events
@@ -72,23 +72,23 @@ cola.preprocessClass = (classType) ->
 class cola.Element
 	@mixin: (classType, mixin) ->
 		for name, member of mixin
-			if name == "attributes"
+			if name is "attributes"
 				mixinAttributes = member
 				if mixinAttributes
 					attributes = classType.attributes ?= {}
 					doMergeDefinitions(attributes, mixinAttributes, true)
-			else if name == "events"
+			else if name is "events"
 				mixInEvents = member
 				if mixInEvents
 					events = classType.events ?= {}
 					doMergeDefinitions(events, mixInEvents, true)
-			else if name == "constructor"
-				if !classType._constructors
+			else if name is "constructor"
+				if not classType._constructors
 					classType._constructors = [member]
 				else
 					classType._constructors.push(member)
-			else if name == "destroy"
-				if !classType._destructors
+			else if name is "destroy"
+				if not classType._destructors
 					classType._destructors = [member]
 				else
 					classType._destructors.push(member)
@@ -165,17 +165,17 @@ class cola.Element
 			for path in paths
 				if obj instanceof cola.Element
 					obj = obj._get(path, ignoreError)
-				else if typeof obj.get == "function"
+				else if typeof obj.get is "function"
 					obj = obj.get(path)
 				else
 					obj = obj[path]
-				if !obj? then break
+				if not obj? then break
 			return obj
 		else
 			return @_get(attr, ignoreError)
 
 	_get: (attr, ignoreError) ->
-		if !@constructor.attributes.$has(attr)
+		if not @constructor.attributes.$has(attr)
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
 
@@ -186,7 +186,7 @@ class cola.Element
 			return @["_" + attr]
 
 	set: (attr, value, ignoreError) ->
-		if typeof attr == "string"
+		if typeof attr is "string"
 			# set(string, any)
 			if attr.indexOf(".") > -1
 				paths = attr.split(".")
@@ -196,15 +196,15 @@ class cola.Element
 						obj = obj._get(path, ignoreError)
 					else
 						obj = obj[path]
-					if !obj? then break
+					if not obj? then break
 					if i >= (paths.length - 2) then break
 
-				if !obj? and !ignoreError
+				if not obj? and not ignoreError
 					throw new cola.Exception("Cannot set attribute \"#{path[0...i].join(".")}\" of undefined.")
 
 				if obj instanceof cola.Element
 					obj._set(paths[paths.length - 1], value, ignoreError)
-				else if typeof obj.set == "function"
+				else if typeof obj.set is "function"
 					obj.set(paths[paths.length - 1], value)
 				else
 					obj[paths[paths.length - 1]] = value
@@ -219,8 +219,8 @@ class cola.Element
 		return @
 
 	_set: (attr, value, ignoreError) ->
-		if typeof value == "string" and @_scope
-			if value.charCodeAt(0) == 123 # `{`
+		if typeof value is "string" and @_scope
+			if value.charCodeAt(0) is 123 # `{`
 				parts = cola._compileText(value)
 				if parts?.length > 0
 					value = parts[0]
@@ -232,7 +232,7 @@ class cola.Element
 					if ignoreError then return
 					throw new cola.Exception("Attribute \"#{attr}\" is readonly.")
 
-				if !@_constructing and attrConfig.readOnlyAfterCreate
+				if not @_constructing and attrConfig.readOnlyAfterCreate
 					if ignoreError then return
 					throw new cola.Exception("Attribute \"#{attr}\" cannot be changed after create.")
 		else if value
@@ -252,10 +252,10 @@ class cola.Element
 						return
 					, ignoreError)
 					return
-				else if typeof value == "function"
+				else if typeof value is "function"
 					@on(attr, value)
 					return
-				else if typeof value == "string"
+				else if typeof value is "string"
 					action = @_scope?.action(value)
 					if action
 						@on(attr, action)
@@ -272,7 +272,7 @@ class cola.Element
 		return
 
 	_doSet: (attr, attrConfig, value) ->
-		if !@_duringBindingRefresh and @_elementAttrBindings
+		if not @_duringBindingRefresh and @_elementAttrBindings
 			elementAttrBinding = @_elementAttrBindings[attr]
 			if elementAttrBinding
 				elementAttrBinding.destroy()
@@ -319,7 +319,7 @@ class cola.Element
 		else
 			@_eventRegistry = {}
 
-		if !listenerRegistry
+		if not listenerRegistry
 			@_eventRegistry[eventName] = listenerRegistry = {}
 
 		if once
@@ -340,7 +340,7 @@ class cola.Element
 			i = 0
 
 		if alias
-			if !aliasMap
+			if not aliasMap
 				listenerRegistry.aliasMap = aliasMap = {}
 			aliasMap[alias] = i
 		return
@@ -351,10 +351,10 @@ class cola.Element
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
 
-		if !@constructor.events.$has(eventName)
+		if not @constructor.events.$has(eventName)
 			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
-		if typeof listener != "function"
+		if typeof listener isnt "function"
 			throw new cola.Exception("Invalid event listener.")
 
 		@_on(eventName, listener, alias, once)
@@ -389,7 +389,7 @@ class cola.Element
 					aliasMap = listenerRegistry.aliasMap
 					if aliasMap
 						for alias of aliasMap
-							if aliasMap[alias] == listener
+							if aliasMap[alias] is listener
 								delete aliasMap[alias]
 								break
 
@@ -437,19 +437,19 @@ class cola.Element
 				cola.currentScope = @_scope
 				try
 					for listener in listeners
-						if typeof listener == "function"
+						if typeof listener is "function"
 							argsMode = listener._argsMode
 							if not listener._argsMode
 								argsMode = cola.util.parseListener(listener)
-							if argsMode == 1
+							if argsMode is 1
 								retValue = listener.call(self, self, arg)
 							else
 								retValue = listener.call(self, arg, self)
-						else if typeof listener == "string"
-							retValue = do (self, arg) => eval(listener)
+						else if typeof listener is "string"
+							retValue = do() => eval(listener)
 
-						if retValue != undefined then result = retValue
-						if retValue == false then break
+						if retValue isnt undefined then result = retValue
+						if retValue is false then break
 				finally
 					cola.currentScope = oldScope
 
@@ -481,14 +481,14 @@ cola.Element.createGroup = (elements, model) ->
 	if model
 		elements = []
 		for ele in elements
-			if ele._scope && !ele._model
+			if ele._scope && not ele._model
 				scope = ele._scope
 				while scope
 					if scope instanceof cola.Scope
 						ele._model = scope
 						break
 					scope = scope.parent
-			if ele._model == model then elements.push(ele)
+			if ele._model is model then elements.push(ele)
 	else
 		elements = if elements then elements.slice(0) else []
 
@@ -524,7 +524,7 @@ cola.tagManager =
 			if elements
 				i = elements.indexOf(element)
 				if i > -1
-					if i == 0 and elements.length == 1
+					if i is 0 and elements.length is 1
 						delete @registry[tag]
 					else
 						elements.splice(i, 1)
@@ -561,11 +561,11 @@ cola.resolveType = (namespace, config, baseType) ->
 	holder = typeRegistry[namespace]
 	if holder
 		constructor = holder[config?.$type or "_default"]
-		if !constructor and holder._resolvers
+		if not constructor and holder._resolvers
 			for resolver in holder._resolvers
 				constructor = resolver(config)
 				if constructor
-					if baseType and !cola.util.isCompatibleType(baseType, constructor)
+					if baseType and not cola.util.isCompatibleType(baseType, constructor)
 						throw new cola.Exception("Incompatiable class type.")
 					break
 		return constructor

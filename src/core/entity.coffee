@@ -81,7 +81,7 @@ _triggerWatcher = (path, type, arg) ->
 			if p is "**"
 				shouldTrigger = true
 			else if p is "*"
-				shouldTrigger = path.length < 2
+				shouldTrigger = path.length is holder.path.length
 			else
 				pv = holder.path
 				if pv.length >= path.length
@@ -749,6 +749,16 @@ class cola.Entity
 				if value and (value instanceof _Entity or value instanceof _EntityList)
 					value._onPathChange()
 		return
+		
+	addObserver: (observer) ->
+		@_observers ?= {}
+		observer.id ?= cola.uniqueId()
+		@_observers[observer.id] = observer
+		return
+
+	removeObserver: (observer) ->
+		@_observers?[observer.id]
+		return
 
 	disableObservers: () ->
 		if @_disableObserverCount < 0 then @_disableObserverCount = 1 else @_disableObserverCount++
@@ -782,6 +792,10 @@ class cola.Entity
 
 	_doNotify: (path, type, arg) ->
 		@_dataModel?._onDataMessage(path, type, arg)
+
+		if @_observers
+			for id, observer of @_observers
+				observer._onDataMessage(path, type, arg)
 		return
 
 	_validate: (prop) ->
