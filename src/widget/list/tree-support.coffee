@@ -98,7 +98,7 @@ class cola.CascadeBind extends cola.Element
 					funcs.push((callback) -> recursiveLoader.invokeAsync(callback))
 			else
 				recursiveItems = items
-				originRecursiveItems = dataCtx.originData
+				originRecursiveItems = items.$origin if items instanceof Array
 				if recursiveItems
 					if recursiveItems instanceof cola.EntityList
 						hasChild = recursiveItems.entityCount > 0
@@ -114,7 +114,7 @@ class cola.CascadeBind extends cola.Element
 					funcs.push((callback) -> childLoader.invokeAsync(callback))
 			else
 				childItems = items
-				originChildItems = dataCtx.originData
+				originChildItems = items.$origin if items instanceof Array
 				hasChild = true
 
 		if funcs.length
@@ -124,9 +124,8 @@ class cola.CascadeBind extends cola.Element
 					if success
 						hasChild = false
 						if @_recursive or isRoot
-							dataCtx = {}
-							recursiveItems = @_expression.evaluate(parentNode._scope, "never", dataCtx)
-							originRecursiveItems = dataCtx.originData
+							recursiveItems = @_expression.evaluate(parentNode._scope, "never")
+							originRecursiveItems = recursiveItems.$origin if recursiveItems instanceof Array
 							if recursiveItems
 								if recursiveItems instanceof cola.EntityList
 									hasChild = recursiveItems.entityCount > 0
@@ -134,9 +133,8 @@ class cola.CascadeBind extends cola.Element
 									hasChild = recursiveItems.length > 0
 						if @_child and !isRoot
 							hasChild = true
-							dataCtx = {}
-							childItems = @_child._expression.evaluate(parentNode._scope, "never", dataCtx)
-							originChildItems = dataCtx.originData
+							childItems = @_child._expression.evaluate(parentNode._scope, "never")
+							originChildItems = childItems.$origin if childItems instanceof Array
 
 						@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
 							originChildItems)

@@ -15,6 +15,7 @@ do()->
 		CSSStyleDeclaration::getPropertyPriority = (styleName)->
 			rule = new RegExp(escape(styleName) + '\\s*:\\s*[^\\s]*\\s*!important(\\s*;)?', 'gmi')
 			return if rule.test(this.cssText) then 'important' else ''
+
 cola.util.addClass = (dom, value, continuous)->
 	unless !!continuous
 		$(dom).addClass(value)
@@ -57,6 +58,7 @@ cola.util.hasClass = (dom, className)->
 	for name in names
 		return false if domClassName.indexOf(" #{name} ") < 0
 	return true
+
 cola.util.style = (dom, styleName, value, priority)->
 	style = dom.style
 	if typeof styleName != 'undefined'
@@ -67,6 +69,7 @@ cola.util.style = (dom, styleName, value, priority)->
 			style.getPropertyValue(styleName)
 	else
 		return style
+		
 cola.util.getTextChildData = (dom)->
 	child = dom.firstChild
 	while child
@@ -84,6 +87,7 @@ cola.util.eachNodeChild = (node, fn)->
 		child = child.nextSibling
 
 	return cola.util
+
 cola.util.hasContent = (dom)->
 	child = dom.firstChild
 	while child
@@ -91,7 +95,6 @@ cola.util.hasContent = (dom)->
 			return true
 		child = child.nextSibling
 	return false
-
 
 cola.util.getScrollerRender = (element)->
 	helperElem = document.createElement("div")

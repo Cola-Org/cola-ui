@@ -1545,22 +1545,22 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 		lastIndex = parts.length - 1
 		for part, i in parts
 			returnCurrent = false
-			if i == 0 and data instanceof _EntityList
-				if part == "#"
+			if i is 0 and data instanceof _EntityList
+				if part is "#"
 					data = data.current
 				else
 					data = data[part]
 			else
-				isLast = (i == lastIndex)
-				if !noEntityList
-					if !isLast
+				isLast = (i is lastIndex)
+				if not noEntityList
+					if not isLast
 						returnCurrent = true
-					if part.charCodeAt(part.length - 1) == 35 # '#'
+					if part.charCodeAt(part.length - 1) is 35 # '#'
 						returnCurrent = true
 						part = part.substring(0, part.length - 1)
 
 				if data instanceof _Entity
-					if typeof data._get == "function"
+					if typeof data._get is "function"
 						data = data._get(part, loadMode, callback, context)
 					else
 
@@ -1569,7 +1569,7 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 							data = data.current
 				else
 					data = data[part]
-			if !data? then break
+			if not data? then break
 	return data
 
 _Entity._setValue = _setValue = (entity, path, value, context) ->
@@ -1601,6 +1601,16 @@ _Entity._getEntityId = (entity) ->
 	else if typeof entity == "object"
 		entity._id ?= cola.uniqueId()
 		return entity._id
+
+_Entity.isParent = (parent, data) ->
+	isParent = false
+	e = data.parent
+	while e
+		if e is parent
+			isParent = true
+			break
+		e = e.parent
+	return isParent
 
 TYPE_SEVERITY =
 	VALIDATION_INFO: 1

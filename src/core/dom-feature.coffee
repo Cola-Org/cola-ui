@@ -14,7 +14,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			if not @paths and @expression.hasCallStatement
 				@paths = ["**"]
 				if not @isStatic then @delay = true
-			@watchingMoreMessage = @expression.hasCallStatement
+				@watchingMoreMessage = not @expression.hasDefinedPath
 
 	evaluate: (domBinding, dynaExpressionOnly, dataCtx, loadMode = "async") ->
 		dataCtx ?= {}
@@ -54,13 +54,13 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		if @delay and not force
 			cola.util.delay(domBinding, "refresh", 100, () =>
 				@_refresh(domBinding, dynaExpressionOnly, dataCtx)
-				if @isStatic and !dataCtx.unloaded
+				if @isStatic and not dataCtx.unloaded
 					@disabled = true
 				return
 			)
 		else
 			@_refresh(domBinding, dynaExpressionOnly, dataCtx)
-			if @isStatic and !dataCtx.unloaded
+			if @isStatic and not dataCtx.unloaded
 				@disabled = true
 		return
 
@@ -100,6 +100,8 @@ class cola._EventFeature extends cola._ExpressionFeature
 		return
 
 class cola._AliasFeature extends cola._ExpressionFeature
+	ignoreBind: true
+	
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
@@ -109,17 +111,9 @@ class cola._AliasFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_processMessage: (domBinding, bindingPath, path, type, arg)->
-		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
-		return
-
-	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
-		data = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
-		domBinding.scope.data.setTargetData(data)
-		return
-
 class cola._RepeatFeature extends cola._ExpressionFeature
+	ignoreBind: true
+	
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
@@ -130,6 +124,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		scope.onItemsRefresh = () =>
 			@onItemsRefresh(domBinding)
 			return
+
 		scope.onCurrentItemChange = (arg) ->
 			$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
 			if arg.current and domBinding.itemDomBindingMap
@@ -144,6 +139,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						return
 			domBinding.currentItemDom = currentItemDom
 			return
+
 		scope.onItemInsert = (arg) =>
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
@@ -152,7 +148,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			entity = arg.entity
 			itemsScope = arg.itemsScope
 			insertMode = arg.insertMode
-			if !insertMode or insertMode == "end"
+			if not insertMode or insertMode == "end"
 				index = arg.entityList.entityCount
 			else if insertMode == "begin"
 				index = 1
@@ -211,36 +207,23 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_processMessage: (domBinding, bindingPath, path, type, arg)->
-		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding)
-		return
-
-	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
-		if @isDyna and not dynaExpressionOnly
-			@evaluate(domBinding, dynaExpressionOnly, dataCtx)
-			domBinding.scope.setExpression(@dynaExpression)
-
-		domBinding.scope.refreshItems(dataCtx)
-		return
-
 	onItemsRefresh: (domBinding) ->
 		scope = domBinding.scope
 
 		items = scope.items
-		originItems = scope.originData
+		originItems = scope.originItems
 
-		if items and !(items instanceof cola.EntityList) and !(items instanceof Array)
+		if items and not (items instanceof cola.EntityList) and not (items instanceof Array)
 			throw new cola.Exception("Expression \"#{@expression}\" must bind to EntityList or Array.")
 
-		if items != domBinding.items or (items and items.timestamp != domBinding.timestamp)
+		if items isnt domBinding.items or (items and items.timestamp isnt domBinding.timestamp)
 			domBinding.items = items
 			domBinding.timestamp = items?.timestamp or 0
 
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
 			templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY)
-			if !tailDom
+			if not tailDom
 				tailDom = document.createComment("Repeat Tail ")
 				$fly(headDom).after(tailDom)
 				cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY, tailDom)
@@ -253,15 +236,15 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
 				cola.each items, (item, i) =>
-					if !item? then return
+					if not item? then return
 
 					itemDom = currentDom.nextSibling
-					if itemDom == tailDom then itemDom = null
+					if itemDom is tailDom then itemDom = null
 
 					if itemDom
 						itemDomBinding = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
 						itemScope = itemDomBinding.scope
-						if typeof item == "object"
+						if typeof item is "object"
 							itemId = cola.Entity._getEntityId(item)
 						else
 							itemId = cola.uniqueId()
@@ -276,16 +259,16 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						documentFragment.appendChild(itemDom)
 						$fly(tailDom).before(itemDom)
 
-					if item == (items.current or originItems?.current)
+					if item is (items.current or originItems?.current)
 						$fly(itemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 						domBinding.currentItemDom = itemDom
 
 					currentDom = itemDom
 					return
 
-			if !documentFragment
+			if not documentFragment
 				itemDom = currentDom.nextSibling
-				while itemDom and itemDom != tailDom
+				while itemDom and itemDom isnt tailDom
 					currentDom = itemDom
 					itemDom = currentDom.nextSibling
 					$fly(currentDom).remove()
@@ -305,7 +288,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding = templateDomBinding.clone(itemDom, itemScope)
 		@refreshItemDomBinding(itemDom, itemScope)
 
-		if typeof item == "object"
+		if typeof item isnt "object"
 			itemId = cola.Entity._getEntityId(item)
 		else
 			itemId = cola.uniqueId()
@@ -319,17 +302,17 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		if store
 			clonedStore = {}
 			for k, v of store
-				if k == cola.constants.DOM_BINDING_KEY
+				if k isnt cola.constants.DOM_BINDING_KEY
 					if cloneDomBinding
 						v = v.clone(node, scope)
-				else if k.substring(0, 2) == "__"
+				else if k.substring(0, 2) isnt "__"
 					continue
 				clonedStore[k] = v
 			cola.util.userData(node, clonedStore)
 
 		child = node.firstChild
 		while child
-			if child.nodeType != 3 and !child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
+			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
 				@deepCloneNodeData(child, scope, true)
 			child = child.nextSibling
 		return
@@ -344,7 +327,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		child = dom.firstChild
 		while child
-			if child.nodeType != 3 and !child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
+			if child.nodeType isnt 3 and !child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
 				child = @refreshItemDomBinding(child, itemScope)
 			child = child.nextSibling
 

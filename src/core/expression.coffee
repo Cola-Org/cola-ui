@@ -119,12 +119,14 @@ splitExpression = (text, separator) ->
 class cola.Expression
 	#paths
 	#hasCallStatement
+	#hasDefinedPath
 
 	constructor: (exprStr) ->
 		@raw = exprStr
 
 		i = exprStr.indexOf(" on ")
 		if 0 < i < (exprStr.length - 1)
+			@hasDefinedPath = true
 			watchPathStr = exprStr.substring(i + 4)
 			exprStr = exprStr.substring(0, i)
 
@@ -248,13 +250,28 @@ class cola.Expression
 		return
 
 	evaluate: (scope, loadMode, dataCtx)  ->
-		retValue = eval(@expression)
+		if @writeable
+			pathInfo = @getParentPathInfo()
+			parent = scope.get(pathInfo.parentPath, loadMode, dataCtx)
 
-		if retValue instanceof cola.Chain
-			retValue = retValue._data
+			if parent instanceof cola.EntityList
+				parent = parent.current
 
-		if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
-			dataCtx?.path = retValue.getPath()
+			if parent and typeof parent is "object"
+				retValue = cola.Entity._evalDataPath(parent, pathInfo.property, false, loadMode, null, context)
+
+			if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
+				dataCtx?.closetEntity = retValue
+			else if parent instanceof cola.Entity
+				dataCtx?.closetEntity = parent
+		else
+			retValue = eval(@expression)
+
+			if retValue instanceof cola.Chain
+				retValue = retValue._data
+
+			if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
+				dataCtx?.path = retValue.getPath()
 		return retValue
 
 	getParentPathInfo: () ->

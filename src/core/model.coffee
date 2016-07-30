@@ -155,6 +155,23 @@ class cola.Model extends cola.Scope
 
 class cola.SubScope extends cola.Scope
 
+	isRootOfTarget: (changedPath, targetPaths) ->
+		if not targetPaths then return false
+		if not changedPath then return true
+		for targetPath in targetPaths
+			isRoot = true
+			for part, i in changedPath
+				targetPart = targetPath[i]
+				if part isnt targetPart
+					if targetPart is "**" then continue
+					else if targetPart is "*"
+						if i is changedPath.length - 1 then continue
+					isRoot = false
+					break
+
+			if isRoot then return true
+		return false
+
 	watchPath: (path) ->
 		return if @_watchAllMessages or @_watchPath == path
 
@@ -208,6 +225,9 @@ class cola.SubScope extends cola.Scope
 		return
 
 class cola.AliasScope extends cola.SubScope
+
+	repeatNotification: true
+
 	constructor: (@parent, expression) ->
 		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
 			dataType = @parent.data.getDataType(expression.paths[0])
@@ -216,7 +236,7 @@ class cola.AliasScope extends cola.SubScope
 		@action = @parent.action
 
 		@expression = expression
-		if not expression.paths and expression.hasCallStatement
+		if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
 			@watchAllMessages()
 		else
 			@watchPath(expression.paths)
@@ -226,12 +246,33 @@ class cola.AliasScope extends cola.SubScope
 		@data.destroy()
 		return
 
-	repeatNotification: true
+	setTargetData: (data) ->
+		oldData = @_targetData
+		return if oldData is data
+
+		if oldData and (oldData instanceof cola.Entity or oldData instanceof cola.EntityList)
+			oldData.removeObserver(@)
+
+		@data.setTargetData(data)
+
+		if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
+			oldData.addObserver(@)
+		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
-		@data._processMessage(bindingPath, path, type, arg)
+		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
+		if not allProcessed
+			@data._onDataMessage(path, type, arg)
 		return
+
+	_doProcessMessage: (bindingPath, path, type, arg) ->
+		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+			if @isRootOfTarget(path, @targetPath)
+				@retrieveItems()
+				@refreshItems()
+				allProcessed = true
+		return allProcessed
 
 class cola.ItemScope extends cola.SubScope
 	constructor: (@parent, alias) ->
@@ -245,7 +286,8 @@ class cola.ItemScope extends cola.SubScope
 		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
-		return @data._processMessage(bindingPath, path, type, arg)
+		@data._processMessage(bindingPath, path, type, arg)
+		return
 
 class cola.ItemsScope extends cola.SubScope
 	constructor: (parent, expression) ->
@@ -277,22 +319,20 @@ class cola.ItemsScope extends cola.SubScope
 			if expression.paths
 				for path in expression.paths
 					paths.push(path.split("."))
-			@expressionPath = paths
 
-			if not expression.paths and expression.hasCallStatement
+			if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
 				@watchAllMessages()
 			else
 				@watchPath(expression.paths)
 		else
 			@alias = "item"
-			@expressionPath = []
 
 		if expression and typeof expression.paths?.length is 1 and not expression.hasCallStatement
 			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
-	setItems: (items, originItems...) ->
-		@_setItems(items, originItems...)
+	setItems: (items) ->
+		@_setItems(items)
 		return
 
 	retrieveItems: (dataCtx = {}) ->
@@ -301,31 +341,23 @@ class cola.ItemsScope extends cola.SubScope
 
 		if @expression
 			items = @expression.evaluate(@parent, "async", dataCtx)
-			@_setItems(items, dataCtx.originData)
+			@_setItems(items)
 		return
 
-	_setItems: (items, originItems...) ->
+	_setItems: (items) ->
 		@items = items
-
-		if originItems and originItems.length is 1
-			@originItems = originItems[0] if originItems[0]
-		else
-			@originItems = originItems
-			@originItems._multiItems = true
-
-		if not @originItems and items instanceof Array
-			@originItems = items.$origin
+		@originItems = if items instanceof Array then items.$origin else null
 
 		targetPath = null
-		if originItems
-			for it in originItems
-				if it and it instanceof cola.EntityList
-					targetPath ?= []
-					targetPath.push(it.getPath())
-		if targetPath
-			@targetPath = targetPath.concat(@expressionPath)
-		else
-			@targetPath = @expressionPath
+		if @originItems
+			targetPath ?= []
+			targetPath.push(@originItems.getPath())
+
+		if @expression?.paths
+			if targetPath
+				@targetPath = targetPath.concat(@expression.paths)
+			else
+				@targetPath = @expression.paths
 		return
 
 	refreshItems: (dataCtx) ->
@@ -377,51 +409,11 @@ class cola.ItemsScope extends cola.SubScope
 		delete @itemScopeMap[itemId]
 		return
 
-	findItemDomBinding: (item) ->
-		itemScopeMap = @itemScopeMap
-		items = @items
-		originItems = @originItems
-		multiOriginItems = originItems?._multiItems
-		if items or originItems
-			while item
-				if item instanceof cola.Entity
-					matched = (item.parent is items)
-					if !matched and originItems
-						if multiOriginItems
-							for oi in originItems
-								if item.parent is oi
-									matched = true
-									break
-						else
-							matched = (item.parent is originItems)
-					if matched
-						itemId = cola.Entity._getEntityId(item)
-						return if itemId then itemScopeMap[itemId] else null
-				item = item.parent
-		return null
-
-	isRootOfTarget: (changedPath, targetPaths) ->
-		if !targetPaths then return false
-		if !changedPath then return true
-		for targetPath in targetPaths
-			isRoot = true
-			for part, i in changedPath
-				targetPart = targetPath[i]
-				if part != targetPart
-					if targetPart is "**" then continue
-					else if targetPart is "*"
-						if i is changedPath.length - 1 then continue
-					isRoot = false
-					break
-
-			if isRoot then return true
-		return false
-
 	repeatNotification: true
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
-		allProcessed = @processItemsMessage(bindingPath, path, type, arg)
+		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
 
 		if allProcessed
 			@messageTimestamp = arg.timestamp
@@ -430,27 +422,27 @@ class cola.ItemsScope extends cola.SubScope
 				itemScope._processMessage(bindingPath, path, type, arg)
 		return
 
-	isOriginItems: (items) ->
-		return false unless @originItems
-		return true if @originItems is items
-
-		if @originItems instanceof Array and @originItems._multiItems
-			for originItems in @originItems
-				if originItems is items
-					return true
-		return false
-
-	processItemsMessage: (bindingPath, path, type, arg)->
-		targetPath = if @targetPath then @targetPath.concat(@expressionPath) else @expressionPath
+	_doProcessMessage: (bindingPath, path, type, arg) ->
 		if type is cola.constants.MESSAGE_REFRESH
-			if @isRootOfTarget(path, targetPath)
+			if arg.entityList is @items or arg.entityList is @originItems
+				@refreshItems()
+				allProcessed = true
+			else if @isRootOfTarget(path, @targetPath)
+				@retrieveItems()
 				@refreshItems()
 				allProcessed = true
 
 		else if type is cola.constants.MESSAGE_CURRENT_CHANGE
-			if arg.entityList is @items or @isOriginItems(arg.entityList)
+			if arg.entityList is @items or arg.entityList is @originItems
 				@onCurrentItemChange?(arg)
-			else if @isRootOfTarget(path, targetPath)
+			else if @isRootOfTarget(path, @targetPath)
+				@retrieveItems()
+				@refreshItems()
+				allProcessed = true
+
+		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+			if @isRootOfTarget(path, @targetPath)
+				@retrieveItems()
 				@refreshItems()
 				allProcessed = true
 
@@ -560,6 +552,7 @@ class cola.AbstractDataModel
 			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
 
+				# TODO: newStyleObserver
 				path = data.getPath("always")
 				dataModel = @
 				@_aliasMap[prop] = aliasHolder = {
@@ -832,14 +825,9 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 	setTargetData: (data, silence) ->
 		oldData = @_targetData
-		return if oldData is data
-
 		@_targetData = data
 
-		if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
-			@_targetPath = data.getPath()
-
-		if !silence
+		if not silence
 			@_onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
@@ -902,26 +890,6 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 				@model.watchAllMessages()
 		else if path != @alias
 			@model.watchAllMessages()
-		return
-
-	_processMessage: (bindingPath, path, type, arg) ->
-		@_onDataMessage(path, type, arg)
-
-		targetPath = @_targetPath
-		if targetPath?.length and targetPath.length < path?.length
-			matching = true
-
-			for targetPart, i in targetPath
-				part = path[i]
-				if part and part.charCodeAt(0) is 33 # `!`
-					part = part.substring(1)
-				if part isnt targetPart
-					matching = false
-					break
-
-			if matching
-				relativePath = path.slice(targetPath.length)
-				@_onDataMessage([@alias].concat(relativePath), type, arg)
 		return
 
 	get: (path, loadMode, context) ->
@@ -1058,9 +1026,7 @@ class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
 		@paths = paths = @expression.paths
-		if not paths and @expression.hasCallStatement
-			@paths = paths = ["**"]
-			@watchingMoreMessage = @expression.hasCallStatement
+		@watchingMoreMessage = not paths and @expression.hasCallStatement and not @expression.hasDefinedPath
 
 		if paths
 			for path in paths

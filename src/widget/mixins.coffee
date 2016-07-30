@@ -164,9 +164,7 @@ cola.DataWidgetMixin =
 				}
 
 			paths = expression.paths
-			if not paths and expression.hasCallStatement
-				paths = ["**"]
-				bindInfo.watchingMoreMessage = expression.hasCallStatement or expression.convertors
+			bindInfo.watchingMoreMessage = not paths and expression.hasCallStatement and not expression.hasDefinedPath
 
 			if paths
 				@_watchingPaths = paths
@@ -241,7 +239,7 @@ cola.DataItemsWidgetMixin =
 				throw new cola.Exception("Expression \"#{bindStr}\" must be a repeat expression.")
 			@_alias = expression.alias
 
-			if (expression.type is "MemberExpression" or expression.type is "Identifier") and not expression.hasCallStatement and not expression.convertors
+			if (expression.type is "MemberExpression" or expression.type is "Identifier") and not expression.hasCallStatement and not expression.hasDefinedPath
 				@_simpleBindPath = expression.paths[0]
 
 		@_itemsScope.setExpression(expression)
