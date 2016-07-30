@@ -67,7 +67,7 @@ _triggerWatcher = (path, type, arg) ->
 			if p is "**"
 				shouldTrigger = true
 			else if p is "*"
-				shouldTrigger = path.length < 2
+				shouldTrigger = path.length is holder.path.length
 			else
 				pv = holder.path
 				if pv.length >= path.length
@@ -749,7 +749,7 @@ class cola.Entity
 	_notify: (type, arg) ->
 		if @_disableObserverCount is 0
 			delete arg.timestamp
-			path = @getPath(true)
+			path = @getPath()
 
 			if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or type is cola.constants.MESSAGE_LOADING_START or type is cola.constants.MESSAGE_LOADING_END) and arg.property
 				if path
@@ -1414,7 +1414,7 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_dataModel?._onDataMessage(@getPath(true), type, arg)
+			@_dataModel?._onDataMessage(@getPath(), type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher(["*"], type, arg)

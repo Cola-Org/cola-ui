@@ -111,6 +111,8 @@ class cola.Model extends cola.Scope
 		@parent = parent if parent
 
 		@data = new cola.DataModel(@)
+
+		# TODO: 根据其中是否存在突破私有范围的绑定来决定是否要监听parent
 		parent.data.bind("**", @) if parent
 
 		@action = (name, action) ->
@@ -206,6 +208,9 @@ class cola.SubScope extends cola.Scope
 		return
 
 class cola.AliasScope extends cola.SubScope
+
+	repeatNotification: true
+
 	constructor: (@parent, expression) ->
 		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
 			dataType = @parent.data.getDataType(expression.paths[0])
@@ -214,7 +219,7 @@ class cola.AliasScope extends cola.SubScope
 		@action = @parent.action
 
 		@expression = expression
-		if not expression.paths and expression.hasCallStatement
+		if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
 			@watchAllMessages()
 		else
 			@watchPath(expression.paths)
@@ -224,12 +229,33 @@ class cola.AliasScope extends cola.SubScope
 		@data.destroy()
 		return
 
-	repeatNotification: true
+	setTargetData: (data) ->
+		oldData = @_targetData
+		return if oldData is data
+
+		if oldData and (oldData instanceof cola.Entity or oldData instanceof cola.EntityList)
+			oldData.removeObserver(@)
+
+		@data.setTargetData(data)
+
+		if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
+			oldData.addObserver(@)
+		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
-		@data._processMessage(bindingPath, path, type, arg)
+		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
+		if not allProcessed
+			@data._onDataMessage(path, type, arg)
 		return
+
+	_doProcessMessage: (bindingPath, path, type, arg) ->
+		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+			if @isRootOfTarget(path, @targetPath)
+				@retrieveItems()
+				@refreshItems()
+				allProcessed = true
+		return allProcessed
 
 class cola.ItemScope extends cola.SubScope
 	constructor: (@parent, alias) ->
@@ -243,7 +269,8 @@ class cola.ItemScope extends cola.SubScope
 		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
-		return @data._processMessage(bindingPath, path, type, arg)
+		@data._processMessage(bindingPath, path, type, arg)
+		return
 
 class cola.ItemsScope extends cola.SubScope
 	constructor: (parent, expression) ->
@@ -275,22 +302,20 @@ class cola.ItemsScope extends cola.SubScope
 			if expression.paths
 				for path in expression.paths
 					paths.push(path.split("."))
-			@expressionPath = paths
 
-			if not expression.paths and expression.hasCallStatement
+			if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
 				@watchAllMessages()
 			else
 				@watchPath(expression.paths)
 		else
 			@alias = "item"
-			@expressionPath = []
 
 		if expression and typeof expression.paths?.length is 1 and not expression.hasCallStatement
 			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
-	setItems: (items, originItems...) ->
-		@_setItems(items, originItems...)
+	setItems: (items) ->
+		@_setItems(items)
 		return
 
 	retrieveItems: (dataCtx = {}) ->
@@ -299,31 +324,22 @@ class cola.ItemsScope extends cola.SubScope
 
 		if @expression
 			items = @expression.evaluate(@parent, "async", dataCtx)
-			@_setItems(items, dataCtx.originData)
+			@_setItems(items)
 		return
 
-	_setItems: (items, originItems...) ->
+	_setItems: (items) ->
 		@items = items
-
-		if originItems and originItems.length == 1
-			@originItems = originItems[0] if originItems[0]
-		else
-			@originItems = originItems
-			@originItems._multiItems = true
-
-		if not @originItems and items instanceof Array
-			@originItems = items.$origin
+		@originItems = if items instanceof Array then items.$origin else null
 
 		targetPath = null
-		if originItems
-			for it in originItems
-				if it and it instanceof cola.EntityList
-					targetPath ?= []
-					targetPath.push(it.getPath())
-		if targetPath
-			@targetPath = targetPath.concat(@expressionPath)
-		else
-			@targetPath = @expressionPath
+		if @originItems
+			targetPath ?= []
+			targetPath.push(@originItems.getPath())
+
+		if @expression?.paths
+			targetPath ?= []
+			for path in @expression.paths
+				targetPath.push(path.split("."))
 		return
 
 	refreshItems: (dataCtx) ->
@@ -405,7 +421,7 @@ class cola.ItemsScope extends cola.SubScope
 			isRoot = true
 			for part, i in changedPath
 				targetPart = targetPath[i]
-				if part != targetPart
+				if part isnt targetPart
 					if targetPart == "**" then continue
 					else if targetPart == "*"
 						if i == changedPath.length - 1 then continue
@@ -427,6 +443,10 @@ class cola.ItemsScope extends cola.SubScope
 			itemScope = @findItemDomBinding(arg.entity or arg.entityList)
 			if itemScope
 				itemScope._processMessage(bindingPath, path, type, arg)
+			else
+				# TODO: 可优化
+				for id, itemScope of @itemScopeMap
+					itemScope._processMessage(bindingPath, path, type, arg)
 		return
 
 	isOriginItems: (items) ->
@@ -511,7 +531,7 @@ class cola.AbstractDataModel
 			if aliasHolder
 				aliasData = aliasHolder.data
 				if i > 0
-					if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+					if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 						loadMode = "async"
 						callback = loadMode
 					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
@@ -540,7 +560,7 @@ class cola.AbstractDataModel
 	set: (path, data, context) ->
 		if path
 			rootData = @_getRootData()
-			if typeof path == "string"
+			if typeof path is "string"
 				i = path.indexOf('.')
 				if i > 0
 					firstPart = path.substring(0, i)
@@ -721,13 +741,13 @@ class cola.AbstractDataModel
 				processor._processMessage(node.__path, path, type, arg)
 
 		if notifyChildren
-			notifyChildren2 = !(cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and !(cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
+			notifyChildren2 = not (cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and not (cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE
 				type = cola.constants.MESSAGE_REFRESH
 
 			for part, subNode of node
-				if subNode and (part == "**" or notifyChildren2) and part != "__processorMap" and part != "__path"
+				if subNode and (part is "**" or notifyChildren2) and part != "__processorMap" and part != "__path"
 					@_processDataMessage(subNode, path, type, arg, true)
 		return
 
@@ -870,14 +890,9 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 	setTargetData: (data, silence) ->
 		oldData = @_targetData
-		return if oldData == data
-
 		@_targetData = data
 
-		if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
-			@_targetPath = data.getPath()
-
-		if !silence
+		if not silence
 			@_onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
@@ -887,7 +902,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		return
 
 	describe: (property, config) ->
-		if property == @alias
+		if property is @alias
 			return super(property, config)
 		else
 			return @parent.describe(property, config)
@@ -895,7 +910,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	getProperty: (path) ->
 		i = path.indexOf(".")
 		if i > 0
-			if path.substring(0, i) == @alias
+			if path.substring(0, i) is @alias
 				dataType = if @_targetData instanceof cola.Entity or @_targetData instanceof cola.EntityList then @_targetData.dataType else null
 				if dataType
 					property = dataType.getProperty(path.substring(i + 1))
@@ -903,7 +918,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 				return dataType
 			else
 				return @parent.getDataType(path)
-		else if path == @alias
+		else if path is @alias
 			return if @_targetData instanceof cola.Entity or @_targetData instanceof cola.EntityList then @_targetData.dataType else null
 		else
 			return @parent.getProperty(path)
@@ -911,14 +926,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	getDataType: (path) ->
 		i = path.indexOf(".")
 		if i > 0
-			if path.substring(0, i) == @alias
+			if path.substring(0, i) is @alias
 				if @_rootDataType
 					property = @_rootDataType?.getProperty(path.substring(i + 1))
 					dataType = property?.get("dataType")
 				return dataType
 			else
 				return @parent.getDataType(path)
-		else if path == @alias
+		else if path is @alias
 			return @dataType
 		else
 			return @parent.getDataType(path)
@@ -942,6 +957,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			@model.watchAllMessages()
 		return
 
+	# TODO: move to AliasScope
 	_processMessage: (bindingPath, path, type, arg) ->
 		@_onDataMessage(path, type, arg)
 
@@ -951,7 +967,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 			for targetPart, i in targetPath
 				part = path[i]
-				if part and part.charCodeAt(0) == 33 # `!`
+				if part and part.charCodeAt(0) is 33 # `!`
 					part = part.substring(1)
 				if part isnt targetPart
 					matching = false
@@ -965,14 +981,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	get: (path, loadMode, context) ->
 		alias = @alias
 		aliasLen = alias.length
-		if path.substring(0, aliasLen) == alias
+		if path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
-			if c == 46 # `.`
+			if c is 46 # `.`
 				if path.indexOf(".") > 0
 					targetData = @_targetData
 					if targetData instanceof cola.Entity
 						return targetData.get(path.substring(aliasLen + 1), loadMode, context)
-					else if targetData and typeof targetData == "object"
+					else if targetData and typeof targetData is "object"
 						return targetData[path.substring(aliasLen + 1)]
 			else if isNaN(c)
 				return @_targetData
@@ -981,9 +997,9 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	set: (path, data, context) ->
 		alias = @alias
 		aliasLen = alias.length
-		if path.substring(0, aliasLen) == alias
+		if path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
-			if c == 46 # `.`
+			if c is 46 # `.`
 				if path.indexOf(".") > 0
 					@_targetData?.set(path.substring(aliasLen + 1), data, context)
 					return @
@@ -1005,9 +1021,9 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 	flush: (path, loadMode) ->
 		alias = @alias
-		if path.substring(0, alias.length) == alias
+		if path.substring(0, alias.length) is alias
 			c = path.charCodeAt(1)
-			if c == 46 # `.`
+			if c is 46 # `.`
 				@_targetData?.flush(path.substring(alias.length + 1), loadMode)
 				return @
 			else if isNaN(c)
@@ -1075,7 +1091,7 @@ cola.data = (config) ->
 
 	dataType = config.dataType
 	if dataType
-		if typeof dataType == "string"
+		if typeof dataType is "string"
 			name = dataType
 			dataType = cola.currentScope.dataType(name)
 			if !dataType
@@ -1096,9 +1112,7 @@ class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
 		@paths = paths = @expression.paths
-		if not paths and @expression.hasCallStatement
-			@paths = paths = ["**"]
-			@watchingMoreMessage = @expression.hasCallStatement
+		@watchingMoreMessage = not paths and @expression.hasCallStatement and not @expression.hasDefinedPath
 
 		if paths
 			for path in paths

@@ -66,7 +66,7 @@ class cola.AbstractEditor extends cola.Widget
 
 	_processDataMessage: (path, type, arg) ->
 		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE
-			if @_bindInfo?.isWriteable
+			if @_bindInfo?.writeable
 				entity = @_scope.get(@_bindInfo.entityPath)
 				if entity instanceof cola.EntityList
 					entity=entity.current
