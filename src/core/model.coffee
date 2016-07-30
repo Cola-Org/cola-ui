@@ -427,9 +427,6 @@ class cola.ItemsScope extends cola.SubScope
 			itemScope = @findItemDomBinding(arg.entity or arg.entityList)
 			if itemScope
 				itemScope._processMessage(bindingPath, path, type, arg)
-			else
-				for id, itemScope of @itemScopeMap
-					itemScope._processMessage(bindingPath, path, type, arg)
 		return
 
 	isOriginItems: (items) ->
@@ -637,19 +634,13 @@ class cola.AbstractDataModel
 		if typeof path == "string"
 			path = path.split(".")
 
-		if path
-			if @_bind(path, processor, false)
-				@_bind(path, processor, true)
+		if path then @_bind(path, processor)
 		return @
 
-	_bind: (path, processor, nonCurrent) ->
+	_bind: (path, processor) ->
 		node = @bindingRegistry
 		if path
 			for part in path
-				if !nonCurrent and part.charCodeAt(0) == 33 # `!`
-					hasNonCurrent = true
-					part = part.substring(1)
-
 				subNode = node[part]
 				if !subNode?
 					nodePath = if !node.__path then part else (node.__path + "." + part)
@@ -660,7 +651,7 @@ class cola.AbstractDataModel
 
 			processor.id ?= cola.uniqueId()
 			node.__processorMap[processor.id] = processor
-		return hasNonCurrent
+		return
 
 	unbind: (path, processor) ->
 		if !@bindingRegistry then return
@@ -668,22 +659,16 @@ class cola.AbstractDataModel
 		if typeof path == "string"
 			path = path.split(".")
 
-		if path
-			if @_unbind(path, processor, false)
-				@_unbind(path, processor, true)
+		if path then @_unbind(path, processor)
 		return @
 
-	_unbind: (path, processor, nonCurrent) ->
+	_unbind: (path, processor) ->
 		node = @bindingRegistry
 		for part in path
-			if !nonCurrent and part.charCodeAt(0) == 33 # `!`
-				hasNonCurrent = true
-				part = part.substring(1)
 			node = node[part]
-			if !node? then break
+			if not node? then break
 
 		delete node.__processorMap[processor.id] if node?
-		return hasNonCurrent
 
 	disableObservers: () ->
 		if @disableObserverCount < 0 then @disableObserverCount = 1 else @disableObserverCount++
@@ -947,15 +932,15 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	unregDefinition: (definition) ->
 		return @parent.unregDefinition(definition)
 
-	_bind: (path, processor, nonCurrent) ->
-		hasNonCurrent = super(path, processor, nonCurrent)
+	_bind: (path, processor) ->
+		super(path, processor)
 		i = path.indexOf(".")
 		if i > 0
 			if path.substring(0, i) != @alias
 				@model.watchAllMessages()
 		else if path != @alias
 			@model.watchAllMessages()
-		return hasNonCurrent
+		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
 		@_onDataMessage(path, type, arg)

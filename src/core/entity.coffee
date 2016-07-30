@@ -7,29 +7,21 @@ else
 	cola = @cola
 #IMPORT_END
 
-_getEntityPath = (markNoncurrent) ->
-	if !markNoncurrent and @_pathCache then return @_pathCache
+_getEntityPath = () ->
+	if @_pathCache then return @_pathCache
 
 	parent = @parent
-	if !parent? then return
+	if not parent? then return
 
 	path = []
 	self = @
 	while parent?
 		if parent instanceof _EntityList then lastEntity = self
 		part = self._parentProperty
-		if part
-			if markNoncurrent and self instanceof _EntityList
-				if markNoncurrent == "always" or lastEntity and self.current != lastEntity
-					path.push("!" + part)
-				else
-					path.push(part)
-			else
-				path.push(part)
+		if part then path.push(part)
 		self = parent
 		parent = parent.parent
-	path = path.reverse()
-	if !markNoncurrent then @_pathCache = path
+	@_pathCache = path = path.reverse()
 	return path
 
 _watch = (path, watcher) ->
