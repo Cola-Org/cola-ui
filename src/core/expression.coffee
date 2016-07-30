@@ -246,12 +246,20 @@ class cola.Expression
 		parts = []
 		pathParts = []
 		stringify(tree, parts, pathParts, true, @)
-		@expression = parts.join("")
+		@script = parts.join("")
 		return
 
 	evaluate: (scope, loadMode, dataCtx)  ->
-		if @writeable
-			pathInfo = @getParentPathInfo()
+		if @isDyna and not dataCtx?.ignoreDynaExpression
+			retValue = eval(@script)
+			if typeof retValue is "string"
+				expression = cola._compileExpression(retValue)
+				dataCtx?.dynaExpression = expression
+		else
+			expression = @
+
+		if expression.writeable
+			pathInfo = expression.getParentPathInfo()
 			if pathInfo.parentPath
 				parent = scope.get(pathInfo.parentPath, loadMode, dataCtx)
 
@@ -266,12 +274,12 @@ class cola.Expression
 				else if parent instanceof cola.Entity
 					dataCtx?.closetEntity = parent
 			else
-				retValue = eval(@expression)
-				
+				retValue = eval(expression.script)
+
 				if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 					dataCtx?.closetEntity = retValue
 		else
-			retValue = eval(@expression)
+			retValue = eval(expression.script)
 
 			if retValue instanceof cola.Chain
 				retValue = retValue._data
@@ -293,7 +301,7 @@ class cola.Expression
 		return info
 
 	toString: () ->
-		return @expression
+		return @raw
 
 _getData = (scope, path, loadMode, dataCtx)  ->
 	retValue = scope.get(path, loadMode, dataCtx)

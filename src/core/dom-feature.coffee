@@ -26,27 +26,25 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		else
 			result = @expression.evaluate(domBinding.scope, loadMode, dataCtx)
 
-			if @isDyna and result isnt @dynaExpressionStr
-				@dynaExpressionStr = result
+			if @isDyna and dataCtx.dynaExpression
+				dynaExpression = dataCtx.dynaExpression
+				if dynaExpression.raw isnt @dynaExpressionStr
+					@dynaExpressionStr = dynaExpression.raw
 
-				if not @ignoreBind and @dynaPaths
-					domBinding.unbind(path, @) for path in @dynaPaths
+				if not @ignoreBind
+					if @dynaPaths
+						for path in @dynaPaths
+							domBinding.unbind(path, @)
 
-				if typeof result is "string"
-					@dynaExpression = cola._compileExpression(result)
-					if @dynaExpression
-						if not @ignoreBind
-							paths = @dynaExpression.paths
-							if paths
-								for path in paths
-									if @paths.indexOf(path) < 0
-										if not @dynaPaths
-											@dynaPaths = [path]
-										else
-											@dynaPaths.push(path)
-										domBinding.bind(path, @)
-
-						result = @dynaExpression.evaluate(domBinding.scope, loadMode, dataCtx)
+					paths = @dynaExpression.paths
+					if paths
+						for path in paths
+							if @paths.indexOf(path) < 0
+								if not @dynaPaths
+									@dynaPaths = [path]
+								else
+									@dynaPaths.push(path)
+								domBinding.bind(path, @)
 		return result
 
 	refresh: (domBinding, force, dynaExpressionOnly, dataCtx = {}) ->
@@ -109,11 +107,6 @@ class cola._AliasFeature extends cola._ExpressionFeature
 	init: (domBinding) ->
 		domBinding.scope = new cola.AliasScope(domBinding.scope, @expression)
 		domBinding.subScopeCreated = true
-		return
-
-	_processMessage: (domBinding, bindingPath, path, type, arg)->
-		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
 		return
 
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
@@ -215,11 +208,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			return
 
 		domBinding.subScopeCreated = true
-		return
-
-	_processMessage: (domBinding, bindingPath, path, type, arg)->
-		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding)
 		return
 
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
@@ -362,6 +350,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
+		return unless @expression?.writeable
 		paths = if @isDyna then @dynaPaths else @paths
 		if paths and paths.length is 1
 			@ignoreMessage = true
