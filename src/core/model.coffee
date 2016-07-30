@@ -195,16 +195,13 @@ class cola.SubScope extends cola.Scope
 		@_unwatchPath()
 		parent = @parent
 		if parent
+			@_watchPath = ["**"]
 			parent.data.bind("**", @)
 			parent.watchAllMessages?()
 		return
 
 	destroy: () ->
-		if @parent
-			if @_watchAllMessages
-				@parent.data.unbind("**", @)
-			else if @_watchPath
-				@_unwatchPath()
+		if @parent then @_unwatchPath()
 		return
 
 class cola.AliasScope extends cola.SubScope
@@ -223,6 +220,7 @@ class cola.AliasScope extends cola.SubScope
 			@watchAllMessages()
 		else
 			@watchPath(expression.paths)
+
 
 	destroy: () ->
 		super()
@@ -245,6 +243,7 @@ class cola.AliasScope extends cola.SubScope
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
 		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
+
 		if not allProcessed
 			@data._onDataMessage(path, type, arg)
 		return
@@ -269,27 +268,25 @@ class cola.ItemScope extends cola.SubScope
 		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
-		@data._processMessage(bindingPath, path, type, arg)
-		return
+		return @data._onDataMessage(path, type, arg)
 
 class cola.ItemsScope extends cola.SubScope
+
+	repeatNotification: true
+
 	constructor: (parent, expression) ->
 		@setParent(parent)
 		@setExpression(expression)
 
 	setParent: (parent) ->
-		if @parent
-			if @_watchAllMessages
-				@parent.data.unbind("**", @)
-			else if @_watchPath
-				@_unwatchPath()
+		if @parent then @_unwatchPath()
 
 		@parent = parent
 		@data = parent.data
 		@action = parent.action
 
 		if @_watchAllMessages
-			parent.data.bind("**", @)
+			@watchAllMessages()
 		else if @_watchPath
 			@watchPath(@_watchPath)
 		return
@@ -431,11 +428,9 @@ class cola.ItemsScope extends cola.SubScope
 			if isRoot then return true
 		return false
 
-	repeatNotification: true
-
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
-		allProcessed = @processItemsMessage(bindingPath, path, type, arg)
+		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
 
 		if allProcessed
 			@messageTimestamp = arg.timestamp
@@ -459,7 +454,7 @@ class cola.ItemsScope extends cola.SubScope
 					return true
 		return false
 
-	processItemsMessage: (bindingPath, path, type, arg)->
+	_doProcessMessage: (bindingPath, path, type, arg)->
 		targetPath = if @targetPath then @targetPath.concat(@expressionPath) else @expressionPath
 		if type == cola.constants.MESSAGE_REFRESH
 			if @isRootOfTarget(path, targetPath)
@@ -957,27 +952,6 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			@model.watchAllMessages()
 		return
 
-	# TODO: move to AliasScope
-	_processMessage: (bindingPath, path, type, arg) ->
-		@_onDataMessage(path, type, arg)
-
-		targetPath = @_targetPath
-		if targetPath?.length and targetPath.length < path?.length
-			matching = true
-
-			for targetPart, i in targetPath
-				part = path[i]
-				if part and part.charCodeAt(0) is 33 # `!`
-					part = part.substring(1)
-				if part isnt targetPart
-					matching = false
-					break
-
-			if matching
-				relativePath = path.slice(targetPath.length)
-				@_onDataMessage([@alias].concat(relativePath), type, arg)
-		return
-
 	get: (path, loadMode, context) ->
 		alias = @alias
 		aliasLen = alias.length
@@ -1043,6 +1017,23 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	notifyObservers: () ->
 		@parent.notifyObservers()
 		return @
+
+	_onDataMessage: (path, type, arg) ->
+		super(path, type, arg)
+
+		if @_targetData
+			targetData = @_targetData
+			entity = arg.entityList or arg.entity
+			while entity
+				if entity is targetData
+					isChild = true
+					break
+				entity = entity.parent
+
+			if isChild
+				relativePath = path.slice(targetData.getPath().length)
+				super([@alias].concat(relativePath), type, arg)
+		return
 
 class cola.ItemDataModel extends cola.AliasDataModel
 

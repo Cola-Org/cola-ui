@@ -167,10 +167,10 @@ cola.DataWidgetMixin =
 			bindInfo.watchingMoreMessage = not paths and expression.hasCallStatement and not expression.hasDefinedPath
 
 			if paths
-				@_watchingPaths = paths
+				@_watchingPaths = watchingPaths = []
 				for p, i in paths
 					@_scope.data.bind(p, bindProcessor)
-					paths[i] = p.split(".")
+					watchingPaths[i] = p.split(".")
 
 				if @_processDataMessage
 					@_processDataMessage(null, cola.constants.MESSAGE_REFRESH, {})
