@@ -204,27 +204,117 @@ class cola.SubScope extends cola.Scope
 		if @parent then @_unwatchPath()
 		return
 
-class cola.AliasScope extends cola.SubScope
 
+class cola.ExpressionScope extends cola.SubScope
 	repeatNotification: true
 
-	constructor: (@parent, expression) ->
-		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
-			dataType = @parent.data.getDataType(expression.paths[0])
+	_unwatchPath: () ->
+		super()
+		if @parent and @expressionDynaPaths
+			for path in @expressionDynaPaths
+				@parent.data.unbind(path, @)
+		return
 
-		@data = new cola.AliasDataModel(@, expression.alias, dataType)
-		@action = @parent.action
-
+	setExpression: (expression) ->
 		@expression = expression
-		if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
-			@watchAllMessages()
-		else
-			@watchPath(expression.paths)
+		@expressionPaths ?= []
 
+		if expression
+			if expression.paths
+				for path in @expression.paths
+					@expressionPaths.push(path.split("."))
+
+			if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
+				@watchAllMessages()
+			else
+				@watchPath(expression.paths)
+		else
+			@_unwatchPath()
+		return
+
+	evaluate: (scope, dynaExpressionOnly, loadMode = "async", dataCtx = {}) ->
+		return unless @expression
+
+		if dynaExpressionOnly and @dynaExpression
+			result = @dynaExpression.evaluate(scope, loadMode, dataCtx)
+		else
+			result = @expression.evaluate(scope, loadMode, dataCtx)
+
+			if @expression.isDyna and dataCtx.dynaExpression
+				@dynaExpression = dataCtx.dynaExpression
+				if @dynaExpression.raw isnt @dynaExpressionStr
+					@dynaExpressionStr = @dynaExpression.raw
+
+				if @parent and not @ignoreBind
+					if @expressionDynaPaths
+						for path in @expressionDynaPaths
+							@parent.data.unbind(path, @)
+						delete @expressionDynaPaths
+
+					paths = @expression.paths
+					dynaPaths = @dynaExpression.paths
+					if dynaPaths
+						for path in dynaPaths
+							if not paths or paths.indexOf(path) < 0
+								if not @expressionDynaPaths
+									@expressionDynaPaths = [path]
+								else
+									@expressionDynaPaths.push(path)
+								@parent.data.bind(path, @)
+		return result
+
+	isRootOfTarget: (changedPath) ->
+		expressionPaths = @expressionPaths
+		expressionDynaPaths = @expressionDynaPaths
+
+		if not expressionPaths.length and not expressionDynaPaths then return false
+		if not changedPath then return true
+
+		if expressionPaths.length
+			for targetPath in expressionPaths
+				isParent = true
+				for part, i in changedPath
+					targetPart = targetPath[i]
+					if part isnt targetPart
+						if targetPart is "**" then continue
+						else if targetPart is "*"
+							if i is changedPath.length - 1 then continue
+						isParent = false
+						break
+
+				if isParent then return 2
+
+		if expressionDynaPaths
+			for targetPath in expressionDynaPaths
+				isParent = true
+				for part, i in changedPath
+					targetPart = targetPath[i].split(".")
+					if part isnt targetPart
+						if targetPart is "**" then continue
+						else if targetPart is "*"
+							if i is changedPath.length - 1 then continue
+						isParent = false
+						break
+
+				if isParent then return 1
+		return 0
+
+class cola.AliasScope extends cola.ExpressionScope
+
+	constructor: (@parent, expression) ->
+		@setExpression(expression)
+		@data = new cola.AliasDataModel(@, expression.alias, @dataType)
+		@action = @parent.action
 
 	destroy: () ->
 		super()
 		@data.destroy()
+		return
+
+	setExpression: (expression) ->
+		super(expression)
+		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
+			@dataType = @parent.data.getDataType(expression.paths[0])
 		return
 
 	setTargetData: (data) ->
@@ -240,6 +330,19 @@ class cola.AliasScope extends cola.SubScope
 			oldData.addObserver(@)
 		return
 
+	retrieveData: (dynaExpressionOnly) ->
+		cola.util.cancelDelay(@, "retrieve")
+
+		data = @evaluate(@, dynaExpressionOnly)
+		@setTargetData(data)
+		return
+
+	refreshTargetData: () ->
+		@data._onDataMessage([@expression.alias], cola.constants.MESSAGE_REFRESH, {
+			data: data
+		})
+		return
+
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
 		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
@@ -250,16 +353,19 @@ class cola.AliasScope extends cola.SubScope
 
 	_doProcessMessage: (bindingPath, path, type, arg) ->
 		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
-			if @isRootOfTarget(path, @targetPath)
-				@retrieveItems()
-				@refreshItems()
+			isParent = @isRootOfTarget(path)
+			if isParent
+				@retrieveData(isParent < 2)
+				@refreshTargetData()
 				allProcessed = true
 			else if @expression
 				if not @expressionPaths and @expression.hasCallStatement and not @expression.hasDefinedPath
-					cola.util.delay(@, "refresh", 100, () =>
-						@refreshItems()
+					cola.util.delay(@, "retrieve", 100, () =>
+						@retrieveData()
+						@refreshTargetData()
 						return
 					)
+					allProcessed = true
 		return allProcessed
 
 class cola.ItemScope extends cola.SubScope
@@ -276,9 +382,7 @@ class cola.ItemScope extends cola.SubScope
 	_processMessage: (bindingPath, path, type, arg) ->
 		return @data._onDataMessage(path, type, arg)
 
-class cola.ItemsScope extends cola.SubScope
-
-	repeatNotification: true
+class cola.ItemsScope extends cola.ExpressionScope
 
 	constructor: (parent, expression) ->
 		@setParent(parent)
@@ -298,38 +402,21 @@ class cola.ItemsScope extends cola.SubScope
 		return
 
 	setExpression: (expression) ->
-		@expression = expression
-		if expression
-			@alias = expression.alias
-			paths = []
-			if expression.paths
-				for path in expression.paths
-					paths.push(path.split("."))
-
-			if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
-				@watchAllMessages()
-			else
-				@watchPath(expression.paths)
-		else
-			@alias = "item"
-
-		if expression and expression.paths
-			@expressionPaths ?= []
-			for path in @expression.paths
-				@expressionPaths.push(path.split("."))
+		super(expression)
+		@alias = if expression then expression.alias else "item"
 		return
 
 	setItems: (items) ->
 		@_setItems(items)
 		return
 
-	retrieveItems: (dataCtx = {}) ->
+	retrieveData: (dynaExpressionOnly) ->
 		cola.util.cancelDelay(@, "retrieve")
 
 		if @_retrieveItems
-			 @_retrieveItems(dataCtx)
+			 @_retrieveItems(dynaExpressionOnly)
 		else if @expression
-			items = @expression.evaluate(@parent, "async", dataCtx)
+			items = @evaluate(@parent, dynaExpressionOnly)
 			@setItems(items)
 		return
 
@@ -409,23 +496,6 @@ class cola.ItemsScope extends cola.SubScope
 				item = item.parent
 		return null
 
-	isRootOfTarget: (changedPath, targetPaths) ->
-		if !targetPaths then return false
-		if !changedPath then return true
-		for targetPath in targetPaths
-			isRoot = true
-			for part, i in changedPath
-				targetPart = targetPath[i]
-				if part isnt targetPart
-					if targetPart is "**" then continue
-					else if targetPart is "*"
-						if i is changedPath.length - 1 then continue
-					isRoot = false
-					break
-
-			if isRoot then return true
-		return false
-
 	_processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
 		allProcessed = @_doProcessMessage(bindingPath, path, type, arg)
@@ -433,7 +503,7 @@ class cola.ItemsScope extends cola.SubScope
 		if allProcessed
 			@messageTimestamp = arg.timestamp
 		else if @itemScopeMap
-			itemScope = @findItemDomBinding(arg.entity or arg.entityList)
+			itemScope = @findItemDomBinding(arg.data or arg.entity)
 			if itemScope
 				itemScope._processMessage(bindingPath, path, type, arg)
 			else
@@ -455,7 +525,7 @@ class cola.ItemsScope extends cola.SubScope
 	_doProcessMessage: (bindingPath, path, type, arg)->
 		if type is cola.constants.MESSAGE_REFRESH
 			if @isRootOfTarget(path, @expressionPaths)
-				@retrieveItems()
+				@retrieveData()
 				@refreshItems()
 				allProcessed = true
 			else
@@ -463,7 +533,7 @@ class cola.ItemsScope extends cola.SubScope
 
 		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE # or type is cola.constants.MESSAGE_STATE_CHANGE
 			if @isRootOfTarget(path, @expressionPaths)
-				@retrieveItems()
+				@retrieveData()
 				@refreshItems()
 				allProcessed = true
 			else
@@ -477,7 +547,7 @@ class cola.ItemsScope extends cola.SubScope
 			if arg.entityList is @items or @isOriginItems(arg.entityList)
 				@onCurrentItemChange?(arg)
 			else if @isRootOfTarget(path, @expressionPaths)
-				@retrieveItems()
+				@retrieveData()
 				@refreshItems()
 				allProcessed = true
 			else
@@ -516,7 +586,7 @@ class cola.ItemsScope extends cola.SubScope
 		if processMoreMessage and @expression
 			if not @expressionPaths and @expression.hasCallStatement and not @expression.hasDefinedPath
 				cola.util.delay(@, "retrieve", 100, () =>
-					@retrieveItems()
+					@retrieveData()
 					@refreshItems()
 					return
 				)
@@ -905,7 +975,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		@_targetData = data
 
 		if data instanceof cola.Entity or data instanceof cola.EntityList
-			@dataType = data.dataType or defaultDataType
+			@dataType = data.dataType or @defaultDataType
 
 		if not silence
 			@_onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
@@ -1043,7 +1113,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 		if @_targetData
 			targetData = @_targetData
-			entity = arg.entityList or arg.entity
+			entity = arg.data or arg.entityList or arg.entity
 			while entity
 				if entity is targetData
 					isChild = true
@@ -1122,12 +1192,11 @@ Element binding
 class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
-		@paths = paths = @expression.paths
-		@watchingMoreMessage = not paths and @expression.hasCallStatement and not @expression.hasDefinedPath
+		@paths = @expression.paths or []
+		@watchingMoreMessage = not @paths.length and @expression.hasCallStatement and not @expression.hasDefinedPath
 
-		if paths
-			for path in paths
-				scope.data.bind(path, @)
+		for path in @paths
+			scope.data.bind(path, @)
 
 	destroy: () ->
 		paths = @paths
@@ -1138,15 +1207,39 @@ class cola.ElementAttrBinding
 
 	_processMessage: (bindingPath, path, type)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh()
+			@refresh(@dynaPaths?.indexOf(bindingPath) >= 0)
 		return
 
-	evaluate: (dataCtx) ->
-		dataCtx ?= {}
-		return @expression.evaluate(@scope, "async", dataCtx)
+	evaluate: (dynaExpressionOnly, dataCtx) ->
+		loadMode = "async"
+		if dynaExpressionOnly and @dynaExpression
+			result = @dynaExpression.evaluate(@scope, loadMode, dataCtx)
+		else
+			result = @expression.evaluate(@scope, loadMode, dataCtx)
 
-	_refresh: () ->
-		value = @evaluate()
+			if @expression.isDyna and dataCtx?.dynaExpression
+				dynaExpression = dataCtx.dynaExpression
+				if dynaExpression.raw isnt @dynaExpressionStr
+					@dynaExpressionStr = dynaExpression.raw
+
+				if not @ignoreBind
+					if @dynaPaths
+						for path in @dynaPaths
+							@scope.data.unbind(path, @)
+
+					paths = @dynaExpression.paths
+					if paths
+						for path in paths
+							if @paths.indexOf(path) < 0
+								if not @dynaPaths
+									@dynaPaths = [path]
+								else
+									@dynaPaths.push(path)
+								@scope.data.bind(path, @)
+		return result
+
+	_refresh: (dynaExpressionOnly) ->
+		value = @evaluate(dynaExpressionOnly)
 		element = @element
 		element._duringBindingRefresh = true
 		try
@@ -1155,15 +1248,15 @@ class cola.ElementAttrBinding
 			element._duringBindingRefresh = false
 		return
 
-	refresh: () ->
+	refresh: (dynaExpressionOnly) ->
 		return unless @_refresh
 		if @delay
 			cola.util.delay(@, "refresh", 100, () ->
-				@_refresh()
+				@_refresh(dynaExpressionOnly)
 				return
 			)
 		else
-			@_refresh()
+			@_refresh(dynaExpressionOnly)
 		return
 
 cola.submit = (options, callback) ->

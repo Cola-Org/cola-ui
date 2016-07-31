@@ -10,26 +10,27 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		if @expression
 			@isStatic = @expression.isStatic
 			@isDyna = @expression.isDyna
-			@paths = @expression.paths
-			if not @paths and @expression.hasCallStatement
+			@paths = @expression.paths or []
+			if not @paths.length and @expression.hasCallStatement
 				@paths = ["**"]
 				if not @isStatic then @delay = true
 				@watchingMoreMessage = not @expression.hasDefinedPath
 
-	evaluate: (domBinding, dynaExpressionOnly, dataCtx, loadMode = "async") ->
-		dataCtx ?= {}
+	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode = "async") ->
+		scope = domBinding.scope
+
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
 
-		if dynaExpressionOnly
-			result = @dynaExpression?.evaluate(domBinding.scope, loadMode, dataCtx)
+		if dynaExpressionOnly and @dynaExpression
+			result = @dynaExpression.evaluate(scope, loadMode, dataCtx)
 		else
-			result = @expression.evaluate(domBinding.scope, loadMode, dataCtx)
+			result = @expression.evaluate(scope, loadMode, dataCtx)
 
 			if @isDyna and dataCtx.dynaExpression
-				dynaExpression = dataCtx.dynaExpression
-				if dynaExpression.raw isnt @dynaExpressionStr
-					@dynaExpressionStr = dynaExpression.raw
+				@dynaExpression = dataCtx.dynaExpression
+				if @dynaExpression.raw isnt @dynaExpressionStr
+					@dynaExpressionStr = @dynaExpression.raw
 
 				if not @ignoreBind
 					if @dynaPaths
@@ -62,44 +63,9 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				@disabled = true
 		return
 
-class cola._WatchFeature extends cola._BindingFeature
-	constructor: (@action, @paths) ->
-		@watchingMoreMessage = true
-
-	_processMessage: (domBinding, bindingPath)->
-		if not @isDyna or @dynaPaths?.indexOf(bindingPath) >= 0
-			@refresh(domBinding)
-		return
-
-	refresh: (domBinding) ->
-		action = domBinding.scope.action(@action)
-		if not action
-			throw new cola.Exception("No action named \"#{@action}\" found.")
-		action(domBinding.dom, domBinding.scope)
-		return
-
-class cola._EventFeature extends cola._ExpressionFeature
-	ignoreBind: true
-
-	constructor: (@expression, @event) ->
-
-	init: (domBinding) ->
-		domBinding.$dom.on(@event, (evt) =>
-			oldScope = cola.currentScope
-			cola.currentScope = domBinding.scope
-			try
-				return @evaluate(domBinding, false, {
-					vars:
-						$event: evt
-				}, "never")
-			finally
-				cola.currentScope = oldScope
-		)
-		return
-
 class cola._AliasFeature extends cola._ExpressionFeature
 	ignoreBind: true
-	
+
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
@@ -109,6 +75,12 @@ class cola._AliasFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
+	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode) ->
+		dataCtx.vars ?= {}
+		dataCtx.vars.$dom = domBinding.dom
+		scope = domBinding.scope
+		return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx)
+
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
 		data = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
 		domBinding.scope.data.setTargetData(data)
@@ -116,7 +88,7 @@ class cola._AliasFeature extends cola._ExpressionFeature
 
 class cola._RepeatFeature extends cola._ExpressionFeature
 	ignoreBind: true
-	
+
 	constructor: (expression) ->
 		super(expression)
 		@alias = expression.alias
@@ -210,12 +182,19 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
+	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode) ->
+		dataCtx.vars ?= {}
+		dataCtx.vars.$dom = domBinding.dom
+		scope = domBinding.scope
+		return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx)
+
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
 		if @isDyna and not dynaExpressionOnly
 			@evaluate(domBinding, dynaExpressionOnly, dataCtx)
 			domBinding.scope.setExpression(@dynaExpression)
 
-		domBinding.scope.refreshItems(dataCtx)
+		domBinding.scope.retrieveData()
+		domBinding.scope.refreshItems()
 		return
 
 	onItemsRefresh: (domBinding) ->
@@ -347,6 +326,41 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			initializer(itemScope, dom) for initializer in initializers
 			cola.util.removeUserData(dom, cola.constants.DOM_INITIALIZER_KEY)
 		return currentDom or dom
+
+class cola._WatchFeature extends cola._BindingFeature
+	constructor: (@action, @paths) ->
+		@watchingMoreMessage = true
+
+	_processMessage: (domBinding, bindingPath)->
+		if not @isDyna or @dynaPaths?.indexOf(bindingPath) >= 0
+			@refresh(domBinding)
+		return
+
+	refresh: (domBinding) ->
+		action = domBinding.scope.action(@action)
+		if not action
+			throw new cola.Exception("No action named \"#{@action}\" found.")
+		action(domBinding.dom, domBinding.scope)
+		return
+
+class cola._EventFeature extends cola._ExpressionFeature
+	ignoreBind: true
+
+	constructor: (@expression, @event) ->
+
+	init: (domBinding) ->
+		domBinding.$dom.on(@event, (evt) =>
+			oldScope = cola.currentScope
+			cola.currentScope = domBinding.scope
+			try
+				return @evaluate(domBinding, false, {
+					vars:
+						$event: evt
+				}, "never")
+			finally
+				cola.currentScope = oldScope
+		)
+		return
 
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->

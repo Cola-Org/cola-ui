@@ -258,9 +258,9 @@ cola.DataItemsWidgetMixin =
 			itemsScope.onCurrentItemChange = (arg) => @_onCurrentItemChange(arg)
 
 	_getItems: () ->
-		if !@_itemsRetrieved
+		if not @_itemsRetrieved
 			@_itemsRetrieved = true
-			@_itemsScope.retrieveItems()
+			@_itemsScope.retrieveData()
 		return {
 			items: @_itemsScope.items
 			originItems: @_itemsScope.originItems
