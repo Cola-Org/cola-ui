@@ -139,7 +139,7 @@ cola.DataWidgetMixin =
 
 			if not @_bindProcessor
 				@_bindProcessor = bindProcessor = {
-					_processMessage: (bindingPath, path, type, arg) =>
+					processMessage: (bindingPath, path, type, arg) =>
 						if @_filterDataMessage
 							if not @_filterDataMessage(path, type, arg)
 								return
@@ -203,24 +203,6 @@ cola.DataWidgetMixin =
 	getBindingDataType: () ->
 		return unless @_bindInfo?.expression and @_bindInfo.writeable
 		return @_scope.data.getDataType(@_bind)
-
-	_isRootOfTarget: (changedPath, targetPath) ->
-		if !changedPath or !targetPath then return true
-		if targetPath instanceof Array
-			targetPaths = targetPath
-			for targetPath in targetPaths
-				isRoot = true
-				for part, i in changedPath
-					if part != targetPath[i]
-						isRoot = false
-						break
-				if isRoot then return true
-			return false
-		else
-			for part, i in changedPath
-				if part != targetPath[i]
-					return false
-			return true
 
 cola.DataItemsWidgetMixin =
 	_dataItemsWidget: true

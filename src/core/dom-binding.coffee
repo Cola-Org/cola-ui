@@ -49,14 +49,14 @@ class cola._DomBinding
 		return
 
 	bindFeature: (feature) ->
-		return unless feature._processMessage
+		return unless feature.processMessage
 		paths = feature.paths
 		if paths
 			@bind(path, feature) for path in paths
 		return
 
 	unbindFeature: (feature) ->
-		return unless feature._processMessage
+		return unless feature.processMessage
 		paths = feature.paths
 		if paths
 			@unbind(path, feature) for path in paths
@@ -65,9 +65,9 @@ class cola._DomBinding
 	bind: (path, feature) ->
 		pipe = {
 			path: path
-			_processMessage: (bindingPath, path, type, arg) =>
+			processMessage: (bindingPath, path, type, arg) =>
 				if not feature.disabled
-					feature._processMessage(@, bindingPath, path, type, arg)
+					feature.processMessage(@, bindingPath, path, type, arg)
 					if feature.disabled then pipe.disabled = true
 				else
 					pipe.disabled = true
@@ -170,7 +170,7 @@ class cola._RepeatItemDomBinding extends cola._AliasDomBinding
 
 	processDataMessage: (path, type, arg) ->
 		if !@isTemplate
-			@scope.data._processMessage("**", path, type, arg)
+			@scope.data.processMessage("**", path, type, arg)
 		return
 
 	refresh: () ->

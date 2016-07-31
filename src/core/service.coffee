@@ -186,7 +186,7 @@ class _ExpressionDataModel extends cola.AbstractDataModel
 			return @model.parent?.data.get(path, loadMode, context)
 
 	set: cola._EMPTY_FUNC
-	_processMessage: cola._EMPTY_FUNC
+	processMessage: cola._EMPTY_FUNC
 	getDataType: cola._EMPTY_FUNC
 	getProperty: cola._EMPTY_FUNC
 	flush: cola._EMPTY_FUNC

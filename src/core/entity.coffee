@@ -763,7 +763,7 @@ class cola.Entity
 		return
 
 	_doNotify: (path, type, arg) ->
-		@_dataModel?._onDataMessage(path, type, arg)
+		@_dataModel?.onDataMessage(path, type, arg)
 		return
 
 	_validate: (prop) ->
@@ -1414,7 +1414,7 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_dataModel?._onDataMessage(@getPath(), type, arg)
+			@_dataModel?.onDataMessage(@getPath(), type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher(["*"], type, arg)

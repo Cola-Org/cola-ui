@@ -290,7 +290,7 @@ _extendWidget = (superCls, definition) ->
 
         @on("attributeChange", (self, arg) =>
             attr = arg.attribute
-            @_widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+            @_widgetModel.data.onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
             value = @_get(attr)
             if value and (value instanceof cola.Entity or value instanceof cola.EntityList)
                 @_entityProps[attr] = value

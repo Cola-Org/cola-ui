@@ -331,7 +331,7 @@ class cola._WatchFeature extends cola._BindingFeature
 	constructor: (@action, @paths) ->
 		@watchingMoreMessage = true
 
-	_processMessage: (domBinding, bindingPath)->
+	processMessage: (domBinding, bindingPath)->
 		if not @isDyna or @dynaPaths?.indexOf(bindingPath) >= 0
 			@refresh(domBinding)
 		return
@@ -372,7 +372,7 @@ class cola._DomFeature extends cola._ExpressionFeature
 			@ignoreMessage = false
 		return
 
-	_processMessage: (domBinding, bindingPath, path, type, arg)->
+	processMessage: (domBinding, bindingPath, path, type, arg)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
 			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
 		return

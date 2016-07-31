@@ -11,13 +11,13 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 	set: (path, value) ->
 		if path.charCodeAt(0) is 64 # `@`
 			@widget.set(path.substring(1), value)
-			@_onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		else
 			@model.parent?.data.set(path, value)
 		return
 
-	_processMessage: (bindingPath, path, type, arg) ->
-		@_onDataMessage(path, type, arg)
+	processMessage: (bindingPath, path, type, arg) ->
+		@onDataMessage(path, type, arg)
 
 		entity = arg.entity or arg.entityList
 		if entity
@@ -34,7 +34,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 					targetPath = value.getPath()
 					if targetPath?.length
 						relativePath = path.slice(targetPath.length)
-						@_onDataMessage(["@" + attr].concat(relativePath), type, arg)
+						@onDataMessage(["@" + attr].concat(relativePath), type, arg)
 		return
 
 	getDataType: (path) ->
@@ -68,8 +68,8 @@ class cola.WidgetModel extends cola.SubScope
 
 	repeatNotification: true
 
-	_processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
-		return @data._processMessage(bindingPath, path, type, arg)
+		return @data.processMessage(bindingPath, path, type, arg)
 
 class cola.TemplateWidget extends cola.Widget
