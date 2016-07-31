@@ -152,4 +152,21 @@
 	.mixin_panel_color(pink, @pink);
 	.mixin_panel_color(brown, @brown);
 	.mixin_panel_color(grey, @grey);
+
+	&.v-box {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+		padding: 0;
+		.header{
+			margin: 0px;
+		}
+		>.flex-box{
+			>div{
+				padding: 0.6em;
+			}
+		}
+	}
 }
+
