@@ -39,22 +39,24 @@ cola.util.cacheDom = (ele) ->
 
 USER_DATA_KEY = cola.constants.DOM_USER_DATA_KEY
 
-cola.util.userDataStore = {}
+cola.util.userDataStore = {
+	size: 0
+}
 
 cola.util.userData = (node, key, data) ->
-	return if node.nodeType == 3
+	return if node.nodeType is 3
 	userData = cola.util.userDataStore
-	if node.nodeType == 8
+	if node.nodeType is 8
 		text = node.nodeValue
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
 	else
 		id = node.getAttribute(USER_DATA_KEY)
 
-	if arguments.length == 3
-		if !id
+	if arguments.length is 3
+		if not id
 			id = cola.uniqueId()
-			if node.nodeType == 8
+			if node.nodeType is 8
 				if i > -1
 					node.nodeValue = text.substring(0, i + 1) + id
 				else
@@ -62,40 +64,71 @@ cola.util.userData = (node, key, data) ->
 			else
 				node.setAttribute(USER_DATA_KEY, id)
 
-			userData[id] = store = {}
+			userData[id] = store = {
+				__cleanStamp: cleanStamp
+			}
+			userData.size++
 		else
 			store = userData[id]
-			if !store then userData[id] = store = {}
+			if not store
+				userData[id] = store = {
+					__cleanStamp: cleanStamp
+				}
 
 		store[key] = data
-	else if arguments.length == 2
-		if typeof key == "string"
+
+	else if arguments.length is 2
+		if typeof key is "string"
 			if id
 				store = userData[id]
 				return store?[key]
-		else if key and typeof key == "object"
-			id = cola.uniqueId()
-			if node.nodeType == 8
-				if i > -1
-					node.nodeValue = text.substring(0, i + 1) + id
+		else if key and typeof key is "object"
+			if not id
+				id = cola.uniqueId()
+				if node.nodeType is 8
+					if i > -1
+						node.nodeValue = text.substring(0, i + 1) + id
+					else
+						node.nodeValue = if text then text + "|" + id else "|" + id
 				else
-					node.nodeValue = if text then text + "|" + id else "|" + id
-			else
-				node.setAttribute(USER_DATA_KEY, id)
+					node.setAttribute(USER_DATA_KEY, id)
 
-			userData[id] = key
-	else if arguments.length == 1
+				userData[id] = store = {
+					__cleanStamp: cleanStamp
+				}
+				userData.size++
+			else
+				store = userData[id]
+				if not store
+					userData[id] = store = {
+						__cleanStamp: cleanStamp
+					}
+
+			for k, v of key
+				store[k] = v
+
+	else if arguments.length is 1
 		if id
 			return userData[id]
 	return
 
 cola.util.removeUserData = (node, key) ->
-	id = node.getAttribute(USER_DATA_KEY)
+	if node.nodeType is 8
+		text = node.nodeValue
+		i = text.indexOf("|")
+		id = text.substring(i + 1) if i > -1
+	else
+		id = node.getAttribute(USER_DATA_KEY)
+
 	if id
 		store = cola.util.userDataStore[id]
 		if store
-			value = store[key]
-			delete store[key]
+			if key
+				value = store[key]
+				delete store[key]
+			else
+				delete cola.util.userDataStore[id]
+				userData.size--
 	return value
 
 ON_NODE_REMOVED_KEY = "__onNodeRemoved"
@@ -120,28 +153,10 @@ cola.util.onNodeDispose = (node, listener) ->
 
 _nodesToBeRemove = {}
 
-setInterval(() ->
-	for id, node of _nodesToBeRemove
-		store = cola.util.userDataStore[id]
-		if store
-			changed = true
-			nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
-			if nodeRemovedListener
-				if nodeRemovedListener instanceof Array
-					for listener in nodeRemovedListener
-						listener(node, store)
-				else
-					nodeRemovedListener(node, store)
-			delete cola.util.userDataStore[id]
-
-	if changed then _nodesToBeRemove = {}
-	return
-, 10000)
-
 _getNodeDataId = (node) ->
-	return if node.nodeType == 3
+	return if node.nodeType is 3
 
-	if node.nodeType == 8
+	if node.nodeType is 8
 		text = node.nodeValue
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
@@ -179,14 +194,73 @@ _DOMNodeRemovedListener = (evt) ->
 	if id then _nodesToBeRemove[id] = node
 	return
 
-document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
+cleanStamp = 1
 
-$fly(window).on("unload", () ->
-	document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-	document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
-	return
-)
+if document.all	# Damn old IE
+	setTimeout(() ->
+		i = 0
+		setInterval(() ->
+			return if cola.util.userDataStore.size < 256
+			userData = cola.util.userDataStore
+
+			c = 0
+			len = document.all.length
+			while i < len
+				node = document.all[i]
+				id = null
+				if node.nodeType is 8
+					text = node.nodeValue
+					i = text.indexOf("|")
+					id = text.substring(i + 1) if i > -1
+				else
+					id = node.getAttribute(USER_DATA_KEY)
+
+				if id
+					store = userData[id]
+					if store
+						store.__cleanStamp = cleanStamp
+
+				i++
+				c++
+
+				if c >= 64 then return
+
+			for id, store of userData
+				if store isnt cleanStamp
+					delete userData[id]
+
+			cleanStamp++
+			return
+		, 1000)
+		return
+	, 10000)
+else
+	document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+	document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
+
+	$fly(window).on("unload", () ->
+		document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+		document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
+		return
+	)
+
+	setInterval(() ->
+		for id, node of _nodesToBeRemove
+			store = cola.util.userDataStore[id]
+			if store
+				changed = true
+				nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
+				if nodeRemovedListener
+					if nodeRemovedListener instanceof Array
+						for listener in nodeRemovedListener
+							listener(node, store)
+					else
+						nodeRemovedListener(node, store)
+				delete cola.util.userDataStore[id]
+
+		if changed then _nodesToBeRemove = {}
+		return
+	, 10000)
 
 if cola.device.mobile
 	$fly(window).on("load", () ->

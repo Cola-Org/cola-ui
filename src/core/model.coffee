@@ -507,10 +507,10 @@ class cola.ItemsScope extends cola.ExpressionScope
 			itemScope = @findItemDomBinding(arg.data or arg.entity)
 			if itemScope
 				itemScope.processMessage(bindingPath, path, type, arg)
-			else
-				# TODO: 可优化, 配合AliasDataModel._bind一起优化
+			else if @hasExBinding()
 				for id, itemScope of @itemScopeMap
-					itemScope.processMessage(bindingPath, path, type, arg)
+					if itemScope.hasExBinding()
+						itemScope.processMessage(bindingPath, path, type, arg)
 		return
 
 	isOriginItems: (items) ->

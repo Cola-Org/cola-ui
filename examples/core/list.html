@@ -43,10 +43,12 @@
 <hr>
 <input c-bind="addresses.city">
 <input c-bind="addresses.postCode">
+<input c-bind="test">
 <hr>
 <ul>
 	<li c-repeat="address in addresses">
 		<span c-bind="$index"></span>
+		<span c-bind="test"></span>
 		<span c-bind="address.city"></span>
 		<span c-bind="address.postCode"></span>
 		<input c-bind="address.city">
