@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1694,10 +1694,10 @@
                 }
               } else if (typeof listener === "string") {
                 retValue = (function(_this) {
-                  return function(self, arg) {
+                  return function() {
                     return eval(listener);
                   };
-                })(this)(self, arg);
+                })(this)();
               }
               if (retValue !== void 0) {
                 result = retValue;
@@ -2187,6 +2187,7 @@
       this.raw = exprStr;
       i = exprStr.indexOf(" on ");
       if ((0 < i && i < (exprStr.length - 1))) {
+        this.hasDefinedPath = true;
         watchPathStr = exprStr.substring(i + 4);
         exprStr = exprStr.substring(0, i);
         watchPaths = [];
@@ -2225,6 +2226,7 @@
       if (watchPaths) {
         this.paths = watchPaths;
       }
+      this.writeable = (this.type === "MemberExpression" || this.type === "Identifier") && !this.hasCallStatement;
     }
 
     Expression.prototype.compile = function(exprStr) {
@@ -2329,25 +2331,83 @@
       parts = [];
       pathParts = [];
       stringify(tree, parts, pathParts, true, this);
-      this.expression = parts.join("");
+      this.script = parts.join("");
     };
 
     Expression.prototype.evaluate = function(scope, loadMode, dataCtx) {
-      var retValue;
-      retValue = eval(this.expression);
-      if (retValue instanceof cola.Chain) {
-        retValue = retValue._data;
+      var expression, parent, pathInfo, retValue;
+      if (this.isDyna && !(dataCtx != null ? dataCtx.ignoreDynaExpression : void 0)) {
+        retValue = eval(this.script);
+        if (typeof retValue === "string") {
+          expression = cola._compileExpression(retValue);
+          if (dataCtx != null) {
+            dataCtx.dynaExpression = expression;
+          }
+        }
+      } else {
+        expression = this;
       }
-      if (retValue instanceof cola.Entity || retValue instanceof cola.EntityList) {
-        if (dataCtx != null) {
-          dataCtx.path = retValue.getPath();
+      if (expression.writeable) {
+        pathInfo = expression.getParentPathInfo();
+        if (pathInfo.parentPath) {
+          parent = scope.get(pathInfo.parentPath, loadMode, dataCtx);
+          if (parent instanceof cola.EntityList) {
+            parent = parent.current;
+          }
+          if (parent && typeof parent === "object") {
+            retValue = cola.Entity._evalDataPath(parent, pathInfo.property, false, loadMode, null, dataCtx);
+          }
+          if (retValue instanceof cola.Entity || retValue instanceof cola.EntityList) {
+            if (dataCtx != null) {
+              dataCtx.closetEntity = retValue;
+            }
+          } else if (parent instanceof cola.Entity) {
+            if (dataCtx != null) {
+              dataCtx.closetEntity = parent;
+            }
+          }
+        } else {
+          retValue = eval(expression.script);
+          if (retValue instanceof cola.Entity || retValue instanceof cola.EntityList) {
+            if (dataCtx != null) {
+              dataCtx.closetEntity = retValue;
+            }
+          }
+        }
+      } else {
+        retValue = eval(expression.script);
+        if (retValue instanceof cola.Chain) {
+          retValue = retValue._data;
         }
       }
       return retValue;
     };
 
+    Expression.prototype.getParentPathInfo = function() {
+      var i, info, path;
+      if (this.parentPath !== void 0) {
+        return this.parentPath;
+      }
+      if (this.writeable) {
+        path = this.paths[0];
+        if (this.type === "Identifier") {
+          info = {
+            parentPath: null,
+            property: path
+          };
+        } else {
+          i = path.lastIndexOf(".");
+          info = {
+            parentPath: path.substring(0, i),
+            property: path.substring(i + 1)
+          };
+        }
+      }
+      return info;
+    };
+
     Expression.prototype.toString = function() {
-      return this.expression;
+      return this.raw;
     };
 
     return Expression;
@@ -3192,9 +3252,9 @@
 
   defaultDataTypes["number"] = defaultDataTypes["float"];
 
-  _getEntityPath = function(markNoncurrent) {
+  _getEntityPath = function() {
     var lastEntity, parent, part, path, self;
-    if (!markNoncurrent && this._pathCache) {
+    if (this._pathCache) {
       return this._pathCache;
     }
     parent = this.parent;
@@ -3209,23 +3269,12 @@
       }
       part = self._parentProperty;
       if (part) {
-        if (markNoncurrent && self instanceof _EntityList) {
-          if (markNoncurrent === "always" || lastEntity && self.current !== lastEntity) {
-            path.push("!" + part);
-          } else {
-            path.push(part);
-          }
-        } else {
-          path.push(part);
-        }
+        path.push(part);
       }
       self = parent;
       parent = parent.parent;
     }
-    path = path.reverse();
-    if (!markNoncurrent) {
-      this._pathCache = path;
-    }
+    this._pathCache = path = path.reverse();
     return path;
   };
 
@@ -3289,7 +3338,7 @@
         if (p === "**") {
           shouldTrigger = true;
         } else if (p === "*") {
-          shouldTrigger = path.length < 2;
+          shouldTrigger = path.length === holder.path.length;
         } else {
           pv = holder.path;
           if (pv.length >= path.length) {
@@ -4251,7 +4300,7 @@
       var path;
       if (this._disableObserverCount === 0) {
         delete arg.timestamp;
-        path = this.getPath(true);
+        path = this.getPath();
         if ((type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_VALIDATION_STATE_CHANGE || type === cola.constants.MESSAGE_LOADING_START || type === cola.constants.MESSAGE_LOADING_END) && arg.property) {
           if (path) {
             path = path.concat(arg.property);
@@ -4269,7 +4318,7 @@
     Entity.prototype._doNotify = function(path, type, arg) {
       var ref;
       if ((ref = this._dataModel) != null) {
-        ref._onDataMessage(path, type, arg);
+        ref.onDataMessage(path, type, arg);
       }
     };
 
@@ -5188,7 +5237,7 @@
       var ref;
       if (this._disableObserverCount === 0) {
         if ((ref = this._dataModel) != null) {
-          ref._onDataMessage(this.getPath(true), type, arg);
+          ref.onDataMessage(this.getPath(), type, arg);
         }
         if (type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_INSERT || type === cola.constants.MESSAGE_REMOVE) {
           this._triggerWatcher(["*"], type, arg);
@@ -5828,7 +5877,7 @@
     Scope.prototype.watch = function(path, fn) {
       var l, len1, p, processor;
       processor = {
-        _processMessage: function(bindingPath, path, type, arg) {
+        processMessage: function(bindingPath, path, type, arg) {
           fn(path, type, arg);
         }
       };
@@ -5841,6 +5890,23 @@
         this.data.bind(path, processor);
       }
       return this;
+    };
+
+    Scope.prototype.hasExBinding = function() {
+      return this._hasExBinding;
+    };
+
+    Scope.prototype.setHasExBinding = function(hasExBinding) {
+      var ref;
+      if (this._hasExBinding === hasExBinding) {
+        return;
+      }
+      this._hasExBinding = hasExBinding;
+      if (hasExBinding) {
+        if ((ref = this.parent) != null) {
+          ref.setHasExBinding(true);
+        }
+      }
     };
 
     return Scope;
@@ -5867,9 +5933,8 @@
         parentName = parent;
         parent = cola.model(parentName);
       }
-      if (parent) {
-        this.parent = parent;
-      }
+      this.parent = parent;
+      this.setHasExBinding(true);
       this.data = new cola.DataModel(this);
       if (parent) {
         parent.data.bind("**", this);
@@ -5921,8 +5986,8 @@
       }
     };
 
-    Model.prototype._processMessage = function(bindingPath, path, type, arg) {
-      return this.data._onDataMessage(path, type, arg);
+    Model.prototype.processMessage = function(bindingPath, path, type, arg) {
+      return this.data.onDataMessage(path, type, arg);
     };
 
     Model.prototype.$ = function(selector) {
@@ -5981,7 +6046,7 @@
       path = this._watchPath;
       delete this._watchPath;
       parent = this.parent;
-      if (parent) {
+      if (parent && path) {
         if (path instanceof Array) {
           for (l = 0, len1 = path.length; l < len1; l++) {
             p = path[l];
@@ -6002,6 +6067,7 @@
       this._unwatchPath();
       parent = this.parent;
       if (parent) {
+        this._watchPath = ["**"];
         parent.data.bind("**", this);
         if (typeof parent.watchAllMessages === "function") {
           parent.watchAllMessages();
@@ -6011,11 +6077,7 @@
 
     SubScope.prototype.destroy = function() {
       if (this.parent) {
-        if (this._watchAllMessages) {
-          this.parent.data.unbind("**", this);
-        } else if (this._watchPath) {
-          this._unwatchPath();
-        }
+        this._unwatchPath();
       }
     };
 
@@ -6023,23 +6085,174 @@
 
   })(cola.Scope);
 
+  cola.ExpressionScope = (function(superClass) {
+    extend(ExpressionScope, superClass);
+
+    function ExpressionScope() {
+      return ExpressionScope.__super__.constructor.apply(this, arguments);
+    }
+
+    ExpressionScope.prototype.repeatNotification = true;
+
+    ExpressionScope.prototype._unwatchPath = function() {
+      var l, len1, path, ref;
+      ExpressionScope.__super__._unwatchPath.call(this);
+      if (this.parent && this.expressionDynaPaths) {
+        ref = this.expressionDynaPaths;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          path = ref[l];
+          this.parent.data.unbind(path, this);
+        }
+      }
+    };
+
+    ExpressionScope.prototype.setExpression = function(expression) {
+      var l, len1, path, ref;
+      this.expression = expression;
+      if (this.expressionPaths == null) {
+        this.expressionPaths = [];
+      }
+      if (expression) {
+        if (expression.paths) {
+          ref = this.expression.paths;
+          for (l = 0, len1 = ref.length; l < len1; l++) {
+            path = ref[l];
+            this.expressionPaths.push(path.split("."));
+          }
+        }
+        if (!expression.paths && expression.hasCallStatement && !expression.hasDefinedPath) {
+          this.watchAllMessages();
+        } else {
+          this.watchPath(expression.paths);
+        }
+      } else {
+        this._unwatchPath();
+      }
+    };
+
+    ExpressionScope.prototype.evaluate = function(scope, dynaExpressionOnly, loadMode, dataCtx) {
+      var dynaPaths, l, len1, len2, o, path, paths, ref, result;
+      if (loadMode == null) {
+        loadMode = "async";
+      }
+      if (dataCtx == null) {
+        dataCtx = {};
+      }
+      if (!this.expression) {
+        return;
+      }
+      if (dynaExpressionOnly && this.dynaExpression) {
+        result = this.dynaExpression.evaluate(scope, loadMode, dataCtx);
+      } else {
+        result = this.expression.evaluate(scope, loadMode, dataCtx);
+        if (this.expression.isDyna && dataCtx.dynaExpression) {
+          this.dynaExpression = dataCtx.dynaExpression;
+          if (this.dynaExpression.raw !== this.dynaExpressionStr) {
+            this.dynaExpressionStr = this.dynaExpression.raw;
+          }
+          if (this.parent && !this.ignoreBind) {
+            if (this.expressionDynaPaths) {
+              ref = this.expressionDynaPaths;
+              for (l = 0, len1 = ref.length; l < len1; l++) {
+                path = ref[l];
+                this.parent.data.unbind(path, this);
+              }
+              delete this.expressionDynaPaths;
+            }
+            paths = this.expression.paths;
+            dynaPaths = this.dynaExpression.paths;
+            if (dynaPaths) {
+              for (o = 0, len2 = dynaPaths.length; o < len2; o++) {
+                path = dynaPaths[o];
+                if (!paths || paths.indexOf(path) < 0) {
+                  if (!this.expressionDynaPaths) {
+                    this.expressionDynaPaths = [path];
+                  } else {
+                    this.expressionDynaPaths.push(path);
+                  }
+                  this.parent.data.bind(path, this);
+                }
+              }
+            }
+          }
+        }
+      }
+      return result;
+    };
+
+    ExpressionScope.prototype.isParentOfTarget = function(changedPath) {
+      var expressionDynaPaths, expressionPaths, i, isParent, l, len1, len2, len3, len4, o, part, q, targetPart, targetPath, u;
+      expressionPaths = this.expressionPaths;
+      expressionDynaPaths = this.expressionDynaPaths;
+      if (!expressionPaths.length && !expressionDynaPaths) {
+        return false;
+      }
+      if (!changedPath) {
+        return true;
+      }
+      if (expressionPaths.length) {
+        for (l = 0, len1 = expressionPaths.length; l < len1; l++) {
+          targetPath = expressionPaths[l];
+          isParent = true;
+          for (i = o = 0, len2 = changedPath.length; o < len2; i = ++o) {
+            part = changedPath[i];
+            targetPart = targetPath[i];
+            if (part !== targetPart) {
+              if (targetPart === "**") {
+                continue;
+              } else if (targetPart === "*") {
+                if (i === changedPath.length - 1) {
+                  continue;
+                }
+              }
+              isParent = false;
+              break;
+            }
+          }
+          if (isParent) {
+            return 2;
+          }
+        }
+      }
+      if (expressionDynaPaths) {
+        for (q = 0, len3 = expressionDynaPaths.length; q < len3; q++) {
+          targetPath = expressionDynaPaths[q];
+          isParent = true;
+          for (i = u = 0, len4 = changedPath.length; u < len4; i = ++u) {
+            part = changedPath[i];
+            targetPart = targetPath[i].split(".");
+            if (part !== targetPart) {
+              if (targetPart === "**") {
+                continue;
+              } else if (targetPart === "*") {
+                if (i === changedPath.length - 1) {
+                  continue;
+                }
+              }
+              isParent = false;
+              break;
+            }
+          }
+          if (isParent) {
+            return 1;
+          }
+        }
+      }
+      return 0;
+    };
+
+    return ExpressionScope;
+
+  })(cola.SubScope);
+
   cola.AliasScope = (function(superClass) {
     extend(AliasScope, superClass);
 
     function AliasScope(parent1, expression) {
-      var dataType;
       this.parent = parent1;
-      if (expression && typeof expression.paths.length === 1 && !expression.hasCallStatement) {
-        dataType = this.parent.data.getDataType(expression.paths[0]);
-      }
-      this.data = new cola.AliasDataModel(this, expression.alias, dataType);
+      this.setExpression(expression);
+      this.data = new cola.AliasDataModel(this, expression.alias, this.dataType);
       this.action = this.parent.action;
-      this.expression = expression;
-      if (!expression.paths && expression.hasCallStatement) {
-        this.watchAllMessages();
-      } else {
-        this.watchPath(expression.paths);
-      }
     }
 
     AliasScope.prototype.destroy = function() {
@@ -6047,18 +6260,67 @@
       this.data.destroy();
     };
 
-    AliasScope.prototype.repeatNotification = true;
+    AliasScope.prototype.setExpression = function(expression) {
+      AliasScope.__super__.setExpression.call(this, expression);
+      if (expression && typeof expression.paths.length === 1 && !expression.hasCallStatement) {
+        this.dataType = this.parent.data.getDataType(expression.paths[0]);
+      }
+    };
 
-    AliasScope.prototype._processMessage = function(bindingPath, path, type, arg) {
+    AliasScope.prototype.setTargetData = function(data) {
+      this.data.setTargetData(data);
+    };
+
+    AliasScope.prototype.retrieveData = function(dynaExpressionOnly) {
+      var data;
+      cola.util.cancelDelay(this, "retrieve");
+      data = this.evaluate(this, dynaExpressionOnly);
+      this.setTargetData(data);
+    };
+
+    AliasScope.prototype.refreshTargetData = function() {
+      this.data.onDataMessage([this.expression.alias], cola.constants.MESSAGE_REFRESH, {
+        data: data
+      });
+    };
+
+    AliasScope.prototype.processMessage = function(bindingPath, path, type, arg) {
+      var allProcessed;
       if (this.messageTimestamp >= arg.timestamp) {
         return;
       }
-      this.data._processMessage(bindingPath, path, type, arg);
+      allProcessed = this._processMessage(bindingPath, path, type, arg);
+      if (!allProcessed) {
+        this.data.onDataMessage(path, type, arg);
+      }
+    };
+
+    AliasScope.prototype._processMessage = function(bindingPath, path, type, arg) {
+      var allProcessed, isParent;
+      if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_REMOVE) {
+        isParent = this.isParentOfTarget(path);
+        if (isParent) {
+          this.retrieveData(isParent < 2);
+          this.refreshTargetData();
+          allProcessed = true;
+        } else if (this.expression) {
+          if (!this.expressionPaths && this.expression.hasCallStatement && !this.expression.hasDefinedPath) {
+            cola.util.delay(this, "retrieve", 100, (function(_this) {
+              return function() {
+                _this.retrieveData();
+                _this.refreshTargetData();
+              };
+            })(this));
+            allProcessed = true;
+          }
+        }
+      }
+      return allProcessed;
     };
 
     return AliasScope;
 
-  })(cola.SubScope);
+  })(cola.ExpressionScope);
 
   cola.ItemScope = (function(superClass) {
     extend(ItemScope, superClass);
@@ -6081,8 +6343,8 @@
       }
     };
 
-    ItemScope.prototype._processMessage = function(bindingPath, path, type, arg) {
-      return this.data._processMessage(bindingPath, path, type, arg);
+    ItemScope.prototype.processMessage = function(bindingPath, path, type, arg) {
+      return this.data.onDataMessage(path, type, arg);
     };
 
     return ItemScope;
@@ -6099,106 +6361,44 @@
 
     ItemsScope.prototype.setParent = function(parent) {
       if (this.parent) {
-        if (this._watchAllMessages) {
-          this.parent.data.unbind("**", this);
-        } else if (this._watchPath) {
-          this._unwatchPath();
-        }
+        this._unwatchPath();
       }
       this.parent = parent;
       this.data = parent.data;
       this.action = parent.action;
       if (this._watchAllMessages) {
-        parent.data.bind("**", this);
+        this.watchAllMessages();
       } else if (this._watchPath) {
         this.watchPath(this._watchPath);
       }
     };
 
     ItemsScope.prototype.setExpression = function(expression) {
-      var l, len1, path, paths, ref, ref1;
-      this.expression = expression;
-      if (expression) {
-        this.alias = expression.alias;
-        paths = [];
-        if (expression.paths) {
-          ref = expression.paths;
-          for (l = 0, len1 = ref.length; l < len1; l++) {
-            path = ref[l];
-            paths.push(path.split("."));
-          }
-        }
-        this.expressionPath = paths;
-        if (!expression.paths && expression.hasCallStatement) {
-          this.watchAllMessages();
-        } else {
-          this.watchPath(expression.paths);
-        }
-      } else {
-        this.alias = "item";
-        this.expressionPath = [];
-      }
-      if (expression && typeof ((ref1 = expression.paths) != null ? ref1.length : void 0) === 1 && !expression.hasCallStatement) {
-        this.dataType = this.parent.data.getDataType(expression.paths[0]);
-      }
+      ItemsScope.__super__.setExpression.call(this, expression);
+      this.alias = expression ? expression.alias : "item";
     };
 
-    ItemsScope.prototype.setItems = function() {
-      var items, originItems;
-      items = arguments[0], originItems = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-      this._setItems.apply(this, [items].concat(slice.call(originItems)));
+    ItemsScope.prototype.setItems = function(items) {
+      this._setItems(items);
     };
 
-    ItemsScope.prototype.retrieveItems = function(dataCtx) {
+    ItemsScope.prototype.retrieveData = function(dynaExpressionOnly) {
       var items;
-      if (dataCtx == null) {
-        dataCtx = {};
-      }
+      cola.util.cancelDelay(this, "retrieve");
       if (this._retrieveItems) {
-        return this._retrieveItems(dataCtx);
-      }
-      if (this.expression) {
-        items = this.expression.evaluate(this.parent, "async", dataCtx);
-        this._setItems(items, dataCtx.originData);
+        this._retrieveItems(dynaExpressionOnly);
+      } else if (this.expression) {
+        items = this.evaluate(this.parent, dynaExpressionOnly);
+        this.setItems(items);
       }
     };
 
-    ItemsScope.prototype._setItems = function() {
-      var it, items, l, len1, originItems, targetPath;
-      items = arguments[0], originItems = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+    ItemsScope.prototype._setItems = function(items) {
       this.items = items;
-      if (originItems && originItems.length === 1) {
-        if (originItems[0]) {
-          this.originItems = originItems[0];
-        }
-      } else {
-        this.originItems = originItems;
-        this.originItems._multiItems = true;
-      }
-      if (!this.originItems && items instanceof Array) {
-        this.originItems = items.$origin;
-      }
-      targetPath = null;
-      if (originItems) {
-        for (l = 0, len1 = originItems.length; l < len1; l++) {
-          it = originItems[l];
-          if (it && it instanceof cola.EntityList) {
-            if (targetPath == null) {
-              targetPath = [];
-            }
-            targetPath.push(it.getPath());
-          }
-        }
-      }
-      if (targetPath) {
-        this.targetPath = targetPath.concat(this.expressionPath);
-      } else {
-        this.targetPath = this.expressionPath;
-      }
+      this.originItems = items instanceof Array ? items.$origin : null;
     };
 
-    ItemsScope.prototype.refreshItems = function(dataCtx) {
-      this.retrieveItems(dataCtx);
+    ItemsScope.prototype.refreshItems = function() {
       if (typeof this.onItemsRefresh === "function") {
         this.onItemsRefresh();
       }
@@ -6298,58 +6498,25 @@
       return null;
     };
 
-    ItemsScope.prototype.isRootOfTarget = function(changedPath, targetPaths) {
-      var i, isRoot, l, len1, len2, o, part, targetPart, targetPath;
-      if (!targetPaths) {
-        return false;
-      }
-      if (!changedPath) {
-        return true;
-      }
-      for (l = 0, len1 = targetPaths.length; l < len1; l++) {
-        targetPath = targetPaths[l];
-        isRoot = true;
-        for (i = o = 0, len2 = changedPath.length; o < len2; i = ++o) {
-          part = changedPath[i];
-          targetPart = targetPath[i];
-          if (part !== targetPart) {
-            if (targetPart === "**") {
-              continue;
-            } else if (targetPart === "*") {
-              if (i === changedPath.length - 1) {
-                continue;
-              }
-            }
-            isRoot = false;
-            break;
-          }
-        }
-        if (isRoot) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    ItemsScope.prototype.repeatNotification = true;
-
-    ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
+    ItemsScope.prototype.processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, id, itemScope, ref;
       if (this.messageTimestamp >= arg.timestamp) {
         return;
       }
-      allProcessed = this.processItemsMessage(bindingPath, path, type, arg);
+      allProcessed = this._processMessage(bindingPath, path, type, arg);
       if (allProcessed) {
         this.messageTimestamp = arg.timestamp;
       } else if (this.itemScopeMap) {
-        itemScope = this.findItemDomBinding(arg.entity || arg.entityList);
+        itemScope = this.findItemDomBinding(arg.data || arg.entity);
         if (itemScope) {
-          itemScope._processMessage(bindingPath, path, type, arg);
-        } else {
+          itemScope.processMessage(bindingPath, path, type, arg);
+        } else if (this.hasExBinding()) {
           ref = this.itemScopeMap;
           for (id in ref) {
             itemScope = ref[id];
-            itemScope._processMessage(bindingPath, path, type, arg);
+            if (itemScope.hasExBinding()) {
+              itemScope.processMessage(bindingPath, path, type, arg);
+            }
           }
         }
       }
@@ -6375,22 +6542,27 @@
       return false;
     };
 
-    ItemsScope.prototype.processItemsMessage = function(bindingPath, path, type, arg) {
-      var allProcessed, i, items, parent, ref, targetPath;
-      targetPath = this.targetPath ? this.targetPath.concat(this.expressionPath) : this.expressionPath;
+    ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
+      var allProcessed, i, items, parent, processMoreMessage, ref;
       if (type === cola.constants.MESSAGE_REFRESH) {
-        if (this.isRootOfTarget(path, targetPath)) {
+        if (this.isParentOfTarget(path, this.expressionPaths)) {
+          this.retrieveData();
           this.refreshItems();
           allProcessed = true;
+        } else {
+          processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
-        if (this.isRootOfTarget(path, targetPath)) {
+        if (this.isParentOfTarget(path, this.expressionPaths)) {
+          this.retrieveData();
           this.refreshItems();
           allProcessed = true;
         } else {
           parent = (ref = arg.entity) != null ? ref.parent : void 0;
           if (parent === this.items || this.isOriginItems(arg.parent)) {
             this.refreshItem(arg);
+          } else {
+            processMoreMessage = true;
           }
         }
       } else if (type === cola.constants.MESSAGE_CURRENT_CHANGE) {
@@ -6398,18 +6570,22 @@
           if (typeof this.onCurrentItemChange === "function") {
             this.onCurrentItemChange(arg);
           }
-        } else if (this.isRootOfTarget(path, targetPath)) {
+        } else if (this.isParentOfTarget(path, this.expressionPaths)) {
+          this.retrieveData();
           this.refreshItems();
           allProcessed = true;
+        } else {
+          processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_INSERT) {
         if (arg.entityList === this.items) {
           this.insertItem(arg);
           allProcessed = true;
         } else if (this.isOriginItems(arg.entityList)) {
-          this.retrieveItems();
           this.insertItem(arg);
           allProcessed = true;
+        } else {
+          processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_REMOVE) {
         if (arg.entityList === this.items) {
@@ -6425,14 +6601,26 @@
           }
           this.removeItem(arg);
           allProcessed = true;
+        } else {
+          processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_LOADING_START) {
-        if (this.isRootOfTarget(path, targetPath)) {
+        if (this.isParentOfTarget(path, this.expressionPaths)) {
           this.itemsLoadingStart(arg);
         }
       } else if (type === cola.constants.MESSAGE_LOADING_END) {
-        if (this.isRootOfTarget(path, targetPath)) {
+        if (this.isParentOfTarget(path, this.expressionPaths)) {
           this.itemsLoadingEnd(arg);
+        }
+      }
+      if (processMoreMessage && this.expression) {
+        if (!this.expressionPaths && this.expression.hasCallStatement && !this.expression.hasDefinedPath) {
+          cola.util.delay(this, "retrieve", 100, (function(_this) {
+            return function() {
+              _this.retrieveData();
+              _this.refreshItems();
+            };
+          })(this));
         }
       }
       return allProcessed;
@@ -6440,7 +6628,7 @@
 
     return ItemsScope;
 
-  })(cola.SubScope);
+  })(cola.ExpressionScope);
 
 
   /*
@@ -6582,14 +6770,14 @@
             data: data,
             path: path,
             bindingPath: path.slice(0).concat("**"),
-            _processMessage: function(bindingPath, path, type, arg) {
+            processMessage: function(bindingPath, path, type, arg) {
               var relativePath;
               relativePath = path.slice(this.path.length);
-              dataModel._onDataMessage([prop].concat(relativePath), type, arg);
+              dataModel.onDataMessage([prop].concat(relativePath), type, arg);
             }
           };
           this.bind(aliasHolder.bindingPath, aliasHolder);
-          this._onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+          this.onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
             entity: rootData,
             property: prop,
             oldValue: oldAliasData,
@@ -6628,23 +6816,17 @@
         path = path.split(".");
       }
       if (path) {
-        if (this._bind(path, processor, false)) {
-          this._bind(path, processor, true);
-        }
+        this._bind(path, processor);
       }
       return this;
     };
 
-    AbstractDataModel.prototype._bind = function(path, processor, nonCurrent) {
-      var hasNonCurrent, l, len1, node, nodePath, part, subNode;
+    AbstractDataModel.prototype._bind = function(path, processor) {
+      var l, len1, node, nodePath, part, subNode;
       node = this.bindingRegistry;
       if (path) {
         for (l = 0, len1 = path.length; l < len1; l++) {
           part = path[l];
-          if (!nonCurrent && part.charCodeAt(0) === 33) {
-            hasNonCurrent = true;
-            part = part.substring(1);
-          }
           subNode = node[part];
           if (subNode == null) {
             nodePath = !node.__path ? part : node.__path + "." + part;
@@ -6660,7 +6842,6 @@
         }
         node.__processorMap[processor.id] = processor;
       }
-      return hasNonCurrent;
     };
 
     AbstractDataModel.prototype.unbind = function(path, processor) {
@@ -6671,31 +6852,24 @@
         path = path.split(".");
       }
       if (path) {
-        if (this._unbind(path, processor, false)) {
-          this._unbind(path, processor, true);
-        }
+        this._unbind(path, processor);
       }
       return this;
     };
 
-    AbstractDataModel.prototype._unbind = function(path, processor, nonCurrent) {
-      var hasNonCurrent, l, len1, node, part;
+    AbstractDataModel.prototype._unbind = function(path, processor) {
+      var l, len1, node, part;
       node = this.bindingRegistry;
       for (l = 0, len1 = path.length; l < len1; l++) {
         part = path[l];
-        if (!nonCurrent && part.charCodeAt(0) === 33) {
-          hasNonCurrent = true;
-          part = part.substring(1);
-        }
         node = node[part];
         if (node == null) {
           break;
         }
       }
       if (node != null) {
-        delete node.__processorMap[processor.id];
+        return delete node.__processorMap[processor.id];
       }
-      return hasNonCurrent;
     };
 
     AbstractDataModel.prototype.disableObservers = function() {
@@ -6724,7 +6898,7 @@
       return this;
     };
 
-    AbstractDataModel.prototype._onDataMessage = function(path, type, arg) {
+    AbstractDataModel.prototype.onDataMessage = function(path, type, arg) {
       var anyChildNode, anyPropNode, i, l, lastIndex, len1, node, oldScope, part;
       if (arg == null) {
         arg = {};
@@ -6750,11 +6924,11 @@
               anyPropNode = node["*"];
             }
             if (anyPropNode) {
-              this._processDataMessage(anyPropNode, path, type, arg);
+              this.processDataMessage(anyPropNode, path, type, arg);
             }
             anyChildNode = node["**"];
             if (anyChildNode) {
-              this._processDataMessage(anyChildNode, path, type, arg);
+              this.processDataMessage(anyChildNode, path, type, arg);
             }
             node = node[part];
             if (!node) {
@@ -6765,29 +6939,29 @@
           node = this.bindingRegistry;
           anyPropNode = node["*"];
           if (anyPropNode) {
-            this._processDataMessage(anyPropNode, null, type, arg);
+            this.processDataMessage(anyPropNode, null, type, arg);
           }
           anyChildNode = node["**"];
           if (anyChildNode) {
-            this._processDataMessage(anyChildNode, null, type, arg);
+            this.processDataMessage(anyChildNode, null, type, arg);
           }
         }
         if (node) {
-          this._processDataMessage(node, path, type, arg, true);
+          this.processDataMessage(node, path, type, arg, true);
         }
       } finally {
         cola.currentScope = oldScope;
       }
     };
 
-    AbstractDataModel.prototype._processDataMessage = function(node, path, type, arg, notifyChildren) {
+    AbstractDataModel.prototype.processDataMessage = function(node, path, type, arg, notifyChildren) {
       var id, notifyChildren2, part, processor, processorMap, subNode;
       processorMap = node.__processorMap;
       for (id in processorMap) {
         processor = processorMap[id];
         if (!processor.disabled && (!(processor.timestamp >= arg.timestamp) || processor.repeatNotification)) {
           processor.timestamp = arg.timestamp;
-          processor._processMessage(node.__path, path, type, arg);
+          processor.processMessage(node.__path, path, type, arg);
         }
       }
       if (notifyChildren) {
@@ -6798,7 +6972,7 @@
         for (part in node) {
           subNode = node[part];
           if (subNode && (part === "**" || notifyChildren2) && part !== "__processorMap" && part !== "__path") {
-            this._processDataMessage(subNode, path, type, arg, true);
+            this.processDataMessage(subNode, path, type, arg, true);
           }
         }
       }
@@ -6999,6 +7173,7 @@
       this.model = model1;
       this.alias = alias1;
       this.dataType = dataType1;
+      this.defaultDataType = this.dataType;
       parentModel = this.model.parent;
       while (parentModel) {
         if (parentModel.data) {
@@ -7016,15 +7191,12 @@
     AliasDataModel.prototype.setTargetData = function(data, silence) {
       var oldData;
       oldData = this._targetData;
-      if (oldData === data) {
-        return;
-      }
       this._targetData = data;
-      if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
-        this._targetPath = data.getPath();
+      if (data instanceof cola.Entity || data instanceof cola.EntityList) {
+        this.dataType = data.dataType || this.defaultDataType;
       }
       if (!silence) {
-        this._onDataMessage([this.alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+        this.onDataMessage([this.alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
           entity: null,
           property: this.alias,
           value: data,
@@ -7098,41 +7270,12 @@
       return this.parent.unregDefinition(definition);
     };
 
-    AliasDataModel.prototype._bind = function(path, processor, nonCurrent) {
-      var hasNonCurrent, i;
-      hasNonCurrent = AliasDataModel.__super__._bind.call(this, path, processor, nonCurrent);
-      i = path.indexOf(".");
-      if (i > 0) {
-        if (path.substring(0, i) !== this.alias) {
-          this.model.watchAllMessages();
-        }
-      } else if (path !== this.alias) {
+    AliasDataModel.prototype._bind = function(path, processor) {
+      AliasDataModel.__super__._bind.call(this, path, processor);
+      if (!this._exBindingProcessed && path[0] !== this.alias) {
+        this._exBindingProcessed = true;
+        this.model.setHasExBinding(true);
         this.model.watchAllMessages();
-      }
-      return hasNonCurrent;
-    };
-
-    AliasDataModel.prototype._processMessage = function(bindingPath, path, type, arg) {
-      var i, l, len1, matching, part, relativePath, targetPart, targetPath;
-      this._onDataMessage(path, type, arg);
-      targetPath = this._targetPath;
-      if ((targetPath != null ? targetPath.length : void 0) && targetPath.length < (path != null ? path.length : void 0)) {
-        matching = true;
-        for (i = l = 0, len1 = targetPath.length; l < len1; i = ++l) {
-          targetPart = targetPath[i];
-          part = path[i];
-          if (part && part.charCodeAt(0) === 33) {
-            part = part.substring(1);
-          }
-          if (part !== targetPart) {
-            matching = false;
-            break;
-          }
-        }
-        if (matching) {
-          relativePath = path.slice(targetPath.length);
-          this._onDataMessage([this.alias].concat(relativePath), type, arg);
-        }
       }
     };
 
@@ -7229,6 +7372,26 @@
       return this;
     };
 
+    AliasDataModel.prototype.onDataMessage = function(path, type, arg) {
+      var entity, isChild, relativePath, targetData;
+      AliasDataModel.__super__.onDataMessage.call(this, path, type, arg);
+      if (this._targetData) {
+        targetData = this._targetData;
+        entity = arg.data || arg.entityList || arg.entity;
+        while (entity) {
+          if (entity === targetData) {
+            isChild = true;
+            break;
+          }
+          entity = entity.parent;
+        }
+        if (isChild) {
+          relativePath = path.slice(targetData.getPath().length);
+          AliasDataModel.__super__.onDataMessage.call(this, [this.alias].concat(relativePath), type, arg);
+        }
+      }
+    };
+
     return AliasDataModel;
 
   })(cola.AbstractDataModel);
@@ -7247,7 +7410,7 @@
     ItemDataModel.prototype.setIndex = function(index, silence) {
       this._index = index;
       if (!silence) {
-        this._onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+        this.onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
           entity: null,
           property: cola.constants.REPEAT_INDEX,
           value: index
@@ -7328,21 +7491,17 @@
 
   cola.ElementAttrBinding = (function() {
     function ElementAttrBinding(element1, attr1, expression1, scope) {
-      var l, len1, path, paths;
+      var l, len1, path, ref;
       this.element = element1;
       this.attr = attr1;
       this.expression = expression1;
       this.scope = scope;
-      this.paths = paths = this.expression.paths;
-      if (!paths && this.expression.hasCallStatement) {
-        this.paths = paths = ["**"];
-        this.watchingMoreMessage = this.expression.hasCallStatement;
-      }
-      if (paths) {
-        for (l = 0, len1 = paths.length; l < len1; l++) {
-          path = paths[l];
-          scope.data.bind(path, this);
-        }
+      this.paths = this.expression.paths || [];
+      this.watchingMoreMessage = !this.paths.length && this.expression.hasCallStatement && !this.expression.hasDefinedPath;
+      ref = this.paths;
+      for (l = 0, len1 = ref.length; l < len1; l++) {
+        path = ref[l];
+        scope.data.bind(path, this);
       }
     }
 
@@ -7357,22 +7516,56 @@
       }
     };
 
-    ElementAttrBinding.prototype._processMessage = function(bindingPath, path, type) {
+    ElementAttrBinding.prototype.processMessage = function(bindingPath, path, type) {
+      var ref;
       if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
-        this.refresh();
+        this.refresh(((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0);
       }
     };
 
-    ElementAttrBinding.prototype.evaluate = function(dataCtx) {
-      if (dataCtx == null) {
-        dataCtx = {};
+    ElementAttrBinding.prototype.evaluate = function(dynaExpressionOnly, dataCtx) {
+      var dynaExpression, l, len1, len2, loadMode, o, path, paths, ref, result;
+      loadMode = "async";
+      if (dynaExpressionOnly && this.dynaExpression) {
+        result = this.dynaExpression.evaluate(this.scope, loadMode, dataCtx);
+      } else {
+        result = this.expression.evaluate(this.scope, loadMode, dataCtx);
+        if (this.expression.isDyna && (dataCtx != null ? dataCtx.dynaExpression : void 0)) {
+          dynaExpression = dataCtx.dynaExpression;
+          if (dynaExpression.raw !== this.dynaExpressionStr) {
+            this.dynaExpressionStr = dynaExpression.raw;
+          }
+          if (!this.ignoreBind) {
+            if (this.dynaPaths) {
+              ref = this.dynaPaths;
+              for (l = 0, len1 = ref.length; l < len1; l++) {
+                path = ref[l];
+                this.scope.data.unbind(path, this);
+              }
+            }
+            paths = this.dynaExpression.paths;
+            if (paths) {
+              for (o = 0, len2 = paths.length; o < len2; o++) {
+                path = paths[o];
+                if (this.paths.indexOf(path) < 0) {
+                  if (!this.dynaPaths) {
+                    this.dynaPaths = [path];
+                  } else {
+                    this.dynaPaths.push(path);
+                  }
+                  this.scope.data.bind(path, this);
+                }
+              }
+            }
+          }
+        }
       }
-      return this.expression.evaluate(this.scope, "async", dataCtx);
+      return result;
     };
 
-    ElementAttrBinding.prototype._refresh = function() {
+    ElementAttrBinding.prototype._refresh = function(dynaExpressionOnly) {
       var element;
-      value = this.evaluate();
+      value = this.evaluate(dynaExpressionOnly);
       element = this.element;
       element._duringBindingRefresh = true;
       try {
@@ -7382,16 +7575,16 @@
       }
     };
 
-    ElementAttrBinding.prototype.refresh = function() {
+    ElementAttrBinding.prototype.refresh = function(dynaExpressionOnly) {
       if (!this._refresh) {
         return;
       }
       if (this.delay) {
         cola.util.delay(this, "refresh", 100, function() {
-          this._refresh();
+          this._refresh(dynaExpressionOnly);
         });
       } else {
-        this._refresh();
+        this._refresh(dynaExpressionOnly);
       }
     };
 
@@ -7931,7 +8124,7 @@
 
     _ExpressionDataModel.prototype.set = cola._EMPTY_FUNC;
 
-    _ExpressionDataModel.prototype._processMessage = cola._EMPTY_FUNC;
+    _ExpressionDataModel.prototype.processMessage = cola._EMPTY_FUNC;
 
     _ExpressionDataModel.prototype.getDataType = cola._EMPTY_FUNC;
 
@@ -8115,10 +8308,12 @@
 
   USER_DATA_KEY = cola.constants.DOM_USER_DATA_KEY;
 
-  cola.util.userDataStore = {};
+  cola.util.userDataStore = {
+    size: 0
+  };
 
   cola.util.userData = function(node, key, data) {
-    var i, id, store, text, userData;
+    var i, id, k, store, text, userData, v;
     if (node.nodeType === 3) {
       return;
     }
@@ -8144,11 +8339,16 @@
         } else {
           node.setAttribute(USER_DATA_KEY, id);
         }
-        userData[id] = store = {};
+        userData[id] = store = {
+          __cleanStamp: cleanStamp
+        };
+        userData.size++;
       } else {
         store = userData[id];
         if (!store) {
-          userData[id] = store = {};
+          userData[id] = store = {
+            __cleanStamp: cleanStamp
+          };
         }
       }
       store[key] = data;
@@ -8159,17 +8359,33 @@
           return store != null ? store[key] : void 0;
         }
       } else if (key && typeof key === "object") {
-        id = cola.uniqueId();
-        if (node.nodeType === 8) {
-          if (i > -1) {
-            node.nodeValue = text.substring(0, i + 1) + id;
+        if (!id) {
+          id = cola.uniqueId();
+          if (node.nodeType === 8) {
+            if (i > -1) {
+              node.nodeValue = text.substring(0, i + 1) + id;
+            } else {
+              node.nodeValue = text ? text + "|" + id : "|" + id;
+            }
           } else {
-            node.nodeValue = text ? text + "|" + id : "|" + id;
+            node.setAttribute(USER_DATA_KEY, id);
           }
+          userData[id] = store = {
+            __cleanStamp: cleanStamp
+          };
+          userData.size++;
         } else {
-          node.setAttribute(USER_DATA_KEY, id);
+          store = userData[id];
+          if (!store) {
+            userData[id] = store = {
+              __cleanStamp: cleanStamp
+            };
+          }
         }
-        userData[id] = key;
+        for (k in key) {
+          v = key[k];
+          store[k] = v;
+        }
       }
     } else if (arguments.length === 1) {
       if (id) {
@@ -8179,13 +8395,26 @@
   };
 
   cola.util.removeUserData = function(node, key) {
-    var id, store;
-    id = node.getAttribute(USER_DATA_KEY);
+    var i, id, store, text;
+    if (node.nodeType === 8) {
+      text = node.nodeValue;
+      i = text.indexOf("|");
+      if (i > -1) {
+        id = text.substring(i + 1);
+      }
+    } else {
+      id = node.getAttribute(USER_DATA_KEY);
+    }
     if (id) {
       store = cola.util.userDataStore[id];
       if (store) {
-        value = store[key];
-        delete store[key];
+        if (key) {
+          value = store[key];
+          delete store[key];
+        } else {
+          delete cola.util.userDataStore[id];
+          userData.size--;
+        }
       }
     }
     return value;
@@ -8217,32 +8446,6 @@
   };
 
   _nodesToBeRemove = {};
-
-  setInterval(function() {
-    var changed, id, l, len1, listener, node, nodeRemovedListener, store;
-    for (id in _nodesToBeRemove) {
-      node = _nodesToBeRemove[id];
-      store = cola.util.userDataStore[id];
-      if (store) {
-        changed = true;
-        nodeRemovedListener = store[ON_NODE_REMOVED_KEY];
-        if (nodeRemovedListener) {
-          if (nodeRemovedListener instanceof Array) {
-            for (l = 0, len1 = nodeRemovedListener.length; l < len1; l++) {
-              listener = nodeRemovedListener[l];
-              listener(node, store);
-            }
-          } else {
-            nodeRemovedListener(node, store);
-          }
-        }
-        delete cola.util.userDataStore[id];
-      }
-    }
-    if (changed) {
-      _nodesToBeRemove = {};
-    }
-  }, 10000);
 
   _getNodeDataId = function(node) {
     var i, id, text;
@@ -8304,14 +8507,86 @@
     }
   };
 
-  document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
+  cleanStamp = 1;
 
-  document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
-
-  $fly(window).on("unload", function() {
-    document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
-    document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
-  });
+  if (document.all) {
+    setTimeout(function() {
+      var i;
+      i = 0;
+      setInterval(function() {
+        var c, id, len, node, store, text, userData;
+        if (cola.util.userDataStore.size < 256) {
+          return;
+        }
+        userData = cola.util.userDataStore;
+        c = 0;
+        len = document.all.length;
+        while (i < len) {
+          node = document.all[i];
+          id = null;
+          if (node.nodeType === 8) {
+            text = node.nodeValue;
+            i = text.indexOf("|");
+            if (i > -1) {
+              id = text.substring(i + 1);
+            }
+          } else {
+            id = node.getAttribute(USER_DATA_KEY);
+          }
+          if (id) {
+            store = userData[id];
+            if (store) {
+              store.__cleanStamp = cleanStamp;
+            }
+          }
+          i++;
+          c++;
+          if (c >= 64) {
+            return;
+          }
+        }
+        for (id in userData) {
+          store = userData[id];
+          if (store !== cleanStamp) {
+            delete userData[id];
+          }
+        }
+        cleanStamp++;
+      }, 1000);
+    }, 10000);
+  } else {
+    document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
+    document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
+    $fly(window).on("unload", function() {
+      document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener);
+      document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener);
+    });
+    setInterval(function() {
+      var changed, id, l, len1, listener, node, nodeRemovedListener, store;
+      for (id in _nodesToBeRemove) {
+        node = _nodesToBeRemove[id];
+        store = cola.util.userDataStore[id];
+        if (store) {
+          changed = true;
+          nodeRemovedListener = store[ON_NODE_REMOVED_KEY];
+          if (nodeRemovedListener) {
+            if (nodeRemovedListener instanceof Array) {
+              for (l = 0, len1 = nodeRemovedListener.length; l < len1; l++) {
+                listener = nodeRemovedListener[l];
+                listener(node, store);
+              }
+            } else {
+              nodeRemovedListener(node, store);
+            }
+          }
+          delete cola.util.userDataStore[id];
+        }
+      }
+      if (changed) {
+        _nodesToBeRemove = {};
+      }
+    }, 10000);
+  }
 
   if (cola.device.mobile) {
     $fly(window).on("load", function() {
@@ -9085,62 +9360,60 @@
       if (this.expression) {
         this.isStatic = this.expression.isStatic;
         this.isDyna = this.expression.isDyna;
-        this.paths = this.expression.paths;
-        if (!this.paths && this.expression.hasCallStatement) {
+        this.paths = this.expression.paths || [];
+        if (!this.paths.length && this.expression.hasCallStatement) {
           this.paths = ["**"];
           if (!this.isStatic) {
             this.delay = true;
           }
+          this.watchingMoreMessage = !this.expression.hasDefinedPath;
         }
-        this.watchingMoreMessage = this.expression.hasCallStatement;
       }
     }
 
     _ExpressionFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
-      var l, len1, len2, o, path, paths, ref, ref1, result;
-      if (loadMode == null) {
-        loadMode = "async";
-      }
+      var l, len1, len2, o, path, paths, ref, result, scope;
       if (dataCtx == null) {
         dataCtx = {};
       }
+      if (loadMode == null) {
+        loadMode = "async";
+      }
+      scope = domBinding.scope;
       if (dataCtx.vars == null) {
         dataCtx.vars = {};
       }
       dataCtx.vars.$dom = domBinding.dom;
-      if (dynaExpressionOnly) {
-        result = (ref = this.dynaExpression) != null ? ref.evaluate(domBinding.scope, loadMode, dataCtx) : void 0;
+      if (dynaExpressionOnly && this.dynaExpression) {
+        result = this.dynaExpression.evaluate(scope, loadMode, dataCtx);
       } else {
-        result = this.expression.evaluate(domBinding.scope, loadMode, dataCtx);
-        if (this.isDyna && result !== this.dynaExpressionStr) {
-          this.dynaExpressionStr = result;
-          if (!this.ignoreBind && this.dynaPaths) {
-            ref1 = this.dynaPaths;
-            for (l = 0, len1 = ref1.length; l < len1; l++) {
-              path = ref1[l];
-              domBinding.unbind(path, this);
-            }
+        result = this.expression.evaluate(scope, loadMode, dataCtx);
+        if (this.isDyna && dataCtx.dynaExpression) {
+          this.dynaExpression = dataCtx.dynaExpression;
+          if (this.dynaExpression.raw !== this.dynaExpressionStr) {
+            this.dynaExpressionStr = this.dynaExpression.raw;
           }
-          if (typeof result === "string") {
-            this.dynaExpression = cola._compileExpression(result);
-            if (this.dynaExpression) {
-              if (!this.ignoreBind) {
-                paths = this.dynaExpression.paths;
-                if (paths) {
-                  for (o = 0, len2 = paths.length; o < len2; o++) {
-                    path = paths[o];
-                    if (this.paths.indexOf(path) < 0) {
-                      if (!this.dynaPaths) {
-                        this.dynaPaths = [path];
-                      } else {
-                        this.dynaPaths.push(path);
-                      }
-                      domBinding.bind(path, this);
-                    }
+          if (!this.ignoreBind) {
+            if (this.dynaPaths) {
+              ref = this.dynaPaths;
+              for (l = 0, len1 = ref.length; l < len1; l++) {
+                path = ref[l];
+                domBinding.unbind(path, this);
+              }
+            }
+            paths = this.dynaExpression.paths;
+            if (paths) {
+              for (o = 0, len2 = paths.length; o < len2; o++) {
+                path = paths[o];
+                if (this.paths.indexOf(path) < 0) {
+                  if (!this.dynaPaths) {
+                    this.dynaPaths = [path];
+                  } else {
+                    this.dynaPaths.push(path);
                   }
+                  domBinding.bind(path, this);
                 }
               }
-              result = this.dynaExpression.evaluate(domBinding.scope, loadMode, dataCtx);
             }
           }
         }
@@ -9176,70 +9449,10 @@
 
   })(cola._BindingFeature);
 
-  cola._WatchFeature = (function(superClass) {
-    extend(_WatchFeature, superClass);
-
-    function _WatchFeature(action1, paths1) {
-      this.action = action1;
-      this.paths = paths1;
-      this.watchingMoreMessage = true;
-    }
-
-    _WatchFeature.prototype._processMessage = function(domBinding, bindingPath) {
-      var ref;
-      if (!this.isDyna || ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0) {
-        this.refresh(domBinding);
-      }
-    };
-
-    _WatchFeature.prototype.refresh = function(domBinding) {
-      var action;
-      action = domBinding.scope.action(this.action);
-      if (!action) {
-        throw new cola.Exception("No action named \"" + this.action + "\" found.");
-      }
-      action(domBinding.dom, domBinding.scope);
-    };
-
-    return _WatchFeature;
-
-  })(cola._BindingFeature);
-
-  cola._EventFeature = (function(superClass) {
-    extend(_EventFeature, superClass);
-
-    _EventFeature.prototype.ignoreBind = true;
-
-    function _EventFeature(expression1, event) {
-      this.expression = expression1;
-      this.event = event;
-    }
-
-    _EventFeature.prototype.init = function(domBinding) {
-      domBinding.$dom.on(this.event, (function(_this) {
-        return function(evt) {
-          var oldScope;
-          oldScope = cola.currentScope;
-          cola.currentScope = domBinding.scope;
-          try {
-            return _this.evaluate(domBinding, false, {
-              vars: {
-                $event: evt
-              }
-            }, "never");
-          } finally {
-            cola.currentScope = oldScope;
-          }
-        };
-      })(this));
-    };
-
-    return _EventFeature;
-
-  })(cola._ExpressionFeature);
-
   cola._AliasFeature = (function(superClass) {
     extend(_AliasFeature, superClass);
+
+    _AliasFeature.prototype.ignoreBind = true;
 
     function _AliasFeature(expression) {
       _AliasFeature.__super__.constructor.call(this, expression);
@@ -9251,11 +9464,17 @@
       domBinding.subScopeCreated = true;
     };
 
-    _AliasFeature.prototype._processMessage = function(domBinding, bindingPath, path, type, arg) {
-      var ref;
-      if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
-        this.refresh(domBinding, false, ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0);
+    _AliasFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
+      var scope;
+      if (dataCtx == null) {
+        dataCtx = {};
       }
+      if (dataCtx.vars == null) {
+        dataCtx.vars = {};
+      }
+      dataCtx.vars.$dom = domBinding.dom;
+      scope = domBinding.scope;
+      return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx);
     };
 
     _AliasFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
@@ -9270,6 +9489,8 @@
 
   cola._RepeatFeature = (function(superClass) {
     extend(_RepeatFeature, superClass);
+
+    _RepeatFeature.prototype.ignoreBind = true;
 
     function _RepeatFeature(expression) {
       _RepeatFeature.__super__.constructor.call(this, expression);
@@ -9387,10 +9608,17 @@
       domBinding.subScopeCreated = true;
     };
 
-    _RepeatFeature.prototype._processMessage = function(domBinding, bindingPath, path, type, arg) {
-      if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
-        this.refresh(domBinding);
+    _RepeatFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
+      var scope;
+      if (dataCtx == null) {
+        dataCtx = {};
       }
+      if (dataCtx.vars == null) {
+        dataCtx.vars = {};
+      }
+      dataCtx.vars.$dom = domBinding.dom;
+      scope = domBinding.scope;
+      return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx);
     };
 
     _RepeatFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
@@ -9398,14 +9626,15 @@
         this.evaluate(domBinding, dynaExpressionOnly, dataCtx);
         domBinding.scope.setExpression(this.dynaExpression);
       }
-      domBinding.scope.refreshItems(dataCtx);
+      domBinding.scope.retrieveData();
+      domBinding.scope.refreshItems();
     };
 
     _RepeatFeature.prototype.onItemsRefresh = function(domBinding) {
       var currentDom, documentFragment, headDom, itemDom, items, originItems, scope, tailDom, templateDom;
       scope = domBinding.scope;
       items = scope.items;
-      originItems = scope.originData;
+      originItems = scope.originItems;
       if (items && !(items instanceof cola.EntityList) && !(items instanceof Array)) {
         throw new cola.Exception("Expression \"" + this.expression + "\" must bind to EntityList or Array.");
       }
@@ -9560,6 +9789,68 @@
 
   })(cola._ExpressionFeature);
 
+  cola._WatchFeature = (function(superClass) {
+    extend(_WatchFeature, superClass);
+
+    function _WatchFeature(action1, paths1) {
+      this.action = action1;
+      this.paths = paths1;
+      this.watchingMoreMessage = true;
+    }
+
+    _WatchFeature.prototype.processMessage = function(domBinding, bindingPath) {
+      var ref;
+      if (!this.isDyna || ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0) {
+        this.refresh(domBinding);
+      }
+    };
+
+    _WatchFeature.prototype.refresh = function(domBinding) {
+      var action;
+      action = domBinding.scope.action(this.action);
+      if (!action) {
+        throw new cola.Exception("No action named \"" + this.action + "\" found.");
+      }
+      action(domBinding.dom, domBinding.scope);
+    };
+
+    return _WatchFeature;
+
+  })(cola._BindingFeature);
+
+  cola._EventFeature = (function(superClass) {
+    extend(_EventFeature, superClass);
+
+    _EventFeature.prototype.ignoreBind = true;
+
+    function _EventFeature(expression1, event) {
+      this.expression = expression1;
+      this.event = event;
+    }
+
+    _EventFeature.prototype.init = function(domBinding) {
+      domBinding.$dom.on(this.event, (function(_this) {
+        return function(evt) {
+          var oldScope;
+          oldScope = cola.currentScope;
+          cola.currentScope = domBinding.scope;
+          try {
+            return _this.evaluate(domBinding, false, {
+              vars: {
+                $event: evt
+              }
+            }, "never");
+          } finally {
+            cola.currentScope = oldScope;
+          }
+        };
+      })(this));
+    };
+
+    return _EventFeature;
+
+  })(cola._ExpressionFeature);
+
   cola._DomFeature = (function(superClass) {
     extend(_DomFeature, superClass);
 
@@ -9568,7 +9859,10 @@
     }
 
     _DomFeature.prototype.writeBack = function(domBinding, value) {
-      var paths;
+      var paths, ref;
+      if (!((ref = this.expression) != null ? ref.writeable : void 0)) {
+        return;
+      }
       paths = this.isDyna ? this.dynaPaths : this.paths;
       if (paths && paths.length === 1) {
         this.ignoreMessage = true;
@@ -9577,7 +9871,7 @@
       }
     };
 
-    _DomFeature.prototype._processMessage = function(domBinding, bindingPath, path, type, arg) {
+    _DomFeature.prototype.processMessage = function(domBinding, bindingPath, path, type, arg) {
       var ref;
       if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
         this.refresh(domBinding, false, ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0);
@@ -9901,7 +10195,7 @@
 
     _DomBinding.prototype.bindFeature = function(feature) {
       var l, len1, path, paths;
-      if (!feature._processMessage) {
+      if (!feature.processMessage) {
         return;
       }
       paths = feature.paths;
@@ -9915,7 +10209,7 @@
 
     _DomBinding.prototype.unbindFeature = function(feature) {
       var l, len1, path, paths;
-      if (!feature._processMessage) {
+      if (!feature.processMessage) {
         return;
       }
       paths = feature.paths;
@@ -9931,10 +10225,10 @@
       var holder, pipe;
       pipe = {
         path: path,
-        _processMessage: (function(_this) {
+        processMessage: (function(_this) {
           return function(bindingPath, path, type, arg) {
             if (!feature.disabled) {
-              feature._processMessage(_this, bindingPath, path, type, arg);
+              feature.processMessage(_this, bindingPath, path, type, arg);
               if (feature.disabled) {
                 pipe.disabled = true;
               }
@@ -10103,7 +10397,7 @@
 
     _RepeatItemDomBinding.prototype.processDataMessage = function(path, type, arg) {
       if (!this.isTemplate) {
-        this.scope.data._processMessage("**", path, type, arg);
+        this.scope.data.processMessage("**", path, type, arg);
       }
     };
 
@@ -11329,7 +11623,7 @@
         return function(self, arg) {
           var attr;
           attr = arg.attribute;
-          _this._widgetModel.data._onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+          _this._widgetModel.data.onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
           value = _this._get(attr);
           if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
             _this._entityProps[attr] = value;
@@ -12187,7 +12481,7 @@
       var ref;
       if (path.charCodeAt(0) === 64) {
         this.widget.set(path.substring(1), value);
-        this._onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+        this.onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
       } else {
         if ((ref = this.model.parent) != null) {
           ref.data.set(path, value);
@@ -12195,9 +12489,9 @@
       }
     };
 
-    WidgetDataModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+    WidgetDataModel.prototype.processMessage = function(bindingPath, path, type, arg) {
       var attr, e, entity, isParent, ref, relativePath, targetPath;
-      this._onDataMessage(path, type, arg);
+      this.onDataMessage(path, type, arg);
       entity = arg.entity || arg.entityList;
       if (entity) {
         ref = this.widget._entityProps;
@@ -12216,7 +12510,7 @@
             targetPath = value.getPath();
             if (targetPath != null ? targetPath.length : void 0) {
               relativePath = path.slice(targetPath.length);
-              this._onDataMessage(["@" + attr].concat(relativePath), type, arg);
+              this.onDataMessage(["@" + attr].concat(relativePath), type, arg);
             }
           }
         }
@@ -12281,11 +12575,11 @@
 
     WidgetModel.prototype.repeatNotification = true;
 
-    WidgetModel.prototype._processMessage = function(bindingPath, path, type, arg) {
+    WidgetModel.prototype.processMessage = function(bindingPath, path, type, arg) {
       if (this.messageTimestamp >= arg.timestamp) {
         return;
       }
-      return this.data._processMessage(bindingPath, path, type, arg);
+      return this.data.processMessage(bindingPath, path, type, arg);
     };
 
     return WidgetModel;

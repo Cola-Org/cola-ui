@@ -4460,6 +4460,8 @@ template {
   position: relative;
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
+  -ms-flex-direction: column;
+  flex-direction: column;
 }
 .ui.c-tab.top-tab > .tab-bar,
 .ui.c-tab.bottom-tab > .tab-bar {
@@ -4508,6 +4510,8 @@ template {
 .ui.c-tab.top-tab {
   display: -webkit-box;
   display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 .ui.c-tab.left-tab > .tab-bar,
 .ui.c-tab.right-tab > .tab-bar,
@@ -4516,6 +4520,8 @@ template {
   position: relative;
   -webkit-box-flex: 0;
   -moz-box-flex: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
 }
 .ui.c-tab.left-tab > .contents,
 .ui.c-tab.right-tab > .contents,
@@ -4523,6 +4529,8 @@ template {
 .ui.c-tab.top-tab > .contents {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
   position: relative;
 }
 .ui.c-tab.left-tab > .contents > .item,
@@ -4539,6 +4547,8 @@ template {
 .ui.c-tab.right-tab {
   -webkit-box-orient: horizontal;
   -moz-box-orient: horizontal;
+  -ms-flex-direction: row;
+  flex-direction: row;
 }
 .ui.c-tab.left-tab > .tab-bar,
 .ui.c-tab.right-tab > .tab-bar {
@@ -4977,13 +4987,13 @@ template {
 .ui.stack {
   height: 100%;
 }
-.ui.stack .items-wrap {
+.ui.stack > .items-wrap {
   position: relative;
   height: 100%;
   overflow: hidden;
   width: 100%;
 }
-.ui.stack .items-wrap .item {
+.ui.stack > .items-wrap > .item {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -5979,6 +5989,19 @@ html.ios body {
 }
 .ui.panel.grey > .header {
   border-left: 2.5px solid #767676;
+}
+.ui.panel.v-box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  padding: 0;
+}
+.ui.panel.v-box .header {
+  margin: 0px;
+}
+.ui.panel.v-box > .flex-box > div {
+  padding: 0.6em;
 }
 
 .ui.input > .editor {
