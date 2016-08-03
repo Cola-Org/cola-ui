@@ -79,4 +79,4 @@
       arguments:
         - name: entity
           type: cola.Entity
-          return cola.TreeNode
+          return: cola.TreeNode
