@@ -1,5 +1,44 @@
 ## RELEASE NOTES
 
+### Version 0.9.8 - August 3, 2016
+
+**新增控件**
+- **notifyTip** - 新增cola.notifyTip 控件
+- **YearMonthDropDown** - 新增控件YearMonthDropDown
+- **TextArea** - 新增控件 TextArea
+
+**Bug 修复**
+- **Widget** - 修复 display 属性在部分控件中不起效的问题
+- **Layer** - 修复 layer 控件z-index问题
+- **DropDown** - 修复 DropDown 显示位置错误的bug
+- **Carousel** - 修复 carousel 无法自动切换的bug
+- **AjaxValidator** - 修正AjaxValidator不可用的BUG
+- **Editor** - 修正Editor有时不能正确的显示校验状态的BUG
+- **DropDown** - 修复DropDown 在界面滚动后显示位置错误问题
+- **DataPicker** - 修复手机下的日期下拉框的bug
+- **TimeLine** - 修复TimeLine 控件无法下拉刷新的bug
+- **SubView**  - 修正SubView.loadIfNecessary()可能导致不装载的BUG
+- **DropDown** - 修复 下拉框ie10 和11 下的无法选中问题
+- **Tree** - 修复Tree 控件itemClick事件穿透的Bug和子节点无法刷新的bug
+- **Panel** - 修复Panel 在不指定高度时,收缩和展开无动画效果的Bug
+- **CheckBox** - 修复 semantic CheckBox onDisabled on undefined 错误
+
+**小改进**
+- **Core** - 改进UserData对低版本IE的兼容性
+- **Core** - 修正Router在firefox下无法正确的触发onStateChange事件的BUG
+- **Core** - 为AjaxService、Provider提供timeout属性
+- **Core** - 为AjaxService、Provider提供timeout属性
+- **Core** - 修正watch关键字冲突导致在firefox下报错的BUG
+- **Core** - 改进对微信浏览器的判断方式
+- **Widget** - 调整 button icon 样式
+- **Widget** - 调整Form 必填项样式
+- **Core** - 增强cola.util.findWidget(), 使其支持跨框架的查找
+- **Widget** - 改进 panel和sidebar样式
+- **Widget** - 改进 sidebar 控件显示时body滚动条显示问题
+- **Widget** - input 支持低版本手机浏览器
+
+
+
 ### Version 0.9.0 - April 25, 2016
 
 **新增特性**
