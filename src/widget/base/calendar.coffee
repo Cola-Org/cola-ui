@@ -149,7 +149,7 @@ do->
 		doFireRefreshEvent: (eventArg)->
 			row = eventArg.row
 			column = eventArg.column
-			if @_state && @_year && @_month
+			if @_state && @_year
 				cellState = @_state[row * 7 + column]
 				ym = @getYMForState(cellState)
 				eventArg.date = new Date(ym.year, ym.month, cellState.text)
