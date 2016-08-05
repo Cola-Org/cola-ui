@@ -83,30 +83,20 @@ cola.util.userData = (node, key, data) ->
 				store = userData[id]
 				return store?[key]
 		else if key and typeof key is "object"
-			if not id
-				id = cola.uniqueId()
-				if node.nodeType is 8
-					if i > -1
-						node.nodeValue = text.substring(0, i + 1) + id
-					else
-						node.nodeValue = if text then text + "|" + id else "|" + id
+			id = cola.uniqueId()
+			if node.nodeType == 8
+				if i > -1
+					node.nodeValue = text.substring(0, i + 1) + id
 				else
-					node.setAttribute(USER_DATA_KEY, id)
-
-				userData[id] = store = {
-					__cleanStamp: cleanStamp
-				}
-				userData.size++
+					node.nodeValue = if text then text + "|" + id else "|" + id
 			else
-				store = userData[id]
-				if not store
-					userData[id] = store = {
-						__cleanStamp: cleanStamp
-					}
+				node.setAttribute(USER_DATA_KEY, id)
 
+			userData[id] = store = {
+				__cleanStamp: cleanStamp
+			}
 			for k, v of key
 				store[k] = v
-
 	else if arguments.length is 1
 		if id
 			return userData[id]
