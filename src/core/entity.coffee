@@ -402,7 +402,7 @@ class cola.Entity
 
 		value = @_data[prop]
 		if value == undefined
-			if property
+			if property and loadMode isnt "never"
 				provider = property.get("provider")
 				context?.unloaded = true
 				if provider and provider._loadMode is "lazy"
