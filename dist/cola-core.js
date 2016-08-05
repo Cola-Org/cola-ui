@@ -3846,6 +3846,23 @@
           }
           context.providerInvokers.push(providerInvoker);
         }
+      } else if (typeof value === "function") {
+        providerInvoker = {
+          entity: this,
+          func: value,
+          invokeAsync: function(callback) {
+            return this.func.call(this.entity, callback);
+          }
+        };
+        value = void 0;
+        callbackProcessed = true;
+        if (context) {
+          context.unloaded = true;
+          if (context.providerInvokers == null) {
+            context.providerInvokers = [];
+          }
+          context.providerInvokers.push(providerInvoker);
+        }
       }
       if (callback && !callbackProcessed) {
         cola.callback(callback, true, value);
@@ -8359,29 +8376,19 @@
           return store != null ? store[key] : void 0;
         }
       } else if (key && typeof key === "object") {
-        if (!id) {
-          id = cola.uniqueId();
-          if (node.nodeType === 8) {
-            if (i > -1) {
-              node.nodeValue = text.substring(0, i + 1) + id;
-            } else {
-              node.nodeValue = text ? text + "|" + id : "|" + id;
-            }
+        id = cola.uniqueId();
+        if (node.nodeType === 8) {
+          if (i > -1) {
+            node.nodeValue = text.substring(0, i + 1) + id;
           } else {
-            node.setAttribute(USER_DATA_KEY, id);
+            node.nodeValue = text ? text + "|" + id : "|" + id;
           }
-          userData[id] = store = {
-            __cleanStamp: cleanStamp
-          };
-          userData.size++;
         } else {
-          store = userData[id];
-          if (!store) {
-            userData[id] = store = {
-              __cleanStamp: cleanStamp
-            };
-          }
+          node.setAttribute(USER_DATA_KEY, id);
         }
+        userData[id] = store = {
+          __cleanStamp: cleanStamp
+        };
         for (k in key) {
           v = key[k];
           store[k] = v;
@@ -12054,7 +12061,7 @@
 
 
   /*
-  Dorado 基础组件
+  Cola 基础组件
    */
 
   cola.Widget = (function(superClass) {
