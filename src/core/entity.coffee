@@ -451,7 +451,6 @@ class cola.Entity
 		else if prop and (typeof prop == "object")
 			config = prop
 			for prop of config
-				if prop.charAt(0) == "$" then continue
 				@set(prop, config[prop])
 		return @
 
@@ -494,7 +493,7 @@ class cola.Entity
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
-				else if typeof value == "object" and value?
+				else if typeof value == "object" and value? and prop.charCodeAt(0) isnt 36	# `$`
 					if value instanceof Array
 						convert = true
 						if value.length > 0

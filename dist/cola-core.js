@@ -3812,7 +3812,7 @@
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       value = this._data[prop];
       if (value === void 0) {
-        if (property) {
+        if (property && loadMode !== "never") {
           provider = property.get("provider");
           if (context != null) {
             context.unloaded = true;
@@ -3877,9 +3877,6 @@
       } else if (prop && (typeof prop === "object")) {
         config = prop;
         for (prop in config) {
-          if (prop.charAt(0) === "$") {
-            continue;
-          }
           this.set(prop, config[prop]);
         }
       }
@@ -3937,7 +3934,7 @@
                 value = dataType.parse(value);
               }
             }
-          } else if (typeof value === "object" && (value != null)) {
+          } else if (typeof value === "object" && (value != null) && prop.charCodeAt(0) !== 36) {
             if (value instanceof Array) {
               convert = true;
               if (value.length > 0) {
