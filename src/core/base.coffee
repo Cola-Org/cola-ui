@@ -172,15 +172,15 @@ setting = {
 cola.setting = (key, value) ->
 	if typeof key == "string"
 		if value != undefined
-# setting(string, any)
+			# setting(string, any)
 			setting[key] = value
 			if cola.getListeners("settingChange")
 				cola.fire("settingChange", cola, {key: key})
 		else
-# setting(string)
+			# setting(string)
 			return setting[key]
 	else if typeof key == "object"
-# setting(object)
+		# setting(object)
 		for k, v of key
 			setting[k] = v
 			if cola.getListeners("settingChange")

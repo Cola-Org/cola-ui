@@ -198,7 +198,7 @@ class cola.RenderableElement extends cola.Element
 			return @get$Dom().hasClass(value)
 
 ###
-Dorado 基础组件
+Cola 基础组件
 ###
 class cola.Widget extends cola.RenderableElement
 	@SEMANTIC_CLASS: ["left floated", "right floated"]
@@ -232,7 +232,7 @@ class cola.Widget extends cola.RenderableElement
 		dimmer:
 			setter: (value)->
 				@_dimmer ?= {}
-				@_dimmer[k] = v for k,v of value
+				@_dimmer[k] = v for k, v of value
 				return
 
 		height:

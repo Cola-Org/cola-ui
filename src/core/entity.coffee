@@ -427,6 +427,19 @@ class cola.Entity
 				context.unloaded = true
 				context.providerInvokers ?= []
 				context.providerInvokers.push(providerInvoker)
+		else if typeof value is "function"
+			providerInvoker = {
+				entity: @
+				func: value
+				invokeAsync: (callback) -> @func.call(@entity, callback)
+			}
+			value = undefined
+			callbackProcessed = true
+
+			if context
+				context.unloaded = true
+				context.providerInvokers ?= []
+				context.providerInvokers.push(providerInvoker)
 
 		if callback and not callbackProcessed
 			cola.callback(callback, true, value)
@@ -473,7 +486,7 @@ class cola.Entity
 							else
 								value = @_jsonToEntity(value, dataType, property._aggregated, provider)
 
-							if !matched
+							if not matched
 								expectedType = dataType.get("name")
 								actualType = value.dataType?.get("name") or "undefined"
 								if property._aggregated then expectedType = "[#{expectedType}]"
