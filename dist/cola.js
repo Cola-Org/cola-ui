@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.7
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -12599,7 +12599,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.7
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -15169,7 +15169,7 @@ Template
         var cellState, column, row, ym;
         row = eventArg.row;
         column = eventArg.column;
-        if (this._state && this._year && this._month) {
+        if (this._state && this._year) {
           cellState = this._state[row * 7 + column];
           ym = this.getYMForState(cellState);
           eventArg.date = new Date(ym.year, ym.month, cellState.text);
