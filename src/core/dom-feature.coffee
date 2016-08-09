@@ -75,12 +75,6 @@ class cola._AliasFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode) ->
-		dataCtx.vars ?= {}
-		dataCtx.vars.$dom = domBinding.dom
-		scope = domBinding.scope
-		return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx)
-
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
 		data = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
 		domBinding.scope.data.setTargetData(data)
@@ -181,12 +175,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		domBinding.subScopeCreated = true
 		return
-
-	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode) ->
-		dataCtx.vars ?= {}
-		dataCtx.vars.$dom = domBinding.dom
-		scope = domBinding.scope
-		return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx)
 
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
 		if @isDyna and not dynaExpressionOnly
