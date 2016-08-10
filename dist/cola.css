@@ -5871,8 +5871,15 @@ html.ios body {
   float: right;
   height: 2.8rem;
 }
-.ui.panel > .header > .content > .tools > * {
+.ui.panel > .header > .content > .tools > *:not(i) {
+  float: left;
+  line-height: 2.8rem;
   display: inline-block;
+}
+.ui.panel > .header > .content > .tools > *:not(i) .ui.button,
+.ui.panel > .header > .content > .tools > *:not(i) .ui.input > input {
+  padding: 0.6em 1em;
+  font-size: 0.9rem;
 }
 .ui.panel > .header > .content > .tools > i {
   height: inherit;
