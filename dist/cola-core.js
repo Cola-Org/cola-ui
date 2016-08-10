@@ -9468,19 +9468,6 @@
       domBinding.subScopeCreated = true;
     };
 
-    _AliasFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
-      var scope;
-      if (dataCtx == null) {
-        dataCtx = {};
-      }
-      if (dataCtx.vars == null) {
-        dataCtx.vars = {};
-      }
-      dataCtx.vars.$dom = domBinding.dom;
-      scope = domBinding.scope;
-      return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx);
-    };
-
     _AliasFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
       var data;
       data = this.evaluate(domBinding, dynaExpressionOnly, dataCtx);
@@ -9610,19 +9597,6 @@
         }
       };
       domBinding.subScopeCreated = true;
-    };
-
-    _RepeatFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
-      var scope;
-      if (dataCtx == null) {
-        dataCtx = {};
-      }
-      if (dataCtx.vars == null) {
-        dataCtx.vars = {};
-      }
-      dataCtx.vars.$dom = domBinding.dom;
-      scope = domBinding.scope;
-      return scope.evaluate(scope, dynaExpressionOnly, loadMode, dataCtx);
     };
 
     _RepeatFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
@@ -10537,7 +10511,7 @@
       if (template.match(/^\#[\w\-\$]*$/)) {
         templateNode = document.getElementById(template.substring(1));
         if (templateNode) {
-          if (template.nodeName === "TEMPLATE") {
+          if (templateNode.nodeName === "TEMPLATE") {
             template = templateNode.innerHTML;
             $fly(templateNode).remove();
           }
