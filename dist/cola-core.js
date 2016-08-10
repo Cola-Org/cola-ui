@@ -10511,7 +10511,7 @@
       if (template.match(/^\#[\w\-\$]*$/)) {
         templateNode = document.getElementById(template.substring(1));
         if (templateNode) {
-          if (template.nodeName === "TEMPLATE") {
+          if (templateNode.nodeName === "TEMPLATE") {
             template = templateNode.innerHTML;
             $fly(templateNode).remove();
           }

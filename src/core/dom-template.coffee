@@ -88,7 +88,7 @@ cola.xRender = (template, model, context) ->
 		if template.match(/^\#[\w\-\$]*$/)
 			templateNode = document.getElementById(template.substring(1))
 			if templateNode
-				if template.nodeName is "TEMPLATE"
+				if templateNode.nodeName is "TEMPLATE"
 					template = templateNode.innerHTML
 					$fly(templateNode).remove()
 			else
