@@ -140,6 +140,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 			return {items: @_items};
 
 	setCurrentIndex: (index)->
+		return if isNaN(index) or @_currentIndex is index
+
 		if @fire("beforeChange", @, {index: index}) is false then return;
 
 		@_currentIndex = index
