@@ -186,7 +186,7 @@ _DOMNodeRemovedListener = (evt) ->
 
 cleanStamp = 1
 
-if document.all	# Damn old IE
+if cola.browser.ie and cola.browser.ie < 9	# Damn old IE
 	setTimeout(() ->
 		i = 0
 		setInterval(() ->
