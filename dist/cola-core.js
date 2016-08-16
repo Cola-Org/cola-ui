@@ -2183,7 +2183,7 @@
 
   cola.Expression = (function() {
     function Expression(exprStr) {
-      var fc, i, j, l, last, len1, len2, o, oldParts, part, parts, path, ref, watchPathStr, watchPaths;
+      var fc, i, l, len1, path, ref, watchPathStr, watchPaths;
       this.raw = exprStr;
       i = exprStr.indexOf(" on ");
       if ((0 < i && i < (exprStr.length - 1))) {
@@ -2197,19 +2197,6 @@
           path = cola.util.trim(path);
           if (!path) {
             continue;
-          }
-          if (path.indexOf(".") > 0) {
-            parts = [];
-            oldParts = path.split(".");
-            last = oldParts.length - 1;
-            for (j = o = 0, len2 = oldParts.length; o < len2; j = ++o) {
-              part = oldParts[j];
-              if (j < last && part.charCodeAt(0) !== 33) {
-                part = "!" + part;
-              }
-              parts.push(part);
-            }
-            path = parts.join(".");
           }
           watchPaths.push(path);
         }
@@ -8513,7 +8500,7 @@
 
   cleanStamp = 1;
 
-  if (document.all) {
+  if (cola.browser.ie && cola.browser.ie < 9) {
     setTimeout(function() {
       var i;
       i = 0;

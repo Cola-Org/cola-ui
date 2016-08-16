@@ -15,11 +15,11 @@ cola._compileText = (text) ->
 		exprStr = digestExpression(text, s + 2)
 		if exprStr
 			if s > p
-				if !parts then parts = []
+				if not parts then parts = []
 				parts.push(text.substring(p, s))
 
 			expr = cola._compileExpression(exprStr, if exprStr.indexOf(" in ") > 0 then "repeat" else undefined)
-			if !parts then parts = [expr] else parts.push(expr)
+			if not parts then parts = [expr] else parts.push(expr)
 			p = s + exprStr.length + 4
 		else
 			break
@@ -37,7 +37,7 @@ digestExpression = (text, p) ->
 	endBracket = 0
 	while p < len
 		c = text.charCodeAt(p)
-		if c is 125 && !quota    # `}`
+		if c is 125 && not quota    # `}`
 			if endBracket is 1
 				return text.substring(s, p - 1)
 			endBracket++
@@ -52,7 +52,7 @@ digestExpression = (text, p) ->
 	return
 
 cola._compileExpression = (exprStr, specialType) ->
-	if !exprStr then return null
+	if not exprStr then return null
 
 	if specialType is "repeat"
 		i = exprStr.indexOf(" in ")
@@ -60,7 +60,7 @@ cola._compileExpression = (exprStr, specialType) ->
 			aliasName = exprStr.substring(0, i)
 			if aliasName.match(cola.constants.VARIABLE_NAME_REGEXP)
 				exprStr = exprStr.substring(i + 4)
-				if !exprStr then return null
+				if not exprStr then return null
 				exp = new cola.Expression(exprStr, true)
 				exp.raw = aliasName + " in " + exp.raw
 				exp.repeat = true
@@ -77,7 +77,7 @@ cola._compileExpression = (exprStr, specialType) ->
 			aliasName = exprStr.substring(i + 4)
 			if aliasName && aliasName.match(cola.constants.VARIABLE_NAME_REGEXP)
 				exprStr = exprStr.substring(0, i)
-				if !exprStr then return null
+				if not exprStr then return null
 				exp = new cola.Expression(exprStr, true)
 				exp.raw = exp.raw + " as " + aliasName
 				exp.setAlias = true
@@ -97,7 +97,7 @@ splitExpression = (text, separator) ->
 	len = text.length
 	while i < len
 		c = text.charCodeAt(i)
-		if c is separatorCharCode && !quota
+		if c is separatorCharCode && not quota
 			part = text.substring(p, i)
 			parts ?= []
 			parts.push(cola.util.trim(part))
@@ -134,15 +134,6 @@ class cola.Expression
 			for path in watchPathStr.split(/[,;]/)
 				path = cola.util.trim(path)
 				continue unless path
-				if path.indexOf(".") > 0
-					parts = []
-					oldParts = path.split(".")
-					last = oldParts.length - 1
-					for part, j in oldParts
-						if j < last and part.charCodeAt(0) != 33 # `!`
-							part = "!" + part
-						parts.push(part)
-					path = parts.join(".")
 				watchPaths.push(path)
 
 		fc = exprStr.charCodeAt(0)
