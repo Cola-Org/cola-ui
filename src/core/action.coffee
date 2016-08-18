@@ -107,6 +107,19 @@ cola.defaultAction.formatNumber = cola.util.formatNumber
 
 cola.defaultAction.format = cola.util.format
 
+cola.defaultAction.propertyCaption = (path) ->
+	caption = ""
+	i = path.indexOf(".")
+	if i > 0
+		dataType = path.substring(0, i)
+		property = path.substring(i + 1)
+		dataType = @.definition(dataType)
+		if dataType
+			property = dataType.getProperty(property)
+			if property
+				caption = property._caption or property._property
+	return caption
+
 _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
 cola.defaultAction.number2Word = (number) -> _numberWords[number]
 

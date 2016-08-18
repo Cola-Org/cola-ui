@@ -285,12 +285,15 @@ class cola.Table extends cola.AbstractTable
 		return if column._realHeaderTemplate
 
 		dataType = @_getBindDataType()
-		if dataType and column._property
-			propertyDef = dataType.getProperty(column._property)
 
-		caption = column._caption or propertyDef?._caption
-		if !caption
-			caption = column._name
+		caption = column._caption
+		if not caption
+			if dataType and column._property
+				propertyDef = dataType.getProperty(column._property)
+				if propertyDef
+					caption = propertyDef._caption or propertyDef._property
+
+			caption ?= column._name
 			if caption?.charCodeAt(0) == 95 # `_`
 				caption = column._bind
 		dom.innerText = caption or ""
