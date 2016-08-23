@@ -2243,7 +2243,7 @@
             if (callee.type === "Identifier") {
               parts.push("scope.action(\"");
               parts.push(node.callee.name);
-              parts.push("\")(");
+              parts.push("\").call(scope");
             } else if (callee.type === "MemberExpression") {
               stringify(callee.object, parts, pathParts, true, context);
               parts.push(".");
@@ -2256,9 +2256,7 @@
               ref1 = node["arguments"];
               for (i = l = 0, len1 = ref1.length; l < len1; i = ++l) {
                 argument = ref1[i];
-                if (i > 0) {
-                  parts.push(",");
-                }
+                parts.push(",");
                 stringify(argument, parts, pathParts, true, context);
               }
             }
@@ -7824,6 +7822,24 @@
   cola.defaultAction.formatNumber = cola.util.formatNumber;
 
   cola.defaultAction.format = cola.util.format;
+
+  cola.defaultAction.propertyCaption = function(path) {
+    var caption, dataType, i, property;
+    caption = "";
+    i = path.indexOf(".");
+    if (i > 0) {
+      dataType = path.substring(0, i);
+      property = path.substring(i + 1);
+      dataType = this.definition(dataType);
+      if (dataType) {
+        property = dataType.getProperty(property);
+        if (property) {
+          caption = property._caption || property._property;
+        }
+      }
+    }
+    return caption;
+  };
 
   _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
 
@@ -31550,12 +31566,17 @@ Template
         return;
       }
       dataType = this._getBindDataType();
-      if (dataType && column._property) {
-        propertyDef = dataType.getProperty(column._property);
-      }
-      caption = column._caption || (propertyDef != null ? propertyDef._caption : void 0);
+      caption = column._caption;
       if (!caption) {
-        caption = column._name;
+        if (dataType && column._property) {
+          propertyDef = dataType.getProperty(column._property);
+          if (propertyDef) {
+            caption = propertyDef._caption || propertyDef._property;
+          }
+        }
+        if (caption == null) {
+          caption = column._name;
+        }
         if ((caption != null ? caption.charCodeAt(0) : void 0) === 95) {
           caption = column._bind;
         }

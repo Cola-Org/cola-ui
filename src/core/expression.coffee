@@ -172,7 +172,7 @@ class cola.Expression
 					if callee.type is "Identifier"
 						parts.push("scope.action(\"")
 						parts.push(node.callee.name)
-						parts.push("\")(")
+						parts.push("\").call(scope")
 					else if callee.type is "MemberExpression"
 						stringify(callee.object, parts, pathParts, true, context)
 						parts.push(".")
@@ -183,7 +183,7 @@ class cola.Expression
 
 					if node.arguments?.length
 						for argument, i in node.arguments
-							if i > 0 then parts.push(",")
+							parts.push(",")
 							stringify(argument, parts, pathParts, true, context)
 					parts.push(")")
 
