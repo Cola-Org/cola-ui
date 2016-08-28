@@ -86,14 +86,8 @@ cola.xRender = (template, model, context) ->
 		dom = template
 	else if typeof template == "string"
 		if template.match(/^\#[\w\-\$]*$/)
-			templateNode = document.getElementById(template.substring(1))
-			if templateNode
-				if templateNode.nodeName is "TEMPLATE"
-					template = templateNode.innerHTML
-					$fly(templateNode).remove()
-			else
-				template = null
-				dom = templateNode
+			template = cola.util.getGlobalTemplate(template.substring(1))
+			dom = null
 
 		if template
 			documentFragment = document.createDocumentFragment()

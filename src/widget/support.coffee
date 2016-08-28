@@ -323,10 +323,9 @@ _extendWidget = (superCls, definition) ->
     if definition.template
         template = definition.template
         if typeof template is "string" and template.match(/^\#[\w\-\$]*$/)
-            template = document.getElementById(template.substring(1))
-            if template
-                definition.template = template.innerHTML
-                $fly(template).remove()
+            template = cola.util.getGlobalTemplate(template.substring(1))
+        else if template and typeof template is "object" and template.nodeType
+            template = template.outerHTML
 
         cls.attributes.template =
             defaultValue: definition.template

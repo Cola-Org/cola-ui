@@ -1,7 +1,7 @@
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.Textarea extends cola.AbstractEditor
-    @CLASS_NAME: "textarea"
+    @CLASS_NAME: "input textarea"
     @tagName: "c-textarea"
     @attributes:
         postOnInput:
@@ -112,6 +112,20 @@ class cola.Textarea extends cola.AbstractEditor
         @_refreshInputValue(@_value)
         $fly(@_doms.input).prop("readOnly", @_readOnly).attr("placeholder", @_placeholder)
         @_rows and $fly(@_doms.input).attr("rows", @_rows)
+
+    _resetDimension: ()->
+        $dom = @get$Dom()
+        unit = cola.constants.WIDGET_DIMENSION_UNIT
+
+        height = @get("height")
+        height = "#{parseInt(height)}#{unit}" if isFinite(height)
+        $fly(@_doms.input).css("height", height) if height
+
+        width = @get("width")
+        width = "#{parseInt(width)}#{unit}" if isFinite(width)
+        $dom.css("width", width) if width
+
+        return
 
 cola.registerWidget(cola.Textarea)
 

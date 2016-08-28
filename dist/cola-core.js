@@ -7081,7 +7081,11 @@
           definition = new cola.EntityDataType(definition);
           this._definitionStore[name] = definition;
         }
-      } else {
+        if (!definition) {
+          definition = this.model.parent.data.definition(name);
+        }
+      }
+      if (!definition) {
         definition = cola.DataType.defaultDataTypes[name];
       }
       return definition;
@@ -8594,6 +8598,18 @@
       }
     }, 10000);
   }
+
+  cola.util.getGlobalTemplate = function(name) {
+    var html, template;
+    template = document.getElementById(name);
+    if (template) {
+      html = template.innerHTML;
+      if (!template.hasAttribute("shared")) {
+        $fly(template).remove();
+      }
+    }
+    return html;
+  };
 
   if (cola.device.mobile) {
     $fly(window).on("load", function() {
@@ -10502,7 +10518,7 @@
   };
 
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1, templateNode;
+    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
     if (!template) {
       return;
     }
@@ -10512,16 +10528,8 @@
       dom = template;
     } else if (typeof template === "string") {
       if (template.match(/^\#[\w\-\$]*$/)) {
-        templateNode = document.getElementById(template.substring(1));
-        if (templateNode) {
-          if (templateNode.nodeName === "TEMPLATE") {
-            template = templateNode.innerHTML;
-            $fly(templateNode).remove();
-          }
-        } else {
-          template = null;
-          dom = templateNode;
-        }
+        template = cola.util.getGlobalTemplate(template.substring(1));
+        dom = null;
       }
       if (template) {
         documentFragment = document.createDocumentFragment();
@@ -11638,11 +11646,9 @@
     if (definition.template) {
       template = definition.template;
       if (typeof template === "string" && template.match(/^\#[\w\-\$]*$/)) {
-        template = document.getElementById(template.substring(1));
-        if (template) {
-          definition.template = template.innerHTML;
-          $fly(template).remove();
-        }
+        template = cola.util.getGlobalTemplate(template.substring(1));
+      } else if (template && typeof template === "object" && template.nodeType) {
+        template = template.outerHTML;
       }
       cls.attributes.template = {
         defaultValue: definition.template

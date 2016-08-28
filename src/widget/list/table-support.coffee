@@ -43,6 +43,34 @@ class cola.TableColumn extends cola.Element
         table._regColumn(@) if table
         return
 
+    getTemplate: (property) ->
+        template = @["_real_" + property]
+        return template if template isnt undefined
+
+        templateDef = @get(property)
+        return null unless templateDef
+
+        if typeof templateDef is "string"
+            if templateDef.indexOf("<") >= 0
+                template = $.xCreate(templateDef)
+            else if templateDef.match(/^\#[\w\-\$]*$/)
+                template = cola.util.getGlobalTemplate(templateDef.substring(1))
+                if template
+                    div = document.createElement("div")
+                    div.innerHTML = template
+                    template = div.firstElementChild
+        else if typeof templateDef is "object"
+            if templateDef.nodeType
+                template = templateDef
+            else
+                template = $.xCreate(templateDef)
+
+        if not template
+            template = @_table.getTemplate(templateDef)
+
+        @["_real_" + property] = template or null
+        return template
+
 class cola.TableGroupColumn extends cola.TableColumn
     @attributes:
         columns:
@@ -243,11 +271,13 @@ class cola.AbstractTable extends cola.AbstractList
         "default":
             tagName: "tr"
         "checkbox-column":
-            tagName: "div"
-            "c-widget": "checkbox;class:in-cell;bind:$default"
+            tagName: "c-checkbox"
+            class: "in-cell"
+            bind: "$default"
         "input-column":
-            tagName: "div"
-            "c-widget": "input;class:in-cell;bind:$default"
+            tagName: "c-input"
+            class: "in-cell"
+            bind: "$default"
             style:
                 width: "100%"
         "group-header":
