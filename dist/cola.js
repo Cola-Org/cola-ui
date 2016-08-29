@@ -4956,11 +4956,16 @@
           page = this._createPage(pageNo);
           if (page) {
             if (loadMode === "async") {
+              if (!this._currentPage) {
+                this._setCurrentPage(page);
+              }
               page.loadData({
                 complete: (function(_this) {
                   return function(success, result) {
                     if (success) {
-                      _this._setCurrentPage(page);
+                      if (_this._currentPage !== page) {
+                        _this._setCurrentPage(page);
+                      }
                       if (page.entityCount && _this.pageCount < pageNo) {
                         _this.pageCount = pageNo;
                       }
@@ -5118,6 +5123,13 @@
         this.setCurrent(newCurrent);
       }
       return entity;
+    };
+
+    EntityList.prototype.empty = function() {
+      this._reset();
+      this._notify(cola.constants.MESSAGE_REFRESH, {
+        data: this
+      });
     };
 
     EntityList.prototype.setCurrent = function(entity) {

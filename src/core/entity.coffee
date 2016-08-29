@@ -1218,10 +1218,14 @@ class cola.EntityList extends LinkedList
 				page = @_createPage(pageNo)
 				if page
 					if loadMode is "async"
+						if not @_currentPage
+							@_setCurrentPage(page)
+							
 						page.loadData(
 							complete: (success, result) =>
 								if success
-									@_setCurrentPage(page)
+									if @_currentPage isnt page
+										@_setCurrentPage(page)
 									if page.entityCount and @pageCount < pageNo
 										@pageCount = pageNo
 								cola.callback(callback, success, result)
@@ -1339,6 +1343,11 @@ class cola.EntityList extends LinkedList
 
 		@setCurrent(newCurrent) if changeCurrent
 		return entity
+
+	empty: () ->
+		@_reset()
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		return
 
 	setCurrent: (entity) ->
 		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
