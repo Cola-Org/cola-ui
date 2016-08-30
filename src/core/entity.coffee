@@ -1220,7 +1220,7 @@ class cola.EntityList extends LinkedList
 					if loadMode is "async"
 						if not @_currentPage
 							@_setCurrentPage(page)
-							
+
 						page.loadData(
 							complete: (success, result) =>
 								if success
@@ -1566,7 +1566,10 @@ _Entity._setValue = _setValue = (entity, path, value, context) ->
 		part2 = path.substring(i + 1)
 		entity = _evalDataPath(entity, part1, true, "never", context)
 
-		if entity? and !(entity instanceof _EntityList)
+		if not entity?
+			throw new cola.Exception("Cannot set value to #{entity}.")
+
+		if not (entity instanceof _EntityList)
 			if entity instanceof cola.AjaxServiceInvoker
 				entity = undefined
 			else if typeof entity._set == "function"

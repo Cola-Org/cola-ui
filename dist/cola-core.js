@@ -5433,7 +5433,10 @@
       part1 = path.substring(0, i);
       part2 = path.substring(i + 1);
       entity = _evalDataPath(entity, part1, true, "never", context);
-      if ((entity != null) && !(entity instanceof _EntityList)) {
+      if (entity == null) {
+        throw new cola.Exception("Cannot set value to " + entity + ".");
+      }
+      if (!(entity instanceof _EntityList)) {
         if (entity instanceof cola.AjaxServiceInvoker) {
           entity = void 0;
         } else if (typeof entity._set === "function") {
