@@ -5927,8 +5927,8 @@
       return this;
     };
 
-    Scope.prototype.notifyObservers = function() {
-      this.data.notifyObservers();
+    Scope.prototype.notifyObservers = function(path) {
+      this.data.notifyObservers(path);
       return this;
     };
 
@@ -6948,10 +6948,17 @@
       return this;
     };
 
-    AbstractDataModel.prototype.notifyObservers = function() {
-      var ref;
-      if ((ref = this._rootData) != null) {
-        ref.notifyObservers();
+    AbstractDataModel.prototype.notifyObservers = function(path) {
+      var data;
+      if (path) {
+        data = this.get(path, "never");
+      } else {
+        data = this._rootData;
+      }
+      if (data != null) {
+        if (typeof data.notifyObservers === "function") {
+          data.notifyObservers();
+        }
       }
       return this;
     };
@@ -7429,8 +7436,8 @@
       return this;
     };
 
-    AliasDataModel.prototype.notifyObservers = function() {
-      this.parent.notifyObservers();
+    AliasDataModel.prototype.notifyObservers = function(path) {
+      this.parent.notifyObservers(path);
       return this;
     };
 
