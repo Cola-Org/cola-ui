@@ -3728,7 +3728,9 @@
       if (loadMode == null) {
         loadMode = "async";
       }
-      if (loadMode && (typeof loadMode === "function" || typeof loadMode === "object")) {
+      if (loadMode === "async") {
+        callback = cola._EMPTY_FUNC;
+      } else if (typeof loadMode === "function" || typeof loadMode === "object") {
         callback = loadMode;
         loadMode = "async";
       }
@@ -5379,10 +5381,10 @@
   _EntityList = cola.EntityList;
 
   _Entity._evalDataPath = _evalDataPath = function(data, path, noEntityList, loadMode, callback, context) {
-    var i, isLast, l, lastIndex, len1, part, parts, returnCurrent;
-    if (path) {
-      parts = path.split(".");
-      lastIndex = parts.length - 1;
+    var evalPart, i, isLast, l, lastIndex, len1, part, parts, returnCurrent;
+    parts = path.split(".");
+    lastIndex = parts.length - 1;
+    if (!callback) {
       for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
         part = parts[i];
         returnCurrent = false;
@@ -5404,11 +5406,7 @@
             }
           }
           if (data instanceof _Entity) {
-            if (typeof data._get === "function") {
-              data = data._get(part, loadMode, callback, context);
-            } else {
-
-            }
+            data = data._get(part, loadMode, null, context);
             if (data && data instanceof _EntityList) {
               if (noEntityList || returnCurrent) {
                 data = data.current;
@@ -5422,8 +5420,54 @@
           break;
         }
       }
+      return data;
+    } else {
+      evalPart = function(data, parts, i) {
+        part = parts[i];
+        returnCurrent = false;
+        if (i === 0 && data instanceof _EntityList) {
+          if (part === "#") {
+            data = data.current;
+          } else {
+            data = data[part];
+          }
+        } else {
+          isLast = i === lastIndex;
+          if (!noEntityList) {
+            if (!isLast) {
+              returnCurrent = true;
+            }
+            if (part.charCodeAt(part.length - 1) === 35) {
+              returnCurrent = true;
+              part = part.substring(0, part.length - 1);
+            }
+          }
+          if (data instanceof _Entity) {
+            data = data._get(part, loadMode, function(result) {
+              if (result && result instanceof _EntityList) {
+                if (noEntityList || returnCurrent) {
+                  result = result.current;
+                }
+              }
+              if ((result != null) && !isLast) {
+                evalPart(result, parts, i + 1);
+              } else {
+                callback(result);
+              }
+            }, context);
+            return;
+          } else {
+            data = data[part];
+          }
+        }
+        if ((data != null) && !isLast) {
+          evalPart(data, parts, i + 1);
+        } else {
+          callback(data);
+        }
+      };
+      evalPart(data, parts, 0);
     }
-    return data;
   };
 
   _Entity._setValue = _setValue = function(entity, path, value, context) {

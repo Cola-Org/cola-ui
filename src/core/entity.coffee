@@ -347,7 +347,9 @@ class cola.Entity
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
 
 	get: (prop, loadMode = "async", context) ->
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+		if loadMode is "async"
+			callback = cola._EMPTY_FUNC
+		else if typeof loadMode is "function" or typeof loadMode is "object"
 			callback = loadMode
 			loadMode = "async"
 
@@ -1527,37 +1529,79 @@ _Entity = cola.Entity
 _EntityList = cola.EntityList
 
 _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, callback, context) ->
-	if path
-		parts = path.split(".")
-		lastIndex = parts.length - 1
+	parts = path.split(".")
+	lastIndex = parts.length - 1
+
+	if not callback
 		for part, i in parts
 			returnCurrent = false
-			if i == 0 and data instanceof _EntityList
-				if part == "#"
+			if i is 0 and data instanceof _EntityList
+				if part is "#"
 					data = data.current
 				else
 					data = data[part]
 			else
-				isLast = (i == lastIndex)
-				if !noEntityList
-					if !isLast
+				isLast = (i is lastIndex)
+				if not noEntityList
+					if not isLast
 						returnCurrent = true
-					if part.charCodeAt(part.length - 1) == 35 # '#'
+					if part.charCodeAt(part.length - 1) is 35 # '#'
 						returnCurrent = true
 						part = part.substring(0, part.length - 1)
 
 				if data instanceof _Entity
-					if typeof data._get == "function"
-						data = data._get(part, loadMode, callback, context)
-					else
-
+					data = data._get(part, loadMode, null, context)
 					if data and data instanceof _EntityList
 						if noEntityList or returnCurrent
 							data = data.current
 				else
 					data = data[part]
-			if !data? then break
-	return data
+			if not data? then break
+		return data
+
+	else
+
+		evalPart = (data, parts, i) ->
+			part = parts[i]
+			returnCurrent = false
+			if i is 0 and data instanceof _EntityList
+				if part is "#"
+					data = data.current
+				else
+					data = data[part]
+			else
+				isLast = (i is lastIndex)
+				if not noEntityList
+					if not isLast
+						returnCurrent = true
+					if part.charCodeAt(part.length - 1) is 35 # '#'
+						returnCurrent = true
+						part = part.substring(0, part.length - 1)
+
+				if data instanceof _Entity
+					data = data._get(part, loadMode, (result) ->
+							if result and result instanceof _EntityList
+								if noEntityList or returnCurrent
+									result = result.current
+
+							if result? and not isLast
+								evalPart(result, parts, i + 1)
+							else
+								callback(result)
+							return
+						, context)
+					return
+				else
+					data = data[part]
+
+			if data? and not isLast
+				evalPart(data, parts, i + 1)
+			else
+				callback(data)
+			return
+
+		evalPart(data, parts, 0)
+		return
 
 _Entity._setValue = _setValue = (entity, path, value, context) ->
 	i = path.lastIndexOf(".")
