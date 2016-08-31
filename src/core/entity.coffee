@@ -427,12 +427,34 @@ class cola.Entity
 				context.unloaded = true
 				context.providerInvokers ?= []
 				context.providerInvokers.push(providerInvoker)
+
+		# TODO: delete this
 		else if typeof value is "function"
 			providerInvoker = {
+				_$providerInvoker: true
 				entity: @
 				func: value
-				invokeAsync: (callback) -> @func.call(@entity, callback)
+				callbacks: [callback]
+				invokeAsync: () ->
+					@func.call(@entity, (result) =>
+						for callback in @callbacks
+							cola.callback(callback, true, result)
+						return
+					)
+					return
 			}
+			@_data[prop] = providerInvoker
+			providerInvoker.invokeAsync()
+			value = undefined
+			callbackProcessed = true
+
+			if context
+				context.unloaded = true
+				context.providerInvokers ?= []
+				context.providerInvokers.push(providerInvoker)
+		else if typeof value is "object" and value?._$providerInvoker
+			value.callbacks.push(callback)
+
 			value = undefined
 			callbackProcessed = true
 
@@ -1530,44 +1552,44 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 	parts = path.split(".")
 	lastIndex = parts.length - 1
 
-#	evalPart = (data, parts, i) ->
-#		part = parts[i]
-#		returnCurrent = false
-#		if i is 0 and data instanceof _EntityList
-#			if part is "#"
-#				data = data.current
-#			else
-#				data = data[part]
-#		else
-#			isLast = (i is lastIndex)
-#			if not noEntityList
-#				if not isLast
-#					returnCurrent = true
-#				if part.charCodeAt(part.length - 1) is 35 # '#'
-#					returnCurrent = true
-#					part = part.substring(0, part.length - 1)
-#
-#			if data instanceof _Entity
-#				data = data._get(part, loadMode, (result) ->
-#					if result and result instanceof _EntityList
-#						if noEntityList or returnCurrent
-#							result = result.current
-#
-#					if result? and not isLast
-#						evalPart(result, parts, i + 1)
-#					else
-#						callback?(result)
-#					return
-#				, context)
-#				return
-#			else
-#				data = data[part]
-#
-#		if data? and not isLast
-#			evalPart(data, parts, i + 1)
-#		else
-#			callback?(data)
-#		return
+	evalPart = (data, parts, i) ->
+		part = parts[i]
+		returnCurrent = false
+		if i is 0 and data instanceof _EntityList
+			if part is "#"
+				data = data.current
+			else
+				data = data[part]
+		else
+			isLast = (i is lastIndex)
+			if not noEntityList
+				if not isLast
+					returnCurrent = true
+				if part.charCodeAt(part.length - 1) is 35 # '#'
+					returnCurrent = true
+					part = part.substring(0, part.length - 1)
+
+			if data instanceof _Entity
+				data = data._get(part, loadMode, (result) ->
+					if result and result instanceof _EntityList
+						if noEntityList or returnCurrent
+							result = result.current
+
+					if result? and not isLast
+						evalPart(result, parts, i + 1)
+					else
+						callback?(result)
+					return
+				, context)
+				return
+			else
+				data = data[part]
+
+		if data? and not isLast
+			evalPart(data, parts, i + 1)
+		else
+			callback?(data)
+		return
 
 	if not callback
 		for part, i in parts

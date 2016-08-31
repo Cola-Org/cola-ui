@@ -47,6 +47,7 @@ class cola.Form extends cola.Widget
 			$dom.xAppend(
 				tagName: "input"
 				type: "hidden"
+				value: "mockValue"
 				"data-validate": "__mockField"
 			).form(
 				on: "_disabled"
