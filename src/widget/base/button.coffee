@@ -84,7 +84,7 @@ class cola.Button extends cola.AbstractButton
 			refreshDom: true
 			defaultValue: false
 
-		states:
+		state:
 			refreshDom: true
 			defaultValue: ""
 			enum: ["loading", "active", ""]

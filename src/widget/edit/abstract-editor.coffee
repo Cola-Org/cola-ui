@@ -48,8 +48,10 @@ class cola.AbstractEditor extends cola.Widget
 		return if @fire("beforeChange", @, arg) is false
 		@_value = value
 		@post() if value isnt @_modelValue
+		@onSetValue?()
 		@fire("change", @, arg)
 		return true
+	onSetValue: ()->
 
 	post: ()->
 		return @ if @fire("beforePost", @) is false
@@ -69,7 +71,7 @@ class cola.AbstractEditor extends cola.Widget
 			if @_bindInfo?.writeable
 				entity = @_scope.get(@_bindInfo.entityPath)
 				if entity instanceof cola.EntityList
-					entity=entity.current
+					entity = entity.current
 				if entity
 					keyMessage = entity.getKeyMessage(@_bindInfo.property)
 					@set("state", keyMessage?.type)

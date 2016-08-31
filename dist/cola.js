@@ -13471,7 +13471,7 @@ Template
         refreshDom: true,
         defaultValue: false
       },
-      states: {
+      state: {
         refreshDom: true,
         defaultValue: "",
         "enum": ["loading", "active", ""],
@@ -19370,9 +19370,14 @@ Template
       if (value !== this._modelValue) {
         this.post();
       }
+      if (typeof this.onSetValue === "function") {
+        this.onSetValue();
+      }
       this.fire("change", this, arg);
       return true;
     };
+
+    AbstractEditor.prototype.onSetValue = function() {};
 
     AbstractEditor.prototype.post = function() {
       if (this.fire("beforePost", this) === false) {
