@@ -252,6 +252,13 @@ else
 		return
 	, 10000)
 
+cola.util.getGlobalTemplate = (name) ->
+	template = document.getElementById(name)
+	if template
+		html = template.innerHTML
+		if not template.hasAttribute("shared") then $fly(template).remove()
+	return html
+
 if cola.device.mobile
 	$fly(window).on("load", () ->
 		FastClick.attach(document.body)

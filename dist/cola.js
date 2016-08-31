@@ -577,8 +577,6 @@
 
   uniqueIdSeed = 1;
 
-  uniqueIdSeed = 1;
-
   cola.uniqueId = function() {
     return "_id" + (uniqueIdSeed++);
   };
@@ -3728,7 +3726,7 @@
       if (loadMode == null) {
         loadMode = "async";
       }
-      if (loadMode && (typeof loadMode === "function" || typeof loadMode === "object")) {
+      if (typeof loadMode === "function" || typeof loadMode === "object") {
         callback = loadMode;
         loadMode = "async";
       }
@@ -4956,11 +4954,16 @@
           page = this._createPage(pageNo);
           if (page) {
             if (loadMode === "async") {
+              if (!this._currentPage) {
+                this._setCurrentPage(page);
+              }
               page.loadData({
                 complete: (function(_this) {
                   return function(success, result) {
                     if (success) {
-                      _this._setCurrentPage(page);
+                      if (_this._currentPage !== page) {
+                        _this._setCurrentPage(page);
+                      }
                       if (page.entityCount && _this.pageCount < pageNo) {
                         _this.pageCount = pageNo;
                       }
@@ -5118,6 +5121,13 @@
         this.setCurrent(newCurrent);
       }
       return entity;
+    };
+
+    EntityList.prototype.empty = function() {
+      this._reset();
+      this._notify(cola.constants.MESSAGE_REFRESH, {
+        data: this
+      });
     };
 
     EntityList.prototype.setCurrent = function(entity) {
@@ -5367,10 +5377,13 @@
   _EntityList = cola.EntityList;
 
   _Entity._evalDataPath = _evalDataPath = function(data, path, noEntityList, loadMode, callback, context) {
-    var i, isLast, l, lastIndex, len1, part, parts, returnCurrent;
-    if (path) {
-      parts = path.split(".");
-      lastIndex = parts.length - 1;
+    var i, isLast, l, lastIndex, len1, part, parts, result, returnCurrent;
+    if (context == null) {
+      context = {};
+    }
+    parts = path.split(".");
+    lastIndex = parts.length - 1;
+    if (!callback) {
       for (i = l = 0, len1 = parts.length; l < len1; i = ++l) {
         part = parts[i];
         returnCurrent = false;
@@ -5392,11 +5405,13 @@
             }
           }
           if (data instanceof _Entity) {
-            if (typeof data._get === "function") {
-              data = data._get(part, loadMode, callback, context);
-            } else {
-
+            result = data._get(part, loadMode, null, context);
+            if (result === void 0 && context.unloaded) {
+              evalPart(data, parts, i);
+              data = result;
+              break;
             }
+            data = result;
             if (data && data instanceof _EntityList) {
               if (noEntityList || returnCurrent) {
                 data = data.current;
@@ -5410,8 +5425,10 @@
           break;
         }
       }
+      return data;
+    } else {
+      evalPart(data, parts, 0);
     }
-    return data;
   };
 
   _Entity._setValue = _setValue = function(entity, path, value, context) {
@@ -5421,7 +5438,10 @@
       part1 = path.substring(0, i);
       part2 = path.substring(i + 1);
       entity = _evalDataPath(entity, part1, true, "never", context);
-      if ((entity != null) && !(entity instanceof _EntityList)) {
+      if (entity == null) {
+        throw new cola.Exception("Cannot set value to " + entity + ".");
+      }
+      if (!(entity instanceof _EntityList)) {
         if (entity instanceof cola.AjaxServiceInvoker) {
           entity = void 0;
         } else if (typeof entity._set === "function") {
@@ -5868,8 +5888,8 @@
       return this;
     };
 
-    Scope.prototype.notifyObservers = function() {
-      this.data.notifyObservers();
+    Scope.prototype.notifyObservers = function(path) {
+      this.data.notifyObservers(path);
       return this;
     };
 
@@ -6889,10 +6909,17 @@
       return this;
     };
 
-    AbstractDataModel.prototype.notifyObservers = function() {
-      var ref;
-      if ((ref = this._rootData) != null) {
-        ref.notifyObservers();
+    AbstractDataModel.prototype.notifyObservers = function(path) {
+      var data;
+      if (path) {
+        data = this.get(path, "never");
+      } else {
+        data = this._rootData;
+      }
+      if (data != null) {
+        if (typeof data.notifyObservers === "function") {
+          data.notifyObservers();
+        }
       }
       return this;
     };
@@ -7081,7 +7108,11 @@
           definition = new cola.EntityDataType(definition);
           this._definitionStore[name] = definition;
         }
-      } else {
+        if (!definition) {
+          definition = this.model.parent.data.definition(name);
+        }
+      }
+      if (!definition) {
         definition = cola.DataType.defaultDataTypes[name];
       }
       return definition;
@@ -7366,8 +7397,8 @@
       return this;
     };
 
-    AliasDataModel.prototype.notifyObservers = function() {
-      this.parent.notifyObservers();
+    AliasDataModel.prototype.notifyObservers = function(path) {
+      this.parent.notifyObservers(path);
       return this;
     };
 
@@ -8594,6 +8625,18 @@
       }
     }, 10000);
   }
+
+  cola.util.getGlobalTemplate = function(name) {
+    var html, template;
+    template = document.getElementById(name);
+    if (template) {
+      html = template.innerHTML;
+      if (!template.hasAttribute("shared")) {
+        $fly(template).remove();
+      }
+    }
+    return html;
+  };
 
   if (cola.device.mobile) {
     $fly(window).on("load", function() {
@@ -10502,7 +10545,7 @@
   };
 
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1, templateNode;
+    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
     if (!template) {
       return;
     }
@@ -10512,16 +10555,8 @@
       dom = template;
     } else if (typeof template === "string") {
       if (template.match(/^\#[\w\-\$]*$/)) {
-        templateNode = document.getElementById(template.substring(1));
-        if (templateNode) {
-          if (templateNode.nodeName === "TEMPLATE") {
-            template = templateNode.innerHTML;
-            $fly(templateNode).remove();
-          }
-        } else {
-          template = null;
-          dom = templateNode;
-        }
+        template = cola.util.getGlobalTemplate(template.substring(1));
+        dom = null;
       }
       if (template) {
         documentFragment = document.createDocumentFragment();
@@ -11638,11 +11673,9 @@
     if (definition.template) {
       template = definition.template;
       if (typeof template === "string" && template.match(/^\#[\w\-\$]*$/)) {
-        template = document.getElementById(template.substring(1));
-        if (template) {
-          definition.template = template.innerHTML;
-          $fly(template).remove();
-        }
+        template = cola.util.getGlobalTemplate(template.substring(1));
+      } else if (template && typeof template === "object" && template.nodeType) {
+        template = template.outerHTML;
       }
       cls.attributes.template = {
         defaultValue: definition.template
@@ -12675,6 +12708,9 @@ Template
       if (!template && defaultName) {
         name = defaultName;
         template = this._templates[name];
+      }
+      if (!template && typeof name === "string" && name.match(/^\#[\w\-\$]*$/)) {
+        template = cola.util.getGlobalTemplate(name);
       }
       if (template && !template._trimed) {
         if (template.nodeType) {
@@ -23437,7 +23473,7 @@ Template
       return Textarea.__super__.constructor.apply(this, arguments);
     }
 
-    Textarea.CLASS_NAME = "textarea";
+    Textarea.CLASS_NAME = "input textarea";
 
     Textarea.tagName = "c-textarea";
 
@@ -23598,6 +23634,26 @@ Template
       this._refreshInputValue(this._value);
       $fly(this._doms.input).prop("readOnly", this._readOnly).attr("placeholder", this._placeholder);
       return this._rows && $fly(this._doms.input).attr("rows", this._rows);
+    };
+
+    Textarea.prototype._resetDimension = function() {
+      var $dom, height, unit, width;
+      $dom = this.get$Dom();
+      unit = cola.constants.WIDGET_DIMENSION_UNIT;
+      height = this.get("height");
+      if (isFinite(height)) {
+        height = "" + (parseInt(height)) + unit;
+      }
+      if (height) {
+        $fly(this._doms.input).css("height", height);
+      }
+      width = this.get("width");
+      if (isFinite(width)) {
+        width = "" + (parseInt(width)) + unit;
+      }
+      if (width) {
+        $dom.css("width", width);
+      }
     };
 
     return Textarea;
@@ -30656,6 +30712,41 @@ Template
       }
     };
 
+    TableColumn.prototype.getTemplate = function(property) {
+      var div, template, templateDef;
+      template = this["_real_" + property];
+      if (template !== void 0) {
+        return template;
+      }
+      templateDef = this.get(property);
+      if (!templateDef) {
+        return null;
+      }
+      if (typeof templateDef === "string") {
+        if (templateDef.indexOf("<") >= 0) {
+          template = $.xCreate(templateDef);
+        } else if (templateDef.match(/^\#[\w\-\$]*$/)) {
+          template = cola.util.getGlobalTemplate(templateDef.substring(1));
+          if (template) {
+            div = document.createElement("div");
+            div.innerHTML = template;
+            template = div.firstElementChild;
+          }
+        }
+      } else if (typeof templateDef === "object") {
+        if (templateDef.nodeType) {
+          template = templateDef;
+        } else {
+          template = $.xCreate(templateDef);
+        }
+      }
+      if (!template) {
+        template = this._table.getTemplate(templateDef);
+      }
+      this["_real_" + property] = template || null;
+      return template;
+    };
+
     return TableColumn;
 
   })(cola.Element);
@@ -30973,12 +31064,14 @@ Template
         tagName: "tr"
       },
       "checkbox-column": {
-        tagName: "div",
-        "c-widget": "checkbox;class:in-cell;bind:$default"
+        tagName: "c-checkbox",
+        "class": "in-cell",
+        bind: "$default"
       },
       "input-column": {
-        tagName: "div",
-        "c-widget": "input;class:in-cell;bind:$default",
+        tagName: "c-input",
+        "class": "in-cell",
+        bind: "$default",
         style: {
           width: "100%"
         }
@@ -31520,7 +31613,7 @@ Template
     };
 
     Table.prototype._refreshHeaderCell = function(dom, columnInfo, isNew) {
-      var $cell, caption, column, dataType, propertyDef, template, templateName;
+      var $cell, caption, column, dataType, propertyDef, template;
       column = columnInfo.column;
       dom.style.textAlign = column._align || "left";
       $cell = $fly(dom.parentNode);
@@ -31549,20 +31642,13 @@ Template
         }
       }
       if (isNew) {
-        template = column._realHeaderTemplate;
-        if (template === void 0) {
-          templateName = column._headerTemplate;
-          if (templateName) {
-            template = this.getTemplate(templateName);
-          }
-          column._realHeaderTemplate = template || null;
-        }
+        template = column.getTemplate("headerTemplate");
         if (template) {
           template = this._cloneTemplate(template);
           dom.appendChild(template);
         }
       }
-      if (column._realHeaderTemplate) {
+      if (column._real_headerTemplate) {
         return;
       }
       dataType = this._getBindDataType();
@@ -31623,7 +31709,7 @@ Template
     };
 
     Table.prototype._refreshFooterCell = function(dom, columnInfo, isNew) {
-      var column, template, templateName;
+      var column, template;
       column = columnInfo.column;
       dom.style.textAlign = column._align || "left";
       if (column.renderFooter) {
@@ -31647,20 +31733,13 @@ Template
         }
       }
       if (isNew) {
-        template = column._realFooterTemplate;
-        if (template === void 0) {
-          templateName = column._footerTemplate;
-          if (templateName) {
-            template = this.getTemplate(templateName);
-          }
-          column._realFooterTemplate = template || null;
-        }
+        template = column.getTemplate("footerTemplate");
         if (template) {
           template = this._cloneTemplate(template);
           dom.appendChild(template);
         }
       }
-      if (column._realFooterTemplate) {
+      if (column._real_footerTemplate) {
         return;
       }
       dom.innerHTML = "&nbsp;";
@@ -31709,7 +31788,7 @@ Template
     };
 
     Table.prototype._refreshCell = function(dom, item, columnInfo, itemScope, isNew) {
-      var $dom, column, context, defaultDateFormat, template, templateName, value;
+      var $dom, column, context, defaultDateFormat, template, value;
       column = columnInfo.column;
       dom.style.textAlign = column._align || "";
       if (column.renderCell) {
@@ -31737,14 +31816,7 @@ Template
         }
       }
       if (isNew) {
-        template = column._realTemplate;
-        if (template === void 0) {
-          templateName = column._template;
-          if (templateName) {
-            template = this.getTemplate(templateName);
-          }
-          column._realTemplate = template || null;
-        }
+        template = column.getTemplate("template");
         if (template) {
           template = this._cloneTemplate(template);
           dom.appendChild(template);
@@ -31762,13 +31834,13 @@ Template
           cola.xRender(dom, itemScope, context);
         }
       }
-      if (column._realTemplate) {
+      if (column._real_template) {
         return;
       }
       $dom = $fly(dom);
       if (columnInfo.expression) {
         $dom.attr("c-bind", columnInfo.expression.raw);
-      } else {
+      } else if (column._property) {
         value = item.get(column._property);
         if (column._format) {
           value = cola.defaultAction.format(value, column._format);

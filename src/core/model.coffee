@@ -76,8 +76,8 @@ class cola.Scope
 		@data.enableObservers()
 		return @
 
-	notifyObservers: () ->
-		@data.notifyObservers()
+	notifyObservers: (path) ->
+		@data.notifyObservers(path)
 		return @
 
 	watch: (path, fn) ->
@@ -780,8 +780,12 @@ class cola.AbstractDataModel
 		if @disableObserverCount < 1 then @disableObserverCount = 0 else @disableObserverCount--
 		return @
 
-	notifyObservers: () ->
-		@_rootData?.notifyObservers()
+	notifyObservers: (path) ->
+		if path
+			data = @get(path, "never")
+		else
+			data = @_rootData
+		data?.notifyObservers?()
 		return @
 
 	onDataMessage: (path, type, arg = {}) ->
@@ -903,7 +907,10 @@ class cola.DataModel extends cola.AbstractDataModel
 			if not (definition instanceof cola.Definition)
 				definition = new cola.EntityDataType(definition)
 				@_definitionStore[name] = definition
-		else
+			if not definition
+				definition = @model.parent.data.definition(name)
+
+		if not definition
 			definition = cola.DataType.defaultDataTypes[name]
 		return definition
 
@@ -1104,8 +1111,8 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 		@parent.enableObservers()
 		return @
 
-	notifyObservers: () ->
-		@parent.notifyObservers()
+	notifyObservers: (path) ->
+		@parent.notifyObservers(path)
 		return @
 
 	onDataMessage: (path, type, arg) ->

@@ -54,14 +54,17 @@ cola.TemplateSupport =
 	getTemplate: (name = "default", defaultName) ->
 		return null unless @_templates
 		template = @_templates[name]
-		if !template and defaultName
+		if not template and defaultName
 			name = defaultName
 			template = @_templates[name]
 
-		if template and !template._trimed
+		if not template and typeof name is "string" and name.match(/^\#[\w\-\$]*$/)
+			template = cola.util.getGlobalTemplate(name)
+
+		if template and not template._trimed
 			if template.nodeType
 				if template.nodeName == "TEMPLATE"
-					if !template.firstChild
+					if not template.firstChild
 						html = template.innerHTML
 						if html
 							TEMP_TEMPLATE ?= document.createElement("div")

@@ -273,16 +273,11 @@ class cola.Table extends cola.AbstractTable
 				return
 
 		if isNew
-			template = column._realHeaderTemplate
-			if template == undefined
-				templateName = column._headerTemplate
-				if templateName
-					template = @getTemplate(templateName)
-				column._realHeaderTemplate = template or null
+			template = column.getTemplate("headerTemplate")
 			if template
 				template = @_cloneTemplate(template)
 				dom.appendChild(template)
-		return if column._realHeaderTemplate
+		return if column._real_headerTemplate
 
 		dataType = @_getBindDataType()
 
@@ -349,16 +344,11 @@ class cola.Table extends cola.AbstractTable
 				return
 
 		if isNew
-			template = column._realFooterTemplate
-			if template == undefined
-				templateName = column._footerTemplate
-				if templateName
-					template = @getTemplate(templateName)
-				column._realFooterTemplate = template or null
+			template = column.getTemplate("footerTemplate")
 			if template
 				template = @_cloneTemplate(template)
 				dom.appendChild(template)
-		return if column._realFooterTemplate
+		return if column._real_footerTemplate
 
 		dom.innerHTML = "&nbsp;"
 		return
@@ -414,12 +404,7 @@ class cola.Table extends cola.AbstractTable
 				return
 
 		if isNew
-			template = column._realTemplate
-			if template == undefined
-				templateName = column._template
-				if templateName
-					template = @getTemplate(templateName)
-				column._realTemplate = template or null
+			template = column.getTemplate("template")
 			if template
 				template = @_cloneTemplate(template)
 				dom.appendChild(template)
@@ -434,12 +419,12 @@ class cola.Table extends cola.AbstractTable
 						}
 				cola.xRender(dom, itemScope, context)
 
-		return if column._realTemplate
+		return if column._real_template
 
 		$dom = $fly(dom)
 		if columnInfo.expression
 			$dom.attr("c-bind", columnInfo.expression.raw)
-		else
+		else if column._property
 			value = item.get(column._property)
 			if column._format
 				value = cola.defaultAction.format(value, column._format)
