@@ -577,8 +577,6 @@
 
   uniqueIdSeed = 1;
 
-  uniqueIdSeed = 1;
-
   cola.uniqueId = function() {
     return "_id" + (uniqueIdSeed++);
   };
@@ -3728,9 +3726,7 @@
       if (loadMode == null) {
         loadMode = "async";
       }
-      if (loadMode === "async") {
-        callback = cola._EMPTY_FUNC;
-      } else if (typeof loadMode === "function" || typeof loadMode === "object") {
+      if (typeof loadMode === "function" || typeof loadMode === "object") {
         callback = loadMode;
         loadMode = "async";
       }
@@ -5381,7 +5377,10 @@
   _EntityList = cola.EntityList;
 
   _Entity._evalDataPath = _evalDataPath = function(data, path, noEntityList, loadMode, callback, context) {
-    var evalPart, i, isLast, l, lastIndex, len1, part, parts, returnCurrent;
+    var i, isLast, l, lastIndex, len1, part, parts, result, returnCurrent;
+    if (context == null) {
+      context = {};
+    }
     parts = path.split(".");
     lastIndex = parts.length - 1;
     if (!callback) {
@@ -5406,7 +5405,13 @@
             }
           }
           if (data instanceof _Entity) {
-            data = data._get(part, loadMode, null, context);
+            result = data._get(part, loadMode, null, context);
+            if (result === void 0 && context.unloaded) {
+              evalPart(data, parts, i);
+              data = result;
+              break;
+            }
+            data = result;
             if (data && data instanceof _EntityList) {
               if (noEntityList || returnCurrent) {
                 data = data.current;
@@ -5422,50 +5427,6 @@
       }
       return data;
     } else {
-      evalPart = function(data, parts, i) {
-        part = parts[i];
-        returnCurrent = false;
-        if (i === 0 && data instanceof _EntityList) {
-          if (part === "#") {
-            data = data.current;
-          } else {
-            data = data[part];
-          }
-        } else {
-          isLast = i === lastIndex;
-          if (!noEntityList) {
-            if (!isLast) {
-              returnCurrent = true;
-            }
-            if (part.charCodeAt(part.length - 1) === 35) {
-              returnCurrent = true;
-              part = part.substring(0, part.length - 1);
-            }
-          }
-          if (data instanceof _Entity) {
-            data = data._get(part, loadMode, function(result) {
-              if (result && result instanceof _EntityList) {
-                if (noEntityList || returnCurrent) {
-                  result = result.current;
-                }
-              }
-              if ((result != null) && !isLast) {
-                evalPart(result, parts, i + 1);
-              } else {
-                callback(result);
-              }
-            }, context);
-            return;
-          } else {
-            data = data[part];
-          }
-        }
-        if ((data != null) && !isLast) {
-          evalPart(data, parts, i + 1);
-        } else {
-          callback(data);
-        }
-      };
       evalPart(data, parts, 0);
     }
   };

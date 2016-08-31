@@ -347,9 +347,7 @@ class cola.Entity
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
 
 	get: (prop, loadMode = "async", context) ->
-		if loadMode is "async"
-			callback = cola._EMPTY_FUNC
-		else if typeof loadMode is "function" or typeof loadMode is "object"
+		if typeof loadMode is "function" or typeof loadMode is "object"
 			callback = loadMode
 			loadMode = "async"
 
@@ -1528,9 +1526,48 @@ class cola.EntityList extends LinkedList
 _Entity = cola.Entity
 _EntityList = cola.EntityList
 
-_Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, callback, context) ->
+_Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, callback, context = {}) ->
 	parts = path.split(".")
 	lastIndex = parts.length - 1
+
+#	evalPart = (data, parts, i) ->
+#		part = parts[i]
+#		returnCurrent = false
+#		if i is 0 and data instanceof _EntityList
+#			if part is "#"
+#				data = data.current
+#			else
+#				data = data[part]
+#		else
+#			isLast = (i is lastIndex)
+#			if not noEntityList
+#				if not isLast
+#					returnCurrent = true
+#				if part.charCodeAt(part.length - 1) is 35 # '#'
+#					returnCurrent = true
+#					part = part.substring(0, part.length - 1)
+#
+#			if data instanceof _Entity
+#				data = data._get(part, loadMode, (result) ->
+#					if result and result instanceof _EntityList
+#						if noEntityList or returnCurrent
+#							result = result.current
+#
+#					if result? and not isLast
+#						evalPart(result, parts, i + 1)
+#					else
+#						callback?(result)
+#					return
+#				, context)
+#				return
+#			else
+#				data = data[part]
+#
+#		if data? and not isLast
+#			evalPart(data, parts, i + 1)
+#		else
+#			callback?(data)
+#		return
 
 	if not callback
 		for part, i in parts
@@ -1550,7 +1587,13 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 						part = part.substring(0, part.length - 1)
 
 				if data instanceof _Entity
-					data = data._get(part, loadMode, null, context)
+					result = data._get(part, loadMode, null, context)
+					if result is undefined and context.unloaded
+						evalPart(data, parts, i)
+						data = result
+						break
+
+					data = result
 					if data and data instanceof _EntityList
 						if noEntityList or returnCurrent
 							data = data.current
@@ -1558,48 +1601,7 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 					data = data[part]
 			if not data? then break
 		return data
-
 	else
-
-		evalPart = (data, parts, i) ->
-			part = parts[i]
-			returnCurrent = false
-			if i is 0 and data instanceof _EntityList
-				if part is "#"
-					data = data.current
-				else
-					data = data[part]
-			else
-				isLast = (i is lastIndex)
-				if not noEntityList
-					if not isLast
-						returnCurrent = true
-					if part.charCodeAt(part.length - 1) is 35 # '#'
-						returnCurrent = true
-						part = part.substring(0, part.length - 1)
-
-				if data instanceof _Entity
-					data = data._get(part, loadMode, (result) ->
-							if result and result instanceof _EntityList
-								if noEntityList or returnCurrent
-									result = result.current
-
-							if result? and not isLast
-								evalPart(result, parts, i + 1)
-							else
-								callback(result)
-							return
-						, context)
-					return
-				else
-					data = data[part]
-
-			if data? and not isLast
-				evalPart(data, parts, i + 1)
-			else
-				callback(data)
-			return
-
 		evalPart(data, parts, 0)
 		return
 
