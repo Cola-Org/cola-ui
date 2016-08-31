@@ -4638,13 +4638,15 @@ template {
 }
 .ui.c-tab.right-tab > .tab-bar,
 .ui.c-tab.bottom-tab > .tab-bar {
-  -webkit-box-ordinal-group: 2;
-  -moz-box-ordinal-group: 2;
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
 }
 .ui.c-tab.right-tab > .contents,
 .ui.c-tab.bottom-tab > .contents {
-  -webkit-box-ordinal-group: 1;
-  -moz-box-ordinal-group: 1;
+  -webkit-order: 1;
+  -ms-flex-order: 1;
+  order: 1;
 }
 .ui.c-tab.bottom-tab {
   -webkit-box-orient: vertical;
@@ -5840,7 +5842,6 @@ html.ios body {
 /*---  Dark Tones  ---*/
 /*---  Light Tones  ---*/
 .ui.panel {
-  box-shadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.08);
   padding: 0.6em;
   display: block;
   margin-bottom: 0.8em;
@@ -5871,8 +5872,15 @@ html.ios body {
   float: right;
   height: 2.8rem;
 }
-.ui.panel > .header > .content > .tools > * {
+.ui.panel > .header > .content > .tools > *:not(i) {
+  float: left;
+  line-height: 2.8rem;
   display: inline-block;
+}
+.ui.panel > .header > .content > .tools > *:not(i) .ui.button,
+.ui.panel > .header > .content > .tools > *:not(i) .ui.input > input {
+  padding: 0.6em 1em;
+  font-size: 0.9rem;
 }
 .ui.panel > .header > .content > .tools > i {
   height: inherit;
@@ -5894,7 +5902,6 @@ html.ios body {
 .ui.panel.fieldset,
 .ui.panel.groupbox {
   position: relative;
-  box-shadow: none;
 }
 .ui.panel.fieldset.basic,
 .ui.panel.groupbox.basic {
@@ -5949,7 +5956,13 @@ html.ios body {
   margin-bottom: 0;
 }
 .ui.panel.basic {
-  box-shadow: none;
+  box-shadow: inset 0px 0px 0px 1px #e7eaec;
+}
+.ui.panel.basic > .header {
+  box-shadow: inset 0px 0px 0px 1px #e7eaec;
+}
+.ui.panel.basic > .header > .content {
+  background-color: transparent;
 }
 .ui.panel.basic > .header > .content:before {
   border: none;

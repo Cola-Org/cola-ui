@@ -35,32 +35,50 @@
 	<script type="text/javascript">
 
 
-		cola(function (model) {
-			model.set("supportFlex", typeof document.documentElement.style.flex === "string");
-			model.widgetConfig({});
+		cola(function(model) {
+			model.describe({
+				name: {
+					validators: "required"
+				},
+				age: {
+					dataType: "int",
+					validators: [
+						"required", {
+							$type: "number",
+							min: 16,
+							max: 60
+						}
+					]
+				},
+				email: {
+					validators: "email"
+				}
+			});
+			model.action({
+				validate: function() {
+					model.get().validate();
+				}
+			});
 		});
 
 
 	</script>
 </head>
 <body style="padding:20px;">
-<div c-bind="supportFlex"></div>
-<div id="form1" c-widget="form">
+<div c-widget="form" style="max-width:400px">
+	<!--<div class="ui message error"></div>-->
 	<div class="field">
-		<div c-widget="input; bind:id">
-			<div c-widget="Button; caption:提交"></div>
-		</div>
+		<div c-widget="input; bind:name; placeholder:Name(非空)"></div>
 	</div>
 	<div class="field">
-		<div c-widget="input; bind:num"></div>
+		<div c-widget="input; bind:age; placeholder:Age(非空且16到60之间)"></div>
 	</div>
 	<div class="field">
-		<div class="ui left icon input loading">
-			<input type="text" placeholder="Search...">
-			<i class="search icon"></i>
-		</div>
+		<div c-widget="input; bind:email; placeholder:Email(电邮格式)"></div>
 	</div>
-
+	<div class="field">
+		<div c-widget="button; caption:校验; click:validate"></div>
+	</div>
 </div>
 
 
