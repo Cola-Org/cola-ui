@@ -89,9 +89,9 @@ class cola.Button extends cola.AbstractButton
 			defaultValue: ""
 			enum: ["loading", "active", ""]
 			setter: (value)->
-				oldValue = @_states
+				oldValue = @_state
 				if oldValue and oldValue isnt value and @_dom then $fly(@_dom).removeClass(oldValue)
-				@_states = value
+				@_state = value
 				return
 
 	_parseDom: (dom)->
@@ -154,8 +154,8 @@ class cola.Button extends cola.AbstractButton
 		if @get("focusable") then $dom.attr("tabindex", "0") else  $dom.removeAttr("tabindex")
 
 		@_refreshIcon()
-		states = @_states
-		if states then classNamePool.add(states)
+		state = @_state
+		if state then classNamePool.add(state)
 		classNamePool.toggle("disabled", @_disabled)
 
 		return
@@ -238,7 +238,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 				if itemDom isnt targetDom
 					button = cola.widget(itemDom)
 					if button
-						button.set("states", "")
+						button.set("state", "")
 					else
 						$(itemDom).removeClass("active")
 				return
@@ -246,7 +246,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 
 			targetBtn = cola.widget(targetDom)
 			if targetBtn
-				targetBtn.set("states", "active")
+				targetBtn.set("state", "active")
 			else
 				$fly(targetDom).addClass("active")
 

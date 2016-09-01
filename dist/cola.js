@@ -13550,11 +13550,11 @@ Template
         "enum": ["loading", "active", ""],
         setter: function(value) {
           var oldValue;
-          oldValue = this._states;
+          oldValue = this._state;
           if (oldValue && oldValue !== value && this._dom) {
             $fly(this._dom).removeClass(oldValue);
           }
-          this._states = value;
+          this._state = value;
         }
       }
     };
@@ -13609,7 +13609,7 @@ Template
     };
 
     Button.prototype._doRefreshDom = function() {
-      var $dom, caption, captionDom, classNamePool, states;
+      var $dom, caption, captionDom, classNamePool, state;
       if (!this._dom) {
         return;
       }
@@ -13638,9 +13638,9 @@ Template
         $dom.removeAttr("tabindex");
       }
       this._refreshIcon();
-      states = this._states;
-      if (states) {
-        classNamePool.add(states);
+      state = this._state;
+      if (state) {
+        classNamePool.add(state);
       }
       classNamePool.toggle("disabled", this._disabled);
     };
@@ -13773,7 +13773,7 @@ Template
             if (itemDom !== targetDom) {
               button = cola.widget(itemDom);
               if (button) {
-                button.set("states", "");
+                button.set("state", "");
               } else {
                 $(itemDom).removeClass("active");
               }
@@ -13781,7 +13781,7 @@ Template
           });
           targetBtn = cola.widget(targetDom);
           if (targetBtn) {
-            targetBtn.set("states", "active");
+            targetBtn.set("state", "active");
           } else {
             $fly(targetDom).addClass("active");
           }
