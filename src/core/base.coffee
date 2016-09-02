@@ -64,6 +64,7 @@ Event
 ###
 
 colaEventRegistry =
+	beforeInit: {}
 	ready: {}
 	settingChange: {}
 	exception: {}

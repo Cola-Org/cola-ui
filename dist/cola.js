@@ -8805,7 +8805,7 @@
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
-      var error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, ref;
+      var dom, error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, len2, len3, model, o, q, ref, ref1, ref2;
       if (success) {
         if (!failed) {
           i = loadingUrls.indexOf(url);
@@ -8824,8 +8824,19 @@
                 initFunc = ref[l];
                 initFunc(targetDom, context.model, context.param);
               }
+              ref1 = context.suspendedInitFuncs;
+              for (o = 0, len2 = ref1.length; o < len2; o++) {
+                initFunc = ref1[o];
+                model = initFunc.model;
+                ref2 = model._doms;
+                for (q = 0, len3 = ref2.length; q < len3; q++) {
+                  dom = ref2[q];
+                  cola._renderDomTemplate(dom, model);
+                }
+              }
             } else {
               cola(targetDom, context.model);
+              cola._renderDomTemplate(targetDom, model);
             }
             if (hasIgnoreDirective) {
               targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
@@ -10562,7 +10573,7 @@
   cola._mainInitFuncs = [];
 
   cola._rootFunc = function() {
-    var arg, fn, init, l, len1, model, modelName, targetDom;
+    var arg, dom, fn, init, l, len1, len2, model, modelName, o, ref, targetDom;
     fn = null;
     targetDom = null;
     modelName = null;
@@ -10579,19 +10590,10 @@
       }
     }
     init = function(dom, model, param) {
-      var len2, o, oldScope, viewDoms;
+      var oldScope, viewDoms;
       oldScope = cola.currentScope;
       cola.currentScope = model;
       try {
-        if (!model._dom) {
-          model._dom = dom;
-        } else {
-          model._dom = model._dom.concat(dom);
-        }
-        delete model._$dom;
-        if (typeof fn === "function") {
-          fn(model, param);
-        }
         if (!dom) {
           viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS);
           if (viewDoms != null ? viewDoms.length : void 0) {
@@ -10601,14 +10603,17 @@
         if (dom == null) {
           dom = document.body;
         }
-        if (dom.length) {
-          doms = dom;
-          for (o = 0, len2 = doms.length; o < len2; o++) {
-            dom = doms[o];
-            cola._renderDomTemplate(dom, model);
-          }
+        if (!model._doms) {
+          model._doms = [dom];
         } else {
-          cola._renderDomTemplate(dom, model);
+          if (!model._doms instanceof Array) {
+            model._doms = [model._dom];
+          }
+          model._doms.concat(dom);
+        }
+        delete model._$dom;
+        if (typeof fn === "function") {
+          fn(model, param);
         }
       } finally {
         cola.currentScope = oldScope;
@@ -10634,23 +10639,41 @@
         });
       } else {
         init(targetDom, model);
+        ref = model._doms;
+        for (o = 0, len2 = ref.length; o < len2; o++) {
+          dom = ref[o];
+          cola._renderDomTemplate(dom, model);
+        }
       }
     }
     return cola;
   };
 
-  $(function() {
-    var initFunc, initFuncs, l, len1;
+  cola._init = function() {
+    var dom, initFunc, initFuncs, l, len1, len2, len3, model, o, q, ref;
     initFuncs = cola._mainInitFuncs;
     delete cola._mainInitFuncs;
     for (l = 0, len1 = initFuncs.length; l < len1; l++) {
       initFunc = initFuncs[l];
       initFunc.init(initFunc.targetDom, initFunc.model);
     }
+    for (o = 0, len2 = initFuncs.length; o < len2; o++) {
+      initFunc = initFuncs[o];
+      model = initFunc.model;
+      ref = model._doms;
+      for (q = 0, len3 = ref.length; q < len3; q++) {
+        dom = ref[q];
+        cola._renderDomTemplate(dom, model);
+      }
+    }
     if (cola.getListeners("ready")) {
       cola.fire("ready", cola);
       cola.off("ready");
     }
+  };
+
+  $(function() {
+    return cola._init();
   });
 
   cola._userDomCompiler = {

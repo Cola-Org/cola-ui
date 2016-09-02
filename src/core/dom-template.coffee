@@ -60,6 +60,10 @@ cola._rootFunc = () ->
 	return cola
 
 cola._init = () ->
+	if cola.getListeners("beforeInit")
+		cola.fire("beforeInit", cola)
+		cola.off("beforeInit")
+
 	initFuncs = cola._mainInitFuncs
 	delete cola._mainInitFuncs
 

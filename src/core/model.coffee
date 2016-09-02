@@ -693,7 +693,7 @@ class cola.AbstractDataModel
 				property.set("provider", provider) if provider
 				property.set("dataType", data.$dataType) if data.$dataType
 
-		if !provider or hasValue
+		if not provider or hasValue
 			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
 
