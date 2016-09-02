@@ -17,8 +17,14 @@ cola.loadSubView = (targetDom, context) ->
 					if context.suspendedInitFuncs.length
 						for initFunc in context.suspendedInitFuncs
 							initFunc(targetDom, context.model, context.param)
+
+						for initFunc in context.suspendedInitFuncs
+							model = initFunc.model
+							for dom in model._doms
+								cola._renderDomTemplate(dom, model)
 					else
 						cola(targetDom, context.model)
+						cola._renderDomTemplate(targetDom, model)
 
 					if hasIgnoreDirective
 						targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)

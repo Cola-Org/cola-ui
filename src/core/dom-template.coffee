@@ -21,25 +21,20 @@ cola._rootFunc = () ->
 		oldScope = cola.currentScope
 		cola.currentScope = model
 		try
-			if not model._dom
-				model._dom = dom
-			else
-				model._dom = model._dom.concat(dom)
-			delete model._$dom
-
-			fn?(model, param)
-
 			if not dom
 				viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS)
 				if viewDoms?.length then dom = viewDoms
 			dom ?= document.body
 
-			if dom.length
-				doms = dom
-				for dom in doms
-					cola._renderDomTemplate(dom, model)
+			if not model._doms
+				model._doms = [dom]
 			else
-				cola._renderDomTemplate(dom, model)
+				if not model._doms instanceof Array
+					model._doms = [model._dom]
+				model._doms.concat(dom)
+			delete model._$dom
+
+			fn?(model, param)
 		finally
 			cola.currentScope = oldScope
 		return
@@ -60,18 +55,28 @@ cola._rootFunc = () ->
 			)
 		else
 			init(targetDom, model)
+			for dom in model._doms
+				cola._renderDomTemplate(dom, model)
 	return cola
 
-$ () ->
+cola._init = () ->
 	initFuncs = cola._mainInitFuncs
 	delete cola._mainInitFuncs
+
 	for initFunc in initFuncs
 		initFunc.init(initFunc.targetDom, initFunc.model)
+
+	for initFunc in initFuncs
+		model = initFunc.model
+		for dom in model._doms
+			cola._renderDomTemplate(dom, model)
 
 	if cola.getListeners("ready")
 		cola.fire("ready", cola)
 		cola.off("ready")
 	return
+
+$ () -> cola._init()
 
 cola._userDomCompiler =
 	$: []
