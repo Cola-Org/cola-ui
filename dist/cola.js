@@ -21337,6 +21337,20 @@ Template
       items: {
         expressionType: "repeat",
         setter: function(items) {
+          var i, index, item, len1, n;
+          if (typeof items === "string") {
+            items = items.split(/[\,,\;]/);
+            for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
+              item = items[i];
+              index = item.indexOf("=");
+              if (index > 0) {
+                items[i] = {
+                  name: item.substring(0, index),
+                  value: item.substring(index + 1)
+                };
+              }
+            }
+          }
           this._items = items;
           if (this._itemsTimestamp !== (items != null ? items.timestamp : void 0)) {
             if (items) {
@@ -21983,7 +21997,7 @@ Template
     };
 
     Dropdown.prototype._getDropdownContent = function() {
-      var attrBinding, hasDefaultTemplate, inputDom, list, name, ref, templ, template, templateName;
+      var attrBinding, hasDefaultTemplate, inputDom, list, name, ref, ref1, templ, template, templateName;
       if (!this._dropdownContent) {
         if (this._filterable && this._finalOpenMode !== "drop") {
           templateName = "filterable-list";
@@ -22026,7 +22040,7 @@ Template
           })(this));
         }
       }
-      attrBinding = this._elementAttrBindings["items"];
+      attrBinding = (ref1 = this._elementAttrBindings) != null ? ref1["items"] : void 0;
       list = this._list;
       list._textProperty = this._textProperty || this._valueProperty;
       if (attrBinding) {

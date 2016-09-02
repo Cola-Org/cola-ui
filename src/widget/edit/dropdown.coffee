@@ -21,6 +21,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		items:
 			expressionType: "repeat"
 			setter: (items) ->
+				if typeof items is "string"
+					items = items.split(/[\,,\;]/)
+					for item, i in items
+						index = item.indexOf("=")
+						if index > 0
+							items[i] = {
+								name: item.substring(0, index)
+								value: item.substring(index + 1)
+							}
+
 				@_items = items
 				unless @_itemsTimestamp == items?.timestamp
 					if items then @_itemsTimestamp = items.timestamp
@@ -562,7 +572,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				inputDom = @_filterInput._doms.input
 				$fly(inputDom).on("input", () => @_onInput(inputDom.value))
 
-		attrBinding = @_elementAttrBindings["items"]
+		attrBinding = @_elementAttrBindings?["items"]
 		list = @_list
 		list._textProperty = @_textProperty or @_valueProperty
 		if attrBinding
