@@ -168,6 +168,16 @@ class cola.RadioGroup extends cola.AbstractEditor
 		
 		items:
 			setter: (items)->
+				if typeof items is "string"
+					items = items.split(/[\,,\;]/)
+					for item, i in items
+						index = item.indexOf("=")
+						if index > 0
+							items[i] = {
+								value: item.substring(0, index)
+								label: item.substring(index + 1)
+							}
+
 				@clear()
 				@_addItem(item) for item in items
 				return @
@@ -221,19 +231,23 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 		if item instanceof cola.RadioButton
 			radioBtn = item
-		else if item.constructor == Object.prototype.constructor
-			radioBtn = new cola.RadioButton(item)
 		else
 			classType = cola.util.getType(item)
 			if classType is "number" or classType is "string"
-				radioBtn = new cola.RadioButton({
-					value: item
-				})
+				config = { value: item }
+			else
+				if item.hasOwnProperty("key")
+					config = $.extend(item, null)
+					config.label = item.value
+					config.value = item.key
+				else
+					config = item
+			radioBtn = new cola.RadioButton(config)
 
 		return unless radioBtn
 
 		radioBtn.set({
-			name: @_name,
+			name: @_name or ((new Date()).getTime() + ""),
 			type: @_type
 		})
 
@@ -246,7 +260,6 @@ class cola.RadioGroup extends cola.AbstractEditor
 			@_dom.appendChild(radioDom)
 
 		return @
-
 
 	addRadioButton: (config)->
 		@_addItem(config)

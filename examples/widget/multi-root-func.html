@@ -19,10 +19,20 @@
 				}
 			});
 		});
+
+		cola.util.dictionary("dict", [
+			{ key: 1, value: "a" },
+			{ key: 2, value: "b" },
+			{ key: 3, value: "c" }
+		]);
 	</script>
 </head>
 <body>
 	<c-button id="button1"></c-button>
 	<c-button id="button2"></c-button>
+
+	<c-radiogroup c-bind="value" c-items="dictionary('dict')"></c-radiogroup>
+	<c-input c-bind="value"></c-input>
+	<label c-bind="translate('dict',value)"></label>
 </body>
 </html>

@@ -154,15 +154,18 @@ cola.util.format = (value, format) ->
 	else
 		return value
 
+keyValuesMap = {}
 dictionaryMap = {}
 
 cola.util.dictionary = (name, keyValues) ->
 	if keyValues is null
+		delete keyValuesMap[name]
 		delete dictionaryMap[name]
 		return
 	else if keyValues is undefined
-		return dictionaryMap[name]
+		return keyValuesMap[name]
 	else
+		keyValuesMap[name] = keyValues
 		dictionaryMap[name] = dictionary = {}
 		for pair in keyValues
 			dictionary[pair.key or ""] = pair.value

@@ -128,5 +128,8 @@ cola.defaultAction.backgroundImage = (url, defaultUrl) ->
 		
 cola.defaultAction.path = (parts...) -> cola.util.path(parts)
 
+cola.defaultAction.dictionary = (dictionaryName) ->
+	cola.util.dictionary(dictionaryName)
+
 cola.defaultAction.translate = (dictionaryName, key) ->
 	cola.util.translate(dictionaryName, key)
