@@ -27,9 +27,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 						index = item.indexOf("=")
 						if index > 0
 							items[i] = {
-								name: item.substring(0, index)
+								key: item.substring(0, index)
 								value: item.substring(index + 1)
 							}
+							if not @_valueProperty or not @_textProperty
+								@_valueProperty = "key"
+								@_textProperty = "value"
 
 				@_items = items
 				unless @_itemsTimestamp == items?.timestamp
@@ -479,23 +482,22 @@ class cola.Dropdown extends cola.AbstractDropdown
 			tagName: "div"
 			contextKey: "flexContent"
 			content:
-				tagName: "div"
+				tagName: "c-listview"
 				contextKey: "list"
-				"c-widget": "listView"
 				style: "height:100%;overflow:auto"
 
 		"filterable-list":
 			tagName: "div"
-			class: "v-box",
-			style: "height:100%"
+			class: "v-box"
 			content: [
 				{
 					tagName: "div"
 					class: "box filter-container"
 					content:
-						tagName: "div"
+						tagName: "c-input"
 						contextKey: "filterInput"
-						"c-widget": "input;icon:search;width:100%"
+						class: "fluid"
+						icon: "search"
 				}
 				{
 					tagName: "div"
@@ -503,9 +505,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 					class: "flex-box list-container"
 					style: "min-height:2em"
 					content:
-						tagName: "div"
+						tagName: "c-listview"
 						contextKey: "list"
-						"c-widget": "listView"
 				}
 			]
 

@@ -123,4 +123,10 @@ cola.defaultAction.propertyCaption = (path) ->
 _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
 cola.defaultAction.number2Word = (number) -> _numberWords[number]
 
-cola.defaultAction.backgroundImage = (url) -> if url then "url(#{url})" else "none"
+cola.defaultAction.backgroundImage = (url, defaultUrl) ->
+	if url then "url(#{url})" else (defaultUrl or "none")
+		
+cola.defaultAction.path = (parts...) -> cola.util.path(parts)
+
+cola.defaultAction.translate = (dictionaryName, key) ->
+	cola.util.translate(dictionaryName, key)

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.widgetConfig({
+				button1: {
+					caption: "Button 1"
+				}
+			});
+		});
+
+		cola(function (model) {
+			model.widgetConfig({
+				button2: {
+					caption: "Button 2"
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<c-button id="button1"></c-button>
+	<c-button id="button2"></c-button>
+</body>
+</html>

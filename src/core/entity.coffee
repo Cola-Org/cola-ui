@@ -16,7 +16,6 @@ _getEntityPath = () ->
 	path = []
 	self = @
 	while parent?
-		if parent instanceof _EntityList then lastEntity = self
 		part = self._parentProperty
 		if part then path.push(part)
 		self = parent
@@ -1807,6 +1806,9 @@ class EntityIndex
 		@buildIndex()
 		
 		model.data.addEntityListener(@)
+
+		@data._indexMap ?= {}
+		@data._indexMap[@property] = @
 		return
 		
 	buildIndex: () ->
@@ -1869,7 +1871,9 @@ class EntityIndex
 		
 	destroy: () ->
 		@model.data.removeEntityListener(@)
+		delete @data._indexMap?[@property]
 		return
 
 cola.util.buildIndex = (data, property, option) ->
-	return new EntityIndex(data, property, option)
+	index = data._indexMap?[property]
+	return index or new EntityIndex(data, property, option)

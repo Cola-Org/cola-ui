@@ -58,11 +58,19 @@ class cola.Select extends cola.AbstractInput
 				value = null
 				text = optionValue
 			else if optionValue instanceof cola.Entity
-				value =  optionValue.get("value") or optionValue.get("key") or ""
-				text = optionValue.get("text") or optionValue.get("name")
+				if optionValue.hasValue("key")
+					value = optionValue.get("key") or ""
+					text = optionValue.get("value")
+				else
+					value =  optionValue.get("value") or ""
+					text = optionValue.get("text")
 			else
-				value =  optionValue.value or optionValue.key or ""
-				text = optionValue.text or optionValue.name
+				if optionValue.hasOwnProperty("key")
+					value = optionValue.key or ""
+					text = optionValue.value
+				else
+					value =  optionValue.value or ""
+					text = optionValue.text
 
 			$option = $fly(option)
 			if !value?

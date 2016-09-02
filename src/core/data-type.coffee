@@ -230,7 +230,7 @@ cola.DataType.jsonToData = (json, dataType, aggregated, pageSize) ->
 		result = dataType.parse(json)
 	else if dataType instanceof cola.EntityDataType
 		result = cola.DataType.jsonToEntity(json, dataType, aggregated, pageSize)
-	else if dataType and typeof json == "object"
+	else if dataType and typeof json is "object"
 		result = dataType.parse(json)
 	else
 		result = json

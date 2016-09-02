@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -376,7 +376,7 @@
     }
   };
 
-  cola.util.concatUrl = function() {
+  cola.util.path = function() {
     var changed, i, l, last, len1, part, parts;
     parts = 1 <= arguments.length ? slice.call(arguments, 0) : [];
     last = parts.length - 1;
@@ -557,6 +557,29 @@
     } else {
       return value;
     }
+  };
+
+  dictionaryMap = {};
+
+  cola.util.dictionary = function(name, keyValues) {
+    var dictionary, l, len1, pair;
+    if (keyValues === null) {
+      delete dictionaryMap[name];
+    } else if (keyValues === void 0) {
+      return dictionaryMap[name];
+    } else {
+      dictionaryMap[name] = dictionary = {};
+      for (l = 0, len1 = keyValues.length; l < len1; l++) {
+        pair = keyValues[l];
+        dictionary[pair.key || ""] = pair.value;
+      }
+      return dictionary;
+    }
+  };
+
+  cola.util.translate = function(dictionaryName, key) {
+    var ref;
+    return (ref = dictionaryMap[dictionaryName]) != null ? ref[key || ""] : void 0;
   };
 
   cola.util.isSuperClass = function(superCls, cls) {
@@ -3236,7 +3259,7 @@
   defaultDataTypes["number"] = defaultDataTypes["float"];
 
   _getEntityPath = function() {
-    var lastEntity, parent, part, path, self;
+    var parent, part, path, self;
     if (this._pathCache) {
       return this._pathCache;
     }
@@ -3247,9 +3270,6 @@
     path = [];
     self = this;
     while (parent != null) {
-      if (parent instanceof _EntityList) {
-        lastEntity = self;
-      }
       part = self._parentProperty;
       if (part) {
         path.push(part);
@@ -5745,7 +5765,7 @@
 
   EntityIndex = (function() {
     function EntityIndex(data1, property1, option1) {
-      var model, ref;
+      var base, model, ref;
       this.data = data1;
       this.property = property1;
       this.option = option1 != null ? option1 : {};
@@ -5762,6 +5782,10 @@
       this.idMap = {};
       this.buildIndex();
       model.data.addEntityListener(this);
+      if ((base = this.data)._indexMap == null) {
+        base._indexMap = {};
+      }
+      this.data._indexMap[this.property] = this;
       return;
     }
 
@@ -5839,7 +5863,11 @@
     };
 
     EntityIndex.prototype.destroy = function() {
+      var ref;
       this.model.data.removeEntityListener(this);
+      if ((ref = this.data._indexMap) != null) {
+        delete ref[this.property];
+      }
     };
 
     return EntityIndex;
@@ -5847,7 +5875,9 @@
   })();
 
   cola.util.buildIndex = function(data, property, option) {
-    return new EntityIndex(data, property, option);
+    var index, ref;
+    index = (ref = data._indexMap) != null ? ref[property] : void 0;
+    return index || new EntityIndex(data, property, option);
   };
 
   if (typeof exports !== "undefined" && exports !== null) {
@@ -5876,7 +5906,7 @@
       }
       return model;
     } else {
-      return cola.model.models[name];
+      return cola.model.models[name || "$root"];
     }
   };
 
@@ -7951,12 +7981,22 @@
     return _numberWords[number];
   };
 
-  cola.defaultAction.backgroundImage = function(url) {
+  cola.defaultAction.backgroundImage = function(url, defaultUrl) {
     if (url) {
       return "url(" + url + ")";
     } else {
-      return "none";
+      return defaultUrl || "none";
     }
+  };
+
+  cola.defaultAction.path = function() {
+    var parts;
+    parts = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+    return cola.util.path(parts);
+  };
+
+  cola.defaultAction.translate = function(dictionaryName, key) {
+    return cola.util.translate(dictionaryName, key);
   };
 
   cola.AjaxServiceInvoker = (function() {
@@ -9185,7 +9225,7 @@
     } else {
       pathRoot = cola.setting("routerContextPath");
       if (pathRoot && path.charCodeAt(0) === 47) {
-        realPath = cola.util.concatUrl(pathRoot, path);
+        realPath = cola.util.path(pathRoot, path);
       } else {
         realPath = path;
       }

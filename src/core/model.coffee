@@ -19,7 +19,7 @@ cola.model = (name, model) ->
 			model = cola.removeModel(name)
 		return model
 	else
-		return cola.model.models[name]
+		return cola.model.models[name or "$root"]
 
 cola.model.models = {}
 

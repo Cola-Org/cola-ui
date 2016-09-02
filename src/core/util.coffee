@@ -24,7 +24,7 @@ cola.util.each = (array, fn) ->
 			break
 	return
 
-cola.util.concatUrl = (parts...) ->
+cola.util.path = (parts...) ->
 	last = parts.length - 1
 	for part, i in parts
 		changed = false
@@ -153,6 +153,23 @@ cola.util.format = (value, format) ->
 		return ""
 	else
 		return value
+
+dictionaryMap = {}
+
+cola.util.dictionary = (name, keyValues) ->
+	if keyValues is null
+		delete dictionaryMap[name]
+		return
+	else if keyValues is undefined
+		return dictionaryMap[name]
+	else
+		dictionaryMap[name] = dictionary = {}
+		for pair in keyValues
+			dictionary[pair.key or ""] = pair.value
+		return dictionary
+
+cola.util.translate = (dictionaryName, key) ->
+	return dictionaryMap[dictionaryName]?[key or ""]
 
 # OO
 

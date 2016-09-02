@@ -100,7 +100,7 @@ cola.setRoutePath = (path, replace, alwaysNotify) ->
 	else
 		pathRoot = cola.setting("routerContextPath")
 		if pathRoot and path.charCodeAt(0) is 47 # `/`
-			realPath = cola.util.concatUrl(pathRoot, path)
+			realPath = cola.util.path(pathRoot, path)
 		else
 			realPath = path
 

@@ -165,11 +165,13 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 	@attributes:
 		name: null
+		
 		items:
 			setter: (items)->
 				@clear()
 				@_addItem(item) for item in items
 				return @
+
 		type:
 			enum: ["radio", "toggle", "slider"]
 			defaultValue: "radio"
