@@ -14,7 +14,7 @@ class cola.SubView extends cola.Widget
 			readOnlyAfterCreate: true
 		parentModel: null
 		modelName: null
-		model:
+		contentModel:
 			readOnly: true
 			getter: () ->
 				return if @_dom then cola.util.userData(@_dom, "_model") else null

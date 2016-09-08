@@ -16270,7 +16270,7 @@ Template
       },
       parentModel: null,
       modelName: null,
-      model: {
+      contentModel: {
         readOnly: true,
         getter: function() {
           if (this._dom) {
