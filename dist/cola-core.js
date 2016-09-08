@@ -559,6 +559,50 @@
     }
   };
 
+  cola.util.queryParams = function() {
+    var decode, i, key, l, len1, oldValue, pair, param, params, query, ref, value;
+    decode = function(str) {
+      return decodeURIComponent((str || "").replace(/\+/g, " "));
+    };
+    query = (window.location.search || "").substring(1);
+    params = {};
+    if (query.length > 0) {
+      ref = query.split("&");
+      for (i = l = 0, len1 = ref.length; l < len1; i = ++l) {
+        param = ref[i];
+        pair = param.split("=");
+        key = decode(pair.shift());
+        value = decode(pair.length ? pair.join("=") : null);
+        if (params.hasOwnProperty(key)) {
+          oldValue = params[key];
+          if (oldValue instanceof Array) {
+            oldValue.push(value);
+          } else {
+            params[key] = [oldValue, value];
+          }
+        } else {
+          params[key] = value;
+        }
+      }
+    }
+    return params;
+  };
+
+  cola.util.pathParams = function(prefix, index) {
+    var i, parts, path;
+    if (index == null) {
+      index = 0;
+    }
+    path = (window.location.pathname || "").replace(/^\//, "");
+    parts = path.split("/");
+    i = parts.indexOf(prefix);
+    if (i >= 0) {
+      return parts[i + index];
+    } else {
+
+    }
+  };
+
   keyValuesMap = {};
 
   dictionaryMap = {};
@@ -5919,12 +5963,17 @@
           throw new cola.Exception("Duplicated model name \"" + name + "\".");
         }
         cola.model.models[name] = model;
+        if (name === cola.constants.DEFAULT_PATH) {
+          if (typeof window !== "undefined" && window !== null) {
+            window.modelRoot = model;
+          }
+        }
       } else {
         model = cola.removeModel(name);
       }
       return model;
     } else {
-      return cola.model.models[name || "$root"];
+      return cola.model.models[name || cola.constants.DEFAULT_PATH];
     }
   };
 

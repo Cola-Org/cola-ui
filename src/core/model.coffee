@@ -17,7 +17,7 @@ cola.model = (name, model) ->
 			cola.model.models[name] = model
 
 			if name is cola.constants.DEFAULT_PATH
-				window?[modelRoot] = model
+				window?.modelRoot = model
 		else
 			model = cola.removeModel(name)
 		return model

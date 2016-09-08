@@ -154,6 +154,42 @@ cola.util.format = (value, format) ->
 	else
 		return value
 
+## URL
+
+cola.util.queryParams = () ->
+
+	decode = (str) -> decodeURIComponent((str || "").replace(/\+/g, " "))
+
+	query = (window.location.search || "").substring(1)
+	params = {}
+
+	if query.length > 0
+		for param, i in query.split("&")
+			pair = param.split("=")
+			key = decode(pair.shift())
+			value = decode(if pair.length then pair.join("=") else null)
+
+			if (params.hasOwnProperty(key))
+				oldValue = params[key]
+				if oldValue instanceof Array
+					oldValue.push(value)
+				else
+					params[key] = [oldValue, value]
+			else
+				params[key] = value
+	return params
+
+cola.util.pathParams = (prefix, index = 0) ->
+	path = (window.location.pathname || "").replace(/^\//, "")
+	parts = path.split("/")
+	i = parts.indexOf(prefix)
+	if i >= 0
+		return parts[i + index]
+	else
+		return
+
+## Dictionary
+
 keyValuesMap = {}
 dictionaryMap = {}
 
