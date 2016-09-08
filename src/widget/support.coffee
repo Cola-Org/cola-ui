@@ -231,12 +231,14 @@ cola.widget = (config, namespace, model) ->
                 config.scope = model
             return new constr(config)
 
-cola.findWidget = (dom, type) ->
-    if type and typeof type == "string"
-        typeName = type
-        type = WIDGET_TAGS_REGISTRY[typeName]
-        type = cola.resolveType("widget", {$type: typeName}) unless type
-        return null unless type
+cola.findWidget = (dom, typeName) ->
+
+    getType = (win, typeName) ->
+        type = win.cola.resolveType("widget", {$type: typeName}) unless type
+        return type
+
+    type = getType(window, typeName)
+    return null unless type
 
     if dom instanceof cola.Widget
         dom = dom.getDom()
@@ -245,7 +247,7 @@ cola.findWidget = (dom, type) ->
         parentDom = dom.parentNode
         while parentDom
             dom = parentDom
-            widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
+            widget = win.cola.util.userData(dom, win.cola.constants.DOM_ELEMENT_KEY)
             if widget
                 if not type or widget instanceof type
                     return widget
@@ -265,7 +267,9 @@ cola.findWidget = (dom, type) ->
                         return false
 
                 if frame
-                    widget = find(win.parent, frame, type)
+                    type = getType(win.parent, typeName)
+                    if type
+                        widget = find(win.parent, frame, type)
         return widget
 
     return find(window, dom, type)

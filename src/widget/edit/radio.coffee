@@ -79,7 +79,7 @@ class cola.RadioButton extends cola.Widget
 			@_doms.input = $.xCreate({
 				tagName: "input"
 				type: @constructor.INPUT_TYPE
-				name: @_name or ""
+				name: @_name
 			})
 			$(@_doms.label).before(@_doms.input)
 		@_bindToSemantic()
@@ -94,7 +94,7 @@ class cola.RadioButton extends cola.Widget
 					tagName: "input"
 					type: @constructor.INPUT_TYPE
 					contextKey: "input"
-					name: @_name or ""
+					name: @_name
 				}
 				{
 					tagName: "label"
@@ -177,6 +177,10 @@ class cola.RadioGroup extends cola.AbstractEditor
 								value: item.substring(0, index)
 								label: item.substring(index + 1)
 							}
+				else if items instanceof Array
+					for item in items
+						item.value ?= item.key
+						item.label ?= item.text
 
 				@clear()
 				@_addItem(item) for item in items
@@ -193,6 +197,11 @@ class cola.RadioGroup extends cola.AbstractEditor
 						item.set("type", value)
 				return @
 
+	constructor: (config) ->
+		super(config)
+		@_name ?= ((new Date()).getTime() + "")
+		return
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
@@ -207,6 +216,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 	_initDom: (dom)->
 		super(dom)
 		return unless @_items
+
 		for item in @_items
 			itemDom = item.getDom()
 			continue if itemDom.parentNode is @_dom
@@ -247,7 +257,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 		return unless radioBtn
 
 		radioBtn.set({
-			name: @_name or ((new Date()).getTime() + ""),
+			name: @_name,
 			type: @_type
 		})
 

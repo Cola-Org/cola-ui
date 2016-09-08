@@ -230,26 +230,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return openMode
 
 	_getContainer: () ->
-		if @_dropdownLayer
-			layer = @_dropdownLayer
-			if not (layer instanceof cola.Widget)
-				layer = cola.widget(layer)
-				if layer instanceof cola.Widget
-					@set("dropdownLayer", layer)
-				else
-					layer = null
-			if layer
-				layer.on("beforeHide", () =>
-					$fly(@_dom).removeClass("opened")
-					return
-				, true).on("hide", () =>
-					@_opened = false
-					return
-				, true);
-			return layer
+		if @_container
+			@_refreshDropdownContent?()
+			return @_container
 		else
-			return @_container if @_container
-
 			@_finalOpenMode = openMode = @_getFinalOpenMode()
 
 			config =
@@ -573,6 +557,10 @@ class cola.Dropdown extends cola.AbstractDropdown
 				inputDom = @_filterInput._doms.input
 				$fly(inputDom).on("input", () => @_onInput(inputDom.value))
 
+		@_refreshDropdownContent?()
+		return template
+
+	_refreshDropdownContent: () ->
 		attrBinding = @_elementAttrBindings?["items"]
 		list = @_list
 		list._textProperty = @_textProperty or @_valueProperty
@@ -581,7 +569,6 @@ class cola.Dropdown extends cola.AbstractDropdown
 		else
 			list.set("items", @_items)
 		list.refresh()
-		return template
 
 cola.registerWidget(cola.Dropdown)
 

@@ -336,7 +336,14 @@ class cola.Entity
 		@id = cola.uniqueId()
 		@timestamp = cola.sequenceNo()
 		@dataType = dataType
-		@_data = {}
+
+		_data = {}
+		if dataType
+			for property in dataType.getProperties().elements
+				if property._defaultValue?
+					_data[property._property] = property._defaultValue
+		@_data = _data
+
 		if data?
 			@_disableWriteObservers++
 			@set(data)
@@ -503,8 +510,10 @@ class cola.Entity
 								matched = value.dataType == dataType and !property._aggregated
 							else if value instanceof _EntityList
 								matched = value.dataType == dataType and property._aggregated
+							else if property._aggregated or value instanceof Array
+								value = @_jsonToEntity(value, dataType, true, provider)
 							else
-								value = @_jsonToEntity(value, dataType, property._aggregated, provider)
+								value = new _Entity(value, dataType)
 
 							if not matched
 								expectedType = dataType.get("name")

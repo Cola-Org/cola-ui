@@ -50,7 +50,7 @@ cola.util.userData = (node, key, data) ->
 		text = node.nodeValue
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
-	else
+	else if node.getAttribute
 		id = node.getAttribute(USER_DATA_KEY)
 
 	if arguments.length is 3
@@ -61,7 +61,7 @@ cola.util.userData = (node, key, data) ->
 					node.nodeValue = text.substring(0, i + 1) + id
 				else
 					node.nodeValue = if text then text + "|" + id else "|" + id
-			else
+			else if node.getAttribute
 				node.setAttribute(USER_DATA_KEY, id)
 
 			userData[id] = store = {
@@ -89,7 +89,7 @@ cola.util.userData = (node, key, data) ->
 					node.nodeValue = text.substring(0, i + 1) + id
 				else
 					node.nodeValue = if text then text + "|" + id else "|" + id
-			else
+			else if node.getAttribute
 				node.setAttribute(USER_DATA_KEY, id)
 
 			userData[id] = store = {
@@ -107,7 +107,7 @@ cola.util.removeUserData = (node, key) ->
 		text = node.nodeValue
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
-	else
+	else if node.getAttribute
 		id = node.getAttribute(USER_DATA_KEY)
 
 	if id
@@ -150,7 +150,7 @@ _getNodeDataId = (node) ->
 		text = node.nodeValue
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
-	else
+	else if node.getAttribute
 		id = node.getAttribute(USER_DATA_KEY)
 	return id
 
@@ -202,7 +202,7 @@ if cola.browser.ie and cola.browser.ie < 9	# Damn old IE
 					text = node.nodeValue
 					i = text.indexOf("|")
 					id = text.substring(i + 1) if i > -1
-				else
+				else if node.getAttribute
 					id = node.getAttribute(USER_DATA_KEY)
 
 				if id

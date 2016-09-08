@@ -18,9 +18,10 @@ cola.loadSubView = (targetDom, context) ->
 						for initFunc in context.suspendedInitFuncs
 							initFunc(targetDom, context.model, context.param)
 
+						model = context.model
 						for initFunc in context.suspendedInitFuncs
-							model = initFunc.model
 							for dom in model._doms
+								initFunc(dom, model, context.param)
 								cola._renderDomTemplate(dom, model)
 					else
 						cola(targetDom, context.model)

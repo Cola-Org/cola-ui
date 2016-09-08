@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -559,15 +559,19 @@
     }
   };
 
+  keyValuesMap = {};
+
   dictionaryMap = {};
 
   cola.util.dictionary = function(name, keyValues) {
     var dictionary, l, len1, pair;
     if (keyValues === null) {
+      delete keyValuesMap[name];
       delete dictionaryMap[name];
     } else if (keyValues === void 0) {
-      return dictionaryMap[name];
+      return keyValuesMap[name];
     } else {
+      keyValuesMap[name] = keyValues;
       dictionaryMap[name] = dictionary = {};
       for (l = 0, len1 = keyValues.length; l < len1; l++) {
         pair = keyValues[l];
@@ -670,6 +674,7 @@
    */
 
   colaEventRegistry = {
+    beforeInit: {},
     ready: {},
     settingChange: {},
     exception: {},
@@ -3725,10 +3730,21 @@
     Entity.prototype._disableWriteObservers = 0;
 
     function Entity(data, dataType) {
+      var _data, l, len1, property, ref;
       this.id = cola.uniqueId();
       this.timestamp = cola.sequenceNo();
       this.dataType = dataType;
-      this._data = {};
+      _data = {};
+      if (dataType) {
+        ref = dataType.getProperties().elements;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          property = ref[l];
+          if (property._defaultValue != null) {
+            _data[property._property] = property._defaultValue;
+          }
+        }
+      }
+      this._data = _data;
       if (data != null) {
         this._disableWriteObservers++;
         this.set(data);
@@ -3943,8 +3959,10 @@
                   matched = value.dataType === dataType && !property._aggregated;
                 } else if (value instanceof _EntityList) {
                   matched = value.dataType === dataType && property._aggregated;
+                } else if (property._aggregated || value instanceof Array) {
+                  value = this._jsonToEntity(value, dataType, true, provider);
                 } else {
-                  value = this._jsonToEntity(value, dataType, property._aggregated, provider);
+                  value = new _Entity(value, dataType);
                 }
                 if (!matched) {
                   expectedType = dataType.get("name");
@@ -6850,16 +6868,11 @@
     };
 
     AbstractDataModel.prototype._set = function(prop, data, context) {
-      var aliasHolder, dataModel, hasValue, oldAliasData, oldAliasHolder, path, property, provider, ref, rootData, rootDataType;
+      var hasValue, path, property, provider, ref, rootData, rootDataType;
       rootData = this._rootData;
       hasValue = rootData.hasValue(prop);
       if ((ref = this._aliasMap) != null ? ref[prop] : void 0) {
-        oldAliasHolder = this._aliasMap[prop];
-        if (oldAliasHolder.data !== data) {
-          oldAliasData = oldAliasHolder.data;
-          delete this._aliasMap[prop];
-          this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
-        }
+        this.removeAlias(prop);
       }
       if (data != null) {
         if (data.$provider || data.$dataType) {
@@ -6887,26 +6900,43 @@
             this._aliasMap = {};
           }
           path = data.getPath("always");
-          dataModel = this;
-          this._aliasMap[prop] = aliasHolder = {
-            data: data,
-            path: path,
-            bindingPath: path.slice(0).concat("**"),
-            processMessage: function(bindingPath, path, type, arg) {
-              var relativePath;
-              relativePath = path.slice(this.path.length);
-              dataModel.onDataMessage([prop].concat(relativePath), type, arg);
-            }
-          };
-          this.bind(aliasHolder.bindingPath, aliasHolder);
-          this.onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
-            entity: rootData,
-            property: prop,
-            oldValue: oldAliasData,
-            value: data
-          });
+          this.addAlias(prop, path);
         } else {
           rootData.set(prop, data, context);
+        }
+      }
+    };
+
+    AbstractDataModel.prototype.addAlias = function(alias, path) {
+      var aliasHolder, dataModel, oldAliasData, ref, ref1;
+      oldAliasData = (ref = this._aliasMap) != null ? (ref1 = ref[alias]) != null ? ref1.data : void 0 : void 0;
+      dataModel = this;
+      this._aliasMap[alias] = aliasHolder = {
+        data: data,
+        path: path,
+        bindingPath: path.slice(0).concat("**"),
+        processMessage: function(bindingPath, path, type, arg) {
+          var relativePath;
+          relativePath = path.slice(this.path.length);
+          dataModel.onDataMessage([alias].concat(relativePath), type, arg);
+        }
+      };
+      this.bind(aliasHolder.bindingPath, aliasHolder);
+      this.onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+        entity: rootData,
+        property: alias,
+        oldValue: oldAliasData,
+        value: data
+      });
+    };
+
+    AbstractDataModel.prototype.removeAlias = function(alias) {
+      var oldAliasHolder, ref;
+      if ((ref = this._aliasMap) != null ? ref[alias] : void 0) {
+        oldAliasHolder = this._aliasMap[alias];
+        if (oldAliasHolder.data !== data) {
+          delete this._aliasMap[alias];
+          this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
         }
       }
     };
@@ -7995,6 +8025,10 @@
     return cola.util.path(parts);
   };
 
+  cola.defaultAction.dictionary = function(dictionaryName) {
+    return cola.util.dictionary(dictionaryName);
+  };
+
   cola.defaultAction.translate = function(dictionaryName, key) {
     return cola.util.translate(dictionaryName, key);
   };
@@ -8485,7 +8519,7 @@
       if (i > -1) {
         id = text.substring(i + 1);
       }
-    } else {
+    } else if (node.getAttribute) {
       id = node.getAttribute(USER_DATA_KEY);
     }
     if (arguments.length === 3) {
@@ -8497,7 +8531,7 @@
           } else {
             node.nodeValue = text ? text + "|" + id : "|" + id;
           }
-        } else {
+        } else if (node.getAttribute) {
           node.setAttribute(USER_DATA_KEY, id);
         }
         userData[id] = store = {
@@ -8527,7 +8561,7 @@
           } else {
             node.nodeValue = text ? text + "|" + id : "|" + id;
           }
-        } else {
+        } else if (node.getAttribute) {
           node.setAttribute(USER_DATA_KEY, id);
         }
         userData[id] = store = {
@@ -8553,7 +8587,7 @@
       if (i > -1) {
         id = text.substring(i + 1);
       }
-    } else {
+    } else if (node.getAttribute) {
       id = node.getAttribute(USER_DATA_KEY);
     }
     if (id) {
@@ -8609,7 +8643,7 @@
       if (i > -1) {
         id = text.substring(i + 1);
       }
-    } else {
+    } else if (node.getAttribute) {
       id = node.getAttribute(USER_DATA_KEY);
     }
     return id;
@@ -8681,7 +8715,7 @@
             if (i > -1) {
               id = text.substring(i + 1);
             }
-          } else {
+          } else if (node.getAttribute) {
             id = node.getAttribute(USER_DATA_KEY);
           }
           if (id) {
@@ -8824,13 +8858,14 @@
                 initFunc = ref[l];
                 initFunc(targetDom, context.model, context.param);
               }
+              model = context.model;
               ref1 = context.suspendedInitFuncs;
               for (o = 0, len2 = ref1.length; o < len2; o++) {
                 initFunc = ref1[o];
-                model = initFunc.model;
                 ref2 = model._doms;
                 for (q = 0, len3 = ref2.length; q < len3; q++) {
                   dom = ref2[q];
+                  initFunc(dom, model, context.param);
                   cola._renderDomTemplate(dom, model);
                 }
               }
@@ -10651,6 +10686,10 @@
 
   cola._init = function() {
     var dom, initFunc, initFuncs, l, len1, len2, len3, model, o, q, ref;
+    if (cola.getListeners("beforeInit")) {
+      cola.fire("beforeInit", cola);
+      cola.off("beforeInit");
+    }
     initFuncs = cola._mainInitFuncs;
     delete cola._mainInitFuncs;
     for (l = 0, len1 = initFuncs.length; l < len1; l++) {
@@ -11680,19 +11719,20 @@
     }
   };
 
-  cola.findWidget = function(dom, type) {
-    var find, typeName;
-    if (type && typeof type === "string") {
-      typeName = type;
-      type = WIDGET_TAGS_REGISTRY[typeName];
+  cola.findWidget = function(dom, typeName) {
+    var find, getType, type;
+    getType = function(win, typeName) {
+      var type;
       if (!type) {
-        type = cola.resolveType("widget", {
+        type = win.cola.resolveType("widget", {
           $type: typeName
         });
       }
-      if (!type) {
-        return null;
-      }
+      return type;
+    };
+    type = getType(window, typeName);
+    if (!type) {
+      return null;
     }
     if (dom instanceof cola.Widget) {
       dom = dom.getDom();
@@ -11702,7 +11742,7 @@
       parentDom = dom.parentNode;
       while (parentDom) {
         dom = parentDom;
-        widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY);
+        widget = win.cola.util.userData(dom, win.cola.constants.DOM_ELEMENT_KEY);
         if (widget) {
           if (!type || widget instanceof type) {
             return widget;
@@ -11725,7 +11765,10 @@
             }
           });
           if (frame) {
-            widget = find(win.parent, frame, type);
+            type = getType(win.parent, typeName);
+            if (type) {
+              widget = find(win.parent, frame, type);
+            }
           }
         }
       }

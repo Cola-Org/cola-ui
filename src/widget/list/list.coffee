@@ -18,7 +18,7 @@ class cola.ListView extends cola.AbstractList
 			expressionType: "repeat"
 			refreshItems: true
 			setter: (items) ->
-				return if @_items == items
+				return if @_items is items
 				@_set("bind", undefined)
 				@_items = items
 				return
@@ -28,6 +28,7 @@ class cola.ListView extends cola.AbstractList
 		bind:
 			refreshItems: true
 			setter: (bindStr) ->
+				return if @_bindStr is bindStr
 				@_set("items", undefined)
 				return @_bindSetter(bindStr)
 

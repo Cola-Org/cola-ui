@@ -224,12 +224,13 @@ class cola.AbstractTable extends cola.AbstractList
         items:
             refreshItems: true
             setter: (items) ->
-                return if @_items == items
+                return if @_items is items
                 @_set("bind", undefined)
                 @_items = items
                 return
         bind:
             setter: (bindStr) ->
+                return if @_bindStr is bindStr
                 @_set("items", undefined)
                 @_bindSetter(bindStr)
                 return
@@ -270,6 +271,11 @@ class cola.AbstractTable extends cola.AbstractList
     @TEMPLATES:
         "default":
             tagName: "tr"
+        "boolean-column":
+            "c-display": "$default"
+            content:
+                tagName: "i"
+                class: "green checkmark icon"
         "checkbox-column":
             tagName: "c-checkbox"
             class: "in-cell"

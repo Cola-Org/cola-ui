@@ -15,11 +15,14 @@ cola.model = (name, model) ->
 			if cola.model.models[name]
 				throw new cola.Exception("Duplicated model name \"#{name}\".")
 			cola.model.models[name] = model
+
+			if name is cola.constants.DEFAULT_PATH
+				window?[modelRoot] = model
 		else
 			model = cola.removeModel(name)
 		return model
 	else
-		return cola.model.models[name or "$root"]
+		return cola.model.models[name or cola.constants.DEFAULT_PATH]
 
 cola.model.models = {}
 
@@ -675,11 +678,7 @@ class cola.AbstractDataModel
 		hasValue = rootData.hasValue(prop)
 
 		if @_aliasMap?[prop]
-			oldAliasHolder = @_aliasMap[prop]
-			if oldAliasHolder.data != data
-				oldAliasData = oldAliasHolder.data
-				delete @_aliasMap[prop]
-				@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
+			@removeAlias(prop)
 
 		if data? # 判断是数据还是数据声明
 			if data.$provider or data.$dataType
@@ -696,27 +695,40 @@ class cola.AbstractDataModel
 		if not provider or hasValue
 			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
-
 				path = data.getPath("always")
-				dataModel = @
-				@_aliasMap[prop] = aliasHolder = {
-					data: data
-					path: path
-					bindingPath: path.slice(0).concat("**")
-					processMessage: (bindingPath, path, type, arg) ->
-						relativePath = path.slice(@path.length)
-						dataModel.onDataMessage([prop].concat(relativePath), type, arg)
-						return
-				}
-				@bind(aliasHolder.bindingPath, aliasHolder)
-				@onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
-					entity: rootData
-					property: prop
-					oldValue: oldAliasData
-					value: data
-				})
+				@addAlias(prop, path)
 			else
 				rootData.set(prop, data, context)
+		return
+
+	addAlias: (alias, path) ->
+		oldAliasData = @_aliasMap?[alias]?.data
+
+		dataModel = @
+		@_aliasMap[alias] = aliasHolder = {
+			data: data
+			path: path
+			bindingPath: path.slice(0).concat("**")
+			processMessage: (bindingPath, path, type, arg) ->
+				relativePath = path.slice(@path.length)
+				dataModel.onDataMessage([alias].concat(relativePath), type, arg)
+				return
+		}
+		@bind(aliasHolder.bindingPath, aliasHolder)
+		@onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			entity: rootData
+			property: alias
+			oldValue: oldAliasData
+			value: data
+		})
+		return
+
+	removeAlias: (alias) ->
+		if @_aliasMap?[alias]
+			oldAliasHolder = @_aliasMap[alias]
+			if oldAliasHolder.data isnt data
+				delete @_aliasMap[alias]
+				@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
 		return
 
 	reset: (name) ->
@@ -728,7 +740,7 @@ class cola.AbstractDataModel
 		return @
 
 	bind: (path, processor) ->
-		if !@bindingRegistry
+		if not @bindingRegistry
 			@bindingRegistry =
 				__path: ""
 				__processorMap: {}
@@ -744,7 +756,7 @@ class cola.AbstractDataModel
 		if path
 			for part in path
 				subNode = node[part]
-				if !subNode?
+				if not subNode?
 					nodePath = if !node.__path then part else (node.__path + "." + part)
 					node[part] = subNode =
 						__path: nodePath
@@ -756,7 +768,7 @@ class cola.AbstractDataModel
 		return
 
 	unbind: (path, processor) ->
-		if !@bindingRegistry then return
+		if not @bindingRegistry then return
 
 		if typeof path is "string"
 			path = path.split(".")
@@ -822,7 +834,7 @@ class cola.AbstractDataModel
 	processDataMessage: (node, path, type, arg, notifyChildren) ->
 		processorMap = node.__processorMap
 		for id, processor of processorMap
-			if !processor.disabled and (!(processor.timestamp >= arg.timestamp) or processor.repeatNotification)
+			if not processor.disabled and (not (processor.timestamp >= arg.timestamp) or processor.repeatNotification)
 				processor.timestamp = arg.timestamp
 				processor.processMessage(node.__path, path, type, arg)
 
@@ -833,7 +845,7 @@ class cola.AbstractDataModel
 				type = cola.constants.MESSAGE_REFRESH
 
 			for part, subNode of node
-				if subNode and (part is "**" or notifyChildren2) and part != "__processorMap" and part != "__path"
+				if subNode and (part is "**" or notifyChildren2) and part isnt "__processorMap" and part isnt "__path"
 					@processDataMessage(subNode, path, type, arg, true)
 		return
 
