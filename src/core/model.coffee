@@ -526,6 +526,46 @@ class cola.ItemsScope extends cola.ExpressionScope
 					return true
 		return false
 
+	isWatchPathPreciseMatch: (changedPath) ->
+		expressionPaths = @expressionPaths
+		expressionDynaPaths = @expressionDynaPaths
+
+		if not expressionPaths.length and not expressionDynaPaths then return false
+		if not changedPath then return true
+
+		if expressionPaths.length - changedPath.length < 2
+			for targetPath in expressionPaths
+				isMatch = true
+				for part, i in changedPath
+					targetPart = targetPath[i]
+					if part isnt targetPart
+						isMatch = false
+						break
+
+				if isMatch and expressionPaths.length > changedPath.length
+					targetPart = expressionPaths[expressionPaths.length - 1]
+					if targetPart isnt "*" or targetPart isnt "**"
+						isMatch = false
+
+				if isMatch then return 2
+
+		if expressionDynaPaths and expressionDynaPaths.length - changedPath.length < 2
+			for targetPath in expressionDynaPaths
+				isMatch = true
+				for part, i in changedPath
+					targetPart = targetPath[i]
+					if part isnt targetPart
+						isMatch = false
+						break
+
+				if isMatch and expressionDynaPaths.length > changedPath.length
+					targetPart = expressionDynaPaths[expressionDynaPaths.length - 1]
+					if targetPart isnt "*" or targetPart isnt "**"
+						isMatch = false
+
+				if isMatch then return 2
+		return 0
+
 	_processMessage: (bindingPath, path, type, arg)->
 		if type is cola.constants.MESSAGE_REFRESH
 			if @isParentOfTarget(path, @expressionPaths)
@@ -564,6 +604,10 @@ class cola.ItemsScope extends cola.ExpressionScope
 			else if @isOriginItems(arg.entityList)
 				@insertItem(arg)
 				allProcessed = true
+			else if @isWatchPathPreciseMatch(path, @expressionPaths)
+				@retrieveData()
+				@refreshItems()
+				allProcessed = true
 			else
 				processMoreMessage = true
 
@@ -571,7 +615,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 			if arg.entityList is @items
 				@removeItem(arg)
 				allProcessed = true
-			else if @isOriginItems(arg.entityList)
+			else if @isOriginItems(arg.entityList) or @isWatchPathPreciseMatch(path, @expressionPaths)
 				items = @items
 				if items instanceof Array
 					i = items.indexOf(arg.entity)

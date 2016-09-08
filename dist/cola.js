@@ -597,7 +597,7 @@
     parts = path.split("/");
     i = parts.indexOf(prefix);
     if (i >= 0) {
-      return parts[i + index];
+      return parts[i + 1 + index];
     } else {
 
     }
@@ -6731,6 +6731,65 @@
       return false;
     };
 
+    ItemsScope.prototype.isWatchPathPreciseMatch = function(changedPath) {
+      var expressionDynaPaths, expressionPaths, i, isMatch, l, len1, len2, len3, len4, o, part, q, targetPart, targetPath, u;
+      expressionPaths = this.expressionPaths;
+      expressionDynaPaths = this.expressionDynaPaths;
+      if (!expressionPaths.length && !expressionDynaPaths) {
+        return false;
+      }
+      if (!changedPath) {
+        return true;
+      }
+      if (expressionPaths.length - changedPath.length < 2) {
+        for (l = 0, len1 = expressionPaths.length; l < len1; l++) {
+          targetPath = expressionPaths[l];
+          isMatch = true;
+          for (i = o = 0, len2 = changedPath.length; o < len2; i = ++o) {
+            part = changedPath[i];
+            targetPart = targetPath[i];
+            if (part !== targetPart) {
+              isMatch = false;
+              break;
+            }
+          }
+          if (isMatch && expressionPaths.length > changedPath.length) {
+            targetPart = expressionPaths[expressionPaths.length - 1];
+            if (targetPart !== "*" || targetPart !== "**") {
+              isMatch = false;
+            }
+          }
+          if (isMatch) {
+            return 2;
+          }
+        }
+      }
+      if (expressionDynaPaths && expressionDynaPaths.length - changedPath.length < 2) {
+        for (q = 0, len3 = expressionDynaPaths.length; q < len3; q++) {
+          targetPath = expressionDynaPaths[q];
+          isMatch = true;
+          for (i = u = 0, len4 = changedPath.length; u < len4; i = ++u) {
+            part = changedPath[i];
+            targetPart = targetPath[i];
+            if (part !== targetPart) {
+              isMatch = false;
+              break;
+            }
+          }
+          if (isMatch && expressionDynaPaths.length > changedPath.length) {
+            targetPart = expressionDynaPaths[expressionDynaPaths.length - 1];
+            if (targetPart !== "*" || targetPart !== "**") {
+              isMatch = false;
+            }
+          }
+          if (isMatch) {
+            return 2;
+          }
+        }
+      }
+      return 0;
+    };
+
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, i, items, parent, processMoreMessage, ref;
       if (type === cola.constants.MESSAGE_REFRESH) {
@@ -6773,6 +6832,10 @@
         } else if (this.isOriginItems(arg.entityList)) {
           this.insertItem(arg);
           allProcessed = true;
+        } else if (this.isWatchPathPreciseMatch(path, this.expressionPaths)) {
+          this.retrieveData();
+          this.refreshItems();
+          allProcessed = true;
         } else {
           processMoreMessage = true;
         }
@@ -6780,7 +6843,7 @@
         if (arg.entityList === this.items) {
           this.removeItem(arg);
           allProcessed = true;
-        } else if (this.isOriginItems(arg.entityList)) {
+        } else if (this.isOriginItems(arg.entityList) || this.isWatchPathPreciseMatch(path, this.expressionPaths)) {
           items = this.items;
           if (items instanceof Array) {
             i = items.indexOf(arg.entity);

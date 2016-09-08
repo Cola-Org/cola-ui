@@ -184,7 +184,7 @@ cola.util.pathParams = (prefix, index = 0) ->
 	parts = path.split("/")
 	i = parts.indexOf(prefix)
 	if i >= 0
-		return parts[i + index]
+		return parts[i + 1 + index]
 	else
 		return
 
