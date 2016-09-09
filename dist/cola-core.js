@@ -11788,8 +11788,9 @@
       if (ele.nodeType) {
         widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY);
         if (model && !isSubWidget(widget)) {
-          return widget = null;
+          widget = null;
         }
+        return widget;
       } else {
         group = [];
         for (l = 0, len1 = ele.length; l < len1; l++) {
@@ -11817,7 +11818,7 @@
         return cola.Element.createGroup(group);
       } else if (config.nodeType === 1) {
         widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY);
-        if (model && widget._scope !== model) {
+        if (model && !isSubWidget(widget)) {
           widget = null;
         }
         if (widget instanceof cola.Widget) {

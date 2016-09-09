@@ -211,6 +211,7 @@ cola.widget = (config, namespace, model) ->
         if ele.nodeType
             widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY)
             if model and not isSubWidget(widget) then widget = null
+            return widget
         else
             group = []
             for e in ele
@@ -231,7 +232,7 @@ cola.widget = (config, namespace, model) ->
             return cola.Element.createGroup(group)
         else if config.nodeType == 1
             widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY)
-            if model and widget._scope isnt model
+            if model and not isSubWidget(widget)
                 widget = null
             return if widget instanceof cola.Widget then widget else null
         else

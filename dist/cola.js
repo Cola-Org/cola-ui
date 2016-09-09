@@ -11788,8 +11788,9 @@
       if (ele.nodeType) {
         widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY);
         if (model && !isSubWidget(widget)) {
-          return widget = null;
+          widget = null;
         }
+        return widget;
       } else {
         group = [];
         for (l = 0, len1 = ele.length; l < len1; l++) {
@@ -11817,7 +11818,7 @@
         return cola.Element.createGroup(group);
       } else if (config.nodeType === 1) {
         widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY);
-        if (model && widget._scope !== model) {
+        if (model && !isSubWidget(widget)) {
           widget = null;
         }
         if (widget instanceof cola.Widget) {
@@ -25214,37 +25215,40 @@ Template
     };
 
     CardBook.prototype.setCurrentIndex = function(index) {
-      var arg, newItem, newItemDom, oldItem, oldItemDom;
+      var $dom, arg, children, newItem, oldItem;
       if (this._currentIndex == null) {
         this._currentIndex = -1;
       }
-      if (this._currentIndex === index) {
-        return this;
-      }
       arg = {};
-      if (this._currentIndex > -1) {
-        oldItem = this._items[this._currentIndex];
-        oldItemDom = this.getItemDom(this._currentIndex);
+      if (this._dom) {
+        $dom = $(this._dom);
+        children = $dom.find(">.item");
+        oldItem = $dom.find(">.item.active")[0];
+        if (children.length > index) {
+          newItem = children[index];
+          if (newItem === oldItem) {
+            return;
+          }
+          this._currentIndex = index;
+          arg = {
+            oldItem: oldItem,
+            newItem: newItem
+          };
+          if (this.fire("beforeChange", this, arg) === false) {
+            return this;
+          }
+          this._currentIndex = index;
+          if (oldItem) {
+            $(oldItem).removeClass("active");
+          }
+          if (newItem) {
+            $(newItem).addClass("active");
+          }
+          this.fire("change", this, arg);
+        }
+      } else {
+        this._currentIndex = index;
       }
-      if (index > -1) {
-        newItem = this._items[index];
-        newItemDom = this.getItemDom(index);
-      }
-      arg = {
-        oldItem: oldItem,
-        newItem: newItem
-      };
-      if (this.fire("beforeChange", this, arg) === false) {
-        return this;
-      }
-      if (oldItemDom) {
-        $(oldItemDom).removeClass("active");
-      }
-      if (newItemDom) {
-        $(newItemDom).addClass("active");
-      }
-      this._currentIndex = index;
-      this.fire("change", this, arg);
       return this;
     };
 
