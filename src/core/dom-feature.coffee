@@ -202,7 +202,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
 			templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY)
 			if not tailDom
-				tailDom = document.createComment("Repeat Tail ")
+				tailDom = document.createComment("Repeat Tail |" + headDom.nodeValue.split("|")[1])
 				$fly(headDom).after(tailDom)
 				cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY, tailDom)
 			currentDom = headDom
@@ -233,8 +233,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						itemScope.data.setIndex(i + 1)
 					else
 						itemDom = @createNewItem(domBinding, templateDom, scope, item, i + 1)
-						documentFragment ?= document.createDocumentFragment()
-						documentFragment.appendChild(itemDom)
 						$fly(tailDom).before(itemDom)
 
 					if item is (items.current or originItems?.current)
