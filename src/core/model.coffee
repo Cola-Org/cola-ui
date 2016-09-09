@@ -163,8 +163,8 @@ class cola.Model extends cola.Scope
 		return @data.onDataMessage(path, type, arg)
 
 	$: (selector) ->
-		@_$dom ?= $(@_dom)
-		return @_$dom.find(selector)
+		@_$doms ?= $(@_doms)
+		return @_$doms.find(selector)
 
 class cola.SubScope extends cola.Scope
 

@@ -32,7 +32,7 @@ cola._rootFunc = () ->
 				if not model._doms instanceof Array
 					model._doms = [model._dom]
 				model._doms.concat(dom)
-			delete model._$dom
+			delete model._$doms
 
 			fn?(model, param)
 		finally

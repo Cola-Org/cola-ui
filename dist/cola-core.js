@@ -6180,10 +6180,10 @@
     };
 
     Model.prototype.$ = function(selector) {
-      if (this._$dom == null) {
-        this._$dom = $(this._dom);
+      if (this._$doms == null) {
+        this._$doms = $(this._doms);
       }
-      return this._$dom.find(selector);
+      return this._$doms.find(selector);
     };
 
     return Model;
@@ -10754,7 +10754,7 @@
           }
           model._doms.concat(dom);
         }
-        delete model._$dom;
+        delete model._$doms;
         if (typeof fn === "function") {
           fn(model, param);
         }
