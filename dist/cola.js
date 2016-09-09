@@ -9940,7 +9940,7 @@
         tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY);
         templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY);
         if (!tailDom) {
-          tailDom = document.createComment("Repeat Tail ");
+          tailDom = document.createComment("Repeat Tail |" + headDom.nodeValue.split("|")[1]);
           $fly(headDom).after(tailDom);
           cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY, tailDom);
         }
@@ -9977,10 +9977,6 @@
                 itemScope.data.setIndex(i + 1);
               } else {
                 itemDom = _this.createNewItem(domBinding, templateDom, scope, item, i + 1);
-                if (documentFragment == null) {
-                  documentFragment = document.createDocumentFragment();
-                }
-                documentFragment.appendChild(itemDom);
                 $fly(tailDom).before(itemDom);
               }
               if (item === (items.current || (originItems != null ? originItems.current : void 0))) {
@@ -11767,7 +11763,7 @@
   cola.registerType("widget", "_default", cola.Widget);
 
   cola.widget = function(config, namespace, model) {
-    var c, constr, e, ele, group, l, len1, len2, o, widget;
+    var c, constr, e, ele, group, l, len1, len2, match, o, widget, widgetModel;
     if (!config) {
       return null;
     }
@@ -11778,8 +11774,19 @@
       }
       if (ele.nodeType) {
         widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY);
-        if (model && widget._scope !== model) {
-          widget = null;
+        if (model) {
+          match = false;
+          widgetModel = widget._scope;
+          while (widgetModel) {
+            if (widgetModel === model) {
+              match = true;
+              break;
+            }
+            widgetModel = widgetModel.parent;
+          }
+          if (!match) {
+            widget = null;
+          }
         }
         if (widget instanceof cola.Widget) {
           return widget;
@@ -16313,7 +16320,7 @@ Template
     };
 
     SubView.prototype.load = function(options, callback) {
-      var $content, $dimmer, $dom, dom, model, parentModel, parentModelName;
+      var $content, $dimmer, $dom, dom, model, parentModel;
       if (typeof options === "function") {
         callback = options;
         options = null;
@@ -16345,9 +16352,10 @@ Template
       }
       if (this._parentModel instanceof cola.Scope) {
         parentModel = this._parentModel;
+      } else if (this._parentModel) {
+        parentModel = cola.model(this._parentModel);
       } else {
-        parentModelName = this._parentModel || cola.constants.DEFAULT_PATH;
-        parentModel = cola.model(parentModelName);
+        parentModel = this._scope || cola.model(cola.constants.DEFAULT_PATH);
       }
       if (this._modelName) {
         model = new cola.Model(this._modelName, parentModel);

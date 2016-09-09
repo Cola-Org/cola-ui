@@ -106,4 +106,3 @@ class cola.AbstractItemGroup extends cola.Widget
 		@clearItems()
 		delete @_items
 		super()
-

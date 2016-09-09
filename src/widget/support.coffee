@@ -199,8 +199,16 @@ cola.widget = (config, namespace, model) ->
         return null unless ele
         if ele.nodeType
             widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY)
-            if model and widget._scope isnt model
-                widget = null
+            if model
+                match = false
+                widgetModel = widget._scope
+                while widgetModel
+                    if widgetModel is model
+                        match = true
+                        break
+                    widgetModel = widgetModel.parent
+                if not match then widget = null
+
             return if widget instanceof cola.Widget then widget else null
         else
             group = []
