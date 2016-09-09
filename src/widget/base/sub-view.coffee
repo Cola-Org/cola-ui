@@ -63,9 +63,10 @@ class cola.SubView extends cola.Widget
 
 		if @_parentModel instanceof cola.Scope
 			parentModel = @_parentModel
+		else if @_parentModel
+			parentModel = cola.model(@_parentModel)
 		else
-			parentModelName = @_parentModel or cola.constants.DEFAULT_PATH
-			parentModel = cola.model(parentModelName)
+			parentModel = @_scope or cola.model(cola.constants.DEFAULT_PATH)
 
 		if @_modelName
 			model = new cola.Model(@_modelName, parentModel)
