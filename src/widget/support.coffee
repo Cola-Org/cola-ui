@@ -194,27 +194,28 @@ cola.registerType("widget", "_default", cola.Widget)
 
 cola.widget = (config, namespace, model) ->
     return null unless config
+
+    isSubWidget = (widget) ->
+        match = false
+        widgetModel = widget._scope
+        while widgetModel
+            if widgetModel is model
+                match = true
+                break
+            widgetModel = widgetModel.parent
+        return match
+
     if typeof config == "string"
         ele = window[config]
         return null unless ele
         if ele.nodeType
             widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY)
-            if model
-                match = false
-                widgetModel = widget._scope
-                while widgetModel
-                    if widgetModel is model
-                        match = true
-                        break
-                    widgetModel = widgetModel.parent
-                if not match then widget = null
-
-            return if widget instanceof cola.Widget then widget else null
+            if model and not isSubWidget(widget) then widget = null
         else
             group = []
             for e in ele
                 widget = cola.util.userData(e, cola.constants.DOM_ELEMENT_KEY)
-                if widget instanceof cola.Widget and (not model or widget._scope is model)
+                if widget instanceof cola.Widget and (not model or isSubWidget(widget))
                     group.push(widget)
             if not group.length
                 return null

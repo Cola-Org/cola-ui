@@ -11763,10 +11763,23 @@
   cola.registerType("widget", "_default", cola.Widget);
 
   cola.widget = function(config, namespace, model) {
-    var c, constr, e, ele, group, l, len1, len2, match, o, widget, widgetModel;
+    var c, constr, e, ele, group, isSubWidget, l, len1, len2, o, widget;
     if (!config) {
       return null;
     }
+    isSubWidget = function(widget) {
+      var match, widgetModel;
+      match = false;
+      widgetModel = widget._scope;
+      while (widgetModel) {
+        if (widgetModel === model) {
+          match = true;
+          break;
+        }
+        widgetModel = widgetModel.parent;
+      }
+      return match;
+    };
     if (typeof config === "string") {
       ele = window[config];
       if (!ele) {
@@ -11774,31 +11787,15 @@
       }
       if (ele.nodeType) {
         widget = cola.util.userData(ele, cola.constants.DOM_ELEMENT_KEY);
-        if (model) {
-          match = false;
-          widgetModel = widget._scope;
-          while (widgetModel) {
-            if (widgetModel === model) {
-              match = true;
-              break;
-            }
-            widgetModel = widgetModel.parent;
-          }
-          if (!match) {
-            widget = null;
-          }
-        }
-        if (widget instanceof cola.Widget) {
-          return widget;
-        } else {
-          return null;
+        if (model && !isSubWidget(widget)) {
+          return widget = null;
         }
       } else {
         group = [];
         for (l = 0, len1 = ele.length; l < len1; l++) {
           e = ele[l];
           widget = cola.util.userData(e, cola.constants.DOM_ELEMENT_KEY);
-          if (widget instanceof cola.Widget && (!model || widget._scope === model)) {
+          if (widget instanceof cola.Widget && (!model || isSubWidget(widget))) {
             group.push(widget);
           }
         }
