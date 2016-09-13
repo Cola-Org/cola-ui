@@ -1039,7 +1039,7 @@ return XDate;
 				(ch >= 97 && ch <= 122); // a...z
 		},
 		isIdentifierPart = function(ch) {
-			return (ch === 36) || (ch === 64) || (ch === 95) || // `$` and `@` and `_`
+			return (ch === 36) || (ch === 64) || (ch === 95) || (ch === 35) ||// `$` and `@` and `_` and `#`
 				(ch >= 65 && ch <= 90) || // A...Z
 				(ch >= 97 && ch <= 122) || // a...z
 				(ch >= 48 && ch <= 57); // 0...9

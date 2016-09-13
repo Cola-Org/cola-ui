@@ -357,7 +357,7 @@ class cola.Entity
 			callback = loadMode
 			loadMode = "async"
 
-		if prop.indexOf(".") > 0
+		if prop.indexOf(".") > 0 or prop.indexOf("#") >= 0
 			return _evalDataPath(@, prop, false, loadMode, callback, context)
 		else
 			return @_get(prop, loadMode, callback, context)

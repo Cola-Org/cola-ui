@@ -7,15 +7,6 @@
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
-/*! Cola UI - 0.9.8
- * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
- *
- * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
- * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
- *
- * If you are unsure which license is appropriate for your use, please contact the sales department
- * at http://www.bstek.com/contact.
- */
 (function() {
   var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
@@ -3819,7 +3810,7 @@
         callback = loadMode;
         loadMode = "async";
       }
-      if (prop.indexOf(".") > 0) {
+      if (prop.indexOf(".") > 0 || prop.indexOf("#") >= 0) {
         return _evalDataPath(this, prop, false, loadMode, callback, context);
       } else {
         return this._get(prop, loadMode, callback, context);
@@ -8960,7 +8951,7 @@
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
-      var dom, error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, len2, len3, model, o, q, ref, ref1, ref2;
+      var error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, model, ref;
       if (success) {
         if (!failed) {
           i = loadingUrls.indexOf(url);
@@ -8974,26 +8965,16 @@
               targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE);
             }
             if (context.suspendedInitFuncs.length) {
+              model = context.model;
               ref = context.suspendedInitFuncs;
               for (l = 0, len1 = ref.length; l < len1; l++) {
                 initFunc = ref[l];
                 initFunc(targetDom, context.model, context.param);
               }
-              model = context.model;
-              ref1 = context.suspendedInitFuncs;
-              for (o = 0, len2 = ref1.length; o < len2; o++) {
-                initFunc = ref1[o];
-                ref2 = model._doms;
-                for (q = 0, len3 = ref2.length; q < len3; q++) {
-                  dom = ref2[q];
-                  initFunc(dom, model, context.param);
-                  cola._renderDomTemplate(dom, model);
-                }
-              }
             } else {
               cola(targetDom, context.model);
-              cola._renderDomTemplate(targetDom, model);
             }
+            cola._renderDomTemplate(targetDom, model);
             if (hasIgnoreDirective) {
               targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
             }
