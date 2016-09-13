@@ -7,6 +7,15 @@
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
+/*! Cola UI - 0.9.8
+ * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
+ *
+ * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
+ * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
+ *
+ * If you are unsure which license is appropriate for your use, please contact the sales department
+ * at http://www.bstek.com/contact.
+ */
 (function() {
   var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
@@ -7558,7 +7567,7 @@
       var alias, aliasLen, c, targetData;
       alias = this.alias;
       aliasLen = alias.length;
-      if (path.substring(0, aliasLen) === alias) {
+      if (path && path.substring(0, aliasLen) === alias) {
         c = path.charCodeAt(aliasLen);
         if (c === 46) {
           if (path.indexOf(".") > 0) {
@@ -7580,7 +7589,7 @@
       var alias, aliasLen, c, ref;
       alias = this.alias;
       aliasLen = alias.length;
-      if (path.substring(0, aliasLen) === alias) {
+      if (path && path.substring(0, aliasLen) === alias) {
         c = path.charCodeAt(aliasLen);
         if (c === 46) {
           if (path.indexOf(".") > 0) {
@@ -11559,8 +11568,8 @@
     return widgetConfig;
   };
 
-  _compileWidgetDom = function(dom, widgetType, config) {
-    var attr, attrName, isEvent, l, len1, len2, o, prop, ref, removeAttrs;
+  _compileWidgetDom = function(dom, widgetType, config, context) {
+    var attr, attrName, attrValue, isEvent, l, len1, len2, o, prop, ref, removeAttrs;
     if (config == null) {
       config = {};
     }
@@ -11574,12 +11583,16 @@
       attr = ref[l];
       attrName = attr.name;
       if (attrName.indexOf("c-") === 0) {
+        attrValue = attr.value;
+        if (context.defaultPath) {
+          attrValue = attrValue.replace(ALIAS_REGEXP, context.defaultPath);
+        }
         prop = attrName.slice(2);
         if (widgetType.attributes.$has(prop) && prop !== "class") {
           if (prop === "bind") {
-            config[prop] = attr.value;
+            config[prop] = attrValue;
           } else {
-            config[prop] = cola._compileExpression(attr.value);
+            config[prop] = cola._compileExpression(attrValue);
           }
           if (removeAttrs == null) {
             removeAttrs = [];
@@ -11602,9 +11615,13 @@
           }
         }
       } else {
+        attrValue = attr.value;
+        if (context.defaultPath && attrName === "bind") {
+          attrValue = attrValue.replace(ALIAS_REGEXP, context.defaultPath);
+        }
         prop = attrName;
         if (widgetType.attributes.$has(prop)) {
-          config[prop] = attr.value;
+          config[prop] = attrValue;
         } else {
           isEvent = widgetType.events.$has(prop);
           if (!isEvent && prop.indexOf("on") === 0) {
@@ -11618,7 +11635,7 @@
             }
           }
           if (isEvent) {
-            config[prop] = attr.value;
+            config[prop] = attrValue;
           }
         }
       }
@@ -11701,7 +11718,7 @@
           widgetType = WIDGET_TAGS_REGISTRY[tagName];
         }
         if (widgetType) {
-          config = _compileWidgetDom(dom, widgetType, config);
+          config = _compileWidgetDom(dom, widgetType, config, context);
         }
       }
     }
