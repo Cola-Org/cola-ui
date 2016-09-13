@@ -49,7 +49,7 @@ _findWidgetConfig = (scope, name) ->
         scope = scope.parent
     return widgetConfig
 
-_compileWidgetDom = (dom, widgetType, config = {}) ->
+_compileWidgetDom = (dom, widgetType, config = {}, context) ->
     if not widgetType.attributes._inited or not widgetType.events._inited
         cola.preprocessClass(widgetType)
 
@@ -59,12 +59,16 @@ _compileWidgetDom = (dom, widgetType, config = {}) ->
     for attr in dom.attributes
         attrName = attr.name
         if attrName.indexOf("c-") is 0
+            attrValue = attr.value
+            if context.defaultPath
+                attrValue = attrValue.replace(ALIAS_REGEXP, context.defaultPath)
+
             prop = attrName.slice(2)
             if widgetType.attributes.$has(prop) and prop isnt "class"
                 if prop is "bind"
-                    config[prop] = attr.value
+                    config[prop] = attrValue
                 else
-                    config[prop] = cola._compileExpression(attr.value)
+                    config[prop] = cola._compileExpression(attrValue)
 
                 removeAttrs ?= []
                 removeAttrs.push(attrName)
@@ -80,9 +84,13 @@ _compileWidgetDom = (dom, widgetType, config = {}) ->
                     removeAttrs ?= []
                     removeAttrs.push(attrName)
         else
+            attrValue = attr.value
+            if context.defaultPath and attrName is "bind"
+                attrValue = attrValue.replace(ALIAS_REGEXP, context.defaultPath)
+
             prop = attrName
             if widgetType.attributes.$has(prop)
-                config[prop] = attr.value
+                config[prop] = attrValue
             else
                 isEvent = widgetType.events.$has(prop)
                 if not isEvent and prop.indexOf("on") is 0
@@ -94,7 +102,7 @@ _compileWidgetDom = (dom, widgetType, config = {}) ->
                         removeAttrs.push(attrName)
 
                 if isEvent
-                    config[prop] = attr.value
+                    config[prop] = attrValue
 
     if removeAttrs
         dom.removeAttribute(attr) for attr in removeAttrs
@@ -148,7 +156,7 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
             widgetType = parentWidget?.childTagNames?[tagName]
             widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
             if widgetType
-                config = _compileWidgetDom(dom, widgetType, config)
+                config = _compileWidgetDom(dom, widgetType, config, context)
     return null unless config or jsonConfig
 
     config ?= {}

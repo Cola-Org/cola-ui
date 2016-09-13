@@ -84,7 +84,7 @@ class cola.AbstractList extends cola.ItemsView
 	_doRefreshItems: (itemsWrapper) ->
 		super(itemsWrapper)
 
-		if @_pullAction == undefined
+		if @_pullAction is undefined
 			@_pullAction = null
 			if @_pullDown
 				hasPullAction = true
@@ -113,7 +113,7 @@ class cola.AbstractList extends cola.ItemsView
 						pullPane: pullPane
 						direction: pullState
 					})
-				else if pullState == "up" and !@getListeners("pullComplete")
+				else if pullState is "up" and not @getListeners("pullComplete")
 					collection = @_realItems
 					if collection instanceof cola.EntityList
 						return collection.pageNo < collection.pageCount
@@ -134,13 +134,13 @@ class cola.AbstractList extends cola.ItemsView
 				}) is false
 					return
 
-				if pullState == "down"
+				if pullState is "down"
 					collection = @_realOriginItems or @_realItems
 					if collection instanceof cola.EntityList
 						collection.flush(done)
 					else
 						done()
-				else if pullState == "up"
+				else if pullState is "up"
 					collection = @_realItems
 					if collection instanceof cola.EntityList
 						collection.nextPage(done)

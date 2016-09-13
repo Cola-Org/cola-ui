@@ -1,4 +1,4 @@
-SAFE_SLIDE_EFFECT = cola.os.android and !cola.browser.chrome
+SAFE_SLIDE_EFFECT = cola.os.android and not cola.browser.chrome
 SLIDE_ANIMATION_SPEED = 200
 LIST_SIZE_PREFIXS = ["small", "medium", "large", "xlarge", "xxlarge"]
 
@@ -59,9 +59,9 @@ class cola.ListView extends cola.AbstractList
 			setter: (value) ->
 				@_itemSlide = value
 				if value
-					if value == "left"
+					if value is "left"
 						left = true
-					else if value == "right"
+					else if value is "right"
 						right = true
 					else
 						left = true
@@ -127,15 +127,15 @@ class cola.ListView extends cola.AbstractList
 			else
 				groupString = null
 				groupProp = list.group
-				if groupProp and typeof groupProp == "string"
+				if groupProp and typeof groupProp is "string"
 					if item instanceof cola.Entity
 						groupString = item.get(groupProp)
-					else if typeof item == "object"
+					else if typeof item is "object"
 						groupString = item?[groupProp]
 					else if item
 						groupString = item + ""
 
-			if groupString == currentGroup?.name
+			if groupString is currentGroup?.name
 				currentGroup.items.push(item)
 			else
 				if currentGroup
@@ -168,8 +168,8 @@ class cola.ListView extends cola.AbstractList
 			columns = columns.split(" ")
 			i = 0
 			for column in columns
-				if column == "" then continue
-				if column == "row"
+				if column is "" then continue
+				if column is "row"
 					classNames.push(LIST_SIZE_PREFIXS[i] + "-row-list")
 				else
 					classNames.push(LIST_SIZE_PREFIXS[i] + "-block-grid-" + column)
@@ -192,7 +192,7 @@ class cola.ListView extends cola.AbstractList
 		super()
 
 		if @_dom
-			if !@_group
+			if not @_group
 				@_doms.floatGroupHeaderWrapper?.style.display = "none"
 
 			if @_indexBar and @_group and @_realItems
@@ -200,7 +200,7 @@ class cola.ListView extends cola.AbstractList
 			else if @_doms.indexBar
 				$fly(@_doms.indexBar).hide()
 
-			if !cola.os.mobile and !@_indexBarRelocateTimer
+			if not cola.os.mobile and not @_indexBarRelocateTimer
 				itemsWrapper = @_doms.itemsWrapper
 				dom = @_dom
 				@_indexBarRelocateTimer = setInterval(() ->
@@ -221,9 +221,9 @@ class cola.ListView extends cola.AbstractList
 			itemDom = document.createElement("li")
 			itemDom.setAttribute("c-bind", "$default")
 
-		if itemType == "group"
+		if itemType is "group"
 			klass = "list group"
-		else if itemType == "group-header"
+		else if itemType is "group-header"
 			klass = "list group-header"
 			if @_groupCollapsible
 				klass += " collapsible"
@@ -239,7 +239,7 @@ class cola.ListView extends cola.AbstractList
 		return itemDom
 
 	_refreshItemDom: (itemDom, item, parentScope) ->
-		if itemDom._itemType == "group"
+		if itemDom._itemType is "group"
 			return @_refreshGroupDom(itemDom, item, parentScope)
 		else
 			return super(itemDom, item, parentScope)
@@ -248,7 +248,7 @@ class cola.ListView extends cola.AbstractList
 		groupId = cola.Entity._getEntityId(group)
 
 		groupScope = cola.util.userData(groupDom, "scope")
-		if !groupScope
+		if not groupScope
 			groupDom._itemScope = groupScope = new cola.ItemScope(parentScope, group._alias)
 			parentScope.regItemScope(groupId, groupScope)
 			groupScope.data.setTargetData(group, true)
@@ -256,7 +256,7 @@ class cola.ListView extends cola.AbstractList
 			cola.util.userData(groupDom, "item", group)
 		else
 			oldGroup = cola.util.userData(groupDom, "item")
-			if oldGroup != groupScope.data.getTargetData()
+			if oldGroup isnt groupScope.data.getTargetData()
 				delete groupDom._itemId if groupDom._itemId
 				groupScope.data.setTargetData(group)
 				cola.util.userData(groupDom, "item", group)
@@ -267,7 +267,7 @@ class cola.ListView extends cola.AbstractList
 		else
 			delete groupDom._itemId
 
-		if !groupDom._headerCreated
+		if not groupDom._headerCreated
 			groupDom._headerCreated = true
 			itemsWrapper = groupDom.firstChild
 			groupHeaderDom = @_createNewItem("group-header", group)
@@ -286,7 +286,7 @@ class cola.ListView extends cola.AbstractList
 			itemDom = null
 			if currentItemDom
 				while currentItemDom
-					if currentItemDom._itemType == itemType
+					if currentItemDom._itemType is itemType
 						break
 					else
 						nextItemDom = currentItemDom.nextSibling
@@ -347,7 +347,7 @@ class cola.ListView extends cola.AbstractList
 
 		topGroupDom = @_findTopGroupDom(scrollTop)
 		if topGroupDom
-			if topGroupDom.offsetTop == scrollTop
+			if topGroupDom.offsetTop is scrollTop
 				@_doms.floatGroupHeaderWrapper?.style.display = "none"
 				return
 
@@ -367,7 +367,7 @@ class cola.ListView extends cola.AbstractList
 
 	_getFloatGroupHeader: (group) ->
 		floatGroupHeaderWrapper = @_doms.floatGroupHeaderWrapper
-		if !floatGroupHeaderWrapper
+		if not floatGroupHeaderWrapper
 			groupScope = new cola.ItemScope(@_itemsScope, group._alias)
 			groupScope.data.setTargetData(group, true)
 			floatGroupHeader = @_createNewItem("group-header", group)
@@ -406,7 +406,7 @@ class cola.ListView extends cola.AbstractList
 				groupDomOffsetTop = groupDom.offsetTop
 				if groupDomOffsetTop > scrollTop
 					groupDom = groupDom.previousSibling
-					@_topGroupDom = groupDom if @_topGroupDom != groupDom
+					@_topGroupDom = groupDom if @_topGroupDom isnt groupDom
 					break
 				groupDom = groupDom.nextSibling
 		else
@@ -423,7 +423,7 @@ class cola.ListView extends cola.AbstractList
 		itemDom = evt.currentTarget
 		item = cola.util.userData(itemDom, "item")
 		groupDom = itemDom.parentNode
-		if !item._collapsed
+		if not item._collapsed
 			item._collapsed = true
 			$fly(itemDom).addClass("collapsed")
 			$fly(groupDom).css("overflow", "hidden").animate({
@@ -460,17 +460,17 @@ class cola.ListView extends cola.AbstractList
 		list = @
 		indexBar = @_doms.indexBar
 
-		if !indexBar
+		if not indexBar
 			goIndex = (target, animate) ->
 				indexDom = target
-				while indexDom and indexDom != indexBar
+				while indexDom and indexDom isnt indexBar
 					if indexDom._groupIndex >= 0
 						break
 					indexDom = indexDom.parentNode
 
 				if indexDom?._groupIndex >= 0
 					timestamp = new Date()
-					if !list._currentIndex or list._currentIndex != indexDom._groupIndex and timestamp - list._currentIndexTimestamp > 100
+					if not list._currentIndex or list._currentIndex isnt indexDom._groupIndex and timestamp - list._currentIndexTimestamp > 100
 						list._currentIndex = indexDom._groupIndex
 						list._currentIndexTimestamp = timestamp
 
@@ -554,7 +554,7 @@ class cola.ListView extends cola.AbstractList
 		return unless leftSlidePaneTemplate or rightSlidePaneTemplate
 
 		itemsWrapper = @_doms.itemsWrapper
-		if @_itemSlide and @_itemSlide != "none"
+		if @_itemSlide and @_itemSlide isnt "none"
 			$fly(itemsWrapper)
 			.on("touchstart", (evt) => @_onItemsWrapperTouchStart(evt))
 			.on("touchmove", (evt) => @_onItemsWrapperTouchMove(evt))
@@ -586,14 +586,14 @@ class cola.ListView extends cola.AbstractList
 
 	_getTouchPoint: (evt) ->
 		touches = evt.originalEvent.touches
-		if !touches.length
+		if not touches.length
 			touches = evt.originalEvent.changedTouches
 		return touches[0]
 
 	_onItemsWrapperTouchStart: (evt) ->
 		@_start = new Date
 
-		return unless @_itemSlide and (!@_itemSlideState or @_itemSlideState == "closed" or @_itemSlideState == "ignore")
+		return unless @_itemSlide and (not @_itemSlideState or @_itemSlideState is "closed" or @_itemSlideState is "ignore")
 
 		itemDom = @_findItemDom(evt.target)
 		if itemDom
@@ -605,10 +605,10 @@ class cola.ListView extends cola.AbstractList
 			arg =
 				event: evt
 				item: item
-			if @fire("itemSlideStart", @, arg) == false
+			if @fire("itemSlideStart", @, arg) is false
 				return
 		else
-			if @_getItemType(item) == "group"
+			if @_getItemType(item) is "group"
 				return
 
 		@_slideItemDom = itemDom
@@ -622,11 +622,11 @@ class cola.ListView extends cola.AbstractList
 
 	_initItemSlidePane: (itemDom, direction) ->
 		item = cola.util.userData(itemDom, "item")
-		if direction != @_itemSlideDirection
+		if direction isnt @_itemSlideDirection
 			oldSlidePane = @_itemSlidePane
 			if oldSlidePane
 				$fly(oldSlidePane).hide()
-				if !SAFE_SLIDE_EFFECT
+				if not SAFE_SLIDE_EFFECT
 					$fly(oldSlidePane).css("transform", "")
 
 			@_itemSlideDirection = direction
@@ -643,7 +643,7 @@ class cola.ListView extends cola.AbstractList
 						slidePane: slidePane
 					})
 
-				if direction == "left" and @_maxDistanceAdjust == undefined and @_indexBar
+				if direction is "left" and @_maxDistanceAdjust is undefined and @_indexBar
 					indexBar = @_doms.indexBar
 					if indexBar
 						@_maxDistanceAdjust = indexBar.offsetWidth + parseInt($fly(indexBar).css("right"))
@@ -657,7 +657,7 @@ class cola.ListView extends cola.AbstractList
 				}).show()
 
 				@_maxSlideDistance = slidePane.offsetWidth
-				if direction == "left"
+				if direction is "left"
 					@_maxSlideDistance += (@_maxDistanceAdjust or 0)
 			else
 				@_maxSlideDistance = itemDom.offsetWidth
@@ -667,10 +667,10 @@ class cola.ListView extends cola.AbstractList
 
 	_onItemsWrapperTouchMove: (evt) ->
 		return unless @_itemSlide
-		if @_itemSlideState == "prevent"
+		if @_itemSlideState is "prevent"
 			evt.stopImmediatePropagation()
 			return false
-		return unless !@_itemSlideState or @_itemSlideState == "slide"
+		return unless not @_itemSlideState or @_itemSlideState == "slide"
 
 		touchPoint = @_getTouchPoint(evt)
 		@_touchLastX = touchPoint.pageX
@@ -680,7 +680,7 @@ class cola.ListView extends cola.AbstractList
 		timestamp = new Date()
 
 		itemDom = @_slideItemDom
-		if !@_itemSlideState
+		if not @_itemSlideState
 			if Math.abs(distanceX) > 5 and Math.abs(distanceX) > Math.abs(distanceY)
 				@_itemSlideState = "slide"
 				@_itemSlideDirection = null
@@ -702,7 +702,7 @@ class cola.ListView extends cola.AbstractList
 			direction = "left"
 			factor = -1
 
-		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
+		if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
 			slideDom = itemDom.firstChild
 		else
 			slideDom = itemDom
@@ -714,7 +714,7 @@ class cola.ListView extends cola.AbstractList
 			else
 				@_currentSlideDistance = @_maxSlideDistance * factor
 
-			if !SAFE_SLIDE_EFFECT
+			if not SAFE_SLIDE_EFFECT
 				translate = "translate(#{@_currentSlideDistance}px,0)"
 				$fly(slideDom).css("transform", translate)
 				$fly(slidePane).css("transform", translate)
@@ -733,15 +733,15 @@ class cola.ListView extends cola.AbstractList
 		return false
 
 	_onItemsWrapperTouchEnd: (evt) ->
-		return unless @_itemSlideState == "slide"
+		return unless @_itemSlideState is "slide"
 
 		currentDistance = @_currentSlideDistance
-		return if currentDistance == 0
+		return if currentDistance is 0
 
 		itemDom = @_slideItemDom
 		maxDistance = @_maxSlideDistance
 		opened = false
-		if Math.abs(currentDistance) == maxDistance
+		if Math.abs(currentDistance) is maxDistance
 			opened = true
 		else if Math.abs(currentDistance) / maxDistance > 0.5
 			opened = true
@@ -771,13 +771,13 @@ class cola.ListView extends cola.AbstractList
 			})
 
 
-		if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
+		if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
 			slideDom = itemDom.firstChild
 		else
 			slideDom = itemDom
 
-		if direction == "left"
-			if !SAFE_SLIDE_EFFECT
+		if direction is "left"
+			if not SAFE_SLIDE_EFFECT
 				$(slideDom).transit({
 					x: 0
 					duration: SLIDE_ANIMATION_SPEED * 2
@@ -811,7 +811,7 @@ class cola.ListView extends cola.AbstractList
 
 		$slidePane = $(slidePane)
 		if openAnimate or SAFE_SLIDE_EFFECT
-			factor = if direction == "left" then -1 else 1
+			factor = if direction is "left" then -1 else 1
 			$slidePane.show().transit({
 				x: @_maxSlideDistance * factor
 				duration: SLIDE_ANIMATION_SPEED
@@ -832,8 +832,8 @@ class cola.ListView extends cola.AbstractList
 		slidePane = @_itemSlidePane
 		direction = @_itemSlideDirection
 
-		if direction == "right"
-			if itemDom.firstChild and itemDom.firstChild == itemDom.lastChild
+		if direction is "right"
+			if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
 				slideDom = itemDom.firstChild
 			else
 				slideDom = itemDom

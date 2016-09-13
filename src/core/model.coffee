@@ -1108,7 +1108,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	get: (path, loadMode, context) ->
 		alias = @alias
 		aliasLen = alias.length
-		if path.substring(0, aliasLen) is alias
+		if path and path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
 			if c is 46 # `.`
 				if path.indexOf(".") > 0
@@ -1124,7 +1124,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	set: (path, data, context) ->
 		alias = @alias
 		aliasLen = alias.length
-		if path.substring(0, aliasLen) is alias
+		if path and path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
 			if c is 46 # `.`
 				if path.indexOf(".") > 0
