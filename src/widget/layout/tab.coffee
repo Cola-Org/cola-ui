@@ -74,7 +74,16 @@ class cola.Tab extends cola.Widget
 			if $(@).hasClass("disabled") then return
 			tabControl._doMove(false)
 		)
+
 		return
+
+	getTabIndex: (tabButton)->
+		dom = tabButton.getDom();
+		pDom = $(dom).parent()
+		index = -1;
+		for item,i in pDom.find(".ui.tab-button")
+			if item==dom then return i
+		return index;
 
 	_getTabButtonsSize: ()->
 		$dom = @_$dom or $(@_dom)

@@ -12,6 +12,7 @@ class cola.Table extends cola.AbstractTable
 				fixedFooter = @_getFixedFooter()
 				$fly(fixedFooter).width(@_doms.itemsWrapper.clientWidth)
 			return
+		@_bindKeyDown()
 		return
 
 	_convertItems: (items) ->
@@ -161,7 +162,7 @@ class cola.Table extends cola.AbstractTable
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =
-					  column: column
+						column: column
 					if column.fire("footerClick", @, eventArg) isnt false
 						@fire("footerClick", @, eventArg)
 					return
@@ -598,5 +599,46 @@ class cola.Table extends cola.AbstractTable
 		@_refreshFixedHeader() if @_showHeader
 		@_refreshFixedFooter() if @_showFooter
 		return super()
+
+	_bindKeyDown: ()->
+		table=@
+		#待完善
+		$(@_dom).delegate("input", "keydown", ()->
+			keyCode = event.keyCode
+			ctrlKey = event.ctrlKey
+			td = $(this).closest("td")[0]
+			tr = $(td).parent()[0]
+			colIndex = $(td).index()
+			if keyCode == 38
+				targetRow = tr.previousElementSibling;
+			else if keyCode == 40
+				targetRow = tr.nextElementSibling
+			else if ctrlKey && keyCode == 37
+				targetCell = td.previousElementSibling;
+			else if ctrlKey && keyCode == 39
+				targetCell = td.nextElementSibling
+
+			if targetRow
+				tds = $(targetRow).find(">td")
+				if tds.length >= colIndex then targetCell = tds[colIndex]
+
+				item = cola.util.userData(targetRow, "item")
+				if targetRow._itemType == "default"
+					if item
+						if table._changeCurrentItem and item.parent instanceof cola.EntityList
+							item.parent.setCurrent(item)
+						else
+							table._setCurrentItemDom(targetRow)
+
+			if targetCell
+				$input = $(targetCell).find(".ui.input")
+				if $input.length > 0
+					input = cola.widget($input[0])
+					input && input.focus()
+
+			if keyCode == 38 || keyCode == 40 || (ctrlKey && keyCode == 37) || (ctrlKey && keyCode == 39)
+				event.preventDefault()
+		)
+
 
 cola.registerWidget(cola.Table)

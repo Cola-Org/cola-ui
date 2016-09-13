@@ -63,6 +63,7 @@ sources =
 			"src/widget/edit/date-picker.coffee"
 			"src/widget/edit/form.coffee"
 			"src/widget/edit/textarea.coffee"
+			"src/widget/edit/select-button.coffee"
 		]
 		layout: [
 			"src/widget/layout/segment.coffee"

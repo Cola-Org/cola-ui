@@ -3810,7 +3810,7 @@
         callback = loadMode;
         loadMode = "async";
       }
-      if (prop.indexOf(".") > 0 || prop.indexOf("#") >= 0) {
+      if (prop.indexOf(".") > 0) {
         return _evalDataPath(this, prop, false, loadMode, callback, context);
       } else {
         return this._get(prop, loadMode, callback, context);
@@ -8951,7 +8951,7 @@
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
-      var error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, model, ref;
+      var dom, error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, len2, len3, model, o, q, ref, ref1, ref2;
       if (success) {
         if (!failed) {
           i = loadingUrls.indexOf(url);
@@ -8965,16 +8965,26 @@
               targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE);
             }
             if (context.suspendedInitFuncs.length) {
-              model = context.model;
               ref = context.suspendedInitFuncs;
               for (l = 0, len1 = ref.length; l < len1; l++) {
                 initFunc = ref[l];
                 initFunc(targetDom, context.model, context.param);
               }
+              model = context.model;
+              ref1 = context.suspendedInitFuncs;
+              for (o = 0, len2 = ref1.length; o < len2; o++) {
+                initFunc = ref1[o];
+                ref2 = model._doms;
+                for (q = 0, len3 = ref2.length; q < len3; q++) {
+                  dom = ref2[q];
+                  initFunc(dom, model, context.param);
+                  cola._renderDomTemplate(dom, model);
+                }
+              }
             } else {
               cola(targetDom, context.model);
+              cola._renderDomTemplate(targetDom, model);
             }
-            cola._renderDomTemplate(targetDom, model);
             if (hasIgnoreDirective) {
               targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
             }
@@ -18389,6 +18399,21 @@ Template
       });
     };
 
+    Tab.prototype.getTabIndex = function(tabButton) {
+      var dom, i, index, item, len1, n, pDom, ref;
+      dom = tabButton.getDom();
+      pDom = $(dom).parent();
+      index = -1;
+      ref = pDom.find(".ui.tab-button");
+      for (i = n = 0, len1 = ref.length; n < len1; i = ++n) {
+        item = ref[i];
+        if (item === dom) {
+          return i;
+        }
+      }
+      return index;
+    };
+
     Tab.prototype._getTabButtonsSize = function() {
       var $dom, buttons, direction, firstLeft, firstTab, firstTop, horizontal, lastLeft, lastTab, lastTop;
       $dom = this._$dom || $(this._dom);
@@ -24009,6 +24034,135 @@ Template
   })(cola.AbstractEditor);
 
   cola.registerWidget(cola.Textarea);
+
+  cola.SelectButton = (function(superClass) {
+    extend(SelectButton, superClass);
+
+    function SelectButton() {
+      return SelectButton.__super__.constructor.apply(this, arguments);
+    }
+
+    SelectButton.tagName = "c-select-button";
+
+    SelectButton.CLASS_NAME = "ui select-button";
+
+    SelectButton.attributes = {
+      items: {
+        expressionType: "repeat",
+        setter: function(items) {
+          var i, index, item, len1, n;
+          if (typeof items === "string") {
+            items = items.split(/[\,,\;]/);
+            for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
+              item = items[i];
+              index = item.indexOf("=");
+              if (index > 0) {
+                items[i] = {
+                  key: item.substring(0, index),
+                  value: item.substring(index + 1)
+                };
+                if (!this._valueProperty || !this._textProperty) {
+                  this._valueProperty = "key";
+                  this._textProperty = "value";
+                }
+              }
+            }
+          }
+          this._items = items;
+          if (this._itemsTimestamp !== (items != null ? items.timestamp : void 0)) {
+            if (items) {
+              this._itemsTimestamp = items.timestamp;
+            }
+            delete this._itemsIndex;
+          }
+        }
+      },
+      keyProperty: null,
+      valueProperty: null
+    };
+
+    SelectButton.prototype._initDom = function(dom) {
+      var selector;
+      SelectButton.__super__._initDom.call(this, dom);
+      selector = this;
+      return $(dom).delegate(".ui.button", "click", function() {
+        var value;
+        if (selector._readOnly) {
+          return;
+        }
+        value = $(this).attr("value");
+        selector._setValue($(this).attr("value"));
+        return selector._select(value);
+      });
+    };
+
+    SelectButton.prototype._doRefreshDom = function() {
+      var itemsDom, value;
+      SelectButton.__super__._doRefreshDom.call(this);
+      itemsDom = this._getItemsDom();
+      if (itemsDom) {
+        $fly(this._dom).empty();
+        $fly(this._dom).append(itemsDom);
+      }
+      value = this._value;
+      return this._select(value);
+    };
+
+    SelectButton.prototype._select = function(value) {
+      var $dom;
+      $dom = $(this._dom);
+      $dom.find(".active").removeClass("active");
+      return $dom.find("[value='" + value + "']").addClass("active");
+    };
+
+    SelectButton.prototype._getItemsDom = function() {
+      var attrBinding, cKey, cValue, item, itemsDom, len1, n, raw, ref, ref1;
+      attrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
+      if (attrBinding) {
+        if (this._valueProperty) {
+          cValue = "item." + this._valueProperty;
+        } else {
+          cValue = "item";
+        }
+        if (this._keyProperty) {
+          cKey = "item." + this._keyProperty;
+        } else {
+          cKey = "item";
+        }
+        raw = attrBinding.expression.raw;
+        itemsDom = cola.xRender({
+          tagName: "div",
+          "class": "ui buttons",
+          content: {
+            tagName: "c-button",
+            "c-repeat": "item in " + raw,
+            "c-caption": cKey,
+            "c-value": cValue
+          }
+        }, attrBinding.scope);
+      } else {
+        itemsDom = $.xCreate({
+          tagName: "div",
+          "class": "ui buttons"
+        });
+        ref1 = this._items;
+        for (n = 0, len1 = ref1.length; n < len1; n++) {
+          item = ref1[n];
+          itemsDom.appendChild($.xCreate({
+            "class": "ui button",
+            value: this._valueProperty ? item[this._valueProperty] : item,
+            content: this._keyProperty ? item[this._keyProperty] : item
+          }));
+        }
+      }
+      return itemsDom;
+    };
+
+    return SelectButton;
+
+  })(cola.AbstractEditor);
+
+  cola.registerWidget(cola.SelectButton);
 
   cola.AbstractItemGroup = (function(superClass) {
     extend(AbstractItemGroup, superClass);
