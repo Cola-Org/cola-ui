@@ -10904,10 +10904,7 @@
       context = {};
     }
     if (_doRenderDomTemplate(dom, scope, context)) {
-      doms = dom.getElementsByClassName("show-on-ready");
-      if (doms != null ? doms.length : void 0) {
-        $(doms).removeClass("show-on-ready");
-      }
+      $(dom).find(".show-on-ready").removeClass("show-on-ready");
     }
   };
 
