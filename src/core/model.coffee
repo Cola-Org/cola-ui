@@ -739,13 +739,13 @@ class cola.AbstractDataModel
 		if not provider or hasValue
 			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
 				@_aliasMap ?= {}
-				path = data.getPath("always")
-				@addAlias(prop, path)
+				@addAlias(prop, data)
 			else
 				rootData.set(prop, data, context)
 		return
 
-	addAlias: (alias, path) ->
+	addAlias: (alias, data) ->
+		path = data.getPath("always")
 		oldAliasData = @_aliasMap?[alias]?.data
 
 		dataModel = @
@@ -760,7 +760,7 @@ class cola.AbstractDataModel
 		}
 		@bind(aliasHolder.bindingPath, aliasHolder)
 		@onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
-			entity: rootData
+			entity: @_rootData
 			property: alias
 			oldValue: oldAliasData
 			value: data
@@ -770,9 +770,8 @@ class cola.AbstractDataModel
 	removeAlias: (alias) ->
 		if @_aliasMap?[alias]
 			oldAliasHolder = @_aliasMap[alias]
-			if oldAliasHolder.data isnt data
-				delete @_aliasMap[alias]
-				@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
+			delete @_aliasMap[alias]
+			@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
 		return
 
 	reset: (name) ->

@@ -205,7 +205,7 @@ do()->
 			}, doms)
 		actionsDom = $.xCreate({
 			tagName: "div"
-			class: "actions #{if messageBox._settings.dialogMode then "" else  "ui buttons two fluid top attached"}"
+			class: "actions #{if messageBox._settings.dialogMode then "" else "ui buttons two fluid top attached"}"
 			contextKey: "actions"
 			content: [
 				{

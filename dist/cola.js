@@ -3810,7 +3810,7 @@
         callback = loadMode;
         loadMode = "async";
       }
-      if (prop.indexOf(".") > 0) {
+      if (prop.indexOf(".") > 0 || prop.indexOf("#") >= 0) {
         return _evalDataPath(this, prop, false, loadMode, callback, context);
       } else {
         return this._get(prop, loadMode, callback, context);
@@ -6980,7 +6980,7 @@
     };
 
     AbstractDataModel.prototype._set = function(prop, data, context) {
-      var hasValue, path, property, provider, ref, rootData, rootDataType;
+      var hasValue, property, provider, ref, rootData, rootDataType;
       rootData = this._rootData;
       hasValue = rootData.hasValue(prop);
       if ((ref = this._aliasMap) != null ? ref[prop] : void 0) {
@@ -7011,16 +7011,16 @@
           if (this._aliasMap == null) {
             this._aliasMap = {};
           }
-          path = data.getPath("always");
-          this.addAlias(prop, path);
+          this.addAlias(prop, data);
         } else {
           rootData.set(prop, data, context);
         }
       }
     };
 
-    AbstractDataModel.prototype.addAlias = function(alias, path) {
-      var aliasHolder, dataModel, oldAliasData, ref, ref1;
+    AbstractDataModel.prototype.addAlias = function(alias, data) {
+      var aliasHolder, dataModel, oldAliasData, path, ref, ref1;
+      path = data.getPath("always");
       oldAliasData = (ref = this._aliasMap) != null ? (ref1 = ref[alias]) != null ? ref1.data : void 0 : void 0;
       dataModel = this;
       this._aliasMap[alias] = aliasHolder = {
@@ -7035,7 +7035,7 @@
       };
       this.bind(aliasHolder.bindingPath, aliasHolder);
       this.onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
-        entity: rootData,
+        entity: this._rootData,
         property: alias,
         oldValue: oldAliasData,
         value: data
@@ -7046,10 +7046,8 @@
       var oldAliasHolder, ref;
       if ((ref = this._aliasMap) != null ? ref[alias] : void 0) {
         oldAliasHolder = this._aliasMap[alias];
-        if (oldAliasHolder.data !== data) {
-          delete this._aliasMap[alias];
-          this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
-        }
+        delete this._aliasMap[alias];
+        this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
       }
     };
 
@@ -8951,7 +8949,7 @@
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
-      var dom, error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, len2, len3, model, o, q, ref, ref1, ref2;
+      var error, errorMessage, hasIgnoreDirective, i, initFunc, l, len1, model, ref;
       if (success) {
         if (!failed) {
           i = loadingUrls.indexOf(url);
@@ -8965,26 +8963,16 @@
               targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE);
             }
             if (context.suspendedInitFuncs.length) {
+              model = context.model;
               ref = context.suspendedInitFuncs;
               for (l = 0, len1 = ref.length; l < len1; l++) {
                 initFunc = ref[l];
                 initFunc(targetDom, context.model, context.param);
               }
-              model = context.model;
-              ref1 = context.suspendedInitFuncs;
-              for (o = 0, len2 = ref1.length; o < len2; o++) {
-                initFunc = ref1[o];
-                ref2 = model._doms;
-                for (q = 0, len3 = ref2.length; q < len3; q++) {
-                  dom = ref2[q];
-                  initFunc(dom, model, context.param);
-                  cola._renderDomTemplate(dom, model);
-                }
-              }
             } else {
               cola(targetDom, context.model);
-              cola._renderDomTemplate(targetDom, model);
             }
+            cola._renderDomTemplate(targetDom, model);
             if (hasIgnoreDirective) {
               targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
             }
@@ -31840,6 +31828,7 @@ Template
           }
         };
       })(this));
+      this._bindKeyDown();
     };
 
     Table.prototype._convertItems = function(items) {
@@ -32569,6 +32558,54 @@ Template
         this._refreshFixedFooter();
       }
       return Table.__super__._onItemsWrapperScroll.call(this);
+    };
+
+    Table.prototype._bindKeyDown = function() {
+      var table;
+      table = this;
+      return $(this._dom).delegate("input", "keydown", function() {
+        var $input, colIndex, ctrlKey, input, item, keyCode, targetCell, targetRow, td, tds, tr;
+        keyCode = event.keyCode;
+        ctrlKey = event.ctrlKey;
+        td = $(this).closest("td")[0];
+        tr = $(td).parent()[0];
+        colIndex = $(td).index();
+        if (keyCode === 38) {
+          targetRow = tr.previousElementSibling;
+        } else if (keyCode === 40) {
+          targetRow = tr.nextElementSibling;
+        } else if (ctrlKey && keyCode === 37) {
+          targetCell = td.previousElementSibling;
+        } else if (ctrlKey && keyCode === 39) {
+          targetCell = td.nextElementSibling;
+        }
+        if (targetRow) {
+          tds = $(targetRow).find(">td");
+          if (tds.length >= colIndex) {
+            targetCell = tds[colIndex];
+          }
+          item = cola.util.userData(targetRow, "item");
+          if (targetRow._itemType === "default") {
+            if (item) {
+              if (table._changeCurrentItem && item.parent instanceof cola.EntityList) {
+                item.parent.setCurrent(item);
+              } else {
+                table._setCurrentItemDom(targetRow);
+              }
+            }
+          }
+        }
+        if (targetCell) {
+          $input = $(targetCell).find(".ui.input");
+          if ($input.length > 0) {
+            input = cola.widget($input[0]);
+            input && input.focus();
+          }
+        }
+        if (keyCode === 38 || keyCode === 40 || (ctrlKey && keyCode === 37) || (ctrlKey && keyCode === 39)) {
+          return event.preventDefault();
+        }
+      });
     };
 
     return Table;

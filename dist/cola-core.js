@@ -6980,7 +6980,7 @@
     };
 
     AbstractDataModel.prototype._set = function(prop, data, context) {
-      var hasValue, path, property, provider, ref, rootData, rootDataType;
+      var hasValue, property, provider, ref, rootData, rootDataType;
       rootData = this._rootData;
       hasValue = rootData.hasValue(prop);
       if ((ref = this._aliasMap) != null ? ref[prop] : void 0) {
@@ -7011,16 +7011,16 @@
           if (this._aliasMap == null) {
             this._aliasMap = {};
           }
-          path = data.getPath("always");
-          this.addAlias(prop, path);
+          this.addAlias(prop, data);
         } else {
           rootData.set(prop, data, context);
         }
       }
     };
 
-    AbstractDataModel.prototype.addAlias = function(alias, path) {
-      var aliasHolder, dataModel, oldAliasData, ref, ref1;
+    AbstractDataModel.prototype.addAlias = function(alias, data) {
+      var aliasHolder, dataModel, oldAliasData, path, ref, ref1;
+      path = data.getPath("always");
       oldAliasData = (ref = this._aliasMap) != null ? (ref1 = ref[alias]) != null ? ref1.data : void 0 : void 0;
       dataModel = this;
       this._aliasMap[alias] = aliasHolder = {
@@ -7035,7 +7035,7 @@
       };
       this.bind(aliasHolder.bindingPath, aliasHolder);
       this.onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
-        entity: rootData,
+        entity: this._rootData,
         property: alias,
         oldValue: oldAliasData,
         value: data
@@ -7046,10 +7046,8 @@
       var oldAliasHolder, ref;
       if ((ref = this._aliasMap) != null ? ref[alias] : void 0) {
         oldAliasHolder = this._aliasMap[alias];
-        if (oldAliasHolder.data !== data) {
-          delete this._aliasMap[alias];
-          this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
-        }
+        delete this._aliasMap[alias];
+        this.unbind(oldAliasHolder.bindingPath, oldAliasHolder);
       }
     };
 
