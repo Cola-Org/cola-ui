@@ -102,7 +102,7 @@ cola.util.cancelDelay = (owner, name) ->
 	return
 
 cola.util.waitForAll = (funcs, callback) ->
-	if !funcs or !funcs.length
+	if not funcs or not funcs.length
 		cola.callback(callback, true)
 
 	completed = 0

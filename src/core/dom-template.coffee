@@ -142,14 +142,16 @@ cola.xRender = (template, model, context) ->
 cola.xRender.nodeProcessors = []
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
-	_doRenderDomTemplate(dom, scope, context)
+	if _doRenderDomTemplate(dom, scope, context)
+		doms = dom.getElementsByClassName("show-on-ready")
+		if doms?.length then $(doms).removeClass("show-on-ready")
 	return
 
 _doRenderDomTemplate = (dom, scope, context) ->
-	return dom if dom.nodeType == 8
-	return dom if dom.nodeType == 1 and
+	return if dom.nodeType == 8
+	return if dom.nodeType == 1 and
 		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)
-	return dom if IGNORE_NODES.indexOf(dom.nodeName) > -1
+	return if IGNORE_NODES.indexOf(dom.nodeName) > -1
 
 	if dom.nodeType == 3 # #text
 		bindingExpr = dom.nodeValue
@@ -159,7 +161,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 	else if dom.nodeType == 11 # #documentFragment
 		child = dom.firstChild
 		while child
-			child = _doRenderDomTemplate(child, scope, context)
+			child = _doRenderDomTemplate(child, scope, context) or child
 			child = child.nextSibling
 		return dom
 
@@ -249,7 +251,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 
 		child = dom.firstChild
 		while child
-			child = _doRenderDomTemplate(child, scope, childContext)
+			child = _doRenderDomTemplate(child, scope, childContext) or child
 			child = child.nextSibling
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)

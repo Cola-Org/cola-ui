@@ -14,6 +14,7 @@ cola.constants = {
 	VIEW_PORT_CLASS: "c-viewport"
 	IGNORE_DIRECTIVE: "c-ignore"
 
+	SHOW_ON_READY_CLASS: "show-on-ready"
 	COLLECTION_CURRENT_CLASS: "current"
 
 	DEFAULT_PATH: "$root"

@@ -25,6 +25,7 @@
     VIEW_CLASS: "c-view",
     VIEW_PORT_CLASS: "c-viewport",
     IGNORE_DIRECTIVE: "c-ignore",
+    SHOW_ON_READY_CLASS: "show-on-ready",
     COLLECTION_CURRENT_CLASS: "current",
     DEFAULT_PATH: "$root",
     REPEAT_INDEX: "$index",
@@ -10902,19 +10903,24 @@
     if (context == null) {
       context = {};
     }
-    _doRenderDomTemplate(dom, scope, context);
+    if (_doRenderDomTemplate(dom, scope, context)) {
+      doms = dom.getElementsByClassName("show-on-ready");
+      if (doms != null ? doms.length : void 0) {
+        $(doms).removeClass("show-on-ready");
+      }
+    }
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
     var attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, o, parts, q, ref, ref1, removeAttr, removeAttrs, result, tailDom, u, v, x, y;
     if (dom.nodeType === 8) {
-      return dom;
+      return;
     }
     if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)) {
-      return dom;
+      return;
     }
     if (IGNORE_NODES.indexOf(dom.nodeName) > -1) {
-      return dom;
+      return;
     }
     if (dom.nodeType === 3) {
       bindingExpr = dom.nodeValue;
@@ -10926,7 +10932,7 @@
     } else if (dom.nodeType === 11) {
       child = dom.firstChild;
       while (child) {
-        child = _doRenderDomTemplate(child, scope, context);
+        child = _doRenderDomTemplate(child, scope, context) || child;
         child = child.nextSibling;
       }
       return dom;
@@ -11054,7 +11060,7 @@
       }
       child = dom.firstChild;
       while (child) {
-        child = _doRenderDomTemplate(child, scope, childContext);
+        child = _doRenderDomTemplate(child, scope, childContext) || child;
         child = child.nextSibling;
       }
     } else {

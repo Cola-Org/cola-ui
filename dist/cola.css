@@ -200,6 +200,9 @@ template {
 .mobile ::-webkit-scrollbar-thumb {
   background: #888;
 }
+.show-on-ready {
+  visibility: hidden;
+}
 .display-none {
   display: none !important;
 }
@@ -4063,16 +4066,12 @@ template {
   right: -1.25rem;
   z-index: 1;
   border-radius: 50%;
-  opacity: 0.8;
   font-size: 1.25em;
   color: #ffffff;
   line-height: 2rem;
   width: 2rem;
   height: 2rem;
   padding: 0;
-}
-.ui.dialog .close-btn:hover {
-  opacity: 1;
 }
 /*--------------
      Header
