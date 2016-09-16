@@ -22067,7 +22067,10 @@ Template
       var $dom, bottomSpace, boxHeight, boxWidth, clientHeight, clientWidth, direction, dropdownDom, height, left, rect, scrollTop, top, topSpace;
       $dom = this.get$Dom();
       dropdownDom = this._dropdown._doms.input;
-      $dom.css("height", "").removeClass("hidden");
+      if (!this._height) {
+        $dom.css("height", "");
+      }
+      $dom.removeClass("hidden");
       boxWidth = $dom.width();
       boxHeight = $dom.height();
       $dom.addClass("hidden");
@@ -32609,6 +32612,21 @@ Template
           return event.preventDefault();
         }
       });
+    };
+
+    Table.prototype.focus = function() {
+      var input, inputs, table;
+      if (!this._$dom) {
+        return;
+      }
+      table = this._$dom.find("table")[0];
+      inputs = $(table.tBodies).find(".ui.input");
+      if (inputs.length) {
+        input = cola.widget(inputs[0]);
+        if (input) {
+          return input.focus();
+        }
+      }
     };
 
     return Table;

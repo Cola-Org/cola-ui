@@ -371,8 +371,10 @@ class DropBox extends cola.Layer
 	show: (options, callback) ->
 		$dom = @get$Dom()
 		dropdownDom = @_dropdown._doms.input
+		unless @_height
+			$dom.css("height", "")
 
-		$dom.css("height", "").removeClass("hidden")
+		$dom.removeClass("hidden")
 		boxWidth = $dom.width()
 		boxHeight = $dom.height()
 		$dom.addClass("hidden")
