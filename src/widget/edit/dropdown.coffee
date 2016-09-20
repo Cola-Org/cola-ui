@@ -34,9 +34,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 								@_valueProperty = "key"
 								@_textProperty = "value"
 
+				changed = @_items isnt items or @_itemsTimestamp isnt items?.timestamp
+
 				@_items = items
-				unless @_itemsTimestamp == items?.timestamp
-					if items then @_itemsTimestamp = items.timestamp
+				if changed
+					if items?.timestamp
+						@_itemsTimestamp = items.timestamp
 					delete @_itemsIndex
 				return
 		currentItem:
@@ -92,6 +95,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
+
+		if @_items and @_valueProperty then @_setValue(@_value)
 		return
 
 	_parseDom: (dom)->
@@ -110,12 +115,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_createEditorDom: () ->
-		dropdown=@
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
 			click: (evt) =>
-				if dropdown._disabled then return;
+				if @_disabled then return;
 				if @_openOnActive
 					if @_opened
 						input = evt.target
@@ -147,9 +151,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_setValue: (value) ->
-		if not @_skipFindCurrentItem
+		if @_dom and not @_skipFindCurrentItem
 			if not @_itemsIndex
-				if @_items and value and @_valueProperty
+				if @_items and @_valueProperty
 					@_itemsIndex = index = {}
 					valueProperty = @_valueProperty
 					cola.each @_items, (item) ->

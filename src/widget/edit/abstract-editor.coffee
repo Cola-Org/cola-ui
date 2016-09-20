@@ -51,7 +51,6 @@ class cola.AbstractEditor extends cola.Widget
 		@onSetValue?()
 		@fire("change", @, arg)
 		return true
-	onSetValue: ()->
 
 	post: ()->
 		return @ if @fire("beforePost", @) is false

@@ -6470,7 +6470,7 @@
 
     AliasScope.prototype.refreshTargetData = function() {
       this.data.onDataMessage([this.expression.alias], cola.constants.MESSAGE_REFRESH, {
-        data: data
+        data: this.data.getTargetData()
       });
     };
 

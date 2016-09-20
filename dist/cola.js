@@ -6470,7 +6470,7 @@
 
     AliasScope.prototype.refreshTargetData = function() {
       this.data.onDataMessage([this.expression.alias], cola.constants.MESSAGE_REFRESH, {
-        data: data
+        data: this.data.getTargetData()
       });
     };
 
@@ -19688,8 +19688,6 @@ Template
       return true;
     };
 
-    AbstractEditor.prototype.onSetValue = function() {};
-
     AbstractEditor.prototype.post = function() {
       if (this.fire("beforePost", this) === false) {
         return this;
@@ -20521,7 +20519,7 @@ Template
             keyCode: event.keyCode,
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey,
-            altlKey: event.altlKey,
+            altKey: event.altKey,
             event: event
           };
           return _this.fire("keyDown", _this, arg);
@@ -20533,7 +20531,7 @@ Template
             keyCode: event.keyCode,
             shiftKey: event.shiftKey,
             ctrlKey: event.ctrlKey,
-            altlKey: event.altlKey,
+            altKey: event.altKey,
             event: event
           };
           if (_this.fire("keyPress", _this, arg) === false) {
@@ -21619,7 +21617,7 @@ Template
       items: {
         expressionType: "repeat",
         setter: function(items) {
-          var i, index, item, len1, n;
+          var changed, i, index, item, len1, n;
           if (typeof items === "string") {
             items = items.split(/[\,,\;]/);
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
@@ -21637,9 +21635,10 @@ Template
               }
             }
           }
+          changed = this._items !== items || this._itemsTimestamp !== (items != null ? items.timestamp : void 0);
           this._items = items;
-          if (this._itemsTimestamp !== (items != null ? items.timestamp : void 0)) {
-            if (items) {
+          if (changed) {
+            if (items != null ? items.timestamp : void 0) {
               this._itemsTimestamp = items.timestamp;
             }
             delete this._itemsIndex;
@@ -21705,6 +21704,9 @@ Template
           this.set("icon", "dropdown");
         }
       }
+      if (this._items && this._valueProperty) {
+        this._setValue(this._value);
+      }
     };
 
     AbstractDropdown.prototype._parseDom = function(dom) {
@@ -21727,15 +21729,13 @@ Template
     };
 
     AbstractDropdown.prototype._createEditorDom = function() {
-      var dropdown;
-      dropdown = this;
       return $.xCreate({
         tagName: "input",
         type: "text",
         click: (function(_this) {
           return function(evt) {
             var input;
-            if (dropdown._disabled) {
+            if (_this._disabled) {
               return;
             }
             if (_this._openOnActive) {
@@ -21785,9 +21785,9 @@ Template
 
     AbstractDropdown.prototype._setValue = function(value) {
       var currentItem, index, valueProperty;
-      if (!this._skipFindCurrentItem) {
+      if (this._dom && !this._skipFindCurrentItem) {
         if (!this._itemsIndex) {
-          if (this._items && value && this._valueProperty) {
+          if (this._items && this._valueProperty) {
             this._itemsIndex = index = {};
             valueProperty = this._valueProperty;
             cola.each(this._items, function(item) {
@@ -32612,21 +32612,6 @@ Template
           return event.preventDefault();
         }
       });
-    };
-
-    Table.prototype.focus = function() {
-      var input, inputs, table;
-      if (!this._$dom) {
-        return;
-      }
-      table = this._$dom.find("table")[0];
-      inputs = $(table.tBodies).find(".ui.input");
-      if (inputs.length) {
-        input = cola.widget(inputs[0]);
-        if (input) {
-          return input.focus();
-        }
-      }
     };
 
     return Table;

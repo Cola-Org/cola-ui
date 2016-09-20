@@ -343,7 +343,7 @@ class cola.AliasScope extends cola.ExpressionScope
 
 	refreshTargetData: () ->
 		@data.onDataMessage([@expression.alias], cola.constants.MESSAGE_REFRESH, {
-			data: data
+			data: @data.getTargetData()
 		})
 		return
 

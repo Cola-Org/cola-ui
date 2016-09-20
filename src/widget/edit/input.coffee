@@ -381,7 +381,7 @@ class cola.Input extends cola.AbstractInput
 				keyCode: event.keyCode
 				shiftKey: event.shiftKey
 				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
+				altKey: event.altKey
 				event: event
 			@fire("keyDown", @, arg)
 		).on("keypress", (event)=>
@@ -389,7 +389,7 @@ class cola.Input extends cola.AbstractInput
 				keyCode: event.keyCode
 				shiftKey: event.shiftKey
 				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
+				altKey: event.altKey
 				event: event
 			if @fire("keyPress", @, arg)== false then return
 

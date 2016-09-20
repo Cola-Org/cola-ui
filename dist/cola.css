@@ -3655,7 +3655,9 @@ template {
 }
 .ui.message-box {
   width: auto;
+  max-width: 90%;
   height: auto;
+  max-height: 90%;
   position: fixed !important;
 }
 .ui.message-box .close-btn.hidden,
