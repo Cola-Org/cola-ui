@@ -347,7 +347,11 @@ class cola.Entity
 		if data?
 			@_disableWriteObservers++
 			@set(data)
+			if data.$state then @state = data.$state
 			@_disableWriteObservers--
+
+		if dataType
+			dataType.fire("entityCreate", dataType, { entity: @ })
 
 	hasValue: (prop) ->
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
@@ -510,7 +514,7 @@ class cola.Entity
 								matched = value.dataType == dataType and !property._aggregated
 							else if value instanceof _EntityList
 								matched = value.dataType == dataType and property._aggregated
-							else if property._aggregated or value instanceof Array
+							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data")
 								value = @_jsonToEntity(value, dataType, true, provider)
 							else
 								value = new _Entity(value, dataType)
@@ -540,6 +544,15 @@ class cola.Entity
 			changed = oldValue != value
 
 		if changed
+			if @dataType and @dataType.getListeners("beforeDataChange")
+				if @dataType.fire("beforeDataChange", @dataType, {
+						entity: @,
+						property: prop,
+						oldValue: oldValue
+						value: value
+					}) is false
+					return
+
 			if property
 				if property._validators and property._rejectInvalidValue
 					messages = null
@@ -599,12 +612,27 @@ class cola.Entity
 							)
 			else
 				@validate(prop)
-		return value
+
+			if @dataType and @dataType.getListeners("dataChange")
+				@dataType.fire("dataChange", @dataType, {
+					entity: @,
+					property: prop,
+					oldValue: oldValue
+					value: value
+				})
+		return
 
 	remove: (detach) ->
 		if @parent
 			if @parent instanceof _EntityList
+				if @dataType
+					if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
+						return @
+
 				@parent.remove(@, detach)
+
+				if @dataType
+					@dataType.fire("entityRemove", @dataType, { entity: @ })
 			else
 				@setState(_Entity.STATE_DELETED)
 				@parent.set(@_parentProperty, null)
@@ -652,6 +680,10 @@ class cola.Entity
 	setState: (state) ->
 		return @ if @state == state
 
+		if state is _Entity.STATE_DELETED and @dataType
+			if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
+				return @
+
 		if @state == _Entity.STATE_NONE and state == _Entity.STATE_MODIFIED
 			@_storeOldData()
 
@@ -663,6 +695,10 @@ class cola.Entity
 			oldState: oldState
 			state: state
 		})
+
+		if state is _Entity.STATE_DELETED and @dataType
+			@dataType.fire("beforeEntityRemove", @dataType, { entity: @ })
+
 		return @
 
 	_storeOldData: () ->
@@ -1309,7 +1345,7 @@ class cola.EntityList extends LinkedList
 			else if insertMode == "begin"
 				page = @_first
 
-		if !page
+		if not page
 			page = @_currentPage
 			if !page
 				@gotoPage(1)
@@ -1323,6 +1359,13 @@ class cola.EntityList extends LinkedList
 		else
 			entity = new _Entity(entity, @dataType)
 			entity.setState(_Entity.STATE_NEW)
+
+		if @dataType and @dataType.getListener("beforeEntityInsert")
+			if @dataType.fire("beforeEntityInsert", @dataType, {
+					entityList: @,
+					entity: entity
+				}) is false
+				return null
 
 		page.dontAutoSetCurrent = true
 		page._insertElement(entity, insertMode, refEntity)
@@ -1338,7 +1381,13 @@ class cola.EntityList extends LinkedList
 			refEntity: refEntity
 		})
 
-		if !@current then @setCurrent(entity)
+		if @dataType and @dataType.getListener("entityInsert")
+			@dataType.fire("entityInsert", @dataType, {
+				entityList: @,
+				entity: entity
+			})
+
+		if not @current then @setCurrent(entity)
 		return entity
 
 	remove: (entity, detach) ->
@@ -1347,6 +1396,13 @@ class cola.EntityList extends LinkedList
 			if !entity? then return undefined
 
 		return undefined if entity.parent != @
+
+		if @dataType and @dataType.getListener("beforeEntityRemove")
+			if @dataType.fire("beforeEntityRemove", @dataType, {
+					entityList: @,
+					entity: entity
+				}) is false
+				return null
 
 		if entity == @current
 			changeCurrent = true
@@ -1371,6 +1427,12 @@ class cola.EntityList extends LinkedList
 			entity: entity
 		})
 
+		if @dataType and @dataType.getListener("entityRemove")
+			@dataType.fire("entityRemove", @dataType, {
+				entityList: @,
+				entity: entity
+			})
+
 		@setCurrent(newCurrent) if changeCurrent
 		return entity
 
@@ -1388,6 +1450,14 @@ class cola.EntityList extends LinkedList
 		oldCurrent = @current
 		oldCurrent._onPathChange() if oldCurrent
 
+		if @dataType and @dataType.getListener("beforeCurrentChange")
+			if @dataType.fire("beforeCurrentChange", @dataType, {
+					entityList: @,
+					oldCurrent: oldCurrent
+					current: entity
+				}) is false
+				return @
+
 		@current = entity
 
 		if entity
@@ -1399,6 +1469,13 @@ class cola.EntityList extends LinkedList
 			current: entity
 			oldCurrent: oldCurrent
 		})
+
+		if @dataType and @dataType.getListener("currentChange")
+			@dataType.fire("currentChange", @dataType, {
+				entityList: @,
+				oldCurrent: oldCurrent
+				current: entity
+			})
 		return @
 
 	first: () ->

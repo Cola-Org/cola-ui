@@ -3073,6 +3073,9 @@
       currentChange: null,
       beforeDataChange: null,
       dataChange: null,
+      entityCreate: null,
+      beforeEntityRemove: null,
+      entityRemove: null,
       beforeEntityInsert: null,
       entityInsert: null,
       beforeEntityDelete: null,
@@ -3793,7 +3796,15 @@
       if (data != null) {
         this._disableWriteObservers++;
         this.set(data);
+        if (data.$state) {
+          this.state = data.$state;
+        }
         this._disableWriteObservers--;
+      }
+      if (dataType) {
+        dataType.fire("entityCreate", dataType, {
+          entity: this
+        });
       }
     }
 
@@ -4004,7 +4015,7 @@
                   matched = value.dataType === dataType && !property._aggregated;
                 } else if (value instanceof _EntityList) {
                   matched = value.dataType === dataType && property._aggregated;
-                } else if (property._aggregated || value instanceof Array) {
+                } else if (property._aggregated || value instanceof Array || value.hasOwnProperty("$data")) {
                   value = this._jsonToEntity(value, dataType, true, provider);
                 } else {
                   value = new _Entity(value, dataType);
@@ -4050,6 +4061,16 @@
         changed = oldValue !== value;
       }
       if (changed) {
+        if (this.dataType && this.dataType.getListeners("beforeDataChange")) {
+          if (this.dataType.fire("beforeDataChange", this.dataType, {
+            entity: this,
+            property: prop,
+            oldValue: oldValue,
+            value: value
+          }) === false) {
+            return;
+          }
+        }
         if (property) {
           if (property._validators && property._rejectInvalidValue) {
             messages = null;
@@ -4135,14 +4156,33 @@
         } else {
           this.validate(prop);
         }
+        if (this.dataType && this.dataType.getListeners("dataChange")) {
+          this.dataType.fire("dataChange", this.dataType, {
+            entity: this,
+            property: prop,
+            oldValue: oldValue,
+            value: value
+          });
+        }
       }
-      return value;
     };
 
     Entity.prototype.remove = function(detach) {
       if (this.parent) {
         if (this.parent instanceof _EntityList) {
+          if (this.dataType) {
+            if (this.dataType.fire("beforeEntityRemove", this.dataType, {
+              entity: this
+            }) === false) {
+              return this;
+            }
+          }
           this.parent.remove(this, detach);
+          if (this.dataType) {
+            this.dataType.fire("entityRemove", this.dataType, {
+              entity: this
+            });
+          }
         } else {
           this.setState(_Entity.STATE_DELETED);
           this.parent.set(this._parentProperty, null);
@@ -4203,6 +4243,13 @@
       if (this.state === state) {
         return this;
       }
+      if (state === _Entity.STATE_DELETED && this.dataType) {
+        if (this.dataType.fire("beforeEntityRemove", this.dataType, {
+          entity: this
+        }) === false) {
+          return this;
+        }
+      }
       if (this.state === _Entity.STATE_NONE && state === _Entity.STATE_MODIFIED) {
         this._storeOldData();
       }
@@ -4213,6 +4260,11 @@
         oldState: oldState,
         state: state
       });
+      if (state === _Entity.STATE_DELETED && this.dataType) {
+        this.dataType.fire("beforeEntityRemove", this.dataType, {
+          entity: this
+        });
+      }
       return this;
     };
 
@@ -5170,6 +5222,14 @@
         entity = new _Entity(entity, this.dataType);
         entity.setState(_Entity.STATE_NEW);
       }
+      if (this.dataType && this.dataType.getListener("beforeEntityInsert")) {
+        if (this.dataType.fire("beforeEntityInsert", this.dataType, {
+          entityList: this,
+          entity: entity
+        }) === false) {
+          return null;
+        }
+      }
       page.dontAutoSetCurrent = true;
       page._insertElement(entity, insertMode, refEntity);
       page.dontAutoSetCurrent = false;
@@ -5183,6 +5243,12 @@
         insertMode: insertMode,
         refEntity: refEntity
       });
+      if (this.dataType && this.dataType.getListener("entityInsert")) {
+        this.dataType.fire("entityInsert", this.dataType, {
+          entityList: this,
+          entity: entity
+        });
+      }
       if (!this.current) {
         this.setCurrent(entity);
       }
@@ -5199,6 +5265,14 @@
       }
       if (entity.parent !== this) {
         return void 0;
+      }
+      if (this.dataType && this.dataType.getListener("beforeEntityRemove")) {
+        if (this.dataType.fire("beforeEntityRemove", this.dataType, {
+          entityList: this,
+          entity: entity
+        }) === false) {
+          return null;
+        }
       }
       if (entity === this.current) {
         changeCurrent = true;
@@ -5224,6 +5298,12 @@
         entityList: this,
         entity: entity
       });
+      if (this.dataType && this.dataType.getListener("entityRemove")) {
+        this.dataType.fire("entityRemove", this.dataType, {
+          entityList: this,
+          entity: entity
+        });
+      }
       if (changeCurrent) {
         this.setCurrent(newCurrent);
       }
@@ -5249,6 +5329,15 @@
       if (oldCurrent) {
         oldCurrent._onPathChange();
       }
+      if (this.dataType && this.dataType.getListener("beforeCurrentChange")) {
+        if (this.dataType.fire("beforeCurrentChange", this.dataType, {
+          entityList: this,
+          oldCurrent: oldCurrent,
+          current: entity
+        }) === false) {
+          return this;
+        }
+      }
       this.current = entity;
       if (entity) {
         this._setCurrentPage(entity._page);
@@ -5259,6 +5348,13 @@
         current: entity,
         oldCurrent: oldCurrent
       });
+      if (this.dataType && this.dataType.getListener("currentChange")) {
+        this.dataType.fire("currentChange", this.dataType, {
+          entityList: this,
+          oldCurrent: oldCurrent,
+          current: entity
+        });
+      }
       return this;
     };
 
@@ -31947,7 +32043,7 @@ Template
         } else {
           nextCol = col.nextSibling;
         }
-        if (colInfo.widthType === "precent") {
+        if (colInfo.widthType === "percent") {
           col.width = colInfo.width + "%";
         } else if (colInfo.widthType) {
           col.width = colInfo.width + colInfo.widthType;

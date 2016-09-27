@@ -74,8 +74,8 @@
 				padding: @tableCellPadding;
 			}
 		}
-		tbody tr:first-child td {
-			border-top: 2px solid @tableHeadLineColor;
+		thead tr:first-child th {
+			border-bottom: 2px solid @tableHeadLineColor;
 		}
 		tbody tr:last-child td {
 			border-bottom: 2px solid @tableFootLineColor;
@@ -164,6 +164,9 @@
 		thead th {
 			background: @tableInvertedHeadBackground;
 			border-color: @tableInvertedHeadLineColor;
+		}
+		thead tr:last-child th {
+			border-bottom-color: @tableInvertedFootLineColor;
 		}
 		tbody tr:last-child td {
 			border-bottom-color: @tableInvertedFootLineColor;

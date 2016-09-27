@@ -104,7 +104,7 @@ class cola.Table extends cola.AbstractTable
 			else
 				nextCol = col.nextSibling
 
-			if colInfo.widthType == "precent"
+			if colInfo.widthType == "percent"
 				col.width = colInfo.width + "%"
 			else if colInfo.widthType
 				col.width = colInfo.width + colInfo.widthType

@@ -3106,8 +3106,8 @@ template {
   overflow: hidden;
   padding: 0.6em 0.4em;
 }
-.ui.widget-table table tbody tr:first-child td {
-  border-top: 2px solid #edf0f3;
+.ui.widget-table table thead tr:first-child th {
+  border-bottom: 2px solid #edf0f3;
 }
 .ui.widget-table table tbody tr:last-child td {
   border-bottom: 2px solid #edf0f3;
@@ -3176,6 +3176,9 @@ template {
 .ui.widget-table.inverted table thead th {
   background: #474a4d;
   border-color: #65696c;
+}
+.ui.widget-table.inverted table thead tr:last-child th {
+  border-bottom-color: #65696c;
 }
 .ui.widget-table.inverted table tbody tr:last-child td {
   border-bottom-color: #65696c;

@@ -88,6 +88,11 @@ class cola.EntityDataType extends cola.DataType
 		beforeDataChange: null
 		dataChange: null
 
+		entityCreate: null
+
+		beforeEntityRemove: null
+		entityRemove: null
+
 		beforeEntityInsert: null
 		entityInsert: null
 
