@@ -5222,7 +5222,7 @@
         entity = new _Entity(entity, this.dataType);
         entity.setState(_Entity.STATE_NEW);
       }
-      if (this.dataType && this.dataType.getListener("beforeEntityInsert")) {
+      if (this.dataType && this.dataType.getListeners("beforeEntityInsert")) {
         if (this.dataType.fire("beforeEntityInsert", this.dataType, {
           entityList: this,
           entity: entity
@@ -5243,7 +5243,7 @@
         insertMode: insertMode,
         refEntity: refEntity
       });
-      if (this.dataType && this.dataType.getListener("entityInsert")) {
+      if (this.dataType && this.dataType.getListeners("entityInsert")) {
         this.dataType.fire("entityInsert", this.dataType, {
           entityList: this,
           entity: entity
@@ -5266,7 +5266,7 @@
       if (entity.parent !== this) {
         return void 0;
       }
-      if (this.dataType && this.dataType.getListener("beforeEntityRemove")) {
+      if (this.dataType && this.dataType.getListeners("beforeEntityRemove")) {
         if (this.dataType.fire("beforeEntityRemove", this.dataType, {
           entityList: this,
           entity: entity
@@ -5298,7 +5298,7 @@
         entityList: this,
         entity: entity
       });
-      if (this.dataType && this.dataType.getListener("entityRemove")) {
+      if (this.dataType && this.dataType.getListeners("entityRemove")) {
         this.dataType.fire("entityRemove", this.dataType, {
           entityList: this,
           entity: entity
@@ -5329,7 +5329,7 @@
       if (oldCurrent) {
         oldCurrent._onPathChange();
       }
-      if (this.dataType && this.dataType.getListener("beforeCurrentChange")) {
+      if (this.dataType && this.dataType.getListeners("beforeCurrentChange")) {
         if (this.dataType.fire("beforeCurrentChange", this.dataType, {
           entityList: this,
           oldCurrent: oldCurrent,
@@ -5348,7 +5348,7 @@
         current: entity,
         oldCurrent: oldCurrent
       });
-      if (this.dataType && this.dataType.getListener("currentChange")) {
+      if (this.dataType && this.dataType.getListeners("currentChange")) {
         this.dataType.fire("currentChange", this.dataType, {
           entityList: this,
           oldCurrent: oldCurrent,

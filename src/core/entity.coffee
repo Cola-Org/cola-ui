@@ -1360,7 +1360,7 @@ class cola.EntityList extends LinkedList
 			entity = new _Entity(entity, @dataType)
 			entity.setState(_Entity.STATE_NEW)
 
-		if @dataType and @dataType.getListener("beforeEntityInsert")
+		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
 					entityList: @,
 					entity: entity
@@ -1381,7 +1381,7 @@ class cola.EntityList extends LinkedList
 			refEntity: refEntity
 		})
 
-		if @dataType and @dataType.getListener("entityInsert")
+		if @dataType and @dataType.getListeners("entityInsert")
 			@dataType.fire("entityInsert", @dataType, {
 				entityList: @,
 				entity: entity
@@ -1397,7 +1397,7 @@ class cola.EntityList extends LinkedList
 
 		return undefined if entity.parent != @
 
-		if @dataType and @dataType.getListener("beforeEntityRemove")
+		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
 					entityList: @,
 					entity: entity
@@ -1427,7 +1427,7 @@ class cola.EntityList extends LinkedList
 			entity: entity
 		})
 
-		if @dataType and @dataType.getListener("entityRemove")
+		if @dataType and @dataType.getListeners("entityRemove")
 			@dataType.fire("entityRemove", @dataType, {
 				entityList: @,
 				entity: entity
@@ -1450,7 +1450,7 @@ class cola.EntityList extends LinkedList
 		oldCurrent = @current
 		oldCurrent._onPathChange() if oldCurrent
 
-		if @dataType and @dataType.getListener("beforeCurrentChange")
+		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
 					entityList: @,
 					oldCurrent: oldCurrent
@@ -1470,7 +1470,7 @@ class cola.EntityList extends LinkedList
 			oldCurrent: oldCurrent
 		})
 
-		if @dataType and @dataType.getListener("currentChange")
+		if @dataType and @dataType.getListeners("currentChange")
 			@dataType.fire("currentChange", @dataType, {
 				entityList: @,
 				oldCurrent: oldCurrent
