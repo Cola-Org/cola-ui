@@ -16,6 +16,40 @@ do()->
 			rule = new RegExp(escape(styleName) + '\\s*:\\s*[^\\s]*\\s*!important(\\s*;)?', 'gmi')
 			return if rule.test(this.cssText) then 'important' else ''
 
+cola.util.decideValueProperty = (items)->
+	if items instanceof Array
+		item = items[0]
+	else if items instanceof cola.EntityList
+		item = items.current
+
+	if item
+		valueProperty = null
+		textProperty = null
+		if cola.util.isSimpleValue(item)
+			# do nothing
+		else if item instanceof cola.Entity
+			if item.hasValue("key")
+				valueProperty = "key"
+				textProperty = "value"
+			else
+				valueProperty = "value"
+				textProperty = "text"
+		else
+			if item.hasOwnProperty("key")
+				valueProperty = "key"
+				textProperty = "value"
+			else
+				valueProperty = "value"
+				textProperty = "text"
+
+	if valueProperty
+		return {
+			valueProperty: valueProperty
+			textProperty: textProperty
+		}
+	else
+		return null
+
 cola.util.addClass = (dom, value, continuous)->
 	unless !!continuous
 		$(dom).addClass(value)

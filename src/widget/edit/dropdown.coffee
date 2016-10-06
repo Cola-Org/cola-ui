@@ -26,13 +26,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					for item, i in items
 						index = item.indexOf("=")
 						if index > 0
-							items[i] = {
+							items[i] =
 								key: item.substring(0, index)
 								value: item.substring(index + 1)
-							}
-							if not @_valueProperty or not @_textProperty
-								@_valueProperty = "key"
-								@_textProperty = "value"
+
+				if not @_valueProperty and not @_textProperty
+					result = cola.util.decideValueProperty(items)
+					if result
+						@_valueProperty = result.valueProperty
+						@_textProperty = result.textProperty
 
 				changed = @_items isnt items or @_itemsTimestamp isnt items?.timestamp
 

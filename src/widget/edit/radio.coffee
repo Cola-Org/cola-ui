@@ -122,7 +122,7 @@ class cola.RadioButton extends cola.Widget
 		return
 
 	_refreshEditorDom: ()->
-		$dom=@get$Dom()
+		$dom = @get$Dom()
 		if @_checked is $dom.checkbox("is checked") then return
 		$dom.checkbox(if @_checked then "check" else "uncheck")
 	_doRefreshDom: ()->
@@ -146,7 +146,7 @@ class cola.RadioButton extends cola.Widget
 		state = !!@get("checked")
 		@set("checked", !state)
 		return @
-	remove:()->
+	remove: ()->
 		super()
 		delete @_parent
 
@@ -165,7 +165,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 	@attributes:
 		name: null
-		
+
 		items:
 			setter: (items)->
 				if typeof items is "string"
@@ -244,7 +244,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 		else
 			classType = cola.util.getType(item)
 			if classType is "number" or classType is "string"
-				config = { value: item }
+				config = {value: item}
 			else
 				if item.hasOwnProperty("key")
 					config = $.extend(item, null)
@@ -285,14 +285,13 @@ class cola.RadioGroup extends cola.AbstractEditor
 		return null
 
 	removeRadioButton: (index)->
-
 		if index instanceof cola.RadioButton
-			radio=index
+			radio = index
 		else
-			radio=getRadioButton(index)
+			radio = getRadioButton(index)
 		return @ unless radio
 
-		index=@_items.indexOf(radio)
+		index = @_items.indexOf(radio)
 		@_items.splice(index, 1)
 
 		radio.remove()

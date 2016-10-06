@@ -401,7 +401,7 @@ class cola.Table extends cola.AbstractTable
 
 		if @getListeners("renderCell")
 			if @fire("renderCell", @,
-				{item: item, column: column, dom: dom, scope: itemScope}) == false
+			  {item: item, column: column, dom: dom, scope: itemScope}) == false
 				return
 
 		if isNew
@@ -601,9 +601,9 @@ class cola.Table extends cola.AbstractTable
 		return super()
 
 	_bindKeyDown: ()->
-		table=@
+		table = @
 		#待完善
-		$(@_dom).delegate("input", "keydown", ()->
+		$(@_dom).delegate("input", "keydown", (event)->
 			keyCode = event.keyCode
 			ctrlKey = event.ctrlKey
 			td = $(this).closest("td")[0]

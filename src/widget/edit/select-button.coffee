@@ -14,17 +14,21 @@ class cola.SelectButton extends cola.AbstractEditor
 								key: item.substring(0, index)
 								value: item.substring(index + 1)
 							}
-							if not @_valueProperty or not @_textProperty
-								@_valueProperty = "key"
-								@_textProperty = "value"
+
+				if not @_valueProperty and not @_textProperty
+					result = cola.util.decideValueProperty(items)
+					if result
+						@_valueProperty = result.valueProperty
+						@_textProperty = result.textProperty
 
 				@_items = items
 				unless @_itemsTimestamp == items?.timestamp
 					if items then @_itemsTimestamp = items.timestamp
 					delete @_itemsIndex
 				return
-		keyProperty: null
+
 		valueProperty: null
+		textProperty: null
 
 	_initDom: (dom)->
 		super(dom)
@@ -47,21 +51,21 @@ class cola.SelectButton extends cola.AbstractEditor
 
 	_select: (value)->
 		$dom = $(@_dom)
-		$dom.find(".active").removeClass("active")
-		$dom.find("[value='" + value + "']").addClass("active")
+		$dom.find(".positive").removeClass("positive")
+		$dom.find("[value='" + value + "']").addClass("positive")
 
 	_getItemsDom: ()->
 		attrBinding = @_elementAttrBindings?["items"]
 		if attrBinding
+			if @_textProperty
+				cText = "item." + @_textProperty
+			else
+				cText = "item"
+
 			if @_valueProperty
 				cValue = "item." + @_valueProperty
 			else
 				cValue = "item"
-
-			if @_keyProperty
-				cKey = "item." + @_keyProperty
-			else
-				cKey = "item"
 			raw = attrBinding.expression.raw
 			itemsDom = cola.xRender({
 				tagName: "div",
@@ -69,8 +73,8 @@ class cola.SelectButton extends cola.AbstractEditor
 				content: {
 					tagName: "c-button",
 					"c-repeat": "item in " + raw,
-					"c-caption": cKey
-					"c-value": cValue
+					"c-caption": cValue
+					"c-value": cText
 				}
 			}, attrBinding.scope)
 
@@ -83,8 +87,8 @@ class cola.SelectButton extends cola.AbstractEditor
 			for item in @_items
 				itemsDom.appendChild($.xCreate({
 					class: "ui button",
-					value: if @_valueProperty then item[@_valueProperty] else item
-					content: if @_keyProperty then item[@_keyProperty] else item
+					value: if @_textProperty then item[@_textProperty] else item
+					content: if @_valueProperty then item[@_valueProperty] else item
 				}))
 
 		return itemsDom

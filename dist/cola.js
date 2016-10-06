@@ -11404,6 +11404,46 @@
     }
   })();
 
+  cola.util.decideValueProperty = function(items) {
+    var item, textProperty, valueProperty;
+    if (items instanceof Array) {
+      item = items[0];
+    } else if (items instanceof cola.EntityList) {
+      item = items.current;
+    }
+    if (item) {
+      valueProperty = null;
+      textProperty = null;
+      if (cola.util.isSimpleValue(item)) {
+
+      } else if (item instanceof cola.Entity) {
+        if (item.hasValue("key")) {
+          valueProperty = "key";
+          textProperty = "value";
+        } else {
+          valueProperty = "value";
+          textProperty = "text";
+        }
+      } else {
+        if (item.hasOwnProperty("key")) {
+          valueProperty = "key";
+          textProperty = "value";
+        } else {
+          valueProperty = "value";
+          textProperty = "text";
+        }
+      }
+    }
+    if (valueProperty) {
+      return {
+        valueProperty: valueProperty,
+        textProperty: textProperty
+      };
+    } else {
+      return null;
+    }
+  };
+
   cola.util.addClass = function(dom, value, continuous) {
     var className;
     if (!continuous) {
@@ -21713,7 +21753,7 @@ Template
       items: {
         expressionType: "repeat",
         setter: function(items) {
-          var changed, i, index, item, len1, n;
+          var changed, i, index, item, len1, n, result;
           if (typeof items === "string") {
             items = items.split(/[\,,\;]/);
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
@@ -21724,11 +21764,14 @@ Template
                   key: item.substring(0, index),
                   value: item.substring(index + 1)
                 };
-                if (!this._valueProperty || !this._textProperty) {
-                  this._valueProperty = "key";
-                  this._textProperty = "value";
-                }
               }
+            }
+          }
+          if (!this._valueProperty && !this._textProperty) {
+            result = cola.util.decideValueProperty(items);
+            if (result) {
+              this._valueProperty = result.valueProperty;
+              this._textProperty = result.textProperty;
             }
           }
           changed = this._items !== items || this._itemsTimestamp !== (items != null ? items.timestamp : void 0);
@@ -24140,7 +24183,7 @@ Template
       items: {
         expressionType: "repeat",
         setter: function(items) {
-          var i, index, item, len1, n;
+          var i, index, item, len1, n, result;
           if (typeof items === "string") {
             items = items.split(/[\,,\;]/);
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
@@ -24151,11 +24194,14 @@ Template
                   key: item.substring(0, index),
                   value: item.substring(index + 1)
                 };
-                if (!this._valueProperty || !this._textProperty) {
-                  this._valueProperty = "key";
-                  this._textProperty = "value";
-                }
               }
+            }
+          }
+          if (!this._valueProperty && !this._textProperty) {
+            result = cola.util.decideValueProperty(items);
+            if (result) {
+              this._valueProperty = result.valueProperty;
+              this._textProperty = result.textProperty;
             }
           }
           this._items = items;
@@ -24167,8 +24213,8 @@ Template
           }
         }
       },
-      keyProperty: null,
-      valueProperty: null
+      valueProperty: null,
+      textProperty: null
     };
 
     SelectButton.prototype._initDom = function(dom) {
@@ -24201,23 +24247,23 @@ Template
     SelectButton.prototype._select = function(value) {
       var $dom;
       $dom = $(this._dom);
-      $dom.find(".active").removeClass("active");
-      return $dom.find("[value='" + value + "']").addClass("active");
+      $dom.find(".positive").removeClass("positive");
+      return $dom.find("[value='" + value + "']").addClass("positive");
     };
 
     SelectButton.prototype._getItemsDom = function() {
-      var attrBinding, cKey, cValue, item, itemsDom, len1, n, raw, ref, ref1;
+      var attrBinding, cText, cValue, item, itemsDom, len1, n, raw, ref, ref1;
       attrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
       if (attrBinding) {
+        if (this._textProperty) {
+          cText = "item." + this._textProperty;
+        } else {
+          cText = "item";
+        }
         if (this._valueProperty) {
           cValue = "item." + this._valueProperty;
         } else {
           cValue = "item";
-        }
-        if (this._keyProperty) {
-          cKey = "item." + this._keyProperty;
-        } else {
-          cKey = "item";
         }
         raw = attrBinding.expression.raw;
         itemsDom = cola.xRender({
@@ -24226,8 +24272,8 @@ Template
           content: {
             tagName: "c-button",
             "c-repeat": "item in " + raw,
-            "c-caption": cKey,
-            "c-value": cValue
+            "c-caption": cValue,
+            "c-value": cText
           }
         }, attrBinding.scope);
       } else {
@@ -24240,8 +24286,8 @@ Template
           item = ref1[n];
           itemsDom.appendChild($.xCreate({
             "class": "ui button",
-            value: this._valueProperty ? item[this._valueProperty] : item,
-            content: this._keyProperty ? item[this._keyProperty] : item
+            value: this._textProperty ? item[this._textProperty] : item,
+            content: this._valueProperty ? item[this._valueProperty] : item
           }));
         }
       }
@@ -32665,7 +32711,7 @@ Template
     Table.prototype._bindKeyDown = function() {
       var table;
       table = this;
-      return $(this._dom).delegate("input", "keydown", function() {
+      return $(this._dom).delegate("input", "keydown", function(event) {
         var $input, colIndex, ctrlKey, input, item, keyCode, targetCell, targetRow, td, tds, tr;
         keyCode = event.keyCode;
         ctrlKey = event.ctrlKey;

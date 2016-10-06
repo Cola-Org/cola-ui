@@ -11404,6 +11404,46 @@
     }
   })();
 
+  cola.util.decideValueProperty = function(items) {
+    var item, textProperty, valueProperty;
+    if (items instanceof Array) {
+      item = items[0];
+    } else if (items instanceof cola.EntityList) {
+      item = items.current;
+    }
+    if (item) {
+      valueProperty = null;
+      textProperty = null;
+      if (cola.util.isSimpleValue(item)) {
+
+      } else if (item instanceof cola.Entity) {
+        if (item.hasValue("key")) {
+          valueProperty = "key";
+          textProperty = "value";
+        } else {
+          valueProperty = "value";
+          textProperty = "text";
+        }
+      } else {
+        if (item.hasOwnProperty("key")) {
+          valueProperty = "key";
+          textProperty = "value";
+        } else {
+          valueProperty = "value";
+          textProperty = "text";
+        }
+      }
+    }
+    if (valueProperty) {
+      return {
+        valueProperty: valueProperty,
+        textProperty: textProperty
+      };
+    } else {
+      return null;
+    }
+  };
+
   cola.util.addClass = function(dom, value, continuous) {
     var className;
     if (!continuous) {
