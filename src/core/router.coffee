@@ -305,9 +305,9 @@ $ () ->
 			router = _findRouter(path)
 			if router then _switchRouter(router, path)
 		else
-			path = cola.setting("defaultRouterPath")
-			router = _findRouter(path)
-			if router then cola.setRoutePath(path + location.search, true, true)
+			router = _findRouter(null)
+			if router
+				cola.setRoutePath((router.redirectTo or cola.setting("defaultRouterPath") or "") + location.search, true, true)
 		return
 	, 0)
 	return
