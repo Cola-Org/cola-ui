@@ -68,6 +68,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		open: null
 		close: null
 		selectData: null
+		focus: null
+		blur: null
+		keyDown: null
+		keyPress: null
 
 	_initDom: (dom) ->
 		super(dom)
@@ -86,15 +90,50 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return
 		)
 
+		doPost = ()=>
+			readOnly = @_readOnly
+			if !readOnly
+				value = $(@_doms.input).val()
+				dataType = @_dataType
+				if dataType
+					if @_inputType == "text"
+						inputFormat = @_inputFormat
+						if dataType instanceof cola.DateDataType
+							inputFormat ?= DEFAULT_DATE_INPUT_FORMAT
+							value = inputFormat + "||" + value
+					value = dataType.parse(value)
+				@set("value", value)
+			return
+		dropdown = @
 		valueContent = @_doms.valueContent
 		$(@_doms.input).on("focus", () ->
 			$fly(valueContent).addClass("placeholder")
+			dropdown.fire("focus", dropdown, {})
 			return
 		).on("blur", () ->
 			$fly(valueContent).removeClass("placeholder")
+			doPost()
+			dropdown.fire("blur", dropdown, {})
 			return
+		).on("keydown", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altKey: event.altKey
+				event: event
+				inputValue: $fly(@_doms.input).val()
+			@fire("keyDown", @, arg)
+		).on("keypress", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altKey: event.altKey
+				event: event
+				inputValue: $fly(@_doms.input).val()
+			if @fire("keyPress", @, arg) == false then return
 		)
-
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
 
@@ -128,7 +167,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 						if input.readOnly then @close()
 					else
 						@open()
-				return
+				this.focus();
+
 			input: (evt) =>
 				$valueContent = $fly(@_doms.valueContent)
 				if evt.target.value
@@ -362,7 +402,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_currentItem = item
 		@_skipFindCurrentItem = true
 		@set("value", value)
-		@fire("selectData", @, { data: item })
+		@fire("selectData", @, {data: item})
 		@_skipFindCurrentItem = false
 		@refresh()
 		return
@@ -415,11 +455,11 @@ class DropBox extends cola.Layer
 
 		if height then $dom.css("height", height)
 		$dom
-			.removeClass(if direction == "down" then "direction-up" else "direction-down").addClass("direction-" + direction)
-			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
-			.css("left", left).css("top", top)
-			.css("min-width", dropdownDom.offsetWidth)
-			.css("max-width",document.body.clientWidth)
+		.removeClass(if direction == "down" then "direction-up" else "direction-down").addClass("direction-" + direction)
+		.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
+		.css("left", left).css("top", top)
+		.css("min-width", dropdownDom.offsetWidth)
+		.css("max-width", document.body.clientWidth)
 
 		@_animation = "fade"
 
@@ -509,8 +549,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if template
 				valueContent.appendChild(@_cloneTemplate(template))
 		return
-		
-	_initDom:(dom)->
+
+	_initDom: (dom)->
 		@_regDefaultTempaltes()
 		super(dom)
 
@@ -595,7 +635,7 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			"c-bind": "$default"
 
 	_isEditorReadOnly: () ->
-		return true
+		return false
 
 	_getDropdownContent: () ->
 		if !@_dropdownContent

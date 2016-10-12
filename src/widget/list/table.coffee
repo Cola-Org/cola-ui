@@ -639,6 +639,14 @@ class cola.Table extends cola.AbstractTable
 			if keyCode == 38 || keyCode == 40 || (ctrlKey && keyCode == 37) || (ctrlKey && keyCode == 39)
 				event.preventDefault()
 		)
+	focus: ()->
+		unless @_$dom then return
+
+		table = @_$dom.find("table")[0]
+		inputs = $(table.tBodies).find(".ui.input")
+		if inputs.length
+			input = cola.widget(inputs[0])
+			if input then input.focus()
 
 
 cola.registerWidget(cola.Table)

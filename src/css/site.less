@@ -141,3 +141,48 @@ template {
 	.mixin_fragment(brown, @brown);
 	.mixin_fragment(grey, @grey);
 }
+
+.ui.city-selector {
+	width: 320px;
+	height: 280px;
+	display: inline-block;
+	overflow: hidden;
+	border: 1px solid @blue;
+	.content {
+		.province, .cities, .hot {
+			display: none;
+			.name {
+				width: 25%;
+				cursor: pointer;
+				display: inline-block;
+				&:hover {
+					color: @blue;
+				}
+			}
+			&.active {
+				display: block;
+			}
+		}
+		.city.active {
+			display: block;
+		}
+	}
+	.tab-buttons {
+		width: 100%;
+		display: table;
+		> .item {
+			display: table-cell;
+			text-align: center;
+			width: 33.33%;
+			cursor: pointer;
+			&.active, &:active {
+				background-color: @blue;
+				color: #fff;
+			}
+			&:hover {
+				background-color: fadeout(@blue, 20%);
+				color: #fff;
+			}
+		}
+	}
+}
