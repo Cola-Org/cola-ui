@@ -35,10 +35,10 @@
 				listTemplate: {
 					$type: "listView",
 					bind: "language in sort(languages,sortParam)",
-					group: true,
-					indexBar: true,
+//					group: true,
+//					indexBar: true,
 //					height: 260,
-					columns: "row 2 4",
+//					columns: "row 2 4",
 					getGroupString: function (self, arg) {
 						var name = arg.item.get("name");
 						if (name) arg.result = name.charAt(0).toUpperCase();
@@ -59,15 +59,7 @@ Sort: <select c-bind="sortParam" c-options="['$none', '$random', '+name','-name'
 
 <div id="listTemplate">
 	<template name="default">
-		<li>
-			<div c-widget="button; caption:Delete; class:negative; click:{{deleteLanguage(language)}}; size:mini"></div>
-			<span c-bind="language.name"></span>
-		</li>
-	</template>
-	<template name="group-header">
-		<li>
-			<span c-bind="group.name"></span>
-		</li>
+		<c-button c-caption="language"></c-button>
 	</template>
 </div>
 
