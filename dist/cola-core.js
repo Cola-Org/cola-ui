@@ -7,15 +7,6 @@
  * If you are unsure which license is appropriate for your use, please contact the sales department
  * at http://www.bstek.com/contact.
  */
-/*! Cola UI - 0.9.8
- * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
- *
- * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
- * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
- *
- * If you are unsure which license is appropriate for your use, please contact the sales department
- * at http://www.bstek.com/contact.
- */
 (function() {
   var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
@@ -3848,7 +3839,8 @@
         });
         if (loadMode === "sync") {
           retValue = providerInvoker.invokeSync();
-          retValue = this._set(prop, retValue);
+          this._set(prop, retValue);
+          retValue = this._data[prop];
           if (retValue && (retValue instanceof cola.EntityList || retValue instanceof cola.Entity)) {
             retValue._providerInvoker = providerInvoker;
           }
@@ -11898,7 +11890,7 @@
     if (config.$constructor && cola.util.isSuperClass(cola.Widget, config.$constructor)) {
       return config.$constructor;
     }
-    if (config.$type) {
+    if (config.$type && typeof config.$type === "string") {
       return cola[cola.util.capitalize(config.$type)];
     }
   });
@@ -11990,7 +11982,11 @@
       }
       return type;
     };
-    type = getType(window, typeName);
+    if (typeof typeName === "function") {
+      type = typeName;
+    } else {
+      type = getType(window, typeName);
+    }
     if (!type) {
       return null;
     }

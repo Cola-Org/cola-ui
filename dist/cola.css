@@ -391,6 +391,57 @@ template {
 .ui.fragment.grey:before {
   background-color: rgba(118, 118, 118, 0.8);
 }
+.ui.city-selector {
+  width: 320px;
+  height: 280px;
+  display: inline-block;
+  overflow: hidden;
+  border: 1px solid #2185d0;
+}
+.ui.city-selector .content .province,
+.ui.city-selector .content .cities,
+.ui.city-selector .content .hot {
+  display: none;
+}
+.ui.city-selector .content .province .name,
+.ui.city-selector .content .cities .name,
+.ui.city-selector .content .hot .name {
+  width: 25%;
+  cursor: pointer;
+  display: inline-block;
+}
+.ui.city-selector .content .province .name:hover,
+.ui.city-selector .content .cities .name:hover,
+.ui.city-selector .content .hot .name:hover {
+  color: #2185d0;
+}
+.ui.city-selector .content .province.active,
+.ui.city-selector .content .cities.active,
+.ui.city-selector .content .hot.active {
+  display: block;
+}
+.ui.city-selector .content .city.active {
+  display: block;
+}
+.ui.city-selector .tab-buttons {
+  width: 100%;
+  display: table;
+}
+.ui.city-selector .tab-buttons > .item {
+  display: table-cell;
+  text-align: center;
+  width: 33.33%;
+  cursor: pointer;
+}
+.ui.city-selector .tab-buttons > .item.active,
+.ui.city-selector .tab-buttons > .item:active {
+  background-color: #2185d0;
+  color: #fff;
+}
+.ui.city-selector .tab-buttons > .item:hover {
+  background-color: rgba(33, 133, 208, 0.8);
+  color: #fff;
+}
 
 .mobile .v-box,
 .mobile .h-box {

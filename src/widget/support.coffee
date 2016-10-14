@@ -194,7 +194,7 @@ cola.registerTypeResolver "widget", (config) ->
     return unless config
     if config.$constructor and cola.util.isSuperClass(cola.Widget, config.$constructor)
         return config.$constructor
-    if config.$type
+    if config.$type and typeof config.$type is "string"
         return cola[cola.util.capitalize(config.$type)]
     return
 
@@ -255,7 +255,10 @@ cola.findWidget = (dom, typeName) ->
         type = win.cola.resolveType("widget", {$type: typeName}) unless type
         return type
 
-    type = getType(window, typeName)
+    if typeof typeName is "function"
+        type = typeName
+    else
+        type = getType(window, typeName)
     return null unless type
 
     if dom instanceof cola.Widget

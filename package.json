@@ -30,6 +30,5 @@
     "mocha": "~2.2.5",
     "qunitjs": "~1.18.0",
     "underscore": "^1.8.3"
-  },
-  "dependencies": {}
+  }
 }

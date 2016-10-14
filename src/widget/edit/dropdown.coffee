@@ -285,8 +285,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			config =
 				class: "drop-container"
 				dom: $.xCreate(
-					tagName: "div"
-					content: @_getDropdownContent()
+					content:
+						class: "v-box"
+						content: @_getDropdownContent()
 				)
 				beforeHide: () =>
 					$fly(@_dom).removeClass("opened")
@@ -313,13 +314,14 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					tagName: "div"
 					class: "box"
 					content:
-						tagName: "div"
-						"c-widget":
-							$type: "titleBar"
-							items: [
+						tagName: "c-titlebar"
+						content: [
+							{
+								tagName: "a"
 								icon: "chevron left"
 								click: () => @close()
-							]
+							}
+						]
 				}, @_scope, ctx)
 				$fly(config.dom.firstChild.firstChild).before(titleContent)
 				container = new cola.Layer(config)
@@ -513,10 +515,11 @@ class cola.Dropdown extends cola.AbstractDropdown
 		"list":
 			tagName: "div"
 			contextKey: "flexContent"
+			class: "flex-box"
 			content:
 				tagName: "c-listview"
 				contextKey: "list"
-				style: "height:100%;overflow:auto"
+				style: "overflow:auto"
 
 		"filterable-list":
 			tagName: "div"

@@ -373,7 +373,8 @@ class cola.Entity
 			providerInvoker = provider.getInvoker(data: @)
 			if loadMode == "sync"
 				retValue = providerInvoker.invokeSync()
-				retValue = @_set(prop, retValue)
+				@_set(prop, retValue)
+				retValue = @_data[prop]
 				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
 					retValue._providerInvoker = providerInvoker
 			else if loadMode == "async"
