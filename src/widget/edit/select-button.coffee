@@ -9,7 +9,7 @@ class cola.SelectButton extends cola.AbstractEditor
 					items = items.split(/[\,,\;]/)
 					for item, i in items
 						index = item.indexOf("=")
-						if index > 0
+						if index >= 0
 							items[i] = {
 								key: item.substring(0, index)
 								value: item.substring(index + 1)
@@ -87,8 +87,8 @@ class cola.SelectButton extends cola.AbstractEditor
 			for item in @_items
 				itemsDom.appendChild($.xCreate({
 					class: "ui button",
-					value: if @_textProperty then item[@_textProperty] else item
-					content: if @_valueProperty then item[@_valueProperty] else item
+					value: if @_valueProperty then item[@_valueProperty] else item
+					content: if @_textProperty then item[@_textProperty] else item
 				}))
 
 		return itemsDom

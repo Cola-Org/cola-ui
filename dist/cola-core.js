@@ -10366,7 +10366,7 @@
     };
 
     _TextBoxFeature.prototype._doRender = function(domBinding, value) {
-      domBinding.dom.value = value || "";
+      domBinding.dom.value = value != null ? value : "";
     };
 
     return _TextBoxFeature;

@@ -25,7 +25,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					items = items.split(/[\,,\;]/)
 					for item, i in items
 						index = item.indexOf("=")
-						if index > 0
+						if index >= 0
 							items[i] =
 								key: item.substring(0, index)
 								value: item.substring(index + 1)

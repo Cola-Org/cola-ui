@@ -5,6 +5,19 @@ class cola.Select extends cola.AbstractInput
 	@attributes:
 		options:
 			setter: (options) ->
+				if typeof options is "string"
+					options = options.split(/[\,,\;]/)
+					for item, i in options
+						index = item.indexOf("=")
+						if index >= 0
+							options[i] =
+								value: item.substring(0, index)
+								text: item.substring(index + 1)
+						else
+							options[i] =
+								value: null
+								text: item
+
 				return unless options instanceof Array or options instanceof cola.EntityList
 				@_options = options
 				select = @_doms?.input

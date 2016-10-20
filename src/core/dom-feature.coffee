@@ -426,7 +426,7 @@ class cola._TextBoxFeature extends cola._DomFeature
 		return
 
 	_doRender: (domBinding, value)->
-		domBinding.dom.value = value or ""
+		domBinding.dom.value = if value? then value else ""
 		return
 
 class cola._CheckboxFeature extends cola._DomFeature

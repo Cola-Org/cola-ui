@@ -10366,7 +10366,7 @@
     };
 
     _TextBoxFeature.prototype._doRender = function(domBinding, value) {
-      domBinding.dom.value = value || "";
+      domBinding.dom.value = value != null ? value : "";
     };
 
     return _TextBoxFeature;
@@ -21270,7 +21270,7 @@ Template
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
               item = items[i];
               index = item.indexOf("=");
-              if (index > 0) {
+              if (index >= 0) {
                 items[i] = {
                   value: item.substring(0, index),
                   label: item.substring(index + 1)
@@ -21608,7 +21608,25 @@ Template
     Select.attributes = {
       options: {
         setter: function(options) {
-          var ref, select;
+          var i, index, item, len1, n, ref, select;
+          if (typeof options === "string") {
+            options = options.split(/[\,,\;]/);
+            for (i = n = 0, len1 = options.length; n < len1; i = ++n) {
+              item = options[i];
+              index = item.indexOf("=");
+              if (index >= 0) {
+                options[i] = {
+                  value: item.substring(0, index),
+                  text: item.substring(index + 1)
+                };
+              } else {
+                options[i] = {
+                  value: null,
+                  text: item
+                };
+              }
+            }
+          }
           if (!(options instanceof Array || options instanceof cola.EntityList)) {
             return;
           }
@@ -21763,7 +21781,7 @@ Template
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
               item = items[i];
               index = item.indexOf("=");
-              if (index > 0) {
+              if (index >= 0) {
                 items[i] = {
                   key: item.substring(0, index),
                   value: item.substring(index + 1)
@@ -24254,7 +24272,7 @@ Template
             for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
               item = items[i];
               index = item.indexOf("=");
-              if (index > 0) {
+              if (index >= 0) {
                 items[i] = {
                   key: item.substring(0, index),
                   value: item.substring(index + 1)
@@ -24351,8 +24369,8 @@ Template
           item = ref1[n];
           itemsDom.appendChild($.xCreate({
             "class": "ui button",
-            value: this._textProperty ? item[this._textProperty] : item,
-            content: this._valueProperty ? item[this._valueProperty] : item
+            value: this._valueProperty ? item[this._valueProperty] : item,
+            content: this._textProperty ? item[this._textProperty] : item
           }));
         }
       }

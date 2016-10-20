@@ -172,7 +172,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 					items = items.split(/[\,,\;]/)
 					for item, i in items
 						index = item.indexOf("=")
-						if index > 0
+						if index >= 0
 							items[i] = {
 								value: item.substring(0, index)
 								label: item.substring(index + 1)
