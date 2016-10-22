@@ -64,6 +64,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		dropdownHeight: null
 
 	@events:
+		initDropdownBox: null
 		beforeOpen: null
 		open: null
 		close: null
@@ -152,7 +153,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					@_skipSetIcon = true
 					break
 				child = child.nextSibling
-
 		return
 
 	_createEditorDom: () ->
@@ -285,9 +285,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			config =
 				class: "drop-container"
 				dom: $.xCreate(
-					content:
-						class: "v-box"
-						content: @_getDropdownContent()
+					content: @_getDropdownContent()
 				)
 				beforeHide: () =>
 					$fly(@_dom).removeClass("opened")
@@ -356,13 +354,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				return
 			)
 
-			if container instanceof DropBox
-				container.show(@, doCallback)
-			else if container instanceof cola.Layer
-				container.show(doCallback)
-			else if container instanceof cola.Sidebar
-				container.show(doCallback)
-			else if container instanceof cola.Dialog
+			if container instanceof cola.Dialog
 				$flexContent = $(@_doms.flexContent)
 				$flexContent.height("")
 
@@ -378,7 +370,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				else
 					$containerDom.addClass("hidden")
 
-				container.show(doCallback)
+			@fire("initDropdownBox", @, { dropdownBox: container })
+
+			if container.constructor.events.$has("hide")
+				container.on("hide:dropdown", () =>
+					@fire("close", @)
+					return
+				, true)
+
+			container.show?(doCallback)
+
 			@_opened = true
 			$fly(@_dom).addClass("opened")
 		return
@@ -388,8 +389,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			@_selectData(selectedData)
 
 		container = @_getContainer()
-		if container
-			container.hide(callback)
+		container?.hide?(callback)
 		return
 
 	_selectData: (item) ->

@@ -21828,6 +21828,7 @@ Template
     };
 
     AbstractDropdown.events = {
+      initDropdownBox: null,
       beforeOpen: null,
       open: null,
       close: null,
@@ -22117,10 +22118,7 @@ Template
         config = {
           "class": "drop-container",
           dom: $.xCreate({
-            content: {
-              "class": "v-box",
-              content: this._getDropdownContent()
-            }
+            content: this._getDropdownContent()
           }),
           beforeHide: (function(_this) {
             return function() {
@@ -22206,13 +22204,7 @@ Template
         container.on("hide", function(self) {
           delete self._dropdown;
         });
-        if (container instanceof DropBox) {
-          container.show(this, doCallback);
-        } else if (container instanceof cola.Layer) {
-          container.show(doCallback);
-        } else if (container instanceof cola.Sidebar) {
-          container.show(doCallback);
-        } else if (container instanceof cola.Dialog) {
+        if (container instanceof cola.Dialog) {
           $flexContent = $(this._doms.flexContent);
           $flexContent.height("");
           $containerDom = container.get$Dom();
@@ -22226,6 +22218,18 @@ Template
           } else {
             $containerDom.addClass("hidden");
           }
+        }
+        this.fire("initDropdownBox", this, {
+          dropdownBox: container
+        });
+        if (container.constructor.events.$has("hide")) {
+          container.on("hide:dropdown", (function(_this) {
+            return function() {
+              _this.fire("close", _this);
+            };
+          })(this), true);
+        }
+        if (typeof container.show === "function") {
           container.show(doCallback);
         }
         this._opened = true;
@@ -22239,8 +22243,10 @@ Template
         this._selectData(selectedData);
       }
       container = this._getContainer();
-      if (container) {
-        container.hide(callback);
+      if (container != null) {
+        if (typeof container.hide === "function") {
+          container.hide(callback);
+        }
       }
     };
 
