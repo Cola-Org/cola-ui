@@ -359,10 +359,11 @@ class cola.DateGrid extends cola.RenderableElement
         return @
     onCalDateChange: () ->
         return @ unless @_dom
-
         return @
+        
 DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd"
 DEFAULT_DATE_TIME_DISPLAY_FORMAT = "yyyy-MM-dd HH:mm:ss"
+
 class cola.DatePicker extends cola.CustomDropdown
     @tagName: "c-datepicker"
     @CLASS_NAME: "date input drop"

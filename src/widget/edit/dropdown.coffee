@@ -1,14 +1,10 @@
 dropdownDialogMargin = 0
 
 cola.findDropDown = (target) ->
-	if target instanceof cola.Widget
-		target = target.getDom()
-	while target
-		if $fly(target).hasClass("drop-container")
-			dropContainer = cola.widget(target)
-			return dropContainer?._dropdown
-		target = target.parentNode
-	return
+	layer = cola.findWidget(target, cola.AbstractLayer)
+	while layer and not layer.hasClass("drop-container")
+		layer = cola.findWidget(layer, cola.AbstractLayer)
+	return layer?._dropdown
 
 class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
@@ -91,20 +87,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return
 		)
 
-		doPost = ()=>
-			readOnly = @_readOnly
-			if !readOnly
-				value = $(@_doms.input).val()
-				dataType = @_dataType
-				if dataType
-					if @_inputType == "text"
-						inputFormat = @_inputFormat
-						if dataType instanceof cola.DateDataType
-							inputFormat ?= DEFAULT_DATE_INPUT_FORMAT
-							value = inputFormat + "||" + value
-					value = dataType.parse(value)
-				@set("value", value)
-			return
 		dropdown = @
 		valueContent = @_doms.valueContent
 		$(@_doms.input).on("focus", () ->
@@ -113,7 +95,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return
 		).on("blur", () ->
 			$fly(valueContent).removeClass("placeholder")
-			doPost()
 			dropdown.fire("blur", dropdown, {})
 			return
 		).on("keydown", (event)=>
@@ -182,12 +163,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return cola.device.mobile
+		return cola.device.mobile or @_openOnActive
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readOnly", @_finalReadOnly or @_isEditorReadOnly())
+		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly())
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
@@ -230,15 +211,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			alias = elementAttrBinding?.expression.alias or "item"
 
 			currentItemScope = @_currentItemScope
-			if currentItemScope and currentItemScope.data.alias != alias
+			if currentItemScope and currentItemScope.data.alias isnt alias
 				currentItemScope = null
 
-			if !currentItemScope
+			if not currentItemScope
 				@_currentItemScope = currentItemScope = new cola.ItemScope(@_scope, alias)
 			currentItemScope.data.setTargetData(item)
 
 			valueContent = @_doms.valueContent
-			if !valueContent._inited
+			if not valueContent._inited
 				valueContent._inited = true
 				ctx =
 					defaultPath: alias
@@ -385,7 +366,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	close: (selectedData, callback) ->
-		if selectedData != undefined
+		if selectedData isnt undefined
 			@_selectData(selectedData)
 
 		container = @_getContainer()
@@ -401,10 +382,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		else
 			value = item
 
-		@_currentItem = item
 		@_skipFindCurrentItem = true
-		@set("value", value)
-		@fire("selectData", @, {data: item})
+		if @fire("selectData", @, {data: item}) isnt false
+			@_currentItem = item
+			@set("value", value)
 		@_skipFindCurrentItem = false
 		@refresh()
 		return
@@ -481,7 +462,7 @@ class DropBox extends cola.Layer
 					break
 				target = target.parentNode
 
-			if !inDropdown
+			if not inDropdown
 				@_dropdown.close()
 			return
 		$fly(document.body).on("click", @_bodyListener)
@@ -547,7 +528,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 	_initValueContent: (valueContent, context) ->
 		super(valueContent, context)
-		if !valueContent.firstChild
+		if not valueContent.firstChild
 			template = @getTemplate()
 			if template
 				valueContent.appendChild(@_cloneTemplate(template))
@@ -581,7 +562,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		return
 
 	_getDropdownContent: () ->
-		if !@_dropdownContent
+		if not @_dropdownContent
 			if @_filterable and @_finalOpenMode isnt "drop"
 				templateName = "filterable-list"
 			else
@@ -638,10 +619,10 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			"c-bind": "$default"
 
 	_isEditorReadOnly: () ->
-		return false
+		return @_openOnActive
 
 	_getDropdownContent: () ->
-		if !@_dropdownContent
+		if not @_dropdownContent
 			if @_content
 				dropdownContent = @_content
 			else
