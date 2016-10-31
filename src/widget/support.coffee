@@ -109,31 +109,40 @@ _compileWidgetDom = (dom, widgetType, config = {}, context) ->
     return config
 
 _compileWidgetAttribute = (scope, dom, context) ->
-    widgetConfigStr = dom.getAttribute("c-widget")
+    widgetConfigStr = dom.getAttribute("c-config")
     if widgetConfigStr
-        dom.removeAttribute("c-widget")
-        if context.defaultPath
-            widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
+        importNames = widgetConfigStr.split(/[,;]/)
+        config = {}
+        for importName in importNames
+            importConfig = _findWidgetConfig(scope, importName)
+            if importConfig
+                config[ip] = iv for ip, iv of importConfig
+    else
+        widgetConfigStr = dom.getAttribute("c-widget")
+        if widgetConfigStr
+            dom.removeAttribute("c-widget")
+            if context.defaultPath
+                widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
 
-        config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
-        if config
-            importNames = null
-            for p, v of config
-                importName = null
-                if p.charCodeAt(0) == 35 # `#`
-                    importName = p.substring(1)
-                else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
-                    importName = v.substring(1)
-                if importName
-                    delete config[p]
-                    importNames ?= []
-                    importNames.push(importName)
+            config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
+            if config
+                importNames = null
+                for p, v of config
+                    importName = null
+                    if p.charCodeAt(0) == 35 # `#`
+                        importName = p.substring(1)
+                    else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
+                        importName = v.substring(1)
+                    if importName
+                        delete config[p]
+                        importNames ?= []
+                        importNames.push(importName)
 
-            if importNames
-                for importName in importNames
-                    importConfig = _findWidgetConfig(scope, importName)
-                    if importConfig
-                        config[ip] = iv for ip, iv of importConfig
+                if importNames
+                    for importName in importNames
+                        importConfig = _findWidgetConfig(scope, importName)
+                        if importConfig
+                            config[ip] = iv for ip, iv of importConfig
     return config
 
 cola._userDomCompiler.$.push((scope, dom, attr, context) ->

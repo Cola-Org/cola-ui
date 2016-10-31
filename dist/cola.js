@@ -11768,40 +11768,56 @@
   };
 
   _compileWidgetAttribute = function(scope, dom, context) {
-    var config, importConfig, importName, importNames, ip, iv, l, len1, p, v, widgetConfigStr;
-    widgetConfigStr = dom.getAttribute("c-widget");
+    var config, importConfig, importName, importNames, ip, iv, l, len1, len2, o, p, v, widgetConfigStr;
+    widgetConfigStr = dom.getAttribute("c-config");
     if (widgetConfigStr) {
-      dom.removeAttribute("c-widget");
-      if (context.defaultPath) {
-        widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
-      }
-      config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
-      if (config) {
-        importNames = null;
-        for (p in config) {
-          v = config[p];
-          importName = null;
-          if (p.charCodeAt(0) === 35) {
-            importName = p.substring(1);
-          } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
-            importName = v.substring(1);
-          }
-          if (importName) {
-            delete config[p];
-            if (importNames == null) {
-              importNames = [];
-            }
-            importNames.push(importName);
+      importNames = widgetConfigStr.split(/[,;]/);
+      config = {};
+      for (l = 0, len1 = importNames.length; l < len1; l++) {
+        importName = importNames[l];
+        importConfig = _findWidgetConfig(scope, importName);
+        if (importConfig) {
+          for (ip in importConfig) {
+            iv = importConfig[ip];
+            config[ip] = iv;
           }
         }
-        if (importNames) {
-          for (l = 0, len1 = importNames.length; l < len1; l++) {
-            importName = importNames[l];
-            importConfig = _findWidgetConfig(scope, importName);
-            if (importConfig) {
-              for (ip in importConfig) {
-                iv = importConfig[ip];
-                config[ip] = iv;
+      }
+    } else {
+      widgetConfigStr = dom.getAttribute("c-widget");
+      if (widgetConfigStr) {
+        dom.removeAttribute("c-widget");
+        if (context.defaultPath) {
+          widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
+        }
+        config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
+        if (config) {
+          importNames = null;
+          for (p in config) {
+            v = config[p];
+            importName = null;
+            if (p.charCodeAt(0) === 35) {
+              importName = p.substring(1);
+            } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
+              importName = v.substring(1);
+            }
+            if (importName) {
+              delete config[p];
+              if (importNames == null) {
+                importNames = [];
+              }
+              importNames.push(importName);
+            }
+          }
+          if (importNames) {
+            for (o = 0, len2 = importNames.length; o < len2; o++) {
+              importName = importNames[o];
+              importConfig = _findWidgetConfig(scope, importName);
+              if (importConfig) {
+                for (ip in importConfig) {
+                  iv = importConfig[ip];
+                  config[ip] = iv;
+                }
               }
             }
           }
@@ -17297,12 +17313,9 @@ Template
             tagName: "div",
             contextKey: "yes",
             click: messageBox._doApprove,
-            "class": "ui positive right labeled icon button ",
+            "class": "ui positive button ",
             content: [
               {
-                tagName: "i",
-                "class": "checkmark icon"
-              }, {
                 tagName: "span",
                 content: cola.resource("cola.message.approve"),
                 contextKey: "yesCaption"
@@ -19822,7 +19835,7 @@ Template
         this.post();
       }
       if (typeof this.onSetValue === "function") {
-        this.onSetValue();
+        this.onSetValue(value);
       }
       this.fire("change", this, arg);
       return true;
@@ -21744,17 +21757,12 @@ Template
   dropdownDialogMargin = 0;
 
   cola.findDropDown = function(target) {
-    var dropContainer;
-    if (target instanceof cola.Widget) {
-      target = target.getDom();
+    var layer;
+    layer = cola.findWidget(target, cola.AbstractLayer);
+    while (layer && !layer.hasClass("drop-container")) {
+      layer = cola.findWidget(layer, cola.AbstractLayer);
     }
-    while (target) {
-      if ($fly(target).hasClass("drop-container")) {
-        dropContainer = cola.widget(target);
-        return dropContainer != null ? dropContainer._dropdown : void 0;
-      }
-      target = target.parentNode;
-    }
+    return layer != null ? layer._dropdown : void 0;
   };
 
   cola.AbstractDropdown = (function(superClass) {
@@ -21840,7 +21848,7 @@ Template
     };
 
     AbstractDropdown.prototype._initDom = function(dom) {
-      var doPost, dropdown, valueContent;
+      var dropdown, valueContent;
       AbstractDropdown.__super__._initDom.call(this, dom);
       $fly(this._doms.input).xInsertAfter({
         tagName: "div",
@@ -21859,29 +21867,6 @@ Template
           }
         };
       })(this));
-      doPost = (function(_this) {
-        return function() {
-          var dataType, inputFormat, readOnly, value;
-          readOnly = _this._readOnly;
-          if (!readOnly) {
-            value = $(_this._doms.input).val();
-            dataType = _this._dataType;
-            if (dataType) {
-              if (_this._inputType === "text") {
-                inputFormat = _this._inputFormat;
-                if (dataType instanceof cola.DateDataType) {
-                  if (inputFormat == null) {
-                    inputFormat = DEFAULT_DATE_INPUT_FORMAT;
-                  }
-                  value = inputFormat + "||" + value;
-                }
-              }
-              value = dataType.parse(value);
-            }
-            _this.set("value", value);
-          }
-        };
-      })(this);
       dropdown = this;
       valueContent = this._doms.valueContent;
       $(this._doms.input).on("focus", function() {
@@ -21889,7 +21874,6 @@ Template
         dropdown.fire("focus", dropdown, {});
       }).on("blur", function() {
         $fly(valueContent).removeClass("placeholder");
-        doPost();
         dropdown.fire("blur", dropdown, {});
       }).on("keydown", (function(_this) {
         return function(event) {
@@ -21991,14 +21975,14 @@ Template
     };
 
     AbstractDropdown.prototype._isEditorReadOnly = function() {
-      return cola.device.mobile;
+      return cola.device.mobile || this._openOnActive;
     };
 
     AbstractDropdown.prototype._refreshInput = function() {
       var $inputDom, ref;
       $inputDom = $fly(this._doms.input);
       $inputDom.attr("placeholder", this.get("placeholder"));
-      $inputDom.prop("readOnly", this._finalReadOnly || this._isEditorReadOnly());
+      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly());
       if ((ref = this.get("actionButton")) != null) {
         ref.set("disabled", this._finalReadOnly);
       }
@@ -22261,12 +22245,13 @@ Template
       } else {
         value = item;
       }
-      this._currentItem = item;
       this._skipFindCurrentItem = true;
-      this.set("value", value);
-      this.fire("selectData", this, {
+      if (this.fire("selectData", this, {
         data: item
-      });
+      }) !== false) {
+        this._currentItem = item;
+        this.set("value", value);
+      }
       this._skipFindCurrentItem = false;
       this.refresh();
     };
@@ -22585,7 +22570,7 @@ Template
     };
 
     CustomDropdown.prototype._isEditorReadOnly = function() {
-      return false;
+      return this._openOnActive;
     };
 
     CustomDropdown.prototype._getDropdownContent = function() {
@@ -25754,7 +25739,7 @@ Template
     };
 
     Carousel.prototype._initDom = function(dom) {
-      var carousel, template;
+      var carousel, refreshItems, template;
       if (!this._doms.indicators) {
         this._createIndicatorContainer(dom);
       }
@@ -25762,12 +25747,21 @@ Template
         this._createItemsWrap(dom);
       }
       template = this.getTemplate();
+      carousel = this;
       if (template) {
         if (this._bind) {
           $fly(template).attr("c-repeat", this._bind);
         }
         this._doms.wrap.appendChild(template);
         cola.xRender(template, this._scope);
+        refreshItems = function(ev) {
+          carousel._refreshItemsTimer && clearTimeout(carousel._refreshItemsTimer);
+          return carousel._refreshItemsTimer = setTimeout(function() {
+            return carousel.refreshItems();
+          }, 100);
+        };
+        this._doms.wrap.addEventListener("DOMNodeRemoved", refreshItems, false);
+        this._doms.wrap.addEventListener("DOMNodeInserted", refreshItems, false);
       }
       if (this._getDataItems().items) {
         this._itemsRender();
@@ -25946,14 +25940,7 @@ Template
       return this._itemDomsChanged();
     };
 
-    Carousel.prototype._itemDomsChanged = function() {
-      setTimeout((function(_this) {
-        return function() {
-          _this._items = [];
-          _this._parseDom(_this._dom);
-        };
-      })(this), 0);
-    };
+    Carousel.prototype._itemDomsChanged = function() {};
 
     Carousel.prototype.play = function(pause) {
       var carousel;

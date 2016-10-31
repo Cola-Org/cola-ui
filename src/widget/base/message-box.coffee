@@ -219,12 +219,8 @@ do()->
 					tagName: "div"
 					contextKey: "yes"
 					click: messageBox._doApprove
-					class: "ui positive right labeled icon button "
+					class: "ui positive button "
 					content: [
-						{
-							tagName: "i"
-							class: "checkmark icon"
-						}
 						{
 							tagName: "span"
 							content: cola.resource("cola.message.approve")

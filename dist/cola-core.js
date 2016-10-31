@@ -11768,40 +11768,56 @@
   };
 
   _compileWidgetAttribute = function(scope, dom, context) {
-    var config, importConfig, importName, importNames, ip, iv, l, len1, p, v, widgetConfigStr;
-    widgetConfigStr = dom.getAttribute("c-widget");
+    var config, importConfig, importName, importNames, ip, iv, l, len1, len2, o, p, v, widgetConfigStr;
+    widgetConfigStr = dom.getAttribute("c-config");
     if (widgetConfigStr) {
-      dom.removeAttribute("c-widget");
-      if (context.defaultPath) {
-        widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
-      }
-      config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
-      if (config) {
-        importNames = null;
-        for (p in config) {
-          v = config[p];
-          importName = null;
-          if (p.charCodeAt(0) === 35) {
-            importName = p.substring(1);
-          } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
-            importName = v.substring(1);
-          }
-          if (importName) {
-            delete config[p];
-            if (importNames == null) {
-              importNames = [];
-            }
-            importNames.push(importName);
+      importNames = widgetConfigStr.split(/[,;]/);
+      config = {};
+      for (l = 0, len1 = importNames.length; l < len1; l++) {
+        importName = importNames[l];
+        importConfig = _findWidgetConfig(scope, importName);
+        if (importConfig) {
+          for (ip in importConfig) {
+            iv = importConfig[ip];
+            config[ip] = iv;
           }
         }
-        if (importNames) {
-          for (l = 0, len1 = importNames.length; l < len1; l++) {
-            importName = importNames[l];
-            importConfig = _findWidgetConfig(scope, importName);
-            if (importConfig) {
-              for (ip in importConfig) {
-                iv = importConfig[ip];
-                config[ip] = iv;
+      }
+    } else {
+      widgetConfigStr = dom.getAttribute("c-widget");
+      if (widgetConfigStr) {
+        dom.removeAttribute("c-widget");
+        if (context.defaultPath) {
+          widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
+        }
+        config = cola.util.parseStyleLikeString(widgetConfigStr, "$type");
+        if (config) {
+          importNames = null;
+          for (p in config) {
+            v = config[p];
+            importName = null;
+            if (p.charCodeAt(0) === 35) {
+              importName = p.substring(1);
+            } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
+              importName = v.substring(1);
+            }
+            if (importName) {
+              delete config[p];
+              if (importNames == null) {
+                importNames = [];
+              }
+              importNames.push(importName);
+            }
+          }
+          if (importNames) {
+            for (o = 0, len2 = importNames.length; o < len2; o++) {
+              importName = importNames[o];
+              importConfig = _findWidgetConfig(scope, importName);
+              if (importConfig) {
+                for (ip in importConfig) {
+                  iv = importConfig[ip];
+                  config[ip] = iv;
+                }
               }
             }
           }
