@@ -34,7 +34,7 @@ class cola.Tab extends cola.Widget
 				@_currentTab = tab
 				return tab
 			setter: (index)->
-				@setCurrentIndex(index)
+				@setCurrentTab(index)
 				return @
 	@events:
 		beforeChange: null
