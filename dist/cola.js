@@ -18486,7 +18486,7 @@ Template
           return tab;
         },
         setter: function(index) {
-          this.setCurrentIndex(index);
+          this.setCurrentTab(index);
           return this;
         }
       }
@@ -20572,6 +20572,10 @@ Template
       inputType: {
         defaultValue: "text"
       },
+      maxLength: {
+        refreshDom: true,
+        type: "number"
+      },
       postOnInput: {
         type: "boolean",
         defaultValue: false
@@ -20727,6 +20731,20 @@ Template
       return Input.__super__._refreshInputValue.call(this, value);
     };
 
+    Input.prototype._doRefreshDom = function() {
+      var $input;
+      if (!this._dom) {
+        return;
+      }
+      Input.__super__._doRefreshDom.call(this);
+      $input = $(this._doms.input);
+      if (this._maxLength) {
+        return $input.attr("maxlength", this._maxLength);
+      } else {
+        return $input.removeAttr("maxlength");
+      }
+    };
+
     return Input;
 
   })(cola.AbstractInput);
@@ -20876,8 +20894,12 @@ Template
       if (!this._dom) {
         return;
       }
-      if (this._dom) {
-        this.get$Dom().progress("setting", name, value);
+      if (name === "total") {
+        this.get$Dom().progress("set total", progress);
+      } else {
+        if (this._dom) {
+          this.get$Dom().progress("setting", name, value);
+        }
       }
     };
 
@@ -21870,11 +21892,9 @@ Template
       dropdown = this;
       valueContent = this._doms.valueContent;
       $(this._doms.input).on("focus", function() {
-        $fly(valueContent).addClass("placeholder");
-        dropdown.fire("focus", dropdown, {});
+        dropdown._doFocus();
       }).on("blur", function() {
-        $fly(valueContent).removeClass("placeholder");
-        dropdown.fire("blur", dropdown, {});
+        dropdown._doBlur();
       }).on("keydown", (function(_this) {
         return function(event) {
           var arg;
@@ -21912,6 +21932,16 @@ Template
       if (this._items && this._valueProperty) {
         this._setValue(this._value);
       }
+    };
+
+    AbstractDropdown.prototype._doBlur = function() {
+      $fly(this._doms.valueContent).removeClass("placeholder");
+      this.fire("blur", this, {});
+    };
+
+    AbstractDropdown.prototype._doFocus = function() {
+      $fly(this._doms.valueContent).addClass("placeholder");
+      this.fire("focus", this, {});
     };
 
     AbstractDropdown.prototype._parseDom = function(dom) {
@@ -21975,7 +22005,7 @@ Template
     };
 
     AbstractDropdown.prototype._isEditorReadOnly = function() {
-      return cola.device.mobile || this._openOnActive;
+      return cola.device.mobile;
     };
 
     AbstractDropdown.prototype._refreshInput = function() {
@@ -22090,8 +22120,29 @@ Template
       return openMode;
     };
 
+    AbstractDropdown.prototype._getTitleContent = function() {
+      return cola.xRender({
+        tagName: "div",
+        "class": "box",
+        content: {
+          tagName: "c-titlebar",
+          content: [
+            {
+              tagName: "a",
+              icon: "chevron left",
+              click: (function(_this) {
+                return function() {
+                  return _this.close();
+                };
+              })(this)
+            }
+          ]
+        }
+      }, this._scope, {});
+    };
+
     AbstractDropdown.prototype._getContainer = function() {
-      var config, container, ctx, openMode, titleContent;
+      var config, container, openMode, titleContent;
       if (this._container) {
         if (typeof this._refreshDropdownContent === "function") {
           this._refreshDropdownContent();
@@ -22131,25 +22182,7 @@ Template
             config.animation = "slide up";
             config.height = "50%";
           }
-          ctx = {};
-          titleContent = cola.xRender({
-            tagName: "div",
-            "class": "box",
-            content: {
-              tagName: "c-titlebar",
-              content: [
-                {
-                  tagName: "a",
-                  icon: "chevron left",
-                  click: (function(_this) {
-                    return function() {
-                      return _this.close();
-                    };
-                  })(this)
-                }
-              ]
-            }
-          }, this._scope, ctx);
+          titleContent = this._getTitleContent();
           $fly(config.dom.firstChild.firstChild).before(titleContent);
           container = new cola.Layer(config);
         } else if (openMode === "sidebar") {
@@ -22570,7 +22603,7 @@ Template
     };
 
     CustomDropdown.prototype._isEditorReadOnly = function() {
-      return this._openOnActive;
+      return false;
     };
 
     CustomDropdown.prototype._getDropdownContent = function() {
@@ -32909,6 +32942,9 @@ Template
           $type: "input",
           "class": "goto",
           inputType: "number",
+          initDom: function(self, arg) {
+            self.get$Dom().find("input").attr("min", 0);
+          },
           keyDown: function(self, arg) {
             var k;
             k = arg.keyCode;
