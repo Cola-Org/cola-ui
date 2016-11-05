@@ -90,12 +90,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		dropdown = @
 		valueContent = @_doms.valueContent
 		$(@_doms.input).on("focus", () ->
-			$fly(valueContent).addClass("placeholder")
-			dropdown.fire("focus", dropdown, {})
+			dropdown._doFocus();
 			return
 		).on("blur", () ->
-			$fly(valueContent).removeClass("placeholder")
-			dropdown.fire("blur", dropdown, {})
+			dropdown._doBlur();
 			return
 		).on("keydown", (event)=>
 			arg =
@@ -120,6 +118,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			unless @_icon then @set("icon", "dropdown")
 
 		if @_items and @_valueProperty then @_setValue(@_value)
+		return
+
+	_doBlur: ()->
+		$fly(@_doms.valueContent).removeClass("placeholder")
+		@fire("blur", @, {})
+		return
+
+	_doFocus: ()->
+		$fly(@_doms.valueContent).addClass("placeholder")
+		@fire("focus", @, {})
 		return
 
 	_parseDom: (dom)->
@@ -163,7 +171,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return cola.device.mobile or @_openOnActive
+		return cola.device.mobile
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
@@ -256,6 +264,21 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				openMode = "dialog"
 		return openMode
 
+	_getTitleContent: ()->
+		return cola.xRender({
+			tagName: "div"
+			class: "box"
+			content:
+				tagName: "c-titlebar"
+				content: [
+					{
+						tagName: "a"
+						icon: "chevron left"
+						click: () => @close()
+					}
+				]
+		}, @_scope, {})
+
 	_getContainer: () ->
 		if @_container
 			@_refreshDropdownContent?()
@@ -288,20 +311,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					config.animation = "slide up"
 					config.height = "50%"
 
-				ctx = {}
-				titleContent = cola.xRender({
-					tagName: "div"
-					class: "box"
-					content:
-						tagName: "c-titlebar"
-						content: [
-							{
-								tagName: "a"
-								icon: "chevron left"
-								click: () => @close()
-							}
-						]
-				}, @_scope, ctx)
+				titleContent = @_getTitleContent()
 				$fly(config.dom.firstChild.firstChild).before(titleContent)
 				container = new cola.Layer(config)
 			else if openMode is "sidebar"
@@ -351,7 +361,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				else
 					$containerDom.addClass("hidden")
 
-			@fire("initDropdownBox", @, { dropdownBox: container })
+			@fire("initDropdownBox", @, {dropdownBox: container})
 
 			if container.constructor.events.$has("hide")
 				container.on("hide:dropdown", () =>
@@ -619,7 +629,7 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			"c-bind": "$default"
 
 	_isEditorReadOnly: () ->
-		return @_openOnActive
+		return false
 
 	_getDropdownContent: () ->
 		if not @_dropdownContent
