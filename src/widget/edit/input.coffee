@@ -313,10 +313,12 @@ class cola.Input extends cola.AbstractInput
 		inputFormat: null
 		inputType:
 			defaultValue: "text"
+		maxLength:
+			refreshDom: true
+			type: "number"
 		postOnInput:
 			type: "boolean"
 			defaultValue: false
-
 	@events:
 		focus: null
 		blur: null
@@ -391,11 +393,12 @@ class cola.Input extends cola.AbstractInput
 				ctrlKey: event.ctrlKey
 				altKey: event.altKey
 				event: event
-			if @fire("keyPress", @, arg)== false then return
+			if @fire("keyPress", @, arg) == false then return
 
 			if event.keyCode is 13 && isIE11 then doPost()
-
 		)
+
+
 		return
 
 	_refreshInputValue: (value) ->
@@ -419,5 +422,13 @@ class cola.Input extends cola.AbstractInput
 					format = ISO_FORMAT_STRING
 				value = (new XDate(value)).toString(format)
 		return super(value)
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		$input = $(@_doms.input);
+		if @_maxLength
+			$input.attr("maxlength", @_maxLength)
+		else
+			$input.removeAttr("maxlength");
 
 cola.registerWidget(cola.Input)
