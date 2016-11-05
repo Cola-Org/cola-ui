@@ -117,7 +117,10 @@ class cola.Progress extends cola.Widget
 
 	_setting: (name, value)->
 		return unless @_dom
-		@get$Dom().progress("setting", name, value) if @_dom
+		if name is "total"
+			@get$Dom().progress("set total", progress)
+		else
+			@get$Dom().progress("setting", name, value) if @_dom
 		return
 
 	_settingText: ()->
