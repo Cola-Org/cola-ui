@@ -73,8 +73,8 @@ class cola.SelectButton extends cola.AbstractEditor
 				content: {
 					tagName: "c-button",
 					"c-repeat": "item in " + raw,
-					"c-caption": cValue
-					"c-value": cText
+					"c-caption": cText
+					"c-value": cValue
 				}
 			}, attrBinding.scope)
 

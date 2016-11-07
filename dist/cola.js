@@ -24379,8 +24379,8 @@ Template
           content: {
             tagName: "c-button",
             "c-repeat": "item in " + raw,
-            "c-caption": cValue,
-            "c-value": cText
+            "c-caption": cText,
+            "c-value": cValue
           }
         }, attrBinding.scope);
       } else {
