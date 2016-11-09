@@ -330,7 +330,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return container
 
 	open: (callback) ->
-		return if @fire("beforeOpen", @) == false
+		return if @_finalReadOnly or @fire("beforeOpen", @) == false
 
 		doCallback = () =>
 			@fire("open", @)
@@ -373,6 +373,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 			@_opened = true
 			$fly(@_dom).addClass("opened")
+			return true
+
 		return
 
 	close: (selectedData, callback) ->
@@ -549,14 +551,15 @@ class cola.Dropdown extends cola.AbstractDropdown
 		super(dom)
 
 	open: () ->
-		super()
-		list = @_list
-		if list and @_currentItem isnt list.get("currentItem")
-			list.set("currentItem", @_currentItem)
+		if super()
+			list = @_list
+			if list and @_currentItem isnt list.get("currentItem")
+				list.set("currentItem", @_currentItem)
 
-		if @_opened and @_filterable
-			inputDom = @_doms.input
-			$fly(inputDom).on("input.filterItem", () => @_onInput(inputDom.value))
+			if @_opened and @_filterable
+				inputDom = @_doms.input
+				$fly(inputDom).on("input.filterItem", () => @_onInput(inputDom.value))
+			return true
 		return
 
 	close: (selectedValue) ->

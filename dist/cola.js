@@ -22204,7 +22204,7 @@ Template
 
     AbstractDropdown.prototype.open = function(callback) {
       var $containerDom, $flexContent, clientHeight, container, containerHeight, doCallback, height;
-      if (this.fire("beforeOpen", this) === false) {
+      if (this._finalReadOnly || this.fire("beforeOpen", this) === false) {
         return;
       }
       doCallback = (function(_this) {
@@ -22251,6 +22251,7 @@ Template
         }
         this._opened = true;
         $fly(this._dom).addClass("opened");
+        return true;
       }
     };
 
@@ -22481,18 +22482,20 @@ Template
 
     Dropdown.prototype.open = function() {
       var inputDom, list;
-      Dropdown.__super__.open.call(this);
-      list = this._list;
-      if (list && this._currentItem !== list.get("currentItem")) {
-        list.set("currentItem", this._currentItem);
-      }
-      if (this._opened && this._filterable) {
-        inputDom = this._doms.input;
-        $fly(inputDom).on("input.filterItem", (function(_this) {
-          return function() {
-            return _this._onInput(inputDom.value);
-          };
-        })(this));
+      if (Dropdown.__super__.open.call(this)) {
+        list = this._list;
+        if (list && this._currentItem !== list.get("currentItem")) {
+          list.set("currentItem", this._currentItem);
+        }
+        if (this._opened && this._filterable) {
+          inputDom = this._doms.input;
+          $fly(inputDom).on("input.filterItem", (function(_this) {
+            return function() {
+              return _this._onInput(inputDom.value);
+            };
+          })(this));
+        }
+        return true;
       }
     };
 
@@ -23238,24 +23241,28 @@ Template
 
     DatePicker.prototype.open = function() {
       var ref, value;
-      DatePicker.__super__.open.call(this);
-      value = this.get("value");
-      if (!value) {
-        value = new Date();
-      } else {
-        if (!(value instanceof Date)) {
-          value = new Date(Date.parse(value));
+      if (DatePicker.__super__.open.call(this)) {
+        value = this.get("value");
+        if (!value) {
+          value = new Date();
+        } else {
+          if (!(value instanceof Date)) {
+            value = new Date(Date.parse(value));
+          }
         }
+        if (value.toDateString() === "Invalid Date") {
+          value = new Date();
+        }
+        this._dataGrid.setCurrentDate(value);
+        if ((ref = this._timeEditor) != null) {
+          ref.set({
+            hour: value.getHours(),
+            minute: value.getMinutes(),
+            second: value.getSeconds()
+          });
+        }
+        return true;
       }
-      if (value.toDateString() === "Invalid Date") {
-        value = new Date();
-      }
-      this._dataGrid.setCurrentDate(value);
-      return (ref = this._timeEditor) != null ? ref.set({
-        hour: value.getHours(),
-        minute: value.getMinutes(),
-        second: value.getSeconds()
-      }) : void 0;
     };
 
     DatePicker.prototype._getDropdownContent = function() {
@@ -23709,13 +23716,15 @@ Template
 
     YearMonthDropDown.prototype.open = function() {
       var date, value;
-      YearMonthDropDown.__super__.open.call(this);
-      value = this.get("value");
-      if (!value) {
-        date = new Date();
-        value = (date.getFullYear()) + "-" + (date.getMonth() + 1);
+      if (YearMonthDropDown.__super__.open.call(this)) {
+        value = this.get("value");
+        if (!value) {
+          date = new Date();
+          value = (date.getFullYear()) + "-" + (date.getMonth() + 1);
+        }
+        this._dataGrid.set("value", value);
+        return true;
       }
-      return this._dataGrid.set("value", value);
     };
 
     YearMonthDropDown.prototype._getDropdownContent = function() {
