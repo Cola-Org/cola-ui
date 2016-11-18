@@ -3251,6 +3251,8 @@
         aggregated = true;
       } else if (typeof json === "object" && json.hasOwnProperty("$data")) {
         aggregated = json.$data instanceof Array;
+      } else if (typeof json === "object" && json.hasOwnProperty("data$")) {
+        aggregated = json.data$ instanceof Array;
       } else {
         aggregated = false;
       }
@@ -4763,6 +4765,8 @@
       entityList = this.entityList;
       if (json.hasOwnProperty("$data")) {
         json = rawJson.$data;
+      } else if (json.hasOwnProperty("_data")) {
+        json = rawJson._data;
       }
       if (!(json instanceof Array)) {
         throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".");
@@ -4775,6 +4779,8 @@
       }
       if (rawJson.$entityCount != null) {
         entityList.totalEntityCount = rawJson.$entityCount;
+      } else if (rawJson.entityCount$ != null) {
+        entityList.totalEntityCount = rawJson.entityCount$;
       }
       if (entityList.totalEntityCount != null) {
         if (entityList.pageSize) {

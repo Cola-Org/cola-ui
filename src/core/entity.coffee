@@ -1011,7 +1011,11 @@ class Page extends LinkedList
 		rawJson = json
 		entityList = @entityList
 
-		if json.hasOwnProperty("$data") then json = rawJson.$data
+		if json.hasOwnProperty("$data")
+			json = rawJson.$data
+		else if json.hasOwnProperty("_data")
+			json = rawJson._data
+
 		if not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
@@ -1020,7 +1024,11 @@ class Page extends LinkedList
 			entity = new _Entity(data, dataType)
 			@_insertElement(entity)
 
-		entityList.totalEntityCount = rawJson.$entityCount if rawJson.$entityCount?
+		if rawJson.$entityCount?
+			entityList.totalEntityCount = rawJson.$entityCount
+		else if rawJson.entityCount$?
+			entityList.totalEntityCount = rawJson.entityCount$
+
 		if entityList.totalEntityCount?
 			if entityList.pageSize
 				entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)

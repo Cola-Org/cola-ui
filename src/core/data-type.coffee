@@ -217,6 +217,8 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 			aggregated = true
 		else if typeof json == "object" and json.hasOwnProperty("$data")
 			aggregated = json.$data instanceof Array
+		else if typeof json == "object" and json.hasOwnProperty("data$")
+			aggregated = json.data$ instanceof Array
 		else
 			aggregated = false
 
