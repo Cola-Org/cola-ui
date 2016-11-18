@@ -4018,7 +4018,7 @@
                   matched = value.dataType === dataType && !property._aggregated;
                 } else if (value instanceof _EntityList) {
                   matched = value.dataType === dataType && property._aggregated;
-                } else if (property._aggregated || value instanceof Array || value.hasOwnProperty("$data")) {
+                } else if (property._aggregated || value instanceof Array || value.hasOwnProperty("$data") || value.hasOwnProperty("data$")) {
                   value = this._jsonToEntity(value, dataType, true, provider);
                 } else {
                   value = new _Entity(value, dataType);
@@ -4050,7 +4050,7 @@
               if (convert) {
                 value = this._jsonToEntity(value, null, true, provider);
               }
-            } else if (value.hasOwnProperty("$data")) {
+            } else if (value.hasOwnProperty("$data") || value.hasOwnProperty("data$")) {
               value = this._jsonToEntity(value, null, true, provider);
             } else if (value instanceof Date) {
 
@@ -4765,8 +4765,8 @@
       entityList = this.entityList;
       if (json.hasOwnProperty("$data")) {
         json = rawJson.$data;
-      } else if (json.hasOwnProperty("_data")) {
-        json = rawJson._data;
+      } else if (json.hasOwnProperty("data$")) {
+        json = rawJson.data$;
       }
       if (!(json instanceof Array)) {
         throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".");

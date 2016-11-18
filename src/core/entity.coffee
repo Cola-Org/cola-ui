@@ -515,7 +515,7 @@ class cola.Entity
 								matched = value.dataType == dataType and !property._aggregated
 							else if value instanceof _EntityList
 								matched = value.dataType == dataType and property._aggregated
-							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data")
+							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 								value = @_jsonToEntity(value, dataType, true, provider)
 							else
 								value = new _Entity(value, dataType)
@@ -535,9 +535,10 @@ class cola.Entity
 							item = value[0]
 							if cola.util.isSimpleValue(item) then convert = false
 						value = @_jsonToEntity(value, null, true, provider) if convert
-					else if value.hasOwnProperty("$data")
+					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
+						# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value
@@ -1013,8 +1014,8 @@ class Page extends LinkedList
 
 		if json.hasOwnProperty("$data")
 			json = rawJson.$data
-		else if json.hasOwnProperty("_data")
-			json = rawJson._data
+		else if json.hasOwnProperty("data$")
+			json = rawJson.data$
 
 		if not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
