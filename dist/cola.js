@@ -22500,6 +22500,7 @@ Template
               return _this._onInput(inputDom.value);
             };
           })(this));
+          this._onInput(inputDom.value);
         }
         return true;
       }
