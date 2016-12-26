@@ -106,6 +106,8 @@ class cola.Button extends cola.AbstractButton
 						break
 				child = child.nextSibling
 
+		if not @_disabled && @get$Dom().hasClass("disabled")
+			@_disabled = true
 		return
 
 	_refreshIcon: ()->

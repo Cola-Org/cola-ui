@@ -161,7 +161,7 @@ sources =
 			"src/lib/scroller.js"
 			"src/lib/easy-scroller.js"
 
-			"src/lib/fastclick.js"
+#			"src/lib/fastclick.js"
 		]
 
 	"lib-core":

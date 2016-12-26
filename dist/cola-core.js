@@ -3103,6 +3103,7 @@
         this.removeProperty(property._property);
       }
       this._properties.add(property._property, property);
+      this._properties.add(property._property, property);
       property._owner = this;
       return property;
     };
@@ -4771,28 +4772,32 @@
       if (!(json instanceof Array)) {
         throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".");
       }
-      dataType = entityList.dataType;
-      for (l = 0, len1 = json.length; l < len1; l++) {
-        data = json[l];
-        entity = new _Entity(data, dataType);
-        this._insertElement(entity);
-      }
-      if (rawJson.$entityCount != null) {
-        entityList.totalEntityCount = rawJson.$entityCount;
-      } else if (rawJson.entityCount$ != null) {
-        entityList.totalEntityCount = rawJson.entityCount$;
-      }
-      if (entityList.totalEntityCount != null) {
-        if (entityList.pageSize) {
-          entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize);
+      if (json.length) {
+        dataType = entityList.dataType;
+        for (l = 0, len1 = json.length; l < len1; l++) {
+          data = json[l];
+          entity = new _Entity(data, dataType);
+          this._insertElement(entity);
         }
+        if (rawJson.$entityCount != null) {
+          entityList.totalEntityCount = rawJson.$entityCount;
+        } else if (rawJson.entityCount$ != null) {
+          entityList.totalEntityCount = rawJson.entityCount$;
+        }
+        if (entityList.totalEntityCount != null) {
+          if (entityList.pageSize) {
+            entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize);
+          }
+          entityList.pageCountDetermined = true;
+        }
+        entityList.entityCount += json.length;
+        entityList.timestamp = cola.sequenceNo();
+        entityList._notify(cola.constants.MESSAGE_REFRESH, {
+          data: entityList
+        });
+      } else {
         entityList.pageCountDetermined = true;
       }
-      entityList.entityCount += json.length;
-      entityList.timestamp = cola.sequenceNo();
-      entityList._notify(cola.constants.MESSAGE_REFRESH, {
-        data: entityList
-      });
     };
 
     Page.prototype._insertElement = function(entity, insertMode, refEntity) {
@@ -8999,12 +9004,6 @@
     return html;
   };
 
-  if (cola.device.mobile) {
-    $fly(window).on("load", function() {
-      FastClick.attach(document.body);
-    });
-  }
-
   if (cola.browser.webkit) {
     browser = "webkit";
     if (cola.browser.chrome) {
@@ -9038,14 +9037,6 @@
 
   if (browser || os) {
     $fly(document.documentElement).addClass(browser + os);
-  }
-
-  if (cola.os.mobile) {
-    $(function() {
-      if (typeof FastClick !== "undefined" && FastClick !== null) {
-        FastClick.attach(document.body);
-      }
-    });
   }
 
   cola.loadSubView = function(targetDom, context) {
@@ -11006,7 +10997,7 @@
       context = {};
     }
     if (_doRenderDomTemplate(dom, scope, context)) {
-      $(dom).find(".show-on-ready").removeClass("show-on-ready");
+      $(dom).find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS);
     }
   };
 

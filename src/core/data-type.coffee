@@ -116,6 +116,7 @@ class cola.EntityDataType extends cola.DataType
 			@removeProperty(property._property)
 
 		@_properties.add(property._property, property)
+		@_properties.add(property._property, property)
 		property._owner = @
 		return property
 

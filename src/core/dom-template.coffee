@@ -143,7 +143,7 @@ cola.xRender.nodeProcessors = []
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
 	if _doRenderDomTemplate(dom, scope, context)
-		$(dom).find(".show-on-ready").removeClass("show-on-ready")
+		$(dom).find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 	return
 
 _doRenderDomTemplate = (dom, scope, context) ->

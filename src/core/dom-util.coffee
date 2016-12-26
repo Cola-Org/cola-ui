@@ -259,11 +259,11 @@ cola.util.getGlobalTemplate = (name) ->
 		if not template.hasAttribute("shared") then $fly(template).remove()
 	return html
 
-if cola.device.mobile
-	$fly(window).on("load", () ->
-		FastClick.attach(document.body)
-		return
-	)
+#if cola.device.mobile
+#	$fly(window).on("load", () ->
+#		FastClick.attach(document.body)
+#		return
+#	)
 
 if cola.browser.webkit
 	browser = "webkit"
@@ -296,8 +296,3 @@ else if cola.device.desktop
 
 if browser or os
 	$fly(document.documentElement).addClass(browser + os)
-
-if cola.os.mobile
-	$ () ->
-		FastClick?.attach(document.body)
-		return

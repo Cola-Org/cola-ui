@@ -1020,27 +1020,30 @@ class Page extends LinkedList
 		if not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
-		dataType = entityList.dataType
-		for data in json
-			entity = new _Entity(data, dataType)
-			@_insertElement(entity)
+		if json.length
+			dataType = entityList.dataType
+			for data in json
+				entity = new _Entity(data, dataType)
+				@_insertElement(entity)
 
-		if rawJson.$entityCount?
-			entityList.totalEntityCount = rawJson.$entityCount
-		else if rawJson.entityCount$?
-			entityList.totalEntityCount = rawJson.entityCount$
+			if rawJson.$entityCount?
+				entityList.totalEntityCount = rawJson.$entityCount
+			else if rawJson.entityCount$?
+				entityList.totalEntityCount = rawJson.entityCount$
 
-		if entityList.totalEntityCount?
-			if entityList.pageSize
-				entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+			if entityList.totalEntityCount?
+				if entityList.pageSize
+					entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+				entityList.pageCountDetermined = true
+
+			entityList.entityCount += json.length
+			entityList.timestamp = cola.sequenceNo()
+
+			entityList._notify(cola.constants.MESSAGE_REFRESH, {
+				data: entityList
+			})
+		else
 			entityList.pageCountDetermined = true
-
-		entityList.entityCount += json.length
-		entityList.timestamp = cola.sequenceNo()
-
-		entityList._notify(cola.constants.MESSAGE_REFRESH, {
-			data: entityList
-		})
 		return
 
 	_insertElement: (entity, insertMode, refEntity) ->
