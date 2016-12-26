@@ -386,6 +386,7 @@ class cola.Input extends cola.AbstractInput
 				altKey: event.altKey
 				event: event
 			@fire("keyDown", @, arg)
+			if event.altKey and event.keyCode is 18 and isIE11 then doPost()
 		).on("keypress", (event)=>
 			arg =
 				keyCode: event.keyCode
