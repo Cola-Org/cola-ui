@@ -20685,7 +20685,10 @@ Template
             altKey: event.altKey,
             event: event
           };
-          return _this.fire("keyDown", _this, arg);
+          _this.fire("keyDown", _this, arg);
+          if (event.altKey && event.keyCode === 18 && isIE11) {
+            return doPost();
+          }
         };
       })(this)).on("keypress", (function(_this) {
         return function(event) {
