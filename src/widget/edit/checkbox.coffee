@@ -157,7 +157,7 @@ class cola.Checkbox extends cola.AbstractCheckbox
 		return super()
 
 	_refreshEditorDom: ()->
-		if @_triState and @_value isnt @_onValue and  @_value isnt @_offValue
+		if @_triState and @_value isnt @_onValue and @_value isnt @_offValue
 			@get$Dom().checkbox('set indeterminate')
 			return
 		super()
@@ -166,10 +166,11 @@ cola.registerWidget(cola.Checkbox)
 
 class cola.Toggle extends cola.AbstractCheckbox
 	@tagName: "c-toggle"
-	@CLASS_NAME: "toggle checkbox"
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		unless @hasClass("slider") then @_classNamePool.add("toggle")
 
 cola.registerWidget(cola.Toggle)
 
-class cola.Slider extends cola.AbstractCheckbox
-	@CLASS_NAME: "slider checkbox"
 

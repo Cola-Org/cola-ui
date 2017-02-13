@@ -442,6 +442,15 @@ template {
   background-color: rgba(33, 133, 208, 0.8);
   color: #fff;
 }
+c-segment {
+  display: block;
+}
+c-divider {
+  display: block;
+}
+c-form {
+  display: block;
+}
 
 .mobile .v-box,
 .mobile .h-box {
@@ -451,8 +460,8 @@ template {
   display: -webkit-flex;
   display: flex;
 }
-.mobile .v-box .flex-box,
-.mobile .h-box .flex-box {
+.mobile .v-box > .flex-box,
+.mobile .h-box > .flex-box {
   display: -webkit-box;
   display: -moz-box;
 }
@@ -496,8 +505,8 @@ template {
   -ms-flex-item-align: auto;
   align-self: auto;
 }
-.v-box .flex-box,
-.h-box .flex-box {
+.v-box > .flex-box,
+.h-box > .flex-box {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -webkit-flex: 1 1 auto;
@@ -507,8 +516,8 @@ template {
   -ms-flex-item-align: auto;
   align-self: auto;
 }
-.v-box .flex-box > *,
-.h-box .flex-box > * {
+.v-box > .flex-box > *,
+.h-box > .flex-box > * {
   position: absolute !important;
   left: 0;
   right: 0;

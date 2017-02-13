@@ -20142,26 +20142,21 @@ Template
 
     Toggle.tagName = "c-toggle";
 
-    Toggle.CLASS_NAME = "toggle checkbox";
+    Toggle.prototype._doRefreshDom = function() {
+      if (!this._dom) {
+        return;
+      }
+      Toggle.__super__._doRefreshDom.call(this);
+      if (!this.hasClass("slider")) {
+        return this._classNamePool.add("toggle");
+      }
+    };
 
     return Toggle;
 
   })(cola.AbstractCheckbox);
 
   cola.registerWidget(cola.Toggle);
-
-  cola.Slider = (function(superClass) {
-    extend(Slider, superClass);
-
-    function Slider() {
-      return Slider.__super__.constructor.apply(this, arguments);
-    }
-
-    Slider.CLASS_NAME = "slider checkbox";
-
-    return Slider;
-
-  })(cola.AbstractCheckbox);
 
   DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd";
 
@@ -20679,7 +20674,10 @@ Template
             altKey: event.altKey,
             event: event
           };
-          return _this.fire("keyDown", _this, arg);
+          _this.fire("keyDown", _this, arg);
+          if (event.altKey && event.keyCode === 18 && isIE11) {
+            return doPost();
+          }
         };
       })(this)).on("keypress", (function(_this) {
         return function(event) {
@@ -22494,6 +22492,7 @@ Template
               return _this._onInput(inputDom.value);
             };
           })(this));
+          this._onInput(inputDom.value);
         }
         return true;
       }
