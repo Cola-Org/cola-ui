@@ -1,0 +1,150 @@
+@import (reference) "global";
+@loaderLineZIndex: 101;
+
+@loaderDimmerZIndex: 100;
+@loaderDimmerColor: rgba(255, 255, 255, 0.8);
+
+@disabledLabelOpacity: @disabledOpacity;
+@formErrorColor: @negativeTextColor;
+@formErrorBorder: @negativeBorderColor;
+@formErrorBackground: @negativeBackgroundColor;
+/*--------------------
+   Types of Messages
+---------------------*/
+
+
+.ui.form .success.message,
+.ui.form .warning.message,
+.ui.form .error.message {
+	display: none;
+}
+
+/* Assumptions */
+.ui.form .message:first-child {
+	margin-top: 0px;
+}
+
+/*--------------------
+        Success
+---------------------*/
+
+/* On Form */
+.ui.form.success .success.message:not(:empty) {
+	display: block;
+}
+
+.ui.form.success .icon.success.message:not(:empty) {
+	display: flex;
+}
+
+/*--------------------
+        Warning
+---------------------*/
+
+/* On Form */
+.ui.form.warning .warning.message:not(:empty) {
+	display: block;
+}
+
+.ui.form.warning .icon.warning.message:not(:empty) {
+	display: flex;
+}
+
+/*--------------------
+        Error
+---------------------*/
+
+/* On Form */
+.ui.form.error .error.message:not(:empty) {
+	display: block;
+}
+
+.ui.form.error .icon.error.message:not(:empty) {
+	display: flex;
+}
+
+/* On Field(s) */
+.ui.form .fields.error .field label,
+.ui.form .field.error label,
+.ui.form .fields.error .field .input,
+.ui.form .field.error .input {
+	color: @formErrorColor;
+}
+
+.ui.form .fields.error .field .corner.label,
+.ui.form .field.error .corner.label {
+	border-color: @formErrorColor;
+	color: @white;
+}
+
+/*--------------------
+       Disabled
+---------------------*/
+.ui.form .disabled.fields .field,
+.ui.form .disabled.field,
+.ui.form .field :disabled {
+	pointer-events: none;
+	opacity: @disabledOpacity;
+}
+
+.ui.form .field.disabled label {
+	opacity: @disabledLabelOpacity;
+}
+
+.ui.form .field.disabled :disabled {
+	opacity: 1;
+}
+
+/*--------------
+    Loading
+---------------*/
+
+.ui.loading.form {
+	position: relative;
+	cursor: default;
+	point-events: none;
+}
+
+.ui.loading.form:before {
+	position: absolute;
+	content: '';
+	top: 0%;
+	left: 0%;
+	background: @loaderDimmerColor;
+	width: 100%;
+	height: 100%;
+	z-index: @loaderDimmerZIndex;
+}
+
+.ui.loading.form:after {
+	position: absolute;
+	content: '';
+	top: 50%;
+	left: 50%;
+
+	margin: @loaderMargin;
+	width: @loaderSize;
+	height: @loaderSize;
+
+	animation: form-spin @loaderSpeed linear;
+	animation-iteration-count: infinite;
+
+	border-radius: @circularRadius;
+
+	border-color: @loaderLineColor @loaderFillColor @loaderFillColor @loaderFillColor;
+	border-style: solid;
+	border-width: @loaderLineWidth;
+
+	box-shadow: 0px 0px 0px 1px transparent;
+	visibility: visible;
+	z-index: @loaderLineZIndex;
+}
+
+@keyframes form-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}

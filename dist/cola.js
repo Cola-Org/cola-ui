@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _extractDirtyTree, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _processEntity, _processEntityList, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -3869,13 +3869,13 @@
                   success = false;
                 }
                 if (success) {
-                  result = _this._set(prop, result);
+                  result = _this._set(prop, result, true);
                   retValue = result;
                   if (result && (result instanceof cola.EntityList || result instanceof cola.Entity)) {
                     result._providerInvoker = providerInvoker;
                   }
                 } else {
-                  _this._set(prop, null);
+                  _this._set(prop, null, true);
                 }
                 if (callback) {
                   cola.callback(callback, success, result);
@@ -3997,7 +3997,7 @@
       return result;
     };
 
-    Entity.prototype._set = function(prop, value) {
+    Entity.prototype._set = function(prop, value, ignoreState) {
       var actualType, changed, convert, dataType, expectedType, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
       oldValue = this._data[prop];
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
@@ -4113,7 +4113,7 @@
             delete oldValue.parent;
             delete oldValue._parentProperty;
           }
-          if (this.state === _Entity.STATE_NONE) {
+          if (!ignoreState && this.state === _Entity.STATE_NONE) {
             this.setState(_Entity.STATE_MODIFIED);
           }
         }
@@ -5926,6 +5926,97 @@
       if (data.parent instanceof cola.Entity && data._parentProperty) {
         data.parent.flush(data._parentProperty, loadMode);
       }
+    }
+  };
+
+
+  /*
+  dirty tree
+   */
+
+  cola.util.dirtyTree = function(data, options) {
+    var context;
+    if (!data) {
+      return void 0;
+    }
+    context = {
+      tree: null,
+      parent: null,
+      parentProperty: null,
+      isList: false,
+      entityPath: []
+    };
+    _extractDirtyTree(data, context, options || {});
+    return context.tree;
+  };
+
+  _processEntity = function(entity, context, options) {
+    var base, data, json, name1, prop;
+    if (entity.state === _Entity.STATE_NONE) {
+      return;
+    }
+    json = entity.toJSON({
+      simpleValue: true,
+      state: true,
+      oldData: options.oldData
+    });
+    if (context.parent) {
+      if (context.isList) {
+        if ((base = context.parent)[name1 = context.parentProperty] == null) {
+          base[name1] = [];
+        }
+        context.parent[context.parentProperty].push(json);
+      } else {
+        context.parent[context.parentProperty] = json;
+      }
+    } else {
+      if (context.isList) {
+        if (context.tree == null) {
+          context.tree = [];
+        }
+        context.tree.push(json);
+      } else {
+        context.tree = json;
+      }
+    }
+    context.parent = json;
+    data = entity._data;
+    for (prop in data) {
+      value = data[prop];
+      if (prop.charCodeAt(0) === 36) {
+        continue;
+      }
+      if (value && (value instanceof _Entity || value instanceof _EntityList)) {
+        context.parentProperty = prop;
+        _extractDirtyTree(value, context);
+      }
+    }
+    context.parent = null;
+  };
+
+  _processEntityList = function(entityList, context, options) {
+    var next, page;
+    page = entityList._first;
+    if (page) {
+      next = page._first;
+      while (page) {
+        if (next) {
+          _processEntity(next, context, options);
+          next = next._next;
+        } else {
+          page = page._next;
+          next = page != null ? page._first : void 0;
+        }
+      }
+    }
+  };
+
+  _extractDirtyTree = function(data, context, options) {
+    context.isList = value instanceof _EntityList;
+    if (context.isList) {
+      _processEntityList(data, context, options);
+    } else {
+      _processEntity(data, context, options);
     }
   };
 
@@ -12126,7 +12217,7 @@
         template = template.outerHTML;
       }
       cls.attributes.template = {
-        defaultValue: definition.template
+        defaultValue: template
       };
     }
     cls.prototype._createDom = function() {
@@ -13144,8 +13235,61 @@ Template
         this.regTemplate(name, template);
       }
     },
+    trimTemplate: function(template) {
+      var c, child, html, k, ref, templs, widgetConfigs;
+      if (template.nodeType) {
+        if (template.nodeName === "TEMPLATE") {
+          if (!template.firstChild) {
+            html = template.innerHTML;
+            if (html) {
+              if (TEMP_TEMPLATE == null) {
+                TEMP_TEMPLATE = document.createElement("div");
+              }
+              template = TEMP_TEMPLATE;
+              template.innerHTML = html;
+            }
+          }
+          this._trimTemplate(template);
+          if (template.firstChild === template.lastChild) {
+            template = template.firstChild;
+          } else {
+            templs = [];
+            child = template.firstChild;
+            while (child) {
+              templs.push(child);
+              child = child.nextSibling;
+            }
+            template = templs;
+          }
+        }
+        this._templates[name] = template;
+      } else {
+        if (this._doms == null) {
+          this._doms = {};
+        }
+        template = $.xCreate(template, this._doms);
+        if (this._doms.widgetConfigs) {
+          if (this._templateContext == null) {
+            this._templateContext = {};
+          }
+          if (this._templateContext.widgetConfigs) {
+            widgetConfigs = this._templateContext.widgetConfigs;
+            ref = this._doms.widgetConfigs;
+            for (k in ref) {
+              c = ref[k];
+              widgetConfigs[k] = c;
+            }
+          } else {
+            this._templateContext.widgetConfigs = this._doms.widgetConfigs;
+          }
+        }
+        this._templates[name] = template;
+      }
+      template._trimed = true;
+      return template;
+    },
     getTemplate: function(name, defaultName) {
-      var c, child, html, k, ref, template, templs, widgetConfigs;
+      var template;
       if (name == null) {
         name = "default";
       }
@@ -13161,55 +13305,7 @@ Template
         template = cola.util.getGlobalTemplate(name);
       }
       if (template && !template._trimed) {
-        if (template.nodeType) {
-          if (template.nodeName === "TEMPLATE") {
-            if (!template.firstChild) {
-              html = template.innerHTML;
-              if (html) {
-                if (TEMP_TEMPLATE == null) {
-                  TEMP_TEMPLATE = document.createElement("div");
-                }
-                template = TEMP_TEMPLATE;
-                template.innerHTML = html;
-              }
-            }
-            this._trimTemplate(template);
-            if (template.firstChild === template.lastChild) {
-              template = template.firstChild;
-            } else {
-              templs = [];
-              child = template.firstChild;
-              while (child) {
-                templs.push(child);
-                child = child.nextSibling;
-              }
-              template = templs;
-            }
-          }
-          this._templates[name] = template;
-        } else {
-          if (this._doms == null) {
-            this._doms = {};
-          }
-          template = $.xCreate(template, this._doms);
-          if (this._doms.widgetConfigs) {
-            if (this._templateContext == null) {
-              this._templateContext = {};
-            }
-            if (this._templateContext.widgetConfigs) {
-              widgetConfigs = this._templateContext.widgetConfigs;
-              ref = this._doms.widgetConfigs;
-              for (k in ref) {
-                c = ref[k];
-                widgetConfigs[k] = c;
-              }
-            } else {
-              this._templateContext.widgetConfigs = this._doms.widgetConfigs;
-            }
-          }
-          this._templates[name] = template;
-        }
-        template._trimed = true;
+        template = this.trimTemplate(template);
       }
       return template;
     },
@@ -32033,25 +32129,75 @@ Template
     };
 
     AbstractTable.prototype._parseDom = function(dom) {
-      var child, next, nodeName;
+      var child, column, columns, next, nodeName;
       if (!dom) {
         return;
       }
       if (this._doms == null) {
         this._doms = {};
       }
+      columns = [];
       child = dom.firstChild;
       while (child) {
         next = child.nextSibling;
-        nodeName = child.nodeName.toLowerCase();
-        if (nodeName === "template") {
+        nodeName = child.nodeName;
+        if (nodeName === "TEMPLATE") {
           this.regTemplate(child);
+        } else if (nodeName === "COLUMN") {
+          column = this._parseColumnDom(child);
+          if (column) {
+            columns.push(column);
+          }
+          dom.removeChild(child);
         } else {
           dom.removeChild(child);
         }
         child = next;
       }
+      if (columns.length) {
+        this.set("columns", columns);
+      }
       this._createInnerDom(dom);
+    };
+
+    AbstractTable.prototype._parseColumnDom = function(dom) {
+      var attr, attrName, child, column, expression, len1, n, next, nodeName, ref, subColumn, templateName;
+      column = {};
+      ref = dom.attributes;
+      for (n = 0, len1 = ref.length; n < len1; n++) {
+        attr = ref[n];
+        attrName = attr.name;
+        if (attrName.substring(0, 2) === "c-") {
+          expression = cola._compileExpression(attr.value);
+          column[attrName.substring(2)] = expression;
+        } else {
+          column[attrName] = attr.value;
+        }
+      }
+      child = dom.firstChild;
+      while (child) {
+        next = child.nextSibling;
+        nodeName = child.nodeName;
+        if (nodeName === "TEMPLATE") {
+          templateName = child.getAttribute("name");
+          if (templateName && templateName.indexOf("header") === 0) {
+            templateName = "headerTemplate";
+          } else if (templateName && templateName.indexOf("footer") === 0) {
+            templateName = "footerTemplate";
+          } else {
+            templateName = "template";
+          }
+          column[templateName] = this.trimTemplate(child);
+        } else if (nodeName === "COLUMN") {
+          subColumn = this._parseColumnDom(child);
+          if (column.columns == null) {
+            column.columns = [];
+          }
+          column.columns.push(subColumn);
+        }
+        child = next;
+      }
+      return column;
     };
 
     AbstractTable.prototype._createNewItem = function(itemType, item) {

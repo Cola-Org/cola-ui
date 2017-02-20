@@ -1,20 +1,168 @@
 @import (reference) "global";
 
-//.field.required {
-//	padding-right: 1em !important;
-//	position: relative;
-//	&:after {
-//		float: right;
-//		font-family: Icons;
-//		content: "\f069";
-//		position: absolute;
-//		margin-left: 4px;
-//		top: 50%;
-//		margin-top: -10px;
-//		color: @red;
-//		.transform(scale(0.5))
-//	}
-//	>label:after{
-//		content: "" !important;
-//	}
-//}
+@fields-elements: 12;
+@fields-default-spacing: 0.75rem;
+@align-fields-to-grid: false;
+@spacing: @fields-default-spacing;
+.base-fields() {
+	display: block;
+	padding: 0;
+	.clearfix();
+	> .field {
+		display: block;
+		float: left;
+		height: auto;
+	}
+}
+
+.base-fields(@include-spacing:true) when (@include-spacing = true) {
+	> .field {
+		padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
+	}
+}
+
+.base-fields() when (@align-fields-to-grid = true) {
+	margin: 0 (-@fields-default-spacing/2);
+}
+
+.base-fields() when (@align-fields-to-grid = false) {
+	margin: 0;
+}
+
+.per-col-span-content(@row) {
+	.mixin-loop (@i) when (@i<=@row) {
+		> .field.colspan-@{i} {
+			width: 100%/@row * @i;
+		}
+		.mixin-loop(@i+1);
+	}
+	.mixin-loop(2);
+}
+
+.per-col-span() {
+	.mixin-loop (@x) when (@x<=@fields-elements) {
+		> .fields-@{x} {
+			.per-col-span-content(@x);
+		}
+		.mixin-loop(@x+1);
+	}
+	.mixin-loop(2);
+}
+
+.per-row(@row,@spacing:@fields-default-spacing,@include-spacing:true) {
+	> .field {
+		width: 100%/@row;
+		&:nth-of-type(1n) {
+			clear: none;
+		}
+		&:nth-of-type(@{row}n+1) {
+			clear: both;
+		}
+	}
+}
+
+.per-row(@row,@spacing:@fields-default-spacing,@include-spacing:true) when (@include-spacing=true) {
+	> .field {
+		padding: 0 (@spacing/2) @spacing;
+	}
+}
+
+.fields-html-classes(@include-spacing) {
+	.mixin-loop (@i) when (@i<=@fields-elements) {
+		.fields-@{i} {
+			.per-row(@i, @fields-default-spacing, @include-spacing);
+		}
+		.mixin-loop(@i+1);
+	}
+	.mixin-loop(2);
+	.per-col-span();
+
+}
+
+.ui.form {
+	> .field {
+		width: 100%;
+	}
+}
+
+.ui.form > .fields > .field {
+	width: 100%;
+}
+
+.ui.form > .fields, .ui.form > [class*="fields-"] {
+	.base-fields();
+}
+
+.ui.form > .field {
+	padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
+}
+
+.ui.form, .ui.form > .fields, .ui.form > [class*="fields-"] {
+	> .field {
+		display: -webkit-inline-box;
+		display: -webkit-inline-flex;
+		display: -ms-inline-flexbox;
+		display: inline-flex;
+		-webkit-box-align: center;
+		-ms-flex-align: center;
+		align-items: center;
+
+		> label {
+			padding-right: 1em;
+			width: 6em;
+			text-align: right;
+		}
+
+		&.required {
+			> label {
+				position: relative;
+				&:after {
+					content: '*';
+					color: #DB2828;
+					position: absolute;
+					right: 0em;
+					line-height: 1rem;
+					top: 50%;
+					margin-top: -0.5rem;
+					width: 1rem;
+					text-align: center;
+				}
+			}
+		}
+		.ui.input, .ui.textarea {
+			-webkit-box-flex: 1;
+			-webkit-flex: 1 0 auto;
+			-ms-flex: 1 0 auto;
+			flex: 1 0 auto;
+			width: inherit;
+		}
+		> .ui.textarea {
+			width: auto;
+		}
+	}
+}
+
+.ui.form {
+	.fields-html-classes(false);
+}
+
+@media @small-only {
+	.ui.form, .ui.form > .fields, .ui.form > [class*="fields-"] {
+		> .field {
+			> label {
+				display: block;
+			}
+			> .ui.input, .ui.textarea {
+				-webkit-box-flex: 1;
+				-webkit-flex: 1 0 auto;
+				-ms-flex: 1 0 auto;
+				flex: 1 0 auto;
+				width: initial;
+			}
+			width: 100% !important;
+		}
+	}
+}
+
+@import "form-extend.less";
+@import "form-message.less";

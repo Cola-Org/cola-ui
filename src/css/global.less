@@ -1,6 +1,7 @@
 @import "est/all.less";
 @import (optional) "semantic/site-variables.less";
-@small-px: 768;
+
+@small-px: 680;
 @medium-px: 1024;
 @large-px: 1440;
 @xlarge-px: 1920;
@@ -19,7 +20,6 @@
 @breakPoint: (1 / @basePx);
 @small-min: 0em;
 
-
 @medium-min: unit((@small-width+@breakPoint), em);
 @large-min: unit((@medium-width+@breakPoint), em);
 @xlarge-min: unit((@large-width+@breakPoint), em);
@@ -30,18 +30,18 @@
 @screen-end-mark: ~")";
 @and: ~") and (max-width:";
 @small-up: @screen;
-@small-only: @screen-and@small-min@and@small-max@screen-end-mark;
+@small-only: @screen-up-and @small-min @and @small-max @screen-end-mark;
 
-@medium-up: @screen-up-and@medium-min@screen-end-mark;
-@medium-only: @screen-and@medium-min@and@medium-max@screen-end-mark;
+@medium-up: @screen-up-and @medium-min @screen-end-mark;
+@medium-only: @screen-and @medium-min @and @medium-max @screen-end-mark;
 
-@large-up: @screen-up-and@large-min@screen-end-mark;
-@large-only: @screen-and@large-min@and@large-max@screen-end-mark;
+@large-up: @screen-up-and @large-min @screen-end-mark;
+@large-only: @screen-and @large-min @and @large-max @screen-end-mark;
 
-@xlarge-up: @screen-up-and@xlarge-min@screen-end-mark;
-@xlarge-only: @screen-and@xlarge-min@and@xlarge-max@screen-end-mark;
+@xlarge-up: @screen-up-and @xlarge-min @screen-end-mark;
+@xlarge-only: @screen-and @xlarge-min @and @xlarge-max @screen-end-mark;
 
-@xxlarge-up: @screen-up-and@xxlarge-min@screen-end-mark;
+@xxlarge-up: @screen-up-and @xxlarge-min @screen-end-mark;
 
 @total-columns: 12;
 @block-grid-elements: @total-columns;
