@@ -423,20 +423,58 @@ class cola.AbstractTable extends cola.AbstractList
         )
         return
 
-    _parseDom: (dom)->
+    _parseDom: (dom) ->
         return unless dom
         @_doms ?= {}
+        columns = []
         child = dom.firstChild
         while child
             next = child.nextSibling
-            nodeName = child.nodeName.toLowerCase()
-            if nodeName == "template"
+            nodeName = child.nodeName
+            if nodeName is "TEMPLATE"
                 @regTemplate(child)
+            else if nodeName is "COLUMN"
+                column = @_parseColumnDom(child)
+                if column then columns.push(column)
+                dom.removeChild(child)
             else
                 dom.removeChild(child)
             child = next
+
+        @set("columns", columns) if columns.length
+
         @_createInnerDom(dom)
         return
+
+    _parseColumnDom: (dom) ->
+        column = {}
+        for attr in dom.attributes
+            attrName = attr.name
+            if attrName.substring(0, 2) is "c-"
+                expression = cola._compileExpression(attr.value)
+                column[attrName.substring(2)] = expression
+            else
+                column[attrName] = attr.value
+
+        child = dom.firstChild
+        while child
+            next = child.nextSibling
+            nodeName = child.nodeName
+            if nodeName is "TEMPLATE"
+                templateName = child.getAttribute("name")
+                if templateName and templateName.indexOf("header") is 0
+                    templateName = "headerTemplate"
+                else if templateName and templateName.indexOf("footer") is 0
+                    templateName = "footerTemplate"
+                else
+                    templateName = "template"
+                column[templateName] = @trimTemplate(child)
+            else if nodeName is "COLUMN"
+                subColumn = @_parseColumnDom(child)
+                column.columns ?= []
+                column.columns.push(subColumn)
+            child = next
+        return column
 
     _createNewItem: (itemType, item) ->
         template = @getTemplate(itemType)

@@ -191,13 +191,13 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		if result
 			if result instanceof cola._BindingFeature
 				features.push(result)
-			if typeof result == "function"
+			if typeof result is "function"
 				initializers ?= []
 				initializers.push(result)
 
 	for attr in dom.attributes
 		attrName = attr.name
-		if attrName.substring(0, 2) == "c-"
+		if attrName.substring(0, 2) is "c-"
 			removeAttrs ?= []
 			removeAttrs.push(attrName)
 
@@ -216,11 +216,11 @@ _doRenderDomTemplate = (dom, scope, context) ->
 							features.push(result)
 						else if result instanceof Array
 							features.push(f) for f in result
-						else if typeof result == "function"
+						else if typeof result is "function"
 							initializers ?= []
 							initializers.push(result)
 				else
-					if attrName.indexOf("on") == 0
+					if attrName.indexOf("on") is 0
 						feature = cola._domFeatureBuilder.event(attrValue, attrName, dom)
 					else
 						builder = cola._domFeatureBuilder.hasOwnProperty(attrName) and cola._domFeatureBuilder[attrName]
@@ -228,7 +228,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 
 					if feature
 						features ?= []
-						if feature  instanceof cola._BindingFeature
+						if feature instanceof cola._BindingFeature
 							features.push(feature)
 						else if feature instanceof Array
 							features.push(f) for f in feature

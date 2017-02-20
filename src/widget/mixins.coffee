@@ -51,6 +51,41 @@ cola.TemplateSupport =
 			@regTemplate(name, template)
 		return
 
+	trimTemplate: (template) ->
+		if template.nodeType
+			if template.nodeName == "TEMPLATE"
+				if not template.firstChild
+					html = template.innerHTML
+					if html
+						TEMP_TEMPLATE ?= document.createElement("div")
+						template = TEMP_TEMPLATE
+						template.innerHTML = html
+				@_trimTemplate(template)
+				if template.firstChild == template.lastChild
+					template = template.firstChild
+				else
+					templs = []
+					child = template.firstChild
+					while child
+						templs.push(child)
+						child = child.nextSibling
+					template = templs
+			@_templates[name] = template
+		else
+			@_doms ?= {}
+			template = $.xCreate(template, @_doms)
+			if @_doms.widgetConfigs
+				@_templateContext ?= {}
+				if @_templateContext.widgetConfigs
+					widgetConfigs = @_templateContext.widgetConfigs
+					for k, c of @_doms.widgetConfigs
+						widgetConfigs[k] = c
+				else
+					@_templateContext.widgetConfigs = @_doms.widgetConfigs
+			@_templates[name] = template
+		template._trimed = true
+		return template
+
 	getTemplate: (name = "default", defaultName) ->
 		return null unless @_templates
 		template = @_templates[name]
@@ -62,38 +97,7 @@ cola.TemplateSupport =
 			template = cola.util.getGlobalTemplate(name)
 
 		if template and not template._trimed
-			if template.nodeType
-				if template.nodeName == "TEMPLATE"
-					if not template.firstChild
-						html = template.innerHTML
-						if html
-							TEMP_TEMPLATE ?= document.createElement("div")
-							template = TEMP_TEMPLATE
-							template.innerHTML = html
-					@_trimTemplate(template)
-					if template.firstChild == template.lastChild
-						template = template.firstChild
-					else
-						templs = []
-						child = template.firstChild
-						while child
-							templs.push(child)
-							child = child.nextSibling
-						template = templs
-				@_templates[name] = template
-			else
-				@_doms ?= {}
-				template = $.xCreate(template, @_doms)
-				if @_doms.widgetConfigs
-					@_templateContext ?= {}
-					if @_templateContext.widgetConfigs
-						widgetConfigs = @_templateContext.widgetConfigs
-						for k, c of @_doms.widgetConfigs
-							widgetConfigs[k] = c
-					else
-						@_templateContext.widgetConfigs = @_doms.widgetConfigs
-				@_templates[name] = template
-			template._trimed = true
+			template = @trimTemplate(template)
 
 		return template
 

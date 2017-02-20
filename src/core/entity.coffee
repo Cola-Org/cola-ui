@@ -327,10 +327,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-#_parent
-#_parentProperty
-#_providerInvoker
-#_disableWriteObservers
+	#_parent
+	#_parentProperty
+	#_providerInvoker
+	#_disableWriteObservers
 
 	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
@@ -395,12 +395,12 @@ class cola.Entity
 
 						if @_data[prop] != providerInvoker then success = false
 						if success
-							result = @_set(prop, result)
+							result = @_set(prop, result, true)
 							retValue = result
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
 						else
-							@_set(prop, null)
+							@_set(prop, null, true)
 						if callback
 							cola.callback(callback, success, result)
 						return
@@ -493,7 +493,7 @@ class cola.Entity
 			result._providerInvoker = provider.getInvoker(data: @)
 		return result
 
-	_set: (prop, value) ->
+	_set: (prop, value, ignoreState) ->
 		oldValue = @_data[prop]
 
 		property = @dataType?.getProperty(prop)
@@ -528,7 +528,7 @@ class cola.Entity
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
-				else if typeof value == "object" and value? and prop.charCodeAt(0) isnt 36	# `$`
+				else if typeof value is "object" and value? and prop.charCodeAt(0) isnt 36	# `$`
 					if value instanceof Array
 						convert = true
 						if value.length > 0
@@ -573,12 +573,13 @@ class cola.Entity
 							if message is "error"
 								throw new cola.Exception(message.text)
 
-			if @_disableWriteObservers == 0
+			if @_disableWriteObservers is 0
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
 					oldValue._setDataModel(null)
 					delete oldValue.parent
 					delete oldValue._parentProperty
-				if @state == _Entity.STATE_NONE then @setState(_Entity.STATE_MODIFIED)
+				if not ignoreState and @state is _Entity.STATE_NONE
+					@setState(_Entity.STATE_MODIFIED)
 
 			@_data[prop] = value
 
@@ -593,7 +594,7 @@ class cola.Entity
 				@_mayHasSubEntity = true
 
 			@timestamp = cola.sequenceNo()
-			if @_disableWriteObservers == 0
+			if @_disableWriteObservers is 0
 				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @
 					property: prop
@@ -1883,6 +1884,80 @@ cola.util.flush = (data, loadMode) ->
 	if data instanceof cola.Entity or data instanceof cola.EntityList
 		if data.parent instanceof cola.Entity and data._parentProperty
 			data.parent.flush(data._parentProperty, loadMode)			
+	return
+
+###
+dirty tree
+###
+
+cola.util.dirtyTree = (data, options) ->
+	return undefined unless data
+
+	context =
+		tree: null
+		parent: null
+		parentProperty: null
+		isList: false
+		entityPath: []
+
+	_extractDirtyTree(data, context, options or {})
+	return context.tree
+
+_processEntity = (entity, context, options) ->
+	return if entity.state is _Entity.STATE_NONE
+
+	json = entity.toJSON(
+		simpleValue: true
+		state: true
+		oldData: options.oldData
+	)
+
+	if context.parent
+		if context.isList
+			context.parent[context.parentProperty] ?= []
+			context.parent[context.parentProperty].push(json)
+		else
+			context.parent[context.parentProperty] = json
+	else
+		if context.isList
+			context.tree ?= []
+			context.tree.push(json)
+		else
+			context.tree = json
+
+	context.parent = json
+
+	data = entity._data
+	for prop, value of data
+		if prop.charCodeAt(0) is 36 # `$`
+			continue
+
+		if value and (value instanceof _Entity or value instanceof _EntityList)
+			context.parentProperty = prop
+			_extractDirtyTree(value, context)
+
+	context.parent = null
+	return
+
+_processEntityList = (entityList, context, options) ->
+	page = entityList._first
+	if page
+		next = page._first
+		while page
+			if next
+				_processEntity(next, context, options)
+				next = next._next
+			else
+				page = page._next
+				next = page?._first
+	return
+
+_extractDirtyTree = (data, context, options) ->
+	context.isList = value instanceof _EntityList
+	if context.isList
+		_processEntityList(data, context, options)
+	else
+		_processEntity(data, context, options)
 	return
 
 ###

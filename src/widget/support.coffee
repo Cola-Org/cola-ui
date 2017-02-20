@@ -362,7 +362,7 @@ _extendWidget = (superCls, definition) ->
             template = template.outerHTML
 
         cls.attributes.template =
-            defaultValue: definition.template
+            defaultValue: template
 
     cls::_createDom = () ->
         if @_template
