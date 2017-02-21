@@ -39,7 +39,7 @@ class cola.RadioButton extends cola.Widget
 
 	_parseDom: (dom)->
 		@_doms ?= {}
-		@_$dom = $(dom)
+		$dom = @get$Dom()
 
 		child = dom.firstChild
 		while child
@@ -54,7 +54,7 @@ class cola.RadioButton extends cola.Widget
 			child = child.nextSibling
 
 		if !@_doms.label and !@_doms.input
-			@_$dom.append($.xCreate([
+			$dom.append($.xCreate([
 				{
 					tagName: "input"
 					type: @constructor.INPUT_TYPE
@@ -73,7 +73,7 @@ class cola.RadioButton extends cola.Widget
 				tagName: "label"
 				content: @_label or @_value or ""
 			})
-			@_$dom.append(@_doms.label)
+			$dom.append(@_doms.label)
 
 		unless @_doms.input
 			@_doms.input = $.xCreate({

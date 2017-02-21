@@ -70,7 +70,6 @@ cola.TemplateSupport =
 						templs.push(child)
 						child = child.nextSibling
 					template = templs
-			@_templates[name] = template
 		else
 			@_doms ?= {}
 			template = $.xCreate(template, @_doms)
@@ -82,7 +81,6 @@ cola.TemplateSupport =
 						widgetConfigs[k] = c
 				else
 					@_templateContext.widgetConfigs = @_doms.widgetConfigs
-			@_templates[name] = template
 		template._trimed = true
 		return template
 

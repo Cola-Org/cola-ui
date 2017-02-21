@@ -178,11 +178,11 @@ class cola.SubScope extends cola.Scope
 			parent = @parent
 			if path instanceof Array
 				for p in path
-					p = p + ".**"
+					# p = p + ".**"
 					paths.push(p)
 					parent?.data.bind(p, @)
 			else
-				path = path + ".**"
+				# path = path + ".**"
 				paths.push(path)
 				parent?.data.bind(path, @)
 		else

@@ -8,6 +8,7 @@ class cola.AbstractList extends cola.ItemsView
 
 		changeCurrentItem:
 			type: "boolean"
+			defaultValue: true
 
 		pullDown:
 			readOnlyAfterCreate: true

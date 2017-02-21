@@ -41,7 +41,7 @@
 			});
 
 
-			model.set("currentSelected", 1)
+			model.set("currentSelected", 1);
 
 			model.widgetConfig({
 				button1: {
@@ -54,15 +54,15 @@
 				dropdown1: {
 					$type: "dropdown",
 					filterable: true,
-					openMode: "layer",
-					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
-					bind: "selected"
+					openMode: "drop",
+					items: "{{language in languages}}",
+					bind: "selected",
+					valueProperty: "name",
+					textProperty: "name"
 				},
 				dropdown2: {
 					$type: "dropdown",
-					openMode: "dialog",
+					openMode: "drop",
 					items: "{{language in languages}}",
 					valueProperty: "name"
 				},
@@ -71,7 +71,7 @@
 					class: "error",
 					openMode: "drop",
 					items: "{{language in languages}}",
-					valueProperty: "name"
+					textProperty: "name"
 				},
 				dropdown4: {
 					$type: "customDropdown",
@@ -104,12 +104,10 @@
 </head>
 <body style="padding:20px;">
 
-<div id="button1"></div>
-
 <div id="dropdown1"></div>
+<div c-bind="selected"></div>
 
 <p></p>
-
 
 <div id="dropdown2">
 	<div c-widget="button; caption:Test"></div>
@@ -118,20 +116,20 @@
 <p></p>
 
 <div id="dropdown3">
-	<template>
-		<li>
-			<i class="green checkmark icon"></i>
-			<label c-bind="language.name"></label>
-		</li>
-	</template>
+	<!--<template>-->
+		<!--<li>-->
+			<!--<i class="green checkmark icon"></i>-->
+			<!--<label c-bind="language.name"></label>-->
+		<!--</li>-->
+	<!--</template>-->
 </div>
 
 <p></p>
 
 <div id="dropdown4">
-	<template>
-		<div c-widget="button; caption:Pick Value; click:{{pickValue(self)}}"></div>
-	</template>
+	<!--<template>-->
+		<!--<div c-widget="button; caption:Pick Value; click:{{pickValue(self)}}"></div>-->
+	<!--</template>-->
 </div>
 
 <p></p>

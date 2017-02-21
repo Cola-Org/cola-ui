@@ -18,6 +18,7 @@ class cola.ItemsView extends cola.Widget
 
 		highlightCurrentItem:
 			type: "boolean"
+			defaultValue: true
 
 	@events:
 		getItemTemplate: null
@@ -78,7 +79,8 @@ class cola.ItemsView extends cola.Widget
 				return true
 			)
 
-		@_$dom = $(dom)
+		@get$Dom().attr("tabIndex", 1)
+			.on("keydown", (evt) => @_onKeyDown(evt))
 		return
 
 	getItems: () ->
@@ -105,18 +107,18 @@ class cola.ItemsView extends cola.Widget
 		return @_refreshItems()
 
 	_onItemInsert: (arg) ->
-		if @_realItems == @_realOriginItems
+		if @_realItems is @_realOriginItems
 			@_refreshEmptyItemDom()
 
 			item = arg.entity
 			itemType = @_getItemType(item)
 			itemsWrapper = @_doms.itemsWrapper
 			insertMode = arg.insertMode
-			if !insertMode or insertMode == "end"
+			if !insertMode or insertMode is "end"
 				itemDom = @_createNewItem(itemType, item)
 				@_refreshItemDom(itemDom, item)
 				$fly(itemsWrapper).append(itemDom)
-			else if insertMode == "begin"
+			else if insertMode is "begin"
 				itemDom = @_createNewItem(itemType, item)
 				@_refreshItemDom(itemDom, item)
 				$fly(itemsWrapper.firstChild).before(itemDom)
@@ -127,7 +129,7 @@ class cola.ItemsView extends cola.Widget
 					if refDom
 						itemDom = @_createNewItem(itemType, item)
 						@_refreshItemDom(itemDom, item)
-						if insertMode == "before"
+						if insertMode is "before"
 							$fly(refDom).before(itemDom)
 						else
 							$fly(refDom).after(itemDom)
@@ -144,7 +146,7 @@ class cola.ItemsView extends cola.Widget
 			delete @_itemDomMap[itemId]
 			if itemDom
 				$fly(itemDom).remove()
-				@_currentItemDom = null if itemDom == @_currentItemDom
+				@_currentItemDom = null if itemDom is @_currentItemDom
 
 		@_refreshEmptyItemDom()
 		return
@@ -366,6 +368,31 @@ class cola.ItemsView extends cola.Widget
 				break
 			target = target.parentNode
 		return itemDom
+
+	_onKeyDown: (evt) ->
+
+		findNextItemDom = (itemsWrapper, refItemDom, down) ->
+			if refItemDom
+				itemDom = refItemDom
+				while itemDom
+					itemDom = if down then itemDom.nextSibling else itemDom.previousSibling
+					if itemDom?._itemType then return itemDom
+			else
+				itemDom = itemsWrapper.firstChild
+				while itemDom
+					if itemDom?._itemType then return itemDom
+					itemDom = if down then itemDom.nextSibling else itemDom.previousSibling
+			return null
+
+		switch evt.keyCode
+			when 38 # up
+				itemDom = findNextItemDom(@_doms.itemsWrapper, @_currentItemDom, false)
+				@_setCurrentItemDom(itemDom) if itemDom
+				return false
+			when 40 # down
+				itemDom = findNextItemDom(@_doms.itemsWrapper, @_currentItemDom, true)
+				@_setCurrentItemDom(itemDom) if itemDom
+				return false
 
 	_onItemClick: (evt) ->
 		itemDom = evt.currentTarget

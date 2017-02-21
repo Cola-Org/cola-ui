@@ -62,7 +62,6 @@ sources =
 			"src/widget/edit/select.coffee"
 			"src/widget/edit/dropdown.coffee"
 			"src/widget/edit/date-picker.coffee"
-			"src/widget/edit/form.coffee"
 			"src/widget/edit/textarea.coffee"
 			"src/widget/edit/select-button.coffee"
 		]

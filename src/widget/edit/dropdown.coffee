@@ -95,22 +95,26 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		).on("blur", () ->
 			dropdown._doBlur();
 			return
-		).on("keydown", (event)=>
+		).on("keydown", (evt)=>
 			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
 				inputValue: $fly(@_doms.input).val()
 			@fire("keyDown", @, arg)
-		).on("keypress", (event)=>
+
+			if @_dropdownContent
+				$(@_dropdownContent).trigger(evt)
+			return
+		).on("keypress", (evt)=>
 			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
 				inputValue: $fly(@_doms.input).val()
 			if @fire("keyPress", @, arg) == false then return
 		)
@@ -297,6 +301,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				hide: () =>
 					@_opened = false
 					return
+			@_dropdownContent = config.dom.firstChild
 
 			config.width = @_dropdownWidth if @_dropdownWidth
 			config.height = @_dropdownHeight if @_dropdownHeight
@@ -508,12 +513,18 @@ class cola.Dropdown extends cola.AbstractDropdown
 		"list":
 			tagName: "div"
 			contextKey: "flexContent"
-			class: "flex-box"
 			content:
 				tagName: "c-listview"
 				contextKey: "list"
+				allowNoCurrent: false
 				highlightCurrentItem: true
 				style: "overflow:auto"
+			keydown: (evt) ->
+				if not @_disableKeyBubble
+					@_disableKeyBubble = true
+					$fly(@).find(">c-listview").trigger(evt)
+					@_disableKeyBubble = false
+				return true
 
 		"filterable-list":
 			tagName: "div"
@@ -536,9 +547,16 @@ class cola.Dropdown extends cola.AbstractDropdown
 					content:
 						tagName: "c-listview"
 						contextKey: "list"
+						allowNoCurrent: false
 						highlightCurrentItem: true
 				}
 			]
+			keydown: (evt) ->
+				if not @_disableKeyBubble
+					@_disableKeyBubble = true
+					$fly(@).find(">.flex-box >c-listview").trigger(evt)
+					@_disableKeyBubble = false
+				return true
 
 	_initValueContent: (valueContent, context) ->
 		super(valueContent, context)
@@ -590,15 +608,21 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if @_templates
 				for name, templ of @_templates
 					if ["list", "filterable-list", "value-content"].indexOf(name) < 0
-						if name == "default" then hasDefaultTemplate = true
+						if name is "default" then hasDefaultTemplate = true
 						list.regTemplate(name, templ)
-			if !hasDefaultTemplate
+			if not hasDefaultTemplate
 				list.regTemplate("default", {
 					tagName: "li"
 					"c-bind": "$default"
 				})
 
 			list.on("itemClick", () => @close(list.get("currentItem")))
+
+			list.get$Dom().on("keydown", (evt) =>
+				if evt.keyCode is 13 # Enter
+					@close(list.get("currentItem"))
+					return false
+			)
 
 			if @_doms.filterInput
 				@_filterInput = cola.widget(@_doms.filterInput)
