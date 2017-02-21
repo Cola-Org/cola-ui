@@ -78,22 +78,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			contextKey: "valueContent"
 		}, @_doms)
 
-		$fly(dom).delegate(">.icon", "click", () =>
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
 			if @_opened
 				@close()
 			else
 				if @_disabled then return
 				@open()
-			return
-		)
-
-		dropdown = @
-		valueContent = @_doms.valueContent
-		$(@_doms.input).on("focus", () ->
-			dropdown._doFocus();
-			return
-		).on("blur", () ->
-			dropdown._doBlur();
 			return
 		).on("keydown", (evt)=>
 			arg =
@@ -118,6 +108,17 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				inputValue: $fly(@_doms.input).val()
 			if @fire("keyPress", @, arg) == false then return
 		)
+
+		dropdown = @
+		valueContent = @_doms.valueContent
+		$(@_doms.input).on("focus", () ->
+			dropdown._doFocus();
+			return
+		).on("blur", () ->
+			dropdown._doBlur();
+			return
+		)
+
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
 
