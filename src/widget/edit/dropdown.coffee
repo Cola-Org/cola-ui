@@ -512,6 +512,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 			content:
 				tagName: "c-listview"
 				contextKey: "list"
+				highlightCurrentItem: true
 				style: "overflow:auto"
 
 		"filterable-list":
@@ -535,6 +536,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 					content:
 						tagName: "c-listview"
 						contextKey: "list"
+						highlightCurrentItem: true
 				}
 			]
 

@@ -17,6 +17,7 @@ sources =
 			"src/core/data-type.coffee"
 			"src/core/entity.coffee"
 			"src/core/model.coffee"
+			"src/core/update.coffee"
 			"src/core/action.coffee"
 			"src/core/service.coffee"
 			"src/core/dom-util.coffee"

@@ -930,6 +930,7 @@ class cola.Entity
 		return @_messageHolder?.findMessages(prop, type)
 
 	toJSON: (options) ->
+		entityId = options?.entityId or false
 		state = options?.state or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
@@ -948,6 +949,7 @@ class cola.Entity
 					value = value.toJSON(options)
 			json[prop] = value
 
+		if entityId then json.$entityId = @id
 		if state then json.$state = @state
 		if oldData and @_oldData
 			json.$oldData = @_oldData
@@ -1884,80 +1886,6 @@ cola.util.flush = (data, loadMode) ->
 	if data instanceof cola.Entity or data instanceof cola.EntityList
 		if data.parent instanceof cola.Entity and data._parentProperty
 			data.parent.flush(data._parentProperty, loadMode)			
-	return
-
-###
-dirty tree
-###
-
-cola.util.dirtyTree = (data, options) ->
-	return undefined unless data
-
-	context =
-		tree: null
-		parent: null
-		parentProperty: null
-		isList: false
-		entityPath: []
-
-	_extractDirtyTree(data, context, options or {})
-	return context.tree
-
-_processEntity = (entity, context, options) ->
-	return if entity.state is _Entity.STATE_NONE
-
-	json = entity.toJSON(
-		simpleValue: true
-		state: true
-		oldData: options.oldData
-	)
-
-	if context.parent
-		if context.isList
-			context.parent[context.parentProperty] ?= []
-			context.parent[context.parentProperty].push(json)
-		else
-			context.parent[context.parentProperty] = json
-	else
-		if context.isList
-			context.tree ?= []
-			context.tree.push(json)
-		else
-			context.tree = json
-
-	context.parent = json
-
-	data = entity._data
-	for prop, value of data
-		if prop.charCodeAt(0) is 36 # `$`
-			continue
-
-		if value and (value instanceof _Entity or value instanceof _EntityList)
-			context.parentProperty = prop
-			_extractDirtyTree(value, context)
-
-	context.parent = null
-	return
-
-_processEntityList = (entityList, context, options) ->
-	page = entityList._first
-	if page
-		next = page._first
-		while page
-			if next
-				_processEntity(next, context, options)
-				next = next._next
-			else
-				page = page._next
-				next = page?._first
-	return
-
-_extractDirtyTree = (data, context, options) ->
-	context.isList = value instanceof _EntityList
-	if context.isList
-		_processEntityList(data, context, options)
-	else
-		_processEntity(data, context, options)
 	return
 
 ###

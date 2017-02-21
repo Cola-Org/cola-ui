@@ -24,7 +24,7 @@
 					$type: "listView",
 //					class: "striped",
 					bind: "item in sort(items,'name')",
-//					allowNoCurrent: false,
+					allowNoCurrent: false,
 //					group: true,
 //					indexBar: true,
 //					pullDown: true,
@@ -32,7 +32,7 @@
 //					itemSlide: "both",
 //					height: "100%",
 //					columns: "row 2 4",
-//					highlightCurrentItem: false,
+					highlightCurrentItem: true,
 					getGroupString: function (arg) {
 						var name = arg.item.get("name");
 						if (name) arg.result = name.charAt(0).toUpperCase();
