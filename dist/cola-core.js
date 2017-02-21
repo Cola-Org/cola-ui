@@ -4636,7 +4636,8 @@
     };
 
     Entity.prototype.toJSON = function(options) {
-      var data, json, oldData, prop, simpleValue, state;
+      var data, entityId, json, oldData, prop, simpleValue, state;
+      entityId = (options != null ? options.entityId : void 0) || false;
       state = (options != null ? options.state : void 0) || false;
       oldData = (options != null ? options.oldData : void 0) || false;
       simpleValue = (options != null ? options.simpleValue : void 0) || false;
@@ -4658,6 +4659,9 @@
           }
         }
         json[prop] = value;
+      }
+      if (entityId) {
+        json.$entityId = this.id;
       }
       if (state) {
         json.$state = this.state;
@@ -5931,97 +5935,6 @@
 
 
   /*
-  dirty tree
-   */
-
-  cola.util.dirtyTree = function(data, options) {
-    var context;
-    if (!data) {
-      return void 0;
-    }
-    context = {
-      tree: null,
-      parent: null,
-      parentProperty: null,
-      isList: false,
-      entityPath: []
-    };
-    _extractDirtyTree(data, context, options || {});
-    return context.tree;
-  };
-
-  _processEntity = function(entity, context, options) {
-    var base, data, json, name1, prop;
-    if (entity.state === _Entity.STATE_NONE) {
-      return;
-    }
-    json = entity.toJSON({
-      simpleValue: true,
-      state: true,
-      oldData: options.oldData
-    });
-    if (context.parent) {
-      if (context.isList) {
-        if ((base = context.parent)[name1 = context.parentProperty] == null) {
-          base[name1] = [];
-        }
-        context.parent[context.parentProperty].push(json);
-      } else {
-        context.parent[context.parentProperty] = json;
-      }
-    } else {
-      if (context.isList) {
-        if (context.tree == null) {
-          context.tree = [];
-        }
-        context.tree.push(json);
-      } else {
-        context.tree = json;
-      }
-    }
-    context.parent = json;
-    data = entity._data;
-    for (prop in data) {
-      value = data[prop];
-      if (prop.charCodeAt(0) === 36) {
-        continue;
-      }
-      if (value && (value instanceof _Entity || value instanceof _EntityList)) {
-        context.parentProperty = prop;
-        _extractDirtyTree(value, context);
-      }
-    }
-    context.parent = null;
-  };
-
-  _processEntityList = function(entityList, context, options) {
-    var next, page;
-    page = entityList._first;
-    if (page) {
-      next = page._first;
-      while (page) {
-        if (next) {
-          _processEntity(next, context, options);
-          next = next._next;
-        } else {
-          page = page._next;
-          next = page != null ? page._first : void 0;
-        }
-      }
-    }
-  };
-
-  _extractDirtyTree = function(data, context, options) {
-    context.isList = value instanceof _EntityList;
-    if (context.isList) {
-      _processEntityList(data, context, options);
-    } else {
-      _processEntity(data, context, options);
-    }
-  };
-
-
-  /*
   index
    */
 
@@ -6409,14 +6322,12 @@
         if (path instanceof Array) {
           for (l = 0, len1 = path.length; l < len1; l++) {
             p = path[l];
-            p = p + ".**";
             paths.push(p);
             if (parent != null) {
               parent.data.bind(p, this);
             }
           }
         } else {
-          path = path + ".**";
           paths.push(path);
           if (parent != null) {
             parent.data.bind(path, this);
@@ -8124,6 +8035,126 @@
     "dirty-tree": function(data) {
       return data;
     }
+  };
+
+
+  /*
+  dirty tree
+   */
+
+  cola.util.dirtyTree = function(data, options, context) {
+    if (!data) {
+      return void 0;
+    }
+    if (context == null) {
+      context = {};
+    }
+    context.entityMap = {};
+    return _extractDirtyTree(data, context, options || {});
+  };
+
+  _processEntity = function(entity, context, options) {
+    var data, json, prop, toJSONOptions;
+    toJSONOptions = {
+      simpleValue: true,
+      entityId: options.entityId,
+      state: true,
+      oldData: options.oldData
+    };
+    if (entity.state !== _Entity.STATE_NONE) {
+      json = entity.toJSON(toJSONOptions);
+    }
+    data = entity._data;
+    for (prop in data) {
+      value = data[prop];
+      if (prop.charCodeAt(0) === 36) {
+        continue;
+      }
+      if (value && (value instanceof _Entity || value instanceof _EntityList)) {
+        context.parentProperty = prop;
+        value = _extractDirtyTree(value, context);
+        if (value === null) {
+          json = entity.toJSON(toJSONOptions);
+        }
+        json[prop] = value;
+      }
+    }
+    if (json !== null) {
+      context.entityMap[entity.id] = entity;
+    }
+    return json;
+  };
+
+  _processEntityList = function(entityList, context, options) {
+    var entities, json, next, page;
+    entities = [];
+    page = entityList._first;
+    if (page) {
+      next = page._first;
+      while (page) {
+        if (next) {
+          json = _processEntity(next, context, options);
+          if (json !== null) {
+            entities.push(json);
+          }
+          next = next._next;
+        } else {
+          page = page._next;
+          next = page != null ? page._first : void 0;
+        }
+      }
+    }
+    if (entities.length) {
+      return entities;
+    } else {
+      return null;
+    }
+  };
+
+  _extractDirtyTree = function(data, context, options) {
+    context.isList = value instanceof _EntityList;
+    if (context.isList) {
+      return _processEntityList(data, context, options);
+    } else {
+      return _processEntity(data, context, options);
+    }
+  };
+
+  cola.util.update = function(url, data, options) {
+    var context;
+    if (options == null) {
+      options = {};
+    }
+    if (data && (data instanceof _Entity || data instanceof _EntityList)) {
+      context = {};
+      data = cola.util.dirtyTree(data, options, context);
+    }
+    return $.ajax({
+      url: url,
+      type: options.method || "post",
+      contentType: options.contentType || "application/json",
+      data: JSON.stringify(data)({
+        options: options
+      })
+    }).then(function(responseData) {
+      var entity, l, len1, p, ref, ref1, syncInfo, v;
+      if (context) {
+        ref = responseData.syncInfos;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          syncInfo = ref[l];
+          entity = context.entityMap[syncInfo.entityId];
+          if (syncInfo.data) {
+            ref1 = syncInfo.data;
+            for (p in ref1) {
+              v = ref1[p];
+              entity._set(p, v, true);
+            }
+          }
+          entity.setState(syncInfo.state);
+        }
+      }
+      return responseData.result;
+    });
   };
 
   defaultActionTimestamp = 0;

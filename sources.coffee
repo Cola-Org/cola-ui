@@ -74,6 +74,7 @@ sources =
 			"src/widget/layout/tab.coffee"
 			"src/widget/layout/panel.coffee"
 			"src/widget/base/notify-tip.coffee"
+			"src/widget/layout/split-pane.coffee"
 		]
 		collection: [
 			"src/widget/collection/item-group.coffee"
@@ -146,6 +147,7 @@ sources =
 			"src/css/semantic/segment-overrides.less"
 			"src/css/textarea.less"
 			"src/css/notify-tip.less"
+			"src/css/split-pane.less"
 		]
 
 	lib:

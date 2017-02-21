@@ -1,0 +1,22 @@
+
+- name: cola.SplitPane
+  stereotype: class
+  super: cola.Widget
+  description: 分割面板
+  attributes:
+    - name: direction
+      type: String
+      enum:
+        - left
+        - right
+        - top
+        - bottom
+      defaultValue: left
+      description: 边组件的显示的位置
+
+    - name: direction
+      type: Int
+      defaultValue: 100
+      description: 边组件初始尺寸
+
+
