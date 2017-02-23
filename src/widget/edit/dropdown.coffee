@@ -72,52 +72,50 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_initDom: (dom) ->
 		super(dom)
-		$fly(@_doms.input).xInsertAfter({
-			tagName: "div"
-			class: "value-content"
-			contextKey: "valueContent"
-		}, @_doms)
 
-		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
-			if @_opened
-				@close()
-			else
-				if @_disabled then return
-				@open()
-			return
-		).on("keydown", (evt)=>
-			arg =
-				keyCode: evt.keyCode
-				shiftKey: evt.shiftKey
-				ctrlKey: evt.ctrlKey
-				altKey: evt.altKey
-				event: evt
-				inputValue: $fly(@_doms.input).val()
-			@fire("keyDown", @, arg)
+		if @_useValueContent
+			$fly(@_doms.input).xInsertAfter({
+				tagName: "div"
+				class: "value-content"
+				contextKey: "valueContent"
+			}, @_doms)
 
-			if @_dropdownContent
-				$(@_dropdownContent).trigger(evt)
-			return
-		).on("keypress", (evt)=>
-			arg =
-				keyCode: evt.keyCode
-				shiftKey: evt.shiftKey
-				ctrlKey: evt.ctrlKey
-				altKey: evt.altKey
-				event: evt
-				inputValue: $fly(@_doms.input).val()
-			if @fire("keyPress", @, arg) == false then return
-		)
+		$fly(dom).attr("tabIndex", 1)
+			.delegate(">.icon", "click", () =>
+				if @_opened
+					@close()
+				else
+					if @_disabled then return
+					@open()
+				return
+			).on("keydown", (evt)=>
+				arg =
+					keyCode: evt.keyCode
+					shiftKey: evt.shiftKey
+					ctrlKey: evt.ctrlKey
+					altKey: evt.altKey
+					event: evt
+					inputValue: @_doms.input.value
+				@fire("keyDown", @, arg)
 
-		dropdown = @
-		valueContent = @_doms.valueContent
-		$(@_doms.input).on("focus", () ->
-			dropdown._doFocus();
-			return
-		).on("blur", () ->
-			dropdown._doBlur();
-			return
-		)
+				if @_dropdownContent
+					$(@_dropdownContent).trigger(evt)
+				return
+			).on("keypress", (evt)=>
+				arg =
+					keyCode: evt.keyCode
+					shiftKey: evt.shiftKey
+					ctrlKey: evt.ctrlKey
+					altKey: evt.altKey
+					event: evt
+					inputValue: @_doms.input.value
+				if @fire("keyPress", @, arg) == false then return
+			)
+
+		$(@_doms.input)
+			.on("focus", () => @_doFocus())
+			.on("blur", () => @_doBlur())
+			.on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -126,12 +124,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_doBlur: ()->
-		$fly(@_doms.valueContent).removeClass("placeholder")
 		@fire("blur", @, {})
 		return
 
 	_doFocus: ()->
-		$fly(@_doms.valueContent).addClass("placeholder")
+		@_inputEdited = false
 		@fire("focus", @, {})
 		return
 
@@ -143,7 +140,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if !@_icon
 			child = @_doms.input.nextSibling
 			while child
-				if child.nodeType == 1 and child.nodeName != "TEMPLATE"
+				if child.nodeType is 1 and child.nodeName isnt "TEMPLATE"
 					@_skipSetIcon = true
 					break
 				child = child.nextSibling
@@ -164,11 +161,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				this.focus();
 
 			input: (evt) =>
-				$valueContent = $fly(@_doms.valueContent)
-				if evt.target.value
-					$valueContent.hide()
-				else
-					$valueContent.show()
+				if @_useValueContent
+					$valueContent = $fly(@_doms.valueContent)
+					if evt.target.value
+						$valueContent.hide()
+					else
+						$valueContent.show()
 				return
 		)
 
@@ -207,8 +205,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return super(value)
 
 	_setValueContent: () ->
-		input = @_doms.input
-		input.value = ""
 		item = @_currentItem
 		if not item?
 			if not @_textProperty
@@ -217,45 +213,53 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				item = {}
 				item[@_textProperty] = @_value
 
+		input = @_doms.input
 		if item
+			if @_useValueContent
+				elementAttrBinding = @_elementAttrBindings?["items"]
+				alias = elementAttrBinding?.expression.alias or "item"
+
+				currentItemScope = @_currentItemScope
+				if currentItemScope and currentItemScope.data.alias isnt alias
+					currentItemScope = null
+
+				if not currentItemScope
+					@_currentItemScope = currentItemScope = new cola.ItemScope(@_scope, alias)
+				currentItemScope.data.setTargetData(item)
+
+				valueContent = @_doms.valueContent
+				if not valueContent._inited
+					valueContent._inited = true
+					ctx =
+						defaultPath: alias
+					@_initValueContent(valueContent, ctx)
+					cola.xRender(valueContent, currentItemScope, ctx)
+				$fly(valueContent).show()
+
+			if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
+				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty)
+			else
+				text = item
+			input.value = text or ""
 			input.placeholder = ""
-
-			elementAttrBinding = @_elementAttrBindings?["items"]
-			alias = elementAttrBinding?.expression.alias or "item"
-
-			currentItemScope = @_currentItemScope
-			if currentItemScope and currentItemScope.data.alias isnt alias
-				currentItemScope = null
-
-			if not currentItemScope
-				@_currentItemScope = currentItemScope = new cola.ItemScope(@_scope, alias)
-			currentItemScope.data.setTargetData(item)
-
-			valueContent = @_doms.valueContent
-			if not valueContent._inited
-				valueContent._inited = true
-				ctx =
-					defaultPath: alias
-				@_initValueContent(valueContent, ctx)
-				cola.xRender(valueContent, currentItemScope, ctx)
-			$fly(valueContent).show()
+			@get$Dom().removeClass("placeholder")
 		else
+			input.value = ""
 			input.placeholder = @_placeholder or ""
-			$fly(@_doms.valueContent).hide()
+			@get$Dom().addClass("placeholder")
+
+			if @_useValueContent
+				$fly(@_doms.valueContent).hide()
 		return
 
 	_initValueContent: (valueContent, context) ->
 		property = @_textProperty or @_valueProperty
-		if  property
+		if property
 			context.defaultPath += "." + property
 
 		template = @getTemplate("value-content")
 		if template
-			if template instanceof Array
-				for t in template
-					valueContent.appendChild(t)
-			else
-				valueContent.appendChild(template)
+			valueContent.appendChild(template)
 		return
 
 	_getFinalOpenMode: () ->
@@ -336,7 +340,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return container
 
 	open: (callback) ->
-		return if @_finalReadOnly or @fire("beforeOpen", @) == false
+		return if @_finalReadOnly or @fire("beforeOpen", @) is false
 
 		doCallback = () =>
 			@fire("open", @)
@@ -386,12 +390,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	close: (selectedData, callback) ->
 		if selectedData isnt undefined
 			@_selectData(selectedData)
+		else if @_inputEdited
+			@refresh()
 
 		container = @_getContainer()
 		container?.hide?(callback)
 		return
 
 	_selectData: (item) ->
+		@_inputEdited = false
+
 		if @_valueProperty and item
 			if item instanceof cola.Entity
 				value = item.get(@_valueProperty)
@@ -518,6 +526,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				tagName: "c-listview"
 				contextKey: "list"
 				allowNoCurrent: false
+				changeCurrentItem: false
 				highlightCurrentItem: true
 				style: "overflow:auto"
 			keydown: (evt) ->
@@ -536,7 +545,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 					class: "box filter-container"
 					content:
 						tagName: "c-input"
-						contextKey: "filterInput"
+						contextKey: "input"
 						class: "fluid"
 						icon: "search"
 				}
@@ -549,6 +558,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 						tagName: "c-listview"
 						contextKey: "list"
 						allowNoCurrent: false
+						changeCurrentItem: false
 						highlightCurrentItem: true
 				}
 			]
@@ -559,15 +569,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 					@_disableKeyBubble = false
 				return true
 
-	_initValueContent: (valueContent, context) ->
-		super(valueContent, context)
-		if not valueContent.firstChild
-			template = @getTemplate()
-			if template
-				valueContent.appendChild(@_cloneTemplate(template))
-		return
-
 	_initDom: (dom)->
+		if @_filterable then $fly(dom).addClass("filterable")
 		@_regDefaultTempaltes()
 		super(dom)
 
@@ -580,7 +583,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if @_opened and @_filterable
 				inputDom = @_doms.input
 				$fly(inputDom).on("input.filterItem", () => @_onInput(inputDom.value))
-				@_onInput(inputDom.value)
+				@_list.set("filterCriteria", null).refresh()
 			return true
 		return
 
@@ -590,8 +593,30 @@ class cola.Dropdown extends cola.AbstractDropdown
 		return super(selectedValue)
 
 	_onInput: (value) ->
-		cola.util.delay(@, "filterItems", 300, () ->
-			@_list.set("filterCriteria", value)
+		cola.util.delay(@, "filterItems", 150, () ->
+			criteria = value
+
+			filterProperty = @_filterProperty or @_textProperty
+			if value isnt null
+				if filterProperty
+					criteria = {}
+					criteria[filterProperty] = value
+
+			@_list.set("filterCriteria", criteria).refresh()
+			items = @_list.getItems()
+
+			currentItemDom = null
+			if value isnt null
+				exactlyMatch
+				firstItem = items[0]
+				if firstItem
+					if filterProperty
+						exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) is value
+					else
+						exactlyMatch = firstItem is value
+				if exactlyMatch
+					currentItemDom = @_list._getFirstItemDom()
+			@_list._setCurrentItemDom(currentItemDom)
 			return
 		)
 		return
@@ -621,12 +646,12 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 			list.get$Dom().on("keydown", (evt) =>
 				if evt.keyCode is 13 # Enter
-					@close(list.get("currentItem"))
+					@close(list.get("currentItem") or null)
 					return false
 			)
 
-			if @_doms.filterInput
-				@_filterInput = cola.widget(@_doms.filterInput)
+			if @_filterable and @_doms.filterInput
+				@_filterInput = cola.widget(@_doms.input)
 				inputDom = @_filterInput._doms.input
 				$fly(inputDom).on("input", () => @_onInput(inputDom.value))
 

@@ -4267,6 +4267,7 @@ c-form {
   pointer-events: inherit !important;
 }
 .ui.input.drop > .value-content {
+  display: none;
   position: absolute;
   left: 0;
   top: 0;
@@ -4281,10 +4282,10 @@ c-form {
   opacity: 0.3 !important;
   filter: alpha(opacity=30) !important;
 }
-.ui.input.drop.opened input {
+.ui.input.drop.filterable.opened input {
   border-color: rgba(0, 0, 0, 0.3);
 }
-.ui.input.drop.opened > .value-content {
+.ui.input.drop.filterable.opened > .value-content {
   opacity: 0.5;
   filter: alpha(opacity=50);
 }

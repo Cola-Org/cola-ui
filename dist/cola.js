@@ -12804,7 +12804,7 @@
             popupOptions.html = cola.xRender(popupOptions.html);
           }
         }
-        return $(dom).popup(popupOptions);
+        return $fly(dom).popup(popupOptions);
       }
     };
 
@@ -22201,13 +22201,14 @@ Template
     };
 
     AbstractDropdown.prototype._initDom = function(dom) {
-      var dropdown, valueContent;
       AbstractDropdown.__super__._initDom.call(this, dom);
-      $fly(this._doms.input).xInsertAfter({
-        tagName: "div",
-        "class": "value-content",
-        contextKey: "valueContent"
-      }, this._doms);
+      if (this._useValueContent) {
+        $fly(this._doms.input).xInsertAfter({
+          tagName: "div",
+          "class": "value-content",
+          contextKey: "valueContent"
+        }, this._doms);
+      }
       $fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", (function(_this) {
         return function() {
           if (_this._opened) {
@@ -22228,7 +22229,7 @@ Template
             ctrlKey: evt.ctrlKey,
             altKey: evt.altKey,
             event: evt,
-            inputValue: $fly(_this._doms.input).val()
+            inputValue: _this._doms.input.value
           };
           _this.fire("keyDown", _this, arg);
           if (_this._dropdownContent) {
@@ -22244,20 +22245,26 @@ Template
             ctrlKey: evt.ctrlKey,
             altKey: evt.altKey,
             event: evt,
-            inputValue: $fly(_this._doms.input).val()
+            inputValue: _this._doms.input.value
           };
           if (_this.fire("keyPress", _this, arg) === false) {
 
           }
         };
       })(this));
-      dropdown = this;
-      valueContent = this._doms.valueContent;
-      $(this._doms.input).on("focus", function() {
-        dropdown._doFocus();
-      }).on("blur", function() {
-        dropdown._doBlur();
-      });
+      $(this._doms.input).on("focus", (function(_this) {
+        return function() {
+          return _this._doFocus();
+        };
+      })(this)).on("blur", (function(_this) {
+        return function() {
+          return _this._doBlur();
+        };
+      })(this)).on("keypress", (function(_this) {
+        return function() {
+          return _this._inputEdited = true;
+        };
+      })(this));
       if (!this._skipSetIcon) {
         if (!this._icon) {
           this.set("icon", "dropdown");
@@ -22269,12 +22276,11 @@ Template
     };
 
     AbstractDropdown.prototype._doBlur = function() {
-      $fly(this._doms.valueContent).removeClass("placeholder");
       this.fire("blur", this, {});
     };
 
     AbstractDropdown.prototype._doFocus = function() {
-      $fly(this._doms.valueContent).addClass("placeholder");
+      this._inputEdited = false;
       this.fire("focus", this, {});
     };
 
@@ -22323,11 +22329,13 @@ Template
         input: (function(_this) {
           return function(evt) {
             var $valueContent;
-            $valueContent = $fly(_this._doms.valueContent);
-            if (evt.target.value) {
-              $valueContent.hide();
-            } else {
-              $valueContent.show();
+            if (_this._useValueContent) {
+              $valueContent = $fly(_this._doms.valueContent);
+              if (evt.target.value) {
+                $valueContent.hide();
+              } else {
+                $valueContent.show();
+              }
             }
           };
         })(this)
@@ -22380,9 +22388,7 @@ Template
     };
 
     AbstractDropdown.prototype._setValueContent = function() {
-      var alias, ctx, currentItemScope, elementAttrBinding, input, item, ref, valueContent;
-      input = this._doms.input;
-      input.value = "";
+      var alias, ctx, currentItemScope, elementAttrBinding, input, item, ref, text, valueContent;
       item = this._currentItem;
       if (item == null) {
         if (!this._textProperty) {
@@ -22392,50 +22398,57 @@ Template
           item[this._textProperty] = this._value;
         }
       }
+      input = this._doms.input;
       if (item) {
+        if (this._useValueContent) {
+          elementAttrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
+          alias = (elementAttrBinding != null ? elementAttrBinding.expression.alias : void 0) || "item";
+          currentItemScope = this._currentItemScope;
+          if (currentItemScope && currentItemScope.data.alias !== alias) {
+            currentItemScope = null;
+          }
+          if (!currentItemScope) {
+            this._currentItemScope = currentItemScope = new cola.ItemScope(this._scope, alias);
+          }
+          currentItemScope.data.setTargetData(item);
+          valueContent = this._doms.valueContent;
+          if (!valueContent._inited) {
+            valueContent._inited = true;
+            ctx = {
+              defaultPath: alias
+            };
+            this._initValueContent(valueContent, ctx);
+            cola.xRender(valueContent, currentItemScope, ctx);
+          }
+          $fly(valueContent).show();
+        }
+        if (item instanceof cola.Entity || (typeof item === "object" && !(item instanceof Date))) {
+          text = cola.Entity._evalDataPath(item, this._textProperty || this._valueProperty);
+        } else {
+          text = item;
+        }
+        input.value = text || "";
         input.placeholder = "";
-        elementAttrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
-        alias = (elementAttrBinding != null ? elementAttrBinding.expression.alias : void 0) || "item";
-        currentItemScope = this._currentItemScope;
-        if (currentItemScope && currentItemScope.data.alias !== alias) {
-          currentItemScope = null;
-        }
-        if (!currentItemScope) {
-          this._currentItemScope = currentItemScope = new cola.ItemScope(this._scope, alias);
-        }
-        currentItemScope.data.setTargetData(item);
-        valueContent = this._doms.valueContent;
-        if (!valueContent._inited) {
-          valueContent._inited = true;
-          ctx = {
-            defaultPath: alias
-          };
-          this._initValueContent(valueContent, ctx);
-          cola.xRender(valueContent, currentItemScope, ctx);
-        }
-        $fly(valueContent).show();
+        this.get$Dom().removeClass("placeholder");
       } else {
+        input.value = "";
         input.placeholder = this._placeholder || "";
-        $fly(this._doms.valueContent).hide();
+        this.get$Dom().addClass("placeholder");
+        if (this._useValueContent) {
+          $fly(this._doms.valueContent).hide();
+        }
       }
     };
 
     AbstractDropdown.prototype._initValueContent = function(valueContent, context) {
-      var len1, m, property, t, template;
+      var property, template;
       property = this._textProperty || this._valueProperty;
       if (property) {
         context.defaultPath += "." + property;
       }
       template = this.getTemplate("value-content");
       if (template) {
-        if (template instanceof Array) {
-          for (m = 0, len1 = template.length; m < len1; m++) {
-            t = template[m];
-            valueContent.appendChild(t);
-          }
-        } else {
-          valueContent.appendChild(template);
-        }
+        valueContent.appendChild(template);
       }
     };
 
@@ -22594,6 +22607,8 @@ Template
       var container;
       if (selectedData !== void 0) {
         this._selectData(selectedData);
+      } else if (this._inputEdited) {
+        this.refresh();
       }
       container = this._getContainer();
       if (container != null) {
@@ -22605,6 +22620,7 @@ Template
 
     AbstractDropdown.prototype._selectData = function(item) {
       var value;
+      this._inputEdited = false;
       if (this._valueProperty && item) {
         if (item instanceof cola.Entity) {
           value = item.get(this._valueProperty);
@@ -22769,6 +22785,7 @@ Template
           tagName: "c-listview",
           contextKey: "list",
           allowNoCurrent: false,
+          changeCurrentItem: false,
           highlightCurrentItem: true,
           style: "overflow:auto"
         },
@@ -22790,7 +22807,7 @@ Template
             "class": "box filter-container",
             content: {
               tagName: "c-input",
-              contextKey: "filterInput",
+              contextKey: "input",
               "class": "fluid",
               icon: "search"
             }
@@ -22803,6 +22820,7 @@ Template
               tagName: "c-listview",
               contextKey: "list",
               allowNoCurrent: false,
+              changeCurrentItem: false,
               highlightCurrentItem: true
             }
           }
@@ -22818,18 +22836,10 @@ Template
       }
     };
 
-    Dropdown.prototype._initValueContent = function(valueContent, context) {
-      var template;
-      Dropdown.__super__._initValueContent.call(this, valueContent, context);
-      if (!valueContent.firstChild) {
-        template = this.getTemplate();
-        if (template) {
-          valueContent.appendChild(this._cloneTemplate(template));
-        }
-      }
-    };
-
     Dropdown.prototype._initDom = function(dom) {
+      if (this._filterable) {
+        $fly(dom).addClass("filterable");
+      }
       this._regDefaultTempaltes();
       return Dropdown.__super__._initDom.call(this, dom);
     };
@@ -22848,7 +22858,7 @@ Template
               return _this._onInput(inputDom.value);
             };
           })(this));
-          this._onInput(inputDom.value);
+          this._list.set("filterCriteria", null).refresh();
         }
         return true;
       }
@@ -22862,8 +22872,34 @@ Template
     };
 
     Dropdown.prototype._onInput = function(value) {
-      cola.util.delay(this, "filterItems", 300, function() {
-        this._list.set("filterCriteria", value);
+      cola.util.delay(this, "filterItems", 150, function() {
+        var criteria, currentItemDom, exactlyMatch, filterProperty, firstItem, items;
+        criteria = value;
+        filterProperty = this._filterProperty || this._textProperty;
+        if (value !== null) {
+          if (filterProperty) {
+            criteria = {};
+            criteria[filterProperty] = value;
+          }
+        }
+        this._list.set("filterCriteria", criteria).refresh();
+        items = this._list.getItems();
+        currentItemDom = null;
+        if (value !== null) {
+          exactlyMatch;
+          firstItem = items[0];
+          if (firstItem) {
+            if (filterProperty) {
+              exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) === value;
+            } else {
+              exactlyMatch = firstItem === value;
+            }
+          }
+          if (exactlyMatch) {
+            currentItemDom = this._list._getFirstItemDom();
+          }
+        }
+        this._list._setCurrentItemDom(currentItemDom);
       });
     };
 
@@ -22904,13 +22940,13 @@ Template
         list.get$Dom().on("keydown", (function(_this) {
           return function(evt) {
             if (evt.keyCode === 13) {
-              _this.close(list.get("currentItem"));
+              _this.close(list.get("currentItem") || null);
               return false;
             }
           };
         })(this));
-        if (this._doms.filterInput) {
-          this._filterInput = cola.widget(this._doms.filterInput);
+        if (this._filterable && this._doms.filterInput) {
+          this._filterInput = cola.widget(this._doms.input);
           inputDom = this._filterInput._doms.input;
           $fly(inputDom).on("input", (function(_this) {
             return function() {
@@ -25008,6 +25044,46 @@ Template
       }
     };
 
+    ItemsView.prototype._getFirstItemDom = function() {
+      var itemDom;
+      itemDom = this._doms.itemsWrapper.firstChild;
+      while (itemDom) {
+        if (itemDom._itemType) {
+          return itemDom;
+        }
+        itemDom = itemDom.nextSibling;
+      }
+    };
+
+    ItemsView.prototype._getLastItemDom = function() {
+      var itemDom;
+      itemDom = this._doms.itemsWrapper.lastChild;
+      while (itemDom) {
+        if (itemDom._itemType) {
+          return itemDom;
+        }
+        itemDom = itemDom.previousSibling;
+      }
+    };
+
+    ItemsView.prototype._getPreviousItemDom = function(itemDom) {
+      while (itemDom) {
+        itemDom = itemDom.previousSibling;
+        if (itemDom != null ? itemDom._itemType : void 0) {
+          return itemDom;
+        }
+      }
+    };
+
+    ItemsView.prototype._getNextItemDom = function(itemDom) {
+      while (itemDom) {
+        itemDom = itemDom.nextSibling;
+        if (itemDom != null ? itemDom._itemType : void 0) {
+          return itemDom;
+        }
+      }
+    };
+
     ItemsView.prototype._onCurrentItemChange = function(arg) {
       var currentItemDom, itemId;
       if (arg.current && this._itemDomMap) {
@@ -25246,37 +25322,24 @@ Template
     };
 
     ItemsView.prototype._onKeyDown = function(evt) {
-      var findNextItemDom, itemDom;
-      findNextItemDom = function(itemsWrapper, refItemDom, down) {
-        var itemDom;
-        if (refItemDom) {
-          itemDom = refItemDom;
-          while (itemDom) {
-            itemDom = down ? itemDom.nextSibling : itemDom.previousSibling;
-            if (itemDom != null ? itemDom._itemType : void 0) {
-              return itemDom;
-            }
-          }
-        } else {
-          itemDom = itemsWrapper.firstChild;
-          while (itemDom) {
-            if (itemDom != null ? itemDom._itemType : void 0) {
-              return itemDom;
-            }
-            itemDom = down ? itemDom.nextSibling : itemDom.previousSibling;
-          }
-        }
-        return null;
-      };
+      var itemDom;
       switch (evt.keyCode) {
         case 38:
-          itemDom = findNextItemDom(this._doms.itemsWrapper, this._currentItemDom, false);
+          if (this._currentItemDom) {
+            itemDom = this._getPreviousItemDom(this._currentItemDom);
+          } else {
+            itemDom = this._getFirstItemDom();
+          }
           if (itemDom) {
             this._setCurrentItemDom(itemDom);
           }
           return false;
         case 40:
-          itemDom = findNextItemDom(this._doms.itemsWrapper, this._currentItemDom, true);
+          if (this._currentItemDom) {
+            itemDom = this._getNextItemDom(this._currentItemDom);
+          } else {
+            itemDom = this._getFirstItemDom();
+          }
           if (itemDom) {
             this._setCurrentItemDom(itemDom);
           }

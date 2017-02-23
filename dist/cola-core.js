@@ -12804,7 +12804,7 @@
             popupOptions.html = cola.xRender(popupOptions.html);
           }
         }
-        return $(dom).popup(popupOptions);
+        return $fly(dom).popup(popupOptions);
       }
     };
 

@@ -50,7 +50,7 @@ class cola.ItemsView extends cola.Widget
 		while child
 			next = child.nextSibling
 			nodeName = child.nodeName
-			if !itemsWrapper and nodeName == "UL"
+			if not itemsWrapper and nodeName is "UL"
 				itemsWrapper = child
 			else if nodeName == "TEMPLATE"
 				@regTemplate(child)
@@ -58,7 +58,7 @@ class cola.ItemsView extends cola.Widget
 				dom.removeChild(child)
 			child = next
 
-		if !itemsWrapper
+		if not itemsWrapper
 			itemsWrapper = document.createElement("ul")
 			dom.appendChild(itemsWrapper)
 		@_doms.itemsWrapper = itemsWrapper
@@ -188,6 +188,32 @@ class cola.ItemsView extends cola.Widget
 			$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 		return
 
+	_getFirstItemDom: () ->
+		itemDom = @_doms.itemsWrapper.firstChild
+		while itemDom
+			if itemDom._itemType then return itemDom
+			itemDom = itemDom.nextSibling
+		return
+
+	_getLastItemDom: () ->
+		itemDom = @_doms.itemsWrapper.lastChild
+		while itemDom
+			if itemDom._itemType then return itemDom
+			itemDom = itemDom.previousSibling
+		return
+
+	_getPreviousItemDom: (itemDom) ->
+		while itemDom
+			itemDom = itemDom.previousSibling
+			if itemDom?._itemType then return itemDom
+		return
+
+	_getNextItemDom: (itemDom) ->
+		while itemDom
+			itemDom = itemDom.nextSibling
+			if itemDom?._itemType then return itemDom
+		return
+
 	_onCurrentItemChange: (arg) ->
 		if arg.current and @_itemDomMap
 			itemId = _getEntityId(arg.current)
@@ -221,7 +247,7 @@ class cola.ItemsView extends cola.Widget
 		currentItem = items?.current
 
 		if @_currentItemDom
-			if !currentItem
+			if not currentItem
 				currentItem = cola.util.userData(@_currentItemDom, "item")
 			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
 			delete @_currentItemDom
@@ -239,7 +265,7 @@ class cola.ItemsView extends cola.Widget
 
 				if nextItemDom
 					while nextItemDom
-						if nextItemDom._itemType == itemType
+						if nextItemDom._itemType is itemType
 							break
 						else
 							_nextItemDom = nextItemDom.nextSibling
@@ -292,9 +318,9 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope) ->
-		if item == @_currentItem
+		if item is @_currentItem
 			@_currentItemDom = itemDom
-		else if !@_currentItemDom and !@_allowNoCurrent
+		else if not @_currentItemDom and not @_allowNoCurrent
 			@_currentItemDom = itemDom
 
 		if item?.isDataWrapper
@@ -303,11 +329,11 @@ class cola.ItemsView extends cola.Widget
 		else
 			originItem = item
 
-		if typeof item == "object"
+		if typeof item is "object"
 			itemId = _getEntityId(item)
 
 		alias = item._alias
-		if !alias
+		if not alias
 			alias = originItem?._alias
 			alias ?= @_alias
 		@_templateContext.defaultPath = @_getDefaultBindPath?(originItem) or alias
@@ -315,7 +341,7 @@ class cola.ItemsView extends cola.Widget
 		itemScope = cola.util.userData(itemDom, "scope")
 		oldScope = cola.currentScope
 		try
-			if !itemScope
+			if not itemScope
 				itemScope = new cola.ItemScope(parentScope, alias)
 				cola.currentScope = itemScope
 				itemScope.data.setTargetData(item, true)
@@ -370,27 +396,19 @@ class cola.ItemsView extends cola.Widget
 		return itemDom
 
 	_onKeyDown: (evt) ->
-
-		findNextItemDom = (itemsWrapper, refItemDom, down) ->
-			if refItemDom
-				itemDom = refItemDom
-				while itemDom
-					itemDom = if down then itemDom.nextSibling else itemDom.previousSibling
-					if itemDom?._itemType then return itemDom
-			else
-				itemDom = itemsWrapper.firstChild
-				while itemDom
-					if itemDom?._itemType then return itemDom
-					itemDom = if down then itemDom.nextSibling else itemDom.previousSibling
-			return null
-
 		switch evt.keyCode
 			when 38 # up
-				itemDom = findNextItemDom(@_doms.itemsWrapper, @_currentItemDom, false)
+				if @_currentItemDom
+					itemDom = @_getPreviousItemDom(@_currentItemDom)
+				else
+					itemDom = @_getFirstItemDom()
 				@_setCurrentItemDom(itemDom) if itemDom
 				return false
 			when 40 # down
-				itemDom = findNextItemDom(@_doms.itemsWrapper, @_currentItemDom, true)
+				if @_currentItemDom
+					itemDom = @_getNextItemDom(@_currentItemDom)
+				else
+					itemDom = @_getFirstItemDom()
 				@_setCurrentItemDom(itemDom) if itemDom
 				return false
 

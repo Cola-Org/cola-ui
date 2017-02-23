@@ -316,7 +316,7 @@ class cola.Widget extends cola.RenderableElement
 					popupOptions.html = cola.xRender(popupOptions.content)
 				else if popupOptions.html
 					popupOptions.html = cola.xRender(popupOptions.html)
-			$(dom).popup(popupOptions)
+			$fly(dom).popup(popupOptions)
 
 	_setDom: (dom, parseChild)->
 		return unless dom
