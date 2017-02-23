@@ -15,11 +15,11 @@ cola.TemplateSupport =
 
 	_parseTemplates: () ->
 		return unless @_dom
-		child = @_dom.firstChild
+		child = @_dom.firstElementChild
 		while child
 			if child.nodeName == "TEMPLATE"
 				@regTemplate(child)
-			child = child.nextSibling
+			child = child.nextElementSibling
 		@_regDefaultTempaltes()
 		return
 
@@ -27,7 +27,7 @@ cola.TemplateSupport =
 		child = dom.firstChild
 		while child
 			next = child.nextSibling
-			if child.nodeType == 3
+			if child.nodeType == 3	# TEXT
 				if $.trim(child.nodeValue) == ""
 					dom.removeChild(child)
 			child = next

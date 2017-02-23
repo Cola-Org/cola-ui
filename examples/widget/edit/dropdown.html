@@ -53,7 +53,7 @@
 				},
 				dropdown1: {
 					$type: "dropdown",
-//					filterable: false,
+					filterable: false,
 					openMode: "drop",
 					items: "{{language in languages}}",
 					bind: "selected",
@@ -64,7 +64,9 @@
 					$type: "dropdown",
 					openMode: "drop",
 					items: "{{language in languages}}",
-					valueProperty: "name"
+					bind: "selected",
+					valueProperty: "name",
+					textProperty: "name"
 				},
 				dropdown3: {
 					$type: "dropdown",
@@ -110,7 +112,9 @@
 <p></p>
 
 <div id="dropdown2">
-	<div c-widget="button; caption:Test"></div>
+	<template name="value-content">
+		<button c-bind="$default"></button>
+	</template>
 </div>
 
 <p></p>

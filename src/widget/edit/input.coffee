@@ -13,7 +13,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 	]
 
 	@attributes:
-		name: null
+		name:
+			readOnlyAfterCreate: true
 		value:
 			setter: (value) ->
 				if @_dataType

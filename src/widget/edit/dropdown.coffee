@@ -39,9 +39,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					if items?.timestamp
 						@_itemsTimestamp = items.timestamp
 					delete @_itemsIndex
+
+					@_findCurrentItem(@_value)
 				return
+		lazyLoadItems:
+			defaultValue: true
+
 		currentItem:
 			readOnly: true
+		editable:
+			defaultValue: true
 
 		valueProperty: null
 		textProperty: null
@@ -78,6 +85,14 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				tagName: "div"
 				class: "value-content"
 				contextKey: "valueContent"
+			}, @_doms)
+
+		if @_name
+			$fly(@_doms.input).xInsertAfter({
+				tagName: "input"
+				type: "hidden"
+				name: @_name
+				contextKey: "hiddenInput"
 			}, @_doms)
 
 		$fly(dom).attr("tabIndex", 1)
@@ -137,6 +152,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		super(dom)
 		@_parseTemplates()
 
+		@_useValueContent = @getTemplate("value-content")?
+
 		if !@_icon
 			child = @_doms.input.nextSibling
 			while child
@@ -174,7 +191,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return cola.device.mobile
+		return not @_editable or cola.device.mobile
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
@@ -184,23 +201,29 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_setValueContent()
 		return
 
+	_findCurrentItem: (value) ->
+		if not @_itemsIndex
+			if @_items and @_valueProperty
+				@_itemsIndex = index = {}
+				valueProperty = @_valueProperty
+				cola.each @_items, (item) ->
+					if item instanceof cola.Entity
+						key = item.get(valueProperty)
+					else
+						key = item[valueProperty]
+					index[key + ""] = item
+					return
+				currentItem = index[value + ""]
+		else
+			currentItem = @_itemsIndex[value + ""]
+		@_currentItem = currentItem
+
 	_setValue: (value) ->
+		if value isnt true and not @_lazyLoadItems
+			@get("items")
+
 		if @_dom and not @_skipFindCurrentItem
-			if not @_itemsIndex
-				if @_items and @_valueProperty
-					@_itemsIndex = index = {}
-					valueProperty = @_valueProperty
-					cola.each @_items, (item) ->
-						if item instanceof cola.Entity
-							key = item.get(valueProperty)
-						else
-							key = item[valueProperty]
-						index[key + ""] = item
-						return
-					currentItem = index[value + ""]
-			else
-				currentItem = @_itemsIndex[value + ""]
-			@_currentItem = currentItem
+			@_findCurrentItem(value)
 
 		return super(value)
 
@@ -214,7 +237,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				item[@_textProperty] = @_value
 
 		input = @_doms.input
+		valueContent = @_doms.valueContent
 		if item
+			if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
+				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty)
+			else
+				text = item
+
 			if @_useValueContent
 				elementAttrBinding = @_elementAttrBindings?["items"]
 				alias = elementAttrBinding?.expression.alias or "item"
@@ -227,7 +256,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					@_currentItemScope = currentItemScope = new cola.ItemScope(@_scope, alias)
 				currentItemScope.data.setTargetData(item)
 
-				valueContent = @_doms.valueContent
 				if not valueContent._inited
 					valueContent._inited = true
 					ctx =
@@ -235,21 +263,20 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					@_initValueContent(valueContent, ctx)
 					cola.xRender(valueContent, currentItemScope, ctx)
 				$fly(valueContent).show()
-
-			if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
-				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty)
+				input.value = ""
 			else
-				text = item
-			input.value = text or ""
+				input.value = text or ""
+
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
 		else
-			input.value = ""
+			if @_useValueContent
+				$fly(valueContent).hide()
+			else
+				input.value = ""
+
 			input.placeholder = @_placeholder or ""
 			@get$Dom().addClass("placeholder")
-
-			if @_useValueContent
-				$fly(@_doms.valueContent).hide()
 		return
 
 	_initValueContent: (valueContent, context) ->
