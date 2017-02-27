@@ -10,7 +10,12 @@
             model.describe("items", {
                 provider: {
                     url: "languages{{$pageNo}}.json",
-                    pageSize: 10
+                    pageSize: 10,
+                    success: function (self, arg) {
+                        model.get("items").each(function (entity) {
+                            entity.set("medName",entity.get("name")+"-MedName")
+                        })
+                    }
                 }
             });
 
@@ -19,12 +24,17 @@
                     $type: "Pager",
 
                 },
-                listScroll: {
-                    $type: "listView",
+                table: {
+                    $type: "table",
                     bind: "item in items",
                     allowNoCurrent: false,
                     height: "100%",
-                    autoLoadPage: true
+                    autoLoadPage: true,
+                    columns: [
+                        {
+                            name: "medName"
+                        }
+                    ]
                 }
 
             });
@@ -35,27 +45,27 @@
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
 <!--<c-pager c-bind="item in items">-->
-    <!--<a caption="zcxv"></a>-->
-    <!--<div class="right menu">-->
-        <!--<a page-code="pages" class="item"></a>-->
-    <!--</div>-->
+<!--<a caption="zcxv"></a>-->
+<!--<div class="right menu">-->
+<!--<a page-code="pages" class="item"></a>-->
+<!--</div>-->
 <!--</c-pager>-->
 <c-pager c-bind="item in items">
-    <a page-code="|<" class="item"></a>
-    <a page-code="<" class="item"></a>
-    <a page-code="info" class="item"></a>
-    <a page-code=">" class="item"></a>
-    <a page-code=">|" class="item"></a>
+    <!--<a page-code="|<" class="item"></a>-->
+    <!--<a page-code="<" class="item"></a>-->
+    <!--<div page-code="info" class="item"></div>-->
+    <!--<div page-code="goto" class="item"></div>-->
+    <!--<div page-code="pageSize" class="item"></div>-->
+    <!--<a page-code=">" class="item"></a>-->
+    <!--<a page-code=">|" class="item"></a>-->
+    <a page-code="pages" class="item"></a>
+    <div page-code="goto" class="item"></div>
+    <div page-code="pageSize" class="item"></div>
 </c-pager>
 <div class="flex-box">
-    <div id="listScroll">
-        <template name="default">
-            <li>
-                <div c-bind="item.name"></div>
-            </li>
-        </template>
+    <div id="table">
+
     </div>
 </div>
-
 </body>
 </html>
