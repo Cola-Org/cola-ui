@@ -16,6 +16,8 @@ class cola.ItemsView extends cola.Widget
 				@_setCurrentItemDom(currentItemDom)
 				return
 
+		currentPageOnly: null
+
 		highlightCurrentItem:
 			type: "boolean"
 			defaultValue: true
