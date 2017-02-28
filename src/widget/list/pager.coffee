@@ -9,13 +9,12 @@ _pageCodeMap =
 
 class cola.Pager extends cola.Menu
 	@tagName: "c-pager"
-
+	@CLASS_NAME: "ui menu pager secondary"
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
 
 	_getBindItems: ()-> @_getItems()?.items
-
 	constructor: (config) ->
 		@_pagerItemMap = {}
 		pager = @
@@ -23,24 +22,45 @@ class cola.Pager extends cola.Menu
 		_getPageCount = ()->
 			data = pager._getBindItems()
 			return parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
-
 		@_pagerItemConfig =
 			firstPage:
-				icon: "large angle double left"
+				icon: "angle double left"
+				class: "page-item"
 				click: ()-> pager._getBindItems()?.firstPage()
 
 			prevPage:
-				icon: "large angle left"
+				icon: "angle left"
+				class: "page-item"
 				click: ()->
 					data = pager._getBindItems()
 					data?.previousPage()
+			pageSize:
+				$type: "input"
+				class: "page-item page-size"
+				inputType: "number",
+				initDom: (self, arg)->
+					self.get$Dom().find("input").attr("min", 0)
+					return
+				keyDown: (self, arg)->
+					k = arg.keyCode
+					if k is 190 then event.preventDefault()
 
+				change: (self, arg)->
+					value = arg.value
+					collection = pager._getBindItems()
+					if collection
+						if value then value = parseInt(value)
+						if value is collection.pageSize then return
+						if collection instanceof cola.EntityList
+							collection.pageSize = value
+							cola.util.flush(collection)
 			goto:
 				$type: "input"
 				class: "goto"
+
 				inputType: "number",
 				initDom: (self, arg)->
-					self.get$Dom().find("input").attr("min",0)
+					self.get$Dom().find("input").attr("min", 0)
 					return
 
 				keyDown: (self, arg)->
@@ -66,7 +86,6 @@ class cola.Pager extends cola.Menu
 						setTimeout(()->
 							button.set("disabled", value is pageNo)
 						, 100)
-
 						pager._targetPageNo = value
 
 				actionButton:
@@ -78,12 +97,14 @@ class cola.Pager extends cola.Menu
 							data?.gotoPage(pager._targetPageNo)
 
 			nextPage:
-				icon: "large angle right"
+				icon: "angle right"
+				class: "page-item"
 				click: ()->
 					data = pager._getBindItems()
 					data?.nextPage()
 			lastPage:
-				icon: "large angle double right"
+				icon: "angle double right"
+				class: "page-item"
 				click: ()->
 					data = pager._getBindItems()
 					data?.lastPage()
@@ -117,7 +138,7 @@ class cola.Pager extends cola.Menu
 					beforeChild = childNode
 				else
 					if pageItemKey is "info"
-						menuItem = new cola.menu.MenuItem()
+						menuItem = new cola.menu.ControlMenuItem()
 					else
 						menuItem = new cola.menu.MenuItem(pageItem)
 
@@ -138,6 +159,11 @@ class cola.Pager extends cola.Menu
 				if right then @addRightItem(menuItem) else @addItem(menuItem)
 			else if pageCode is "goto"
 				propName = "goto"
+				itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
+				menuItem = new cola.menu.ControlMenuItem(itemConfig)
+				if right then @addRightItem(menuItem) else @addItem(menuItem)
+			else if pageCode is "pageSize"
+				propName = "pageSize"
 				itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
 				menuItem = new cola.menu.ControlMenuItem(itemConfig)
 				if right then @addRightItem(menuItem) else @addItem(menuItem)
@@ -209,6 +235,11 @@ class cola.Pager extends cola.Menu
 					propName = config
 					itemConfig = {control: @_pagerItemConfig[config]}
 					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+				else if config is "pageSize"
+					propName = config
+					itemConfig = {control: @_pagerItemConfig[config]}
+					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+
 				else if config is "info"
 					propName = config
 					menuItem = new cola.menu.MenuItem()
@@ -244,13 +275,18 @@ class cola.Pager extends cola.Menu
 		hasNext = false
 		pageNo = 0
 		pageCount = 0
-
+		totalEntityCount = 0
+		pageSize = 0
 		if data
 			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			totalEntityCount = data.totalEntityCount
 			hasPrev = data.pageNo > 1
 			hasNext = pageCount > data.pageNo
 			pageNo = data.pageNo
 			pageCount = data.pageCount
+			pageSize = data.pageSize
+
+
 		@_pageNo = pageNo
 		pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", !hasPrev)
 		pager._pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", !hasPrev)
@@ -259,9 +295,28 @@ class cola.Pager extends cola.Menu
 		infoItem = pager._pagerItemMap["info"]
 		if infoItem
 			infoItemDom = if infoItem.nodeType is 1 then infoItem else  infoItem.getDom()
-			$(infoItemDom).text(cola.resource("cola.pager.info", pageNo, pageCount))
-		gotoInput = pager._pagerItemMap["goto"]?.get("control")
-		if gotoInput then cola.widget(gotoInput)?.set("value", pageNo)
+			$(infoItemDom).addClass("page-item desc").text(cola.resource("cola.pager.info", pageNo, pageCount, totalEntityCount))
+		gotoItem = pager._pagerItemMap["goto"]
+		if gotoItem
+			gotoInput = gotoItem.get("control")
+			if gotoInput
+				gotoInputControl = cola.widget(gotoInput)
+				gotoInputControl?.set("value", pageNo)
+				gotoInputControl?.get$Dom().parent().addClass("page-item desc")
+		pageSizeItem = pager._pagerItemMap["pageSize"]
+		if pageSizeItem
+			pageSizeDom = if pageSizeItem.nodeType is 1 then pageSizeItem else  pageSizeItem.getDom()
+			descDom = $(pageSizeDom).find(">.page-size-desc")
+			$(pageSizeDom).addClass("page-item desc")
+			unless descDom.length
+				$(pageSizeDom).prepend($.xCreate({
+					tagName: "span", class: "page-size-desc",
+					content: cola.resource("cola.pager.pageSize")
+				}))
+			pageSizeInput = pageSizeItem.get("control")
+			if pageSizeInput
+				cola.widget(pageSizeInput)?.set("value", pageSize)
+
 	_onItemsRefresh: ()-> @pagerItemsRefresh()
 
 	_onItemRefresh: (arg)->

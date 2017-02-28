@@ -83,6 +83,7 @@
 					$type: "customDropdown",
 					openMode: "drop",
 					valueProperty: "name",
+					openOnActive:false,
 					content: {
 						$type: "table",
 						bind: "language in languages",
@@ -98,6 +99,7 @@
 					items: "{{item in items}}",
 					valueProperty: "k",
 					textProperty: "v",
+//					openOnActive:false,
 					bind: "currentSelected"
 				}
 			});

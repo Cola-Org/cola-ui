@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Toolbar</title>
+
+    <script src="../../include-all.js"></script>
+</head>
+<body style="padding: 20px;">
+<c-toolbar style="height: 100px">
+    <c-toolbar-button icon="plus" caption="添加"></c-toolbar-button>
+    <c-toolbar-button icon="remove" caption="删除"></c-toolbar-button>
+    <c-toolbar-button icon="edit" caption="修改"></c-toolbar-button>
+
+    <div class="item">
+        <c-input icon="search">
+
+        </c-input>
+    </div>
+    <div class="right box">
+        <c-button-group>
+            <c-button caption="当年"></c-button>
+            <c-button caption="当月"></c-button>
+            <c-button caption="当日"></c-button>
+        </c-button-group>
+    </div>
+</c-toolbar>
+<c-divider></c-divider>
+<c-toolbar>
+    <c-toolbar-button icon="plus" caption="添加"></c-toolbar-button>
+    <c-toolbar-button icon="remove" caption="删除"></c-toolbar-button>
+    <c-toolbar-button icon="edit" caption="修改"></c-toolbar-button>
+    <div class="right box">
+        <c-pager class="secondary"></c-pager>
+    </div>
+</c-toolbar>
+
+<c-divider></c-divider>
+
+<c-toolbar>
+    <c-toolbar-button icon="plus" caption="添加"></c-toolbar-button>
+    <c-toolbar-button icon="remove" caption="删除"></c-toolbar-button>
+    <c-toolbar-button icon="edit" caption="修改"></c-toolbar-button>
+    <div class="right box">
+        <c-input>
+
+        </c-input>
+    </div>
+</c-toolbar>
+
+<script type="text/javascript">
+    cola(function (model) {
+
+    });
+</script>
+</body>
+</html>

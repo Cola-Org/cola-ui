@@ -1,91 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<meta charset="utf-8">
-	<title>Panel</title>
-	<script src="../../include-all.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="utf-8">
+    <title>Panel</title>
+    <script src="../../include-all.js"></script>
 </head>
 <body style="padding: 20px;">
 
 <div c-widget="#panel">
-	<template name="tools">
-		<div>
-			<c-button caption="按钮"></c-button>
-		</div>
-	</template>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
+    <template name="tools">
+        <div>
+            <c-button caption="按钮"></c-button>
+            <i class="icon setting link"></i>
+        </div>
+    </template>
+    <div class="content">
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+    </div>
 </div>
 <br>
 
 <c-panel class="basic" caption="个人信息">
-	<template name="tools">
-		<div>
-			<c-button caption="按钮"></c-button>
-		</div>
-	</template>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
-	<div c-widget="button; caption:GroupBox"></div>
+    <template name="tools">
+        <div>
+            <c-button caption="按钮"></c-button>
+        </div>
+    </template>
+    <div class="content">
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+        <div c-widget="button; caption:GroupBox"></div>
+    </div>
 </c-panel>
 <div c-widget="#fieldSet;"></div>
 <br>
 
 <div c-widget="#groupBox;">
-	<div c-widget="button; caption:GroupBox"></div>
+    <div c-widget="button; caption:GroupBox"></div>
 </div>
 
 <script type="text/javascript">
-	cola(function (model) {
-		model.widgetConfig({
-			panel: {
-				icon: "user",
-				$type: "Panel",
-				closable: false,
-				caption: "个人数据",
-				width: "40%"
-			},
-			fieldSet: {
-				icon: "user",
-				$type: "FieldSet",
-				closable: false,
-				caption: "个人数据",
-				width: "40%", height: "10em"
-			},
-			groupBox: {
-				icon: "user",
-				$type: "GroupBox",
-				closable: false,
-				caption: "个人数据",
-				width: "40%", height: "10em"
-			}
-		});
-	})
+    cola(function (model) {
+        model.widgetConfig({
+            panel: {
+                icon: "user",
+                $type: "Panel",
+                closable: false,
+                caption: "个人数据",
+                width: "40%"
+            },
+            fieldSet: {
+                icon: "user",
+                $type: "FieldSet",
+                closable: false,
+                caption: "个人数据",
+                width: "40%", height: "10em"
+            },
+            groupBox: {
+                icon: "user",
+                $type: "GroupBox",
+                closable: false,
+                caption: "个人数据",
+                width: "40%", height: "10em"
+            }
+        });
+    })
 
 </script>
 

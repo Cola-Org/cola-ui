@@ -19,7 +19,8 @@
     "cola.messageBox.question.title": "确认框",
     "cola.message.approve": "确认",
     "cola.message.deny": "取消",
-    "cola.pager.info": "第{0}页\/共{1}页"
+    "cola.pager.info": "第{0}页\/共{1}页({2}笔记录)",
+    "cola.pager.pageSize": "每页记录数:"
   });
 
 }).call(this);

@@ -1,10 +1,9 @@
 @import (reference) "global";
 
 .ui.menu.pager {
-	.goto.ui.input {
-		width: 6.25em;
+	.page-item > .ui.input {
 		> input {
-			width: 3em;
+			width: 4em;
 			padding-left: 0.5em;
 			padding-right: 0.5em;
 		}
@@ -13,7 +12,26 @@
 			padding-right: 0.8em;
 		}
 	}
-	.item.disabled:hover{
+	.item.disabled:hover {
 		color: rgba(40, 40, 40, 0.3);
 	}
+	.page-size-desc {
+		white-space: nowrap;
+		margin-right: 0.5em;
+	}
+
+	.desc.page-item {
+		padding-right: 2px;
+		padding-left: 2px;
+	}
+	.page-item {
+		> i.icon {
+			-webkit-transform: scale(1.25);
+			-moz-transform: scale(1.25);
+			-ms-transform: scale(1.25);
+			-o-transform: scale(1.25);
+			transform: scale(1.25);
+		}
+	}
+
 }

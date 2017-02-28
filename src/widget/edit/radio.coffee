@@ -208,9 +208,8 @@ class cola.RadioGroup extends cola.AbstractEditor
 		value = @_value
 		return unless @_items
 		for item in @_items
-			if item.get("value") is value
-				item.set("checked", true)
-				break
+			item.set("readOnly", @_readOnly)
+			item.set("checked", item.get("value") is value)
 		return
 
 	_initDom: (dom)->

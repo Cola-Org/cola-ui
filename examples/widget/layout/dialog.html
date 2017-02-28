@@ -1,47 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<meta charset="utf-8">
-	<title>Dialog</title>
-	<script src="../../include-all.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="utf-8">
+    <title>Dialog</title>
+    <script src="../../include-all.js"></script>
 
 </head>
 <body style="padding: 20px;">
 <div c-widget="button; caption:显示层; click:showLayer"></div>
 <div id="layer" style="background-color: #fff">
-	<div c-widget="button; caption:显示Dailog; click:showDialog"></div>
-	<div id="modalDialog">
+    <div c-widget="button; caption:显示Dailog; click:showDialog"></div>
+    <div id="modalDialog">
 
-		<div c-widget="Widget; height:500px"></div>
-		<div class="actions">
-			<div c-widget="button; caption:确认"></div>
-		</div>
-	</div>
+        <div c-widget="Widget; height:200px"></div>
+        <div class="actions">
+            <div c-widget="button; caption:确认"></div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
-	cola(function (model) {
-		model.action({
-			showDialog: function () {
-				cola.widget("modalDialog").show();
-			},
-			showLayer: function () {
-				cola.widget("layer").show();
-			}
-		});
-		model.widgetConfig({
-			layer: {
-				$type: "Layer"
-			},
-			modalDialog: {
-				$type: "Dialog",
-				animation:"fade down",
-				dimmerClose: true,
-				context: "parent"
-			}
-		});
-	})
+    cola(function (model) {
+        model.action({
+            showDialog: function () {
+                cola.widget("modalDialog").show();
+            },
+            showLayer: function () {
+                cola.widget("layer").show();
+            }
+        });
+        model.widgetConfig({
+            layer: {
+                $type: "Layer"
+            },
+            modalDialog: {
+                $type: "Dialog",
+                animation: "fade down",
+                dimmerClose: true,
+                caption:'员工信息维护',
+                context: "parent"
+            }
+        });
+    })
 
 </script>
 

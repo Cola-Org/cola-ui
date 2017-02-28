@@ -7,18 +7,17 @@
 @panelToolsIconColor: #aeaeae;
 @panelHeaderFontColor: #5a5a5b;
 @panelBorderColor: darken(@panelHeaderBkgColor, 10%);
-@panelPadding: 0.6em;
+@panelPadding: 0.4em;
 @panelBoxShadow: 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 -2px 10px 0 rgba(34, 36, 38, 0.08);
 .ui.panel {
-	//.box-shadow(0 2px 4px 0 rgba(34, 36, 38, .12), 0 2px 10px 0 rgba(34, 36, 38, .08););
-	padding: @panelPadding;
 	display: block;
-	margin-bottom: 0.8em;
 	&:last-child {
 		margin-bottom: 0;
 	}
+	.content {
+		padding: @panelPadding;
+	}
 	> .header {
-		margin: -@panelPadding -@panelPadding @panelPadding -@panelPadding;
 		> .content {
 			padding: 0 1rem;
 			height: @panelHeaderHeight;
@@ -122,12 +121,8 @@
 			bottom: 0;
 		}
 	}
-	&.crowded {
-		padding: @panelPadding 0 0 0 !important;
-		> .header {
-			margin-bottom: 0;
-		}
-
+	&.crowded > .content {
+		padding: 0;
 	}
 	&.basic {
 		box-shadow: inset 0px 0px 0px 1px #e7eaec;

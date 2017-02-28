@@ -22,51 +22,29 @@ class cola.SplitPane extends cola.Widget
 		$sideDom = $(@_doms.sideDom)
 		$mainDom = $(@_doms.mainDom)
 		$splitterDom = $(@_doms.splitter)
-		if direction is "left"
-			$sideDom.css({
-				width: position,
-			})
-			$splitterDom.css({
-				left: position
-			})
-			$mainDom.css({
-				left: position + 4
-			})
-		else if direction is "right"
-			$sideDom.css({
-				width: position
-			})
 
-			$splitterDom.css({
-				right: position
-			})
-			$mainDom.css({
-				right: position + 4
-			})
-		else if direction is "top"
-			$sideDom.css({
-				height: position
-			})
+		if isFinite(position)
+			mainPos = position + 4;
+		else
+			mainPos = "calc(" + position + " + 4px)";
 
-			$splitterDom.css({
-				top: position
-			})
-
-			$mainDom.css({
-				top: position + 4
-			})
-		else if direction is "bottom"
-			$sideDom.css({
-				height: position
-			})
-
-			$splitterDom.css({
-				bottom: position
-			})
-
-			$mainDom.css({
-				bottom: position + 4
-			})
+		switch direction
+			when "left"
+				$sideDom.css({width: position})
+				$splitterDom.css({left: position})
+				$mainDom.css({left: mainPos})
+			when "right"
+				$sideDom.css({width: position})
+				$splitterDom.css({right: position})
+				$mainDom.css({right: mainPos})
+			when "top"
+				$sideDom.css({height: position})
+				$splitterDom.css({top: position})
+				$mainDom.css({top: mainPos})
+			when "bottom"
+				$sideDom.css({height: position})
+				$splitterDom.css({bottom: position})
+				$mainDom.css({bottom: mainPos})
 
 
 	_initDom: (dom)->

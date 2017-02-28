@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>Checkbox</title>
+    <meta charset="utf-8">
+    <title>Checkbox</title>
 
-	<script src="../../include-all.js"></script>
+    <script src="../../include-all.js"></script>
 
 
 </head>
@@ -12,28 +12,30 @@
 <div id="radioGroupDemo"></div>
 
 <script type="text/javascript">
-	cola(function (model) {
-		model.widgetConfig({
-			radioGroupDemo:{
-				$type:"RadioGroup",
-				name:"cola",
-				type:"slider",
-				items:[
-					{
-						value:"苹果"
-					},
-					{
-						value:"小米"
-					},
-					{
-						value:"华为"
-					},{
-						value:"三星"
-					}
-				]
-			}
-		})
-	})
+    cola(function (model) {
+        model.widgetConfig({
+            radioGroupDemo: {
+                $type: "RadioGroup",
+                name: "cola",
+                readOnly: true,
+                items: [
+                    {
+                        value: "苹果"
+                    },
+                    {
+                        value: "小米"
+                    },
+                    {
+                        value: "华为"
+                    },
+                    {
+
+                        value: "三星"
+                    }
+                ]
+            }
+        })
+    })
 </script>
 </body>
 </html>

@@ -196,7 +196,6 @@
 				currentNodeChange: function (self, arg) {
 					var current = self.get("currentNode");
 					model.set("currentEditItem", current ? current.get("data") : null);
-					current.validate()
 				}
 			}
 		});

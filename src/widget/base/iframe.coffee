@@ -7,9 +7,9 @@ class cola.IFrame extends cola.Widget
 		path:
 			defaultValue: BLANK_PATH
 			setter: (value)->
-				oldValue = @_path
+#oldValue = @_path
 				@_path = value
-				return if oldValue is value or !@_dom
+				#return if oldValue is value or !@_dom
 				@_loaded = false
 				@_replaceUrl(@_path)
 				return
@@ -73,12 +73,13 @@ class cola.IFrame extends cola.Widget
 		return @
 
 	_replaceUrl: (url) ->
-		if @_doms then $fly(@_doms.dimmer).addClass("active")
+		if @_doms and @_doms.dimmer
+			$fly(@_doms.dimmer).addClass("active")
 		contentWindow = @getContentWindow()
 		if contentWindow
 			contentWindow.location.replace(url)
 		else
-			$fly(@_doms.iframe).prop("src", url)
+			@_doms.iframe && $fly(@_doms.iframe).prop("src", url)
 		return @
 
 cola.registerWidget(cola.IFrame)

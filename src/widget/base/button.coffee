@@ -15,7 +15,7 @@ class cola.AbstractButton extends cola.Widget
 		color:
 			refreshDom: true
 			enum: ["red", "orange", "yellow", "olive", "green", "teal", "blue", "violet", "purple", "pink", "brown",
-			       "grey", "black"]
+				"grey", "black"]
 			setter: (value)->
 				oldValue = @_color
 				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
@@ -196,7 +196,7 @@ class cola.buttonGroup.Separator extends cola.Widget
 
 cola.buttonGroup.emptyItems = []
 class cola.ButtonGroup extends cola.AbstractButton
-	@tagName: "c-buttonGroup"
+	@tagName: "c-button-group"
 
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",

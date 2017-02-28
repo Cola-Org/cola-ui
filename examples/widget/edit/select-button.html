@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Checkbox</title>
+    <script src="../../include-all.js"></script>
+</head>
+<body style="padding: 20px;" class="">
+<c-button caption="add item" c-onclick="add()"></c-button>
+<c-input c-bind="prop"></c-input>
+
+
+<c-select-button c-items="items" c-bind="prop" keyProperty="key" valueProperty="value"></c-select-button>
+
+<script type="text/javascript">
+    cola(function (model) {
+        model.set("prop", "苹果");
+        model.set("items", [
+            {
+                key: "apple",
+                value: "苹果"
+            },
+            {
+                key: "mi",
+                value: "小米"
+            },
+            {
+                key: "huawei",
+                value: "华为"
+            }
+        ]);
+        model.action({
+            add: function () {
+                var date = new XDate(new Date()).toString("yyyy-mm-dd ss");
+                model.get("items").insert({
+                    value: date,
+                    key: date
+                });
+            }
+        })
+    })
+</script>
+</body>
+</html>

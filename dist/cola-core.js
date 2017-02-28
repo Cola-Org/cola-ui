@@ -1122,7 +1122,8 @@
     "cola.messageBox.question.title": "Confirm",
     "cola.message.approve": "Ok",
     "cola.message.deny": "Cancel",
-    "cola.pager.info": "Page:{0}\/{1}"
+    "cola.pager.info": "Page:{0}\/{1}({2})",
+    "cola.pager.pageSize": "Page Size:"
   });
 
   _toJSON = function(data) {

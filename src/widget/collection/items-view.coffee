@@ -3,7 +3,7 @@ _getEntityId = cola.Entity._getEntityId
 class cola.ItemsView extends cola.Widget
 	@attributes:
 		allowNoCurrent:
-			type:"boolean"
+			type: "boolean"
 			defaultValue: true
 		currentItem:
 			getter: () ->
@@ -21,6 +21,11 @@ class cola.ItemsView extends cola.Widget
 		highlightCurrentItem:
 			type: "boolean"
 			defaultValue: true
+
+		focusable:
+			type: "boolean"
+			refreshDom: true
+			defaultValue: false
 
 	@events:
 		getItemTemplate: null
@@ -72,8 +77,8 @@ class cola.ItemsView extends cola.Widget
 
 		$itemsWrapper = $fly(@_doms.itemsWrapper)
 		$itemsWrapper.addClass("items")
-		.delegate(".item", "click", (evt) => @_onItemClick(evt))
-		.delegate(".item", "dblclick", (evt) => @_onItemDoubleClick(evt))
+			.delegate(".item", "click", (evt) => @_onItemClick(evt))
+			.delegate(".item", "dblclick", (evt) => @_onItemDoubleClick(evt))
 
 		if @_onItemsWrapperScroll
 			$itemsWrapper.on("scroll", (evt) =>
@@ -81,8 +86,7 @@ class cola.ItemsView extends cola.Widget
 				return true
 			)
 
-		@get$Dom().attr("tabIndex", 1)
-			.on("keydown", (evt) => @_onKeyDown(evt))
+		if @_focusable then @get$Dom().attr("tabIndex", 1).on("keydown", (evt) => @_onKeyDown(evt))
 		return
 
 	getItems: () ->
@@ -97,7 +101,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_getItemType: (item) ->
-		type = @fire("getItemTemplate", @, { item: item })
+		type = @fire("getItemTemplate", @, {item: item})
 		return type if type
 
 		if item?.isDataWrapper
@@ -288,7 +292,7 @@ class cola.ItemsView extends cola.Widget
 					documentFragment ?= document.createDocumentFragment()
 					documentFragment.appendChild(itemDom)
 				return
-			, { currentPage: @_currentPageOnly })
+			, {currentPage: @_currentPageOnly})
 
 		if nextItemDom
 			itemDom = nextItemDom

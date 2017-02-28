@@ -1,0 +1,73 @@
+@import "global.less";
+
+@toolbarBackgroundColor: #e6e6e6;
+//整体样式
+c-toolbar, .ui.toolbar {
+	padding: 0.25em 0.05em;
+	background-color: @toolbarBackgroundColor;
+	> .item, > .toolbar-button, > .right.box {
+		margin: 0 0.2em;
+	}
+	&.transparent {
+		background-color: transparent;
+	}
+}
+
+// 输入框样式定义样式
+c-toolbar, .ui.toolbar {
+	> .item, > .toolbar-button, > .right.box {
+		.ui.input input {
+			padding-top: .57142857em;
+			padding-bottom: .57142857em;
+		}
+	}
+}
+
+// 按钮样式
+c-toolbar, .ui.toolbar {
+	> .ui.toolbar-button {
+		.ui.button {
+			margin-right: 0;
+			padding: .78571429em .92857143em;
+
+			background-color: transparent;
+			&:hover, &:focus {
+				background-color: rgba(0, 0, 0, 0.1);
+			}
+			&:focus, &:active {
+				background-color: rgba(0, 0, 0, 0.2);
+			}
+		}
+	}
+	> .item, > .right.box {
+		.ui.button {
+			margin-right: 0;
+			padding: .78571429em .92857143em;
+		}
+	}
+}
+
+//layout部分代码
+
+c-toolbar, .ui.toolbar, .box-layout {
+	display: -moz-box;
+	display: -webkit-box;
+	display: box;
+	display: -ms-flexbox;
+
+	-moz-box-align: center;
+	-webkit-box-align: center;
+	-o-box-align: center;
+	box-align: center;
+	> .box {
+	}
+	> .right.box {
+		text-align: end;
+		-moz-box-flex: 1;
+		-webkit-box-flex: 1;
+		box-flex: 1;
+		-ms-flex: 1;
+	}
+}
+
+

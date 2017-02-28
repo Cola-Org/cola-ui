@@ -38,6 +38,10 @@
 					},
 					keyDown: function (self, arg) {
 						console.log("keyDown")
+						console.log(event);
+						console.log(event.altKey);
+						console.log(event.keyCode);
+
 					},
 					keyPress: function (self, arg) {
 //						console.log("keyPress")
@@ -56,23 +60,25 @@
 
 <div id="form1">
 	<div class="field">
-		<div c-widget="input; bind:id; postOnInput"></div>
+		<div id="inputEventTest" c-widget="input; bind:id;"></div>
 	</div>
 
-	<div class="field">
-		<div c-widget="input; bind:num; inputType:number;"></div>
-	</div>
+	<!--<div class="field">-->
+		<!--<div c-widget="input; bind:num; inputType:number;"></div>-->
+	<!--</div>-->
 
-	<span c-bind="id"></span>
+	<!--<span c-bind="id"></span>-->
 
-	<div class="field">
-		<div id="inputEventTest" c-widget="input;"></div>
-	</div>
+	<!--<div class="field">-->
+		<!--<div id="inputEventTest" c-widget="input;"></div>-->
+	<!--</div>-->
 
-	<div class="field">
-		<input type="number">
-	</div>
+	<!--<div class="field">-->
+		<!--<input type="number">-->
+	<!--</div>-->
+
+	<!--<c-input maxLength="4"></c-input>-->
 </div>
-<div class="fluid" c-widget="Input; placeholder:搜索99位同学; icon:search; iconPosition:left; bind:username; keydown:query"></div>
+<!--<div class="fluid" c-widget="Input; placeholder:搜索99位同学; icon:search; iconPosition:left; bind:username; keydown:query"></div>-->
 </body>
 </html>

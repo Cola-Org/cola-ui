@@ -566,828 +566,6 @@ c-form {
   justify-content: flex-end;
 }
 
-.ui.form > .field {
-  width: 100%;
-}
-.ui.form > .fields > .field {
-  width: 100%;
-}
-.ui.form > .fields,
-.ui.form > [class*="fields-"] {
-  display: block;
-  padding: 0;
-  *zoom: 1;
-  margin: 0;
-}
-.ui.form > .fields:before,
-.ui.form > [class*="fields-"]:before,
-.ui.form > .fields:after,
-.ui.form > [class*="fields-"]:after {
-  display: table;
-  content: "";
-}
-.ui.form > .fields:after,
-.ui.form > [class*="fields-"]:after {
-  clear: both;
-}
-.ui.form > .fields > .field,
-.ui.form > [class*="fields-"] > .field {
-  display: block;
-  float: left;
-  height: auto;
-}
-.ui.form > .fields > .field,
-.ui.form > [class*="fields-"] > .field {
-  padding: 0 0.375rem 0.75rem;
-}
-.ui.form > .field {
-  padding: 0 0.375rem 0.75rem;
-}
-.ui.form > .field,
-.ui.form > .fields > .field,
-.ui.form > [class*="fields-"] > .field {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-}
-.ui.form > .field > label,
-.ui.form > .fields > .field > label,
-.ui.form > [class*="fields-"] > .field > label {
-  padding-right: 1em;
-  width: 6em;
-  text-align: right;
-}
-.ui.form > .field.required > label,
-.ui.form > .fields > .field.required > label,
-.ui.form > [class*="fields-"] > .field.required > label {
-  position: relative;
-}
-.ui.form > .field.required > label:after,
-.ui.form > .fields > .field.required > label:after,
-.ui.form > [class*="fields-"] > .field.required > label:after {
-  content: '*';
-  color: #DB2828;
-  position: absolute;
-  right: 0em;
-  line-height: 1rem;
-  top: 50%;
-  margin-top: -0.5rem;
-  width: 1rem;
-  text-align: center;
-}
-.ui.form > .field .ui.input,
-.ui.form > .fields > .field .ui.input,
-.ui.form > [class*="fields-"] > .field .ui.input,
-.ui.form > .field .ui.textarea,
-.ui.form > .fields > .field .ui.textarea,
-.ui.form > [class*="fields-"] > .field .ui.textarea {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1 0 auto;
-  -ms-flex: 1 0 auto;
-  flex: 1 0 auto;
-  width: inherit;
-}
-.ui.form > .field > .ui.textarea,
-.ui.form > .fields > .field > .ui.textarea,
-.ui.form > [class*="fields-"] > .field > .ui.textarea {
-  width: auto;
-}
-.ui.form .fields-2 > .field {
-  width: 50%;
-}
-.ui.form .fields-2 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-2 > .field:nth-of-type(2n + 1) {
-  clear: both;
-}
-.ui.form .fields-3 > .field {
-  width: 33.33333333%;
-}
-.ui.form .fields-3 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-3 > .field:nth-of-type(3n + 1) {
-  clear: both;
-}
-.ui.form .fields-4 > .field {
-  width: 25%;
-}
-.ui.form .fields-4 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-4 > .field:nth-of-type(4n + 1) {
-  clear: both;
-}
-.ui.form .fields-5 > .field {
-  width: 20%;
-}
-.ui.form .fields-5 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-5 > .field:nth-of-type(5n + 1) {
-  clear: both;
-}
-.ui.form .fields-6 > .field {
-  width: 16.66666667%;
-}
-.ui.form .fields-6 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-6 > .field:nth-of-type(6n + 1) {
-  clear: both;
-}
-.ui.form .fields-7 > .field {
-  width: 14.28571429%;
-}
-.ui.form .fields-7 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-7 > .field:nth-of-type(7n + 1) {
-  clear: both;
-}
-.ui.form .fields-8 > .field {
-  width: 12.5%;
-}
-.ui.form .fields-8 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-8 > .field:nth-of-type(8n + 1) {
-  clear: both;
-}
-.ui.form .fields-9 > .field {
-  width: 11.11111111%;
-}
-.ui.form .fields-9 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-9 > .field:nth-of-type(9n + 1) {
-  clear: both;
-}
-.ui.form .fields-10 > .field {
-  width: 10%;
-}
-.ui.form .fields-10 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-10 > .field:nth-of-type(10n + 1) {
-  clear: both;
-}
-.ui.form .fields-11 > .field {
-  width: 9.09090909%;
-}
-.ui.form .fields-11 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-11 > .field:nth-of-type(11n + 1) {
-  clear: both;
-}
-.ui.form .fields-12 > .field {
-  width: 8.33333333%;
-}
-.ui.form .fields-12 > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields-12 > .field:nth-of-type(12n + 1) {
-  clear: both;
-}
-.ui.form > .fields-2 > .field.colspan-2 {
-  width: 100%;
-}
-.ui.form > .fields-3 > .field.colspan-2 {
-  width: 66.66666667%;
-}
-.ui.form > .fields-3 > .field.colspan-3 {
-  width: 100%;
-}
-.ui.form > .fields-4 > .field.colspan-2 {
-  width: 50%;
-}
-.ui.form > .fields-4 > .field.colspan-3 {
-  width: 75%;
-}
-.ui.form > .fields-4 > .field.colspan-4 {
-  width: 100%;
-}
-.ui.form > .fields-5 > .field.colspan-2 {
-  width: 40%;
-}
-.ui.form > .fields-5 > .field.colspan-3 {
-  width: 60%;
-}
-.ui.form > .fields-5 > .field.colspan-4 {
-  width: 80%;
-}
-.ui.form > .fields-5 > .field.colspan-5 {
-  width: 100%;
-}
-.ui.form > .fields-6 > .field.colspan-2 {
-  width: 33.33333333%;
-}
-.ui.form > .fields-6 > .field.colspan-3 {
-  width: 50%;
-}
-.ui.form > .fields-6 > .field.colspan-4 {
-  width: 66.66666667%;
-}
-.ui.form > .fields-6 > .field.colspan-5 {
-  width: 83.33333333%;
-}
-.ui.form > .fields-6 > .field.colspan-6 {
-  width: 100%;
-}
-.ui.form > .fields-7 > .field.colspan-2 {
-  width: 28.57142857%;
-}
-.ui.form > .fields-7 > .field.colspan-3 {
-  width: 42.85714286%;
-}
-.ui.form > .fields-7 > .field.colspan-4 {
-  width: 57.14285714%;
-}
-.ui.form > .fields-7 > .field.colspan-5 {
-  width: 71.42857143%;
-}
-.ui.form > .fields-7 > .field.colspan-6 {
-  width: 85.71428571%;
-}
-.ui.form > .fields-7 > .field.colspan-7 {
-  width: 100%;
-}
-.ui.form > .fields-8 > .field.colspan-2 {
-  width: 25%;
-}
-.ui.form > .fields-8 > .field.colspan-3 {
-  width: 37.5%;
-}
-.ui.form > .fields-8 > .field.colspan-4 {
-  width: 50%;
-}
-.ui.form > .fields-8 > .field.colspan-5 {
-  width: 62.5%;
-}
-.ui.form > .fields-8 > .field.colspan-6 {
-  width: 75%;
-}
-.ui.form > .fields-8 > .field.colspan-7 {
-  width: 87.5%;
-}
-.ui.form > .fields-8 > .field.colspan-8 {
-  width: 100%;
-}
-.ui.form > .fields-9 > .field.colspan-2 {
-  width: 22.22222222%;
-}
-.ui.form > .fields-9 > .field.colspan-3 {
-  width: 33.33333333%;
-}
-.ui.form > .fields-9 > .field.colspan-4 {
-  width: 44.44444444%;
-}
-.ui.form > .fields-9 > .field.colspan-5 {
-  width: 55.55555556%;
-}
-.ui.form > .fields-9 > .field.colspan-6 {
-  width: 66.66666667%;
-}
-.ui.form > .fields-9 > .field.colspan-7 {
-  width: 77.77777778%;
-}
-.ui.form > .fields-9 > .field.colspan-8 {
-  width: 88.88888889%;
-}
-.ui.form > .fields-9 > .field.colspan-9 {
-  width: 100%;
-}
-.ui.form > .fields-10 > .field.colspan-2 {
-  width: 20%;
-}
-.ui.form > .fields-10 > .field.colspan-3 {
-  width: 30%;
-}
-.ui.form > .fields-10 > .field.colspan-4 {
-  width: 40%;
-}
-.ui.form > .fields-10 > .field.colspan-5 {
-  width: 50%;
-}
-.ui.form > .fields-10 > .field.colspan-6 {
-  width: 60%;
-}
-.ui.form > .fields-10 > .field.colspan-7 {
-  width: 70%;
-}
-.ui.form > .fields-10 > .field.colspan-8 {
-  width: 80%;
-}
-.ui.form > .fields-10 > .field.colspan-9 {
-  width: 90%;
-}
-.ui.form > .fields-10 > .field.colspan-10 {
-  width: 100%;
-}
-.ui.form > .fields-11 > .field.colspan-2 {
-  width: 18.18181818%;
-}
-.ui.form > .fields-11 > .field.colspan-3 {
-  width: 27.27272727%;
-}
-.ui.form > .fields-11 > .field.colspan-4 {
-  width: 36.36363636%;
-}
-.ui.form > .fields-11 > .field.colspan-5 {
-  width: 45.45454545%;
-}
-.ui.form > .fields-11 > .field.colspan-6 {
-  width: 54.54545455%;
-}
-.ui.form > .fields-11 > .field.colspan-7 {
-  width: 63.63636364%;
-}
-.ui.form > .fields-11 > .field.colspan-8 {
-  width: 72.72727273%;
-}
-.ui.form > .fields-11 > .field.colspan-9 {
-  width: 81.81818182%;
-}
-.ui.form > .fields-11 > .field.colspan-10 {
-  width: 90.90909091%;
-}
-.ui.form > .fields-11 > .field.colspan-11 {
-  width: 100%;
-}
-.ui.form > .fields-12 > .field.colspan-2 {
-  width: 16.66666667%;
-}
-.ui.form > .fields-12 > .field.colspan-3 {
-  width: 25%;
-}
-.ui.form > .fields-12 > .field.colspan-4 {
-  width: 33.33333333%;
-}
-.ui.form > .fields-12 > .field.colspan-5 {
-  width: 41.66666667%;
-}
-.ui.form > .fields-12 > .field.colspan-6 {
-  width: 50%;
-}
-.ui.form > .fields-12 > .field.colspan-7 {
-  width: 58.33333333%;
-}
-.ui.form > .fields-12 > .field.colspan-8 {
-  width: 66.66666667%;
-}
-.ui.form > .fields-12 > .field.colspan-9 {
-  width: 75%;
-}
-.ui.form > .fields-12 > .field.colspan-10 {
-  width: 83.33333333%;
-}
-.ui.form > .fields-12 > .field.colspan-11 {
-  width: 91.66666667%;
-}
-.ui.form > .fields-12 > .field.colspan-12 {
-  width: 100%;
-}
-@media only screen and (min-width: 0em ) and (max-width: 42.5em ) {
-  .ui.form > .field,
-  .ui.form > .fields > .field,
-  .ui.form > [class*="fields-"] > .field {
-    width: 100% !important;
-  }
-  .ui.form > .field > label,
-  .ui.form > .fields > .field > label,
-  .ui.form > [class*="fields-"] > .field > label {
-    display: block;
-  }
-  .ui.form > .field > .ui.input,
-  .ui.form > .fields > .field > .ui.input,
-  .ui.form > [class*="fields-"] > .field > .ui.input,
-  .ui.form > .field .ui.textarea,
-  .ui.form > .fields > .field .ui.textarea,
-  .ui.form > [class*="fields-"] > .field .ui.textarea {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 0 auto;
-    -ms-flex: 1 0 auto;
-    flex: 1 0 auto;
-    width: initial;
-  }
-}
-.ui.form .fields.two > .field {
-  width: 50%;
-}
-.ui.form .fields.two > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.two > .field:nth-of-type(2n + 1) {
-  clear: both;
-}
-.ui.form .fields.three > .field {
-  width: 33.33333333%;
-}
-.ui.form .fields.three > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.three > .field:nth-of-type(3n + 1) {
-  clear: both;
-}
-.ui.form .fields.four > .field {
-  width: 25%;
-}
-.ui.form .fields.four > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.four > .field:nth-of-type(4n + 1) {
-  clear: both;
-}
-.ui.form .fields.five > .field {
-  width: 20%;
-}
-.ui.form .fields.five > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.five > .field:nth-of-type(5n + 1) {
-  clear: both;
-}
-.ui.form .fields.six > .field {
-  width: 16.66666667%;
-}
-.ui.form .fields.six > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.six > .field:nth-of-type(6n + 1) {
-  clear: both;
-}
-.ui.form .fields.seven > .field {
-  width: 14.28571429%;
-}
-.ui.form .fields.seven > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.seven > .field:nth-of-type(7n + 1) {
-  clear: both;
-}
-.ui.form .fields.eight > .field {
-  width: 12.5%;
-}
-.ui.form .fields.eight > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.eight > .field:nth-of-type(8n + 1) {
-  clear: both;
-}
-.ui.form .fields.nine > .field {
-  width: 11.11111111%;
-}
-.ui.form .fields.nine > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.nine > .field:nth-of-type(9n + 1) {
-  clear: both;
-}
-.ui.form .fields.ten > .field {
-  width: 10%;
-}
-.ui.form .fields.ten > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.ten > .field:nth-of-type(10n + 1) {
-  clear: both;
-}
-.ui.form .fields.eleven > .field {
-  width: 9.09090909%;
-}
-.ui.form .fields.eleven > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.eleven > .field:nth-of-type(11n + 1) {
-  clear: both;
-}
-.ui.form .fields.twelve > .field {
-  width: 8.33333333%;
-}
-.ui.form .fields.twelve > .field:nth-of-type(1n) {
-  clear: none;
-}
-.ui.form .fields.twelve > .field:nth-of-type(12n + 1) {
-  clear: both;
-}
-.ui.form > .fields.two > .field.colspan-2 {
-  width: 100%;
-}
-.ui.form > .fields.three > .field.colspan-2 {
-  width: 66.66666667%;
-}
-.ui.form > .fields.three > .field.colspan-3 {
-  width: 100%;
-}
-.ui.form > .fields.four > .field.colspan-2 {
-  width: 50%;
-}
-.ui.form > .fields.four > .field.colspan-3 {
-  width: 75%;
-}
-.ui.form > .fields.four > .field.colspan-4 {
-  width: 100%;
-}
-.ui.form > .fields.five > .field.colspan-2 {
-  width: 40%;
-}
-.ui.form > .fields.five > .field.colspan-3 {
-  width: 60%;
-}
-.ui.form > .fields.five > .field.colspan-4 {
-  width: 80%;
-}
-.ui.form > .fields.five > .field.colspan-5 {
-  width: 100%;
-}
-.ui.form > .fields.six > .field.colspan-2 {
-  width: 33.33333333%;
-}
-.ui.form > .fields.six > .field.colspan-3 {
-  width: 50%;
-}
-.ui.form > .fields.six > .field.colspan-4 {
-  width: 66.66666667%;
-}
-.ui.form > .fields.six > .field.colspan-5 {
-  width: 83.33333333%;
-}
-.ui.form > .fields.six > .field.colspan-6 {
-  width: 100%;
-}
-.ui.form > .fields.seven > .field.colspan-2 {
-  width: 28.57142857%;
-}
-.ui.form > .fields.seven > .field.colspan-3 {
-  width: 42.85714286%;
-}
-.ui.form > .fields.seven > .field.colspan-4 {
-  width: 57.14285714%;
-}
-.ui.form > .fields.seven > .field.colspan-5 {
-  width: 71.42857143%;
-}
-.ui.form > .fields.seven > .field.colspan-6 {
-  width: 85.71428571%;
-}
-.ui.form > .fields.seven > .field.colspan-7 {
-  width: 100%;
-}
-.ui.form > .fields.eight > .field.colspan-2 {
-  width: 25%;
-}
-.ui.form > .fields.eight > .field.colspan-3 {
-  width: 37.5%;
-}
-.ui.form > .fields.eight > .field.colspan-4 {
-  width: 50%;
-}
-.ui.form > .fields.eight > .field.colspan-5 {
-  width: 62.5%;
-}
-.ui.form > .fields.eight > .field.colspan-6 {
-  width: 75%;
-}
-.ui.form > .fields.eight > .field.colspan-7 {
-  width: 87.5%;
-}
-.ui.form > .fields.eight > .field.colspan-8 {
-  width: 100%;
-}
-.ui.form > .fields.nine > .field.colspan-2 {
-  width: 22.22222222%;
-}
-.ui.form > .fields.nine > .field.colspan-3 {
-  width: 33.33333333%;
-}
-.ui.form > .fields.nine > .field.colspan-4 {
-  width: 44.44444444%;
-}
-.ui.form > .fields.nine > .field.colspan-5 {
-  width: 55.55555556%;
-}
-.ui.form > .fields.nine > .field.colspan-6 {
-  width: 66.66666667%;
-}
-.ui.form > .fields.nine > .field.colspan-7 {
-  width: 77.77777778%;
-}
-.ui.form > .fields.nine > .field.colspan-8 {
-  width: 88.88888889%;
-}
-.ui.form > .fields.nine > .field.colspan-9 {
-  width: 100%;
-}
-.ui.form > .fields.ten > .field.colspan-2 {
-  width: 20%;
-}
-.ui.form > .fields.ten > .field.colspan-3 {
-  width: 30%;
-}
-.ui.form > .fields.ten > .field.colspan-4 {
-  width: 40%;
-}
-.ui.form > .fields.ten > .field.colspan-5 {
-  width: 50%;
-}
-.ui.form > .fields.ten > .field.colspan-6 {
-  width: 60%;
-}
-.ui.form > .fields.ten > .field.colspan-7 {
-  width: 70%;
-}
-.ui.form > .fields.ten > .field.colspan-8 {
-  width: 80%;
-}
-.ui.form > .fields.ten > .field.colspan-9 {
-  width: 90%;
-}
-.ui.form > .fields.ten > .field.colspan-10 {
-  width: 100%;
-}
-.ui.form > .fields.eleven > .field.colspan-2 {
-  width: 18.18181818%;
-}
-.ui.form > .fields.eleven > .field.colspan-3 {
-  width: 27.27272727%;
-}
-.ui.form > .fields.eleven > .field.colspan-4 {
-  width: 36.36363636%;
-}
-.ui.form > .fields.eleven > .field.colspan-5 {
-  width: 45.45454545%;
-}
-.ui.form > .fields.eleven > .field.colspan-6 {
-  width: 54.54545455%;
-}
-.ui.form > .fields.eleven > .field.colspan-7 {
-  width: 63.63636364%;
-}
-.ui.form > .fields.eleven > .field.colspan-8 {
-  width: 72.72727273%;
-}
-.ui.form > .fields.eleven > .field.colspan-9 {
-  width: 81.81818182%;
-}
-.ui.form > .fields.eleven > .field.colspan-10 {
-  width: 90.90909091%;
-}
-.ui.form > .fields.eleven > .field.colspan-11 {
-  width: 100%;
-}
-.ui.form > .fields.twelve > .field.colspan-2 {
-  width: 16.66666667%;
-}
-.ui.form > .fields.twelve > .field.colspan-3 {
-  width: 25%;
-}
-.ui.form > .fields.twelve > .field.colspan-4 {
-  width: 33.33333333%;
-}
-.ui.form > .fields.twelve > .field.colspan-5 {
-  width: 41.66666667%;
-}
-.ui.form > .fields.twelve > .field.colspan-6 {
-  width: 50%;
-}
-.ui.form > .fields.twelve > .field.colspan-7 {
-  width: 58.33333333%;
-}
-.ui.form > .fields.twelve > .field.colspan-8 {
-  width: 66.66666667%;
-}
-.ui.form > .fields.twelve > .field.colspan-9 {
-  width: 75%;
-}
-.ui.form > .fields.twelve > .field.colspan-10 {
-  width: 83.33333333%;
-}
-.ui.form > .fields.twelve > .field.colspan-11 {
-  width: 91.66666667%;
-}
-.ui.form > .fields.twelve > .field.colspan-12 {
-  width: 100%;
-}
-/*--------------------
-   Types of Messages
----------------------*/
-.ui.form .success.message,
-.ui.form .warning.message,
-.ui.form .error.message {
-  display: none;
-}
-/* Assumptions */
-.ui.form .message:first-child {
-  margin-top: 0px;
-}
-/*--------------------
-        Success
----------------------*/
-/* On Form */
-.ui.form.success .success.message:not(:empty) {
-  display: block;
-}
-.ui.form.success .icon.success.message:not(:empty) {
-  display: flex;
-}
-/*--------------------
-        Warning
----------------------*/
-/* On Form */
-.ui.form.warning .warning.message:not(:empty) {
-  display: block;
-}
-.ui.form.warning .icon.warning.message:not(:empty) {
-  display: flex;
-}
-/*--------------------
-        Error
----------------------*/
-/* On Form */
-.ui.form.error .error.message:not(:empty) {
-  display: block;
-}
-.ui.form.error .icon.error.message:not(:empty) {
-  display: flex;
-}
-/* On Field(s) */
-.ui.form .fields.error .field label,
-.ui.form .field.error label,
-.ui.form .fields.error .field .input,
-.ui.form .field.error .input {
-  color: #9f3a38;
-}
-.ui.form .fields.error .field .corner.label,
-.ui.form .field.error .corner.label {
-  border-color: #9f3a38;
-  color: #ffffff;
-}
-/*--------------------
-       Disabled
----------------------*/
-.ui.form .disabled.fields .field,
-.ui.form .disabled.field,
-.ui.form .field :disabled {
-  pointer-events: none;
-  opacity: 0.45;
-}
-.ui.form .field.disabled label {
-  opacity: 0.45;
-}
-.ui.form .field.disabled :disabled {
-  opacity: 1;
-}
-/*--------------
-    Loading
----------------*/
-.ui.loading.form {
-  position: relative;
-  cursor: default;
-  point-events: none;
-}
-.ui.loading.form:before {
-  position: absolute;
-  content: '';
-  top: 0%;
-  left: 0%;
-  background: rgba(255, 255, 255, 0.8);
-  width: 100%;
-  height: 100%;
-  z-index: 100;
-}
-.ui.loading.form:after {
-  position: absolute;
-  content: '';
-  top: 50%;
-  left: 50%;
-  margin: -0.64285714em 0em 0em -0.64285714em;
-  width: 1.28571429em;
-  height: 1.28571429em;
-  animation: form-spin 0.6s linear;
-  animation-iteration-count: infinite;
-  border-radius: 500rem;
-  border-color: #767676 rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1);
-  border-style: solid;
-  border-width: 0.2em;
-  box-shadow: 0px 0px 0px 1px transparent;
-  visibility: visible;
-  z-index: 101;
-}
-@keyframes form-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 [class*="block-grid-"] {
   display: block;
   padding: 0;
@@ -5920,20 +5098,32 @@ html.ios body {
   overflow: hidden !important;
 }
 
-.ui.menu.pager .goto.ui.input {
-  width: 6.25em;
-}
-.ui.menu.pager .goto.ui.input > input {
-  width: 3em;
+.ui.menu.pager .page-item > .ui.input > input {
+  width: 4em;
   padding-left: 0.5em;
   padding-right: 0.5em;
 }
-.ui.menu.pager .goto.ui.input .ui.button {
+.ui.menu.pager .page-item > .ui.input .ui.button {
   padding-left: 0.8em;
   padding-right: 0.8em;
 }
 .ui.menu.pager .item.disabled:hover {
   color: rgba(40, 40, 40, 0.3);
+}
+.ui.menu.pager .page-size-desc {
+  white-space: nowrap;
+  margin-right: 0.5em;
+}
+.ui.menu.pager .desc.page-item {
+  padding-right: 2px;
+  padding-left: 2px;
+}
+.ui.menu.pager .page-item > i.icon {
+  -webkit-transform: scale(1.25);
+  -moz-transform: scale(1.25);
+  -ms-transform: scale(1.25);
+  -o-transform: scale(1.25);
+  transform: scale(1.25);
 }
 
 /*******************************
@@ -6733,16 +5923,14 @@ html.ios body {
 /*---  Dark Tones  ---*/
 /*---  Light Tones  ---*/
 .ui.panel {
-  padding: 0.6em;
   display: block;
-  margin-bottom: 0.8em;
   overflow: hidden;
 }
 .ui.panel:last-child {
   margin-bottom: 0;
 }
-.ui.panel > .header {
-  margin: -0.6em -0.6em 0.6em -0.6em;
+.ui.panel .content {
+  padding: 0.4em;
 }
 .ui.panel > .header > .content {
   padding: 0 1rem;
@@ -6806,7 +5994,7 @@ html.ios body {
   border-radius: 2px;
   top: 1.4rem;
   z-index: -1;
-  margin-left: -0.6em;
+  margin-left: -0.4em;
 }
 .ui.panel.fieldset > .header > .content,
 .ui.panel.groupbox > .header > .content {
@@ -6840,11 +6028,8 @@ html.ios body {
   border: 1px solid #d8d8dc;
   bottom: 0;
 }
-.ui.panel.crowded {
-  padding: 0.6em 0 0 0 !important;
-}
-.ui.panel.crowded > .header {
-  margin-bottom: 0;
+.ui.panel.crowded > .content {
+  padding: 0;
 }
 .ui.panel.basic {
   box-shadow: inset 0px 0px 0px 1px #e7eaec;
@@ -7208,7 +6393,7 @@ c-split-pane.fixed-right > .splitter:before,
   height: 48px;
   left: 0;
   top: 50%;
-  margin-top: -72px;
+  margin: -24px 0;
 }
 c-split-pane.fixed-left > .pane,
 .ui.split-pane.fixed-left > .pane,
@@ -7216,6 +6401,16 @@ c-split-pane.fixed-right > .pane,
 .ui.split-pane.fixed-right > .pane {
   height: 100% !important;
   top: 0;
+}
+c-split-pane.fixed-left > c-split-pane.main-pane,
+.ui.split-pane.fixed-left > c-split-pane.main-pane,
+c-split-pane.fixed-right > c-split-pane.main-pane,
+.ui.split-pane.fixed-right > c-split-pane.main-pane,
+c-split-pane.fixed-left > .ui.split-pane.main-pane,
+.ui.split-pane.fixed-left > .ui.split-pane.main-pane,
+c-split-pane.fixed-right > .ui.split-pane.main-pane,
+.ui.split-pane.fixed-right > .ui.split-pane.main-pane {
+  width: auto;
 }
 c-split-pane.fixed-top > .splitter,
 .ui.split-pane.fixed-top > .splitter,
@@ -7234,7 +6429,7 @@ c-split-pane.fixed-bottom > .splitter:before,
   width: 48px;
   top: 0;
   left: 50%;
-  margin-left: -72px;
+  margin: 0 -24px;
 }
 c-split-pane.fixed-top > .pane,
 .ui.split-pane.fixed-top > .pane,
@@ -7242,6 +6437,16 @@ c-split-pane.fixed-bottom > .pane,
 .ui.split-pane.fixed-bottom > .pane {
   width: 100% !important;
   left: 0;
+}
+c-split-pane.fixed-top > c-split-pane.main-pane,
+.ui.split-pane.fixed-top > c-split-pane.main-pane,
+c-split-pane.fixed-bottom > c-split-pane.main-pane,
+.ui.split-pane.fixed-bottom > c-split-pane.main-pane,
+c-split-pane.fixed-top > .ui.split-pane.main-pane,
+.ui.split-pane.fixed-top > .ui.split-pane.main-pane,
+c-split-pane.fixed-bottom > .ui.split-pane.main-pane,
+.ui.split-pane.fixed-bottom > .ui.split-pane.main-pane {
+  height: auto;
 }
 c-split-pane.fixed-left > .side-pane,
 .ui.split-pane.fixed-left > .side-pane {
@@ -7289,4 +6494,250 @@ c-split-pane > .splitter:before,
 c-split-pane > .splitter:hover:before,
 .ui.split-pane > .splitter:hover:before {
   background-color: #2185d0;
+}
+
+/*******************************
+         Site Settings
+*******************************/
+/*-------------------
+       Fonts
+--------------------*/
+/*-------------------
+      Base Sizes
+--------------------*/
+/* This is the single variable that controls them all */
+/* The size of page text  */
+/*-------------------
+    Border Radius
+--------------------*/
+/* See Power-user section below
+   for explanation of @px variables
+*/
+/*-------------------
+    Brand Colors
+--------------------*/
+/*--------------
+  Page Heading
+---------------*/
+/*--------------
+   Form Input
+---------------*/
+/* This adjusts the default form input across all elements */
+/* Line Height Default For Inputs in Browser */
+/*-------------------
+        Sizes
+--------------------*/
+/*
+  Sizes are all expressed in terms of 14px/em (default em)
+  This ensures these "ratios" remain constant despite changes in EM
+*/
+/*-------------------
+        Page
+--------------------*/
+/*-------------------
+      Paragraph
+--------------------*/
+/*-------------------
+       Links
+--------------------*/
+/*-------------------
+  Highlighted Text
+--------------------*/
+/*-------------------
+       Loader
+--------------------*/
+/*-------------------
+        Grid
+--------------------*/
+/*-------------------
+     Transitions
+--------------------*/
+/*-------------------
+     Breakpoints
+--------------------*/
+/*-------------------
+      Site Colors
+--------------------*/
+/*---  Colors  ---*/
+/*---  Light Colors  ---*/
+/*---   Neutrals  ---*/
+/*--- Colored Backgrounds ---*/
+/*--- Colored Headers ---*/
+/*--- Colored Text ---*/
+/*-------------------
+     Alpha Colors
+--------------------*/
+/*-------------------
+       Accents
+--------------------*/
+/* Differentiating Neutrals */
+/* Differentiating Layers */
+/*******************************
+           Power-User
+*******************************/
+/*-------------------
+    Emotive Colors
+--------------------*/
+/* Positive */
+/* Negative */
+/* Info */
+/* Warning */
+/*-------------------
+        Paths
+--------------------*/
+/*-------------------
+       Em Sizes
+--------------------*/
+/*
+  This rounds @size values to the closest pixel then expresses that value in (r)em.
+  This ensures all size values round to exact pixels
+*/
+/* em */
+/* rem */
+/*-------------------
+  Exact Pixel Values
+--------------------*/
+/*
+  These are used to specify exact pixel values in em
+  for things like borders that remain constantly
+  sized as emSize adjusts
+
+  Since there are many more sizes than names for sizes,
+  these are named by their original pixel values.
+
+*/
+/*-------------------
+       Icons
+--------------------*/
+/* Maximum Glyph Width of Icon */
+/*-------------------
+     Neutral Text
+--------------------*/
+/*-------------------
+     Brand Colors
+--------------------*/
+/*-------------------
+      Borders
+--------------------*/
+/*-------------------
+    Derived Values
+--------------------*/
+/* Loaders Position Offset */
+/* Rendered Scrollbar Width */
+/* Maximum Single Character Glyph Width, aka Capital "W" */
+/* Used to match floats with text */
+/* Header Spacing */
+/* Minimum Mobile Width */
+/* Positive / Negative Dupes */
+/* Responsive */
+/* Columns */
+/*******************************
+             States
+*******************************/
+/*-------------------
+      Disabled
+--------------------*/
+/*-------------------
+        Hover
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Focus
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+    Down (:active)
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+/*-------------------
+        Active
+--------------------*/
+/*---  Colors  ---*/
+/*---  Emotive  ---*/
+/*---  Brand   ---*/
+/*---  Dark Tones  ---*/
+/*---  Light Tones  ---*/
+c-toolbar,
+.ui.toolbar {
+  padding: 0.25em 0.05em;
+  background-color: #e6e6e6;
+}
+c-toolbar > .item,
+.ui.toolbar > .item,
+c-toolbar > .toolbar-button,
+.ui.toolbar > .toolbar-button,
+c-toolbar > .right.box,
+.ui.toolbar > .right.box {
+  margin: 0 0.2em;
+}
+c-toolbar.transparent,
+.ui.toolbar.transparent {
+  background-color: transparent;
+}
+c-toolbar > .item .ui.input input,
+.ui.toolbar > .item .ui.input input,
+c-toolbar > .toolbar-button .ui.input input,
+.ui.toolbar > .toolbar-button .ui.input input,
+c-toolbar > .right.box .ui.input input,
+.ui.toolbar > .right.box .ui.input input {
+  padding-top: .57142857em;
+  padding-bottom: .57142857em;
+}
+c-toolbar > .ui.toolbar-button .ui.button,
+.ui.toolbar > .ui.toolbar-button .ui.button {
+  margin-right: 0;
+  padding: .78571429em .92857143em;
+  background-color: transparent;
+}
+c-toolbar > .ui.toolbar-button .ui.button:hover,
+.ui.toolbar > .ui.toolbar-button .ui.button:hover,
+c-toolbar > .ui.toolbar-button .ui.button:focus,
+.ui.toolbar > .ui.toolbar-button .ui.button:focus {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+c-toolbar > .ui.toolbar-button .ui.button:focus,
+.ui.toolbar > .ui.toolbar-button .ui.button:focus,
+c-toolbar > .ui.toolbar-button .ui.button:active,
+.ui.toolbar > .ui.toolbar-button .ui.button:active {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+c-toolbar > .item .ui.button,
+.ui.toolbar > .item .ui.button,
+c-toolbar > .right.box .ui.button,
+.ui.toolbar > .right.box .ui.button {
+  margin-right: 0;
+  padding: .78571429em .92857143em;
+}
+c-toolbar,
+.ui.toolbar,
+.box-layout {
+  display: -moz-box;
+  display: -webkit-box;
+  display: box;
+  display: -ms-flexbox;
+  -moz-box-align: center;
+  -webkit-box-align: center;
+  -o-box-align: center;
+  box-align: center;
+}
+c-toolbar > .right.box,
+.ui.toolbar > .right.box,
+.box-layout > .right.box {
+  text-align: end;
+  -moz-box-flex: 1;
+  -webkit-box-flex: 1;
+  box-flex: 1;
+  -ms-flex: 1;
 }

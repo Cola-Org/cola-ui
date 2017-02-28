@@ -239,6 +239,10 @@ class cola.Widget extends cola.RenderableElement
 			refreshDom: true
 		width:
 			refreshDom: true
+		focusable:
+			type: "boolean"
+			refreshDom: true
+			defaultValue: false
 
 	@events:
 		click:
@@ -352,6 +356,7 @@ class cola.Widget extends cola.RenderableElement
 
 		if !@_rendered and @_class
 			@_classNamePool.add(name) for name in @_class.split(" ")
+
 
 		return
 

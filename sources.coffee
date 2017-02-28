@@ -1,5 +1,4 @@
 _ = require "underscore"
-
 sources =
 	coffee:
 		core: [
@@ -50,6 +49,7 @@ sources =
 			"src/widget/base/message-box.coffee"
 			"src/widget/base/reveal.coffee"
 			"src/widget/base/search.coffee"
+			"src/widget/base/toolbar.coffee"
 		]
 		edit: [
 			"src/widget/edit/abstract-editor.coffee"
@@ -64,6 +64,7 @@ sources =
 			"src/widget/edit/date-picker.coffee"
 			"src/widget/edit/textarea.coffee"
 			"src/widget/edit/select-button.coffee"
+			"src/widget/edit/form.coffee"
 		]
 		layout: [
 			"src/widget/layout/segment.coffee"
@@ -113,7 +114,7 @@ sources =
 			"src/css/global.less"
 			"src/css/site.less"
 			"src/css/box.less"
-			"src/css/form.less"
+			#"src/css/form.less"
 			"src/css/block-grid.less"
 			"src/css/grid.less"
 			"src/css/items-view.less"
@@ -148,6 +149,7 @@ sources =
 			"src/css/textarea.less"
 			"src/css/notify-tip.less"
 			"src/css/split-pane.less"
+			"src/css/toolbar.less"
 		]
 
 	lib:
