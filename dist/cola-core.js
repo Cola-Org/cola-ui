@@ -8421,7 +8421,16 @@
       }
       jQuery.ajax(options).done((function(_this) {
         return function(result) {
+          var arg;
           result = ajaxService.translateResult(result, options);
+          if (ajaxService.getListeners("response")) {
+            arg = {
+              options: options,
+              result: result
+            };
+            ajaxService.fire("response", ajaxService, arg);
+            result = arg.result;
+          }
           _this.invokeCallback(true, result);
           if (ajaxService.getListeners("success")) {
             ajaxService.fire("success", ajaxService, {

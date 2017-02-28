@@ -42,7 +42,13 @@ class cola.AjaxServiceInvoker
 		jQuery.ajax(options).done( (result) =>
 			result = ajaxService.translateResult(result, options)
 
+			if ajaxService.getListeners("response")
+				arg = {options: options, result: result}
+				ajaxService.fire("response", ajaxService, arg)
+				result = arg.result
+
 			@invokeCallback(true, result)
+
 			if ajaxService.getListeners("success")
 				ajaxService.fire("success", ajaxService, {options: options, result: result})
 			if ajaxService.getListeners("complete")

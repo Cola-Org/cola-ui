@@ -8421,7 +8421,16 @@
       }
       jQuery.ajax(options).done((function(_this) {
         return function(result) {
+          var arg;
           result = ajaxService.translateResult(result, options);
+          if (ajaxService.getListeners("response")) {
+            arg = {
+              options: options,
+              result: result
+            };
+            ajaxService.fire("response", ajaxService, arg);
+            result = arg.result;
+          }
           _this.invokeCallback(true, result);
           if (ajaxService.getListeners("success")) {
             ajaxService.fire("success", ajaxService, {
@@ -13219,12 +13228,12 @@ Template
       if (!this._dom) {
         return;
       }
-      child = this._dom.firstChild;
+      child = this._dom.firstElementChild;
       while (child) {
         if (child.nodeName === "TEMPLATE") {
           this.regTemplate(child);
         }
-        child = child.nextSibling;
+        child = child.nextElementSibling;
       }
       this._regDefaultTempaltes();
     },
@@ -20513,7 +20522,9 @@ Template
     AbstractInput.SEMANTIC_CLASS = ["left floated", "right floated", "corner labeled", "right labeled", "left icon", "left action"];
 
     AbstractInput.attributes = {
-      name: null,
+      name: {
+        readOnlyAfterCreate: true
+      },
       value: {
         setter: function(value) {
           if (this._dataType) {
@@ -22164,11 +22175,18 @@ Template
               this._itemsTimestamp = items.timestamp;
             }
             delete this._itemsIndex;
+            this._findCurrentItem(this._value);
           }
         }
       },
+      lazyLoadItems: {
+        defaultValue: true
+      },
       currentItem: {
         readOnly: true
+      },
+      editable: {
+        defaultValue: true
       },
       valueProperty: null,
       textProperty: null,
@@ -22207,6 +22225,14 @@ Template
           tagName: "div",
           "class": "value-content",
           contextKey: "valueContent"
+        }, this._doms);
+      }
+      if (this._name) {
+        $fly(this._doms.input).xInsertAfter({
+          tagName: "input",
+          type: "hidden",
+          name: this._name,
+          contextKey: "hiddenInput"
         }, this._doms);
       }
       $fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", (function(_this) {
@@ -22291,6 +22317,7 @@ Template
       }
       AbstractDropdown.__super__._parseDom.call(this, dom);
       this._parseTemplates();
+      this._useValueContent = this.getTemplate("value-content") != null;
       if (!this._icon) {
         child = this._doms.input.nextSibling;
         while (child) {
@@ -22347,7 +22374,7 @@ Template
     };
 
     AbstractDropdown.prototype._isEditorReadOnly = function() {
-      return cola.device.mobile;
+      return !this._editable || cola.device.mobile;
     };
 
     AbstractDropdown.prototype._refreshInput = function() {
@@ -22361,28 +22388,35 @@ Template
       this._setValueContent();
     };
 
-    AbstractDropdown.prototype._setValue = function(value) {
+    AbstractDropdown.prototype._findCurrentItem = function(value) {
       var currentItem, index, valueProperty;
-      if (this._dom && !this._skipFindCurrentItem) {
-        if (!this._itemsIndex) {
-          if (this._items && this._valueProperty) {
-            this._itemsIndex = index = {};
-            valueProperty = this._valueProperty;
-            cola.each(this._items, function(item) {
-              var key;
-              if (item instanceof cola.Entity) {
-                key = item.get(valueProperty);
-              } else {
-                key = item[valueProperty];
-              }
-              index[key + ""] = item;
-            });
-            currentItem = index[value + ""];
-          }
-        } else {
-          currentItem = this._itemsIndex[value + ""];
+      if (!this._itemsIndex) {
+        if (this._items && this._valueProperty) {
+          this._itemsIndex = index = {};
+          valueProperty = this._valueProperty;
+          cola.each(this._items, function(item) {
+            var key;
+            if (item instanceof cola.Entity) {
+              key = item.get(valueProperty);
+            } else {
+              key = item[valueProperty];
+            }
+            index[key + ""] = item;
+          });
+          currentItem = index[value + ""];
         }
-        this._currentItem = currentItem;
+      } else {
+        currentItem = this._itemsIndex[value + ""];
+      }
+      return this._currentItem = currentItem;
+    };
+
+    AbstractDropdown.prototype._setValue = function(value) {
+      if (value !== true && !this._lazyLoadItems) {
+        this.get("items");
+      }
+      if (this._dom && !this._skipFindCurrentItem) {
+        this._findCurrentItem(value);
       }
       return AbstractDropdown.__super__._setValue.call(this, value);
     };
@@ -22399,7 +22433,13 @@ Template
         }
       }
       input = this._doms.input;
+      valueContent = this._doms.valueContent;
       if (item) {
+        if (item instanceof cola.Entity || (typeof item === "object" && !(item instanceof Date))) {
+          text = cola.Entity._evalDataPath(item, this._textProperty || this._valueProperty);
+        } else {
+          text = item;
+        }
         if (this._useValueContent) {
           elementAttrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
           alias = (elementAttrBinding != null ? elementAttrBinding.expression.alias : void 0) || "item";
@@ -22411,7 +22451,6 @@ Template
             this._currentItemScope = currentItemScope = new cola.ItemScope(this._scope, alias);
           }
           currentItemScope.data.setTargetData(item);
-          valueContent = this._doms.valueContent;
           if (!valueContent._inited) {
             valueContent._inited = true;
             ctx = {
@@ -22421,22 +22460,20 @@ Template
             cola.xRender(valueContent, currentItemScope, ctx);
           }
           $fly(valueContent).show();
-        }
-        if (item instanceof cola.Entity || (typeof item === "object" && !(item instanceof Date))) {
-          text = cola.Entity._evalDataPath(item, this._textProperty || this._valueProperty);
+          input.value = "";
         } else {
-          text = item;
+          input.value = text || "";
         }
-        input.value = text || "";
         input.placeholder = "";
         this.get$Dom().removeClass("placeholder");
       } else {
-        input.value = "";
+        if (this._useValueContent) {
+          $fly(valueContent).hide();
+        } else {
+          input.value = "";
+        }
         input.placeholder = this._placeholder || "";
         this.get$Dom().addClass("placeholder");
-        if (this._useValueContent) {
-          $fly(this._doms.valueContent).hide();
-        }
       }
     };
 
@@ -24817,6 +24854,7 @@ Template
           this._setCurrentItemDom(currentItemDom);
         }
       },
+      currentPageOnly: null,
       highlightCurrentItem: {
         type: "boolean",
         defaultValue: true
