@@ -6323,12 +6323,14 @@
         if (path instanceof Array) {
           for (l = 0, len1 = path.length; l < len1; l++) {
             p = path[l];
+            p = p + ".**";
             paths.push(p);
             if (parent != null) {
               parent.data.bind(p, this);
             }
           }
         } else {
+          path = path + ".**";
           paths.push(path);
           if (parent != null) {
             parent.data.bind(path, this);
@@ -6905,7 +6907,11 @@
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, i, items, parent, processMoreMessage, ref;
       if (type === cola.constants.MESSAGE_REFRESH) {
-        if (this.isParentOfTarget(path, this.expressionPaths)) {
+        if (arg.originType === cola.constants.MESSAGE_CURRENT_CHANGE) {
+          if (typeof this.onCurrentItemChange === "function") {
+            this.onCurrentItemChange(arg);
+          }
+        } else if (this.isParentOfTarget(path)) {
           this.retrieveData();
           this.refreshItems();
           allProcessed = true;
@@ -6913,7 +6919,7 @@
           processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
-        if (this.isParentOfTarget(path, this.expressionPaths)) {
+        if (this.isParentOfTarget(path)) {
           this.retrieveData();
           this.refreshItems();
           allProcessed = true;
@@ -6930,7 +6936,7 @@
           if (typeof this.onCurrentItemChange === "function") {
             this.onCurrentItemChange(arg);
           }
-        } else if (this.isParentOfTarget(path, this.expressionPaths)) {
+        } else if (this.isParentOfTarget(path)) {
           this.retrieveData();
           this.refreshItems();
           allProcessed = true;
@@ -6969,11 +6975,11 @@
           processMoreMessage = true;
         }
       } else if (type === cola.constants.MESSAGE_LOADING_START) {
-        if (this.isParentOfTarget(path, this.expressionPaths)) {
+        if (this.isParentOfTarget(path)) {
           this.itemsLoadingStart(arg);
         }
       } else if (type === cola.constants.MESSAGE_LOADING_END) {
-        if (this.isParentOfTarget(path, this.expressionPaths)) {
+        if (this.isParentOfTarget(path)) {
           this.itemsLoadingEnd(arg);
         }
       }
@@ -7303,9 +7309,9 @@
             part = path[i];
             if (i === lastIndex) {
               anyPropNode = node["*"];
-            }
-            if (anyPropNode) {
-              this.processDataMessage(anyPropNode, path, type, arg);
+              if (anyPropNode) {
+                this.processDataMessage(anyPropNode, path, type, arg);
+              }
             }
             anyChildNode = node["**"];
             if (anyChildNode) {
@@ -7347,8 +7353,11 @@
       }
       if (notifyChildren) {
         notifyChildren2 = !((cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type && type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE)) && !((cola.constants.MESSAGE_LOADING_START <= type && type <= cola.constants.MESSAGE_LOADING_END));
-        if (type === cola.constants.MESSAGE_CURRENT_CHANGE) {
+        if (notifyChildren2 && type === cola.constants.MESSAGE_CURRENT_CHANGE) {
           type = cola.constants.MESSAGE_REFRESH;
+          arg = jQuery.extend({
+            originType: cola.constants.MESSAGE_CURRENT_CHANGE
+          }, arg);
         }
         for (part in node) {
           subNode = node[part];
@@ -8525,6 +8534,7 @@
 
     AjaxService.events = {
       beforeSend: null,
+      response: null,
       complete: null,
       success: null,
       error: null

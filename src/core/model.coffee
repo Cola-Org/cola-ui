@@ -178,11 +178,11 @@ class cola.SubScope extends cola.Scope
 			parent = @parent
 			if path instanceof Array
 				for p in path
-					# p = p + ".**"
+					p = p + ".**"
 					paths.push(p)
 					parent?.data.bind(p, @)
 			else
-				# path = path + ".**"
+				path = path + ".**"
 				paths.push(path)
 				parent?.data.bind(path, @)
 		else
@@ -568,7 +568,9 @@ class cola.ItemsScope extends cola.ExpressionScope
 
 	_processMessage: (bindingPath, path, type, arg)->
 		if type is cola.constants.MESSAGE_REFRESH
-			if @isParentOfTarget(path, @expressionPaths)
+			if arg.originType is cola.constants.MESSAGE_CURRENT_CHANGE
+				@onCurrentItemChange?(arg)
+			else if @isParentOfTarget(path)
 				@retrieveData()
 				@refreshItems()
 				allProcessed = true
@@ -576,7 +578,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 				processMoreMessage = true
 
 		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE # or type is cola.constants.MESSAGE_STATE_CHANGE
-			if @isParentOfTarget(path, @expressionPaths)
+			if @isParentOfTarget(path)
 				@retrieveData()
 				@refreshItems()
 				allProcessed = true
@@ -590,7 +592,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 		else if type is cola.constants.MESSAGE_CURRENT_CHANGE
 			if arg.entityList is @items or @isOriginItems(arg.entityList)
 				@onCurrentItemChange?(arg)
-			else if @isParentOfTarget(path, @expressionPaths)
+			else if @isParentOfTarget(path)
 				@retrieveData()
 				@refreshItems()
 				allProcessed = true
@@ -626,10 +628,10 @@ class cola.ItemsScope extends cola.ExpressionScope
 				processMoreMessage = true
 
 		else if type is cola.constants.MESSAGE_LOADING_START
-			if @isParentOfTarget(path, @expressionPaths) then @itemsLoadingStart(arg)
+			if @isParentOfTarget(path) then @itemsLoadingStart(arg)
 
 		else if type is cola.constants.MESSAGE_LOADING_END
-			if @isParentOfTarget(path, @expressionPaths) then @itemsLoadingEnd(arg)
+			if @isParentOfTarget(path) then @itemsLoadingEnd(arg)
 
 		if processMoreMessage and @expression
 			if not @expressionPaths and @expression.hasCallStatement and not @expression.hasDefinedPath
@@ -846,7 +848,6 @@ class cola.AbstractDataModel
 	onDataMessage: (path, type, arg = {}) ->
 		return unless @bindingRegistry
 		return if @disableObserverCount > 0
-
 		oldScope = cola.currentScope
 		cola.currentScope = @
 		try
@@ -855,8 +856,10 @@ class cola.AbstractDataModel
 				node = @bindingRegistry
 				lastIndex = path.length - 1
 				for part, i in path
-					if i is lastIndex then anyPropNode = node["*"]
-					@processDataMessage(anyPropNode, path, type, arg) if anyPropNode
+					if i is lastIndex
+						anyPropNode = node["*"]
+						@processDataMessage(anyPropNode, path, type, arg) if anyPropNode
+
 					anyChildNode = node["**"]
 					@processDataMessage(anyChildNode, path, type, arg) if anyChildNode
 
@@ -864,8 +867,10 @@ class cola.AbstractDataModel
 					break unless node
 			else
 				node = @bindingRegistry
+
 				anyPropNode = node["*"]
 				@processDataMessage(anyPropNode, null, type, arg) if anyPropNode
+
 				anyChildNode = node["**"]
 				@processDataMessage(anyChildNode, null, type, arg) if anyChildNode
 
@@ -884,8 +889,11 @@ class cola.AbstractDataModel
 		if notifyChildren
 			notifyChildren2 = not (cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and not (cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
 
-			if type is cola.constants.MESSAGE_CURRENT_CHANGE
+			if notifyChildren2 and type is cola.constants.MESSAGE_CURRENT_CHANGE
 				type = cola.constants.MESSAGE_REFRESH
+				arg = jQuery.extend({
+					originType: cola.constants.MESSAGE_CURRENT_CHANGE
+				}, arg)
 
 			for part, subNode of node
 				if subNode and (part is "**" or notifyChildren2) and part isnt "__processorMap" and part isnt "__path"
@@ -1192,7 +1200,7 @@ class cola.ItemDataModel extends cola.AliasDataModel
 	getIndex: () -> @_index
 	setIndex: (index, silence) ->
 		@_index = index
-		if !silence
+		if not silence
 			@onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: cola.constants.REPEAT_INDEX
