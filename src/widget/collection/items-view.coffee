@@ -81,7 +81,7 @@ class cola.ItemsView extends cola.Widget
 				return true
 			)
 
-		@get$Dom().attr("tabIndex", 1)
+		@get$Dom()#.attr("tabIndex", 1)
 			.on("keydown", (evt) => @_onKeyDown(evt))
 		return
 

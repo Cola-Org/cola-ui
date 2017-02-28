@@ -20,10 +20,9 @@
             });
 
             model.widgetConfig({
-                pager: {
-                    $type: "Pager",
-
-                },
+//                pager: {
+//                    $type: "Pager"
+//                },
                 table: {
                     $type: "table",
                     bind: "item in items",
@@ -33,7 +32,7 @@
 					currentPageOnly: true,
                     columns: [
                         {
-                            name: "medName"
+                            bind: ".medName"
                         }
                     ]
                 }
@@ -51,18 +50,18 @@
 <!--<a page-code="pages" class="item"></a>-->
 <!--</div>-->
 <!--</c-pager>-->
-<c-pager c-bind="item in items">
-    <!--<a page-code="|<" class="item"></a>-->
-    <!--<a page-code="<" class="item"></a>-->
-    <!--<div page-code="info" class="item"></div>-->
+<!--<c-pager c-bind="item in items">-->
+    <!--&lt;!&ndash;<a page-code="|<" class="item"></a>&ndash;&gt;-->
+    <!--&lt;!&ndash;<a page-code="<" class="item"></a>&ndash;&gt;-->
+    <!--&lt;!&ndash;<div page-code="info" class="item"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;<div page-code="goto" class="item"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;<div page-code="pageSize" class="item"></div>&ndash;&gt;-->
+    <!--&lt;!&ndash;<a page-code=">" class="item"></a>&ndash;&gt;-->
+    <!--&lt;!&ndash;<a page-code=">|" class="item"></a>&ndash;&gt;-->
+    <!--<a page-code="pages" class="item"></a>-->
     <!--<div page-code="goto" class="item"></div>-->
     <!--<div page-code="pageSize" class="item"></div>-->
-    <!--<a page-code=">" class="item"></a>-->
-    <!--<a page-code=">|" class="item"></a>-->
-    <a page-code="pages" class="item"></a>
-    <div page-code="goto" class="item"></div>
-    <div page-code="pageSize" class="item"></div>
-</c-pager>
+<!--</c-pager>-->
 <div class="flex-box">
     <div id="table">
 
