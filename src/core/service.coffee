@@ -100,6 +100,7 @@ class cola.AjaxService extends cola.Definition
 
 	@events:
 		beforeSend: null
+		response: null
 		complete: null
 		success: null
 		error: null
