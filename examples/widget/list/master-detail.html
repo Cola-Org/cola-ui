@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta name="theme-color" content="#FF0000">
+    <meta charset="utf-8"/>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.describe("items", {
+                provider: {
+                    url: "his.json"
+                }
+            });
+            model.action({
+                next: function () {
+                    var data = model.get("items");
+                    data.next()
+                }
+            });
+            model.widgetConfig({
+                table1: {
+                    //主数据切换当前时丛数据绑定的table数据未刷新，但是直接c-bind的span值却能正确切换
+                    bind: "item in items.hosAdviceDtls",
+                    height: "100%",
+                    columns: [
+                        {
+                            caption: "AdviceNo",
+                            property: "hosAdviceNo"
+                        },
+                        {
+                            caption: "createDoctorNm",
+                            property: "createDoctorNm"
+                        }
+                    ]
+                }
+            });
+        });
+    </script>
+    <style>
+    </style>
+</head>
+<body style="padding:0px;margin:0;" class="v-box">
+<c-button click="next" caption="next"></c-button>
+<div class="ui segment basic">
+    <span c-bind="items.hosAdvice.hosAdviceNo"></span>
+</div>
+<div class="flex-box">
+    <c-table id="table1"></c-table>
+</div>
+</body>
+</html>
