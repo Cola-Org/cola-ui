@@ -418,7 +418,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 		cola.util.cancelDelay(@, "retrieve")
 
 		if @_retrieveItems
-			 @_retrieveItems(dynaExpressionOnly)
+			@_retrieveItems(dynaExpressionOnly)
 		else if @expression
 			items = @evaluate(@parent, dynaExpressionOnly)
 			@setItems(items)
@@ -568,7 +568,8 @@ class cola.ItemsScope extends cola.ExpressionScope
 
 	_processMessage: (bindingPath, path, type, arg)->
 		if type is cola.constants.MESSAGE_REFRESH
-			if arg.originType is cola.constants.MESSAGE_CURRENT_CHANGE
+			if arg.originType is cola.constants.MESSAGE_CURRENT_CHANGE and
+			  (arg.entityList is @items or @isOriginItems(arg.entityList))
 				@onCurrentItemChange?(arg)
 			else if @isParentOfTarget(path)
 				@retrieveData()
@@ -666,7 +667,7 @@ class cola.AbstractDataModel
 						loadMode = "async"
 						callback = loadMode
 					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
-						context)
+					  context)
 				else
 					return aliasData
 

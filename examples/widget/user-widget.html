@@ -33,7 +33,7 @@
 					},
 					{
 						tagName: "c-listview",
-						"c-bind": "?@itemsBind",
+						"c-bind": "?@itemsBind+'s'",
 						textProperty: "city"
 					}
 				]
@@ -69,7 +69,7 @@
 					click: function() {
 						var myWidget = new MyWidget({
 							bind: "prop",
-							itemsBind: "addresses"
+							itemsBind: "addresse"
 						});
 						myWidget.appendTo(document.body);
 
@@ -87,8 +87,8 @@
 <c-input bind="prop"></c-input>
 <c-label c-text="prop"></c-label>
 
-<my-widget bind="prop" itemsBind="addresses" text="1"></my-widget>
-<my-widget bind="prop" itemsBind="addresses" text="2"></my-widget>
+<my-widget bind="prop" itemsBind="addresse" text="1"></my-widget>
+<my-widget bind="prop" itemsBind="addresse" text="2"></my-widget>
 
 <c-button icon="search" c-click="buttonClick()">Button</c-button>
 
