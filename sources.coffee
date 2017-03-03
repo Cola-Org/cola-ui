@@ -114,7 +114,7 @@ sources =
 			"src/css/global.less"
 			"src/css/site.less"
 			"src/css/box.less"
-			#"src/css/form.less"
+			"src/css/form.less"
 			"src/css/block-grid.less"
 			"src/css/grid.less"
 			"src/css/items-view.less"
