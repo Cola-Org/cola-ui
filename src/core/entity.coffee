@@ -155,7 +155,6 @@ _filterCollection = (collection, criteria, option = {}) ->
 	return filtered
 
 _filterEntity = (entity, criteria, option = {}, children) ->
-
 	_searchChildren = (value) ->
 		if option.mode is "entity"
 			if value instanceof cola.EntityList
@@ -327,10 +326,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-	#_parent
-	#_parentProperty
-	#_providerInvoker
-	#_disableWriteObservers
+#_parent
+#_parentProperty
+#_providerInvoker
+#_disableWriteObservers
 
 	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
@@ -351,7 +350,7 @@ class cola.Entity
 			@_disableWriteObservers--
 
 		if dataType
-			dataType.fire("entityCreate", dataType, { entity: @ })
+			dataType.fire("entityCreate", dataType, {entity: @})
 
 	hasValue: (prop) ->
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
@@ -367,7 +366,6 @@ class cola.Entity
 			return @_get(prop, loadMode, callback, context)
 
 	_get: (prop, loadMode, callback, context) ->
-
 		loadData = (provider) ->
 			retValue = undefined
 			providerInvoker = provider.getInvoker(data: @)
@@ -439,7 +437,7 @@ class cola.Entity
 				context.providerInvokers ?= []
 				context.providerInvokers.push(providerInvoker)
 
-		# TODO: delete this
+# TODO: delete this
 		else if typeof value is "function"
 			providerInvoker = {
 				_$providerInvoker: true
@@ -528,7 +526,7 @@ class cola.Entity
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
-				else if typeof value is "object" and value? and prop.charCodeAt(0) isnt 36	# `$`
+				else if typeof value is "object" and value? and prop.charCodeAt(0) isnt 36    # `$`
 					if value instanceof Array
 						convert = true
 						if value.length > 0
@@ -538,7 +536,7 @@ class cola.Entity
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
-						# do nothing
+# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value
@@ -548,11 +546,11 @@ class cola.Entity
 		if changed
 			if @dataType and @dataType.getListeners("beforeDataChange")
 				if @dataType.fire("beforeDataChange", @dataType, {
-						entity: @,
-						property: prop,
-						oldValue: oldValue
-						value: value
-					}) is false
+					entity: @,
+					property: prop,
+					oldValue: oldValue
+					value: value
+				}) is false
 					return
 
 			if property
@@ -629,13 +627,13 @@ class cola.Entity
 		if @parent
 			if @parent instanceof _EntityList
 				if @dataType
-					if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
+					if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
 						return @
 
 				@parent.remove(@, detach)
 
 				if @dataType
-					@dataType.fire("entityRemove", @dataType, { entity: @ })
+					@dataType.fire("entityRemove", @dataType, {entity: @})
 			else
 				@setState(_Entity.STATE_DELETED)
 				@parent.set(@_parentProperty, null)
@@ -684,7 +682,7 @@ class cola.Entity
 		return @ if @state == state
 
 		if state is _Entity.STATE_DELETED and @dataType
-			if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
+			if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
 				return @
 
 		if @state == _Entity.STATE_NONE and state == _Entity.STATE_MODIFIED
@@ -700,7 +698,7 @@ class cola.Entity
 		})
 
 		if state is _Entity.STATE_DELETED and @dataType
-			@dataType.fire("beforeEntityRemove", @dataType, { entity: @ })
+			@dataType.fire("beforeEntityRemove", @dataType, {entity: @})
 
 		return @
 
@@ -824,7 +822,7 @@ class cola.Entity
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	_notify: (type, arg) ->
@@ -870,7 +868,7 @@ class cola.Entity
 		return messageChanged
 
 	validate: (prop) ->
-		if  @_messageHolder
+		if @_messageHolder
 			oldKeyMessage = @_messageHolder.getKeyMessage()
 			@_messageHolder.clear(prop)
 
@@ -940,7 +938,7 @@ class cola.Entity
 		for prop, value of data
 			if prop.charCodeAt(0) is 36 # `$`
 				continue
-				
+
 			if value
 				if value instanceof cola.AjaxServiceInvoker
 					continue
@@ -1378,9 +1376,9 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
-					entityList: @,
-					entity: entity
-				}) is false
+				entityList: @,
+				entity: entity
+			}) is false
 				return null
 
 		page.dontAutoSetCurrent = true
@@ -1415,9 +1413,9 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
-					entityList: @,
-					entity: entity
-				}) is false
+				entityList: @,
+				entity: entity
+			}) is false
 				return null
 
 		if entity == @current
@@ -1454,7 +1452,7 @@ class cola.EntityList extends LinkedList
 
 	empty: () ->
 		@_reset()
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return
 
 	setCurrent: (entity) ->
@@ -1468,10 +1466,10 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
-					entityList: @,
-					oldCurrent: oldCurrent
-					current: entity
-				}) is false
+				entityList: @,
+				oldCurrent: oldCurrent
+				current: entity
+			}) is false
 				return @
 
 		@current = entity
@@ -1553,7 +1551,7 @@ class cola.EntityList extends LinkedList
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	_notify: (type, arg) ->
@@ -1878,14 +1876,14 @@ cola.util.find = (data, criteria, option) ->
 	option.one = true
 	result = cola.util.where(data, criteria, option)
 	return result?[0]
-	
+
 cola.util.sort = (collection, comparator, caseSensitive) ->
 	return _sortCollection(collection, comparator, caseSensitive)
 
 cola.util.flush = (data, loadMode) ->
 	if data instanceof cola.Entity or data instanceof cola.EntityList
 		if data.parent instanceof cola.Entity and data._parentProperty
-			data.parent.flush(data._parentProperty, loadMode)			
+			data.parent.flush(data._parentProperty, loadMode)
 	return
 
 ###
@@ -1906,13 +1904,13 @@ class EntityIndex
 		@index = {}
 		@idMap = {}
 		@buildIndex()
-		
+
 		model.data.addEntityListener(@)
 
 		@data._indexMap ?= {}
 		@data._indexMap[@property] = @
 		return
-		
+
 	buildIndex: () ->
 		data = @data
 		if data instanceof cola.Entity
@@ -1941,7 +1939,7 @@ class EntityIndex
 					else if v instanceof cola.EntityList
 						@_buildIndexForEntityList(v)
 		return
-		
+
 	onEntityAttach: (entity) ->
 		if @deep
 			p = entity
@@ -1954,23 +1952,23 @@ class EntityIndex
 			valid = entity.parent is @data
 		else
 			valid = entity is @data
-			
+
 		if valid
 			value = entity.get(@property)
 			@idMap[entity.id] = true
 			@index[value + ""] = entity
 		return
-		
+
 	onEntityDetach: (entity) ->
 		if @idMap[entity.id]
 			value = entity.get(@property)
 			delete @idMap[entity.id]
 			delete @index[value + ""]
 		return
-		
+
 	find: (value) ->
 		return @index[value + ""]
-		
+
 	destroy: () ->
 		@model.data.removeEntityListener(@)
 		delete @data._indexMap?[@property]

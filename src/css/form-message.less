@@ -12,8 +12,8 @@
    Types of Messages
 ---------------------*/
 
-
-.ui.form .success.message,
+.ui.form messages,
+.ui.form .info.message,
 .ui.form .warning.message,
 .ui.form .error.message {
 	display: none;
@@ -25,15 +25,17 @@
 }
 
 /*--------------------
-        Success
+        Info
 ---------------------*/
 
 /* On Form */
-.ui.form.success .success.message:not(:empty) {
+.ui.form.info .info.message:not(:empty),
+.ui.form.info .info.messages:not(:empty) {
 	display: block;
 }
 
-.ui.form.success .icon.success.message:not(:empty) {
+.ui.form.info .icon.info.message:not(:empty),
+.ui.form.info .icon.info.messages:not(:empty) {
 	display: flex;
 }
 
@@ -42,11 +44,13 @@
 ---------------------*/
 
 /* On Form */
-.ui.form.warning .warning.message:not(:empty) {
+.ui.form.warning .warning.message:not(:empty),
+.ui.form.warning .warning.messages:not(:empty) {
 	display: block;
 }
 
-.ui.form.warning .icon.warning.message:not(:empty) {
+.ui.form.warning .icon.warning.message:not(:empty),
+.ui.form.warning .icon.warning.messages:not(:empty) {
 	display: flex;
 }
 
@@ -55,11 +59,13 @@
 ---------------------*/
 
 /* On Form */
-.ui.form.error .error.message:not(:empty) {
+.ui.form.error .error.message:not(:empty),
+.ui.form.error .error.messages:not(:empty) {
 	display: block;
 }
 
-.ui.form.error .icon.error.message:not(:empty) {
+.ui.form.error .icon.error.message:not(:empty)
+.ui.form.error .icon.error.messages:not(:empty) {
 	display: flex;
 }
 

@@ -1,13 +1,3 @@
-oldErrorTemplate = $.fn.form.settings.templates.error
-$.fn.form.settings.templates.error = (errors) ->
-	if errors.length is 1 and errors[0]?.form instanceof cola.Form
-		errors = errors[0].form._errors
-
-	if errors.length is 0
-		return ""
-	else
-		return oldErrorTemplate.call(@, errors)
-
 class cola.Form extends cola.Widget
 	@tagName: "c-form"
 	@CLASS_NAME: "form"
@@ -19,54 +9,17 @@ class cola.Form extends cola.Widget
 			setter: (state) ->
 				return if @_state is state
 				@_state = state
-				if @_dom
-					STATES = @constructor.STATES
-					classPool = new cola.ClassNamePool(@_dom.className)
-					for p, cls of STATES
-						classPool.remove(cls)
-					if state then classPool.add(STATES[state])
-					@_dom.className = classPool.join()
+				if @_$dom
+					@_$dom.removeClass("error warning info").addClass(state)
 				return
-
-	@STATES:
-		"error": "error"
-		"warning": "warning"
-		"info": "success"
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
-		@_errors = []
 		super(config)
 
 	_initDom: (dom) ->
 		$dom = $(dom)
 		$dom.addClass(@_state) if @_state
-
-		@_inline = $dom.find(".ui.message").length is 0
-		cola.ready () =>
-			$dom.xAppend(
-				tagName: "input"
-				type: "hidden"
-				value: "mockValue"
-				"data-validate": "__mockField"
-			).form(
-				on: "_disabled"
-				revalidate: false
-				inline: @_inline
-				fields:
-					__mockField:
-						identifier: "__mockField"
-						rules: [
-							{
-								type: "empty"
-								prompt:
-									form: @
-									search: () -> -1
-									replace: () -> @
-							}
-						]
-			)
-			return
 		return
 
 	_filterDataMessage: (path, type, arg) ->
@@ -89,26 +42,28 @@ class cola.Form extends cola.Widget
 	_refreshState: () ->
 		return unless @_$dom
 
-		state = null
 		keyMessage = @_messageHolder.getKeyMessage()
-		type = keyMessage?.type
-		if type is "error" and !@_inline
-			errors = @_errors
-			errors.length = 0
+		state = keyMessage?.type
 
-			messages = @_messageHolder.findMessages(null, type)
-			if messages
-				for m in messages
-					if m.text
-						errors.push(m.text)
+		messageCosons = []
+		messages = @_messageHolder.findMessages(null, state)
+		if messages
+			for m in messages
+				if m.text
+					messageCosons.push(
+						tagName: "li"
+						content: m.text
+					)
 
-			if errors.length > 0
-				@_$dom.form("add errors", errors)
-				state = type
-			else
-				@_$dom.find(".error.message").empty()
+		$messages = @_$dom.find("messages, .ui.message")
+		$messages.empty()
+		if messageCosons.length > 0
+			$messages.xAppend({
+				tagName: "ul"
+				class: "list"
+				content: messageCosons
+			})
 
-		@_$dom.form("set value", "__mockField", if type is "error" then "" else "mockValue")
 		@set("state", state)
 		return
 
@@ -116,13 +71,13 @@ class cola.Form extends cola.Widget
 		return unless @_$dom
 
 		messageHolder = @_messageHolder
-		messageHolder.clear("fields")
+		messageHolder.clear()
 		entity = @_getEntity()
 		if entity
 			messages = entity.findMessages()
 			if messages
 				for message in messages
-					messageHolder.add("fields", message)
+					messageHolder.add("$", message)
 		return
 
 	setMessages: (messages) ->
@@ -135,17 +90,15 @@ class cola.Form extends cola.Widget
 		return
 
 	setFieldMessages: (editor, message) ->
-		if @_inline
-			editorDom = editor._$dom.find("input, textarea, select")[0]
-			if editorDom
-				editorDom.id or= cola.uniqueId()
-				if message?.type is "error" and message.text
-					@_$dom.form("add prompt", editorDom.id, message.text)
-				else
-					@_$dom.form("remove prompt", editorDom.id)
+		$message = editor._$dom.closest(".field").find("message")
+		$message.removeClass("error warning info")
+		if message
+			$message.addClass(message.type).text(message.text)
 		else
-			@_resetEntityMessages()
-			@_refreshState()
+			$message.empty()
+
+		@_resetEntityMessages()
+		@_refreshState()
 		return
 
 cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
