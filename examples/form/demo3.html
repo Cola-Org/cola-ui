@@ -9,7 +9,7 @@
 <c-form>
     <fields class="fields-2">
         <field property="name">
-            <label>姓名:</label>
+            <label></label>
             <c-input c-bind="name"></c-input>
             <message></message>
         </field>
@@ -66,6 +66,7 @@
 	cola(function (model) {
 		model.describe({
 			name: {
+				caption: "姓名",
 				validators: ["required"]
             }
         });

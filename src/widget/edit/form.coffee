@@ -90,12 +90,23 @@ class cola.Field extends cola.Widget
 					bind = formBind + "." + @_property
 				else
 					bind = @_property
-				@set("bind", bind)
 
+		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
-		if @_messageDom and @_bind
+
+		bind = bind or @_bind
+		if bind
 			@_bind = null
-			@_bindSetter(@_bind)
+			@_bindSetter(bind)
+			propertyDef = @getBindingProperty()
+			if propertyDef
+				$label = $fly(@_labelDom)
+				$label.text(propertyDef._caption or propertyDef._name)
+				if propertyDef._validators
+					for validator in propertyDef._validators
+						if validator instanceof cola.RequiredValidator
+							$label.addClass("required")
+							break
 		return
 
 	_filterDataMessage: (path, type, arg) ->

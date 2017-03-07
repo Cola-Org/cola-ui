@@ -143,7 +143,7 @@ cola.DataWidgetMixin =
 					bindInfo.property = bindStr
 
 			if not @_bindProcessor
-				@_bindProcessor = bindProcessor = {
+				@_bindProcessor = {
 					processMessage: (bindingPath, path, type, arg) =>
 						if @_filterDataMessage
 							if not @_filterDataMessage(path, type, arg)
@@ -174,7 +174,7 @@ cola.DataWidgetMixin =
 			if paths
 				@_watchingPaths = watchingPaths = []
 				for p, i in paths
-					@_scope.data.bind(p, bindProcessor)
+					@_scope.data.bind(p, @_bindProcessor)
 					watchingPaths[i] = p.split(".")
 
 				if @_processDataMessage
