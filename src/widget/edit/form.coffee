@@ -3,50 +3,34 @@ class cola.Form extends cola.Widget
 	@CLASS_NAME: "form"
 
 	@attributes:
-		bind:
-			setter: (bindStr) -> @_bindSetter(bindStr)
-		state:
-			setter: (state) ->
-				return if @_state is state
-				@_state = state
-				if @_$dom
-					@_$dom.removeClass("error warning info").addClass(state)
-				return
+		bind: null
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
 		super(config)
 
 	_initDom: (dom) ->
-		$dom = $(dom)
-		$dom.addClass(@_state) if @_state
+		super(dom)
+		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
 		return
 
-	_filterDataMessage: (path, type, arg) ->
-		return type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+	refreshMessages: () ->
+		return unless @_$messages.length
 
-	_processDataMessage: (path, type, arg) ->
-		entity = @_bindInfo.expression.evaluate(@_scope, "never")
-		if entity and entity instanceof cola.Entity
-			@_resetEntityMessages()
-		else
-			entity = null
-		@_entity = entity
-		@_refreshState()
-		return
+		messageHolder = @_messageHolder
+		messageHolder.clear()
 
-	_getEntity: () ->
-		return @_entity if @_entity
-		return @_scope.get()
+		fieldDoms = @_dom.querySelectorAll("field")
+		for fieldDom in fieldDoms
+			field = cola.widget(fieldDom)
+			if field?._message
+				messageHolder.add("$", field?._message)
 
-	_refreshState: () ->
-		return unless @_$dom
-
-		keyMessage = @_messageHolder.getKeyMessage()
+		keyMessage = messageHolder.getKeyMessage()
 		state = keyMessage?.type
 
 		messageCosons = []
-		messages = @_messageHolder.findMessages(null, state)
+		messages = messageHolder.findMessages(null, state)
 		if messages
 			for m in messages
 				if m.text
@@ -55,52 +39,92 @@ class cola.Form extends cola.Widget
 						content: m.text
 					)
 
-		$messages = @_$dom.find("messages, .ui.message")
-		$messages.empty()
+		@_$dom.removeClass("error warning success").addClass(state)
+		@_$messages.removeClass("error warning success").addClass(state).empty()
 		if messageCosons.length > 0
-			$messages.xAppend({
+			@_$messages.xAppend({
 				tagName: "ul"
 				class: "list"
 				content: messageCosons
 			})
-
-		@set("state", state)
 		return
-
-	_resetEntityMessages: () ->
-		return unless @_$dom
-
-		messageHolder = @_messageHolder
-		messageHolder.clear()
-		entity = @_getEntity()
-		if entity
-			messages = entity.findMessages()
-			if messages
-				for message in messages
-					messageHolder.add("$", message)
-		return
-
-	setMessages: (messages) ->
-		messageHolder = @_messageHolder
-		messageHolder.clear()
-		if messages
-			for message in messages
-				messageHolder.add("$", message)
-		@_refreshState()
-		return
-
-	setFieldMessages: (editor, message) ->
-		$message = editor._$dom.closest(".field").find("message")
-		$message.removeClass("error warning info")
-		if message
-			$message.addClass(message.type).text(message.text)
-		else
-			$message.empty()
-
-		@_resetEntityMessages()
-		@_refreshState()
-		return
-
-cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
 
 cola.registerWidget(cola.Form)
+
+
+class cola.Field extends cola.Widget
+	@tagName: "field"
+	@CLASS_NAME: "field"
+
+	@attributes:
+		bind:
+			setter: (bindStr) ->
+				if @_domParsed
+					@_bindSetter(bindStr)
+				else
+					@_bind = bindStr
+				return
+
+		property: null
+		message:
+			readOnly: true
+			getter: () ->
+				if @_messageDom
+					return @_message
+				else
+
+	_parseDom: (dom) ->
+		@_domParsed = true
+
+		if not @_bind and @_property
+			if dom.parentNode
+				if dom.parentNode.nodeName is "C-FORM"
+					@_formDom = dom.parentNode
+				else if dom.parentNode.parentNode?.nodeName is "C-FORM"
+					@_formDom = dom.parentNode.parentNode
+
+			if @_formDom
+				@_form = cola.widget(@_formDom)
+				formBind = @_form?._bind
+				if formBind
+					bind = formBind + "." + @_property
+				else
+					bind = @_property
+				@set("bind", bind)
+
+		@_messageDom = dom.querySelector("message")
+		if @_messageDom and @_bind
+			@_bind = null
+			@_bindSetter(@_bind)
+		return
+
+	_filterDataMessage: (path, type, arg) ->
+		return type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
+
+	_processDataMessage: (path, type, arg) ->
+		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
+			if @_bindInfo?.writeable
+				entity = @_scope.get(@_bindInfo.entityPath)
+				if entity instanceof cola.EntityList
+					entity = entity.current
+				if entity
+					keyMessage = entity.getKeyMessage(@_bindInfo.property)
+					@setMessages(keyMessage)
+		return
+
+	setMessages: (message) ->
+		@_message = message
+
+		if @_messageDom
+			$message = $fly(@_messageDom)
+			$message.removeClass("error warning success")
+			if message
+				$message.addClass(message.type).text(message.text)
+			else
+				$message.empty()
+
+		@_form?.refreshMessages()
+		return
+
+cola.Element.mixin(cola.Field, cola.DataWidgetMixin)
+cola.registerWidget(cola.Field)

@@ -71,19 +71,10 @@ class cola.AbstractEditor extends cola.Widget
 				entity = @_scope.get(@_bindInfo.entityPath)
 				if entity instanceof cola.EntityList
 					entity = entity.current
+					entity = entity.current
 				if entity
 					keyMessage = entity.getKeyMessage(@_bindInfo.property)
 					@set("state", keyMessage?.type)
-
-			unless @_formDom
-				if @_fieldDom
-					$formDom = $fly(@_fieldDom).closest(".ui.form")
-				@_formDom = $formDom?[0] or null
-
-			if @_formDom
-				form = cola.widget(@_formDom)
-				if form and form instanceof cola.Form
-					form.setFieldMessages(@, keyMessage)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			value = @readBindingValue()

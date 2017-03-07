@@ -7,64 +7,59 @@
 <body style="padding: 20px">
 
 <c-form>
-    <div class="fields-2">
-        <div class="field required">
+    <fields class="fields-2">
+        <field property="name">
             <label>姓名:</label>
             <c-input c-bind="name"></c-input>
             <message></message>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>年龄:</label>
             <c-input></c-input>
-        </div>
-    </div>
-    <div class="fields-2">
-        <div class="field required">
+        </field>
+    </fields>
+    <fields class="fields-2">
+        <field class="field required">
             <label>性别:</label>
             <c-select-button c-items="items" c-bind="gender" keyProperty="key"
                              valueProperty="value"></c-select-button>
-        </div>
-    </div>
-    <div class="field">
+        </field>
+    </fields>
+    <field>
         <label>个人简介:</label>
         <c-textarea rows="5">
         </c-textarea>
-    </div>
-    <div class="fields-3">
-        <div class="field">
+    </field>
+    <fields class="fields-3">
+        <field>
             <label>省:</label>
             <c-input></c-input>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>市:</label>
             <c-input></c-input>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>区县:</label>
             <c-input></c-input>
-        </div>
-    </div>
-    <div class="field">
+        </field>
+    </fields>
+    <field>
         <label>详细信息:</label>
         <c-textarea rows="5">
         </c-textarea>
-    </div>
-    <div class="field">
+    </field>
+    <field>
         <label></label>
         <c-checkbox label="我已阅读并以同意以上条款"></c-checkbox>
         <message></message>
-    </div>
+    </field>
 
-    <div class="field">
+    <field>
         <c-button class="red" c-onclick="submit()">提交</c-button>
-    </div>
+    </field>
 
     <messages></messages>
-
-    <div class="ui error message">
-        <div class="header">Action Forbidden</div>
-        <p>You can only sign up for an account once with a given e-mail address.</p>
-    </div>
 </c-form>
 
 <script>

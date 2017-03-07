@@ -33,10 +33,6 @@
 						if (todo.get("done")) done++;
 					});
 					return done + "/" + total;
-				},
-				getTodos:function(todos){
-					debugger;
-					return todos;
 				}
 			});
 		});
@@ -52,7 +48,7 @@
 	Sort: <select c-bind="sortParam" c-options="sortOptions"></select>
 </p>
 <ul>
-	<li c-repeat="todo in sort(getTodos(todos),sortParam)">
+	<li c-repeat="todo in sort(filter(todos,filterParam),sortParam)">
 	<!--<li c-repeat="todo in chain(todos).filter(filterParam).sort(sortParam)">-->
 		<input type="checkbox" c-bind="todo.done">
 		<span c-bind="todo.title"></span>
