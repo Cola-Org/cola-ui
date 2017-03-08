@@ -151,10 +151,10 @@ class cola.AbstractInput extends cola.AbstractEditor
 					inputIndex = index
 					@_doms.input = child
 
-		if childConfig.label and inputIndex > -1 and labelIndex > inputIndex and !config.labelPosition
+		if childConfig.label and inputIndex > -1 and labelIndex > inputIndex and not config.labelPosition
 			@_labelPosition = "right"
 
-		if childConfig.actionButton and inputIndex > -1 and buttonIndex < inputIndex and !config.buttonPosition
+		if childConfig.actionButton and inputIndex > -1 and buttonIndex < inputIndex and not config.buttonPosition
 			@_buttonPosition = "left"
 
 		if inputIndex is -1
@@ -424,6 +424,7 @@ class cola.Input extends cola.AbstractInput
 					format = ISO_FORMAT_STRING
 				value = (new XDate(value)).toString(format)
 		return super(value)
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()

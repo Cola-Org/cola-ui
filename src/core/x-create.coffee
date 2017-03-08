@@ -127,15 +127,15 @@ createNodeForAppend = (template, context) ->
 
 $.fn.xAppend = (template, context) ->
 	result = createNodeForAppend(template, context)
-	if !result then return null
+	if not result then return null
 	return @append(result)
 
 $.fn.xInsertBefore = (template, context) ->
 	result = createNodeForAppend(template, context)
-	if !result then return null
+	if not result then return null
 	return @before(result)
 
 $.fn.xInsertAfter = (template, context) ->
 	result = createNodeForAppend(template, context)
-	if !result then return null
+	if not result then return null
 	return @after(result)

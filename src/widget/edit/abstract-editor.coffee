@@ -17,13 +17,11 @@ class cola.AbstractEditor extends cola.Widget
 					dom = @_dom
 					if dom and oldState
 						cola.util.removeClass(dom, oldState)
-						cola.util.removeClass(@_fieldDom, oldState) if @_fieldDom
 
 					@_state = state
 
 					if dom and state
 						cola.util.addClass(dom, state)
-						cola.util.addClass(@_fieldDom, state) if @_fieldDom
 				return
 
 	@events:
@@ -36,10 +34,11 @@ class cola.AbstractEditor extends cola.Widget
 		if @_state
 			cola.util.addClass(dom, @_state)
 
-		fieldDom = dom.parentNode
-		if fieldDom and not jQuery.find.matchesSelector(fieldDom, ".field")
-			fieldDom = null
-		@_fieldDom = fieldDom
+		if not @_bind
+			fieldDom = dom.parentNode
+			if fieldDom.nodeName is "FIELD"
+				@_field = cola.widget(fieldDom)
+				if @_field?._bind then @set("bind", @_field._bind)
 		return
 
 	_setValue: (value) ->
@@ -71,19 +70,10 @@ class cola.AbstractEditor extends cola.Widget
 				entity = @_scope.get(@_bindInfo.entityPath)
 				if entity instanceof cola.EntityList
 					entity = entity.current
+					entity = entity.current
 				if entity
 					keyMessage = entity.getKeyMessage(@_bindInfo.property)
 					@set("state", keyMessage?.type)
-
-			unless @_formDom
-				if @_fieldDom
-					$formDom = $fly(@_fieldDom).closest(".ui.form")
-				@_formDom = $formDom?[0] or null
-
-			if @_formDom
-				form = cola.widget(@_formDom)
-				if form and form instanceof cola.Form
-					form.setFieldMessages(@, keyMessage)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			value = @readBindingValue()

@@ -1,153 +1,148 @@
-oldErrorTemplate = $.fn.form.settings.templates.error
-$.fn.form.settings.templates.error = (errors) ->
-	if errors.length is 1 and errors[0]?.form instanceof cola.Form
-		errors = errors[0].form._errors
-
-	if errors.length is 0
-		return ""
-	else
-		return oldErrorTemplate.call(@, errors)
-
 class cola.Form extends cola.Widget
 	@tagName: "c-form"
 	@CLASS_NAME: "form"
 
 	@attributes:
-		bind:
-			setter: (bindStr) -> @_bindSetter(bindStr)
-		state:
-			setter: (state) ->
-				return if @_state is state
-				@_state = state
-				if @_dom
-					STATES = @constructor.STATES
-					classPool = new cola.ClassNamePool(@_dom.className)
-					for p, cls of STATES
-						classPool.remove(cls)
-					if state then classPool.add(STATES[state])
-					@_dom.className = classPool.join()
-				return
-
-	@STATES:
-		"error": "error"
-		"warning": "warning"
-		"info": "success"
+		bind: null
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
-		@_errors = []
 		super(config)
 
 	_initDom: (dom) ->
-		$dom = $(dom)
-		$dom.addClass(@_state) if @_state
+		super(dom)
+		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
+		return
 
-		@_inline = $dom.find(".ui.message").length is 0
-		cola.ready () =>
-			$dom.xAppend(
-				tagName: "input"
-				type: "hidden"
-				value: "mockValue"
-				"data-validate": "__mockField"
-			).form(
-				on: "_disabled"
-				revalidate: false
-				inline: @_inline
-				fields:
-					__mockField:
-						identifier: "__mockField"
-						rules: [
-							{
-								type: "empty"
-								prompt:
-									form: @
-									search: () -> -1
-									replace: () -> @
-							}
-						]
-			)
-			return
+	refreshMessages: () ->
+		return unless @_$messages.length
+
+		messageHolder = @_messageHolder
+		messageHolder.clear()
+
+		fieldDoms = @_dom.querySelectorAll("field")
+		for fieldDom in fieldDoms
+			field = cola.widget(fieldDom)
+			if field?._message
+				messageHolder.add("$", field?._message)
+
+		keyMessage = messageHolder.getKeyMessage()
+		state = keyMessage?.type
+
+		messageCosons = []
+		messages = messageHolder.findMessages(null, state)
+		if messages
+			for m in messages
+				if m.text
+					messageCosons.push(
+						tagName: "li"
+						content: m.text
+					)
+
+		@_$dom.removeClass("error warning success").addClass(state)
+		@_$messages.removeClass("error warning success").addClass(state).empty()
+		if messageCosons.length > 0
+			@_$messages.xAppend({
+				tagName: "ul"
+				class: "list"
+				content: messageCosons
+			})
+		return
+
+cola.registerWidget(cola.Form)
+
+
+class cola.Field extends cola.Widget
+	@tagName: "field"
+	@CLASS_NAME: "field"
+
+	@attributes:
+		bind:
+			setter: (bindStr) ->
+				if @_domParsed
+					@_bindSetter(bindStr)
+				else
+					@_bind = bindStr
+				return
+
+		property: null
+		message:
+			readOnly: true
+			getter: () ->
+				if @_messageDom
+					return @_message
+				else
+
+	_parseDom: (dom) ->
+		@_domParsed = true
+
+		if not @_bind and @_property
+			if dom.parentNode
+				if dom.parentNode.nodeName is "C-FORM"
+					@_formDom = dom.parentNode
+				else if dom.parentNode.parentNode?.nodeName is "C-FORM"
+					@_formDom = dom.parentNode.parentNode
+
+			if @_formDom
+				@_form = cola.widget(@_formDom)
+				formBind = @_form?._bind
+				if formBind
+					bind = formBind + "." + @_property
+				else
+					bind = @_property
+
+		if bind and dom.childElementCount is 0
+			dom.appendChild($.xCreate(tagName: "label"))
+			dom.appendChild($.xCreate(
+			  tagName: "c-input"
+			  bind: bind
+			))
+
+		@_labelDom = dom.querySelector("label")
+		@_messageDom = dom.querySelector("message")
+
+		bind = bind or @_bind
+		if bind
+			@_bind = null
+			@_bindSetter(bind)
+			propertyDef = @getBindingProperty()
+			if propertyDef
+				$label = $fly(@_labelDom)
+				$label.text(propertyDef._caption or propertyDef._name)
+				if propertyDef._validators
+					for validator in propertyDef._validators
+						if validator instanceof cola.RequiredValidator
+							$label.addClass("required")
+							break
 		return
 
 	_filterDataMessage: (path, type, arg) ->
-		return type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+		return type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
 
 	_processDataMessage: (path, type, arg) ->
-		entity = @_bindInfo.expression.evaluate(@_scope, "never")
-		if entity and entity instanceof cola.Entity
-			@_resetEntityMessages()
-		else
-			entity = null
-		@_entity = entity
-		@_refreshState()
+		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
+			if @_bindInfo?.writeable
+				entity = @_scope.get(@_bindInfo.entityPath)
+				if entity instanceof cola.EntityList
+					entity = entity.current
+				if entity
+					keyMessage = entity.getKeyMessage(@_bindInfo.property)
+					@setMessages(keyMessage)
 		return
 
-	_getEntity: () ->
-		return @_entity if @_entity
-		return @_scope.get()
+	setMessages: (message) ->
+		@_message = message
 
-	_refreshState: () ->
-		return unless @_$dom
-
-		state = null
-		keyMessage = @_messageHolder.getKeyMessage()
-		type = keyMessage?.type
-		if type is "error" and !@_inline
-			errors = @_errors
-			errors.length = 0
-
-			messages = @_messageHolder.findMessages(null, type)
-			if messages
-				for m in messages
-					if m.text
-						errors.push(m.text)
-
-			if errors.length > 0
-				@_$dom.form("add errors", errors)
-				state = type
+		if @_messageDom
+			$message = $fly(@_messageDom)
+			$message.removeClass("error warning success")
+			if message
+				$message.addClass(message.type).text(message.text)
 			else
-				@_$dom.find(".error.message").empty()
+				$message.empty()
 
-		@_$dom.form("set value", "__mockField", if type is "error" then "" else "mockValue")
-		@set("state", state)
+		@_form?.refreshMessages()
 		return
 
-	_resetEntityMessages: () ->
-		return unless @_$dom
-
-		messageHolder = @_messageHolder
-		messageHolder.clear("fields")
-		entity = @_getEntity()
-		if entity
-			messages = entity.findMessages()
-			if messages
-				for message in messages
-					messageHolder.add("fields", message)
-		return
-
-	setMessages: (messages) ->
-		messageHolder = @_messageHolder
-		messageHolder.clear()
-		if messages
-			for message in messages
-				messageHolder.add("$", message)
-		@_refreshState()
-		return
-
-	setFieldMessages: (editor, message) ->
-		if @_inline
-			editorDom = editor._$dom.find("input, textarea, select")[0]
-			if editorDom
-				editorDom.id or= cola.uniqueId()
-				if message?.type is "error" and message.text
-					@_$dom.form("add prompt", editorDom.id, message.text)
-				else
-					@_$dom.form("remove prompt", editorDom.id)
-		else
-			@_resetEntityMessages()
-			@_refreshState()
-		return
-
-cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
-
-cola.registerWidget(cola.Form)
+cola.Element.mixin(cola.Field, cola.DataWidgetMixin)
+cola.registerWidget(cola.Field)
