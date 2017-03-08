@@ -4,11 +4,12 @@
 @fields-default-spacing: 0.75rem;
 @align-fields-to-grid: false;
 @spacing: @fields-default-spacing;
+
 .base-fields() {
 	display: block;
 	padding: 0;
 	.clearfix();
-	> .field {
+	> field {
 		display: block;
 		float: left;
 		height: auto;
@@ -16,7 +17,7 @@
 }
 
 .base-fields(@include-spacing:true) when (@include-spacing = true) {
-	> .field {
+	> field {
 		padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
 	}
 }
@@ -31,7 +32,7 @@
 
 .per-col-span-content(@row) {
 	.mixin-loop (@i) when (@i<=@row) {
-		> .field.colspan-@{i} {
+		> field.colspan-@{i} {
 			width: 100%/@row * @i;
 		}
 		.mixin-loop(@i+1);
@@ -41,7 +42,7 @@
 
 .per-col-span() {
 	.mixin-loop (@x) when (@x<=@fields-elements) {
-		> .fields-@{x} {
+		> fields-@{x} {
 			.per-col-span-content(@x);
 		}
 		.mixin-loop(@x+1);
@@ -50,7 +51,7 @@
 }
 
 .per-row(@row,@spacing:@fields-default-spacing,@include-spacing:true) {
-	> .field {
+	> field {
 		width: 100%/@row;
 		&:nth-of-type(1n) {
 			clear: none;
@@ -62,14 +63,14 @@
 }
 
 .per-row(@row,@spacing:@fields-default-spacing,@include-spacing:true) when (@include-spacing=true) {
-	> .field {
+	> field {
 		padding: 0 (@spacing/2) @spacing;
 	}
 }
 
 .fields-html-classes(@include-spacing) {
 	.mixin-loop (@i) when (@i<=@fields-elements) {
-		.fields-@{i} {
+		fields-@{i} {
 			.per-row(@i, @fields-default-spacing, @include-spacing);
 		}
 		.mixin-loop(@i+1);
@@ -79,26 +80,26 @@
 
 }
 
-.ui.form {
-	> .field {
+.form {
+	> field {
 		width: 100%;
 	}
 }
 
-.ui.form > .fields > .field {
+.form > fields > field {
 	width: 100%;
 }
 
-.ui.form > .fields, .ui.form > [class*="fields-"] {
+.form > fields, .form > [class*="fields-"] {
 	.base-fields();
 }
 
-.ui.form > .field {
+.form > field {
 	padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
 }
 
-.ui.form, .ui.form > .fields, .ui.form > [class*="fields-"] {
-	> .field {
+.form, .form > fields, .form > [class*="fields-"] {
+	> field {
 		display: -webkit-inline-box;
 		display: -webkit-inline-flex;
 		display: -ms-inline-flexbox;
@@ -142,13 +143,13 @@
 	}
 }
 
-.ui.form {
+.form {
 	.fields-html-classes(false);
 }
 
 @media @small-only {
-	.ui.form, .ui.form > .fields, .ui.form > [class*="fields-"] {
-		> .field {
+	.form, .form > fields, .form > [class*="fields-"] {
+		> field {
 			> label {
 				display: block;
 			}

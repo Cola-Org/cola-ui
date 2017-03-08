@@ -1,65 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <script src="../include-all.js"></script>
+	<meta charset="UTF-8">
+	<script src="../include-all.js"></script>
 </head>
 <body style="padding: 20px">
 
 <c-form>
-    <fields class="fields-2">
-        <field property="name">
-            <label></label>
-            <c-input c-bind="name"></c-input>
-            <message></message>
-        </field>
-        <field>
-            <label>年龄:</label>
-            <c-input></c-input>
-        </field>
-    </fields>
-    <fields class="fields-2">
-        <field class="field required">
-            <label>性别:</label>
-            <c-select-button c-items="items" c-bind="gender" keyProperty="key"
-                             valueProperty="value"></c-select-button>
-        </field>
-    </fields>
-    <field>
-        <label>个人简介:</label>
-        <c-textarea rows="5">
-        </c-textarea>
-    </field>
-    <fields class="fields-3">
-        <field>
-            <label>省:</label>
-            <c-input></c-input>
-        </field>
-        <field>
-            <label>市:</label>
-            <c-input></c-input>
-        </field>
-        <field>
-            <label>区县:</label>
-            <c-input></c-input>
-        </field>
-    </fields>
-    <field>
-        <label>详细信息:</label>
-        <c-textarea rows="5">
-        </c-textarea>
-    </field>
-    <field>
-        <label></label>
-        <c-checkbox label="我已阅读并以同意以上条款"></c-checkbox>
-        <message></message>
-    </field>
+	<fields class="fields-2">
+		<field property="name"></field>
+		<field property="age"></field>
+	</fields>
+	<fields class="fields-2">
+		<field property="gender">
+			<label></label>
+			<c-select-button c-items="items" c-bind="gender"></c-select-button>
+		</field>
+	</fields>
+	<fields class="fields-3">
+		<field property="province"></field>
+		<field property="city"></field>
+		<field property="district"></field>
+	</fields>
+	<field property="comment">
+		<label></label>
+		<c-textarea rows="5"></c-textarea>
+	</field>
+	<field>
+		<label></label>
+		<c-checkbox bind="agree" label="我已阅读并以同意以上条款"></c-checkbox>
+	</field>
 
-    <field>
-        <c-button class="red" c-onclick="submit()">提交</c-button>
-    </field>
+	<field>
+		<messages></messages>
+	</field>
 
-    <messages></messages>
+	<field>
+		<label></label>
+		<c-button class="red" c-onclick="submit()">提交</c-button>
+	</field>
 </c-form>
 
 <script>
@@ -68,8 +47,32 @@
 			name: {
 				caption: "姓名",
 				validators: ["required"]
-            }
-        });
+			},
+			age: {
+				caption: "年龄",
+				dataType: "int",
+				validators: [{
+					$type: "number",
+					min: 16,
+					max: 80
+				}]
+			},
+			gender: {
+				caption: "性别"
+			},
+			province: {
+				caption: "省"
+			},
+			city: {
+				caption: "市"
+			},
+			district: {
+				caption: "区"
+			},
+			comment: {
+				caption: "备注"
+			}
+		});
 
 		model.set("items", [
 			{
@@ -85,10 +88,10 @@
 		model.set("gender", "男");
 
 		model.action({
-			submit: function() {
+			submit: function () {
 				model.get().validate();
-            }
-        });
+			}
+		});
 	})
 </script>
 </body>

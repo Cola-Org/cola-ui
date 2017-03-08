@@ -91,6 +91,13 @@ class cola.Field extends cola.Widget
 				else
 					bind = @_property
 
+		if bind and dom.childElementCount is 0
+			dom.appendChild($.xCreate(tagName: "label"))
+			dom.appendChild($.xCreate(
+			  tagName: "c-input"
+			  bind: bind
+			))
+
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
 
