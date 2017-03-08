@@ -7,17 +7,17 @@
 <body style="padding: 20px">
 
 <c-form>
-	<fields class="fields-2">
+	<fields class="two">
 		<field property="name"></field>
 		<field property="age"></field>
 	</fields>
-	<fields class="fields-2">
+	<fields class="two">
 		<field property="gender">
 			<label></label>
 			<c-select-button c-items="items" c-bind="gender"></c-select-button>
 		</field>
 	</fields>
-	<fields class="fields-3">
+	<fields class="three">
 		<field property="province"></field>
 		<field property="city"></field>
 		<field property="district"></field>
@@ -32,6 +32,7 @@
 	</field>
 
 	<field>
+		<label></label>
 		<messages></messages>
 	</field>
 
@@ -84,8 +85,6 @@
 				value: "女"
 			}
 		]);
-
-		model.set("gender", "男");
 
 		model.action({
 			submit: function () {
