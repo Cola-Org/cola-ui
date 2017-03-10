@@ -1,5 +1,40 @@
 ## RELEASE NOTES
 
+### Version 1.0.6 - Mar 10, 2017
+
+**新增**
+- **SplitPanel控件** - 新增cola.SplitPanel 控件滑动分割面板
+- **SelectButton控件** - 新增cola.SelectButton 按钮模式选择器
+- **Core** - 新增cola.util.dictionary，主要支持，管理系统开发中的数据字典翻译功能
+
+**Bug 修复**
+- **Widget** - 修复ie11 下alt+tab 输入类控件失去值的问题
+- **DropDown** - 修复Dropdown在box布局下的兼容性问题
+- **DropDown** - 修正DropDown选择后做了不必要的post的BUG
+- **Carousel** - 修复carousel的小bug
+- **Core** - 改进Entity.get在处理深度path, 且包含多层懒装载的情况
+- **Core** - 修正xRender处理template时的一处逻辑BUG
+- **Core** - 修正自定义控件中item in ?@bindItems这样的绑定不生效的BUG
+- **Core** - 修正userData的改变引起c-repeat不正常的BUG
+
+
+**小改进**
+- **Core** - 改进DOM解析顺序
+- **Core** - 对绑定机制做了一次重构, 改善性能, 增强健壮性
+- **Core** - 为DataProvider提供response事件
+- **Widget** - 修正Table等列表总是显示所有页数据的BUG，添加currentPageOnly属性，默认值为false。实现翻页功能时需设置此属性为true
+- **Widget** - Dropdown和Table支持键盘操作
+- **Core** - 修正watch关键字冲突导致在firefox下报错的BUG
+- **Widget** - 重构Form表单控件，并field标签绑定数据
+- **Widget** - 重写并增强Form 表单布局管理器，放弃Semantic表单布局
+- **Core** - 添加名为show-on-ready的css class, 所有拥有此class的dom在cola初始化完成之前将不可见
+- **Widget** - 小重构cardbook
+- **Widget** - 为MessageBox添加max-width的css 
+- **Widget** - 改进SubView选择parentModel
+- **Widget** - 改进RadioGroup控件
+- **Widget** - stack 控件提供 touchable 属性
+- **Core** - 为EntityList添加empty()方法
+
 ### Version 0.9.8 - August 3, 2016
 
 **新增控件**
