@@ -4,20 +4,27 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 	get: (path, loadMode, context) ->
 		if path.charCodeAt(0) is 64 # `@`
-			return @widget.get(path.substring(1))
+			return @model.parent?.data.get(path.substring(1), loadMode, context)
 		else
-			return @model.parent?.data.get(path, loadMode, context)
+			return @widget.get(path)
 
 	set: (path, value) ->
 		if path.charCodeAt(0) is 64 # `@`
-			@widget.set(path.substring(1), value)
-			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+			@model.parent?.data.set(path.substring(1), value)
 		else
-			@model.parent?.data.set(path, value)
+			@widget.set(path, value)
+			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		return
 
+	_bind: (path, processor) ->
+		if path[0].charCodeAt(0) is 64 # `@`
+			@model.bindToParent(path)
+		return super(path, processor)
+
 	processMessage: (bindingPath, path, type, arg) ->
-		@onDataMessage(path, type, arg)
+		innerPath = path.slice(0)
+		innerPath[0] = "@" + innerPath[0]
+		@onDataMessage(innerPath, type, arg)
 
 		entity = arg.entity or arg.entityList
 		if entity
@@ -34,31 +41,32 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 					targetPath = value.getPath()
 					if targetPath?.length
 						relativePath = path.slice(targetPath.length)
-						@onDataMessage(["@" + attr].concat(relativePath), type, arg)
+						@onDataMessage([attr].concat(relativePath), type, arg)
 		return
 
 	getDataType: (path) ->
 		if path.charCodeAt(0) is 64 # `@`
-			return null
+			return @model.parent?.data.getDataType(path.substring(1))
 		else
-			return @model.parent?.data.getDataType(path)
+			return null
 
 	getProperty: (path) ->
 		if path.charCodeAt(0) is 64 # `@`
-			return null
+			return @model.parent?.data.getProperty(path.substring(1))
 		else
-			return @model.parent?.data.getDataType(path)
+			return null
 
 	flush: (name, loadMode) ->
-		if path.charCodeAt(0) isnt 64 # `@`
-			@model.parent?.data.getDataType(name, loadMode)
+		if path.charCodeAt(0) is 64 # `@`
+			@model.parent?.data.getDataType(name.substring(1), loadMode)
 		return @
 
 class cola.WidgetModel extends cola.SubScope
+	repeatNotification: true
+
 	constructor: (@widget, @parent) ->
 		widget = @widget
 		@data = new cola.WidgetDataModel(@, widget)
-		@parent?.data.bind("**", @)
 
 		@action = (name) ->
 			method = widget[name]
@@ -66,7 +74,32 @@ class cola.WidgetModel extends cola.SubScope
 				return () -> method.apply(widget, arguments)
 			return widget._scope.action(name)
 
-	repeatNotification: true
+	destroy: () ->
+		@unbindToParent()
+		return super()
+
+	bindToParent: (path) ->
+		return if @allPathBinded or not @parent
+
+		path = path.join(".").substring(1)
+		if path is "**"
+			@allPathBinded = true
+			@unbindToParent()
+			@parent.data.bind(path, @)
+			@pathMap = {path: true}
+		else
+			@pathMap ?= {}
+			if not @pathMap[path]
+				@pathMap[path] = true
+				@parent.data.bind(path, @)
+				@pathMap[path] = true
+		return
+
+	unbindToParent: () ->
+		return unless @parent and @pathMap
+		for path of @pathMap
+			@parent.data.unbind(path, @)
+		return
 
 	processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return

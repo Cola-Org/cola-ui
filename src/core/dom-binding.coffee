@@ -40,10 +40,10 @@ class cola._DomBinding
 		return
 
 	removeFeature: (feature) ->
-		_features = @features
-		if _features
-			i = _features.indexOf(feature)
-			_features.splice(i, 1) if i > -1
+		features = @features
+		if features
+			i = features.indexOf(feature)
+			features.splice(i, 1) if i > -1
 
 			@unbindFeature(feature) if not feature.ignoreBind
 		return

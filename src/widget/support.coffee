@@ -129,7 +129,7 @@ _compileWidgetAttribute = (scope, dom, context) ->
                 importNames = null
                 for p, v of config
                     importName = null
-                    if p.charCodeAt(0) == 35 # `#`
+                    if p.charCodeAt(0) == 64 # `@`
                         importName = p.substring(1)
                     else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
                         importName = v.substring(1)
@@ -324,7 +324,7 @@ _extendWidget = (superCls, definition) ->
 
         @on("attributeChange", (self, arg) =>
             attr = arg.attribute
-            @_widgetModel.data.onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
+            @_widgetModel.data.onDataMessage([attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
             value = @_get(attr)
             if value and (value instanceof cola.Entity or value instanceof cola.EntityList)
                 @_entityProps[attr] = value

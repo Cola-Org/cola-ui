@@ -133,7 +133,7 @@ cola.xRender = (template, model, context) ->
 	else if documentFragment
 		cola._renderDomTemplate(documentFragment, model, context)
 
-		if documentFragment.firstChild == documentFragment.lastChild
+		if documentFragment.firstChild is documentFragment.lastChild
 			dom = documentFragment.firstChild
 		else
 			dom = documentFragment

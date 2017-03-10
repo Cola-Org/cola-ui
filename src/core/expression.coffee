@@ -89,33 +89,6 @@ cola._compileExpression = (exprStr, specialType) ->
 
 	return exp
 
-splitExpression = (text, separator) ->
-	separatorCharCode = separator.charCodeAt(0)
-	parts = null
-	p = 0
-	i = 0
-	len = text.length
-	while i < len
-		c = text.charCodeAt(i)
-		if c is separatorCharCode && not quota
-			part = text.substring(p, i)
-			parts ?= []
-			parts.push(cola.util.trim(part))
-			p = i + 1
-		else
-			if c is 39 or c is 34    # `'` or `"`
-				if quota
-					if quota is c then quota = false
-				else
-					quota = c
-		i++
-
-	if p < len
-		part = text.substring(p)
-		parts ?= []
-		parts.push(cola.util.trim(part))
-	return parts
-
 class cola.Expression
 	#paths
 	#hasCallStatement
@@ -140,9 +113,6 @@ class cola.Expression
 		if fc is 61 # `=`
 			exprStr = exprStr.substring(1)
 			@isStatic = true
-		else if fc is 63 # `?`
-			exprStr = exprStr.substring(1)
-			@isDyna = true
 
 		@compile(exprStr)
 		@paths = watchPaths if watchPaths
@@ -163,7 +133,16 @@ class cola.Expression
 							parts.push(".")
 							parts.push(node.property.name)
 					else
-						pathParts.push(node.name)
+						if node.name.charCodeAt(0) is 64 # `@`
+							context.isDyna = true
+
+							dynaPathAlias = cola.uniqueId()
+							context.dynaPathMap ?= {}
+							context.dynaPathMap[dynaPathAlias] = node.name.substring(1)
+
+							pathParts.push("@{" + node.name + "}")
+						else
+							pathParts.push(node.name)
 
 				when "CallExpression"
 					context.hasCallStatement = true
@@ -240,17 +219,38 @@ class cola.Expression
 		@script = parts.join("")
 		return
 
-	evaluate: (scope, loadMode, dataCtx)  ->
-		if @isDyna and not dataCtx?.ignoreDynaExpression
-			retValue = eval(@script)
-			if typeof retValue is "string"
-				expression = cola._compileExpression(retValue)
-				dataCtx?.dynaExpression = expression
-		else
-			expression = @
+	determineDynaPaths: (scope, context) ->
+		context.dynaPaths = []
 
-		if expression.writeable
-			pathInfo = expression.getParentPathInfo()
+		replaceMap = {}
+		dynaPathHash = []
+		script = @script
+		for pathAlias, path of @dynaPathMap
+			context.dynaPaths.push(path)
+			realPath = "@" + _getData(scope, path, "never", context)
+			placeholder = "@{" + pathAlias + "}"
+			replaceMap[placeholder] = realPath
+			dynaPathHash.push(realPath)
+			script = script.replace(placeholder, realPath)
+		@dynaScript = script
+		@dynaPathHash = dynaPathHash.join(",")
+
+		for path in @paths
+			for placeholder, realPath of replaceMap
+				path = path.replace(placeholder, realPath)
+			context.dynaPaths.push(path)
+		return script
+
+	evaluate: (scope, loadMode, dataCtx)  ->
+		script = @script
+		if @dynaPathMap
+			if @dynaScript and dataCtx?.dynaExpressionOnly
+				script = @dynaScript
+			else
+				script = @determineDynaPaths(scope, dataCtx)
+
+		if @writeable
+			pathInfo = @getParentPathInfo()
 			if pathInfo.parentPath
 				parent = scope.get(pathInfo.parentPath, loadMode, dataCtx)
 
@@ -265,12 +265,12 @@ class cola.Expression
 				else if parent instanceof cola.Entity
 					dataCtx?.closetEntity = parent
 			else
-				retValue = eval(expression.script)
+				retValue = eval(script)
 
 				if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
 					dataCtx?.closetEntity = retValue
 		else
-			retValue = eval(expression.script)
+			retValue = eval(script)
 
 			if retValue instanceof cola.Chain
 				retValue = retValue._data

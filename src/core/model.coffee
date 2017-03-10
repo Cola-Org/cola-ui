@@ -171,7 +171,7 @@ class cola.SubScope extends cola.Scope
 	watchPath: (path) ->
 		return if @_watchAllMessages or @_watchPath is path
 
-		@_unwatchPath()
+		@unwatchPath()
 
 		if path
 			@_watchPath = paths = []
@@ -189,7 +189,7 @@ class cola.SubScope extends cola.Scope
 			delete @_watchPath
 		return
 
-	_unwatchPath: () ->
+	unwatchPath: () ->
 		return unless @_watchPath
 		path = @_watchPath
 		delete @_watchPath
@@ -205,7 +205,7 @@ class cola.SubScope extends cola.Scope
 	watchAllMessages: () ->
 		return if @_watchAllMessages
 		@_watchAllMessages = true
-		@_unwatchPath()
+		@unwatchPath()
 		parent = @parent
 		if parent
 			@_watchPath = ["**"]
@@ -214,14 +214,14 @@ class cola.SubScope extends cola.Scope
 		return
 
 	destroy: () ->
-		if @parent then @_unwatchPath()
+		if @parent then @unwatchPath()
 		return
 
 
 class cola.ExpressionScope extends cola.SubScope
 	repeatNotification: true
 
-	_unwatchPath: () ->
+	unwatchPath: () ->
 		super()
 		if @parent and @expressionDynaPaths
 			for path in @expressionDynaPaths
@@ -242,7 +242,7 @@ class cola.ExpressionScope extends cola.SubScope
 			else
 				@watchPath(expression.paths)
 		else
-			@_unwatchPath()
+			@unwatchPath()
 		return
 
 	evaluate: (scope, dynaExpressionOnly, loadMode = "async", dataCtx = {}) ->
@@ -393,7 +393,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 		@setExpression(expression)
 
 	setParent: (parent) ->
-		if @parent then @_unwatchPath()
+		if @parent then @unwatchPath()
 
 		@parent = parent
 		@data = parent.data
@@ -803,7 +803,7 @@ class cola.AbstractDataModel
 			for part in path
 				subNode = node[part]
 				if not subNode?
-					nodePath = if !node.__path then part else (node.__path + "." + part)
+					nodePath = if not node.__path then part else (node.__path + "." + part)
 					node[part] = subNode =
 						__path: nodePath
 						__processorMap: {}
@@ -986,7 +986,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		if not name
 			throw new cola.Exception("Attribute \"name\" cannot be emtpy.")
 
-		if definition._scope and definition._scope != @model
+		if definition._scope and definition._scope isnt @model
 			throw new cola.Exception("DataType(#{definition._name}) is already belongs to anthor Model.")
 
 		store = @_definitionStore
@@ -1288,7 +1288,7 @@ class cola.ElementAttrBinding
 		else
 			result = @expression.evaluate(@scope, loadMode, dataCtx)
 
-			if @expression.isDyna and dataCtx?.dynaExpression
+			if @expression.isDyna and dataCtx.dynaExpression
 				dynaExpression = dataCtx.dynaExpression
 				if dynaExpression.raw isnt @dynaExpressionStr
 					@dynaExpressionStr = dynaExpression.raw

@@ -16,36 +16,35 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				if not @isStatic then @delay = true
 				@watchingMoreMessage = not @expression.hasDefinedPath
 
+	bindDynaPaths: (context) ->
+		if context.dynaPaths and context.dynaPathHash isnt @dynaPathHash
+			@dynaPathHash = context.dynaPathHash
+			if @paths
+				for path in @paths
+					domBinding.unbind(path, @)
+
+			@paths = context.dynaPaths.slice(0)
+			for path in @paths
+				domBinding.bind(path, @)
+		return
+
+	refreshDynaPaths: (context = {}) ->
+		@expression.determineDynaPaths(domBinding.scope, context)
+		@bindDynaPaths(context)
+		return
+
 	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode = "async") ->
 		scope = domBinding.scope
 
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
 
-		if dynaExpressionOnly and @dynaExpression
-			result = @dynaExpression.evaluate(scope, loadMode, dataCtx)
-		else
-			result = @expression.evaluate(scope, loadMode, dataCtx)
+		oldDynaExpressionOnly = dataCtx.dynaExpressionOnly
+		dataCtx.dynaExpressionOnly = dynaExpressionOnly
+		result = @expression.evaluate(scope, loadMode, dataCtx)
+		dataCtx.dynaExpressionOnly = oldDynaExpressionOnly
 
-			if @isDyna and dataCtx.dynaExpression
-				@dynaExpression = dataCtx.dynaExpression
-				if @dynaExpression.raw isnt @dynaExpressionStr
-					@dynaExpressionStr = @dynaExpression.raw
-
-				if not @ignoreBind
-					if @dynaPaths
-						for path in @dynaPaths
-							domBinding.unbind(path, @)
-
-					paths = @dynaExpression.paths
-					if paths
-						for path in paths
-							if @paths.indexOf(path) < 0
-								if not @dynaPaths
-									@dynaPaths = [path]
-								else
-									@dynaPaths.push(path)
-								domBinding.bind(path, @)
+		@bindDynaPaths(dataCtx)
 		return result
 
 	refresh: (domBinding, force, dynaExpressionOnly, dataCtx = {}) ->
@@ -177,10 +176,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return
 
 	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
-		if @isDyna and not dynaExpressionOnly
-			@evaluate(domBinding, dynaExpressionOnly, dataCtx)
-			domBinding.scope.setExpression(@dynaExpression)
-
 		domBinding.scope.retrieveData()
 		domBinding.scope.refreshItems()
 		return
@@ -314,12 +309,48 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return currentDom or dom
 
 class cola._WatchFeature extends cola._BindingFeature
-	constructor: (@action, @paths) ->
+	constructor: (@action, paths) ->
+		@normalPaths = []
+		@basePaths = []
+		for path in paths
+			if typeof path is "string"
+				path = path.split(".")
+
+			firstPart = path[0]
+			if firstPart.charCodeAt(0) is 64 # `@`
+				dynaPart = firstPart.substring(1)
+				@basePaths.push(dynaPart)
+				@normalPaths.push(path)
+				@dynaPathMap ?= {}
+				@dynaPathMap[dynaPart] = path
+			else
+				@basePaths.push(path)
+				@normalPaths.push(path)
+
+		@paths = @basePaths.slice(0)
 		@watchingMoreMessage = true
 
-	processMessage: (domBinding, bindingPath)->
-		if not @isDyna or @dynaPaths?.indexOf(bindingPath) >= 0
-			@refresh(domBinding)
+	processMessage: (domBinding, bindingPath) ->
+		if @dynaPathMap?[bindingPath]
+			paths = @basePaths.slice(0)
+			dynaPathHash = []
+			for dynaPart, path of @dynaPathMap
+				realPath = "@" + _getData(domBinding.scope, path, "never", context)
+				dynaPathHash.push(realPath)
+				path[0] = realPath
+				paths.push(path)
+
+			dynaPathHash = dynaPathHash.join(",")
+			if dynaPathHash isnt @dynaPathHash
+				@dynaPathHash = dynaPathHash
+				if @paths
+					for path in @paths
+						domBinding.unbind(path, @)
+				@paths = paths
+				for path in @paths
+					domBinding.bind(path, @)
+
+		@refresh(domBinding)
 		return
 
 	refresh: (domBinding) ->
@@ -380,9 +411,9 @@ class cola._DomAttrFeature extends cola._DomFeature
 				value = cola.defaultAction.formatDate(value, defaultDateFormat)
 
 		attr = @attr
-		if attr == "text"
+		if attr is "text"
 			cola.util.setText(domBinding.dom, if value? then value else "")
-		else if attr == "html"
+		else if attr is "html"
 			domBinding.$dom.html(if value? then value else "")
 		else
 			domBinding.$dom.attr(attr, if value? then value else "")
