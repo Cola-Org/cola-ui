@@ -6907,7 +6907,7 @@
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, i, items, parent, processMoreMessage, ref;
       if (type === cola.constants.MESSAGE_REFRESH) {
-        if (arg.originType === cola.constants.MESSAGE_CURRENT_CHANGE) {
+        if (arg.originType === cola.constants.MESSAGE_CURRENT_CHANGE && (arg.entityList === this.items || this.isOriginItems(arg.entityList))) {
           if (typeof this.onCurrentItemChange === "function") {
             this.onCurrentItemChange(arg);
           }
@@ -11280,6 +11280,16 @@
         defaultPath = scope.data.alias;
       }
     }
+    if (initializers) {
+      if (context.inRepeatTemplate || bindingType === "repeat") {
+        cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers);
+      } else {
+        for (y = 0, len6 = initializers.length; y < len6; y++) {
+          initializer = initializers[y];
+          initializer(scope, dom);
+        }
+      }
+    }
     if (!cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN)) {
       childContext = {};
       for (k in context) {
@@ -11297,16 +11307,6 @@
       }
     } else {
       cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN);
-    }
-    if (initializers) {
-      if (context.inRepeatTemplate || bindingType === "repeat") {
-        cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers);
-      } else {
-        for (y = 0, len6 = initializers.length; y < len6; y++) {
-          initializer = initializers[y];
-          initializer(scope, dom);
-        }
-      }
     }
     if (features != null ? features.length : void 0) {
       if (!context.inRepeatTemplate) {
@@ -12718,6 +12718,11 @@
       },
       width: {
         refreshDom: true
+      },
+      focusable: {
+        type: "boolean",
+        refreshDom: true,
+        defaultValue: false
       }
     };
 
