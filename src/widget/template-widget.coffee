@@ -56,13 +56,11 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		if path isnt oldPath?.join(".")
 			if oldPath
 				@model.unwatchPath(oldPath)
-				console.log(" - " + oldPath)
 
 			@dynaPropertyPathMap[property] = if path then path.split(".") else null
 
 			if path
 				@model.watchPath(path)
-				console.log(" + " + path)
 		return path
 
 	processMessage: (bindingPath, path, type, arg) ->
