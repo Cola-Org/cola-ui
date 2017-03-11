@@ -49,19 +49,20 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 		return super(path, processor)
 
-	_transferDynaProperty: (property, force = true) -> # TODO: force待优化
-		if not @dynaPropertyPathMap.hasOwnProperty(property) or force
-			path = @dynaPropertyPathMap[property]
-			if path
-				@model.unwatchPath(path)
+	_transferDynaProperty: (property) ->
+		oldPath = @dynaPropertyPathMap[property]
+		path = @widget.get(property)
 
-			path = @widget.get(property)
+		if path isnt oldPath?.join(".")
+			if oldPath
+				@model.unwatchPath(oldPath)
+				console.log(" - " + oldPath)
+
 			@dynaPropertyPathMap[property] = if path then path.split(".") else null
 
 			if path
 				@model.watchPath(path)
-		else
-			path = @dynaPropertyPathMap[property]
+				console.log(" + " + path)
 		return path
 
 	processMessage: (bindingPath, path, type, arg) ->
@@ -83,8 +84,8 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 				if isParentPath(dynaPath, path)
 					if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
 						type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
-							@_transferDynaProperty(property, true)
-							@onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, {})
+							@_transferDynaProperty(property)
+							@onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, arg)
 				else if isParentPath(path, dynaPath)
 					relativePath = path.slice(dynaPath.length)
 					@onDataMessage(["@" + property].concat(relativePath), type, arg)
