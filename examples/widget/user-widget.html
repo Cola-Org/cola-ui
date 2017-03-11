@@ -20,20 +20,20 @@
 				content: [
 					{
 						tagName: "c-button",
-						"c-caption": "getButtonCaption(@text)",
+						"c-caption": "@bind",
 						"c-click": "testAction()"
 					},
+//					{
+//						tagName: "input",
+//						"c-bind": "text"
+//					},
 					{
 						tagName: "input",
-						"c-bind": "@text"
-					},
-					{
-						tagName: "input",
-						"c-bind": "?@bind"
+						"c-bind": "@bind"
 					},
 					{
 						tagName: "c-listview",
-						"c-bind": "?@itemsBind+'s'",
+						"c-bind": "@itemsBind",
 						textProperty: "city"
 					}
 				]
@@ -69,7 +69,7 @@
 					click: function() {
 						var myWidget = new MyWidget({
 							bind: "prop",
-							itemsBind: "addresse"
+							itemsBind: "addresses"
 						});
 						myWidget.appendTo(document.body);
 
@@ -83,22 +83,22 @@
 <body style="padding:20px;">
 
 <c-button id="buttonTest"></c-button>
-<input c-bind="prop">
+<!--<input c-bind="prop">-->
 <c-input bind="prop"></c-input>
-<c-label c-text="prop"></c-label>
+<!--<c-label c-text="prop"></c-label>-->
 
-<my-widget bind="prop" itemsBind="addresse" text="1"></my-widget>
-<my-widget bind="prop" itemsBind="addresse" text="2"></my-widget>
+<my-widget bind="prop" itemsBind="addresses" text="1"></my-widget>
+<!--<my-widget bind="prop" itemsBind="addresses" text="2"></my-widget>-->
 
-<c-button icon="search" c-click="buttonClick()">Button</c-button>
+<!--<c-button icon="search" c-click="buttonClick()">Button</c-button>-->
 
-<c-menu>
-	<a caption="Home" icon="home"></a>
-	<a caption="Search" icon="search"></a>
-	<div class="right menu">
-		<a caption="User" icon="user"></a>
-	</div>
-</c-menu>
+<!--<c-menu>-->
+	<!--<a caption="Home" icon="home"></a>-->
+	<!--<a caption="Search" icon="search"></a>-->
+	<!--<div class="right menu">-->
+		<!--<a caption="User" icon="user"></a>-->
+	<!--</div>-->
+<!--</c-menu>-->
 
 </body>
 </html>

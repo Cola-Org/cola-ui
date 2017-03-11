@@ -133,16 +133,7 @@ class cola.Expression
 							parts.push(".")
 							parts.push(node.property.name)
 					else
-						if node.name.charCodeAt(0) is 64 # `@`
-							context.isDyna = true
-
-							dynaPathAlias = cola.uniqueId()
-							context.dynaPathMap ?= {}
-							context.dynaPathMap[dynaPathAlias] = node.name.substring(1)
-
-							pathParts.push("@{" + node.name + "}")
-						else
-							pathParts.push(node.name)
+						pathParts.push(node.name)
 
 				when "CallExpression"
 					context.hasCallStatement = true
@@ -197,6 +188,11 @@ class cola.Expression
 					parts.push("]")
 
 			if close and pathParts.length
+				if pathParts[0].charCodeAt(0) is 64 # `@`
+					context.isDyna = true
+					context.dynaPathMap ?= {}
+					context.dynaPathMap[pathParts[0].substring(1)] = pathParts.slice(0)
+
 				path = pathParts.join(".")
 				if not context.paths
 					context.paths = [path]
@@ -219,61 +215,18 @@ class cola.Expression
 		@script = parts.join("")
 		return
 
-	determineDynaPaths: (scope, context) ->
-		context.dynaPaths = []
-
-		replaceMap = {}
-		dynaPathHash = []
-		script = @script
-		for pathAlias, path of @dynaPathMap
-			context.dynaPaths.push(path)
-			realPath = "@" + _getData(scope, path, "never", context)
-			placeholder = "@{" + pathAlias + "}"
-			replaceMap[placeholder] = realPath
-			dynaPathHash.push(realPath)
-			script = script.replace(placeholder, realPath)
-		@dynaScript = script
-		@dynaPathHash = dynaPathHash.join(",")
-
-		for path in @paths
-			for placeholder, realPath of replaceMap
-				path = path.replace(placeholder, realPath)
-			context.dynaPaths.push(path)
-		return script
-
 	evaluate: (scope, loadMode, dataCtx)  ->
-		script = @script
 		if @dynaPathMap
-			if @dynaScript and dataCtx?.dynaExpressionOnly
-				script = @dynaScript
-			else
-				script = @determineDynaPaths(scope, dataCtx)
+			@pathReplacement = {}
+			for dynaPath, path of @dynaPathMap
+				originPath = path.join(".")
+				path[0] = "@" + _getData(scope, dynaPath, "never", dataCtx)
+				@pathReplacement[originPath] = path.join(".")
 
-		if @writeable
-			pathInfo = @getParentPathInfo()
-			if pathInfo.parentPath
-				parent = scope.get(pathInfo.parentPath, loadMode, dataCtx)
+		retValue = eval(@script)
 
-				if parent instanceof cola.EntityList
-					parent = parent.current
-
-				if parent and typeof parent is "object"
-					retValue = cola.Entity._evalDataPath(parent, pathInfo.property, false, loadMode, null, dataCtx)
-
-				if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
-					dataCtx?.closetEntity = retValue
-				else if parent instanceof cola.Entity
-					dataCtx?.closetEntity = parent
-			else
-				retValue = eval(script)
-
-				if retValue instanceof cola.Entity or retValue instanceof cola.EntityList
-					dataCtx?.closetEntity = retValue
-		else
-			retValue = eval(script)
-
-			if retValue instanceof cola.Chain
-				retValue = retValue._data
+		if retValue instanceof cola.Chain
+			retValue = retValue._data
 		return retValue
 
 	getParentPathInfo: () ->
@@ -295,6 +248,9 @@ class cola.Expression
 		return @raw
 
 _getData = (scope, path, loadMode, dataCtx)  ->
+	if @pathReplacement
+		path = @pathReplacement[path] or path
+
 	retValue = scope.get(path, loadMode, dataCtx)
 	if retValue is undefined and dataCtx?.vars
 		retValue = dataCtx.vars[path]

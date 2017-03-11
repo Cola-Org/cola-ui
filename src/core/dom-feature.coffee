@@ -9,55 +9,31 @@ class cola._ExpressionFeature extends cola._BindingFeature
 	constructor: (@expression) ->
 		if @expression
 			@isStatic = @expression.isStatic
-			@isDyna = @expression.isDyna
 			@paths = @expression.paths or []
 			if not @paths.length and @expression.hasCallStatement
 				@paths = ["**"]
 				if not @isStatic then @delay = true
 				@watchingMoreMessage = not @expression.hasDefinedPath
 
-	bindDynaPaths: (context) ->
-		if context.dynaPaths and context.dynaPathHash isnt @dynaPathHash
-			@dynaPathHash = context.dynaPathHash
-			if @paths
-				for path in @paths
-					domBinding.unbind(path, @)
-
-			@paths = context.dynaPaths.slice(0)
-			for path in @paths
-				domBinding.bind(path, @)
-		return
-
-	refreshDynaPaths: (context = {}) ->
-		@expression.determineDynaPaths(domBinding.scope, context)
-		@bindDynaPaths(context)
-		return
-
-	evaluate: (domBinding, dynaExpressionOnly, dataCtx = {}, loadMode = "async") ->
+	evaluate: (domBinding, dataCtx = {}, loadMode = "async") ->
 		scope = domBinding.scope
 
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
 
-		oldDynaExpressionOnly = dataCtx.dynaExpressionOnly
-		dataCtx.dynaExpressionOnly = dynaExpressionOnly
-		result = @expression.evaluate(scope, loadMode, dataCtx)
-		dataCtx.dynaExpressionOnly = oldDynaExpressionOnly
+		return @expression.evaluate(scope, loadMode, dataCtx)
 
-		@bindDynaPaths(dataCtx)
-		return result
-
-	refresh: (domBinding, force, dynaExpressionOnly, dataCtx = {}) ->
+	refresh: (domBinding, force, dataCtx = {}) ->
 		return unless @_refresh
 		if @delay and not force
 			cola.util.delay(domBinding, "refresh", 100, () =>
-				@_refresh(domBinding, dynaExpressionOnly, dataCtx)
+				@_refresh(domBinding, dataCtx)
 				if @isStatic and not dataCtx.unloaded
 					@disabled = true
 				return
 			)
 		else
-			@_refresh(domBinding, dynaExpressionOnly, dataCtx)
+			@_refresh(domBinding, dataCtx)
 			if @isStatic and not dataCtx.unloaded
 				@disabled = true
 		return
@@ -74,8 +50,8 @@ class cola._AliasFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
-		data = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
+	_refresh: (domBinding, dataCtx)->
+		data = @evaluate(domBinding, dataCtx)
 		domBinding.scope.data.setTargetData(data)
 		return
 
@@ -87,7 +63,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		@alias = expression.alias
 
 	init: (domBinding) ->
-		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, if @isDyna then null else @expression)
+		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
 
 		scope.onItemsRefresh = () =>
 			@onItemsRefresh(domBinding)
@@ -175,7 +151,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_refresh: (domBinding, dynaExpressionOnly, dataCtx) ->
+	_refresh: (domBinding, dataCtx) ->
 		domBinding.scope.retrieveData()
 		domBinding.scope.refreshItems()
 		return
@@ -309,47 +285,10 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return currentDom or dom
 
 class cola._WatchFeature extends cola._BindingFeature
-	constructor: (@action, paths) ->
-		@normalPaths = []
-		@basePaths = []
-		for path in paths
-			if typeof path is "string"
-				path = path.split(".")
-
-			firstPart = path[0]
-			if firstPart.charCodeAt(0) is 64 # `@`
-				dynaPart = firstPart.substring(1)
-				@basePaths.push(dynaPart)
-				@normalPaths.push(path)
-				@dynaPathMap ?= {}
-				@dynaPathMap[dynaPart] = path
-			else
-				@basePaths.push(path)
-				@normalPaths.push(path)
-
-		@paths = @basePaths.slice(0)
+	constructor: (@action, @paths) ->
 		@watchingMoreMessage = true
 
 	processMessage: (domBinding, bindingPath) ->
-		if @dynaPathMap?[bindingPath]
-			paths = @basePaths.slice(0)
-			dynaPathHash = []
-			for dynaPart, path of @dynaPathMap
-				realPath = "@" + _getData(domBinding.scope, path, "never", context)
-				dynaPathHash.push(realPath)
-				path[0] = realPath
-				paths.push(path)
-
-			dynaPathHash = dynaPathHash.join(",")
-			if dynaPathHash isnt @dynaPathHash
-				@dynaPathHash = dynaPathHash
-				if @paths
-					for path in @paths
-						domBinding.unbind(path, @)
-				@paths = paths
-				for path in @paths
-					domBinding.bind(path, @)
-
 		@refresh(domBinding)
 		return
 
@@ -370,7 +309,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
 			try
-				return @evaluate(domBinding, false, {
+				return @evaluate(domBinding, {
 					vars:
 						$event: evt
 				}, "never")
@@ -382,7 +321,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
 		return unless @expression?.writeable
-		paths = if @isDyna then @dynaPaths else @paths
+		paths = @paths
 		if paths and paths.length is 1
 			@ignoreMessage = true
 			domBinding.scope.set(paths[0], value)
@@ -391,12 +330,12 @@ class cola._DomFeature extends cola._ExpressionFeature
 
 	processMessage: (domBinding, bindingPath, path, type, arg)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(domBinding, false, @dynaPaths?.indexOf(bindingPath) >= 0)
+			@refresh(domBinding, false)
 		return
 
-	_refresh: (domBinding, dynaExpressionOnly, dataCtx)->
+	_refresh: (domBinding, dataCtx)->
 		return if @ignoreMessage
-		value = @evaluate(domBinding, dynaExpressionOnly, dataCtx)
+		value = @evaluate(domBinding, dataCtx)
 		@_doRender(domBinding, value)
 		return
 

@@ -171,8 +171,6 @@ class cola.SubScope extends cola.Scope
 	watchPath: (path) ->
 		return if @_watchAllMessages or @_watchPath is path
 
-		@unwatchPath()
-
 		if path
 			@_watchPath = paths = []
 			parent = @parent
@@ -221,13 +219,6 @@ class cola.SubScope extends cola.Scope
 class cola.ExpressionScope extends cola.SubScope
 	repeatNotification: true
 
-	unwatchPath: () ->
-		super()
-		if @parent and @expressionDynaPaths
-			for path in @expressionDynaPaths
-				@parent.data.unbind(path, @)
-		return
-
 	setExpression: (expression) ->
 		@expression = expression
 		@expressionPaths ?= []
@@ -245,42 +236,13 @@ class cola.ExpressionScope extends cola.SubScope
 			@unwatchPath()
 		return
 
-	evaluate: (scope, dynaExpressionOnly, loadMode = "async", dataCtx = {}) ->
-		return unless @expression
-
-		if dynaExpressionOnly and @dynaExpression
-			result = @dynaExpression.evaluate(scope, loadMode, dataCtx)
-		else
-			result = @expression.evaluate(scope, loadMode, dataCtx)
-
-			if @expression.isDyna and dataCtx.dynaExpression
-				@dynaExpression = dataCtx.dynaExpression
-				if @dynaExpression.raw isnt @dynaExpressionStr
-					@dynaExpressionStr = @dynaExpression.raw
-
-				if @parent and not @ignoreBind
-					if @expressionDynaPaths
-						for path in @expressionDynaPaths
-							@parent.data.unbind(path, @)
-						delete @expressionDynaPaths
-
-					paths = @expression.paths
-					dynaPaths = @dynaExpression.paths
-					if dynaPaths
-						for path in dynaPaths
-							if not paths or paths.indexOf(path) < 0
-								if not @expressionDynaPaths
-									@expressionDynaPaths = [path]
-								else
-									@expressionDynaPaths.push(path)
-								@parent.data.bind(path, @)
-		return result
+	evaluate: (scope, loadMode = "async", dataCtx = {}) ->
+		return @expression?.evaluate(scope, loadMode, dataCtx)
 
 	isParentOfTarget: (changedPath) ->
 		expressionPaths = @expressionPaths
-		expressionDynaPaths = @expressionDynaPaths
 
-		if not expressionPaths.length and not expressionDynaPaths then return false
+		if not expressionPaths.length then return false
 		if not changedPath then return true
 
 		if expressionPaths.length
@@ -295,22 +257,8 @@ class cola.ExpressionScope extends cola.SubScope
 						isParent = false
 						break
 
-				if isParent then return 2
-
-		if expressionDynaPaths
-			for targetPath in expressionDynaPaths
-				isParent = true
-				for part, i in changedPath
-					targetPart = targetPath[i].split(".")
-					if part isnt targetPart
-						if targetPart is "**" then continue
-						else if targetPart is "*"
-							if i is changedPath.length - 1 then continue
-						isParent = false
-						break
-
-				if isParent then return 1
-		return 0
+				if isParent then return true
+		return false
 
 class cola.AliasScope extends cola.ExpressionScope
 
@@ -334,10 +282,10 @@ class cola.AliasScope extends cola.ExpressionScope
 		@data.setTargetData(data)
 		return
 
-	retrieveData: (dynaExpressionOnly) ->
+	retrieveData: () ->
 		cola.util.cancelDelay(@, "retrieve")
 
-		data = @evaluate(@, dynaExpressionOnly)
+		data = @evaluate(@, )
 		@setTargetData(data)
 		return
 
@@ -414,13 +362,13 @@ class cola.ItemsScope extends cola.ExpressionScope
 		@_setItems(items)
 		return
 
-	retrieveData: (dynaExpressionOnly) ->
+	retrieveData: () ->
 		cola.util.cancelDelay(@, "retrieve")
 
 		if @_retrieveItems
-			@_retrieveItems(dynaExpressionOnly)
+			@_retrieveItems()
 		else if @expression
-			items = @evaluate(@parent, dynaExpressionOnly)
+			items = @evaluate(@parent)
 			@setItems(items)
 		return
 
@@ -528,9 +476,8 @@ class cola.ItemsScope extends cola.ExpressionScope
 
 	isWatchPathPreciseMatch: (changedPath) ->
 		expressionPaths = @expressionPaths
-		expressionDynaPaths = @expressionDynaPaths
 
-		if not expressionPaths.length and not expressionDynaPaths then return false
+		if not expressionPaths.length then return false
 		if not changedPath then return true
 
 		if expressionPaths.length - changedPath.length < 2
@@ -547,24 +494,8 @@ class cola.ItemsScope extends cola.ExpressionScope
 					if targetPart isnt "*" or targetPart isnt "**"
 						isMatch = false
 
-				if isMatch then return 2
-
-		if expressionDynaPaths and expressionDynaPaths.length - changedPath.length < 2
-			for targetPath in expressionDynaPaths
-				isMatch = true
-				for part, i in changedPath
-					targetPart = targetPath[i]
-					if part isnt targetPart
-						isMatch = false
-						break
-
-				if isMatch and expressionDynaPaths.length > changedPath.length
-					targetPart = expressionDynaPaths[expressionDynaPaths.length - 1]
-					if targetPart isnt "*" or targetPart isnt "**"
-						isMatch = false
-
-				if isMatch then return 2
-		return 0
+				if isMatch then return true
+		return false
 
 	_processMessage: (bindingPath, path, type, arg)->
 		if type is cola.constants.MESSAGE_REFRESH
@@ -1278,39 +1209,14 @@ class cola.ElementAttrBinding
 
 	processMessage: (bindingPath, path, type)->
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
-			@refresh(@dynaPaths?.indexOf(bindingPath) >= 0)
+			@refresh()
 		return
 
-	evaluate: (dynaExpressionOnly, dataCtx) ->
-		loadMode = "async"
-		if dynaExpressionOnly and @dynaExpression
-			result = @dynaExpression.evaluate(@scope, loadMode, dataCtx)
-		else
-			result = @expression.evaluate(@scope, loadMode, dataCtx)
+	evaluate: (dataCtx) ->
+		return @expression.evaluate(@scope, "async", dataCtx)
 
-			if @expression.isDyna and dataCtx.dynaExpression
-				dynaExpression = dataCtx.dynaExpression
-				if dynaExpression.raw isnt @dynaExpressionStr
-					@dynaExpressionStr = dynaExpression.raw
-
-				if not @ignoreBind
-					if @dynaPaths
-						for path in @dynaPaths
-							@scope.data.unbind(path, @)
-
-					paths = @dynaExpression.paths
-					if paths
-						for path in paths
-							if @paths.indexOf(path) < 0
-								if not @dynaPaths
-									@dynaPaths = [path]
-								else
-									@dynaPaths.push(path)
-								@scope.data.bind(path, @)
-		return result
-
-	_refresh: (dynaExpressionOnly) ->
-		value = @evaluate(dynaExpressionOnly)
+	_refresh: () ->
+		value = @evaluate()
 		element = @element
 		element._duringBindingRefresh = true
 		try
@@ -1319,15 +1225,15 @@ class cola.ElementAttrBinding
 			element._duringBindingRefresh = false
 		return
 
-	refresh: (dynaExpressionOnly) ->
+	refresh: () ->
 		return unless @_refresh
 		if @delay
 			cola.util.delay(@, "refresh", 100, () ->
-				@_refresh(dynaExpressionOnly)
+				@_refresh()
 				return
 			)
 		else
-			@_refresh(dynaExpressionOnly)
+			@_refresh()
 		return
 
 cola.submit = (options, callback) ->

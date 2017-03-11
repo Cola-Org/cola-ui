@@ -2,15 +2,23 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 	constructor: (model, @widget) ->
 		super(model)
 
+	_getRealPath: (dynaPath) ->
+		index = dynaPath.indexOf(".")
+		if index > 1
+			realPath = @_transferDynaProperty(dynaPath.substring(1, index)) + dynaPath.substring(index)
+		else
+			realPath = @_transferDynaProperty(dynaPath.substring(1))
+		return realPath
+
 	get: (path, loadMode, context) ->
 		if path.charCodeAt(0) is 64 # `@`
-			return @model.parent?.data.get(path.substring(1), loadMode, context)
+			return @model.parent?.data.get(@_getRealPath(path), loadMode, context)
 		else
 			return @widget.get(path)
 
 	set: (path, value) ->
 		if path.charCodeAt(0) is 64 # `@`
-			@model.parent?.data.set(path.substring(1), value)
+			@model.parent?.data.set(@_getRealPath(path), value)
 		else
 			@widget.set(path, value)
 			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
@@ -18,30 +26,68 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 	_bind: (path, processor) ->
 		if path[0].charCodeAt(0) is 64 # `@`
-			@model.bindToParent(path)
+			property = path[0].substring(1)
+			if not @dynaPropertyMap
+				@dynaPropertyMap = {}
+				@dynaPropertyPathMap = {}
+
+			if @dynaPropertyMap[property]
+				@dynaPropertyMap[property] = @dynaPropertyMap[property] + 1
+			else
+				@dynaPropertyMap[property] = 1
+
 		return super(path, processor)
 
+	_unbind: (path, processor) ->
+		if @dynaPropertyMap and path[0].charCodeAt(0) is 64 # `@`
+			property = path[0].substring(1)
+			if @dynaPropertyMap[property] > 1
+				@dynaPropertyMap[property] = @dynaPropertyMap[property] - 1
+			else
+				delete @dynaPropertyMap[property]
+				delete @dynaPropertyPathMap[property]
+
+		return super(path, processor)
+
+	_transferDynaProperty: (property, force = true) -> # TODO: force待优化
+		if not @dynaPropertyPathMap.hasOwnProperty(property) or force
+			path = @dynaPropertyPathMap[property]
+			if path
+				@model.unwatchPath(path)
+
+			path = @widget.get(property)
+			@dynaPropertyPathMap[property] = if path then path.split(".") else null
+
+			if path
+				@model.watchPath(path)
+		else
+			path = @dynaPropertyPathMap[property]
+		return path
+
 	processMessage: (bindingPath, path, type, arg) ->
-		innerPath = path.slice(0)
-		innerPath[0] = "@" + innerPath[0]
-		@onDataMessage(innerPath, type, arg)
 
-		entity = arg.entity or arg.entityList
-		if entity
-			for attr, value of @widget._entityProps
-				isParent = false
-				e = entity
-				while e
-					if e is value
-						isParent = true
-						break
-					e = e.parent
+		isParentPath = (targetPath, parentPath) ->
+			isParent = true
+			for part, i in parentPath
+				targetPart = targetPath[i]
+				if part isnt targetPart
+					if targetPart is "**" then continue
+					else if targetPart is "*"
+						if i is parentPath.length - 1 then continue
+					isParent = false
+					break
+			return isParent
 
-				if isParent
-					targetPath = value.getPath()
-					if targetPath?.length
-						relativePath = path.slice(targetPath.length)
-						@onDataMessage([attr].concat(relativePath), type, arg)
+		if @dynaPropertyPathMap
+			for property, dynaPath of @dynaPropertyPathMap
+				if isParentPath(dynaPath, path)
+					if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
+						type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+							@_transferDynaProperty(property, true)
+							@onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, {})
+				else if isParentPath(path, dynaPath)
+					relativePath = path.slice(dynaPath.length)
+					@onDataMessage(["@" + property].concat(relativePath), type, arg)
 		return
 
 	getDataType: (path) ->
@@ -73,33 +119,6 @@ class cola.WidgetModel extends cola.SubScope
 			if method instanceof Function
 				return () -> method.apply(widget, arguments)
 			return widget._scope.action(name)
-
-	destroy: () ->
-		@unbindToParent()
-		return super()
-
-	bindToParent: (path) ->
-		return if @allPathBinded or not @parent
-
-		path = path.join(".").substring(1)
-		if path is "**"
-			@allPathBinded = true
-			@unbindToParent()
-			@parent.data.bind(path, @)
-			@pathMap = {path: true}
-		else
-			@pathMap ?= {}
-			if not @pathMap[path]
-				@pathMap[path] = true
-				@parent.data.bind(path, @)
-				@pathMap[path] = true
-		return
-
-	unbindToParent: () ->
-		return unless @parent and @pathMap
-		for path of @pathMap
-			@parent.data.unbind(path, @)
-		return
 
 	processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
