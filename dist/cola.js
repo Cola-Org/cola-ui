@@ -7871,7 +7871,7 @@
       state: true,
       oldData: options.oldData
     };
-    if (entity.state !== _Entity.STATE_NONE) {
+    if (entity.state !== cola.Entity.STATE_NONE) {
       json = entity.toJSON(toJSONOptions);
     }
     data = entity._data;
@@ -7880,10 +7880,10 @@
       if (prop.charCodeAt(0) === 36) {
         continue;
       }
-      if (value && (value instanceof _Entity || value instanceof _EntityList)) {
+      if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
         context.parentProperty = prop;
         value = _extractDirtyTree(value, context);
-        if (value === null) {
+        if (json == null) {
           json = entity.toJSON(toJSONOptions);
         }
         json[prop] = value;
@@ -7922,8 +7922,7 @@
   };
 
   _extractDirtyTree = function(data, context, options) {
-    context.isList = value instanceof _EntityList;
-    if (context.isList) {
+    if (value instanceof cola.EntityList) {
       return _processEntityList(data, context, options);
     } else {
       return _processEntity(data, context, options);
@@ -7935,7 +7934,7 @@
     if (options == null) {
       options = {};
     }
-    if (data && (data instanceof _Entity || data instanceof _EntityList)) {
+    if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
       context = {};
       data = cola.util.dirtyTree(data, options, context);
     }

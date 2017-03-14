@@ -187,7 +187,6 @@ template {
 *:focus {
   outline: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-user-modify: read-write-plaintext-only;
 }
 .mobile {
   overflow: auto;
@@ -454,6 +453,10 @@ c-divider {
   display: block;
 }
 c-form {
+  display: block;
+}
+messages,
+message {
   display: block;
 }
 
