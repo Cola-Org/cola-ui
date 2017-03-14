@@ -46,7 +46,6 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 			else
 				delete @dynaPropertyMap[property]
 				delete @dynaPropertyPathMap[property]
-
 		return super(path, processor)
 
 	_transferDynaProperty: (property) ->

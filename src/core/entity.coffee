@@ -536,7 +536,7 @@ class cola.Entity
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
-# do nothing
+						# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value

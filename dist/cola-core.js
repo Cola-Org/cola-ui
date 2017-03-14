@@ -8,7 +8,7 @@
  * at http://www.bstek.com/contact.
  */
 (function() {
-  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _extractDirtyTree, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _processEntity, _processEntityList, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, splitExpression, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
+  var ACTIVE_PINCH_REG, ACTIVE_ROTATE_REG, ALIAS_REGEXP, EntityIndex, IGNORE_NODES, LinkedList, ON_NODE_REMOVED_KEY, PAN_VERTICAL_events, Page, SWIPE_VERTICAL_events, TYPE_SEVERITY, USER_DATA_KEY, WIDGET_TAGS_REGISTRY, _$, _DOMNodeInsertedListener, _DOMNodeRemovedListener, _Entity, _EntityList, _ExpressionDataModel, _ExpressionScope, _SYS_PARAMS, _compileResourceUrl, _compileWidgetAttribute, _compileWidgetDom, _cssCache, _destroyDomBinding, _destroyRenderableElement, _doRenderDomTemplate, _evalDataPath, _extendWidget, _extractDirtyTree, _filterCollection, _filterEntity, _findRouter, _findWidgetConfig, _getData, _getEntityPath, _getHashPath, _getNodeDataId, _jsCache, _loadCss, _loadHtml, _loadJs, _matchValue, _nodesToBeRemove, _numberWords, _onHashChange, _onStateChange, _processEntity, _processEntityList, _setValue, _sortCollection, _switchRouter, _toJSON, _triggerWatcher, _unloadCss, _unwatch, _watch, appendChild, browser, buildContent, cleanStamp, cola, colaEventRegistry, createContentPart, createNodeForAppend, currentRoutePath, currentRouter, defaultActionTimestamp, defaultDataTypes, definedSetting, dictionaryMap, digestExpression, doMergeDefinitions, doms, exceptionStack, getDefinition, hasDefinition, ignoreRouterSettingChange, key, keyValuesMap, oldIE, originalAjax, os, resourceStore, routerRegistry, setAttrs, setting, sprintf, tagSplitter, trimPath, typeRegistry, uniqueIdSeed, value, xCreate,
     slice = [].slice,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -2214,45 +2214,6 @@
     return exp;
   };
 
-  splitExpression = function(text, separator) {
-    var c, i, len, p, part, parts, quota, separatorCharCode;
-    separatorCharCode = separator.charCodeAt(0);
-    parts = null;
-    p = 0;
-    i = 0;
-    len = text.length;
-    while (i < len) {
-      c = text.charCodeAt(i);
-      if (c === separatorCharCode && !quota) {
-        part = text.substring(p, i);
-        if (parts == null) {
-          parts = [];
-        }
-        parts.push(cola.util.trim(part));
-        p = i + 1;
-      } else {
-        if (c === 39 || c === 34) {
-          if (quota) {
-            if (quota === c) {
-              quota = false;
-            }
-          } else {
-            quota = c;
-          }
-        }
-      }
-      i++;
-    }
-    if (p < len) {
-      part = text.substring(p);
-      if (parts == null) {
-        parts = [];
-      }
-      parts.push(cola.util.trim(part));
-    }
-    return parts;
-  };
-
   cola.Expression = (function() {
     function Expression(exprStr) {
       var fc, i, l, len1, path, ref, watchPathStr, watchPaths;
@@ -2277,9 +2238,6 @@
       if (fc === 61) {
         exprStr = exprStr.substring(1);
         this.isStatic = true;
-      } else if (fc === 63) {
-        exprStr = exprStr.substring(1);
-        this.isDyna = true;
       }
       this.compile(exprStr);
       if (watchPaths) {
@@ -2371,6 +2329,13 @@
             parts.push("]");
         }
         if (close && pathParts.length) {
+          if (pathParts[0].charCodeAt(0) === 64) {
+            context.isDyna = true;
+            if (context.dynaPathMap == null) {
+              context.dynaPathMap = {};
+            }
+            context.dynaPathMap[pathParts[0].substring(1)] = pathParts.slice(0);
+          }
           path = pathParts.join(".");
           if (!context.paths) {
             context.paths = [path];
@@ -2392,50 +2357,20 @@
     };
 
     Expression.prototype.evaluate = function(scope, loadMode, dataCtx) {
-      var expression, parent, pathInfo, retValue;
-      if (this.isDyna && !(dataCtx != null ? dataCtx.ignoreDynaExpression : void 0)) {
-        retValue = eval(this.script);
-        if (typeof retValue === "string") {
-          expression = cola._compileExpression(retValue);
-          if (dataCtx != null) {
-            dataCtx.dynaExpression = expression;
-          }
+      var dynaPath, originPath, path, ref, retValue;
+      if (this.dynaPathMap) {
+        this.pathReplacement = {};
+        ref = this.dynaPathMap;
+        for (dynaPath in ref) {
+          path = ref[dynaPath];
+          originPath = path.join(".");
+          path[0] = "@" + _getData(scope, dynaPath, "never", dataCtx);
+          this.pathReplacement[originPath] = path.join(".");
         }
-      } else {
-        expression = this;
       }
-      if (expression.writeable) {
-        pathInfo = expression.getParentPathInfo();
-        if (pathInfo.parentPath) {
-          parent = scope.get(pathInfo.parentPath, loadMode, dataCtx);
-          if (parent instanceof cola.EntityList) {
-            parent = parent.current;
-          }
-          if (parent && typeof parent === "object") {
-            retValue = cola.Entity._evalDataPath(parent, pathInfo.property, false, loadMode, null, dataCtx);
-          }
-          if (retValue instanceof cola.Entity || retValue instanceof cola.EntityList) {
-            if (dataCtx != null) {
-              dataCtx.closetEntity = retValue;
-            }
-          } else if (parent instanceof cola.Entity) {
-            if (dataCtx != null) {
-              dataCtx.closetEntity = parent;
-            }
-          }
-        } else {
-          retValue = eval(expression.script);
-          if (retValue instanceof cola.Entity || retValue instanceof cola.EntityList) {
-            if (dataCtx != null) {
-              dataCtx.closetEntity = retValue;
-            }
-          }
-        }
-      } else {
-        retValue = eval(expression.script);
-        if (retValue instanceof cola.Chain) {
-          retValue = retValue._data;
-        }
+      retValue = eval(this.script);
+      if (retValue instanceof cola.Chain) {
+        retValue = retValue._data;
       }
       return retValue;
     };
@@ -2473,6 +2408,9 @@
 
   _getData = function(scope, path, loadMode, dataCtx) {
     var retValue;
+    if (this.pathReplacement) {
+      path = this.pathReplacement[path] || path;
+    }
     retValue = scope.get(path, loadMode, dataCtx);
     if (retValue === void 0 && (dataCtx != null ? dataCtx.vars : void 0)) {
       retValue = dataCtx.vars[path];
@@ -6316,7 +6254,6 @@
       if (this._watchAllMessages || this._watchPath === path) {
         return;
       }
-      this._unwatchPath();
       if (path) {
         this._watchPath = paths = [];
         parent = this.parent;
@@ -6341,7 +6278,7 @@
       }
     };
 
-    SubScope.prototype._unwatchPath = function() {
+    SubScope.prototype.unwatchPath = function() {
       var l, len1, p, parent, path;
       if (!this._watchPath) {
         return;
@@ -6367,7 +6304,7 @@
         return;
       }
       this._watchAllMessages = true;
-      this._unwatchPath();
+      this.unwatchPath();
       parent = this.parent;
       if (parent) {
         this._watchPath = ["**"];
@@ -6380,7 +6317,7 @@
 
     SubScope.prototype.destroy = function() {
       if (this.parent) {
-        this._unwatchPath();
+        this.unwatchPath();
       }
     };
 
@@ -6396,18 +6333,6 @@
     }
 
     ExpressionScope.prototype.repeatNotification = true;
-
-    ExpressionScope.prototype._unwatchPath = function() {
-      var l, len1, path, ref;
-      ExpressionScope.__super__._unwatchPath.call(this);
-      if (this.parent && this.expressionDynaPaths) {
-        ref = this.expressionDynaPaths;
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          path = ref[l];
-          this.parent.data.unbind(path, this);
-        }
-      }
-    };
 
     ExpressionScope.prototype.setExpression = function(expression) {
       var l, len1, path, ref;
@@ -6429,65 +6354,25 @@
           this.watchPath(expression.paths);
         }
       } else {
-        this._unwatchPath();
+        this.unwatchPath();
       }
     };
 
-    ExpressionScope.prototype.evaluate = function(scope, dynaExpressionOnly, loadMode, dataCtx) {
-      var dynaPaths, l, len1, len2, o, path, paths, ref, result;
+    ExpressionScope.prototype.evaluate = function(scope, loadMode, dataCtx) {
+      var ref;
       if (loadMode == null) {
         loadMode = "async";
       }
       if (dataCtx == null) {
         dataCtx = {};
       }
-      if (!this.expression) {
-        return;
-      }
-      if (dynaExpressionOnly && this.dynaExpression) {
-        result = this.dynaExpression.evaluate(scope, loadMode, dataCtx);
-      } else {
-        result = this.expression.evaluate(scope, loadMode, dataCtx);
-        if (this.expression.isDyna && dataCtx.dynaExpression) {
-          this.dynaExpression = dataCtx.dynaExpression;
-          if (this.dynaExpression.raw !== this.dynaExpressionStr) {
-            this.dynaExpressionStr = this.dynaExpression.raw;
-          }
-          if (this.parent && !this.ignoreBind) {
-            if (this.expressionDynaPaths) {
-              ref = this.expressionDynaPaths;
-              for (l = 0, len1 = ref.length; l < len1; l++) {
-                path = ref[l];
-                this.parent.data.unbind(path, this);
-              }
-              delete this.expressionDynaPaths;
-            }
-            paths = this.expression.paths;
-            dynaPaths = this.dynaExpression.paths;
-            if (dynaPaths) {
-              for (o = 0, len2 = dynaPaths.length; o < len2; o++) {
-                path = dynaPaths[o];
-                if (!paths || paths.indexOf(path) < 0) {
-                  if (!this.expressionDynaPaths) {
-                    this.expressionDynaPaths = [path];
-                  } else {
-                    this.expressionDynaPaths.push(path);
-                  }
-                  this.parent.data.bind(path, this);
-                }
-              }
-            }
-          }
-        }
-      }
-      return result;
+      return (ref = this.expression) != null ? ref.evaluate(scope, loadMode, dataCtx) : void 0;
     };
 
     ExpressionScope.prototype.isParentOfTarget = function(changedPath) {
-      var expressionDynaPaths, expressionPaths, i, isParent, l, len1, len2, len3, len4, o, part, q, targetPart, targetPath, u;
+      var expressionPaths, i, isParent, l, len1, len2, o, part, targetPart, targetPath;
       expressionPaths = this.expressionPaths;
-      expressionDynaPaths = this.expressionDynaPaths;
-      if (!expressionPaths.length && !expressionDynaPaths) {
+      if (!expressionPaths.length) {
         return false;
       }
       if (!changedPath) {
@@ -6513,35 +6398,11 @@
             }
           }
           if (isParent) {
-            return 2;
+            return true;
           }
         }
       }
-      if (expressionDynaPaths) {
-        for (q = 0, len3 = expressionDynaPaths.length; q < len3; q++) {
-          targetPath = expressionDynaPaths[q];
-          isParent = true;
-          for (i = u = 0, len4 = changedPath.length; u < len4; i = ++u) {
-            part = changedPath[i];
-            targetPart = targetPath[i].split(".");
-            if (part !== targetPart) {
-              if (targetPart === "**") {
-                continue;
-              } else if (targetPart === "*") {
-                if (i === changedPath.length - 1) {
-                  continue;
-                }
-              }
-              isParent = false;
-              break;
-            }
-          }
-          if (isParent) {
-            return 1;
-          }
-        }
-      }
-      return 0;
+      return false;
     };
 
     return ExpressionScope;
@@ -6574,10 +6435,10 @@
       this.data.setTargetData(data);
     };
 
-    AliasScope.prototype.retrieveData = function(dynaExpressionOnly) {
+    AliasScope.prototype.retrieveData = function() {
       var data;
       cola.util.cancelDelay(this, "retrieve");
-      data = this.evaluate(this, dynaExpressionOnly);
+      data = this.evaluate(this);
       this.setTargetData(data);
     };
 
@@ -6664,7 +6525,7 @@
 
     ItemsScope.prototype.setParent = function(parent) {
       if (this.parent) {
-        this._unwatchPath();
+        this.unwatchPath();
       }
       this.parent = parent;
       this.data = parent.data;
@@ -6685,13 +6546,13 @@
       this._setItems(items);
     };
 
-    ItemsScope.prototype.retrieveData = function(dynaExpressionOnly) {
+    ItemsScope.prototype.retrieveData = function() {
       var items;
       cola.util.cancelDelay(this, "retrieve");
       if (this._retrieveItems) {
-        this._retrieveItems(dynaExpressionOnly);
+        this._retrieveItems();
       } else if (this.expression) {
-        items = this.evaluate(this.parent, dynaExpressionOnly);
+        items = this.evaluate(this.parent);
         this.setItems(items);
       }
     };
@@ -6846,10 +6707,9 @@
     };
 
     ItemsScope.prototype.isWatchPathPreciseMatch = function(changedPath) {
-      var expressionDynaPaths, expressionPaths, i, isMatch, l, len1, len2, len3, len4, o, part, q, targetPart, targetPath, u;
+      var expressionPaths, i, isMatch, l, len1, len2, o, part, targetPart, targetPath;
       expressionPaths = this.expressionPaths;
-      expressionDynaPaths = this.expressionDynaPaths;
-      if (!expressionPaths.length && !expressionDynaPaths) {
+      if (!expressionPaths.length) {
         return false;
       }
       if (!changedPath) {
@@ -6874,34 +6734,11 @@
             }
           }
           if (isMatch) {
-            return 2;
+            return true;
           }
         }
       }
-      if (expressionDynaPaths && expressionDynaPaths.length - changedPath.length < 2) {
-        for (q = 0, len3 = expressionDynaPaths.length; q < len3; q++) {
-          targetPath = expressionDynaPaths[q];
-          isMatch = true;
-          for (i = u = 0, len4 = changedPath.length; u < len4; i = ++u) {
-            part = changedPath[i];
-            targetPart = targetPath[i];
-            if (part !== targetPart) {
-              isMatch = false;
-              break;
-            }
-          }
-          if (isMatch && expressionDynaPaths.length > changedPath.length) {
-            targetPart = expressionDynaPaths[expressionDynaPaths.length - 1];
-            if (targetPart !== "*" || targetPart !== "**") {
-              isMatch = false;
-            }
-          }
-          if (isMatch) {
-            return 2;
-          }
-        }
-      }
-      return 0;
+      return false;
     };
 
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
@@ -7911,55 +7748,18 @@
     };
 
     ElementAttrBinding.prototype.processMessage = function(bindingPath, path, type) {
-      var ref;
       if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
-        this.refresh(((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0);
+        this.refresh();
       }
     };
 
-    ElementAttrBinding.prototype.evaluate = function(dynaExpressionOnly, dataCtx) {
-      var dynaExpression, l, len1, len2, loadMode, o, path, paths, ref, result;
-      loadMode = "async";
-      if (dynaExpressionOnly && this.dynaExpression) {
-        result = this.dynaExpression.evaluate(this.scope, loadMode, dataCtx);
-      } else {
-        result = this.expression.evaluate(this.scope, loadMode, dataCtx);
-        if (this.expression.isDyna && (dataCtx != null ? dataCtx.dynaExpression : void 0)) {
-          dynaExpression = dataCtx.dynaExpression;
-          if (dynaExpression.raw !== this.dynaExpressionStr) {
-            this.dynaExpressionStr = dynaExpression.raw;
-          }
-          if (!this.ignoreBind) {
-            if (this.dynaPaths) {
-              ref = this.dynaPaths;
-              for (l = 0, len1 = ref.length; l < len1; l++) {
-                path = ref[l];
-                this.scope.data.unbind(path, this);
-              }
-            }
-            paths = this.dynaExpression.paths;
-            if (paths) {
-              for (o = 0, len2 = paths.length; o < len2; o++) {
-                path = paths[o];
-                if (this.paths.indexOf(path) < 0) {
-                  if (!this.dynaPaths) {
-                    this.dynaPaths = [path];
-                  } else {
-                    this.dynaPaths.push(path);
-                  }
-                  this.scope.data.bind(path, this);
-                }
-              }
-            }
-          }
-        }
-      }
-      return result;
+    ElementAttrBinding.prototype.evaluate = function(dataCtx) {
+      return this.expression.evaluate(this.scope, "async", dataCtx);
     };
 
-    ElementAttrBinding.prototype._refresh = function(dynaExpressionOnly) {
+    ElementAttrBinding.prototype._refresh = function() {
       var element;
-      value = this.evaluate(dynaExpressionOnly);
+      value = this.evaluate();
       element = this.element;
       element._duringBindingRefresh = true;
       try {
@@ -7969,16 +7769,16 @@
       }
     };
 
-    ElementAttrBinding.prototype.refresh = function(dynaExpressionOnly) {
+    ElementAttrBinding.prototype.refresh = function() {
       if (!this._refresh) {
         return;
       }
       if (this.delay) {
         cola.util.delay(this, "refresh", 100, function() {
-          this._refresh(dynaExpressionOnly);
+          this._refresh();
         });
       } else {
-        this._refresh(dynaExpressionOnly);
+        this._refresh();
       }
     };
 
@@ -9904,7 +9704,6 @@
       this.expression = expression1;
       if (this.expression) {
         this.isStatic = this.expression.isStatic;
-        this.isDyna = this.expression.isDyna;
         this.paths = this.expression.paths || [];
         if (!this.paths.length && this.expression.hasCallStatement) {
           this.paths = ["**"];
@@ -9916,8 +9715,8 @@
       }
     }
 
-    _ExpressionFeature.prototype.evaluate = function(domBinding, dynaExpressionOnly, dataCtx, loadMode) {
-      var l, len1, len2, o, path, paths, ref, result, scope;
+    _ExpressionFeature.prototype.evaluate = function(domBinding, dataCtx, loadMode) {
+      var scope;
       if (dataCtx == null) {
         dataCtx = {};
       }
@@ -9929,44 +9728,10 @@
         dataCtx.vars = {};
       }
       dataCtx.vars.$dom = domBinding.dom;
-      if (dynaExpressionOnly && this.dynaExpression) {
-        result = this.dynaExpression.evaluate(scope, loadMode, dataCtx);
-      } else {
-        result = this.expression.evaluate(scope, loadMode, dataCtx);
-        if (this.isDyna && dataCtx.dynaExpression) {
-          this.dynaExpression = dataCtx.dynaExpression;
-          if (this.dynaExpression.raw !== this.dynaExpressionStr) {
-            this.dynaExpressionStr = this.dynaExpression.raw;
-          }
-          if (!this.ignoreBind) {
-            if (this.dynaPaths) {
-              ref = this.dynaPaths;
-              for (l = 0, len1 = ref.length; l < len1; l++) {
-                path = ref[l];
-                domBinding.unbind(path, this);
-              }
-            }
-            paths = this.dynaExpression.paths;
-            if (paths) {
-              for (o = 0, len2 = paths.length; o < len2; o++) {
-                path = paths[o];
-                if (this.paths.indexOf(path) < 0) {
-                  if (!this.dynaPaths) {
-                    this.dynaPaths = [path];
-                  } else {
-                    this.dynaPaths.push(path);
-                  }
-                  domBinding.bind(path, this);
-                }
-              }
-            }
-          }
-        }
-      }
-      return result;
+      return this.expression.evaluate(scope, loadMode, dataCtx);
     };
 
-    _ExpressionFeature.prototype.refresh = function(domBinding, force, dynaExpressionOnly, dataCtx) {
+    _ExpressionFeature.prototype.refresh = function(domBinding, force, dataCtx) {
       if (dataCtx == null) {
         dataCtx = {};
       }
@@ -9976,14 +9741,14 @@
       if (this.delay && !force) {
         cola.util.delay(domBinding, "refresh", 100, (function(_this) {
           return function() {
-            _this._refresh(domBinding, dynaExpressionOnly, dataCtx);
+            _this._refresh(domBinding, dataCtx);
             if (_this.isStatic && !dataCtx.unloaded) {
               _this.disabled = true;
             }
           };
         })(this));
       } else {
-        this._refresh(domBinding, dynaExpressionOnly, dataCtx);
+        this._refresh(domBinding, dataCtx);
         if (this.isStatic && !dataCtx.unloaded) {
           this.disabled = true;
         }
@@ -10009,9 +9774,9 @@
       domBinding.subScopeCreated = true;
     };
 
-    _AliasFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
+    _AliasFeature.prototype._refresh = function(domBinding, dataCtx) {
       var data;
-      data = this.evaluate(domBinding, dynaExpressionOnly, dataCtx);
+      data = this.evaluate(domBinding, dataCtx);
       domBinding.scope.data.setTargetData(data);
     };
 
@@ -10031,7 +9796,7 @@
 
     _RepeatFeature.prototype.init = function(domBinding) {
       var scope;
-      domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, this.isDyna ? null : this.expression);
+      domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, this.expression);
       scope.onItemsRefresh = (function(_this) {
         return function() {
           _this.onItemsRefresh(domBinding);
@@ -10140,11 +9905,7 @@
       domBinding.subScopeCreated = true;
     };
 
-    _RepeatFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
-      if (this.isDyna && !dynaExpressionOnly) {
-        this.evaluate(domBinding, dynaExpressionOnly, dataCtx);
-        domBinding.scope.setExpression(this.dynaExpression);
-      }
+    _RepeatFeature.prototype._refresh = function(domBinding, dataCtx) {
       domBinding.scope.retrieveData();
       domBinding.scope.refreshItems();
     };
@@ -10314,10 +10075,7 @@
     }
 
     _WatchFeature.prototype.processMessage = function(domBinding, bindingPath) {
-      var ref;
-      if (!this.isDyna || ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0) {
-        this.refresh(domBinding);
-      }
+      this.refresh(domBinding);
     };
 
     _WatchFeature.prototype.refresh = function(domBinding) {
@@ -10350,7 +10108,7 @@
           oldScope = cola.currentScope;
           cola.currentScope = domBinding.scope;
           try {
-            return _this.evaluate(domBinding, false, {
+            return _this.evaluate(domBinding, {
               vars: {
                 $event: evt
               }
@@ -10378,7 +10136,7 @@
       if (!((ref = this.expression) != null ? ref.writeable : void 0)) {
         return;
       }
-      paths = this.isDyna ? this.dynaPaths : this.paths;
+      paths = this.paths;
       if (paths && paths.length === 1) {
         this.ignoreMessage = true;
         domBinding.scope.set(paths[0], value);
@@ -10387,17 +10145,16 @@
     };
 
     _DomFeature.prototype.processMessage = function(domBinding, bindingPath, path, type, arg) {
-      var ref;
       if ((cola.constants.MESSAGE_REFRESH <= type && type <= cola.constants.MESSAGE_CURRENT_CHANGE) || this.watchingMoreMessage) {
-        this.refresh(domBinding, false, ((ref = this.dynaPaths) != null ? ref.indexOf(bindingPath) : void 0) >= 0);
+        this.refresh(domBinding, false);
       }
     };
 
-    _DomFeature.prototype._refresh = function(domBinding, dynaExpressionOnly, dataCtx) {
+    _DomFeature.prototype._refresh = function(domBinding, dataCtx) {
       if (this.ignoreMessage) {
         return;
       }
-      value = this.evaluate(domBinding, dynaExpressionOnly, dataCtx);
+      value = this.evaluate(domBinding, dataCtx);
       this._doRender(domBinding, value);
     };
 
@@ -10695,12 +10452,12 @@
     };
 
     _DomBinding.prototype.removeFeature = function(feature) {
-      var _features, i;
-      _features = this.features;
-      if (_features) {
-        i = _features.indexOf(feature);
+      var features, i;
+      features = this.features;
+      if (features) {
+        i = features.indexOf(feature);
         if (i > -1) {
-          _features.splice(i, 1);
+          features.splice(i, 1);
         }
         if (!feature.ignoreBind) {
           this.unbindFeature(feature);
@@ -11935,7 +11692,7 @@
           for (p in config) {
             v = config[p];
             importName = null;
-            if (p.charCodeAt(0) === 35) {
+            if (p.charCodeAt(0) === 64) {
               importName = p.substring(1);
             } else if (p === "$type" && typeof v === "string" && v.charCodeAt(0) === 35) {
               importName = v.substring(1);
@@ -12229,7 +11986,7 @@
         return function(self, arg) {
           var attr;
           attr = arg.attribute;
-          _this._widgetModel.data.onDataMessage(["@" + attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
+          _this._widgetModel.data.onDataMessage([attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {});
           value = _this._get(attr);
           if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
             _this._entityProps[attr] = value;
@@ -13077,50 +12834,119 @@
       WidgetDataModel.__super__.constructor.call(this, model);
     }
 
+    WidgetDataModel.prototype._getRealPath = function(dynaPath) {
+      var index, realPath;
+      index = dynaPath.indexOf(".");
+      if (index > 1) {
+        realPath = this._transferDynaProperty(dynaPath.substring(1, index)) + dynaPath.substring(index);
+      } else {
+        realPath = this._transferDynaProperty(dynaPath.substring(1));
+      }
+      return realPath;
+    };
+
     WidgetDataModel.prototype.get = function(path, loadMode, context) {
       var ref;
       if (path.charCodeAt(0) === 64) {
-        return this.widget.get(path.substring(1));
+        return (ref = this.model.parent) != null ? ref.data.get(this._getRealPath(path), loadMode, context) : void 0;
       } else {
-        return (ref = this.model.parent) != null ? ref.data.get(path, loadMode, context) : void 0;
+        return this.widget.get(path);
       }
     };
 
     WidgetDataModel.prototype.set = function(path, value) {
       var ref;
       if (path.charCodeAt(0) === 64) {
-        this.widget.set(path.substring(1), value);
-        this.onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
-      } else {
         if ((ref = this.model.parent) != null) {
-          ref.data.set(path, value);
+          ref.data.set(this._getRealPath(path), value);
         }
+      } else {
+        this.widget.set(path, value);
+        this.onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {});
       }
     };
 
+    WidgetDataModel.prototype._bind = function(path, processor) {
+      var property;
+      if (path[0].charCodeAt(0) === 64) {
+        property = path[0].substring(1);
+        if (!this.dynaPropertyMap) {
+          this.dynaPropertyMap = {};
+          this.dynaPropertyPathMap = {};
+        }
+        if (this.dynaPropertyMap[property]) {
+          this.dynaPropertyMap[property] = this.dynaPropertyMap[property] + 1;
+        } else {
+          this.dynaPropertyMap[property] = 1;
+        }
+      }
+      return WidgetDataModel.__super__._bind.call(this, path, processor);
+    };
+
+    WidgetDataModel.prototype._unbind = function(path, processor) {
+      var property;
+      if (this.dynaPropertyMap && path[0].charCodeAt(0) === 64) {
+        property = path[0].substring(1);
+        if (this.dynaPropertyMap[property] > 1) {
+          this.dynaPropertyMap[property] = this.dynaPropertyMap[property] - 1;
+        } else {
+          delete this.dynaPropertyMap[property];
+          delete this.dynaPropertyPathMap[property];
+        }
+      }
+      return WidgetDataModel.__super__._unbind.call(this, path, processor);
+    };
+
+    WidgetDataModel.prototype._transferDynaProperty = function(property) {
+      var oldPath, path;
+      oldPath = this.dynaPropertyPathMap[property];
+      path = this.widget.get(property);
+      if (path !== (oldPath != null ? oldPath.join(".") : void 0)) {
+        if (oldPath) {
+          this.model.unwatchPath(oldPath);
+        }
+        this.dynaPropertyPathMap[property] = path ? path.split(".") : null;
+        if (path) {
+          this.model.watchPath(path);
+        }
+      }
+      return path;
+    };
+
     WidgetDataModel.prototype.processMessage = function(bindingPath, path, type, arg) {
-      var attr, e, entity, isParent, ref, relativePath, targetPath;
-      this.onDataMessage(path, type, arg);
-      entity = arg.entity || arg.entityList;
-      if (entity) {
-        ref = this.widget._entityProps;
-        for (attr in ref) {
-          value = ref[attr];
-          isParent = false;
-          e = entity;
-          while (e) {
-            if (e === value) {
-              isParent = true;
-              break;
+      var dynaPath, isParentPath, property, ref, relativePath;
+      isParentPath = function(targetPath, parentPath) {
+        var i, isParent, l, len1, part, targetPart;
+        isParent = true;
+        for (i = l = 0, len1 = parentPath.length; l < len1; i = ++l) {
+          part = parentPath[i];
+          targetPart = targetPath[i];
+          if (part !== targetPart) {
+            if (targetPart === "**") {
+              continue;
+            } else if (targetPart === "*") {
+              if (i === parentPath.length - 1) {
+                continue;
+              }
             }
-            e = e.parent;
+            isParent = false;
+            break;
           }
-          if (isParent) {
-            targetPath = value.getPath();
-            if (targetPath != null ? targetPath.length : void 0) {
-              relativePath = path.slice(targetPath.length);
-              this.onDataMessage(["@" + attr].concat(relativePath), type, arg);
+        }
+        return isParent;
+      };
+      if (this.dynaPropertyPathMap) {
+        ref = this.dynaPropertyPathMap;
+        for (property in ref) {
+          dynaPath = ref[property];
+          if (isParentPath(dynaPath, path)) {
+            if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_REMOVE) {
+              this._transferDynaProperty(property);
+              this.onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, arg);
             }
+          } else if (isParentPath(path, dynaPath)) {
+            relativePath = path.slice(dynaPath.length);
+            this.onDataMessage(["@" + property].concat(relativePath), type, arg);
           }
         }
       }
@@ -13129,26 +12955,26 @@
     WidgetDataModel.prototype.getDataType = function(path) {
       var ref;
       if (path.charCodeAt(0) === 64) {
-        return null;
+        return (ref = this.model.parent) != null ? ref.data.getDataType(path.substring(1)) : void 0;
       } else {
-        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
+        return null;
       }
     };
 
     WidgetDataModel.prototype.getProperty = function(path) {
       var ref;
       if (path.charCodeAt(0) === 64) {
-        return null;
+        return (ref = this.model.parent) != null ? ref.data.getProperty(path.substring(1)) : void 0;
       } else {
-        return (ref = this.model.parent) != null ? ref.data.getDataType(path) : void 0;
+        return null;
       }
     };
 
     WidgetDataModel.prototype.flush = function(name, loadMode) {
       var ref;
-      if (path.charCodeAt(0) !== 64) {
+      if (path.charCodeAt(0) === 64) {
         if ((ref = this.model.parent) != null) {
-          ref.data.getDataType(name, loadMode);
+          ref.data.getDataType(name.substring(1), loadMode);
         }
       }
       return this;
@@ -13161,15 +12987,14 @@
   cola.WidgetModel = (function(superClass) {
     extend(WidgetModel, superClass);
 
+    WidgetModel.prototype.repeatNotification = true;
+
     function WidgetModel(widget1, parent1) {
-      var ref, widget;
+      var widget;
       this.widget = widget1;
       this.parent = parent1;
       widget = this.widget;
       this.data = new cola.WidgetDataModel(this, widget);
-      if ((ref = this.parent) != null) {
-        ref.data.bind("**", this);
-      }
       this.action = function(name) {
         var method;
         method = widget[name];
@@ -13181,8 +13006,6 @@
         return widget._scope.action(name);
       };
     }
-
-    WidgetModel.prototype.repeatNotification = true;
 
     WidgetModel.prototype.processMessage = function(bindingPath, path, type, arg) {
       if (this.messageTimestamp >= arg.timestamp) {

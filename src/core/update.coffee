@@ -16,19 +16,17 @@ _processEntity = (entity, context, options) ->
 		state: true
 		oldData: options.oldData
 
-	if entity.state isnt _Entity.STATE_NONE
+	if entity.state isnt cola.Entity.STATE_NONE
 		json = entity.toJSON(toJSONOptions)
 
 	data = entity._data
 	for prop, value of data
 		if prop.charCodeAt(0) is 36 # `$`
 			continue
-
-		if value and (value instanceof _Entity or value instanceof _EntityList)
+		if value and (value instanceof cola.Entity or value instanceof cola.EntityList)
 			context.parentProperty = prop
 			value = _extractDirtyTree(value, context)
-
-			if value is null then json = entity.toJSON(toJSONOptions)
+			json ?= entity.toJSON(toJSONOptions)
 			json[prop] = value
 
 	if json isnt null
@@ -52,14 +50,13 @@ _processEntityList = (entityList, context, options) ->
 	return if entities.length then entities else null
 
 _extractDirtyTree = (data, context, options) ->
-	context.isList = value instanceof _EntityList
-	if context.isList
+	if value instanceof cola.EntityList
 		return _processEntityList(data, context, options)
 	else
 		return _processEntity(data, context, options)
 
 cola.util.update = (url, data, options = {}) ->
-	if data and (data instanceof _Entity or data instanceof _EntityList)
+	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		context = {}
 		data = cola.util.dirtyTree(data, options, context)
 
@@ -71,7 +68,6 @@ cola.util.update = (url, data, options = {}) ->
 	  	options: options
 	).then (responseData) ->
 		if context
-			# TODO
 			for syncInfo in responseData.syncInfos
 				entity = context.entityMap[syncInfo.entityId]
 				if syncInfo.data
