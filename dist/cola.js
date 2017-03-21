@@ -1,4 +1,4 @@
-/*! Cola UI - 1.0.6
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10720,14 +10720,14 @@
         if (!dom) {
           viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS);
           if (viewDoms != null ? viewDoms.length : void 0) {
-            dom = viewDoms;
+            dom = Array.prototype.slice.call(viewDoms);
           }
         }
         if (dom == null) {
           dom = document.body;
         }
         if (!model._doms) {
-          model._doms = [dom];
+          model._doms = dom instanceof Array ? dom : [dom];
         } else {
           if (!model._doms instanceof Array) {
             model._doms = [model._dom];
@@ -13058,7 +13058,7 @@
 
 }).call(this);
 
-/*! Cola UI - 1.0.6
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -22211,11 +22211,6 @@ Template
       }
       $fly(dom).delegate(">.icon", "click", (function(_this) {
         return function() {
-          debugger;
-          if (_this._finalReadOnly && !_this._disabled && !_this._opened) {
-            _this.open();
-            return;
-          }
           if (_this._opened) {
             _this.close();
           } else {
@@ -22359,7 +22354,7 @@ Template
       var $inputDom, ref;
       $inputDom = $fly(this._doms.input);
       $inputDom.attr("placeholder", this.get("placeholder"));
-      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly() || this._disabled);
+      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly());
       if ((ref = this.get("actionButton")) != null) {
         ref.set("disabled", this._finalReadOnly);
       }
@@ -22557,10 +22552,7 @@ Template
 
     AbstractDropdown.prototype.open = function(callback) {
       var $containerDom, $flexContent, clientHeight, container, containerHeight, doCallback, height;
-      if (this._finalReadOnly && this._disabled) {
-        return;
-      }
-      if (this.fire("beforeOpen", this) === false) {
+      if (this._finalReadOnly || this.fire("beforeOpen", this) === false) {
         return;
       }
       doCallback = (function(_this) {
@@ -25035,7 +25027,7 @@ Template
       focusable: {
         type: "boolean",
         refreshDom: true,
-        defaultValue: false
+        defaultValue: true
       }
     };
 
@@ -31320,6 +31312,7 @@ Template
     Tree.prototype._initDom = function(dom) {
       var itemsScope;
       Tree.__super__._initDom.call(this, dom);
+      $fly(dom).attr("tabIndex", 1);
       $fly(this._doms.itemsWrapper).delegate(".expand-button", "click", (function(_this) {
         return function(evt) {
           return _this._expandButtonClick(evt);

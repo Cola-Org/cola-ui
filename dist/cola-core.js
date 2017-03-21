@@ -1,4 +1,4 @@
-/*! Cola UI - 1.0.6
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10720,14 +10720,14 @@
         if (!dom) {
           viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS);
           if (viewDoms != null ? viewDoms.length : void 0) {
-            dom = viewDoms;
+            dom = Array.prototype.slice.call(viewDoms);
           }
         }
         if (dom == null) {
           dom = document.body;
         }
         if (!model._doms) {
-          model._doms = [dom];
+          model._doms = dom instanceof Array ? dom : [dom];
         } else {
           if (!model._doms instanceof Array) {
             model._doms = [model._dom];
