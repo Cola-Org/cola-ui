@@ -23,11 +23,11 @@ cola._rootFunc = () ->
 		try
 			if not dom
 				viewDoms = document.getElementsByClassName(cola.constants.VIEW_CLASS)
-				if viewDoms?.length then dom = viewDoms
+				if viewDoms?.length then dom = Array.prototype.slice.call(viewDoms)
 			dom ?= document.body
 
 			if not model._doms
-				model._doms = [dom]
+				model._doms = if dom instanceof Array then dom else [dom]
 			else
 				if not model._doms instanceof Array
 					model._doms = [model._dom]
