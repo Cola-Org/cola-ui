@@ -1,6 +1,6 @@
 class cola.SelectButton extends cola.AbstractEditor
 	@tagName: "c-select-button"
-	@CLASS_NAME: "ui select-button"
+	@CLASS_NAME: "ui select-button buttons"
 	@attributes:
 		items:
 			expressionType: "repeat"
@@ -68,22 +68,14 @@ class cola.SelectButton extends cola.AbstractEditor
 				cValue = "item"
 			raw = attrBinding.expression.raw
 			itemsDom = cola.xRender({
-				tagName: "div",
-				class: "ui buttons",
-				content: {
-					tagName: "c-button",
-					"c-repeat": "item in " + raw,
-					"c-caption": cText
-					"c-value": cValue
-				}
+				tagName: "c-button",
+				"c-repeat": "item in " + raw,
+				"c-caption": cText
+				"c-value": cValue
 			}, attrBinding.scope)
 
 		else
-			itemsDom = $.xCreate({
-				tagName: "div",
-				class: "ui buttons"
-			})
-
+			itemsDom = document.createDocumentFragment();
 			for item in @_items
 				itemsDom.appendChild($.xCreate({
 					class: "ui button",

@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -461,7 +461,9 @@ message {
 }
 
 .mobile .v-box,
-.mobile .h-box {
+.mobile .h-box,
+.mobile v-box,
+.mobile h-box {
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -469,19 +471,25 @@ message {
   display: flex;
 }
 .mobile .v-box > .flex-box,
-.mobile .h-box > .flex-box {
+.mobile .h-box > .flex-box,
+.mobile v-box > .flex-box,
+.mobile h-box > .flex-box {
   display: -webkit-box;
   display: -moz-box;
 }
 .desktop .v-box,
-.desktop .h-box {
+.desktop .h-box,
+.desktop v-box,
+.desktop h-box {
   display: -webkit-box;
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
 }
 .v-box,
-.h-box {
+.h-box,
+v-box,
+h-box {
   position: relative;
   -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
@@ -497,15 +505,33 @@ message {
   align-items: flex-start;
 }
 .v-box > .box,
-.h-box > .box {
+.h-box > .box,
+v-box > .box,
+h-box > .box,
+.v-box > box,
+.h-box > box,
+v-box > box,
+h-box > box {
   overflow: visible;
 }
 .v-box > .flex-box,
-.h-box > .flex-box {
+.h-box > .flex-box,
+v-box > .flex-box,
+h-box > .flex-box,
+.v-box > flex-box,
+.h-box > flex-box,
+v-box > flex-box,
+h-box > flex-box {
   overflow: auto;
 }
 .v-box .box,
-.h-box .box {
+.h-box .box,
+v-box .box,
+h-box .box,
+.v-box box,
+.h-box box,
+v-box box,
+h-box box {
   -webkit-flex: 0 1 auto;
   -ms-flex: 0 1 auto;
   flex: 0 1 auto;
@@ -514,7 +540,13 @@ message {
   align-self: auto;
 }
 .v-box > .flex-box,
-.h-box > .flex-box {
+.h-box > .flex-box,
+v-box > .flex-box,
+h-box > .flex-box,
+.v-box > flex-box,
+.h-box > flex-box,
+v-box > flex-box,
+h-box > flex-box {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -webkit-flex: 1 1 auto;
@@ -525,14 +557,21 @@ message {
   align-self: auto;
 }
 .v-box > .flex-box > *,
-.h-box > .flex-box > * {
+.h-box > .flex-box > *,
+v-box > .flex-box > *,
+h-box > .flex-box > *,
+.v-box > flex-box > *,
+.h-box > flex-box > *,
+v-box > flex-box > *,
+h-box > flex-box > * {
   position: absolute !important;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
 }
-.v-box {
+.v-box,
+v-box {
   height: 100%;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
@@ -540,11 +579,13 @@ message {
   -webkit-box-orient: vertical;
   -moz-box-orient: vertical;
 }
-.v-box > * {
+.v-box > *,
+v-box > * {
   position: relative;
   width: 100%;
 }
-.h-box {
+.h-box,
+h-box {
   width: 100%;
   -webkit-flex-direction: row;
   -ms-flex-direction: row;
@@ -552,18 +593,23 @@ message {
   -webkit-box-orient: horizontal;
   -moz-box-orient: horizontal;
 }
-.h-box > * {
+.h-box > *,
+h-box > * {
   position: relative;
   height: 100%;
 }
 .v-box.center,
-.h-box.center {
+.h-box.center,
+v-box.center,
+h-box.center {
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
 }
 .v-box.end,
-.h-box.end {
+.h-box.end,
+v-box.end,
+h-box.end {
   -webkit-justify-content: flex-end;
   -ms-flex-pack: end;
   justify-content: flex-end;
@@ -575,32 +621,26 @@ message {
 .form > fields > field {
   width: 100%;
 }
-.form > fields,
-.form > [class*="fields-"] {
+.form > fields {
   display: block;
   padding: 0;
   *zoom: 1;
   margin: 0;
 }
 .form > fields:before,
-.form > [class*="fields-"]:before,
-.form > fields:after,
-.form > [class*="fields-"]:after {
+.form > fields:after {
   display: table;
   content: "";
 }
-.form > fields:after,
-.form > [class*="fields-"]:after {
+.form > fields:after {
   clear: both;
 }
-.form > fields > field,
-.form > [class*="fields-"] > field {
+.form > fields > field {
   display: block;
   float: left;
   height: auto;
 }
-.form > fields > field,
-.form > [class*="fields-"] > field {
+.form > fields > field {
   padding: 0 0.375rem 0.75rem;
 }
 .form > field {
@@ -652,308 +692,308 @@ message {
   -webkit-flex: 1 0 auto;
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
-  width: inherit;
+  width: auto;
 }
 .form > field > .ui.textarea,
 .form > fields > field > .ui.textarea,
 .form > [class*="fields-"] > field > .ui.textarea {
   width: auto;
 }
-.form fields-2 > field {
+.form fields.cols-2 > field {
   width: 50%;
 }
-.form fields-2 > field:nth-of-type(1n) {
+.form fields.cols-2 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-2 > field:nth-of-type(2n + 1) {
+.form fields.cols-2 > field:nth-of-type(2n + 1) {
   clear: both;
 }
-.form fields-3 > field {
+.form fields.cols-3 > field {
   width: 33.33333333%;
 }
-.form fields-3 > field:nth-of-type(1n) {
+.form fields.cols-3 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-3 > field:nth-of-type(3n + 1) {
+.form fields.cols-3 > field:nth-of-type(3n + 1) {
   clear: both;
 }
-.form fields-4 > field {
+.form fields.cols-4 > field {
   width: 25%;
 }
-.form fields-4 > field:nth-of-type(1n) {
+.form fields.cols-4 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-4 > field:nth-of-type(4n + 1) {
+.form fields.cols-4 > field:nth-of-type(4n + 1) {
   clear: both;
 }
-.form fields-5 > field {
+.form fields.cols-5 > field {
   width: 20%;
 }
-.form fields-5 > field:nth-of-type(1n) {
+.form fields.cols-5 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-5 > field:nth-of-type(5n + 1) {
+.form fields.cols-5 > field:nth-of-type(5n + 1) {
   clear: both;
 }
-.form fields-6 > field {
+.form fields.cols-6 > field {
   width: 16.66666667%;
 }
-.form fields-6 > field:nth-of-type(1n) {
+.form fields.cols-6 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-6 > field:nth-of-type(6n + 1) {
+.form fields.cols-6 > field:nth-of-type(6n + 1) {
   clear: both;
 }
-.form fields-7 > field {
+.form fields.cols-7 > field {
   width: 14.28571429%;
 }
-.form fields-7 > field:nth-of-type(1n) {
+.form fields.cols-7 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-7 > field:nth-of-type(7n + 1) {
+.form fields.cols-7 > field:nth-of-type(7n + 1) {
   clear: both;
 }
-.form fields-8 > field {
+.form fields.cols-8 > field {
   width: 12.5%;
 }
-.form fields-8 > field:nth-of-type(1n) {
+.form fields.cols-8 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-8 > field:nth-of-type(8n + 1) {
+.form fields.cols-8 > field:nth-of-type(8n + 1) {
   clear: both;
 }
-.form fields-9 > field {
+.form fields.cols-9 > field {
   width: 11.11111111%;
 }
-.form fields-9 > field:nth-of-type(1n) {
+.form fields.cols-9 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-9 > field:nth-of-type(9n + 1) {
+.form fields.cols-9 > field:nth-of-type(9n + 1) {
   clear: both;
 }
-.form fields-10 > field {
+.form fields.cols-10 > field {
   width: 10%;
 }
-.form fields-10 > field:nth-of-type(1n) {
+.form fields.cols-10 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-10 > field:nth-of-type(10n + 1) {
+.form fields.cols-10 > field:nth-of-type(10n + 1) {
   clear: both;
 }
-.form fields-11 > field {
+.form fields.cols-11 > field {
   width: 9.09090909%;
 }
-.form fields-11 > field:nth-of-type(1n) {
+.form fields.cols-11 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-11 > field:nth-of-type(11n + 1) {
+.form fields.cols-11 > field:nth-of-type(11n + 1) {
   clear: both;
 }
-.form fields-12 > field {
+.form fields.cols-12 > field {
   width: 8.33333333%;
 }
-.form fields-12 > field:nth-of-type(1n) {
+.form fields.cols-12 > field:nth-of-type(1n) {
   clear: none;
 }
-.form fields-12 > field:nth-of-type(12n + 1) {
+.form fields.cols-12 > field:nth-of-type(12n + 1) {
   clear: both;
 }
-.form > fields-2 > field.colspan-2 {
+.form > fields.cols-2 > field.cols-2 {
   width: 100%;
 }
-.form > fields-3 > field.colspan-2 {
+.form > fields.cols-3 > field.cols-2 {
   width: 66.66666667%;
 }
-.form > fields-3 > field.colspan-3 {
+.form > fields.cols-3 > field.cols-3 {
   width: 100%;
 }
-.form > fields-4 > field.colspan-2 {
+.form > fields.cols-4 > field.cols-2 {
   width: 50%;
 }
-.form > fields-4 > field.colspan-3 {
+.form > fields.cols-4 > field.cols-3 {
   width: 75%;
 }
-.form > fields-4 > field.colspan-4 {
+.form > fields.cols-4 > field.cols-4 {
   width: 100%;
 }
-.form > fields-5 > field.colspan-2 {
+.form > fields.cols-5 > field.cols-2 {
   width: 40%;
 }
-.form > fields-5 > field.colspan-3 {
+.form > fields.cols-5 > field.cols-3 {
   width: 60%;
 }
-.form > fields-5 > field.colspan-4 {
+.form > fields.cols-5 > field.cols-4 {
   width: 80%;
 }
-.form > fields-5 > field.colspan-5 {
+.form > fields.cols-5 > field.cols-5 {
   width: 100%;
 }
-.form > fields-6 > field.colspan-2 {
+.form > fields.cols-6 > field.cols-2 {
   width: 33.33333333%;
 }
-.form > fields-6 > field.colspan-3 {
+.form > fields.cols-6 > field.cols-3 {
   width: 50%;
 }
-.form > fields-6 > field.colspan-4 {
+.form > fields.cols-6 > field.cols-4 {
   width: 66.66666667%;
 }
-.form > fields-6 > field.colspan-5 {
+.form > fields.cols-6 > field.cols-5 {
   width: 83.33333333%;
 }
-.form > fields-6 > field.colspan-6 {
+.form > fields.cols-6 > field.cols-6 {
   width: 100%;
 }
-.form > fields-7 > field.colspan-2 {
+.form > fields.cols-7 > field.cols-2 {
   width: 28.57142857%;
 }
-.form > fields-7 > field.colspan-3 {
+.form > fields.cols-7 > field.cols-3 {
   width: 42.85714286%;
 }
-.form > fields-7 > field.colspan-4 {
+.form > fields.cols-7 > field.cols-4 {
   width: 57.14285714%;
 }
-.form > fields-7 > field.colspan-5 {
+.form > fields.cols-7 > field.cols-5 {
   width: 71.42857143%;
 }
-.form > fields-7 > field.colspan-6 {
+.form > fields.cols-7 > field.cols-6 {
   width: 85.71428571%;
 }
-.form > fields-7 > field.colspan-7 {
+.form > fields.cols-7 > field.cols-7 {
   width: 100%;
 }
-.form > fields-8 > field.colspan-2 {
+.form > fields.cols-8 > field.cols-2 {
   width: 25%;
 }
-.form > fields-8 > field.colspan-3 {
+.form > fields.cols-8 > field.cols-3 {
   width: 37.5%;
 }
-.form > fields-8 > field.colspan-4 {
+.form > fields.cols-8 > field.cols-4 {
   width: 50%;
 }
-.form > fields-8 > field.colspan-5 {
+.form > fields.cols-8 > field.cols-5 {
   width: 62.5%;
 }
-.form > fields-8 > field.colspan-6 {
+.form > fields.cols-8 > field.cols-6 {
   width: 75%;
 }
-.form > fields-8 > field.colspan-7 {
+.form > fields.cols-8 > field.cols-7 {
   width: 87.5%;
 }
-.form > fields-8 > field.colspan-8 {
+.form > fields.cols-8 > field.cols-8 {
   width: 100%;
 }
-.form > fields-9 > field.colspan-2 {
+.form > fields.cols-9 > field.cols-2 {
   width: 22.22222222%;
 }
-.form > fields-9 > field.colspan-3 {
+.form > fields.cols-9 > field.cols-3 {
   width: 33.33333333%;
 }
-.form > fields-9 > field.colspan-4 {
+.form > fields.cols-9 > field.cols-4 {
   width: 44.44444444%;
 }
-.form > fields-9 > field.colspan-5 {
+.form > fields.cols-9 > field.cols-5 {
   width: 55.55555556%;
 }
-.form > fields-9 > field.colspan-6 {
+.form > fields.cols-9 > field.cols-6 {
   width: 66.66666667%;
 }
-.form > fields-9 > field.colspan-7 {
+.form > fields.cols-9 > field.cols-7 {
   width: 77.77777778%;
 }
-.form > fields-9 > field.colspan-8 {
+.form > fields.cols-9 > field.cols-8 {
   width: 88.88888889%;
 }
-.form > fields-9 > field.colspan-9 {
+.form > fields.cols-9 > field.cols-9 {
   width: 100%;
 }
-.form > fields-10 > field.colspan-2 {
+.form > fields.cols-10 > field.cols-2 {
   width: 20%;
 }
-.form > fields-10 > field.colspan-3 {
+.form > fields.cols-10 > field.cols-3 {
   width: 30%;
 }
-.form > fields-10 > field.colspan-4 {
+.form > fields.cols-10 > field.cols-4 {
   width: 40%;
 }
-.form > fields-10 > field.colspan-5 {
+.form > fields.cols-10 > field.cols-5 {
   width: 50%;
 }
-.form > fields-10 > field.colspan-6 {
+.form > fields.cols-10 > field.cols-6 {
   width: 60%;
 }
-.form > fields-10 > field.colspan-7 {
+.form > fields.cols-10 > field.cols-7 {
   width: 70%;
 }
-.form > fields-10 > field.colspan-8 {
+.form > fields.cols-10 > field.cols-8 {
   width: 80%;
 }
-.form > fields-10 > field.colspan-9 {
+.form > fields.cols-10 > field.cols-9 {
   width: 90%;
 }
-.form > fields-10 > field.colspan-10 {
+.form > fields.cols-10 > field.cols-10 {
   width: 100%;
 }
-.form > fields-11 > field.colspan-2 {
+.form > fields.cols-11 > field.cols-2 {
   width: 18.18181818%;
 }
-.form > fields-11 > field.colspan-3 {
+.form > fields.cols-11 > field.cols-3 {
   width: 27.27272727%;
 }
-.form > fields-11 > field.colspan-4 {
+.form > fields.cols-11 > field.cols-4 {
   width: 36.36363636%;
 }
-.form > fields-11 > field.colspan-5 {
+.form > fields.cols-11 > field.cols-5 {
   width: 45.45454545%;
 }
-.form > fields-11 > field.colspan-6 {
+.form > fields.cols-11 > field.cols-6 {
   width: 54.54545455%;
 }
-.form > fields-11 > field.colspan-7 {
+.form > fields.cols-11 > field.cols-7 {
   width: 63.63636364%;
 }
-.form > fields-11 > field.colspan-8 {
+.form > fields.cols-11 > field.cols-8 {
   width: 72.72727273%;
 }
-.form > fields-11 > field.colspan-9 {
+.form > fields.cols-11 > field.cols-9 {
   width: 81.81818182%;
 }
-.form > fields-11 > field.colspan-10 {
+.form > fields.cols-11 > field.cols-10 {
   width: 90.90909091%;
 }
-.form > fields-11 > field.colspan-11 {
+.form > fields.cols-11 > field.cols-11 {
   width: 100%;
 }
-.form > fields-12 > field.colspan-2 {
+.form > fields.cols-12 > field.cols-2 {
   width: 16.66666667%;
 }
-.form > fields-12 > field.colspan-3 {
+.form > fields.cols-12 > field.cols-3 {
   width: 25%;
 }
-.form > fields-12 > field.colspan-4 {
+.form > fields.cols-12 > field.cols-4 {
   width: 33.33333333%;
 }
-.form > fields-12 > field.colspan-5 {
+.form > fields.cols-12 > field.cols-5 {
   width: 41.66666667%;
 }
-.form > fields-12 > field.colspan-6 {
+.form > fields.cols-12 > field.cols-6 {
   width: 50%;
 }
-.form > fields-12 > field.colspan-7 {
+.form > fields.cols-12 > field.cols-7 {
   width: 58.33333333%;
 }
-.form > fields-12 > field.colspan-8 {
+.form > fields.cols-12 > field.cols-8 {
   width: 66.66666667%;
 }
-.form > fields-12 > field.colspan-9 {
+.form > fields.cols-12 > field.cols-9 {
   width: 75%;
 }
-.form > fields-12 > field.colspan-10 {
+.form > fields.cols-12 > field.cols-10 {
   width: 83.33333333%;
 }
-.form > fields-12 > field.colspan-11 {
+.form > fields.cols-12 > field.cols-11 {
   width: 91.66666667%;
 }
-.form > fields-12 > field.colspan-12 {
+.form > fields.cols-12 > field.cols-12 {
   width: 100%;
 }
 @media only screen and (min-width: 0em ) and (max-width: 42.5em ) {
@@ -979,303 +1019,6 @@ message {
     flex: 1 0 auto;
     width: initial;
   }
-}
-.form fields.two > field {
-  width: 50%;
-}
-.form fields.two > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.two > field:nth-of-type(2n + 1) {
-  clear: both;
-}
-.form fields.three > field {
-  width: 33.33333333%;
-}
-.form fields.three > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.three > field:nth-of-type(3n + 1) {
-  clear: both;
-}
-.form fields.four > field {
-  width: 25%;
-}
-.form fields.four > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.four > field:nth-of-type(4n + 1) {
-  clear: both;
-}
-.form fields.five > field {
-  width: 20%;
-}
-.form fields.five > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.five > field:nth-of-type(5n + 1) {
-  clear: both;
-}
-.form fields.six > field {
-  width: 16.66666667%;
-}
-.form fields.six > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.six > field:nth-of-type(6n + 1) {
-  clear: both;
-}
-.form fields.seven > field {
-  width: 14.28571429%;
-}
-.form fields.seven > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.seven > field:nth-of-type(7n + 1) {
-  clear: both;
-}
-.form fields.eight > field {
-  width: 12.5%;
-}
-.form fields.eight > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.eight > field:nth-of-type(8n + 1) {
-  clear: both;
-}
-.form fields.nine > field {
-  width: 11.11111111%;
-}
-.form fields.nine > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.nine > field:nth-of-type(9n + 1) {
-  clear: both;
-}
-.form fields.ten > field {
-  width: 10%;
-}
-.form fields.ten > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.ten > field:nth-of-type(10n + 1) {
-  clear: both;
-}
-.form fields.eleven > field {
-  width: 9.09090909%;
-}
-.form fields.eleven > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.eleven > field:nth-of-type(11n + 1) {
-  clear: both;
-}
-.form fields.twelve > field {
-  width: 8.33333333%;
-}
-.form fields.twelve > field:nth-of-type(1n) {
-  clear: none;
-}
-.form fields.twelve > field:nth-of-type(12n + 1) {
-  clear: both;
-}
-.form > fields.two > field.colspan-2 {
-  width: 100%;
-}
-.form > fields.three > field.colspan-2 {
-  width: 66.66666667%;
-}
-.form > fields.three > field.colspan-3 {
-  width: 100%;
-}
-.form > fields.four > field.colspan-2 {
-  width: 50%;
-}
-.form > fields.four > field.colspan-3 {
-  width: 75%;
-}
-.form > fields.four > field.colspan-4 {
-  width: 100%;
-}
-.form > fields.five > field.colspan-2 {
-  width: 40%;
-}
-.form > fields.five > field.colspan-3 {
-  width: 60%;
-}
-.form > fields.five > field.colspan-4 {
-  width: 80%;
-}
-.form > fields.five > field.colspan-5 {
-  width: 100%;
-}
-.form > fields.six > field.colspan-2 {
-  width: 33.33333333%;
-}
-.form > fields.six > field.colspan-3 {
-  width: 50%;
-}
-.form > fields.six > field.colspan-4 {
-  width: 66.66666667%;
-}
-.form > fields.six > field.colspan-5 {
-  width: 83.33333333%;
-}
-.form > fields.six > field.colspan-6 {
-  width: 100%;
-}
-.form > fields.seven > field.colspan-2 {
-  width: 28.57142857%;
-}
-.form > fields.seven > field.colspan-3 {
-  width: 42.85714286%;
-}
-.form > fields.seven > field.colspan-4 {
-  width: 57.14285714%;
-}
-.form > fields.seven > field.colspan-5 {
-  width: 71.42857143%;
-}
-.form > fields.seven > field.colspan-6 {
-  width: 85.71428571%;
-}
-.form > fields.seven > field.colspan-7 {
-  width: 100%;
-}
-.form > fields.eight > field.colspan-2 {
-  width: 25%;
-}
-.form > fields.eight > field.colspan-3 {
-  width: 37.5%;
-}
-.form > fields.eight > field.colspan-4 {
-  width: 50%;
-}
-.form > fields.eight > field.colspan-5 {
-  width: 62.5%;
-}
-.form > fields.eight > field.colspan-6 {
-  width: 75%;
-}
-.form > fields.eight > field.colspan-7 {
-  width: 87.5%;
-}
-.form > fields.eight > field.colspan-8 {
-  width: 100%;
-}
-.form > fields.nine > field.colspan-2 {
-  width: 22.22222222%;
-}
-.form > fields.nine > field.colspan-3 {
-  width: 33.33333333%;
-}
-.form > fields.nine > field.colspan-4 {
-  width: 44.44444444%;
-}
-.form > fields.nine > field.colspan-5 {
-  width: 55.55555556%;
-}
-.form > fields.nine > field.colspan-6 {
-  width: 66.66666667%;
-}
-.form > fields.nine > field.colspan-7 {
-  width: 77.77777778%;
-}
-.form > fields.nine > field.colspan-8 {
-  width: 88.88888889%;
-}
-.form > fields.nine > field.colspan-9 {
-  width: 100%;
-}
-.form > fields.ten > field.colspan-2 {
-  width: 20%;
-}
-.form > fields.ten > field.colspan-3 {
-  width: 30%;
-}
-.form > fields.ten > field.colspan-4 {
-  width: 40%;
-}
-.form > fields.ten > field.colspan-5 {
-  width: 50%;
-}
-.form > fields.ten > field.colspan-6 {
-  width: 60%;
-}
-.form > fields.ten > field.colspan-7 {
-  width: 70%;
-}
-.form > fields.ten > field.colspan-8 {
-  width: 80%;
-}
-.form > fields.ten > field.colspan-9 {
-  width: 90%;
-}
-.form > fields.ten > field.colspan-10 {
-  width: 100%;
-}
-.form > fields.eleven > field.colspan-2 {
-  width: 18.18181818%;
-}
-.form > fields.eleven > field.colspan-3 {
-  width: 27.27272727%;
-}
-.form > fields.eleven > field.colspan-4 {
-  width: 36.36363636%;
-}
-.form > fields.eleven > field.colspan-5 {
-  width: 45.45454545%;
-}
-.form > fields.eleven > field.colspan-6 {
-  width: 54.54545455%;
-}
-.form > fields.eleven > field.colspan-7 {
-  width: 63.63636364%;
-}
-.form > fields.eleven > field.colspan-8 {
-  width: 72.72727273%;
-}
-.form > fields.eleven > field.colspan-9 {
-  width: 81.81818182%;
-}
-.form > fields.eleven > field.colspan-10 {
-  width: 90.90909091%;
-}
-.form > fields.eleven > field.colspan-11 {
-  width: 100%;
-}
-.form > fields.twelve > field.colspan-2 {
-  width: 16.66666667%;
-}
-.form > fields.twelve > field.colspan-3 {
-  width: 25%;
-}
-.form > fields.twelve > field.colspan-4 {
-  width: 33.33333333%;
-}
-.form > fields.twelve > field.colspan-5 {
-  width: 41.66666667%;
-}
-.form > fields.twelve > field.colspan-6 {
-  width: 50%;
-}
-.form > fields.twelve > field.colspan-7 {
-  width: 58.33333333%;
-}
-.form > fields.twelve > field.colspan-8 {
-  width: 66.66666667%;
-}
-.form > fields.twelve > field.colspan-9 {
-  width: 75%;
-}
-.form > fields.twelve > field.colspan-10 {
-  width: 83.33333333%;
-}
-.form > fields.twelve > field.colspan-11 {
-  width: 91.66666667%;
-}
-.form > fields.twelve > field.colspan-12 {
-  width: 100%;
 }
 /*******************************
             Message
@@ -1724,641 +1467,487 @@ messages {
 [class*="block-grid-"]:after {
   clear: both;
 }
-[class*="block-grid-"] > li {
+[class*="block-grid-"] > li,
+[class*="block-grid-"] > block {
   display: block;
   float: left;
   height: auto;
 }
-[class*="block-grid-"] > li {
+[class*="block-grid-"] > li,
+[class*="block-grid-"] > block {
   padding: 0 0rem 0rem;
 }
 @media only screen {
-  .small-row-list > li {
+  .small-block-grid-1 > li,
+  .small-block-grid-1 > block {
     list-style: none;
     width: 100%;
   }
-  .small-block-grid-1 > li {
-    list-style: none;
-    width: 100%;
-  }
-  .small-block-grid-1 > li:nth-of-type(1n) {
+  .small-block-grid-1 > li:nth-of-type(1n),
+  .small-block-grid-1 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-1 > li:nth-of-type(1n + 1) {
+  .small-block-grid-1 > li:nth-of-type(1n + 1),
+  .small-block-grid-1 > block:nth-of-type(1n + 1) {
     clear: both;
   }
-  .small-block-grid-2 > li {
+  .small-block-grid-2 > li,
+  .small-block-grid-2 > block {
     list-style: none;
     width: 50%;
   }
-  .small-block-grid-2 > li:nth-of-type(1n) {
+  .small-block-grid-2 > li:nth-of-type(1n),
+  .small-block-grid-2 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-2 > li:nth-of-type(2n + 1) {
+  .small-block-grid-2 > li:nth-of-type(2n + 1),
+  .small-block-grid-2 > block:nth-of-type(2n + 1) {
     clear: both;
   }
-  .small-block-grid-3 > li {
+  .small-block-grid-3 > li,
+  .small-block-grid-3 > block {
     list-style: none;
     width: 33.33333333%;
   }
-  .small-block-grid-3 > li:nth-of-type(1n) {
+  .small-block-grid-3 > li:nth-of-type(1n),
+  .small-block-grid-3 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-3 > li:nth-of-type(3n + 1) {
+  .small-block-grid-3 > li:nth-of-type(3n + 1),
+  .small-block-grid-3 > block:nth-of-type(3n + 1) {
     clear: both;
   }
-  .small-block-grid-4 > li {
+  .small-block-grid-4 > li,
+  .small-block-grid-4 > block {
     list-style: none;
     width: 25%;
   }
-  .small-block-grid-4 > li:nth-of-type(1n) {
+  .small-block-grid-4 > li:nth-of-type(1n),
+  .small-block-grid-4 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-4 > li:nth-of-type(4n + 1) {
+  .small-block-grid-4 > li:nth-of-type(4n + 1),
+  .small-block-grid-4 > block:nth-of-type(4n + 1) {
     clear: both;
   }
-  .small-block-grid-5 > li {
+  .small-block-grid-5 > li,
+  .small-block-grid-5 > block {
     list-style: none;
     width: 20%;
   }
-  .small-block-grid-5 > li:nth-of-type(1n) {
+  .small-block-grid-5 > li:nth-of-type(1n),
+  .small-block-grid-5 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-5 > li:nth-of-type(5n + 1) {
+  .small-block-grid-5 > li:nth-of-type(5n + 1),
+  .small-block-grid-5 > block:nth-of-type(5n + 1) {
     clear: both;
   }
-  .small-block-grid-6 > li {
+  .small-block-grid-6 > li,
+  .small-block-grid-6 > block {
     list-style: none;
     width: 16.66666667%;
   }
-  .small-block-grid-6 > li:nth-of-type(1n) {
+  .small-block-grid-6 > li:nth-of-type(1n),
+  .small-block-grid-6 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-6 > li:nth-of-type(6n + 1) {
+  .small-block-grid-6 > li:nth-of-type(6n + 1),
+  .small-block-grid-6 > block:nth-of-type(6n + 1) {
     clear: both;
   }
-  .small-block-grid-7 > li {
+  .small-block-grid-7 > li,
+  .small-block-grid-7 > block {
     list-style: none;
     width: 14.28571429%;
   }
-  .small-block-grid-7 > li:nth-of-type(1n) {
+  .small-block-grid-7 > li:nth-of-type(1n),
+  .small-block-grid-7 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-7 > li:nth-of-type(7n + 1) {
+  .small-block-grid-7 > li:nth-of-type(7n + 1),
+  .small-block-grid-7 > block:nth-of-type(7n + 1) {
     clear: both;
   }
-  .small-block-grid-8 > li {
+  .small-block-grid-8 > li,
+  .small-block-grid-8 > block {
     list-style: none;
     width: 12.5%;
   }
-  .small-block-grid-8 > li:nth-of-type(1n) {
+  .small-block-grid-8 > li:nth-of-type(1n),
+  .small-block-grid-8 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-8 > li:nth-of-type(8n + 1) {
+  .small-block-grid-8 > li:nth-of-type(8n + 1),
+  .small-block-grid-8 > block:nth-of-type(8n + 1) {
     clear: both;
   }
-  .small-block-grid-9 > li {
+  .small-block-grid-9 > li,
+  .small-block-grid-9 > block {
     list-style: none;
     width: 11.11111111%;
   }
-  .small-block-grid-9 > li:nth-of-type(1n) {
+  .small-block-grid-9 > li:nth-of-type(1n),
+  .small-block-grid-9 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-9 > li:nth-of-type(9n + 1) {
+  .small-block-grid-9 > li:nth-of-type(9n + 1),
+  .small-block-grid-9 > block:nth-of-type(9n + 1) {
     clear: both;
   }
-  .small-block-grid-10 > li {
+  .small-block-grid-10 > li,
+  .small-block-grid-10 > block {
     list-style: none;
     width: 10%;
   }
-  .small-block-grid-10 > li:nth-of-type(1n) {
+  .small-block-grid-10 > li:nth-of-type(1n),
+  .small-block-grid-10 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-10 > li:nth-of-type(10n + 1) {
+  .small-block-grid-10 > li:nth-of-type(10n + 1),
+  .small-block-grid-10 > block:nth-of-type(10n + 1) {
     clear: both;
   }
-  .small-block-grid-11 > li {
+  .small-block-grid-11 > li,
+  .small-block-grid-11 > block {
     list-style: none;
     width: 9.09090909%;
   }
-  .small-block-grid-11 > li:nth-of-type(1n) {
+  .small-block-grid-11 > li:nth-of-type(1n),
+  .small-block-grid-11 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-11 > li:nth-of-type(11n + 1) {
+  .small-block-grid-11 > li:nth-of-type(11n + 1),
+  .small-block-grid-11 > block:nth-of-type(11n + 1) {
     clear: both;
   }
-  .small-block-grid-12 > li {
+  .small-block-grid-12 > li,
+  .small-block-grid-12 > block {
     list-style: none;
     width: 8.33333333%;
   }
-  .small-block-grid-12 > li:nth-of-type(1n) {
+  .small-block-grid-12 > li:nth-of-type(1n),
+  .small-block-grid-12 > block:nth-of-type(1n) {
     clear: none;
   }
-  .small-block-grid-12 > li:nth-of-type(12n + 1) {
+  .small-block-grid-12 > li:nth-of-type(12n + 1),
+  .small-block-grid-12 > block:nth-of-type(12n + 1) {
     clear: both;
   }
 }
 @media only screen and (min-width: 42.5625em ) {
-  .medium-row-list > li {
+  .medium-block-grid-1 > li,
+  .medium-block-grid-1 > block {
     list-style: none;
     width: 100%;
   }
-  .medium-block-grid-1 > li {
-    list-style: none;
-    width: 100%;
-  }
-  .medium-block-grid-1 > li:nth-of-type(1n) {
+  .medium-block-grid-1 > li:nth-of-type(1n),
+  .medium-block-grid-1 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-1 > li:nth-of-type(1n + 1) {
+  .medium-block-grid-1 > li:nth-of-type(1n + 1),
+  .medium-block-grid-1 > block:nth-of-type(1n + 1) {
     clear: both;
   }
-  .medium-block-grid-2 > li {
+  .medium-block-grid-2 > li,
+  .medium-block-grid-2 > block {
     list-style: none;
     width: 50%;
   }
-  .medium-block-grid-2 > li:nth-of-type(1n) {
+  .medium-block-grid-2 > li:nth-of-type(1n),
+  .medium-block-grid-2 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-2 > li:nth-of-type(2n + 1) {
+  .medium-block-grid-2 > li:nth-of-type(2n + 1),
+  .medium-block-grid-2 > block:nth-of-type(2n + 1) {
     clear: both;
   }
-  .medium-block-grid-3 > li {
+  .medium-block-grid-3 > li,
+  .medium-block-grid-3 > block {
     list-style: none;
     width: 33.33333333%;
   }
-  .medium-block-grid-3 > li:nth-of-type(1n) {
+  .medium-block-grid-3 > li:nth-of-type(1n),
+  .medium-block-grid-3 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-3 > li:nth-of-type(3n + 1) {
+  .medium-block-grid-3 > li:nth-of-type(3n + 1),
+  .medium-block-grid-3 > block:nth-of-type(3n + 1) {
     clear: both;
   }
-  .medium-block-grid-4 > li {
+  .medium-block-grid-4 > li,
+  .medium-block-grid-4 > block {
     list-style: none;
     width: 25%;
   }
-  .medium-block-grid-4 > li:nth-of-type(1n) {
+  .medium-block-grid-4 > li:nth-of-type(1n),
+  .medium-block-grid-4 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-4 > li:nth-of-type(4n + 1) {
+  .medium-block-grid-4 > li:nth-of-type(4n + 1),
+  .medium-block-grid-4 > block:nth-of-type(4n + 1) {
     clear: both;
   }
-  .medium-block-grid-5 > li {
+  .medium-block-grid-5 > li,
+  .medium-block-grid-5 > block {
     list-style: none;
     width: 20%;
   }
-  .medium-block-grid-5 > li:nth-of-type(1n) {
+  .medium-block-grid-5 > li:nth-of-type(1n),
+  .medium-block-grid-5 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-5 > li:nth-of-type(5n + 1) {
+  .medium-block-grid-5 > li:nth-of-type(5n + 1),
+  .medium-block-grid-5 > block:nth-of-type(5n + 1) {
     clear: both;
   }
-  .medium-block-grid-6 > li {
+  .medium-block-grid-6 > li,
+  .medium-block-grid-6 > block {
     list-style: none;
     width: 16.66666667%;
   }
-  .medium-block-grid-6 > li:nth-of-type(1n) {
+  .medium-block-grid-6 > li:nth-of-type(1n),
+  .medium-block-grid-6 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-6 > li:nth-of-type(6n + 1) {
+  .medium-block-grid-6 > li:nth-of-type(6n + 1),
+  .medium-block-grid-6 > block:nth-of-type(6n + 1) {
     clear: both;
   }
-  .medium-block-grid-7 > li {
+  .medium-block-grid-7 > li,
+  .medium-block-grid-7 > block {
     list-style: none;
     width: 14.28571429%;
   }
-  .medium-block-grid-7 > li:nth-of-type(1n) {
+  .medium-block-grid-7 > li:nth-of-type(1n),
+  .medium-block-grid-7 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-7 > li:nth-of-type(7n + 1) {
+  .medium-block-grid-7 > li:nth-of-type(7n + 1),
+  .medium-block-grid-7 > block:nth-of-type(7n + 1) {
     clear: both;
   }
-  .medium-block-grid-8 > li {
+  .medium-block-grid-8 > li,
+  .medium-block-grid-8 > block {
     list-style: none;
     width: 12.5%;
   }
-  .medium-block-grid-8 > li:nth-of-type(1n) {
+  .medium-block-grid-8 > li:nth-of-type(1n),
+  .medium-block-grid-8 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-8 > li:nth-of-type(8n + 1) {
+  .medium-block-grid-8 > li:nth-of-type(8n + 1),
+  .medium-block-grid-8 > block:nth-of-type(8n + 1) {
     clear: both;
   }
-  .medium-block-grid-9 > li {
+  .medium-block-grid-9 > li,
+  .medium-block-grid-9 > block {
     list-style: none;
     width: 11.11111111%;
   }
-  .medium-block-grid-9 > li:nth-of-type(1n) {
+  .medium-block-grid-9 > li:nth-of-type(1n),
+  .medium-block-grid-9 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-9 > li:nth-of-type(9n + 1) {
+  .medium-block-grid-9 > li:nth-of-type(9n + 1),
+  .medium-block-grid-9 > block:nth-of-type(9n + 1) {
     clear: both;
   }
-  .medium-block-grid-10 > li {
+  .medium-block-grid-10 > li,
+  .medium-block-grid-10 > block {
     list-style: none;
     width: 10%;
   }
-  .medium-block-grid-10 > li:nth-of-type(1n) {
+  .medium-block-grid-10 > li:nth-of-type(1n),
+  .medium-block-grid-10 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-10 > li:nth-of-type(10n + 1) {
+  .medium-block-grid-10 > li:nth-of-type(10n + 1),
+  .medium-block-grid-10 > block:nth-of-type(10n + 1) {
     clear: both;
   }
-  .medium-block-grid-11 > li {
+  .medium-block-grid-11 > li,
+  .medium-block-grid-11 > block {
     list-style: none;
     width: 9.09090909%;
   }
-  .medium-block-grid-11 > li:nth-of-type(1n) {
+  .medium-block-grid-11 > li:nth-of-type(1n),
+  .medium-block-grid-11 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-11 > li:nth-of-type(11n + 1) {
+  .medium-block-grid-11 > li:nth-of-type(11n + 1),
+  .medium-block-grid-11 > block:nth-of-type(11n + 1) {
     clear: both;
   }
-  .medium-block-grid-12 > li {
+  .medium-block-grid-12 > li,
+  .medium-block-grid-12 > block {
     list-style: none;
     width: 8.33333333%;
   }
-  .medium-block-grid-12 > li:nth-of-type(1n) {
+  .medium-block-grid-12 > li:nth-of-type(1n),
+  .medium-block-grid-12 > block:nth-of-type(1n) {
     clear: none;
   }
-  .medium-block-grid-12 > li:nth-of-type(12n + 1) {
+  .medium-block-grid-12 > li:nth-of-type(12n + 1),
+  .medium-block-grid-12 > block:nth-of-type(12n + 1) {
     clear: both;
   }
 }
 @media only screen and (min-width: 64.0625em ) {
-  .large-row-list > li {
+  .large-block-grid-1 > li,
+  .large-block-grid-1 > block {
     list-style: none;
     width: 100%;
   }
-  .large-block-grid-1 > li {
-    list-style: none;
-    width: 100%;
-  }
-  .large-block-grid-1 > li:nth-of-type(1n) {
+  .large-block-grid-1 > li:nth-of-type(1n),
+  .large-block-grid-1 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-1 > li:nth-of-type(1n + 1) {
+  .large-block-grid-1 > li:nth-of-type(1n + 1),
+  .large-block-grid-1 > block:nth-of-type(1n + 1) {
     clear: both;
   }
-  .large-block-grid-2 > li {
+  .large-block-grid-2 > li,
+  .large-block-grid-2 > block {
     list-style: none;
     width: 50%;
   }
-  .large-block-grid-2 > li:nth-of-type(1n) {
+  .large-block-grid-2 > li:nth-of-type(1n),
+  .large-block-grid-2 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-2 > li:nth-of-type(2n + 1) {
+  .large-block-grid-2 > li:nth-of-type(2n + 1),
+  .large-block-grid-2 > block:nth-of-type(2n + 1) {
     clear: both;
   }
-  .large-block-grid-3 > li {
+  .large-block-grid-3 > li,
+  .large-block-grid-3 > block {
     list-style: none;
     width: 33.33333333%;
   }
-  .large-block-grid-3 > li:nth-of-type(1n) {
+  .large-block-grid-3 > li:nth-of-type(1n),
+  .large-block-grid-3 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-3 > li:nth-of-type(3n + 1) {
+  .large-block-grid-3 > li:nth-of-type(3n + 1),
+  .large-block-grid-3 > block:nth-of-type(3n + 1) {
     clear: both;
   }
-  .large-block-grid-4 > li {
+  .large-block-grid-4 > li,
+  .large-block-grid-4 > block {
     list-style: none;
     width: 25%;
   }
-  .large-block-grid-4 > li:nth-of-type(1n) {
+  .large-block-grid-4 > li:nth-of-type(1n),
+  .large-block-grid-4 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-4 > li:nth-of-type(4n + 1) {
+  .large-block-grid-4 > li:nth-of-type(4n + 1),
+  .large-block-grid-4 > block:nth-of-type(4n + 1) {
     clear: both;
   }
-  .large-block-grid-5 > li {
+  .large-block-grid-5 > li,
+  .large-block-grid-5 > block {
     list-style: none;
     width: 20%;
   }
-  .large-block-grid-5 > li:nth-of-type(1n) {
+  .large-block-grid-5 > li:nth-of-type(1n),
+  .large-block-grid-5 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-5 > li:nth-of-type(5n + 1) {
+  .large-block-grid-5 > li:nth-of-type(5n + 1),
+  .large-block-grid-5 > block:nth-of-type(5n + 1) {
     clear: both;
   }
-  .large-block-grid-6 > li {
+  .large-block-grid-6 > li,
+  .large-block-grid-6 > block {
     list-style: none;
     width: 16.66666667%;
   }
-  .large-block-grid-6 > li:nth-of-type(1n) {
+  .large-block-grid-6 > li:nth-of-type(1n),
+  .large-block-grid-6 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-6 > li:nth-of-type(6n + 1) {
+  .large-block-grid-6 > li:nth-of-type(6n + 1),
+  .large-block-grid-6 > block:nth-of-type(6n + 1) {
     clear: both;
   }
-  .large-block-grid-7 > li {
+  .large-block-grid-7 > li,
+  .large-block-grid-7 > block {
     list-style: none;
     width: 14.28571429%;
   }
-  .large-block-grid-7 > li:nth-of-type(1n) {
+  .large-block-grid-7 > li:nth-of-type(1n),
+  .large-block-grid-7 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-7 > li:nth-of-type(7n + 1) {
+  .large-block-grid-7 > li:nth-of-type(7n + 1),
+  .large-block-grid-7 > block:nth-of-type(7n + 1) {
     clear: both;
   }
-  .large-block-grid-8 > li {
+  .large-block-grid-8 > li,
+  .large-block-grid-8 > block {
     list-style: none;
     width: 12.5%;
   }
-  .large-block-grid-8 > li:nth-of-type(1n) {
+  .large-block-grid-8 > li:nth-of-type(1n),
+  .large-block-grid-8 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-8 > li:nth-of-type(8n + 1) {
+  .large-block-grid-8 > li:nth-of-type(8n + 1),
+  .large-block-grid-8 > block:nth-of-type(8n + 1) {
     clear: both;
   }
-  .large-block-grid-9 > li {
+  .large-block-grid-9 > li,
+  .large-block-grid-9 > block {
     list-style: none;
     width: 11.11111111%;
   }
-  .large-block-grid-9 > li:nth-of-type(1n) {
+  .large-block-grid-9 > li:nth-of-type(1n),
+  .large-block-grid-9 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-9 > li:nth-of-type(9n + 1) {
+  .large-block-grid-9 > li:nth-of-type(9n + 1),
+  .large-block-grid-9 > block:nth-of-type(9n + 1) {
     clear: both;
   }
-  .large-block-grid-10 > li {
+  .large-block-grid-10 > li,
+  .large-block-grid-10 > block {
     list-style: none;
     width: 10%;
   }
-  .large-block-grid-10 > li:nth-of-type(1n) {
+  .large-block-grid-10 > li:nth-of-type(1n),
+  .large-block-grid-10 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-10 > li:nth-of-type(10n + 1) {
+  .large-block-grid-10 > li:nth-of-type(10n + 1),
+  .large-block-grid-10 > block:nth-of-type(10n + 1) {
     clear: both;
   }
-  .large-block-grid-11 > li {
+  .large-block-grid-11 > li,
+  .large-block-grid-11 > block {
     list-style: none;
     width: 9.09090909%;
   }
-  .large-block-grid-11 > li:nth-of-type(1n) {
+  .large-block-grid-11 > li:nth-of-type(1n),
+  .large-block-grid-11 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-11 > li:nth-of-type(11n + 1) {
+  .large-block-grid-11 > li:nth-of-type(11n + 1),
+  .large-block-grid-11 > block:nth-of-type(11n + 1) {
     clear: both;
   }
-  .large-block-grid-12 > li {
+  .large-block-grid-12 > li,
+  .large-block-grid-12 > block {
     list-style: none;
     width: 8.33333333%;
   }
-  .large-block-grid-12 > li:nth-of-type(1n) {
+  .large-block-grid-12 > li:nth-of-type(1n),
+  .large-block-grid-12 > block:nth-of-type(1n) {
     clear: none;
   }
-  .large-block-grid-12 > li:nth-of-type(12n + 1) {
-    clear: both;
-  }
-}
-@media only screen and (min-width: 90.0625em ) {
-  .xlarge-row-list > li {
-    list-style: none;
-    width: 100%;
-  }
-  .xlarge-block-grid-1 > li {
-    list-style: none;
-    width: 100%;
-  }
-  .xlarge-block-grid-1 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-1 > li:nth-of-type(1n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-2 > li {
-    list-style: none;
-    width: 50%;
-  }
-  .xlarge-block-grid-2 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-2 > li:nth-of-type(2n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-3 > li {
-    list-style: none;
-    width: 33.33333333%;
-  }
-  .xlarge-block-grid-3 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-3 > li:nth-of-type(3n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-4 > li {
-    list-style: none;
-    width: 25%;
-  }
-  .xlarge-block-grid-4 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-4 > li:nth-of-type(4n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-5 > li {
-    list-style: none;
-    width: 20%;
-  }
-  .xlarge-block-grid-5 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-5 > li:nth-of-type(5n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-6 > li {
-    list-style: none;
-    width: 16.66666667%;
-  }
-  .xlarge-block-grid-6 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-6 > li:nth-of-type(6n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-7 > li {
-    list-style: none;
-    width: 14.28571429%;
-  }
-  .xlarge-block-grid-7 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-7 > li:nth-of-type(7n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-8 > li {
-    list-style: none;
-    width: 12.5%;
-  }
-  .xlarge-block-grid-8 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-8 > li:nth-of-type(8n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-9 > li {
-    list-style: none;
-    width: 11.11111111%;
-  }
-  .xlarge-block-grid-9 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-9 > li:nth-of-type(9n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-10 > li {
-    list-style: none;
-    width: 10%;
-  }
-  .xlarge-block-grid-10 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-10 > li:nth-of-type(10n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-11 > li {
-    list-style: none;
-    width: 9.09090909%;
-  }
-  .xlarge-block-grid-11 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-11 > li:nth-of-type(11n + 1) {
-    clear: both;
-  }
-  .xlarge-block-grid-12 > li {
-    list-style: none;
-    width: 8.33333333%;
-  }
-  .xlarge-block-grid-12 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xlarge-block-grid-12 > li:nth-of-type(12n + 1) {
-    clear: both;
-  }
-}
-@media only screen and (min-width: 120.0625em ) {
-  .xxlarge-row-list > li {
-    list-style: none;
-    width: 100%;
-  }
-  .xxlarge-block-grid-1 > li {
-    list-style: none;
-    width: 100%;
-  }
-  .xxlarge-block-grid-1 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-1 > li:nth-of-type(1n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-2 > li {
-    list-style: none;
-    width: 50%;
-  }
-  .xxlarge-block-grid-2 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-2 > li:nth-of-type(2n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-3 > li {
-    list-style: none;
-    width: 33.33333333%;
-  }
-  .xxlarge-block-grid-3 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-3 > li:nth-of-type(3n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-4 > li {
-    list-style: none;
-    width: 25%;
-  }
-  .xxlarge-block-grid-4 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-4 > li:nth-of-type(4n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-5 > li {
-    list-style: none;
-    width: 20%;
-  }
-  .xxlarge-block-grid-5 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-5 > li:nth-of-type(5n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-6 > li {
-    list-style: none;
-    width: 16.66666667%;
-  }
-  .xxlarge-block-grid-6 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-6 > li:nth-of-type(6n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-7 > li {
-    list-style: none;
-    width: 14.28571429%;
-  }
-  .xxlarge-block-grid-7 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-7 > li:nth-of-type(7n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-8 > li {
-    list-style: none;
-    width: 12.5%;
-  }
-  .xxlarge-block-grid-8 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-8 > li:nth-of-type(8n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-9 > li {
-    list-style: none;
-    width: 11.11111111%;
-  }
-  .xxlarge-block-grid-9 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-9 > li:nth-of-type(9n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-10 > li {
-    list-style: none;
-    width: 10%;
-  }
-  .xxlarge-block-grid-10 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-10 > li:nth-of-type(10n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-11 > li {
-    list-style: none;
-    width: 9.09090909%;
-  }
-  .xxlarge-block-grid-11 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-11 > li:nth-of-type(11n + 1) {
-    clear: both;
-  }
-  .xxlarge-block-grid-12 > li {
-    list-style: none;
-    width: 8.33333333%;
-  }
-  .xxlarge-block-grid-12 > li:nth-of-type(1n) {
-    clear: none;
-  }
-  .xxlarge-block-grid-12 > li:nth-of-type(12n + 1) {
+  .large-block-grid-12 > li:nth-of-type(12n + 1),
+  .large-block-grid-12 > block:nth-of-type(12n + 1) {
     clear: both;
   }
 }

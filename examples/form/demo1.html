@@ -2,15 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>横向布局</title>
+    <title>表单布局</title>
     <script src="../include-all.js"></script>
     <style>
-        .ui.form > .fields > .field {
+        .ui.form > fields > field {
             position: relative;
             height: 4em;
         }
 
-        .ui.form > .fields > .field:before {
+        .ui.form > fields > field:before {
             position: absolute;
             content: "";
             left: 1px;
@@ -22,99 +22,59 @@
     </style>
 </head>
 <body>
+
+<v-box>
+    <box>
+
+    </box>
+    <flex-box>
+
+    </flex-box>
+</v-box>
 <div class="ui form">
-    <div class="fields-2">
-        <div class="field"></div>
-    </div>
-    <div class="fields two">
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields fields-3">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields fields-3">
-        <div class="field colspan-2"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields fields-4">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-
-    </div>
-    <div class="fields fields-6">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields fields-6">
-        <div class="field colspan-2"></div>
-        <div class="field colspan-3"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields fields-12">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-</div>
-
-
-<div class="ui form">
-    <div class="fields">
-        <div class="field"></div>
-    </div>
-    <div class="fields two">
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields three">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields three">
-        <div class="field colspan-2"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields four">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-
-    </div>
-    <div class="fields six">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields six">
-        <div class="field colspan-2"></div>
-        <div class="field colspan-3"></div>
-        <div class="field"></div>
-    </div>
-    <div class="fields twelve">
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-        <div class="field"></div>
-    </div>
+    <fields class="cols-2">
+        <field></field>
+    </fields>
+    <fields class="cols-2">
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-3">
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-3">
+        <field class="cols-2"></field>
+        <field></field>
+    </fields>
+    <fields class="cols-4">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-6">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-6">
+        <field class="cols-2"></field>
+        <field class="cols-3"></field>
+        <field></field>
+    </fields>
+    <fields class="cols-12">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
 </div>
 </body>
 </html>

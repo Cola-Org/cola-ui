@@ -1,97 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<script src="../include-all.js"></script>
+    <meta charset="UTF-8">
+    <title>表单布局</title>
+    <script src="../include-all.js"></script>
 </head>
 <body style="padding: 20px">
 
 <c-form>
-	<fields class="two">
-		<field property="name"></field>
-		<field property="age"></field>
-	</fields>
-	<fields class="two">
-		<field property="gender">
-			<label></label>
-			<c-select-button c-items="items" c-bind="gender"></c-select-button>
-		</field>
-	</fields>
-	<fields class="three">
-		<field property="province"></field>
-		<field property="city"></field>
-		<field property="district"></field>
-	</fields>
-	<field property="comment">
-		<label></label>
-		<c-textarea rows="5"></c-textarea>
-	</field>
-	<field>
-		<label></label>
-		<c-checkbox bind="agree" label="我已阅读并以同意以上条款"></c-checkbox>
-	</field>
+    <fields class="cols-2">
+        <field property="name"></field>
+        <field property="age"></field>
+    </fields>
+    <fields class="cols-2">
+        <field property="gender">
+            <label></label>
+            <c-select-button c-items="items" c-bind="gender"></c-select-button>
+        </field>
+    </fields>
+    <fields class="cols-2">
+        <field property="province" class="cols-1"></field>
+        <field property="city"></field>
+    </fields>
+    <fields>
+        <field property="province"></field>
+    </fields>
+    <field property="province"></field>
+    <field property="comment">
+        <label></label>
+        <c-textarea rows="5"></c-textarea>
+    </field>
+    <field>
+        <label></label>
+        <c-checkbox bind="agree" label="我已阅读并以同意以上条款"></c-checkbox>
+    </field>
 
-	<field>
-		<label></label>
-		<messages></messages>
-	</field>
+    <field>
+        <label></label>
+        <messages></messages>
+    </field>
 
-	<field>
-		<label></label>
-		<c-button class="red" c-onclick="submit()">提交</c-button>
-	</field>
+    <field>
+        <label></label>
+        <c-button class="red" c-onclick="submit()">提交</c-button>
+    </field>
 </c-form>
 
 <script>
-	cola(function (model) {
-		model.describe({
-			name: {
-				caption: "姓名",
-				validators: ["required"]
-			},
-			age: {
-				caption: "年龄",
-				dataType: "int",
-				validators: [{
-					$type: "number",
-					min: 16,
-					max: 80
-				}]
-			},
-			gender: {
-				caption: "性别"
-			},
-			province: {
-				caption: "省"
-			},
-			city: {
-				caption: "市"
-			},
-			district: {
-				caption: "区"
-			},
-			comment: {
-				caption: "备注"
-			}
-		});
+    cola(function (model) {
+        model.describe({
+            name: {
+                caption: "姓名",
+                validators: ["required"]
+            },
+            age: {
+                caption: "年龄",
+                dataType: "int",
+                validators: [{
+                    $type: "number",
+                    min: 16,
+                    max: 80
+                }]
+            },
+            gender: {
+                caption: "性别"
+            },
+            province: {
+                caption: "省"
+            },
+            city: {
+                caption: "市"
+            },
+            district: {
+                caption: "区"
+            },
+            comment: {
+                caption: "备注"
+            }
+        });
 
-		model.set("items", [
-			{
-				key: "0",
-				value: "男"
-			},
-			{
-				key: "1",
-				value: "女"
-			}
-		]);
+        model.set("items", [
+            {
+                key: "0",
+                value: "男"
+            },
+            {
+                key: "1",
+                value: "女"
+            }
+        ]);
 
-		model.action({
-			submit: function () {
-				model.get().validate();
-			}
-		});
-	})
+        model.action({
+            submit: function () {
+                model.get().validate();
+            }
+        });
+    })
 </script>
 </body>
 </html>

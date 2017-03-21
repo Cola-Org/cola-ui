@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10804,7 +10804,9 @@
   });
 
   cola._userDomCompiler = {
-    $: []
+    $: [],
+    $startContent: [],
+    $endContent: []
   };
 
   cola.xRender = function(template, model, context) {
@@ -10875,6 +10877,11 @@
         cola.currentScope = oldScope;
       }
     }
+    if (dom != null ? dom.getAttribute("c-repeat") : void 0) {
+      documentFragment = document.createDocumentFragment();
+      documentFragment.appendChild(dom);
+      dom = null;
+    }
     if (dom) {
       cola._renderDomTemplate(dom, model, context);
     } else if (documentFragment) {
@@ -10900,7 +10907,7 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, o, parts, q, ref, ref1, removeAttr, removeAttrs, result, tailDom, u, v, x, y;
+    var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
     if (dom.nodeType === 8) {
       return;
     }
@@ -10954,7 +10961,7 @@
     ref = cola._userDomCompiler.$;
     for (l = 0, len1 = ref.length; l < len1; l++) {
       customDomCompiler = ref[l];
-      result = customDomCompiler(scope, dom, null, context);
+      result = customDomCompiler(scope, dom, context);
       if (result) {
         if (result instanceof cola._BindingFeature) {
           features.push(result);
@@ -11056,10 +11063,24 @@
       if (defaultPath) {
         childContext.defaultPath = defaultPath;
       }
+      if (cola._userDomCompiler.$startContent.length) {
+        ref2 = cola._userDomCompiler.$startContent;
+        for (z = 0, len7 = ref2.length; z < len7; z++) {
+          customDomCompiler = ref2[z];
+          customDomCompiler(scope, dom, context, childContext);
+        }
+      }
       child = dom.firstChild;
       while (child) {
         child = _doRenderDomTemplate(child, scope, childContext) || child;
         child = child.nextSibling;
+      }
+      if (cola._userDomCompiler.$endContent.length) {
+        ref3 = cola._userDomCompiler.$endContent;
+        for (aa = 0, len8 = ref3.length; aa < len8; aa++) {
+          customDomCompiler = ref3[aa];
+          customDomCompiler(scope, dom, context, childContext);
+        }
       }
     } else {
       cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN);
@@ -11722,7 +11743,7 @@
     return config;
   };
 
-  cola._userDomCompiler.$.push(function(scope, dom, attr, context) {
+  cola._userDomCompiler.$.push(function(scope, dom, context) {
     var config, configKey, constr, jsonConfig, k, parentWidget, ref, ref1, tagName, v, widgetType;
     if (cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)) {
       return null;
@@ -11775,13 +11796,12 @@
     } else {
       constr = cola.resolveType((parentWidget != null ? parentWidget.CHILDREN_TYPE_NAMESPACE : void 0) || "widget", config, cola.Widget);
     }
-    config.$constr = context.parentWidget = constr;
+    config.$constr = constr;
     if (cola.util.isCompatibleType(cola.AbstractLayer, constr) && config.lazyRender) {
       cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true);
     }
     return function(scope, dom) {
       var oldScope, widget;
-      context.parentWidget = parentWidget;
       config.dom = dom;
       oldScope = cola.currentScope;
       cola.currentScope = scope;
@@ -11792,6 +11812,14 @@
         cola.currentScope = oldScope;
       }
     };
+  });
+
+  cola._userDomCompiler.$startContent.push(function(scope, dom, context, childContext) {
+    var widget;
+    widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY);
+    if (widget) {
+      return childContext.parentWidget = widget.constructor;
+    }
   });
 
   cola.registerTypeResolver("widget", function(config) {

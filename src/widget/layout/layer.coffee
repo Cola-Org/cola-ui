@@ -36,6 +36,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		return @
 	_doTransition: (options, callback)->
 	show: (options = {}, callback)->
+
 		return @ if !@_dom or @isVisible()
 
 		if @_lazyRender and not @_contentRendered
@@ -66,7 +67,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		return @[if @isVisible() then "hide" else "show"].apply(@, arguments)
 
 	isVisible: ()->
-		return  @get$Dom().transition("stop all").transition("is visible")
+		return  @get$Dom().transition("stop all").hasClass("visible")
 
 class cola.Layer extends cola.AbstractLayer
 	@CLASS_NAME: "layer transition hidden"

@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -10804,7 +10804,9 @@
   });
 
   cola._userDomCompiler = {
-    $: []
+    $: [],
+    $startContent: [],
+    $endContent: []
   };
 
   cola.xRender = function(template, model, context) {
@@ -10875,6 +10877,11 @@
         cola.currentScope = oldScope;
       }
     }
+    if (dom != null ? dom.getAttribute("c-repeat") : void 0) {
+      documentFragment = document.createDocumentFragment();
+      documentFragment.appendChild(dom);
+      dom = null;
+    }
     if (dom) {
       cola._renderDomTemplate(dom, model, context);
     } else if (documentFragment) {
@@ -10900,7 +10907,7 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, o, parts, q, ref, ref1, removeAttr, removeAttrs, result, tailDom, u, v, x, y;
+    var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
     if (dom.nodeType === 8) {
       return;
     }
@@ -10954,7 +10961,7 @@
     ref = cola._userDomCompiler.$;
     for (l = 0, len1 = ref.length; l < len1; l++) {
       customDomCompiler = ref[l];
-      result = customDomCompiler(scope, dom, null, context);
+      result = customDomCompiler(scope, dom, context);
       if (result) {
         if (result instanceof cola._BindingFeature) {
           features.push(result);
@@ -11056,10 +11063,24 @@
       if (defaultPath) {
         childContext.defaultPath = defaultPath;
       }
+      if (cola._userDomCompiler.$startContent.length) {
+        ref2 = cola._userDomCompiler.$startContent;
+        for (z = 0, len7 = ref2.length; z < len7; z++) {
+          customDomCompiler = ref2[z];
+          customDomCompiler(scope, dom, context, childContext);
+        }
+      }
       child = dom.firstChild;
       while (child) {
         child = _doRenderDomTemplate(child, scope, childContext) || child;
         child = child.nextSibling;
+      }
+      if (cola._userDomCompiler.$endContent.length) {
+        ref3 = cola._userDomCompiler.$endContent;
+        for (aa = 0, len8 = ref3.length; aa < len8; aa++) {
+          customDomCompiler = ref3[aa];
+          customDomCompiler(scope, dom, context, childContext);
+        }
       }
     } else {
       cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN);
@@ -11722,7 +11743,7 @@
     return config;
   };
 
-  cola._userDomCompiler.$.push(function(scope, dom, attr, context) {
+  cola._userDomCompiler.$.push(function(scope, dom, context) {
     var config, configKey, constr, jsonConfig, k, parentWidget, ref, ref1, tagName, v, widgetType;
     if (cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)) {
       return null;
@@ -11775,13 +11796,12 @@
     } else {
       constr = cola.resolveType((parentWidget != null ? parentWidget.CHILDREN_TYPE_NAMESPACE : void 0) || "widget", config, cola.Widget);
     }
-    config.$constr = context.parentWidget = constr;
+    config.$constr = constr;
     if (cola.util.isCompatibleType(cola.AbstractLayer, constr) && config.lazyRender) {
       cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true);
     }
     return function(scope, dom) {
       var oldScope, widget;
-      context.parentWidget = parentWidget;
       config.dom = dom;
       oldScope = cola.currentScope;
       cola.currentScope = scope;
@@ -11792,6 +11812,14 @@
         cola.currentScope = oldScope;
       }
     };
+  });
+
+  cola._userDomCompiler.$startContent.push(function(scope, dom, context, childContext) {
+    var widget;
+    widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY);
+    if (widget) {
+      return childContext.parentWidget = widget.constructor;
+    }
   });
 
   cola.registerTypeResolver("widget", function(config) {
@@ -13030,7 +13058,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -17933,7 +17961,7 @@ Template
     };
 
     AbstractLayer.prototype.isVisible = function() {
-      return this.get$Dom().transition("stop all").transition("is visible");
+      return this.get$Dom().transition("stop all").hasClass("visible");
     };
 
     return AbstractLayer;
@@ -19699,9 +19727,9 @@ Template
       return NotifyTip.__super__.constructor.apply(this, arguments);
     }
 
-    NotifyTip.tagName = "c-notify-tip";
+    NotifyTip.tagName = "message";
 
-    NotifyTip.CLASS_NAME = "transition hidden notify-tip message";
+    NotifyTip.CLASS_NAME = "notify-tip transition hidden message";
 
     NotifyTip.attributes = {
       type: {
@@ -19749,7 +19777,8 @@ Template
       }
       NotifyTip.__super__._doRefreshDom.call(this);
       $(this._doms.header).text(this._message || "");
-      return $(this._doms.description).text(this._description || "");
+      $(this._doms.description).text(this._description || "");
+      return $(this._dom).addClass(this._type);
     };
 
     NotifyTip.prototype._doTransition = function(options, callback) {
@@ -19760,7 +19789,7 @@ Template
         if (cola.device.mobile) {
           options.animation = "scale";
         }
-        this.get$Dom().addClass(this._type);
+        this._type && this.get$Dom().addClass(this._type);
         if (this._showDuration) {
           setTimeout(function() {
             return notifyTip.hide();
@@ -20124,7 +20153,7 @@ Template
       }
       if (!this._bind) {
         fieldDom = dom.parentNode;
-        if (fieldDom.nodeName === "FIELD") {
+        if ((fieldDom != null ? fieldDom.nodeName : void 0) === "FIELD") {
           this._field = cola.widget(fieldDom);
           if ((ref = this._field) != null ? ref._bind : void 0) {
             this.set("bind", this._field._bind);
@@ -22182,6 +22211,11 @@ Template
       }
       $fly(dom).delegate(">.icon", "click", (function(_this) {
         return function() {
+          debugger;
+          if (_this._finalReadOnly && !_this._disabled && !_this._opened) {
+            _this.open();
+            return;
+          }
           if (_this._opened) {
             _this.close();
           } else {
@@ -22325,7 +22359,7 @@ Template
       var $inputDom, ref;
       $inputDom = $fly(this._doms.input);
       $inputDom.attr("placeholder", this.get("placeholder"));
-      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly());
+      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly() || this._disabled);
       if ((ref = this.get("actionButton")) != null) {
         ref.set("disabled", this._finalReadOnly);
       }
@@ -22523,7 +22557,10 @@ Template
 
     AbstractDropdown.prototype.open = function(callback) {
       var $containerDom, $flexContent, clientHeight, container, containerHeight, doCallback, height;
-      if (this._finalReadOnly || this.fire("beforeOpen", this) === false) {
+      if (this._finalReadOnly && this._disabled) {
+        return;
+      }
+      if (this.fire("beforeOpen", this) === false) {
         return;
       }
       doCallback = (function(_this) {
@@ -24447,7 +24484,7 @@ Template
 
     SelectButton.tagName = "c-select-button";
 
-    SelectButton.CLASS_NAME = "ui select-button";
+    SelectButton.CLASS_NAME = "ui select-button buttons";
 
     SelectButton.attributes = {
       items: {
@@ -24537,20 +24574,13 @@ Template
         }
         raw = attrBinding.expression.raw;
         itemsDom = cola.xRender({
-          tagName: "div",
-          "class": "ui buttons",
-          content: {
-            tagName: "c-button",
-            "c-repeat": "item in " + raw,
-            "c-caption": cText,
-            "c-value": cValue
-          }
+          tagName: "c-button",
+          "c-repeat": "item in " + raw,
+          "c-caption": cText,
+          "c-value": cValue
         }, attrBinding.scope);
       } else {
-        itemsDom = $.xCreate({
-          tagName: "div",
-          "class": "ui buttons"
-        });
+        itemsDom = document.createDocumentFragment();
         ref1 = this._items;
         for (n = 0, len1 = ref1.length; n < len1; n++) {
           item = ref1[n];
@@ -24578,7 +24608,11 @@ Template
     Form.CLASS_NAME = "form";
 
     Form.attributes = {
-      bind: null
+      bind: {
+        setter: function(bindStr) {
+          return this._bindSetter(bindStr);
+        }
+      }
     };
 
     function Form(config) {
@@ -24632,9 +24666,13 @@ Template
       }
     };
 
+    Form.prototype._refreshBindingValue = cola._EMPTY_FUNC;
+
     return Form;
 
   })(cola.Widget);
+
+  cola.Element.mixin(cola.Form, cola.DataWidgetMixin);
 
   cola.registerWidget(cola.Form);
 
@@ -31864,6 +31902,9 @@ Template
         reaonlyAfterCreate: true
       },
       caption: null,
+      align: {
+        "enum": ["left", "center", "right"]
+      },
       visible: {
         type: "boolean",
         defaultValue: true,
@@ -31989,9 +32030,6 @@ Template
     TableContentColumn.attributes = {
       width: {
         defaultValue: 80
-      },
-      align: {
-        "enum": ["left", "center", "right"]
       },
       valign: {
         "enum": ["top", "center", "bottom"]
@@ -32489,6 +32527,13 @@ Template
             columns.push(column);
           }
           dom.removeChild(child);
+        } else if (nodeName === "SELECT-COLUMN") {
+          column = this._parseColumnDom(child);
+          column.$type = "select";
+          if (column) {
+            columns.push(column);
+          }
+          dom.removeChild(child);
         } else {
           dom.removeChild(child);
         }
@@ -32528,7 +32573,7 @@ Template
             templateName = "template";
           }
           column[templateName] = this.trimTemplate(child);
-        } else if (nodeName === "COLUMN") {
+        } else if (child.nodeType === 1) {
           subColumn = this._parseColumnDom(child);
           if (column.columns == null) {
             column.columns = [];
@@ -32591,7 +32636,7 @@ Template
     };
 
     Table.prototype._sysHeaderClick = function(column) {
-      var collection, criteria, invoker, parameter, processed, property, provider, sortDirection;
+      var col, colInfo, colInfos, collection, criteria, invoker, len1, n, parameter, processed, property, provider, sortDirection;
       if (column instanceof cola.TableDataColumn && column.get("sortable")) {
         sortDirection = column.get("sortDirection");
         if (sortDirection === "asc") {
@@ -32629,6 +32674,14 @@ Template
             property = property.slice(this._alias.length + 1);
           }
           criteria += property;
+        }
+        colInfos = this._columnsInfo.dataColumns;
+        for (n = 0, len1 = colInfos.length; n < len1; n++) {
+          colInfo = colInfos[n];
+          col = colInfo.column;
+          if (col !== column) {
+            col.set("sortDirection", null);
+          }
         }
         if (this._sortMode === "remote") {
           if (collection instanceof cola.EntityList) {
@@ -32746,17 +32799,19 @@ Template
             contextKey: "tfoot"
           }, this._doms);
           tfoot = this._doms.tfoot;
-          $fly(tfoot).delegate("td", "click", function(evt) {
-            var columnName, eventArg;
-            columnName = evt.currentTarget._name;
-            column = this.getColumn(columnName);
-            eventArg = {
-              column: column
+          $fly(tfoot).delegate("td", "click", (function(_this) {
+            return function(evt) {
+              var columnName, eventArg;
+              columnName = evt.currentTarget._name;
+              column = _this.getColumn(columnName);
+              eventArg = {
+                column: column
+              };
+              if (column.fire("footerClick", _this, eventArg) !== false) {
+                _this.fire("footerClick", _this, eventArg);
+              }
             };
-            if (column.fire("footerClick", this, eventArg) !== false) {
-              this.fire("footerClick", this, eventArg);
-            }
-          });
+          })(this));
         }
         this._refreshFooter(tfoot);
         if (!this._fixedFooterVisible) {
@@ -33874,7 +33929,11 @@ Template
 
     Pager.prototype._onItemsLoadingEnd = function(arg) {};
 
-    Pager.prototype._onCurrentItemChange = function(arg) {};
+    Pager.prototype._onCurrentItemChange = function(arg) {
+      if (this._pageNo !== arg.entityList.pageNo) {
+        return this.pagerItemsRefresh();
+      }
+    };
 
     return Pager;
 

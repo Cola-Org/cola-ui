@@ -32,7 +32,7 @@
 
 .per-col-span-content(@row) {
 	.mixin-loop (@i) when (@i<=@row) {
-		> field.colspan-@{i} {
+		> field.cols-@{i} {
 			width: 100%/@row * @i;
 		}
 		.mixin-loop(@i+1);
@@ -42,7 +42,7 @@
 
 .per-col-span() {
 	.mixin-loop (@x) when (@x<=@fields-elements) {
-		> fields-@{x} {
+		> fields.cols-@{x} {
 			.per-col-span-content(@x);
 		}
 		.mixin-loop(@x+1);
@@ -70,7 +70,7 @@
 
 .fields-html-classes(@include-spacing) {
 	.mixin-loop (@i) when (@i<=@fields-elements) {
-		fields-@{i} {
+		fields.cols-@{i} {
 			.per-row(@i, @fields-default-spacing, @include-spacing);
 		}
 		.mixin-loop(@i+1);
@@ -90,7 +90,7 @@
 	width: 100%;
 }
 
-.form > fields, .form > [class*="fields-"] {
+.form > fields {
 	.base-fields();
 }
 
@@ -135,7 +135,7 @@
 			-webkit-flex: 1 0 auto;
 			-ms-flex: 1 0 auto;
 			flex: 1 0 auto;
-			width: inherit;
+			width: auto;
 		}
 		> .ui.textarea {
 			width: auto;
@@ -165,5 +165,5 @@
 	}
 }
 
-@import "form-extend.less";
+//@import "form-extend.less";
 @import "form-message.less";

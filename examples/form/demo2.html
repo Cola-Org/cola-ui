@@ -2,115 +2,70 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>横向布局</title>
+    <title>表单布局</title>
     <script src="../include-all.js"></script>
 </head>
 <body style="padding: 20px">
 <div class="ui form">
-    <div class="fields-2">
-        <div class="field required">
+    <fields class="cols-2">
+        <field class="required">
             <label>姓名:</label>
             <c-input></c-input>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>年龄:</label>
             <c-input></c-input>
-        </div>
-    </div>
-    <div class="fields-2">
-        <div class="field required">
+        </field>
+    </fields>
+    <fields class="cols-2">
+        <field class="required">
             <label>性别:</label>
             <c-select-button c-items="items" c-bind="gender" keyProperty="key"
                              valueProperty="value"></c-select-button>
-        </div>
-    </div>
+        </field>
+    </fields>
 
-    <div class="field">
+    <field>
         <label>个人简介:</label>
         <c-textarea rows="5">
         </c-textarea>
-    </div>
+    </field>
 
-    <div class="fields-3">
-        <div class="field">
+    <fields class="cols-3">
+        <field>
             <label>省:</label>
             <c-input></c-input>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>市:</label>
             <c-input></c-input>
-        </div>
-        <div class="field">
+        </field>
+        <field>
             <label>区县:</label>
             <c-input></c-input>
-        </div>
-    </div>
-    <div class="field">
+        </field>
+        <field class="cols-3">
+            <label>地址:</label>
+            <c-input></c-input>
+        </field>
+    </fields>
+    <field>
         <label>详细信息:</label>
         <c-textarea rows="5">
         </c-textarea>
-    </div>
-    <div class="field">
+    </field>
+
+    <field>
         <label></label>
         <c-checkbox label="我已阅读并以同意以上条款"></c-checkbox>
-    </div>
-
-    <div class="ui error message">
+    </field>
+    <message class="error">
         <div class="header">Action Forbidden</div>
         <p>You can only sign up for an account once with a given e-mail address.</p>
-    </div>
+    </message>
 
 </div>
-<div class="ui form">
-    <div class="two fields">
-        <div class="field required">
-            <label>姓名:</label>
-            <c-input>
-            </c-input>
-        </div>
-        <div class="field">
-            <label>年龄:</label>
-            <c-input></c-input>
-        </div>
-    </div>
-    <div class="two fields">
-        <div class="field required">
-            <label>性别:</label>
-            <c-select-button c-items="items" c-bind="gender" keyProperty="key"
-                             valueProperty="value"></c-select-button>
-        </div>
-    </div>
 
-    <div class="field">
-        <label>个人简介:</label>
-        <c-textarea rows="5">
-        </c-textarea>
-    </div>
-
-    <div class="three fields">
-        <div class="field">
-            <label>省:</label>
-            <c-input></c-input>
-        </div>
-        <div class="field">
-            <label>市:</label>
-            <c-input></c-input>
-        </div>
-        <div class="field">
-            <label>区县:</label>
-            <c-input></c-input>
-        </div>
-    </div>
-    <div class="field">
-        <label>详细信息:</label>
-        <c-textarea rows="5">
-        </c-textarea>
-    </div>
-    <div class="field">
-        <label></label>
-        <c-checkbox label="我已阅读并以同意以上条款"></c-checkbox>
-    </div>
-</div>
 <script>
     cola(function (model) {
         model.set("items", [

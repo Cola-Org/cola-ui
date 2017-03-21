@@ -1,8 +1,8 @@
 TipManager = []
 
 class cola.NotifyTip extends cola.Layer
-	@tagName: "c-notify-tip"
-	@CLASS_NAME: "transition hidden notify-tip message"
+	@tagName: "message"
+	@CLASS_NAME: "notify-tip transition hidden message"
 	@attributes:
 		type:
 			defaultValue: ""
@@ -42,6 +42,7 @@ class cola.NotifyTip extends cola.Layer
 		super()
 		$(@_doms.header).text(@_message || "")
 		$(@_doms.description).text(@_description || "")
+		$(@_dom).addClass(@_type)
 
 	_doTransition: (options, callback)->
 		notifyTip = @
@@ -50,7 +51,7 @@ class cola.NotifyTip extends cola.Layer
 			if cola.device.mobile
 				options.animation = "scale"
 
-			@get$Dom().addClass(@_type)
+			@_type && @get$Dom().addClass(@_type)
 			if @_showDuration
 				setTimeout(()->
 					notifyTip.hide()
