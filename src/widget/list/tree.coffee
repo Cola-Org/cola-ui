@@ -118,6 +118,7 @@ class cola.Tree extends cola.AbstractList
 
 	_initDom: (dom) ->
 		super(dom)
+		$fly(dom).attr("tabIndex", 1)
 		$fly(@_doms.itemsWrapper)
 		.delegate(".expand-button", "click", (evt) => @_expandButtonClick(evt))
 		.delegate(".tree.item", "click", (evt) =>

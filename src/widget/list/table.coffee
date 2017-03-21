@@ -614,13 +614,13 @@ class cola.Table extends cola.AbstractTable
 			td = $(this).closest("td")[0]
 			tr = $(td).parent()[0]
 			colIndex = $(td).index()
-			if keyCode == 38
+			if keyCode is 38
 				targetRow = tr.previousElementSibling;
-			else if keyCode == 40
+			else if keyCode is 40
 				targetRow = tr.nextElementSibling
-			else if ctrlKey && keyCode == 37
+			else if ctrlKey && keyCode is 37
 				targetCell = td.previousElementSibling;
-			else if ctrlKey && keyCode == 39
+			else if ctrlKey && keyCode is 39
 				targetCell = td.nextElementSibling
 
 			if targetRow

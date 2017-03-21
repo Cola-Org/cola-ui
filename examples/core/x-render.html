@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			var frag = cola.xRender({
+				"c-repeat": "n in [1,2,3,4,5]",
+				"c-bind": "n"
+			});
+			document.body.appendChild(frag);
+		});
+	</script>
+</head>
+<body class="c-view">
+
+</body>
+</html>
