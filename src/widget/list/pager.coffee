@@ -325,6 +325,8 @@ class cola.Pager extends cola.Menu
 	_onItemsLoadingStart: (arg)->
 	_onItemsLoadingEnd: (arg)->
 	_onCurrentItemChange: (arg)->
+		if @_pageNo isnt arg.entityList.pageNo
+			@pagerItemsRefresh()
 
 cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)
 

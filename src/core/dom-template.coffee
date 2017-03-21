@@ -84,6 +84,8 @@ $ () -> cola._init()
 
 cola._userDomCompiler =
 	$: []
+	$startContent: []
+	$endContent: []
 
 cola.xRender = (template, model, context) ->
 	return unless template
@@ -187,7 +189,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			dom.removeAttribute("c-alias")
 
 	for customDomCompiler in cola._userDomCompiler.$
-		result = customDomCompiler(scope, dom, null, context)
+		result = customDomCompiler(scope, dom, context)
 		if result
 			if result instanceof cola._BindingFeature
 				features.push(result)
@@ -255,10 +257,18 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType == "repeat"
 		childContext.defaultPath = defaultPath if defaultPath
 
+		if cola._userDomCompiler.$startContent.length
+			for customDomCompiler in cola._userDomCompiler.$startContent
+				customDomCompiler(scope, dom, context, childContext)
+
 		child = dom.firstChild
 		while child
 			child = _doRenderDomTemplate(child, scope, childContext) or child
 			child = child.nextSibling
+
+		if cola._userDomCompiler.$endContent.length
+			for customDomCompiler in cola._userDomCompiler.$endContent
+				customDomCompiler(scope, dom, context, childContext)
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
 

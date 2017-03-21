@@ -53,6 +53,11 @@ class cola.Table extends cola.AbstractTable
 					property = property.slice(@_alias.length + 1)
 				criteria += property
 
+			colInfos = @_columnsInfo.dataColumns
+			for colInfo in colInfos
+				col = colInfo.column
+				if col isnt column then col.set("sortDirection", null)
+
 			if @_sortMode is "remote"
 				if collection instanceof cola.EntityList
 					invoker = collection._providerInvoker
@@ -158,7 +163,7 @@ class cola.Table extends cola.AbstractTable
 				}, @_doms)
 
 				tfoot = @_doms.tfoot
-				$fly(tfoot).delegate("td", "click", (evt) ->
+				$fly(tfoot).delegate("td", "click", (evt) =>
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =

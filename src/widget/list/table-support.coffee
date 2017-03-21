@@ -13,6 +13,8 @@ class cola.TableColumn extends cola.Element
         name:
             reaonlyAfterCreate: true
         caption: null
+        align:
+            enum: ["left", "center", "right"]
         visible:
             type: "boolean"
             defaultValue: true
@@ -89,8 +91,6 @@ class cola.TableContentColumn extends cola.TableColumn
     @attributes:
         width:
             defaultValue: 80
-        align:
-            enum: ["left", "center", "right"]
         valign:
             enum: ["top", "center", "bottom"]
         footerTemplate: null
@@ -437,6 +437,11 @@ class cola.AbstractTable extends cola.AbstractList
                 column = @_parseColumnDom(child)
                 if column then columns.push(column)
                 dom.removeChild(child)
+            else if nodeName is "SELECT-COLUMN"
+                column = @_parseColumnDom(child)
+                column.$type = "select"
+                if column then columns.push(column)
+                dom.removeChild(child)
             else
                 dom.removeChild(child)
             child = next
@@ -469,7 +474,7 @@ class cola.AbstractTable extends cola.AbstractList
                 else
                     templateName = "template"
                 column[templateName] = @trimTemplate(child)
-            else if nodeName is "COLUMN"
+            else if child.nodeType is 1
                 subColumn = @_parseColumnDom(child)
                 column.columns ?= []
                 column.columns.push(subColumn)

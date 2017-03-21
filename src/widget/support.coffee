@@ -145,7 +145,7 @@ _compileWidgetAttribute = (scope, dom, context) ->
                             config[ip] = iv for ip, iv of importConfig
     return config
 
-cola._userDomCompiler.$.push((scope, dom, attr, context) ->
+cola._userDomCompiler.$.push((scope, dom, context) ->
     return null if cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
     return null unless dom.nodeType is 1
 
@@ -182,13 +182,12 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
         constr = config.$constr
     else
         constr = cola.resolveType((parentWidget?.CHILDREN_TYPE_NAMESPACE or "widget"), config, cola.Widget)
-    config.$constr = context.parentWidget = constr
+    config.$constr = constr
 
     if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender
         cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
 
     return (scope, dom) ->
-        context.parentWidget = parentWidget
         config.dom = dom
         oldScope = cola.currentScope
         cola.currentScope = scope
@@ -197,6 +196,12 @@ cola._userDomCompiler.$.push((scope, dom, attr, context) ->
             return widget
         finally
             cola.currentScope = oldScope
+)
+
+cola._userDomCompiler.$startContent.push((scope, dom, context, childContext) ->
+    widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
+    if widget
+        childContext.parentWidget = widget.constructor
 )
 
 cola.registerTypeResolver "widget", (config) ->

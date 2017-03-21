@@ -3,7 +3,8 @@ class cola.Form extends cola.Widget
 	@CLASS_NAME: "form"
 
 	@attributes:
-		bind: null
+		bind:
+			setter: (bindStr) -> @_bindSetter(bindStr)
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
@@ -49,8 +50,10 @@ class cola.Form extends cola.Widget
 			})
 		return
 
-cola.registerWidget(cola.Form)
+	_refreshBindingValue: cola._EMPTY_FUNC
 
+cola.Element.mixin(cola.Form, cola.DataWidgetMixin)
+cola.registerWidget(cola.Form)
 
 class cola.Field extends cola.Widget
 	@tagName: "field"
