@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -6164,7 +6164,7 @@
       }
       if (name instanceof cola.Scope) {
         parent = name;
-        name = void 0;
+        name = undefine;
       }
       if (name) {
         this.name = name;
@@ -13058,7 +13058,7 @@
 
 }).call(this);
 
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -22101,6 +22101,14 @@ Template
       cola.util.toggleClass(this._doms.input, "placeholder", (value == null) || value === "");
     };
 
+    Select.prototype._doRefreshDom = function() {
+      if (!this._dom) {
+        return;
+      }
+      Select.__super__._doRefreshDom.call(this);
+      return $(this._doms.input).prop("disabled", this._readOnly);
+    };
+
     return Select;
 
   })(cola.AbstractInput);
@@ -22211,6 +22219,11 @@ Template
       }
       $fly(dom).delegate(">.icon", "click", (function(_this) {
         return function() {
+          debugger;
+          if (_this._finalReadOnly && !_this._disabled && !_this._opened) {
+            _this.open();
+            return;
+          }
           if (_this._opened) {
             _this.close();
           } else {
@@ -22354,7 +22367,7 @@ Template
       var $inputDom, ref;
       $inputDom = $fly(this._doms.input);
       $inputDom.attr("placeholder", this.get("placeholder"));
-      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly());
+      $inputDom.prop("readonly", this._finalReadOnly || this._isEditorReadOnly() || this._disabled);
       if ((ref = this.get("actionButton")) != null) {
         ref.set("disabled", this._finalReadOnly);
       }
@@ -22552,7 +22565,10 @@ Template
 
     AbstractDropdown.prototype.open = function(callback) {
       var $containerDom, $flexContent, clientHeight, container, containerHeight, doCallback, height;
-      if (this._finalReadOnly || this.fire("beforeOpen", this) === false) {
+      if (this._finalReadOnly && this._disabled) {
+        return;
+      }
+      if (this.fire("beforeOpen", this) === false) {
         return;
       }
       doCallback = (function(_this) {

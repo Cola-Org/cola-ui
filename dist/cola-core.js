@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -6164,7 +6164,7 @@
       }
       if (name instanceof cola.Scope) {
         parent = name;
-        name = void 0;
+        name = undefine;
       }
       if (name) {
         this.name = name;
