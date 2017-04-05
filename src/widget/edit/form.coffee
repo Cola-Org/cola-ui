@@ -15,6 +15,14 @@ class cola.Form extends cola.Widget
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
 		return
 
+	setMessage: (messages) ->
+		if not typeof messages is "array"
+			messages = [messages]
+		@_messages = messages
+
+		@refreshMessages()
+		return
+
 	refreshMessages: () ->
 		return unless @_$messages.length
 
@@ -26,6 +34,10 @@ class cola.Form extends cola.Widget
 			field = cola.widget(fieldDom)
 			if field?._message
 				messageHolder.add("$", field?._message)
+
+		if @_messages?.length
+			for message in @_messages
+				messageHolder.add("$", message)
 
 		keyMessage = messageHolder.getKeyMessage()
 		state = keyMessage?.type
@@ -130,10 +142,10 @@ class cola.Field extends cola.Widget
 					entity = entity.current
 				if entity
 					keyMessage = entity.getKeyMessage(@_bindInfo.property)
-					@setMessages(keyMessage)
+					@setMessage(keyMessage)
 		return
 
-	setMessages: (message) ->
+	setMessage: (message) ->
 		@_message = message
 
 		if @_messageDom
