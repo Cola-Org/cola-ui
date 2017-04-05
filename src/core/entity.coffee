@@ -1760,9 +1760,9 @@ _Entity._getEntityId = (entity) ->
 		return entity._id
 
 TYPE_SEVERITY =
-	VALIDATION_INFO: 1
-	VALIDATION_WARN: 2
-	VALIDATION_ERROR: 4
+	success: 1
+	warning: 2
+	error: 4
 
 class cola.Entity.MessageHolder
 	constructor: () ->

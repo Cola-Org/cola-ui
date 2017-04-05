@@ -16,9 +16,22 @@ class cola.Form extends cola.Widget
 		return
 
 	setMessage: (messages) ->
-		if not typeof messages is "array"
-			messages = [messages]
-		@_messages = messages
+		if (messages)
+			@_messages = []
+
+			if not (typeof messages is "array")
+				messages = [messages]
+
+			for message in messages
+				if typeof message is "string"
+					@_messages.push(
+						type: "error"
+						text: message
+					)
+				else
+					@_messages.push(message)
+		else
+			delete @_messages
 
 		@refreshMessages()
 		return
@@ -146,6 +159,11 @@ class cola.Field extends cola.Widget
 		return
 
 	setMessage: (message) ->
+		if typeof message is "string"
+			message =
+				type: "error"
+				text: message
+
 		@_message = message
 
 		if @_messageDom

@@ -5681,9 +5681,9 @@
   };
 
   TYPE_SEVERITY = {
-    VALIDATION_INFO: 1,
-    VALIDATION_WARN: 2,
-    VALIDATION_ERROR: 4
+    success: 1,
+    warning: 2,
+    error: 4
   };
 
   cola.Entity.MessageHolder = (function() {
@@ -10908,7 +10908,7 @@
 
   _doRenderDomTemplate = function(dom, scope, context) {
     var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
-    if (dom.nodeType === 8) {
+    if (dom.nodeType === 8 || dom.nodeName === "SVG") {
       return;
     }
     if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)) {
@@ -24617,8 +24617,32 @@ Template
       this._$messages = this.get$Dom().find("messages, .ui.message").addClass("messages");
     };
 
+    Form.prototype.setMessage = function(messages) {
+      var len1, message, n;
+      if (messages) {
+        this._messages = [];
+        if (!(typeof messages === "array")) {
+          messages = [messages];
+        }
+        for (n = 0, len1 = messages.length; n < len1; n++) {
+          message = messages[n];
+          if (typeof message === "string") {
+            this._messages.push({
+              type: "error",
+              text: message
+            });
+          } else {
+            this._messages.push(message);
+          }
+        }
+      } else {
+        delete this._messages;
+      }
+      this.refreshMessages();
+    };
+
     Form.prototype.refreshMessages = function() {
-      var field, fieldDom, fieldDoms, keyMessage, len1, len2, m, messageCosons, messageHolder, messages, n, o, state;
+      var field, fieldDom, fieldDoms, keyMessage, len1, len2, len3, m, message, messageCosons, messageHolder, messages, n, o, q, ref, ref1, state;
       if (!this._$messages.length) {
         return;
       }
@@ -24632,13 +24656,20 @@ Template
           messageHolder.add("$", field != null ? field._message : void 0);
         }
       }
+      if ((ref = this._messages) != null ? ref.length : void 0) {
+        ref1 = this._messages;
+        for (o = 0, len2 = ref1.length; o < len2; o++) {
+          message = ref1[o];
+          messageHolder.add("$", message);
+        }
+      }
       keyMessage = messageHolder.getKeyMessage();
       state = keyMessage != null ? keyMessage.type : void 0;
       messageCosons = [];
       messages = messageHolder.findMessages(null, state);
       if (messages) {
-        for (o = 0, len2 = messages.length; o < len2; o++) {
-          m = messages[o];
+        for (q = 0, len3 = messages.length; q < len3; q++) {
+          m = messages[q];
           if (m.text) {
             messageCosons.push({
               tagName: "li",
@@ -24770,14 +24801,20 @@ Template
           }
           if (entity) {
             keyMessage = entity.getKeyMessage(this._bindInfo.property);
-            this.setMessages(keyMessage);
+            this.setMessage(keyMessage);
           }
         }
       }
     };
 
-    Field.prototype.setMessages = function(message) {
+    Field.prototype.setMessage = function(message) {
       var $message, ref;
+      if (typeof message === "string") {
+        message = {
+          type: "error",
+          text: message
+        };
+      }
       this._message = message;
       if (this._messageDom) {
         $message = $fly(this._messageDom);
