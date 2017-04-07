@@ -615,6 +615,9 @@ h-box.end {
   justify-content: flex-end;
 }
 
+.form {
+  position: relative;
+}
 .form > field {
   width: 100%;
 }
@@ -1017,7 +1020,7 @@ h-box.end {
     -webkit-flex: 1 0 auto;
     -ms-flex: 1 0 auto;
     flex: 1 0 auto;
-    width: initial;
+    width: auto;
   }
 }
 /*******************************

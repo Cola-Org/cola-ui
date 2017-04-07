@@ -8,7 +8,7 @@
 	display: block;
 	padding: 0;
 	.clearfix();
-	> li {
+	> li, > block {
 		display: block;
 		float: @default-float;
 		height: auto;
@@ -16,7 +16,7 @@
 }
 
 .base-block-grid(@include-spacing:true) when (@include-spacing = true) {
-	> li {
+	> li, > block {
 		padding: 0 (@block-grid-default-spacing/2) @block-grid-default-spacing;
 	}
 }
@@ -52,7 +52,7 @@
 }
 
 .per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) {
-	> li {
+	> li, > block {
 		list-style: none;
 		width: 100%/@row;
 		&:nth-of-type(1n) {
@@ -65,23 +65,18 @@
 }
 
 .per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) when (@include-spacing=true) {
-	> li {
+	> li, > block {
 		padding: 0 (@spacing/2) @spacing;
 	}
 }
 
 .per-row(@row,@spacing:@block-grid-default-spacing,@include-spacing:true) when (@align-block-grid-to-grid=true) {
-	> li {
+	> li, > block {
 		.block-grid-aligned(@row, @spacing);
 	}
 }
 
 .block-grid-html-classes(@size,@include-spacing) {
-	.@{size}-row-list > li {
-		list-style: none;
-		width: 100%;
-	}
-
 	.mixin-loop (@i) when (@i<=@block-grid-elements) {
 		.@{size}-block-grid-@{i} {
 			.per-row(@i, @block-grid-default-spacing, @include-spacing);
@@ -107,10 +102,3 @@
 	.block-grid-html-classes(large, false);
 }
 
-@media @xlarge-up {
-	.block-grid-html-classes(xlarge, false);
-}
-
-@media @xxlarge-up {
-	.block-grid-html-classes(xxlarge, false);
-}

@@ -6164,7 +6164,7 @@
       }
       if (name instanceof cola.Scope) {
         parent = name;
-        name = undefine;
+        name = void 0;
       }
       if (name) {
         this.name = name;
@@ -22205,7 +22205,8 @@ Template
       focus: null,
       blur: null,
       keyDown: null,
-      keyPress: null
+      keyPress: null,
+      input: null
     };
 
     AbstractDropdown.prototype._initDom = function(dom) {
@@ -22219,7 +22220,6 @@ Template
       }
       $fly(dom).delegate(">.icon", "click", (function(_this) {
         return function() {
-          debugger;
           if (_this._finalReadOnly && !_this._disabled && !_this._opened) {
             _this.open();
             return;
@@ -22272,6 +22272,15 @@ Template
       })(this)).on("blur", (function(_this) {
         return function() {
           return _this._doBlur();
+        };
+      })(this)).on("input", (function(_this) {
+        return function(evt) {
+          var arg;
+          arg = {
+            event: evt,
+            inputValue: _this._doms.input.value
+          };
+          return _this.fire("input", _this, arg);
         };
       })(this)).on("keypress", (function(_this) {
         return function() {
@@ -24637,7 +24646,7 @@ Template
       var len1, message, n;
       if (messages) {
         this._messages = [];
-        if (!(typeof messages === "array")) {
+        if (!(messages instanceof Array)) {
           messages = [messages];
         }
         for (n = 0, len1 = messages.length; n < len1; n++) {
@@ -33415,7 +33424,22 @@ Template
     Table.prototype._bindKeyDown = function() {
       var table;
       table = this;
-      return $(this._dom).delegate("input", "keydown", function(event) {
+      $(this._dom).delegate("input", "keydown", function(event) {
+        var item, targetRow, td;
+        td = $(this).closest("td")[0];
+        targetRow = $(td).parent()[0];
+        item = cola.util.userData(targetRow, "item");
+        if (targetRow._itemType === "default") {
+          if (item) {
+            if (table._changeCurrentItem && item.parent instanceof cola.EntityList) {
+              return item.parent.setCurrent(item);
+            } else {
+              return table._setCurrentItemDom(targetRow);
+            }
+          }
+        }
+      });
+      $(this._dom).delegate("input", "keydown", function(event) {
         var $input, colIndex, ctrlKey, input, item, keyCode, targetCell, targetRow, td, tds, tr;
         keyCode = event.keyCode;
         ctrlKey = event.ctrlKey;

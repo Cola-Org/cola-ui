@@ -69,6 +69,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		blur: null
 		keyDown: null
 		keyPress: null
+		input:null
 
 	_initDom: (dom) ->
 		super(dom)
@@ -83,8 +84,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$fly(dom)
 			#.attr("tabIndex", 1)
 			.delegate(">.icon", "click", () =>
+
+				if  @_finalReadOnly and not @_disabled and not @_opened
+					@open()
+					return
 				if @_opened
 					@close()
+
 				else
 					if @_disabled then return
 					@open()
@@ -116,6 +122,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$(@_doms.input)
 			.on("focus", () => @_doFocus())
 			.on("blur", () => @_doBlur())
+			.on("input", (evt) =>
+				arg =
+					event: evt
+					inputValue: @_doms.input.value
+				@fire("input", @, arg)
+			)
 			.on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon
@@ -180,7 +192,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly())
+		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly() or @_disabled)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
@@ -341,7 +353,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return container
 
 	open: (callback) ->
-		return if @_finalReadOnly or @fire("beforeOpen", @) is false
+		if @_finalReadOnly and @_disabled then return
+
+		if @fire("beforeOpen", @) is false then return
 
 		doCallback = () =>
 			@fire("open", @)

@@ -6164,7 +6164,7 @@
       }
       if (name instanceof cola.Scope) {
         parent = name;
-        name = undefine;
+        name = void 0;
       }
       if (name) {
         this.name = name;

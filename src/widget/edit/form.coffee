@@ -19,7 +19,7 @@ class cola.Form extends cola.Widget
 		if (messages)
 			@_messages = []
 
-			if not (typeof messages is "array")
+			if not (messages instanceof Array)
 				messages = [messages]
 
 			for message in messages

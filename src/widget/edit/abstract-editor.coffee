@@ -30,6 +30,7 @@ class cola.AbstractEditor extends cola.Widget
 		beforeChange: null
 		change: null
 
+
 	_initDom: (dom) ->
 		if @_state
 			cola.util.addClass(dom, @_state)

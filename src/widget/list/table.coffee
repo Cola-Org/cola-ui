@@ -406,7 +406,7 @@ class cola.Table extends cola.AbstractTable
 
 		if @getListeners("renderCell")
 			if @fire("renderCell", @,
-			  {item: item, column: column, dom: dom, scope: itemScope}) == false
+				{item: item, column: column, dom: dom, scope: itemScope}) == false
 				return
 
 		if isNew
@@ -607,6 +607,20 @@ class cola.Table extends cola.AbstractTable
 
 	_bindKeyDown: ()->
 		table = @
+
+		#修复tab切换焦点时不切换当前的Bug
+		$(@_dom).delegate("input", "keydown", (event)->
+			td = $(this).closest("td")[0]
+			targetRow = $(td).parent()[0]
+			item = cola.util.userData(targetRow, "item")
+			if targetRow._itemType == "default"
+				if item
+					if table._changeCurrentItem and item.parent instanceof cola.EntityList
+						item.parent.setCurrent(item)
+					else
+						table._setCurrentItemDom(targetRow)
+		)
+
 		#待完善
 		$(@_dom).delegate("input", "keydown", (event)->
 			keyCode = event.keyCode
@@ -644,6 +658,9 @@ class cola.Table extends cola.AbstractTable
 			if keyCode == 38 || keyCode == 40 || (ctrlKey && keyCode == 37) || (ctrlKey && keyCode == 39)
 				event.preventDefault()
 		)
+
+		return
+
 	focus: ()->
 		unless @_$dom then return
 
