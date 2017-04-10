@@ -68,10 +68,10 @@ cola.util.update = (url, data, options = {}) ->
 	  	options: options
 	).then (responseData) ->
 		if context
-			for syncInfo in responseData.syncInfos
-				entity = context.entityMap[syncInfo.entityId]
-				if syncInfo.data
-					for p, v of syncInfo.data
+			for entityChange in responseData.entityMap
+				entity = context.entityMap[entityChange.entityId]
+				if entityChange.data
+					for p, v of entityChange.data
 						entity._set(p, v, true)
-				entity.setState(syncInfo.state)
+				entity.setState(entityChange.state)
 		return responseData.result

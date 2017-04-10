@@ -316,10 +316,10 @@ _sortCollection = (collection, comparator, caseSensitive) ->
 
 class cola.Entity
 
-	@STATE_NONE: "none"
-	@STATE_NEW: "new"
-	@STATE_MODIFIED: "modified"
-	@STATE_DELETED: "deleted"
+	@STATE_NONE: "NONE"
+	@STATE_NEW: "NEW"
+	@STATE_MODIFIED: "MODIFIED"
+	@STATE_DELETED: "DELETED"
 
 	state: @STATE_NONE
 
@@ -411,10 +411,10 @@ class cola.Entity
 
 		value = @_data[prop]
 		if value == undefined
-			if property and loadMode isnt "never"
+			if property
 				provider = property.get("provider")
-				context?.unloaded = true
-				if provider and provider._loadMode is "lazy"
+				context?.unloaded = !!provider
+				if loadMode isnt "never" and provider and provider._loadMode is "lazy"
 					value = loadData.call(@, provider)
 					callbackProcessed = true
 		else if value instanceof cola.Provider
@@ -429,13 +429,14 @@ class cola.Entity
 				if callback then providerInvoker.callbacks.push(callback)
 				callbackProcessed = true
 				value = undefined
+
+				if context
+					context.unloaded = true
+					context.providerInvokers ?= []
+					context.providerInvokers.push(providerInvoker)
 			else
 				value = undefined
-
-			if context
-				context.unloaded = true
-				context.providerInvokers ?= []
-				context.providerInvokers.push(providerInvoker)
+				context?.unloaded = true
 
 # TODO: delete this
 		else if typeof value is "function"

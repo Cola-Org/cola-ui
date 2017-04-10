@@ -1,4 +1,4 @@
-/*! Cola UI - 1.0.6
+/*! Cola UI - 0.9.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -3705,13 +3705,13 @@
   };
 
   cola.Entity = (function() {
-    Entity.STATE_NONE = "none";
+    Entity.STATE_NONE = "NONE";
 
-    Entity.STATE_NEW = "new";
+    Entity.STATE_NEW = "NEW";
 
-    Entity.STATE_MODIFIED = "modified";
+    Entity.STATE_MODIFIED = "MODIFIED";
 
-    Entity.STATE_DELETED = "deleted";
+    Entity.STATE_DELETED = "DELETED";
 
     Entity.prototype.state = Entity.STATE_NONE;
 
@@ -3830,12 +3830,12 @@
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       value = this._data[prop];
       if (value === void 0) {
-        if (property && loadMode !== "never") {
+        if (property) {
           provider = property.get("provider");
           if (context != null) {
-            context.unloaded = true;
+            context.unloaded = !!provider;
           }
-          if (provider && provider._loadMode === "lazy") {
+          if (loadMode !== "never" && provider && provider._loadMode === "lazy") {
             value = loadData.call(this, provider);
             callbackProcessed = true;
           }
@@ -3854,15 +3854,18 @@
           }
           callbackProcessed = true;
           value = void 0;
+          if (context) {
+            context.unloaded = true;
+            if (context.providerInvokers == null) {
+              context.providerInvokers = [];
+            }
+            context.providerInvokers.push(providerInvoker);
+          }
         } else {
           value = void 0;
-        }
-        if (context) {
-          context.unloaded = true;
-          if (context.providerInvokers == null) {
-            context.providerInvokers = [];
+          if (context != null) {
+            context.unloaded = true;
           }
-          context.providerInvokers.push(providerInvoker);
         }
       } else if (typeof value === "function") {
         providerInvoker = {
@@ -6041,6 +6044,18 @@
   cola.Scope = (function() {
     function Scope() {}
 
+    Scope.prototype.destroy = function() {
+      var child, l, len1, ref;
+      if (this._childScopes) {
+        ref = this._childScopes;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          child = ref[l];
+          child.destroy();
+        }
+        delete this._childScopes;
+      }
+    };
+
     Scope.prototype.get = function(path, loadMode, context) {
       return this.data.get(path, loadMode, context);
     };
@@ -6150,6 +6165,26 @@
       }
     };
 
+    Scope.prototype.registerChild = function(childScope) {
+      if (this._childScopes == null) {
+        this._childScopes = [];
+      }
+      this._childScopes.push(childScope);
+      this.data.bind("**", childScope);
+    };
+
+    Scope.prototype.unregisterChild = function(childScope) {
+      var i;
+      if (!this._childScopes) {
+        return;
+      }
+      this.data.unbind("**", childScope);
+      i = this._childScopes.indexOf(childScope);
+      if (i >= 0) {
+        this._childScopes.splice(i, 1);
+      }
+    };
+
     return Scope;
 
   })();
@@ -6177,8 +6212,8 @@
       this.parent = parent;
       this.setHasExBinding(true);
       this.data = new cola.DataModel(this);
-      if (parent) {
-        parent.data.bind("**", this);
+      if (parent != null) {
+        parent.registerChild(this);
       }
       this.action = function(name, action) {
         var a, config, fn, n, scope, store;
@@ -6218,7 +6253,10 @@
     }
 
     Model.prototype.destroy = function() {
-      var base;
+      var base, ref;
+      if ((ref = this.parent) != null) {
+        ref.unregisterChild(this);
+      }
       if (this.name) {
         cola.removeModel(this.name);
       }

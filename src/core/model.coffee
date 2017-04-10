@@ -32,6 +32,14 @@ cola.removeModel = (name) ->
 	return model
 
 class cola.Scope
+
+	destroy: () ->
+		if @_childScopes
+			for child in @_childScopes
+				child.destroy()
+			delete @_childScopes
+		return
+
 	get: (path, loadMode, context) ->
 		return @data.get(path, loadMode, context)
 
@@ -105,6 +113,21 @@ class cola.Scope
 		@parent?.setHasExBinding(true) if hasExBinding
 		return
 
+	registerChild: (childScope) ->
+		@_childScopes ?= []
+		@_childScopes.push(childScope)
+		@data.bind("**", childScope)
+		return
+
+	unregisterChild: (childScope) ->
+		return unless @_childScopes
+
+		@data.unbind("**", childScope)
+		i = @_childScopes.indexOf(childScope)
+		if i >= 0
+			@_childScopes.splice(i, 1)
+		return
+
 class cola.Model extends cola.Scope
 	constructor: (name, parent) ->
 		cola.currentScope ?= @
@@ -126,7 +149,7 @@ class cola.Model extends cola.Scope
 
 		@data = new cola.DataModel(@)
 
-		parent.data.bind("**", @) if parent
+		parent?.registerChild(@)
 
 		@action = (name, action) ->
 			store = @action
@@ -155,6 +178,7 @@ class cola.Model extends cola.Scope
 				return @
 
 	destroy: () ->
+		@parent?.unregisterChild(@)
 		cola.removeModel(@name) if @name
 		@data.destroy?()
 		return
