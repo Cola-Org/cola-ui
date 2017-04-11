@@ -3705,13 +3705,13 @@
   };
 
   cola.Entity = (function() {
-    Entity.STATE_NONE = "none";
+    Entity.STATE_NONE = "NONE";
 
-    Entity.STATE_NEW = "new";
+    Entity.STATE_NEW = "NEW";
 
-    Entity.STATE_MODIFIED = "modified";
+    Entity.STATE_MODIFIED = "MODIFIED";
 
-    Entity.STATE_DELETED = "deleted";
+    Entity.STATE_DELETED = "DELETED";
 
     Entity.prototype.state = Entity.STATE_NONE;
 
@@ -3738,8 +3738,8 @@
       if (data != null) {
         this._disableWriteObservers++;
         this.set(data);
-        if (data.$state) {
-          this.state = data.$state;
+        if (data.state$) {
+          this.state = data.state$;
         }
         this._disableWriteObservers--;
       }
@@ -3830,12 +3830,12 @@
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       value = this._data[prop];
       if (value === void 0) {
-        if (property && loadMode !== "never") {
+        if (property) {
           provider = property.get("provider");
           if (context != null) {
-            context.unloaded = true;
+            context.unloaded = !!provider;
           }
-          if (provider && provider._loadMode === "lazy") {
+          if (loadMode !== "never" && provider && provider._loadMode === "lazy") {
             value = loadData.call(this, provider);
             callbackProcessed = true;
           }
@@ -3854,15 +3854,18 @@
           }
           callbackProcessed = true;
           value = void 0;
+          if (context) {
+            context.unloaded = true;
+            if (context.providerInvokers == null) {
+              context.providerInvokers = [];
+            }
+            context.providerInvokers.push(providerInvoker);
+          }
         } else {
           value = void 0;
-        }
-        if (context) {
-          context.unloaded = true;
-          if (context.providerInvokers == null) {
-            context.providerInvokers = [];
+          if (context != null) {
+            context.unloaded = true;
           }
-          context.providerInvokers.push(providerInvoker);
         }
       } else if (typeof value === "function") {
         providerInvoker = {
@@ -4600,10 +4603,10 @@
         json[prop] = value;
       }
       if (entityId) {
-        json.$entityId = this.id;
+        json.entityId$ = this.id;
       }
       if (state) {
-        json.$state = this.state;
+        json.state$ = this.state;
       }
       if (oldData && this._oldData) {
         json.$oldData = this._oldData;
@@ -6041,6 +6044,18 @@
   cola.Scope = (function() {
     function Scope() {}
 
+    Scope.prototype.destroy = function() {
+      var child, l, len1, ref;
+      if (this._childScopes) {
+        ref = this._childScopes;
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          child = ref[l];
+          child.destroy();
+        }
+        delete this._childScopes;
+      }
+    };
+
     Scope.prototype.get = function(path, loadMode, context) {
       return this.data.get(path, loadMode, context);
     };
@@ -6150,6 +6165,26 @@
       }
     };
 
+    Scope.prototype.registerChild = function(childScope) {
+      if (this._childScopes == null) {
+        this._childScopes = [];
+      }
+      this._childScopes.push(childScope);
+      this.data.bind("**", childScope);
+    };
+
+    Scope.prototype.unregisterChild = function(childScope) {
+      var i;
+      if (!this._childScopes) {
+        return;
+      }
+      this.data.unbind("**", childScope);
+      i = this._childScopes.indexOf(childScope);
+      if (i >= 0) {
+        this._childScopes.splice(i, 1);
+      }
+    };
+
     return Scope;
 
   })();
@@ -6177,8 +6212,8 @@
       this.parent = parent;
       this.setHasExBinding(true);
       this.data = new cola.DataModel(this);
-      if (parent) {
-        parent.data.bind("**", this);
+      if (parent != null) {
+        parent.registerChild(this);
       }
       this.action = function(name, action) {
         var a, config, fn, n, scope, store;
@@ -6218,7 +6253,10 @@
     }
 
     Model.prototype.destroy = function() {
-      var base;
+      var base, ref;
+      if ((ref = this.parent) != null) {
+        ref.unregisterChild(this);
+      }
       if (this.name) {
         cola.removeModel(this.name);
       }
@@ -7864,10 +7902,10 @@
   };
 
   _processEntity = function(entity, context, options) {
-    var data, json, prop, toJSONOptions;
+    var data, json, prop, toJSONOptions, val;
     toJSONOptions = {
       simpleValue: true,
-      entityId: options.entityId,
+      entityId: options.entityId || true,
       state: true,
       oldData: options.oldData
     };
@@ -7876,20 +7914,22 @@
     }
     data = entity._data;
     for (prop in data) {
-      value = data[prop];
+      val = data[prop];
       if (prop.charCodeAt(0) === 36) {
         continue;
       }
-      if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
+      if (val && (val instanceof cola.Entity || val instanceof cola.EntityList)) {
         context.parentProperty = prop;
-        value = _extractDirtyTree(value, context);
-        if (json == null) {
-          json = entity.toJSON(toJSONOptions);
+        val = _extractDirtyTree(val, context, options);
+        if (val != null) {
+          if (json == null) {
+            json = entity.toJSON(toJSONOptions);
+          }
+          json[prop] = val;
         }
-        json[prop] = value;
       }
     }
-    if (json !== null) {
+    if (json != null) {
       context.entityMap[entity.id] = entity;
     }
     return json;
@@ -7904,7 +7944,7 @@
       while (page) {
         if (next) {
           json = _processEntity(next, context, options);
-          if (json !== null) {
+          if (json != null) {
             entities.push(json);
           }
           next = next._next;
@@ -7922,7 +7962,7 @@
   };
 
   _extractDirtyTree = function(data, context, options) {
-    if (value instanceof cola.EntityList) {
+    if (data instanceof cola.EntityList) {
       return _processEntityList(data, context, options);
     } else {
       return _processEntity(data, context, options);
@@ -7938,32 +7978,47 @@
       context = {};
       data = cola.util.dirtyTree(data, options, context);
     }
-    return $.ajax({
-      url: url,
-      type: options.method || "post",
-      contentType: options.contentType || "application/json",
-      data: JSON.stringify(data)({
+    if (data || options.alwaysExecute) {
+      return $.ajax({
+        url: url,
+        type: options.method || "post",
+        contentType: options.contentType || "application/json",
+        data: JSON.stringify(data),
         options: options
-      })
-    }).then(function(responseData) {
-      var entity, l, len1, p, ref, ref1, syncInfo, v;
-      if (context) {
-        ref = responseData.syncInfos;
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          syncInfo = ref[l];
-          entity = context.entityMap[syncInfo.entityId];
-          if (syncInfo.data) {
-            ref1 = syncInfo.data;
-            for (p in ref1) {
-              v = ref1[p];
-              entity._set(p, v, true);
+      }).then(function(responseData) {
+        var entity, entityDiff, entityId, p, ref, ref1, ref2, state, v;
+        if (context) {
+          ref = responseData.entityMap;
+          for (entityId in ref) {
+            entityDiff = ref[entityId];
+            state = null;
+            entity = context.entityMap[entityId];
+            if (entityDiff) {
+              if (entityDiff.data) {
+                ref1 = entityDiff.data;
+                for (p in ref1) {
+                  v = ref1[p];
+                  entity._set(p, v, true);
+                }
+              }
+              state = entityDiff.state;
+            }
+            if (state) {
+              entity.setState(state);
+            } else if (entity.state === cola.Entity.STATE_DELETED) {
+              if ((ref2 = entity._page) != null) {
+                ref2._removeElement(entity);
+              }
+            } else {
+              entity.setState(cola.Entity.STATE_NONE);
             }
           }
-          entity.setState(syncInfo.state);
         }
-      }
-      return responseData.result;
-    });
+        return responseData.result;
+      });
+    } else {
+      return $.Deferred().reject("NO_DATA");
+    }
   };
 
   defaultActionTimestamp = 0;

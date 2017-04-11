@@ -12,7 +12,7 @@ cola.util.dirtyTree = (data, options, context) ->
 _processEntity = (entity, context, options) ->
 	toJSONOptions =
 		simpleValue: true
-		entityId: options.entityId
+		entityId: options.entityId or true
 		state: true
 		oldData: options.oldData
 
@@ -20,16 +20,17 @@ _processEntity = (entity, context, options) ->
 		json = entity.toJSON(toJSONOptions)
 
 	data = entity._data
-	for prop, value of data
+	for prop, val of data
 		if prop.charCodeAt(0) is 36 # `$`
 			continue
-		if value and (value instanceof cola.Entity or value instanceof cola.EntityList)
+		if val and (val instanceof cola.Entity or val instanceof cola.EntityList)
 			context.parentProperty = prop
-			value = _extractDirtyTree(value, context)
-			json ?= entity.toJSON(toJSONOptions)
-			json[prop] = value
+			val = _extractDirtyTree(val, context, options)
+			if val?
+				json ?= entity.toJSON(toJSONOptions)
+				json[prop] = val
 
-	if json isnt null
+	if json?
 		context.entityMap[entity.id] = entity
 
 	return json
@@ -42,7 +43,7 @@ _processEntityList = (entityList, context, options) ->
 		while page
 			if next
 				json = _processEntity(next, context, options)
-				if json isnt null then entities.push(json)
+				if json? then entities.push(json)
 				next = next._next
 			else
 				page = page._next
@@ -50,7 +51,7 @@ _processEntityList = (entityList, context, options) ->
 	return if entities.length then entities else null
 
 _extractDirtyTree = (data, context, options) ->
-	if value instanceof cola.EntityList
+	if data instanceof cola.EntityList
 		return _processEntityList(data, context, options)
 	else
 		return _processEntity(data, context, options)
@@ -60,18 +61,31 @@ cola.util.update = (url, data, options = {}) ->
 		context = {}
 		data = cola.util.dirtyTree(data, options, context)
 
-	return $.ajax(
-		url: url
-		type: options.method or "post"
-		contentType: options.contentType or "application/json"
-		data: JSON.stringify(data)
-	  	options: options
-	).then (responseData) ->
-		if context
-			for entityChange in responseData.entityMap
-				entity = context.entityMap[entityChange.entityId]
-				if entityChange.data
-					for p, v of entityChange.data
-						entity._set(p, v, true)
-				entity.setState(entityChange.state)
-		return responseData.result
+	if data or options.alwaysExecute
+		return $.ajax(
+			url: url
+			type: options.method or "post"
+			contentType: options.contentType or "application/json"
+			data: JSON.stringify(data)
+			options: options
+		).then (responseData) ->
+			if context
+				for entityId, entityDiff of responseData.entityMap
+					state = null
+					entity = context.entityMap[entityId]
+					if entityDiff
+						if entityDiff.data
+							for p, v of entityDiff.data
+								entity._set(p, v, true)
+						state = entityDiff.state
+
+					if state
+						entity.setState(state)
+					else if entity.state is cola.Entity.STATE_DELETED
+						entity._page?._removeElement(entity)
+					else
+						entity.setState(cola.Entity.STATE_NONE)
+
+			return responseData.result
+	else
+		return $.Deferred().reject("NO_DATA")

@@ -1,4 +1,4 @@
-/*! Cola UI - 0.9.8
+/*! Cola UI - 1.0.6
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -3738,8 +3738,8 @@
       if (data != null) {
         this._disableWriteObservers++;
         this.set(data);
-        if (data.$state) {
-          this.state = data.$state;
+        if (data.state$) {
+          this.state = data.state$;
         }
         this._disableWriteObservers--;
       }
@@ -4603,10 +4603,10 @@
         json[prop] = value;
       }
       if (entityId) {
-        json.$entityId = this.id;
+        json.entityId$ = this.id;
       }
       if (state) {
-        json.$state = this.state;
+        json.state$ = this.state;
       }
       if (oldData && this._oldData) {
         json.$oldData = this._oldData;
@@ -7902,10 +7902,10 @@
   };
 
   _processEntity = function(entity, context, options) {
-    var data, json, prop, toJSONOptions;
+    var data, json, prop, toJSONOptions, val;
     toJSONOptions = {
       simpleValue: true,
-      entityId: options.entityId,
+      entityId: options.entityId || true,
       state: true,
       oldData: options.oldData
     };
@@ -7914,20 +7914,22 @@
     }
     data = entity._data;
     for (prop in data) {
-      value = data[prop];
+      val = data[prop];
       if (prop.charCodeAt(0) === 36) {
         continue;
       }
-      if (value && (value instanceof cola.Entity || value instanceof cola.EntityList)) {
+      if (val && (val instanceof cola.Entity || val instanceof cola.EntityList)) {
         context.parentProperty = prop;
-        value = _extractDirtyTree(value, context);
-        if (json == null) {
-          json = entity.toJSON(toJSONOptions);
+        val = _extractDirtyTree(val, context, options);
+        if (val != null) {
+          if (json == null) {
+            json = entity.toJSON(toJSONOptions);
+          }
+          json[prop] = val;
         }
-        json[prop] = value;
       }
     }
-    if (json !== null) {
+    if (json != null) {
       context.entityMap[entity.id] = entity;
     }
     return json;
@@ -7942,7 +7944,7 @@
       while (page) {
         if (next) {
           json = _processEntity(next, context, options);
-          if (json !== null) {
+          if (json != null) {
             entities.push(json);
           }
           next = next._next;
@@ -7960,7 +7962,7 @@
   };
 
   _extractDirtyTree = function(data, context, options) {
-    if (value instanceof cola.EntityList) {
+    if (data instanceof cola.EntityList) {
       return _processEntityList(data, context, options);
     } else {
       return _processEntity(data, context, options);
@@ -7976,32 +7978,47 @@
       context = {};
       data = cola.util.dirtyTree(data, options, context);
     }
-    return $.ajax({
-      url: url,
-      type: options.method || "post",
-      contentType: options.contentType || "application/json",
-      data: JSON.stringify(data)({
+    if (data || options.alwaysExecute) {
+      return $.ajax({
+        url: url,
+        type: options.method || "post",
+        contentType: options.contentType || "application/json",
+        data: JSON.stringify(data),
         options: options
-      })
-    }).then(function(responseData) {
-      var entity, l, len1, p, ref, ref1, syncInfo, v;
-      if (context) {
-        ref = responseData.syncInfos;
-        for (l = 0, len1 = ref.length; l < len1; l++) {
-          syncInfo = ref[l];
-          entity = context.entityMap[syncInfo.entityId];
-          if (syncInfo.data) {
-            ref1 = syncInfo.data;
-            for (p in ref1) {
-              v = ref1[p];
-              entity._set(p, v, true);
+      }).then(function(responseData) {
+        var entity, entityDiff, entityId, p, ref, ref1, ref2, state, v;
+        if (context) {
+          ref = responseData.entityMap;
+          for (entityId in ref) {
+            entityDiff = ref[entityId];
+            state = null;
+            entity = context.entityMap[entityId];
+            if (entityDiff) {
+              if (entityDiff.data) {
+                ref1 = entityDiff.data;
+                for (p in ref1) {
+                  v = ref1[p];
+                  entity._set(p, v, true);
+                }
+              }
+              state = entityDiff.state;
+            }
+            if (state) {
+              entity.setState(state);
+            } else if (entity.state === cola.Entity.STATE_DELETED) {
+              if ((ref2 = entity._page) != null) {
+                ref2._removeElement(entity);
+              }
+            } else {
+              entity.setState(cola.Entity.STATE_NONE);
             }
           }
-          entity.setState(syncInfo.state);
         }
-      }
-      return responseData.result;
-    });
+        return responseData.result;
+      });
+    } else {
+      return $.Deferred().reject("NO_DATA");
+    }
   };
 
   defaultActionTimestamp = 0;

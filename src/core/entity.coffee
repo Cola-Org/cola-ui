@@ -346,7 +346,7 @@ class cola.Entity
 		if data?
 			@_disableWriteObservers++
 			@set(data)
-			if data.$state then @state = data.$state
+			if data.state$ then @state = data.state$
 			@_disableWriteObservers--
 
 		if dataType
@@ -948,8 +948,8 @@ class cola.Entity
 					value = value.toJSON(options)
 			json[prop] = value
 
-		if entityId then json.$entityId = @id
-		if state then json.$state = @state
+		if entityId then json.entityId$ = @id
+		if state then json.state$ = @state
 		if oldData and @_oldData
 			json.$oldData = @_oldData
 		return json
