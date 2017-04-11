@@ -33631,7 +33631,7 @@ Template
             }
           },
           change: function(self, arg) {
-            var collection, value;
+            var collection, invoker, value;
             value = arg.value;
             collection = pager._getBindItems();
             if (collection) {
@@ -33642,7 +33642,8 @@ Template
                 return;
               }
               if (collection instanceof cola.EntityList) {
-                collection.pageSize = value;
+                invoker = collection._providerInvoker;
+                invoker.ajaxService.set("pageSize", value);
                 return cola.util.flush(collection);
               }
             }

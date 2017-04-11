@@ -52,12 +52,12 @@ class cola.Pager extends cola.Menu
 						if value then value = parseInt(value)
 						if value is collection.pageSize then return
 						if collection instanceof cola.EntityList
-							collection.pageSize = value
+							invoker = collection._providerInvoker
+							invoker.ajaxService.set("pageSize",value)
 							cola.util.flush(collection)
 			goto:
 				$type: "input"
 				class: "goto"
-
 				inputType: "number",
 				initDom: (self, arg)->
 					self.get$Dom().find("input").attr("min", 0)
