@@ -24684,6 +24684,12 @@ Template
         setter: function(bindStr) {
           return this._bindSetter(bindStr);
         }
+      },
+      defaultCols: {
+        defaultValue: 3
+      },
+      fields: {
+        readOnlyAfterCreate: true
       }
     };
 
@@ -24693,8 +24699,102 @@ Template
     }
 
     Form.prototype._initDom = function(dom) {
+      var caption, childDoms, dataType, defaultFieldCols, field, fieldContent, fieldsDom, len1, maxCols, n, propertyDef, propertyType, ref, usedCols;
       Form.__super__._initDom.call(this, dom);
       this._$messages = this.get$Dom().find("messages, .ui.message").addClass("messages");
+      if (this._fields) {
+        dataType = this.getBindingDataType();
+        childDoms = [];
+        maxCols = this._defaultCols;
+        defaultFieldCols = 1;
+        usedCols = maxCols;
+        ref = this._fields;
+        for (n = 0, len1 = ref.length; n < len1; n++) {
+          field = ref[n];
+          if (dataType) {
+            propertyDef = dataType.getProperty(field.property);
+          }
+          if (propertyDef) {
+            caption = field.caption || propertyDef.get("caption") || field.property;
+            propertyType = propertyDef.get("dataType");
+          } else {
+            caption = field.caption || field.property;
+            propertyType = null;
+          }
+          if (usedCols + (field.cols || defaultFieldCols) > maxCols) {
+            usedCols = 0;
+            fieldsDom = {
+              tagName: "fields",
+              "class": "cols-" + maxCols,
+              content: []
+            };
+            childDoms.push(fieldsDom);
+          }
+          if (field.editContent) {
+            fieldContent = [
+              {
+                tagName: "label",
+                content: caption
+              }, field.editContent
+            ];
+          } else if (field.type === "checkbox" || propertyType instanceof cola.BooleanDataType) {
+            fieldContent = [
+              {
+                tagName: "label",
+                content: caption
+              }, {
+                tagName: "c-checkbox",
+                bind: this._bind + "." + field.property
+              }
+            ];
+          } else if (field.type === "date" || propertyType instanceof cola.DateDataType) {
+            fieldContent = [
+              {
+                tagName: "label",
+                content: caption
+              }, {
+                tagName: "c-datepicker",
+                bind: this._bind + "." + field.property
+              }
+            ];
+          } else if (field.type === "textarea") {
+            fieldContent = [
+              {
+                tagName: "label",
+                content: caption
+              }, {
+                tagName: "c-textarea",
+                bind: this._bind + "." + field.property,
+                height: field.height || "4em"
+              }
+            ];
+          } else {
+            fieldContent = [
+              {
+                tagName: "label",
+                content: caption
+              }, {
+                tagName: "c-input",
+                bind: this._bind + "." + field.property
+              }
+            ];
+          }
+          usedCols += field.cols || defaultFieldCols;
+          fieldsDom.content.push({
+            tagName: "field",
+            "class": "cols-" + (field.cols || defaultFieldCols),
+            property: field.property,
+            content: fieldContent
+          });
+        }
+        childDoms.push({
+          tagName: "field",
+          content: {
+            tagName: "messages"
+          }
+        });
+        $(dom).append(cola.xRender(childDoms));
+      }
     };
 
     Form.prototype.setMessage = function(messages) {

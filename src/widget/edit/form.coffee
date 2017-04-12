@@ -6,6 +6,11 @@ class cola.Form extends cola.Widget
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
 
+		defaultCols:
+			defaultValue: 3
+		fields:
+			readOnlyAfterCreate: true
+
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
 		super(config)
@@ -13,6 +18,72 @@ class cola.Form extends cola.Widget
 	_initDom: (dom) ->
 		super(dom)
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
+
+		if @_fields
+			dataType = @getBindingDataType()
+			childDoms = []
+			maxCols = @_defaultCols
+			defaultFieldCols = 1
+			usedCols = maxCols
+
+			for field in @_fields
+				if dataType
+					propertyDef = dataType.getProperty(field.property)
+				if propertyDef
+					caption = field.caption or propertyDef.get("caption") or field.property
+					propertyType = propertyDef.get("dataType")
+				else
+					caption = field.caption or field.property
+					propertyType = null
+
+				if usedCols + (field.cols or defaultFieldCols) > maxCols
+					usedCols = 0
+					fieldsDom =
+						tagName: "fields"
+						class: "cols-" + maxCols
+						content: []
+					childDoms.push(fieldsDom)
+
+				if field.editContent
+					fieldContent = [
+						{ tagName: "label", content: caption }
+						field.editContent
+					]
+				else if field.type is "checkbox" or propertyType instanceof cola.BooleanDataType
+					fieldContent = [
+						{ tagName: "label", content: caption }
+						{ tagName: "c-checkbox", bind: @_bind + "." + field.property }
+					]
+				else if field.type is "date" or propertyType instanceof cola.DateDataType
+					fieldContent = [
+						{ tagName: "label", content: caption }
+						{ tagName: "c-datepicker", bind: @_bind + "." + field.property }
+					]
+				else if field.type is "textarea"
+					fieldContent = [
+						{ tagName: "label", content: caption }
+						{ tagName: "c-textarea", bind: @_bind  + "." + field.property, height: field.height or "4em" }
+					]
+				else
+					fieldContent = [
+						{ tagName: "label", content: caption }
+						{ tagName: "c-input", bind: @_bind + "." + field.property }
+					]
+
+				usedCols += field.cols or defaultFieldCols
+				fieldsDom.content.push(
+					tagName: "field"
+					class: "cols-" + (field.cols or defaultFieldCols)
+					property: field.property
+					content: fieldContent
+				)
+
+			childDoms.push(
+				tagName: "field"
+				content:
+					tagName: "messages"
+			)
+			$(dom).append(cola.xRender(childDoms))
 		return
 
 	setMessage: (messages) ->
