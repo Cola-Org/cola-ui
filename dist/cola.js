@@ -14145,7 +14145,7 @@ Template
       return ButtonGroup.__super__.constructor.apply(this, arguments);
     }
 
-    ButtonGroup.tagName = "c-button-group";
+    ButtonGroup.tagName = "c-buttonGroup";
 
     ButtonGroup.SEMANTIC_CLASS = ["left floated", "right floated", "top attached", "bottom attached", "left attached", "right attached"];
 

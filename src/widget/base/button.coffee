@@ -196,7 +196,7 @@ class cola.buttonGroup.Separator extends cola.Widget
 
 cola.buttonGroup.emptyItems = []
 class cola.ButtonGroup extends cola.AbstractButton
-	@tagName: "c-button-group"
+	@tagName: "c-buttonGroup"
 
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
