@@ -20264,7 +20264,6 @@ Template
           entity = this._scope.get(this._bindInfo.entityPath);
           if (entity instanceof cola.EntityList) {
             entity = entity.current;
-            entity = entity.current;
           }
           if (entity) {
             keyMessage = entity.getKeyMessage(this._bindInfo.property);

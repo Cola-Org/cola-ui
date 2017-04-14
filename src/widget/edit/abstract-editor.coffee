@@ -71,7 +71,6 @@ class cola.AbstractEditor extends cola.Widget
 				entity = @_scope.get(@_bindInfo.entityPath)
 				if entity instanceof cola.EntityList
 					entity = entity.current
-					entity = entity.current
 				if entity
 					keyMessage = entity.getKeyMessage(@_bindInfo.property)
 					@set("state", keyMessage?.type)
