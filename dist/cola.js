@@ -18388,7 +18388,7 @@ Template
       if (!_dimmerDom) {
         _dimmerDom = $.xCreate({
           tagName: "Div",
-          "class": "ui dimmer",
+          "class": "ui fixed dimmer",
           contextKey: "dimmer"
         });
         if (this._dimmerClose) {

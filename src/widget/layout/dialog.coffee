@@ -174,7 +174,7 @@ class cola.Dialog extends cola.Layer
 		unless _dimmerDom
 			_dimmerDom = $.xCreate({
 				tagName: "Div"
-				class: "ui dimmer"
+				class: "ui fixed dimmer"
 				contextKey: "dimmer"
 			})
 			if @_dimmerClose
