@@ -86,7 +86,7 @@ class cola.Form extends cola.Widget
 			$(dom).append(cola.xRender(childDoms))
 		return
 
-	setMessage: (messages) ->
+	setMessages: (messages) ->
 		if (messages)
 			@_messages = []
 

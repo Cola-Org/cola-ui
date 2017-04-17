@@ -24796,7 +24796,7 @@ Template
       }
     };
 
-    Form.prototype.setMessage = function(messages) {
+    Form.prototype.setMessages = function(messages) {
       var len1, message, n;
       if (messages) {
         this._messages = [];
