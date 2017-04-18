@@ -248,6 +248,8 @@ class cola.Element
 							vars:
 								$self: self
 								$arg: arg
+								$dom: arg.dom
+								$event: arg.event
 						})
 						return
 					, ignoreError)

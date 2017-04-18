@@ -21,7 +21,7 @@
 					{
 						tagName: "c-button",
 						"c-caption": "@bind",
-						"c-click": "testAction()"
+						"c-click": "testAction($self)"
 					},
 					{
 						tagName: "input",
@@ -38,7 +38,8 @@
 					}
 				]
 			},
-			testAction: function() {
+			testAction: function(dom) {
+				debugger
 				alert(this.get("text"));
 			},
 			getButtonCaption: function(text) {
