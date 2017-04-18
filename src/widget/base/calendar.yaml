@@ -15,13 +15,13 @@ events:
         description: 事件的发起者,即组件本身
       - name: arg
         properties:
-          cell:
+          - name: cell
             type: HTMLElemnt
             description: 当前单元格DOM
-          row:
+          - name: row
             type: number
             description: 行号
-          column:
+          - name: column
             type: number
             description: 列号
   - name: change
@@ -34,13 +34,13 @@ events:
     arguments:
       - name: arg
         properties:
-          cell:
+          - name: cell
             type: HTMLElemnt
             description: 当前单元格DOM
-          row:
+          - name: row
             type: number
             description: 行号
-          column:
+          - name: column
             type: number
             description: 列号
 
