@@ -6,15 +6,6 @@ class cola.CardBook extends cola.AbstractItemGroup
 		beforeChange: null
 		change: null
 
-	_parseDom: (dom)->
-		child = dom.firstChild
-		while child
-			if child.nodeType == 1
-				if cola.util.hasClass(child, "item")
-					@addItem(child) if child.nodeType == 1
-			child = child.nextSibling
-		return null
-
 	_initDom: (dom)->
 		super(dom)
 		if @_items then @_itemsRender()

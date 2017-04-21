@@ -22720,6 +22720,14 @@ Template
       this.refresh();
     };
 
+    AbstractDropdown.prototype._doRefreshDom = function() {
+      AbstractDropdown.__super__._doRefreshDom.call(this);
+      if (!this._dom) {
+        return;
+      }
+      return $(this._dom).toggleClass("disabled", this._disabled);
+    };
+
     return AbstractDropdown;
 
   })(cola.AbstractInput);
@@ -26273,22 +26281,6 @@ Template
     CardBook.events = {
       beforeChange: null,
       change: null
-    };
-
-    CardBook.prototype._parseDom = function(dom) {
-      var child;
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          if (cola.util.hasClass(child, "item")) {
-            if (child.nodeType === 1) {
-              this.addItem(child);
-            }
-          }
-        }
-        child = child.nextSibling;
-      }
-      return null;
     };
 
     CardBook.prototype._initDom = function(dom) {
