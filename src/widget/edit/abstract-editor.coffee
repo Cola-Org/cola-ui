@@ -39,7 +39,11 @@ class cola.AbstractEditor extends cola.Widget
 			fieldDom = dom.parentNode
 			if fieldDom?.nodeName is "FIELD"
 				@_field = cola.widget(fieldDom)
-				if @_field?._bind then @set("bind", @_field._bind)
+				if @_field and (@_field._bind or @_field._property)
+					bind = @_field._bind
+					if not bind and @_field._form
+						bind = @_field._form._bind + "." + @_field._property
+					@set("bind", bind)
 		return
 
 	_setValue: (value) ->

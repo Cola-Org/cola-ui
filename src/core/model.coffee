@@ -43,6 +43,20 @@ class cola.Scope
 	get: (path, loadMode, context) ->
 		return @data.get(path, loadMode, context)
 
+	getAsync: (prop, callback, context) ->
+		return jQuery.Deferred (dfd) =>
+			@get(prop, {
+				complete: (success, value) ->
+					if not typeof callback is "string"
+						cola.callback(callback)
+
+					if success
+						dfd.resolve(value)
+					else
+						dfd.reject(value)
+					return
+			}, context)
+
 	set: (path, data, context) ->
 		@data.set(path, data, context)
 		return @

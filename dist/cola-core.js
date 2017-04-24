@@ -1518,7 +1518,9 @@
               expression.evaluate(scope, "never", {
                 vars: {
                   $self: self,
-                  $arg: arg
+                  $arg: arg,
+                  $dom: arg.dom,
+                  $event: arg.event
                 }
               });
             }, ignoreError);
@@ -3771,6 +3773,25 @@
       }
     };
 
+    Entity.prototype.getAsync = function(prop, callback, context) {
+      return jQuery.Deferred((function(_this) {
+        return function(dfd) {
+          return _this.get(prop, {
+            complete: function(success, value) {
+              if (!typeof callback === "string") {
+                cola.callback(callback);
+              }
+              if (success) {
+                dfd.resolve(value);
+              } else {
+                dfd.reject(value);
+              }
+            }
+          }, context);
+        };
+      })(this));
+    };
+
     Entity.prototype._get = function(prop, loadMode, callback, context) {
       var callbackProcessed, loadData, property, provider, providerInvoker, ref;
       loadData = function(provider) {
@@ -3809,7 +3830,6 @@
                 }
                 if (success) {
                   result = _this._set(prop, result, true);
-                  retValue = result;
                   if (result && (result instanceof cola.EntityList || result instanceof cola.Entity)) {
                     result._providerInvoker = providerInvoker;
                   }
@@ -4111,6 +4131,7 @@
           });
         }
       }
+      return value;
     };
 
     Entity.prototype.remove = function(detach) {
@@ -6058,6 +6079,25 @@
 
     Scope.prototype.get = function(path, loadMode, context) {
       return this.data.get(path, loadMode, context);
+    };
+
+    Scope.prototype.getAsync = function(prop, callback, context) {
+      return jQuery.Deferred((function(_this) {
+        return function(dfd) {
+          return _this.get(prop, {
+            complete: function(success, value) {
+              if (!typeof callback === "string") {
+                cola.callback(callback);
+              }
+              if (success) {
+                dfd.resolve(value);
+              } else {
+                dfd.reject(value);
+              }
+            }
+          }, context);
+        };
+      })(this));
     };
 
     Scope.prototype.set = function(path, data, context) {
@@ -8457,9 +8497,9 @@
         }
         for (l = 0, len1 = matches.length; l < len1; l++) {
           match = matches[l];
-          name = match.substring(2, match.length - 1);
+          name = match.substring(3, match.length - 2);
           if (name) {
-            url = url.replace(match, this[name] || "");
+            url = url.replace(match, (this[name] + "") || "");
             options.url = url;
             changed = true;
           }
@@ -8474,7 +8514,7 @@
               if (options.originData == null) {
                 options.originData = $.extend(data, null);
               }
-              data[p] = this[v.substring(2, v.length - 1)];
+              data[p] = this[v.substring(3, v.length - 2)];
               changed = true;
             }
           }
@@ -8578,7 +8618,7 @@
     Provider.prototype.getUrl = function(context) {
       var l, len1, match, matches, url;
       url = this._url;
-      matches = url.match(/{{.+}}/g);
+      matches = url.match(/{{[^{{}}]+}}/g);
       if (matches) {
         if (context.expressionScope == null) {
           context.expressionScope = new _ExpressionScope(this._scope, context.data);
@@ -8602,7 +8642,7 @@
     Provider.prototype._evalParamValue = function(expr, context) {
       var expression;
       if (expr.charCodeAt(0) === 123) {
-        if (expr.match(/^{{.+}}$/)) {
+        if (expr.match(/^{{[^{{}}]+}}$/)) {
           expression = expr.substring(2, expr.length - 2);
           if (_SYS_PARAMS.indexOf(expression) < 0) {
             expression = cola._compileExpression(expression);
@@ -12928,8 +12968,11 @@
     };
 
     WidgetDataModel.prototype.get = function(path, loadMode, context) {
-      var ref;
-      if (path.charCodeAt(0) === 64) {
+      var cc, ref;
+      cc = path.charCodeAt(0);
+      if (cc === 36) {
+        return void 0;
+      } else if (cc === 64) {
         return (ref = this.model.parent) != null ? ref.data.get(this._getRealPath(path), loadMode, context) : void 0;
       } else {
         return this.widget.get(path);

@@ -83,7 +83,11 @@ class cola.Form extends cola.Widget
 				content:
 					tagName: "messages"
 			)
-			$(dom).append(cola.xRender(childDoms))
+
+			childDoms = $.xCreate(childDoms)
+			for childDom in childDoms
+				$(dom).append(childDom)
+				cola.xRender(childDom)
 		return
 
 	setMessages: (messages) ->
@@ -193,8 +197,8 @@ class cola.Field extends cola.Widget
 		if bind and dom.childElementCount is 0
 			dom.appendChild($.xCreate(tagName: "label"))
 			dom.appendChild($.xCreate(
-			  tagName: "c-input"
-			  bind: bind
+				tagName: "c-input"
+				bind: bind
 			))
 
 		@_labelDom = dom.querySelector("label")

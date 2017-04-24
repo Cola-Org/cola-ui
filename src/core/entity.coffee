@@ -365,6 +365,20 @@ class cola.Entity
 		else
 			return @_get(prop, loadMode, callback, context)
 
+	getAsync: (prop, callback, context) ->
+		return jQuery.Deferred (dfd) =>
+			@get(prop, {
+				complete: (success, value) ->
+					if not typeof callback is "string"
+						cola.callback(callback)
+
+					if success
+						dfd.resolve(value)
+					else
+						dfd.reject(value)
+					return
+			}, context)
+
 	_get: (prop, loadMode, callback, context) ->
 		loadData = (provider) ->
 			retValue = undefined
@@ -394,7 +408,6 @@ class cola.Entity
 						if @_data[prop] != providerInvoker then success = false
 						if success
 							result = @_set(prop, result, true)
-							retValue = result
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
 						else
@@ -622,7 +635,7 @@ class cola.Entity
 					oldValue: oldValue
 					value: value
 				})
-		return
+		return value
 
 	remove: (detach) ->
 		if @parent
@@ -1362,7 +1375,7 @@ class cola.EntityList extends LinkedList
 
 		if not page
 			page = @_currentPage
-			if !page
+			if not page
 				@gotoPage(1)
 				page = @_currentPage
 

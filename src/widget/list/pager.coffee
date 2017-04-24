@@ -110,6 +110,7 @@ class cola.Pager extends cola.Menu
 					data?.lastPage()
 
 		super(config)
+
 	_parseDom: (dom)->
 		super(dom)
 		hasPageItem = false
@@ -121,8 +122,6 @@ class cola.Pager extends cola.Menu
 		unless hasPageItem
 			@addItem("pages")
 		@_items ?= []
-
-
 
 	_parsePageItem: (childNode, right)->
 		pageCode = $fly(childNode).attr("page-code")

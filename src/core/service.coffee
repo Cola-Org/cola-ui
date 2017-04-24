@@ -39,7 +39,7 @@ class cola.AjaxServiceInvoker
 
 		if @_beforeSend then @_beforeSend(options)
 
-		jQuery.ajax(options).done( (result) =>
+		$.ajax(options).done( (result) =>
 			result = ajaxService.translateResult(result, options)
 
 			if ajaxService.getListeners("response")
@@ -146,9 +146,9 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		if matches
 			options.originUrl ?= url
 			for match in matches
-				name = match.substring(2, match.length - 1)
+				name = match.substring(3, match.length - 2)
 				if name
-					url = url.replace(match, @[name] or "")
+					url = url.replace(match, (@[name] + "") or "")
 					options.url = url
 					changed = true
 
@@ -158,7 +158,7 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 				if typeof v is "string"
 					if v.charCodeAt(0) is 123 and v.match(/^{{\$[\w-]+}}$/) # `{`
 						options.originData ?= $.extend(data, null)
-						data[p] = @[v.substring(2, v.length - 1)]
+						data[p] = @[v.substring(3, v.length - 2)]
 						changed = true
 		return changed
 
@@ -212,7 +212,7 @@ class cola.Provider extends cola.AjaxService
 
 	getUrl: (context) ->
 		url = @_url
-		matches = url.match(/{{.+}}/g)
+		matches = url.match(/{{[^{{}}]+}}/g)
 		if matches
 			context.expressionScope ?= new _ExpressionScope(@_scope, context.data)
 			for match in matches
@@ -227,7 +227,7 @@ class cola.Provider extends cola.AjaxService
 
 	_evalParamValue: (expr, context) ->
 		if expr.charCodeAt(0) is 123	# `{`
-			if expr.match(/^{{.+}}$/)
+			if expr.match(/^{{[^{{}}]+}}$/)
 				expression = expr.substring(2, expr.length - 2)
 				if _SYS_PARAMS.indexOf(expression) < 0
 					expression = cola._compileExpression(expression)
