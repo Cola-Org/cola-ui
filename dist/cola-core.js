@@ -12219,7 +12219,7 @@
     }
     tagNames = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
     if (tagNames) {
-      tagName.split(/\s,;/).each(function(tagName) {
+      tagNames.split(/\s,;/).each(function(tagName) {
         var childTagNames;
         if (tagName && type.parentWidget) {
           childTagNames = type.parentWidget.childTagNames;
