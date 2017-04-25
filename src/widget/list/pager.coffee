@@ -53,7 +53,7 @@ class cola.Pager extends cola.Menu
 						if value is collection.pageSize then return
 						if collection instanceof cola.EntityList
 							invoker = collection._providerInvoker
-							invoker.ajaxService.set("pageSize",value)
+							invoker.ajaxService.set("pageSize", value)
 							cola.util.flush(collection)
 			goto:
 				$type: "input"
@@ -137,7 +137,7 @@ class cola.Pager extends cola.Menu
 					beforeChild = childNode
 				else
 					if pageItemKey is "info"
-						menuItem = new cola.menu.ControlMenuItem()
+						menuItem = new cola.menu.MenuItem({type: "container"})
 					else
 						menuItem = new cola.menu.MenuItem(pageItem)
 
@@ -158,13 +158,13 @@ class cola.Pager extends cola.Menu
 				if right then @addRightItem(menuItem) else @addItem(menuItem)
 			else if pageCode is "goto"
 				propName = "goto"
-				itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
-				menuItem = new cola.menu.ControlMenuItem(itemConfig)
+				itemConfig = {dom: childNode, type: "container", content: @_pagerItemConfig[pageCode]}
+				menuItem = new cola.menu.MenuItem(itemConfig)
 				if right then @addRightItem(menuItem) else @addItem(menuItem)
 			else if pageCode is "pageSize"
 				propName = "pageSize"
-				itemConfig = {dom: childNode, control: @_pagerItemConfig[pageCode]}
-				menuItem = new cola.menu.ControlMenuItem(itemConfig)
+				itemConfig = {dom: childNode, type: "container", content: @_pagerItemConfig[pageCode]}
+				menuItem = new cola.menu.MenuItem(itemConfig)
 				if right then @addRightItem(menuItem) else @addItem(menuItem)
 			else if pageCode is "info"
 				propName = "info"
@@ -220,7 +220,7 @@ class cola.Pager extends cola.Menu
 				for pageItemKey in _pagesItems
 					pageItem = @_pagerItemConfig[pageItemKey]
 					if pageItemKey is "info"
-						menuItem = new cola.menu.ControlMenuItem()
+						menuItem = new cola.menu.MenuItem({type: "container"})
 					else
 						menuItem = new cola.menu.MenuItem(pageItem)
 					if floatRight then @addRightItem(menuItem) else @addItem(menuItem)
@@ -232,12 +232,12 @@ class cola.Pager extends cola.Menu
 					menuItem = new cola.menu.MenuItem(itemConfig)
 				else if config is "goto"
 					propName = config
-					itemConfig = {control: @_pagerItemConfig[config]}
-					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+					itemConfig = {content: @_pagerItemConfig[config], type: "container"}
+					menuItem = new cola.menu.MenuItem(itemConfig)
 				else if config is "pageSize"
 					propName = config
-					itemConfig = {control: @_pagerItemConfig[config]}
-					menuItem = new cola.menu.ControlMenuItem(itemConfig)
+					itemConfig = {content: @_pagerItemConfig[config], type: "container"}
+					menuItem = new cola.menu.MenuItem(itemConfig)
 
 				else if config is "info"
 					propName = config
@@ -251,11 +251,9 @@ class cola.Pager extends cola.Menu
 			if config.$type
 				if config.$type is "dropdown"
 					menuItem = new cola.menu.DropdownMenuItem(config)
-				else if config.$type is "headerItem"
-					menuItem = new cola.menu.HeaderMenuItem(config)
 				else
-					menuItem = new cola.menu.ControlMenuItem({
-						control: config
+					menuItem = new cola.menu.MenuItem({
+						content: config, type: "container"
 					})
 			else
 				menuItem = new cola.menu.MenuItem(config)
@@ -296,7 +294,7 @@ class cola.Pager extends cola.Menu
 			$(infoItemDom).addClass("page-item desc").text(cola.resource("cola.pager.info", pageNo, pageCount, totalEntityCount))
 		gotoItem = pager._pagerItemMap["goto"]
 		if gotoItem
-			gotoInput = gotoItem.get("control")
+			gotoInput = gotoItem.get("content")[0]
 			if gotoInput
 				gotoInputControl = cola.widget(gotoInput)
 				gotoInputControl?.set("value", pageNo)
@@ -311,7 +309,8 @@ class cola.Pager extends cola.Menu
 					tagName: "span", class: "page-size-desc",
 					content: cola.resource("cola.pager.pageSize")
 				}))
-			pageSizeInput = pageSizeItem.get("control")
+
+			pageSizeInput = pageSizeItem.get("content")[0]
 			if pageSizeInput
 				cola.widget(pageSizeInput)?.set("value", pageSize)
 

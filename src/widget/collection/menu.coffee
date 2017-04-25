@@ -173,11 +173,10 @@ class cola.Menu extends cola.Widget
 			if config.$type
 				if config.$type is "dropdown"
 					menuItem = new cola.menu.DropdownMenuItem(config)
-				else if config.$type is "headerItem"
-					menuItem = new cola.menu.HeaderMenuItem(config)
 				else
-					menuItem = new cola.menu.ControlMenuItem({
-						control: config
+					menuItem = new cola.menu.MenuItem({
+						content: config,
+						type: "container"
 					})
 			else
 				menuItem = new cola.menu.MenuItem(config)
@@ -347,6 +346,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 			refreshDom: true
 		target:
 			refreshDom: true
+		type: null
 		items:
 			setter: (value)-> @_resetSubMenu(value)
 			getter: ()->return @_subMenu?.get("items")
@@ -407,8 +407,10 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	_createDom: ()->
 		icon = @get("icon") or ""
 		caption = @get("caption") or ""
+		tagName = if @_type is "container" then "item" else "a"
+
 		return $.xCreate({
-			tagName: "A",
+			tagName: tagName,
 			class: @constructor.CLASS_NAME,
 			content: [
 				{

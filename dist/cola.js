@@ -27042,11 +27042,10 @@ Template
         if (config.$type) {
           if (config.$type === "dropdown") {
             menuItem = new cola.menu.DropdownMenuItem(config);
-          } else if (config.$type === "headerItem") {
-            menuItem = new cola.menu.HeaderMenuItem(config);
           } else {
-            menuItem = new cola.menu.ControlMenuItem({
-              control: config
+            menuItem = new cola.menu.MenuItem({
+              content: config,
+              type: "container"
             });
           }
         } else {
@@ -27326,6 +27325,7 @@ Template
       target: {
         refreshDom: true
       },
+      type: null,
       items: {
         setter: function(value) {
           return this._resetSubMenu(value);
@@ -27418,11 +27418,12 @@ Template
     };
 
     MenuItem.prototype._createDom = function() {
-      var caption, icon;
+      var caption, icon, tagName;
       icon = this.get("icon") || "";
       caption = this.get("caption") || "";
+      tagName = this._type === "container" ? "item" : "a";
       return $.xCreate({
-        tagName: "A",
+        tagName: tagName,
         "class": this.constructor.CLASS_NAME,
         content: [
           {
@@ -33817,7 +33818,9 @@ Template
             beforeChild = childNode;
           } else {
             if (pageItemKey === "info") {
-              menuItem = new cola.menu.ControlMenuItem();
+              menuItem = new cola.menu.MenuItem({
+                type: "container"
+              });
             } else {
               menuItem = new cola.menu.MenuItem(pageItem);
             }
@@ -33851,9 +33854,10 @@ Template
           propName = "goto";
           itemConfig = {
             dom: childNode,
-            control: this._pagerItemConfig[pageCode]
+            type: "container",
+            content: this._pagerItemConfig[pageCode]
           };
-          menuItem = new cola.menu.ControlMenuItem(itemConfig);
+          menuItem = new cola.menu.MenuItem(itemConfig);
           if (right) {
             this.addRightItem(menuItem);
           } else {
@@ -33863,9 +33867,10 @@ Template
           propName = "pageSize";
           itemConfig = {
             dom: childNode,
-            control: this._pagerItemConfig[pageCode]
+            type: "container",
+            content: this._pagerItemConfig[pageCode]
           };
-          menuItem = new cola.menu.ControlMenuItem(itemConfig);
+          menuItem = new cola.menu.MenuItem(itemConfig);
           if (right) {
             this.addRightItem(menuItem);
           } else {
@@ -33956,7 +33961,9 @@ Template
             pageItemKey = _pagesItems[n];
             pageItem = this._pagerItemConfig[pageItemKey];
             if (pageItemKey === "info") {
-              menuItem = new cola.menu.ControlMenuItem();
+              menuItem = new cola.menu.MenuItem({
+                type: "container"
+              });
             } else {
               menuItem = new cola.menu.MenuItem(pageItem);
             }
@@ -33975,15 +33982,17 @@ Template
           } else if (config === "goto") {
             propName = config;
             itemConfig = {
-              control: this._pagerItemConfig[config]
+              content: this._pagerItemConfig[config],
+              type: "container"
             };
-            menuItem = new cola.menu.ControlMenuItem(itemConfig);
+            menuItem = new cola.menu.MenuItem(itemConfig);
           } else if (config === "pageSize") {
             propName = config;
             itemConfig = {
-              control: this._pagerItemConfig[config]
+              content: this._pagerItemConfig[config],
+              type: "container"
             };
-            menuItem = new cola.menu.ControlMenuItem(itemConfig);
+            menuItem = new cola.menu.MenuItem(itemConfig);
           } else if (config === "info") {
             propName = config;
             menuItem = new cola.menu.MenuItem();
@@ -34002,11 +34011,10 @@ Template
         if (config.$type) {
           if (config.$type === "dropdown") {
             menuItem = new cola.menu.DropdownMenuItem(config);
-          } else if (config.$type === "headerItem") {
-            menuItem = new cola.menu.HeaderMenuItem(config);
           } else {
-            menuItem = new cola.menu.ControlMenuItem({
-              control: config
+            menuItem = new cola.menu.MenuItem({
+              content: config,
+              type: "container"
             });
           }
         } else {
@@ -34062,7 +34070,7 @@ Template
       }
       gotoItem = pager._pagerItemMap["goto"];
       if (gotoItem) {
-        gotoInput = gotoItem.get("control");
+        gotoInput = gotoItem.get("content")[0];
         if (gotoInput) {
           gotoInputControl = cola.widget(gotoInput);
           if (gotoInputControl != null) {
@@ -34085,7 +34093,7 @@ Template
             content: cola.resource("cola.pager.pageSize")
           }));
         }
-        pageSizeInput = pageSizeItem.get("control");
+        pageSizeInput = pageSizeItem.get("content")[0];
         if (pageSizeInput) {
           return (ref4 = cola.widget(pageSizeInput)) != null ? ref4.set("value", pageSize) : void 0;
         }
