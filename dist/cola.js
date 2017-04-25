@@ -12209,7 +12209,7 @@
   };
 
   cola.defineWidget = function(type, definition) {
-    var ref, tagNames;
+    var childTagNames, l, len1, ref, ref1, tagName, tagNames;
     if (!cola.util.isSuperClass(cola.Widget, type)) {
       definition = type;
       type = cola.TemplateWidget;
@@ -12219,8 +12219,9 @@
     }
     tagNames = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
     if (tagNames) {
-      tagNames.split(/\s,;/).each(function(tagName) {
-        var childTagNames;
+      ref1 = tagNames.split(/\s|,|;/);
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        tagName = ref1[l];
         if (tagName && type.parentWidget) {
           childTagNames = type.parentWidget.childTagNames;
           if (!childTagNames) {
@@ -12236,7 +12237,7 @@
           }
           WIDGET_TAGS_REGISTRY[tagName] = type;
         }
-      });
+      }
     }
     return type;
   };
@@ -27228,6 +27229,11 @@ Template
 
     AbstractMenuItem.attributes = {
       parent: null,
+      disabled: {
+        type: "boolean",
+        refreshDom: true,
+        defaultValue: false
+      },
       active: {
         type: "boolean",
         defaultValue: false,
@@ -27272,6 +27278,16 @@ Template
       return !!this._subMenu;
     };
 
+    AbstractMenuItem.prototype._doRefreshDom = function() {
+      var classNamePool;
+      if (!this._dom) {
+        return;
+      }
+      AbstractMenuItem.__super__._doRefreshDom.call(this);
+      classNamePool = this._classNamePool;
+      classNamePool.toggle("disabled", this._disabled);
+    };
+
     AbstractMenuItem.prototype.destroy = function() {
       if (this._destroyed) {
         return;
@@ -27291,7 +27307,7 @@ Template
       return MenuItem.__super__.constructor.apply(this, arguments);
     }
 
-    MenuItem.tagName = "a";
+    MenuItem.tagName = "a,item";
 
     MenuItem.parentWidget = cola.Menu;
 
@@ -27366,6 +27382,9 @@ Template
       this._$dom.click((function(_this) {
         return function(event) {
           if (_this._subMenu) {
+            return;
+          }
+          if (_this._$dom.hasClass("disabled")) {
             return;
           }
           return _this.onItemClick(event, _this);
@@ -27501,7 +27520,7 @@ Template
       return DropdownMenuItem.__super__.constructor.apply(this, arguments);
     }
 
-    DropdownMenuItem.tagName = "c-dropdownItem";
+    DropdownMenuItem.tagName = "dropdown-item";
 
     DropdownMenuItem.parentWidget = cola.Menu;
 
@@ -27547,118 +27566,6 @@ Template
   })(cola.menu.MenuItem);
 
   cola.registerWidget(cola.menu.DropdownMenuItem);
-
-  cola.menu.ControlMenuItem = (function(superClass) {
-    extend(ControlMenuItem, superClass);
-
-    function ControlMenuItem() {
-      return ControlMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    ControlMenuItem.tagName = "c-controlItem";
-
-    ControlMenuItem.parentWidget = cola.Menu;
-
-    ControlMenuItem.CLASS_NAME = "item";
-
-    ControlMenuItem.attributes = {
-      control: {
-        setter: function(value) {
-          var control;
-          $fly(this._control).remove();
-          control = cola.xRender(value);
-          this._control = control;
-          if (control && this._dom) {
-            this._dom.appendChild(control);
-          }
-          return this;
-        }
-      }
-    };
-
-    ControlMenuItem.prototype._parseDom = function(dom) {
-      var child, widget;
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          widget = cola.widget(child);
-          if (widget) {
-            this._control = widget;
-            break;
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    ControlMenuItem.prototype._doRefreshDom = function() {
-      if (!this._dom) {
-        return;
-      }
-      ControlMenuItem.__super__._doRefreshDom.call(this);
-      return this._classNamePool.remove("ui");
-    };
-
-    ControlMenuItem.prototype._setDom = function(dom, parseChild) {
-      var control;
-      ControlMenuItem.__super__._setDom.call(this, dom, parseChild);
-      control = this._control;
-      if (!control) {
-        return;
-      }
-      if (control instanceof cola.RenderableElement) {
-        dom.appendChild(control.getDom());
-      } else if (control.nodeType === 1) {
-        dom.appendChild(control);
-      }
-    };
-
-    return ControlMenuItem;
-
-  })(cola.menu.AbstractMenuItem);
-
-  cola.registerWidget(cola.menu.ControlMenuItem);
-
-  cola.menu.HeaderMenuItem = (function(superClass) {
-    extend(HeaderMenuItem, superClass);
-
-    function HeaderMenuItem() {
-      return HeaderMenuItem.__super__.constructor.apply(this, arguments);
-    }
-
-    HeaderMenuItem.tagName = "c-headerItem";
-
-    HeaderMenuItem.parentWidget = cola.Menu;
-
-    HeaderMenuItem.CLASS_NAME = "header item";
-
-    HeaderMenuItem.attributes = {
-      text: null
-    };
-
-    HeaderMenuItem.prototype._setDom = function(dom, parseChild) {
-      HeaderMenuItem.__super__._setDom.call(this, dom, parseChild);
-      if (this._text) {
-        this.get$Dom(this._text);
-      }
-    };
-
-    HeaderMenuItem.prototype._doRefreshDom = function() {
-      var text;
-      if (!this._dom) {
-        return;
-      }
-      HeaderMenuItem.__super__._doRefreshDom.call(this);
-      this._classNamePool.remove("ui");
-      text = this.get("text") || "";
-      this.get$Dom().text(text);
-    };
-
-    return HeaderMenuItem;
-
-  })(cola.menu.AbstractMenuItem);
-
-  cola.registerWidget(cola.menu.HeaderMenuItem);
 
   cola.TitleBar = (function(superClass) {
     extend(TitleBar, superClass);
@@ -27739,10 +27646,6 @@ Template
   cola.registerType("menu", "item", cola.menu.MenuItem);
 
   cola.registerType("menu", "dropdownItem", cola.menu.DropdownMenuItem);
-
-  cola.registerType("menu", "controlItem", cola.menu.ControlMenuItem);
-
-  cola.registerType("menu", "headerItem", cola.menu.HeaderMenuItem);
 
   cola.registerTypeResolver("menu", function(config) {
     return cola.resolveType("widget", config);

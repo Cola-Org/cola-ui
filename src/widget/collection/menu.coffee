@@ -1,6 +1,5 @@
 class cola.Menu extends cola.Widget
 	@tagName: "c-menu"
-
 	@CLASS_NAME: "ui menu"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
 	@SEMANTIC_CLASS: ["top fixed", "right fixed", "bottom fixed", "left fixed"]
@@ -293,6 +292,10 @@ cola.menu ?= {}
 class cola.menu.AbstractMenuItem extends cola.AbstractContainer
 	@attributes:
 		parent: null
+		disabled:
+			type: "boolean"
+			refreshDom: true
+			defaultValue: false
 		active:
 			type: "boolean"
 			defaultValue: false
@@ -316,13 +319,21 @@ class cola.menu.AbstractMenuItem extends cola.AbstractContainer
 
 	getParent: ()-> @_parent
 	hasSubMenu: ()->return !!this._subMenu
+	_doRefreshDom: ()->
+		return unless @_dom
+		super()
+		classNamePool = @_classNamePool
+		classNamePool.toggle("disabled", @_disabled)
+
+		return
+
 	destroy: ()->
 		return if @_destroyed
 		super()
 		delete @_parent
 
 class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
-	@tagName: "a"
+	@tagName: "a,item"
 	@parentWidget: cola.Menu
 
 	@CLASS_NAME: "item"
@@ -374,6 +385,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 		@_$dom ?= $(dom)
 		@_$dom.click((event)=>
 			if @_subMenu then return
+			if @_$dom.hasClass("disabled") then return
 			return @onItemClick(event, @)
 		)
 		if @_subMenu
@@ -459,7 +471,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 cola.registerWidget(cola.menu.MenuItem)
 
 class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
-	@tagName: "c-dropdownItem"
+	@tagName: "dropdown-item"
 	@parentWidget: cola.Menu
 
 	@CLASS_NAME: "dropdown item"
@@ -496,76 +508,6 @@ class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 		@_doms.iconDom.className = "#{@_icon or "dropdown"} icon"
 
 cola.registerWidget(cola.menu.DropdownMenuItem)
-
-class cola.menu.ControlMenuItem extends  cola.menu.AbstractMenuItem
-	@tagName: "c-controlItem"
-	@parentWidget: cola.Menu
-
-	@CLASS_NAME: "item"
-
-	@attributes:
-		control:
-			setter: (value)->
-				$fly(@_control).remove()
-				control = cola.xRender(value)
-				@_control = control
-				if control and @_dom then @_dom.appendChild(control)
-				return @
-
-	_parseDom: (dom)->
-		child = dom.firstChild
-
-		while child
-			if child.nodeType == 1
-				widget = cola.widget(child)
-				if widget
-					@_control = widget
-					break
-			child = child.nextSibling
-
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-
-		@_classNamePool.remove("ui")
-
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		control = @_control
-		return unless control
-		if control instanceof cola.RenderableElement
-			dom.appendChild(control.getDom())
-		else if control.nodeType == 1
-			dom.appendChild(control)
-		return
-
-cola.registerWidget(cola.menu.ControlMenuItem)
-
-class cola.menu.HeaderMenuItem extends cola.menu.AbstractMenuItem
-	@tagName: "c-headerItem"
-	@parentWidget: cola.Menu
-
-	@CLASS_NAME: "header item"
-
-	@attributes:
-		text: null
-
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
-		@get$Dom(@_text)if @_text
-		return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		@_classNamePool.remove("ui")
-		text = @get("text") or ""
-		@get$Dom().text(text)
-		return
-
-cola.registerWidget(cola.menu.HeaderMenuItem)
 
 class cola.TitleBar extends cola.Menu
 	@tagName: "c-titleBar"
@@ -619,8 +561,6 @@ cola.registerWidget(cola.TitleBar)
 cola.registerType("menu", "_default", cola.menu.MenuItem)
 cola.registerType("menu", "item", cola.menu.MenuItem)
 cola.registerType("menu", "dropdownItem", cola.menu.DropdownMenuItem)
-cola.registerType("menu", "controlItem", cola.menu.ControlMenuItem)
-cola.registerType("menu", "headerItem", cola.menu.HeaderMenuItem)
 
 cola.registerTypeResolver "menu", (config) ->
 	return cola.resolveType("widget", config)

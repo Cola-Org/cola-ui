@@ -419,7 +419,7 @@ cola.defineWidget = (type, definition) ->
 
     tagNames = type.tagName?.toUpperCase()
     if tagNames
-        for tagName in tagNames.split(/\s,;/)
+        for tagName in tagNames.split(/\s|,|;/)
             if tagName and type.parentWidget
                 childTagNames = type.parentWidget.childTagNames
                 if not childTagNames
@@ -431,7 +431,6 @@ cola.defineWidget = (type, definition) ->
                 if WIDGET_TAGS_REGISTRY[tagName]
                     throw new cola.Exception("Tag name \"#{tagName}\" is already registered.")
                 WIDGET_TAGS_REGISTRY[tagName] = type
-            return
 
     return type
 

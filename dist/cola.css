@@ -617,6 +617,7 @@ h-box.end {
 
 .form {
   position: relative;
+  padding-top: 0.75rem;
 }
 .form > field {
   width: 100%;
@@ -5464,6 +5465,10 @@ messages {
 .ui.menu .leftContent {
   display: none;
 }
+.ui.menu.secondary .item.disabled:hover {
+  background-color: transparent !important;
+  color: rgba(40, 40, 40, 0.3) !important;
+}
 .ui.title-bar {
   position: relative;
   border-radius: 0 !important;
@@ -7452,10 +7457,10 @@ c-toolbar > .ui.toolbar-button .ui.button:active,
 .ui.toolbar > .ui.toolbar-button .ui.button:active {
   background-color: rgba(0, 0, 0, 0.2);
 }
-c-toolbar > .item .ui.button,
-.ui.toolbar > .item .ui.button,
-c-toolbar > .right.box .ui.button,
-.ui.toolbar > .right.box .ui.button {
+c-toolbar > .item > .ui.button,
+.ui.toolbar > .item > .ui.button,
+c-toolbar > .right.box > .ui.button,
+.ui.toolbar > .right.box > .ui.button {
   margin-right: 0;
   padding: .78571429em .92857143em;
 }

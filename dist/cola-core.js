@@ -12209,7 +12209,7 @@
   };
 
   cola.defineWidget = function(type, definition) {
-    var ref, tagNames;
+    var childTagNames, l, len1, ref, ref1, tagName, tagNames;
     if (!cola.util.isSuperClass(cola.Widget, type)) {
       definition = type;
       type = cola.TemplateWidget;
@@ -12219,8 +12219,9 @@
     }
     tagNames = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
     if (tagNames) {
-      tagNames.split(/\s,;/).each(function(tagName) {
-        var childTagNames;
+      ref1 = tagNames.split(/\s|,|;/);
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        tagName = ref1[l];
         if (tagName && type.parentWidget) {
           childTagNames = type.parentWidget.childTagNames;
           if (!childTagNames) {
@@ -12236,7 +12237,7 @@
           }
           WIDGET_TAGS_REGISTRY[tagName] = type;
         }
-      });
+      }
     }
     return type;
   };
