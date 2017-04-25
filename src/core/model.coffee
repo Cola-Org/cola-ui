@@ -44,7 +44,7 @@ class cola.Scope
 		return @data.get(path, loadMode, context)
 
 	getAsync: (prop, callback, context) ->
-		return jQuery.Deferred (dfd) =>
+		return $.Deferred (dfd) =>
 			@get(prop, {
 				complete: (success, value) ->
 					if not typeof callback is "string"
@@ -861,7 +861,7 @@ class cola.AbstractDataModel
 
 			if notifyChildren2 and type is cola.constants.MESSAGE_CURRENT_CHANGE
 				type = cola.constants.MESSAGE_REFRESH
-				arg = jQuery.extend({
+				arg = $.extend({
 					originType: cola.constants.MESSAGE_CURRENT_CHANGE
 				}, arg)
 
@@ -1295,7 +1295,7 @@ cola.submit = (options, callback) ->
 				parameter: options.parameter
 		else
 			options.data = data
-		jQuery.post(options.url, options.data).done((result)->
+		$.post(options.url, options.data).done((result)->
 			cola.callback(callback, true, result)
 			return
 		).fail((result)->

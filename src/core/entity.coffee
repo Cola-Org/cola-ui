@@ -366,7 +366,7 @@ class cola.Entity
 			return @_get(prop, loadMode, callback, context)
 
 	getAsync: (prop, callback, context) ->
-		return jQuery.Deferred (dfd) =>
+		return $.Deferred (dfd) =>
 			@get(prop, {
 				complete: (success, value) ->
 					if not typeof callback is "string"
@@ -1058,6 +1058,7 @@ class Page extends LinkedList
 				data: entityList
 			})
 		else
+			entityList.totalEntityCount = entityList.entityCount
 			entityList.pageCountDetermined = true
 		return
 

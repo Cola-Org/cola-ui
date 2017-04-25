@@ -285,7 +285,6 @@ class cola.Pager extends cola.Menu
 			pageCount = data.pageCount
 			pageSize = data.pageSize
 
-
 		@_pageNo = pageNo
 		pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", !hasPrev)
 		pager._pagerItemMap["prevPage"]?.get$Dom().toggleClass("disabled", !hasPrev)

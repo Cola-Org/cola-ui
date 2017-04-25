@@ -14,7 +14,7 @@ _toJSON = (data) ->
 			data = undefined
 	return data
 
-originalAjax = jQuery.ajax
+originalAjax = $.ajax
 $.ajax = (url, settings) ->
 	if typeof url is "object" and not settings
 		settings = url

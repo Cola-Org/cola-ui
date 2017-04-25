@@ -1149,7 +1149,7 @@
     return data;
   };
 
-  originalAjax = jQuery.ajax;
+  originalAjax = $.ajax;
 
   $.ajax = function(url, settings) {
     var data, p, rawData, v;
@@ -3774,7 +3774,7 @@
     };
 
     Entity.prototype.getAsync = function(prop, callback, context) {
-      return jQuery.Deferred((function(_this) {
+      return $.Deferred((function(_this) {
         return function(dfd) {
           return _this.get(prop, {
             complete: function(success, value) {
@@ -4763,6 +4763,7 @@
           data: entityList
         });
       } else {
+        entityList.totalEntityCount = entityList.entityCount;
         entityList.pageCountDetermined = true;
       }
     };
@@ -6082,7 +6083,7 @@
     };
 
     Scope.prototype.getAsync = function(prop, callback, context) {
-      return jQuery.Deferred((function(_this) {
+      return $.Deferred((function(_this) {
         return function(dfd) {
           return _this.get(prop, {
             complete: function(success, value) {
@@ -7270,7 +7271,7 @@
         notifyChildren2 = !((cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type && type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE)) && !((cola.constants.MESSAGE_LOADING_START <= type && type <= cola.constants.MESSAGE_LOADING_END));
         if (notifyChildren2 && type === cola.constants.MESSAGE_CURRENT_CHANGE) {
           type = cola.constants.MESSAGE_REFRESH;
-          arg = jQuery.extend({
+          arg = $.extend({
             originType: cola.constants.MESSAGE_CURRENT_CHANGE
           }, arg);
         }
@@ -7891,7 +7892,7 @@
       } else {
         options.data = data;
       }
-      jQuery.post(options.url, options.data).done(function(result) {
+      $.post(options.url, options.data).done(function(result) {
         cola.callback(callback, true, result);
       }).fail(function(result) {
         cola.callback(callback, true, result);
@@ -8323,7 +8324,7 @@
       if (this._beforeSend) {
         this._beforeSend(options);
       }
-      jQuery.ajax(options).done((function(_this) {
+      $.ajax(options).done((function(_this) {
         return function(result) {
           var arg;
           result = ajaxService.translateResult(result, options);
@@ -12042,7 +12043,7 @@
       }
       if (win.parent) {
         try {
-          parentFrames = win.parent.jQuery("iframe,frame");
+          parentFrames = win.parent.$("iframe,frame");
         } catch (_error) {
 
         }
@@ -12208,7 +12209,7 @@
   };
 
   cola.defineWidget = function(type, definition) {
-    var childTagNames, ref, tagName;
+    var ref, tagNames;
     if (!cola.util.isSuperClass(cola.Widget, type)) {
       definition = type;
       type = cola.TemplateWidget;
@@ -12216,21 +12217,26 @@
     if (definition) {
       type = _extendWidget(type, definition);
     }
-    tagName = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
-    if (tagName && type.parentWidget) {
-      childTagNames = type.parentWidget.childTagNames;
-      if (!childTagNames) {
-        type.parentWidget.childTagNames = childTagNames = {};
-      }
-      if (childTagNames[tagName]) {
-        throw new cola.Exception("Tag name \"" + tagName + "\" is already registered in \"" + type.parentWidget.tagName + "\".");
-      }
-      childTagNames[tagName] = type;
-    } else if (tagName) {
-      if (WIDGET_TAGS_REGISTRY[tagName]) {
-        throw new cola.Exception("Tag name \"" + tagName + "\" is already registered.");
-      }
-      WIDGET_TAGS_REGISTRY[tagName] = type;
+    tagNames = (ref = type.tagName) != null ? ref.toUpperCase() : void 0;
+    if (tagNames) {
+      tagName.split(/\s,;/).each(function(tagName) {
+        var childTagNames;
+        if (tagName && type.parentWidget) {
+          childTagNames = type.parentWidget.childTagNames;
+          if (!childTagNames) {
+            type.parentWidget.childTagNames = childTagNames = {};
+          }
+          if (childTagNames[tagName]) {
+            throw new cola.Exception("Tag name \"" + tagName + "\" is already registered in \"" + type.parentWidget.tagName + "\".");
+          }
+          childTagNames[tagName] = type;
+        } else if (tagName) {
+          if (WIDGET_TAGS_REGISTRY[tagName]) {
+            throw new cola.Exception("Tag name \"" + tagName + "\" is already registered.");
+          }
+          WIDGET_TAGS_REGISTRY[tagName] = type;
+        }
+      });
     }
     return type;
   };
@@ -26651,7 +26657,7 @@ Template
       currentIndex = this._currentIndex;
       $("span", this._doms.indicators).removeClass("active");
       if (currentIndex !== -1) {
-        jQuery("span:nth-child(" + (currentIndex + 1) + ")", this._doms.indicators).addClass("indicator-active");
+        $("span:nth-child(" + (currentIndex + 1) + ")", this._doms.indicators).addClass("indicator-active");
       }
       return this;
     };
@@ -32774,20 +32780,19 @@ Template
         nodeName = child.nodeName;
         if (nodeName === "TEMPLATE") {
           this.regTemplate(child);
-        } else if (nodeName === "COLUMN") {
-          column = this._parseColumnDom(child);
-          if (column) {
-            columns.push(column);
-          }
-          dom.removeChild(child);
-        } else if (nodeName === "SELECT-COLUMN") {
-          column = this._parseColumnDom(child);
-          column.$type = "select";
-          if (column) {
-            columns.push(column);
-          }
-          dom.removeChild(child);
         } else {
+          if (nodeName === "COLUMN") {
+            column = this._parseColumnDom(child);
+            if (column) {
+              columns.push(column);
+            }
+          } else if (nodeName === "SELECT-COLUMN") {
+            column = this._parseColumnDom(child);
+            column.$type = "select";
+            if (column) {
+              columns.push(column);
+            }
+          }
           dom.removeChild(child);
         }
         child = next;

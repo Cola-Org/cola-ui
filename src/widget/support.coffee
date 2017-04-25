@@ -290,7 +290,7 @@ cola.findWidget = (dom, typeName) ->
 
         if win.parent
             try
-                parentFrames = win.parent.jQuery("iframe,frame")
+                parentFrames = win.parent.$("iframe,frame")
             catch
                 # do nothing
 
@@ -417,18 +417,22 @@ cola.defineWidget = (type, definition) ->
     if definition
         type = _extendWidget(type, definition)
 
-    tagName = type.tagName?.toUpperCase()
-    if tagName and type.parentWidget
-        childTagNames = type.parentWidget.childTagNames
-        if not childTagNames
-            type.parentWidget.childTagNames = childTagNames = {}
-        if childTagNames[tagName]
-            throw new cola.Exception("Tag name \"#{tagName}\" is already registered in \"#{type.parentWidget.tagName}\".")
-        childTagNames[tagName] = type
-    else if tagName
-        if WIDGET_TAGS_REGISTRY[tagName]
-            throw new cola.Exception("Tag name \"#{tagName}\" is already registered.")
-        WIDGET_TAGS_REGISTRY[tagName] = type
+    tagNames = type.tagName?.toUpperCase()
+    if tagNames
+        tagNames.split(/\s,;/).each (tagName) ->
+            if tagName and type.parentWidget
+                childTagNames = type.parentWidget.childTagNames
+                if not childTagNames
+                    type.parentWidget.childTagNames = childTagNames = {}
+                if childTagNames[tagName]
+                    throw new cola.Exception("Tag name \"#{tagName}\" is already registered in \"#{type.parentWidget.tagName}\".")
+                childTagNames[tagName] = type
+            else if tagName
+                if WIDGET_TAGS_REGISTRY[tagName]
+                    throw new cola.Exception("Tag name \"#{tagName}\" is already registered.")
+                WIDGET_TAGS_REGISTRY[tagName] = type
+            return
+
     return type
 
 cola.registerWidget = cola.defineWidget

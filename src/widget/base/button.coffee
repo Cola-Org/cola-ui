@@ -153,7 +153,7 @@ class cola.Button extends cola.AbstractButton
 		else
 			$fly(captionDom).remove() if captionDom
 
-		if @get("focusable") then $dom.attr("tabindex", "0") else  $dom.removeAttr("tabindex")
+		if @get("focusable") then $dom.attr("tabindex", "0") else $dom.removeAttr("tabindex")
 
 		@_refreshIcon()
 		state = @_state

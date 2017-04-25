@@ -191,7 +191,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		currentIndex = @_currentIndex
 		$("span", @_doms.indicators).removeClass("active")
 		if currentIndex != -1
-			jQuery("span:nth-child(" + (currentIndex + 1) + ")", @_doms.indicators).addClass("indicator-active")
+			$("span:nth-child(" + (currentIndex + 1) + ")", @_doms.indicators).addClass("indicator-active")
 
 		return @
 

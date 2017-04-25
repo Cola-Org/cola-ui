@@ -433,16 +433,14 @@ class cola.AbstractTable extends cola.AbstractList
             nodeName = child.nodeName
             if nodeName is "TEMPLATE"
                 @regTemplate(child)
-            else if nodeName is "COLUMN"
-                column = @_parseColumnDom(child)
-                if column then columns.push(column)
-                dom.removeChild(child)
-            else if nodeName is "SELECT-COLUMN"
-                column = @_parseColumnDom(child)
-                column.$type = "select"
-                if column then columns.push(column)
-                dom.removeChild(child)
             else
+                if nodeName is "COLUMN"
+                    column = @_parseColumnDom(child)
+                    if column then columns.push(column)
+                else if nodeName is "SELECT-COLUMN"
+                    column = @_parseColumnDom(child)
+                    column.$type = "select"
+                    if column then columns.push(column)
                 dom.removeChild(child)
             child = next
 
