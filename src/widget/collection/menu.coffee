@@ -379,13 +379,15 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 				$fly(dom).prepend(@_doms.captionDom)
 
 		return
-
+	fire: (eventName, self, arg)->
+		if @_$dom and eventName is "click" and@_$dom.hasClass("disabled") then return
+		super(eventName, self, arg)
 	_initDom: (dom)->
 		super(dom)
 		@_$dom ?= $(dom)
 		@_$dom.click((event)=>
 			if @_subMenu then return
-			if @_$dom.hasClass("disabled") then return
+			if @_$dom.hasClass("disabled") then return false
 			return @onItemClick(event, @)
 		)
 		if @_subMenu

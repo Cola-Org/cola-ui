@@ -27373,6 +27373,13 @@ Template
       }
     };
 
+    MenuItem.prototype.fire = function(eventName, self, arg) {
+      if (this._$dom && eventName === "click" && this._$dom.hasClass("disabled")) {
+        return;
+      }
+      return MenuItem.__super__.fire.call(this, eventName, self, arg);
+    };
+
     MenuItem.prototype._initDom = function(dom) {
       var subMenuDom;
       MenuItem.__super__._initDom.call(this, dom);
@@ -27385,7 +27392,7 @@ Template
             return;
           }
           if (_this._$dom.hasClass("disabled")) {
-            return;
+            return false;
           }
           return _this.onItemClick(event, _this);
         };
