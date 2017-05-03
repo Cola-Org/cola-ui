@@ -121,6 +121,11 @@ _compileWidgetAttribute = (scope, dom, context) ->
         widgetConfigStr = dom.getAttribute("c-widget")
         if widgetConfigStr
             dom.removeAttribute("c-widget")
+        else
+            widgetConfigStr = dom.getAttribute("c-config")
+            if widgetConfigStr then dom.removeAttribute("c-config")
+
+        if widgetConfigStr
             if context.defaultPath
                 widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
 

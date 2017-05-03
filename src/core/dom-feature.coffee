@@ -105,7 +105,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 			itemDom = @createNewItem(domBinding, templateDom, domBinding.scope, entity, index)
 
-			if !insertMode or insertMode == "end"
+			if not insertMode or insertMode is "end"
 				$fly(tailDom).before(itemDom)
 			else
 				if insertMode == "begin"
@@ -274,7 +274,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		child = dom.firstChild
 		while child
-			if child.nodeType isnt 3 and !child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
+			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
 				child = @refreshItemDomBinding(child, itemScope)
 			child = child.nextSibling
 

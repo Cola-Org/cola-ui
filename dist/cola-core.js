@@ -9693,6 +9693,9 @@
     if ((path != null ? path.charCodeAt(0) : void 0) === 33) {
       path = path.substring(1);
     }
+    if (path.indexOf("?") >= 0) {
+      path = path.substring(0, path.indexOf("?"));
+    }
     return trimPath(path);
   };
 
@@ -11799,6 +11802,13 @@
       widgetConfigStr = dom.getAttribute("c-widget");
       if (widgetConfigStr) {
         dom.removeAttribute("c-widget");
+      } else {
+        widgetConfigStr = dom.getAttribute("c-config");
+        if (widgetConfigStr) {
+          dom.removeAttribute("c-config");
+        }
+      }
+      if (widgetConfigStr) {
         if (context.defaultPath) {
           widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
         }

@@ -246,6 +246,8 @@ _getHashPath = () ->
 
 	if path?.charCodeAt(0) == 33 # `!`
 		path = path.substring(1)
+	if path.indexOf("?") >= 0
+		path = path.substring(0, path.indexOf("?"))
 	return trimPath(path)
 
 _onHashChange = () ->
