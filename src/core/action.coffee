@@ -107,7 +107,7 @@ cola.defaultAction.formatNumber = cola.util.formatNumber
 
 cola.defaultAction.format = cola.util.format
 
-cola.defaultAction.propertyCaption = (path) ->
+cola.defaultAction.caption = (path) ->
 	caption = ""
 	i = path.indexOf(".")
 	if i > 0

@@ -87,6 +87,8 @@ cola._userDomCompiler =
 	$startContent: []
 	$endContent: []
 
+cola.xCreate = $.xCreate
+
 cola.xRender = (template, model, context) ->
 	return unless template
 

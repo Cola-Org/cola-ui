@@ -8233,7 +8233,7 @@
 
   cola.defaultAction.format = cola.util.format;
 
-  cola.defaultAction.propertyCaption = function(path) {
+  cola.defaultAction.caption = function(path) {
     var caption, dataType, i, property;
     caption = "";
     i = path.indexOf(".");
@@ -10908,6 +10908,8 @@
     $endContent: []
   };
 
+  cola.xCreate = $.xCreate;
+
   cola.xRender = function(template, model, context) {
     var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
     if (!template) {
@@ -11802,13 +11804,6 @@
       widgetConfigStr = dom.getAttribute("c-widget");
       if (widgetConfigStr) {
         dom.removeAttribute("c-widget");
-      } else {
-        widgetConfigStr = dom.getAttribute("c-config");
-        if (widgetConfigStr) {
-          dom.removeAttribute("c-config");
-        }
-      }
-      if (widgetConfigStr) {
         if (context.defaultPath) {
           widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath);
         }
