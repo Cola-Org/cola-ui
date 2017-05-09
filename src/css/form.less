@@ -80,27 +80,7 @@
 
 }
 
-.form {
-	position: relative;
-	padding-top: 0.75rem;
-	> field {
-		width: 100%;
-	}
-}
-
-.form > fields > field {
-	width: 100%;
-}
-
-.form > fields {
-	.base-fields();
-}
-
-.form > field {
-	padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
-}
-
-.form, .form > fields, .form > [class*="fields-"] {
+.form-field() {
 	> field {
 		display: -webkit-inline-box;
 		display: -webkit-inline-flex;
@@ -114,6 +94,7 @@
 			padding-right: 1em;
 			width: 6em;
 			text-align: right;
+			display: block;
 		}
 
 		&.required {
@@ -145,25 +126,54 @@
 	}
 }
 
-.form {
+.form, form-layout {
+	position: relative;
+	padding-top: 0.75rem;
+
+	> fields > field {
+		width: 100%;
+	}
+	> fields {
+		.base-fields();
+	}
+	> field {
+		width: 100%;
+		padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
+	}
+
+	> fields, > [class*="fields-"] {
+		.form-field();
+	}
+	.form-field();
 	.fields-html-classes(false);
 }
 
-@media @small-only {
-	.form, .form > fields, .form > [class*="fields-"] {
-		> field {
-			> label {
-				display: block;
-			}
-			> .ui.input, .ui.textarea {
-				-webkit-box-flex: 1;
-				-webkit-flex: 1 0 auto;
-				-ms-flex: 1 0 auto;
-				flex: 1 0 auto;
-				width: auto;
-			}
-			width: 100% !important;
+.small-form-field() {
+	> field {
+		> label {
+			display: block;
 		}
+		> .ui.input, .ui.textarea {
+			-webkit-box-flex: 1;
+			-webkit-flex: 1 0 auto;
+			-ms-flex: 1 0 auto;
+			flex: 1 0 auto;
+			width: auto;
+		}
+		width: 100% !important;
+	}
+}
+
+form-layout {
+	display: block;
+}
+
+@media @small-only {
+	.form, form-layout {
+		> fields, > [class*="fields-"] {
+			.small-form-field();
+		}
+		.small-form-field();
 	}
 }
 

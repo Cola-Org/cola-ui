@@ -580,40 +580,40 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		picker = @
 		@_doms ?= {}
 		headerDom = $.xCreate(
-		  {
-			  tagName: "div"
-			  class: "header"
-			  contextKey: "header"
-			  content: [
-				  {
-					  tagName: "div"
-					  class: "year"
-					  content: [
-						  {
-							  tagName: "div"
-							  class: "button prev"
-							  contextKey: "prevYearButton"
-							  click: ()->
-								  picker.prevYear()
-						  }
-						  {
-							  tagName: "div"
-							  class: "label"
-							  contextKey: "yearLabel"
-						  }
-						  {
-							  tagName: "div"
-							  class: "button next"
-							  contextKey: "nextYearButton"
-							  click: ()->
-								  picker.nextYear()
-						  }
+			{
+				tagName: "div"
+				class: "header"
+				contextKey: "header"
+				content: [
+					{
+						tagName: "div"
+						class: "year"
+						content: [
+							{
+								tagName: "div"
+								class: "button prev"
+								contextKey: "prevYearButton"
+								click: ()->
+									picker.prevYear()
+							}
+							{
+								tagName: "div"
+								class: "label"
+								contextKey: "yearLabel"
+							}
+							{
+								tagName: "div"
+								class: "button next"
+								contextKey: "nextYearButton"
+								click: ()->
+									picker.nextYear()
+							}
 
-					  ]
-				  }
-			  ]
+						]
+					}
+				]
 
-		  }, @_doms)
+			}, @_doms)
 
 		table = $.xCreate({
 			tagName: "table"
@@ -832,6 +832,9 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 			@_dropdownContent = dateGrid.getDom()
 
 		return @_dropdownContent
+class cola.YearMonthPicker extends cola.YearMonthDropDown
+	@tagName: "c-monthpicker"
+	@CLASS_NAME: "year-month input date drop"
 
 class cola.TimeEditor extends cola.Widget
 	@CLASS_NAME: "ui time-editor"
@@ -926,3 +929,4 @@ class cola.TimeEditor extends cola.Widget
 
 cola.registerWidget(cola.DatePicker)
 cola.registerWidget(cola.YearMonthDropDown)
+cola.registerWidget(cola.YearMonthPicker)

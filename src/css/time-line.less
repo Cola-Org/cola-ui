@@ -6,7 +6,7 @@
 @timeLineContentMarginLeft: @timeLineLeftWidth + @timeLineIconSize;
 @timeLineLineColor: #e0e0e0;
 @timeLineDefaultIconColor: #18a689;
-@timeLineItemMarginBottom:0.4em;
+@timeLineItemMarginBottom: 0.4em;
 
 @-webkit-keyframes breathe {
 	0% {
@@ -17,13 +17,21 @@
 	}
 }
 
-.ui.time-line {
-	> .items {
+.ui.time-line, c-timeline {
+
+	> ul > li {
+		> content, > label, > icon {
+			display: block;
+
+		}
+	}
+
+	> .items, > ul {
 		list-style: none;
 		padding: 0.6em 0;
 		height: 100%;
 		overflow: auto;
-		> .item {
+		> .item, > li {
 			position: relative;
 			padding: 0 !important;
 			&:before {
@@ -31,10 +39,10 @@
 				border: 1px solid @timeLineLineColor;
 				left: @timeLineLeftWidth;
 				top: @timeLineIconSize - @timeLineItemMarginBottom;
-				bottom:0em;
+				bottom: 0em;
 				content: "";
 			}
-			.label {
+			.label, > label {
 				position: absolute;
 				top: 0em;
 				width: @timeLineLeftWidth;
@@ -43,7 +51,7 @@
 				padding: 0 @timeLineIconSize 0 0;
 			}
 
-			.content {
+			.content, > content {
 				margin-left: @timeLineContentMarginLeft;
 				padding-bottom: @timeLineItemMarginBottom;
 				margin-bottom: @timeLineItemMarginBottom;
@@ -52,7 +60,8 @@
 					padding: 0.4em 0
 				}
 			}
-			> .icon {
+
+			> .icon, > icon {
 				position: absolute;
 				left: @timeLineIconMarginLeft;
 				top: -0.4em;
@@ -67,34 +76,30 @@
 					margin: 0;
 				}
 			}
-		}
-	}
 
-	> .items {
-		> .item:hover {
-			> .icon {
-				> i {
-					.animation-timing-function(ease-in-out);
-					.animation-name(breathe);
-					.animation-duration(500ms);
-					.animation-iteration-count(infinite);
-					.animation-direction(alternate);
+			&:hover {
+				> .icon, > icon {
+					> i {
+						.animation-timing-function(ease-in-out);
+						.animation-name(breathe);
+						.animation-duration(500ms);
+						.animation-iteration-count(infinite);
+						.animation-direction(alternate);
+					}
 				}
-			}
-			> .icon, &:before {
-				border-color: fadeout(@timeLineDefaultIconColor, 40%);
+				> .icon, > icon, &:before {
+					border-color: fadeout(@timeLineDefaultIconColor, 40%);
+				}
 			}
 		}
 	}
 
 	&.circular {
-		> .items {
-			> .item {
-				> .icon {
+		> .items, > ul {
+			> .item, > li {
+				> .icon, > icon {
 					border-radius: 50%;
-
 				}
-
 			}
 		}
 	}
@@ -105,15 +110,15 @@
 		@cupFontColor: rgba(255, 255, 255, 0.8);
 		@titleColor: rgba(255, 255, 255, 0.95);
 		@titleBorderColor: rgba(255, 255, 255, 0.3);
-		> .items {
-			> .item {
+		> .items, > ul {
+			> .item, li {
 				&:before, > .icon {
 					border-color: fadeout(@oddBkgColor, 30%);
 				}
 				.icon {
 					color: @timeLineDefaultIconColor;
 				}
-				> .content {
+				> .content, > content {
 					position: relative;
 					padding: 0.4em 1em;
 					color: @titleColor;
@@ -140,7 +145,7 @@
 						border-bottom: 0.4em solid transparent;
 					}
 				}
-				> .label {
+				> .label, > label {
 					top: 0.1em;
 					> * {
 						display: list-item;
@@ -154,30 +159,28 @@
 						color: @evenBkgColor;
 					}
 				}
-			}
-			> .item:nth-of-type(even) {
-				> .content {
-					position: relative;
-					background-color: @evenBkgColor;
-					&:before {
-						border-right-color: @evenBkgColor;
-					}
-				}
-			}
-			> .item:nth-of-type(odd) {
-				> .content {
-					background-color: @oddBkgColor;
-					&:before {
-						border-right-color: @oddBkgColor;
-					}
-				}
-			}
-		}
 
-		> .items {
-			> .item:hover {
-				> .icon, &:before {
-					border-color: @evenBkgColor;
+				&:nth-of-type(even) {
+					> .content, > content {
+						position: relative;
+						background-color: @evenBkgColor;
+						&:before {
+							border-right-color: @evenBkgColor;
+						}
+					}
+				}
+				&:nth-of-type(odd) {
+					> .content, > content {
+						background-color: @oddBkgColor;
+						&:before {
+							border-right-color: @oddBkgColor;
+						}
+					}
+				}
+				&:hover {
+					> .icon, > icon, &:before {
+						border-color: @evenBkgColor;
+					}
 				}
 			}
 		}
@@ -200,44 +203,44 @@
 							color: @mEvenBkgColor;
 						}
 					}
-				}
-				> .item:nth-of-type(even) {
-					> .content {
-						background-color: @mEvenBkgColor;
-						&:before {
-							border-right-color: @mEvenBkgColor;
+					&:nth-of-type(even) {
+						> .content {
+							background-color: @mEvenBkgColor;
+							&:before {
+								border-right-color: @mEvenBkgColor;
+							}
 						}
 					}
-				}
-				> .item:nth-of-type(odd) {
-					> .content {
-
-						background-color: @mOddBkgColor;
-						&:before {
-							border-right-color: @mOddBkgColor;
+					&:nth-of-type(odd) {
+						> .content {
+							background-color: @mOddBkgColor;
+							&:before {
+								border-right-color: @mOddBkgColor;
+							}
 						}
 					}
+					&:hover {
+						> .icon, &:before {
+							border-color: @mEvenBkgColor;
+						}
+					}
+
 				}
 
-				> .item:hover {
-					> .icon, &:before {
-						border-color: @mEvenBkgColor;
-					}
-				}
 			}
 		}
 	}
-	.mixin_message_color(red, @red);
-	.mixin_message_color(orange, @orange);
-	.mixin_message_color(yellow, @yellow);
-	.mixin_message_color(olive, @olive);
-	.mixin_message_color(green, @green);
-	.mixin_message_color(teal, @teal);
-	.mixin_message_color(blue, @blue);
-	.mixin_message_color(violet, @violet);
-	.mixin_message_color(purple, @purple);
-	.mixin_message_color(pink, @pink);
-	.mixin_message_color(brown, @brown);
-	.mixin_message_color(grey, @grey);
+	//.mixin_message_color(red, @red);
+	//.mixin_message_color(orange, @orange);
+	//.mixin_message_color(yellow, @yellow);
+	//.mixin_message_color(olive, @olive);
+	//.mixin_message_color(green, @green);
+	//.mixin_message_color(teal, @teal);
+	//.mixin_message_color(blue, @blue);
+	//.mixin_message_color(violet, @violet);
+	//.mixin_message_color(purple, @purple);
+	//.mixin_message_color(pink, @pink);
+	//.mixin_message_color(brown, @brown);
+	//.mixin_message_color(grey, @grey);
 }
 

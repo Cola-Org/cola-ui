@@ -230,7 +230,10 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_refreshButton: ()->
-		actionButton = @get("actionButton")
+		btnDom = $(@_dom).find(">.ui.button");
+
+		if btnDom.length > 0
+			actionButton = cola.widget(btnDom[0])
 		buttonPosition = @get("buttonPosition")
 		@_classNamePool.remove("left action")
 		@_classNamePool.remove("action")
@@ -295,9 +298,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_finalReadOnly = !!@get("readOnly")
 
 		@_refreshIcon()
-		@_refreshButton()
-		@_refreshCorner()
-		@_refreshLabel()
+		#@_refreshButton()
+		#@_refreshCorner()
+		#@_refreshLabel()
 		@_refreshInput()
 		return
 

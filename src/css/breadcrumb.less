@@ -1,0 +1,25 @@
+@import (reference) "global";
+
+.ui.breadcrumb, c-breadcrumb {
+	> item {
+		> a {
+			color: @fontColor;
+		}
+		> i {
+			&:before {
+				content: "/"
+			}
+			width: 1em;
+			display: inline-block;
+			text-align: center;
+			color: fade(@fontColor, 40);
+		}
+
+		&:last-of-type {
+			> i {
+				display: none;
+			}
+		}
+	}
+}
+

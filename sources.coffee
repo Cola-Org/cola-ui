@@ -116,6 +116,7 @@ sources =
 			"src/css/box.less"
 			"src/css/form.less"
 			"src/css/block-grid.less"
+			"src/css/block-layout.less"
 			"src/css/grid.less"
 			"src/css/items-view.less"
 			"src/css/list-view.less"
@@ -150,6 +151,7 @@ sources =
 			"src/css/notify-tip.less"
 			"src/css/split-pane.less"
 			"src/css/toolbar.less"
+			"src/css/breadcrumb.less"
 		]
 
 	lib:
