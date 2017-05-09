@@ -187,7 +187,10 @@
             if (typeof attrValue === "function") {
               $el.on(attrName, attrValue);
             } else {
-              $el.attr(attrName, attrValue);
+              if (typeof attrValue === "boolean") {
+                attrValue = attrValue + "";
+              }
+              el.setAttribute(attrName, attrValue);
             }
         }
       }
@@ -10282,7 +10285,7 @@
       } else if (attr === "html") {
         domBinding.$dom.html(value != null ? value : "");
       } else {
-        domBinding.$dom.attr(attr, value != null ? value : "");
+        domBinding.dom.setAttribute(attr, value != null ? value : "");
       }
     };
 
@@ -10481,11 +10484,12 @@
         var option;
         option = options[i];
         if (cola.util.isSimpleValue(optionValue)) {
-          $fly(option).removeAttr("value").text(optionValue);
+          option.removeAttribute("value");
+          $fly(option).text(optionValue);
         } else if (optionValue instanceof cola.Entity) {
-          $fly(option).attr("value", optionValue.get("value") || optionValue.get("key")).text(optionValue.get("text") || optionValue.get("name"));
+          option.setAttribute("value", optionValue.get("value") || optionValue.get("key")).text(optionValue.get("text") || optionValue.get("name"));
         } else {
-          $fly(option).attr("value", optionValue.value || optionValue.key).text(optionValue.text || optionValue.name);
+          option.setAttribute("value", optionValue.value || optionValue.key).text(optionValue.text || optionValue.name);
         }
       });
     };

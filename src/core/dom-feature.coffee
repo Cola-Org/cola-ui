@@ -355,7 +355,7 @@ class cola._DomAttrFeature extends cola._DomFeature
 		else if attr is "html"
 			domBinding.$dom.html(if value? then value else "")
 		else
-			domBinding.$dom.attr(attr, if value? then value else "")
+			domBinding.dom.setAttribute(attr, if value? then value else "")
 		return
 
 class cola._DomStylePropFeature extends cola._DomFeature
@@ -461,12 +461,13 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 		cola.each optionValues, (optionValue, i) ->
 			option = options[i]
 			if cola.util.isSimpleValue(optionValue)
-				$fly(option).removeAttr("value").text(optionValue)
+				option.removeAttribute("value");
+				$fly(option).text(optionValue)
 			else if optionValue instanceof cola.Entity
-				$fly(option).attr("value",
+				option.setAttribute("value",
 					optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
 			else
-				$fly(option).attr("value",
+				option.setAttribute("value",
 					optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
 			return
 		return

@@ -98,10 +98,12 @@ setAttrs = (el, $el, attrs, context)  ->
 				when "classname"
 					$el.attr("class", attrValue)
 				else
-					if typeof attrValue == "function"
+					if typeof attrValue is "function"
 						$el.on(attrName, attrValue)
 					else
-						$el.attr(attrName, attrValue)
+						if typeof attrValue is "boolean"
+							attrValue = attrValue + ""
+						el.setAttribute(attrName, attrValue)
 	return
 
 appendChild = (parentEl, el) ->
