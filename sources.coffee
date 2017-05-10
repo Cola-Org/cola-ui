@@ -152,6 +152,7 @@ sources =
 			"src/css/split-pane.less"
 			"src/css/toolbar.less"
 			"src/css/breadcrumb.less"
+			"src/css/progress.less"
 		]
 
 	lib:
