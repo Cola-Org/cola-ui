@@ -94,6 +94,7 @@ class cola.AjaxService extends cola.Definition
 	@attributes:
 		url: null
 		method: null
+		sendJson: null
 		parameter: null
 		timeout: null
 		ajaxOptions: null
@@ -126,6 +127,12 @@ class cola.AjaxService extends cola.Definition
 		options.method = @_method if @_method
 		options.timeout = @_timeout if @_timeout
 		options.data = @_parameter
+
+		if @_sendJson
+			options.sendJson = true
+			options.method = "POST" if not options.method
+			options.contentType = "application/json" if not options.contentType
+
 		return options
 
 	getInvoker: (context) ->

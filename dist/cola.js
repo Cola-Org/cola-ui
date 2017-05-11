@@ -8425,6 +8425,7 @@
     AjaxService.attributes = {
       url: null,
       method: null,
+      sendJson: null,
       parameter: null,
       timeout: null,
       ajaxOptions: null
@@ -8469,6 +8470,15 @@
         options.timeout = this._timeout;
       }
       options.data = this._parameter;
+      if (this._sendJson) {
+        options.sendJson = this._sendJson;
+        if (!options.method) {
+          options.method = "POST";
+        }
+        if (!options.contentType) {
+          options.contentType = "application/json";
+        }
+      }
       return options;
     };
 
@@ -10982,7 +10992,7 @@
         cola.currentScope = oldScope;
       }
     }
-    if (dom != null ? dom.getAttribute("c-repeat") : void 0) {
+    if (!dom.parentNode && (dom != null ? dom.getAttribute("c-repeat") : void 0)) {
       documentFragment = document.createDocumentFragment();
       documentFragment.appendChild(dom);
       dom = null;
