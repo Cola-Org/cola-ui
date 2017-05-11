@@ -10982,7 +10982,7 @@
         cola.currentScope = oldScope;
       }
     }
-    if (dom != null ? dom.getAttribute("c-repeat") : void 0) {
+    if (!dom.parentNode && (dom != null ? dom.getAttribute("c-repeat") : void 0)) {
       documentFragment = document.createDocumentFragment();
       documentFragment.appendChild(dom);
       dom = null;
@@ -11012,11 +11012,11 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
+    var aa, attr, attrName, attrValue, base, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
     if (dom.nodeType === 8 || dom.nodeName === "SVG") {
       return;
     }
-    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)) {
+    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || (typeof (base = dom.className).indexOf === "function" ? base.indexOf(cola.constants.IGNORE_DIRECTIVE) : void 0) >= 0)) {
       return;
     }
     if (IGNORE_NODES.indexOf(dom.nodeName) > -1) {

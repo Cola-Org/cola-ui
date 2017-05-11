@@ -34,7 +34,6 @@ class cola.Progress extends cola.Widget
 						tagName: "div", class: "progress"
 					}
 				},
-
 				{
 					tagName: "text"
 				}
@@ -46,6 +45,14 @@ class cola.Progress extends cola.Widget
 		$dom = @get$Dom()
 		value = @_value
 		total = @_total || 100
+
+		status = ""
+		if value == total
+			status = "success"
+		else if value > total
+			status = "exception"
+
+
 		if @_circle
 			perimeter = 2 * Math.PI * 47
 			progressDom = $dom.find(">svg>path.progress")[0]
@@ -53,29 +60,28 @@ class cola.Progress extends cola.Widget
 
 			trackDom.setAttribute("stroke-width", @_strokeWidth)
 			progressDom.setAttribute("stroke-width", @_strokeWidth)
-
 			progressDom.setAttribute("stroke-dasharray", "#{perimeter}px, #{perimeter}px")
 
+			dashOffset = 0
 
-			status && $dom.removeClass(status)
-			dashOffset = (1 - value / total) * perimeter + 'px';
+			if status != "exception"
+				dashOffset = (1 - value / total) * perimeter + 'px';
 			progressDom.setAttribute("stroke-dashoffset", dashOffset)
-		$dom.find(">text").text("50%")
 
-		status = ""
-		if value == total
-			status = "success"
-		else if value > total
-			status = "exception"
-		$dom.removeClass("success exception")
+		$dom.find(">text").text(Math.ceil(Math.round(value / total * 10000) / 100) + "%")
+		pool = @_classNamePool
+
+		pool.remove("exception")
+		pool.remove("success")
+		status && pool.add(status)
+
+		return
 
 	reset: ()->
 
 	progress: (progress)->
 
-
 	complete: ()->
-
 
 	destroy: ()->
 		return if @_destroyed

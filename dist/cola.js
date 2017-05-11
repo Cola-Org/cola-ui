@@ -10982,7 +10982,7 @@
         cola.currentScope = oldScope;
       }
     }
-    if (dom != null ? dom.getAttribute("c-repeat") : void 0) {
+    if (!dom.parentNode && (dom != null ? dom.getAttribute("c-repeat") : void 0)) {
       documentFragment = document.createDocumentFragment();
       documentFragment.appendChild(dom);
       dom = null;
@@ -11012,11 +11012,11 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
+    var aa, attr, attrName, attrValue, base, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
     if (dom.nodeType === 8 || dom.nodeName === "SVG") {
       return;
     }
-    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)) {
+    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || (typeof (base = dom.className).indexOf === "function" ? base.indexOf(cola.constants.IGNORE_DIRECTIVE) : void 0) >= 0)) {
       return;
     }
     if (IGNORE_NODES.indexOf(dom.nodeName) > -1) {
@@ -16108,6 +16108,8 @@ Template
 
       Calendar.CLASS_NAME = "calendar";
 
+      Calendar.tagName = "c-calendar";
+
       Calendar.attributes = {
         date: {
           getter: function() {
@@ -16351,6 +16353,8 @@ Template
 
     })(cola.Widget);
   })();
+
+  cola.registerWidget(cola.Calendar);
 
   cola.Divider = (function(superClass) {
     extend(Divider, superClass);
@@ -21148,295 +21152,97 @@ Template
 
     Progress.CLASS_NAME = "progress";
 
-    Progress.SEMANTIC_CLASS = ["left floated", "right floated"];
-
     Progress.attributes = {
       total: {
         type: "number",
         defaultValue: 0,
-        setter: function(value) {
-          this._total = value;
-          this._setting("total", value);
-        }
+        refreshDom: true
       },
       value: {
         type: "number",
         defaultValue: 0,
-        setter: function(value) {
-          this._value = value;
-          this.progress(value);
-        }
-      },
-      showProgress: {
-        defaultValue: true,
-        type: "boolean",
         refreshDom: true
       },
-      progressFormat: {
-        "enum": ["percent", "ratio"],
-        defaultValue: "percent",
-        setter: function(value) {
-          this._progressFormat = value;
-          if (this._dom) {
-            this._setting("label", value);
-          }
-        }
-      },
-      ratioText: {
-        defaultValue: "{percent}%",
-        setter: function(value) {
-          this._ratioText = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      activeMessage: {
-        refreshDom: true,
-        setter: function(value) {
-          this._activeMessage = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      successMessage: {
-        refreshDom: true,
-        setter: function(value) {
-          this._successMessage = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      autoSuccess: {
-        defaultValue: true,
-        type: "boolean",
-        setter: function(value) {
-          this._autoSuccess = !!value;
-          if (this._dom) {
-            this._setting("autoSuccess", this._autoSuccess);
-          }
-        }
-      },
-      showActivity: {
-        type: "boolean",
-        defaultValue: true,
-        setter: function(value) {
-          this._showActivity = !!value;
-          if (this._dom) {
-            this._setting("showActivity", this._showActivity);
-          }
-        }
-      },
-      limitValues: {
-        type: "boolean",
-        defaultValue: true,
-        setter: function(value) {
-          this._limitValues = value;
-          if (this._dom) {
-            this._setting("limitValues", this._limitValues);
-          }
-        }
-      },
-      precision: {
+      strokeWidth: {
         type: "number",
-        refreshDom: true,
-        defaultValue: 1
+        defaultValue: 5.2,
+        refreshDom: true
+      },
+      circle: {
+        readonlyAfterCreate: true,
+        type: "boolean",
+        defaultValue: false
       }
     };
 
     Progress.events = {
-      change: null,
-      success: null,
-      active: null,
-      error: null,
-      warning: null
+      change: null
     };
 
     Progress.prototype._initDom = function(dom) {
+      var progressDom;
       if (this._doms == null) {
         this._doms = {};
       }
-      return $(dom).empty().append($.xCreate([
-        {
-          tagName: "div",
-          "class": "bar",
-          content: {
-            tagName: "div",
-            "class": "progress",
-            contextKey: "progress"
-          },
-          contextKey: "bar"
-        }, {
-          tagName: "div",
-          "class": "label",
-          contextKey: "label"
-        }
-      ], this._doms));
-    };
-
-    Progress.prototype._setting = function(name, value) {
-      if (!this._dom) {
-        return;
-      }
-      if (name === "total") {
-        this.get$Dom().progress("set total", progress);
+      if (this._circle) {
+        progressDom = '<svg viewBox="0 0 100 100"><path class="track" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path><path class="progress" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path></svg>';
+        return $(dom).addClass("circle").append(progressDom).append(document.createElement("text"));
       } else {
-        if (this._dom) {
-          this.get$Dom().progress("setting", name, value);
-        }
+        return $(dom).addClass("basic").append($.xCreate([
+          {
+            tagName: "div",
+            "class": "track",
+            content: {
+              tagName: "div",
+              "class": "progress"
+            }
+          }, {
+            tagName: "text"
+          }
+        ]));
       }
-    };
-
-    Progress.prototype._settingText = function() {
-      this._setting("text", {
-        active: this._activeMessage || "",
-        success: this._successMessage || "",
-        ratio: this._ratioText || "{percent}%"
-      });
     };
 
     Progress.prototype._doRefreshDom = function() {
-      var $dom;
+      var $dom, dashOffset, perimeter, pool, progressDom, status, total, trackDom, value;
       if (!this._dom) {
         return;
       }
       Progress.__super__._doRefreshDom.call(this);
       $dom = this.get$Dom();
-      if (this._doms == null) {
-        this._doms = {};
+      value = this._value;
+      total = this._total || 100;
+      status = "";
+      if (value === total) {
+        status = "success";
+      } else if (value > total) {
+        status = "exception";
       }
-      if (this._activeMessage || this._successMessage) {
-        if (!this._doms.label.parentNode) {
-          $dom.append(this._doms.label);
+      if (this._circle) {
+        perimeter = 2 * Math.PI * 47;
+        progressDom = $dom.find(">svg>path.progress")[0];
+        trackDom = $dom.find(">svg>path.track")[0];
+        trackDom.setAttribute("stroke-width", this._strokeWidth);
+        progressDom.setAttribute("stroke-width", this._strokeWidth);
+        progressDom.setAttribute("stroke-dasharray", perimeter + "px, " + perimeter + "px");
+        dashOffset = 0;
+        if (status !== "exception") {
+          dashOffset = (1 - value / total) * perimeter + 'px';
         }
-      } else {
-        if (this._doms.label.parentNode) {
-          $(this._doms.label).remove();
-        }
+        progressDom.setAttribute("stroke-dashoffset", dashOffset);
       }
-      if (this._showProgress) {
-        if (this._doms.progress.parentNode !== this._doms.bar) {
-          this._doms.bar.appendChild(this._doms.progress);
-        }
-      } else {
-        if (this._doms.progress.parentNode) {
-          $(this._doms.progress).remove();
-        }
-      }
+      $dom.find(">text").text(Math.ceil(Math.round(value / total * 10000) / 100) + "%");
+      pool = this._classNamePool;
+      pool.remove("exception");
+      pool.remove("success");
+      status && pool.add(status);
     };
 
-    Progress.prototype._setDom = function(dom, parseChild) {
-      var listenState;
-      Progress.__super__._setDom.call(this, dom, parseChild);
-      listenState = (function(_this) {
-        return function(eventName, arg) {
-          return _this.fire(eventName, _this, arg);
-        };
-      })(this);
-      this.get$Dom().progress({
-        total: this.get("total"),
-        label: this._labelFormat,
-        autoSuccess: this._autoSuccess,
-        showActivity: this._showActivity,
-        limitValues: this._limitValues,
-        precision: this._precision,
-        text: {
-          active: this._activeMessage || "",
-          success: this._successMessage || "",
-          ratio: this._ratioText
-        },
-        onChange: function(percent, value, total) {
-          var arg;
-          arg = {
-            percent: percent,
-            value: value,
-            total: total
-          };
-          return listenState("change", arg);
-        },
-        onSuccess: function(total) {
-          var arg;
-          arg = {
-            total: total
-          };
-          return listenState("success", arg);
-        },
-        onActive: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("active", arg);
-        },
-        onWarning: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("warning", arg);
-        },
-        onError: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("error", arg);
-        }
-      });
-      this.progress(this._value);
-    };
+    Progress.prototype.reset = function() {};
 
-    Progress.prototype.reset = function() {
-      if (this._dom) {
-        this.get$Dom().progress("reset");
-      }
-      return this;
-    };
+    Progress.prototype.progress = function(progress) {};
 
-    Progress.prototype.success = function(message) {
-      if (message == null) {
-        message = "";
-      }
-      if (this._dom) {
-        this.get$Dom().progress("set success", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.warning = function(message) {
-      if (this._dom) {
-        this.get$Dom().progress("set warning", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.error = function(message) {
-      if (this._dom) {
-        this.get$Dom().progress("set error", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.progress = function(progress) {
-      this._value = progress;
-      if (this._dom) {
-        this.get$Dom().progress("set progress", progress);
-      }
-      return this;
-    };
-
-    Progress.prototype.complete = function() {
-      this._value = this._total;
-      if (this._dom) {
-        this.get$Dom().progress("complete");
-      }
-      return this;
-    };
+    Progress.prototype.complete = function() {};
 
     Progress.prototype.destroy = function() {
       var ref;
@@ -26113,6 +25919,7 @@ Template
       }
       template = this.getTemplate();
       carousel = this;
+      debugger;
       if (template) {
         if (this._bind) {
           $fly(template).attr("c-repeat", this._bind);
@@ -26134,6 +25941,7 @@ Template
       }
       this.setCurrentIndex(0);
       carousel = this;
+      debugger;
       setTimeout(function() {
         return carousel._scroller = new Swipe(carousel._dom, {
           vertical: carousel._orientation === "vertical",

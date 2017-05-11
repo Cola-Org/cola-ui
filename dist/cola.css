@@ -2166,171 +2166,171 @@ messages {
   clear: both;
 }
 .block-layout > .item,
-.block-layout > block {
+.block-layout > item {
   display: block;
   float: left;
   height: auto;
 }
 @media only screen {
-  block-layout > block {
+  block-layout > item {
     display: block;
     float: left;
     height: auto;
   }
   block-layout.small-cols-1 > .item,
-  block-layout.small-cols-1 > block {
+  block-layout.small-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   block-layout.small-cols-1 > .item:nth-of-type(1n),
-  block-layout.small-cols-1 > block:nth-of-type(1n) {
+  block-layout.small-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-1 > .item:nth-of-type(1n + 1),
-  block-layout.small-cols-1 > block:nth-of-type(1n + 1) {
+  block-layout.small-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   block-layout.small-cols-2 > .item,
-  block-layout.small-cols-2 > block {
+  block-layout.small-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   block-layout.small-cols-2 > .item:nth-of-type(1n),
-  block-layout.small-cols-2 > block:nth-of-type(1n) {
+  block-layout.small-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-2 > .item:nth-of-type(2n + 1),
-  block-layout.small-cols-2 > block:nth-of-type(2n + 1) {
+  block-layout.small-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   block-layout.small-cols-3 > .item,
-  block-layout.small-cols-3 > block {
+  block-layout.small-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   block-layout.small-cols-3 > .item:nth-of-type(1n),
-  block-layout.small-cols-3 > block:nth-of-type(1n) {
+  block-layout.small-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-3 > .item:nth-of-type(3n + 1),
-  block-layout.small-cols-3 > block:nth-of-type(3n + 1) {
+  block-layout.small-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   block-layout.small-cols-4 > .item,
-  block-layout.small-cols-4 > block {
+  block-layout.small-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   block-layout.small-cols-4 > .item:nth-of-type(1n),
-  block-layout.small-cols-4 > block:nth-of-type(1n) {
+  block-layout.small-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-4 > .item:nth-of-type(4n + 1),
-  block-layout.small-cols-4 > block:nth-of-type(4n + 1) {
+  block-layout.small-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   block-layout.small-cols-5 > .item,
-  block-layout.small-cols-5 > block {
+  block-layout.small-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   block-layout.small-cols-5 > .item:nth-of-type(1n),
-  block-layout.small-cols-5 > block:nth-of-type(1n) {
+  block-layout.small-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-5 > .item:nth-of-type(5n + 1),
-  block-layout.small-cols-5 > block:nth-of-type(5n + 1) {
+  block-layout.small-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   block-layout.small-cols-6 > .item,
-  block-layout.small-cols-6 > block {
+  block-layout.small-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   block-layout.small-cols-6 > .item:nth-of-type(1n),
-  block-layout.small-cols-6 > block:nth-of-type(1n) {
+  block-layout.small-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-6 > .item:nth-of-type(6n + 1),
-  block-layout.small-cols-6 > block:nth-of-type(6n + 1) {
+  block-layout.small-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   block-layout.small-cols-7 > .item,
-  block-layout.small-cols-7 > block {
+  block-layout.small-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   block-layout.small-cols-7 > .item:nth-of-type(1n),
-  block-layout.small-cols-7 > block:nth-of-type(1n) {
+  block-layout.small-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-7 > .item:nth-of-type(7n + 1),
-  block-layout.small-cols-7 > block:nth-of-type(7n + 1) {
+  block-layout.small-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   block-layout.small-cols-8 > .item,
-  block-layout.small-cols-8 > block {
+  block-layout.small-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   block-layout.small-cols-8 > .item:nth-of-type(1n),
-  block-layout.small-cols-8 > block:nth-of-type(1n) {
+  block-layout.small-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-8 > .item:nth-of-type(8n + 1),
-  block-layout.small-cols-8 > block:nth-of-type(8n + 1) {
+  block-layout.small-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   block-layout.small-cols-9 > .item,
-  block-layout.small-cols-9 > block {
+  block-layout.small-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   block-layout.small-cols-9 > .item:nth-of-type(1n),
-  block-layout.small-cols-9 > block:nth-of-type(1n) {
+  block-layout.small-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-9 > .item:nth-of-type(9n + 1),
-  block-layout.small-cols-9 > block:nth-of-type(9n + 1) {
+  block-layout.small-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   block-layout.small-cols-10 > .item,
-  block-layout.small-cols-10 > block {
+  block-layout.small-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   block-layout.small-cols-10 > .item:nth-of-type(1n),
-  block-layout.small-cols-10 > block:nth-of-type(1n) {
+  block-layout.small-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-10 > .item:nth-of-type(10n + 1),
-  block-layout.small-cols-10 > block:nth-of-type(10n + 1) {
+  block-layout.small-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   block-layout.small-cols-11 > .item,
-  block-layout.small-cols-11 > block {
+  block-layout.small-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   block-layout.small-cols-11 > .item:nth-of-type(1n),
-  block-layout.small-cols-11 > block:nth-of-type(1n) {
+  block-layout.small-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-11 > .item:nth-of-type(11n + 1),
-  block-layout.small-cols-11 > block:nth-of-type(11n + 1) {
+  block-layout.small-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   block-layout.small-cols-12 > .item,
-  block-layout.small-cols-12 > block {
+  block-layout.small-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   block-layout.small-cols-12 > .item:nth-of-type(1n),
-  block-layout.small-cols-12 > block:nth-of-type(1n) {
+  block-layout.small-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.small-cols-12 > .item:nth-of-type(12n + 1),
-  block-layout.small-cols-12 > block:nth-of-type(12n + 1) {
+  block-layout.small-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
   .block-layout {
@@ -2338,322 +2338,322 @@ messages {
     width: 100%;
   }
   .block-layout.small-cols-1 > .item,
-  .block-layout.small-cols-1 > block {
+  .block-layout.small-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   .block-layout.small-cols-1 > .item:nth-of-type(1n),
-  .block-layout.small-cols-1 > block:nth-of-type(1n) {
+  .block-layout.small-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-1 > .item:nth-of-type(1n + 1),
-  .block-layout.small-cols-1 > block:nth-of-type(1n + 1) {
+  .block-layout.small-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   .block-layout.small-cols-2 > .item,
-  .block-layout.small-cols-2 > block {
+  .block-layout.small-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   .block-layout.small-cols-2 > .item:nth-of-type(1n),
-  .block-layout.small-cols-2 > block:nth-of-type(1n) {
+  .block-layout.small-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-2 > .item:nth-of-type(2n + 1),
-  .block-layout.small-cols-2 > block:nth-of-type(2n + 1) {
+  .block-layout.small-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   .block-layout.small-cols-3 > .item,
-  .block-layout.small-cols-3 > block {
+  .block-layout.small-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   .block-layout.small-cols-3 > .item:nth-of-type(1n),
-  .block-layout.small-cols-3 > block:nth-of-type(1n) {
+  .block-layout.small-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-3 > .item:nth-of-type(3n + 1),
-  .block-layout.small-cols-3 > block:nth-of-type(3n + 1) {
+  .block-layout.small-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   .block-layout.small-cols-4 > .item,
-  .block-layout.small-cols-4 > block {
+  .block-layout.small-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   .block-layout.small-cols-4 > .item:nth-of-type(1n),
-  .block-layout.small-cols-4 > block:nth-of-type(1n) {
+  .block-layout.small-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-4 > .item:nth-of-type(4n + 1),
-  .block-layout.small-cols-4 > block:nth-of-type(4n + 1) {
+  .block-layout.small-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   .block-layout.small-cols-5 > .item,
-  .block-layout.small-cols-5 > block {
+  .block-layout.small-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   .block-layout.small-cols-5 > .item:nth-of-type(1n),
-  .block-layout.small-cols-5 > block:nth-of-type(1n) {
+  .block-layout.small-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-5 > .item:nth-of-type(5n + 1),
-  .block-layout.small-cols-5 > block:nth-of-type(5n + 1) {
+  .block-layout.small-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   .block-layout.small-cols-6 > .item,
-  .block-layout.small-cols-6 > block {
+  .block-layout.small-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   .block-layout.small-cols-6 > .item:nth-of-type(1n),
-  .block-layout.small-cols-6 > block:nth-of-type(1n) {
+  .block-layout.small-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-6 > .item:nth-of-type(6n + 1),
-  .block-layout.small-cols-6 > block:nth-of-type(6n + 1) {
+  .block-layout.small-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   .block-layout.small-cols-7 > .item,
-  .block-layout.small-cols-7 > block {
+  .block-layout.small-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   .block-layout.small-cols-7 > .item:nth-of-type(1n),
-  .block-layout.small-cols-7 > block:nth-of-type(1n) {
+  .block-layout.small-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-7 > .item:nth-of-type(7n + 1),
-  .block-layout.small-cols-7 > block:nth-of-type(7n + 1) {
+  .block-layout.small-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   .block-layout.small-cols-8 > .item,
-  .block-layout.small-cols-8 > block {
+  .block-layout.small-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   .block-layout.small-cols-8 > .item:nth-of-type(1n),
-  .block-layout.small-cols-8 > block:nth-of-type(1n) {
+  .block-layout.small-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-8 > .item:nth-of-type(8n + 1),
-  .block-layout.small-cols-8 > block:nth-of-type(8n + 1) {
+  .block-layout.small-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   .block-layout.small-cols-9 > .item,
-  .block-layout.small-cols-9 > block {
+  .block-layout.small-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   .block-layout.small-cols-9 > .item:nth-of-type(1n),
-  .block-layout.small-cols-9 > block:nth-of-type(1n) {
+  .block-layout.small-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-9 > .item:nth-of-type(9n + 1),
-  .block-layout.small-cols-9 > block:nth-of-type(9n + 1) {
+  .block-layout.small-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   .block-layout.small-cols-10 > .item,
-  .block-layout.small-cols-10 > block {
+  .block-layout.small-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   .block-layout.small-cols-10 > .item:nth-of-type(1n),
-  .block-layout.small-cols-10 > block:nth-of-type(1n) {
+  .block-layout.small-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-10 > .item:nth-of-type(10n + 1),
-  .block-layout.small-cols-10 > block:nth-of-type(10n + 1) {
+  .block-layout.small-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   .block-layout.small-cols-11 > .item,
-  .block-layout.small-cols-11 > block {
+  .block-layout.small-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   .block-layout.small-cols-11 > .item:nth-of-type(1n),
-  .block-layout.small-cols-11 > block:nth-of-type(1n) {
+  .block-layout.small-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-11 > .item:nth-of-type(11n + 1),
-  .block-layout.small-cols-11 > block:nth-of-type(11n + 1) {
+  .block-layout.small-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   .block-layout.small-cols-12 > .item,
-  .block-layout.small-cols-12 > block {
+  .block-layout.small-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   .block-layout.small-cols-12 > .item:nth-of-type(1n),
-  .block-layout.small-cols-12 > block:nth-of-type(1n) {
+  .block-layout.small-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.small-cols-12 > .item:nth-of-type(12n + 1),
-  .block-layout.small-cols-12 > block:nth-of-type(12n + 1) {
+  .block-layout.small-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
 }
 @media only screen and (min-width: 42.5625em ) {
-  block-layout > block {
+  block-layout > item {
     display: block;
     float: left;
     height: auto;
   }
   block-layout.medium-cols-1 > .item,
-  block-layout.medium-cols-1 > block {
+  block-layout.medium-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   block-layout.medium-cols-1 > .item:nth-of-type(1n),
-  block-layout.medium-cols-1 > block:nth-of-type(1n) {
+  block-layout.medium-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-1 > .item:nth-of-type(1n + 1),
-  block-layout.medium-cols-1 > block:nth-of-type(1n + 1) {
+  block-layout.medium-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   block-layout.medium-cols-2 > .item,
-  block-layout.medium-cols-2 > block {
+  block-layout.medium-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   block-layout.medium-cols-2 > .item:nth-of-type(1n),
-  block-layout.medium-cols-2 > block:nth-of-type(1n) {
+  block-layout.medium-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-2 > .item:nth-of-type(2n + 1),
-  block-layout.medium-cols-2 > block:nth-of-type(2n + 1) {
+  block-layout.medium-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   block-layout.medium-cols-3 > .item,
-  block-layout.medium-cols-3 > block {
+  block-layout.medium-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   block-layout.medium-cols-3 > .item:nth-of-type(1n),
-  block-layout.medium-cols-3 > block:nth-of-type(1n) {
+  block-layout.medium-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-3 > .item:nth-of-type(3n + 1),
-  block-layout.medium-cols-3 > block:nth-of-type(3n + 1) {
+  block-layout.medium-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   block-layout.medium-cols-4 > .item,
-  block-layout.medium-cols-4 > block {
+  block-layout.medium-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   block-layout.medium-cols-4 > .item:nth-of-type(1n),
-  block-layout.medium-cols-4 > block:nth-of-type(1n) {
+  block-layout.medium-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-4 > .item:nth-of-type(4n + 1),
-  block-layout.medium-cols-4 > block:nth-of-type(4n + 1) {
+  block-layout.medium-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   block-layout.medium-cols-5 > .item,
-  block-layout.medium-cols-5 > block {
+  block-layout.medium-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   block-layout.medium-cols-5 > .item:nth-of-type(1n),
-  block-layout.medium-cols-5 > block:nth-of-type(1n) {
+  block-layout.medium-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-5 > .item:nth-of-type(5n + 1),
-  block-layout.medium-cols-5 > block:nth-of-type(5n + 1) {
+  block-layout.medium-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   block-layout.medium-cols-6 > .item,
-  block-layout.medium-cols-6 > block {
+  block-layout.medium-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   block-layout.medium-cols-6 > .item:nth-of-type(1n),
-  block-layout.medium-cols-6 > block:nth-of-type(1n) {
+  block-layout.medium-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-6 > .item:nth-of-type(6n + 1),
-  block-layout.medium-cols-6 > block:nth-of-type(6n + 1) {
+  block-layout.medium-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   block-layout.medium-cols-7 > .item,
-  block-layout.medium-cols-7 > block {
+  block-layout.medium-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   block-layout.medium-cols-7 > .item:nth-of-type(1n),
-  block-layout.medium-cols-7 > block:nth-of-type(1n) {
+  block-layout.medium-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-7 > .item:nth-of-type(7n + 1),
-  block-layout.medium-cols-7 > block:nth-of-type(7n + 1) {
+  block-layout.medium-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   block-layout.medium-cols-8 > .item,
-  block-layout.medium-cols-8 > block {
+  block-layout.medium-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   block-layout.medium-cols-8 > .item:nth-of-type(1n),
-  block-layout.medium-cols-8 > block:nth-of-type(1n) {
+  block-layout.medium-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-8 > .item:nth-of-type(8n + 1),
-  block-layout.medium-cols-8 > block:nth-of-type(8n + 1) {
+  block-layout.medium-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   block-layout.medium-cols-9 > .item,
-  block-layout.medium-cols-9 > block {
+  block-layout.medium-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   block-layout.medium-cols-9 > .item:nth-of-type(1n),
-  block-layout.medium-cols-9 > block:nth-of-type(1n) {
+  block-layout.medium-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-9 > .item:nth-of-type(9n + 1),
-  block-layout.medium-cols-9 > block:nth-of-type(9n + 1) {
+  block-layout.medium-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   block-layout.medium-cols-10 > .item,
-  block-layout.medium-cols-10 > block {
+  block-layout.medium-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   block-layout.medium-cols-10 > .item:nth-of-type(1n),
-  block-layout.medium-cols-10 > block:nth-of-type(1n) {
+  block-layout.medium-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-10 > .item:nth-of-type(10n + 1),
-  block-layout.medium-cols-10 > block:nth-of-type(10n + 1) {
+  block-layout.medium-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   block-layout.medium-cols-11 > .item,
-  block-layout.medium-cols-11 > block {
+  block-layout.medium-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   block-layout.medium-cols-11 > .item:nth-of-type(1n),
-  block-layout.medium-cols-11 > block:nth-of-type(1n) {
+  block-layout.medium-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-11 > .item:nth-of-type(11n + 1),
-  block-layout.medium-cols-11 > block:nth-of-type(11n + 1) {
+  block-layout.medium-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   block-layout.medium-cols-12 > .item,
-  block-layout.medium-cols-12 > block {
+  block-layout.medium-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   block-layout.medium-cols-12 > .item:nth-of-type(1n),
-  block-layout.medium-cols-12 > block:nth-of-type(1n) {
+  block-layout.medium-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.medium-cols-12 > .item:nth-of-type(12n + 1),
-  block-layout.medium-cols-12 > block:nth-of-type(12n + 1) {
+  block-layout.medium-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
   .block-layout {
@@ -2661,322 +2661,322 @@ messages {
     width: 100%;
   }
   .block-layout.medium-cols-1 > .item,
-  .block-layout.medium-cols-1 > block {
+  .block-layout.medium-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   .block-layout.medium-cols-1 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-1 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-1 > .item:nth-of-type(1n + 1),
-  .block-layout.medium-cols-1 > block:nth-of-type(1n + 1) {
+  .block-layout.medium-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-2 > .item,
-  .block-layout.medium-cols-2 > block {
+  .block-layout.medium-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   .block-layout.medium-cols-2 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-2 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-2 > .item:nth-of-type(2n + 1),
-  .block-layout.medium-cols-2 > block:nth-of-type(2n + 1) {
+  .block-layout.medium-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-3 > .item,
-  .block-layout.medium-cols-3 > block {
+  .block-layout.medium-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   .block-layout.medium-cols-3 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-3 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-3 > .item:nth-of-type(3n + 1),
-  .block-layout.medium-cols-3 > block:nth-of-type(3n + 1) {
+  .block-layout.medium-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-4 > .item,
-  .block-layout.medium-cols-4 > block {
+  .block-layout.medium-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   .block-layout.medium-cols-4 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-4 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-4 > .item:nth-of-type(4n + 1),
-  .block-layout.medium-cols-4 > block:nth-of-type(4n + 1) {
+  .block-layout.medium-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-5 > .item,
-  .block-layout.medium-cols-5 > block {
+  .block-layout.medium-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   .block-layout.medium-cols-5 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-5 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-5 > .item:nth-of-type(5n + 1),
-  .block-layout.medium-cols-5 > block:nth-of-type(5n + 1) {
+  .block-layout.medium-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-6 > .item,
-  .block-layout.medium-cols-6 > block {
+  .block-layout.medium-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   .block-layout.medium-cols-6 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-6 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-6 > .item:nth-of-type(6n + 1),
-  .block-layout.medium-cols-6 > block:nth-of-type(6n + 1) {
+  .block-layout.medium-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-7 > .item,
-  .block-layout.medium-cols-7 > block {
+  .block-layout.medium-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   .block-layout.medium-cols-7 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-7 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-7 > .item:nth-of-type(7n + 1),
-  .block-layout.medium-cols-7 > block:nth-of-type(7n + 1) {
+  .block-layout.medium-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-8 > .item,
-  .block-layout.medium-cols-8 > block {
+  .block-layout.medium-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   .block-layout.medium-cols-8 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-8 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-8 > .item:nth-of-type(8n + 1),
-  .block-layout.medium-cols-8 > block:nth-of-type(8n + 1) {
+  .block-layout.medium-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-9 > .item,
-  .block-layout.medium-cols-9 > block {
+  .block-layout.medium-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   .block-layout.medium-cols-9 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-9 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-9 > .item:nth-of-type(9n + 1),
-  .block-layout.medium-cols-9 > block:nth-of-type(9n + 1) {
+  .block-layout.medium-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-10 > .item,
-  .block-layout.medium-cols-10 > block {
+  .block-layout.medium-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   .block-layout.medium-cols-10 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-10 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-10 > .item:nth-of-type(10n + 1),
-  .block-layout.medium-cols-10 > block:nth-of-type(10n + 1) {
+  .block-layout.medium-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-11 > .item,
-  .block-layout.medium-cols-11 > block {
+  .block-layout.medium-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   .block-layout.medium-cols-11 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-11 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-11 > .item:nth-of-type(11n + 1),
-  .block-layout.medium-cols-11 > block:nth-of-type(11n + 1) {
+  .block-layout.medium-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   .block-layout.medium-cols-12 > .item,
-  .block-layout.medium-cols-12 > block {
+  .block-layout.medium-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   .block-layout.medium-cols-12 > .item:nth-of-type(1n),
-  .block-layout.medium-cols-12 > block:nth-of-type(1n) {
+  .block-layout.medium-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.medium-cols-12 > .item:nth-of-type(12n + 1),
-  .block-layout.medium-cols-12 > block:nth-of-type(12n + 1) {
+  .block-layout.medium-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
 }
 @media only screen and (min-width: 64.0625em ) {
-  block-layout > block {
+  block-layout > item {
     display: block;
     float: left;
     height: auto;
   }
   block-layout.large-cols-1 > .item,
-  block-layout.large-cols-1 > block {
+  block-layout.large-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   block-layout.large-cols-1 > .item:nth-of-type(1n),
-  block-layout.large-cols-1 > block:nth-of-type(1n) {
+  block-layout.large-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-1 > .item:nth-of-type(1n + 1),
-  block-layout.large-cols-1 > block:nth-of-type(1n + 1) {
+  block-layout.large-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   block-layout.large-cols-2 > .item,
-  block-layout.large-cols-2 > block {
+  block-layout.large-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   block-layout.large-cols-2 > .item:nth-of-type(1n),
-  block-layout.large-cols-2 > block:nth-of-type(1n) {
+  block-layout.large-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-2 > .item:nth-of-type(2n + 1),
-  block-layout.large-cols-2 > block:nth-of-type(2n + 1) {
+  block-layout.large-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   block-layout.large-cols-3 > .item,
-  block-layout.large-cols-3 > block {
+  block-layout.large-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   block-layout.large-cols-3 > .item:nth-of-type(1n),
-  block-layout.large-cols-3 > block:nth-of-type(1n) {
+  block-layout.large-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-3 > .item:nth-of-type(3n + 1),
-  block-layout.large-cols-3 > block:nth-of-type(3n + 1) {
+  block-layout.large-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   block-layout.large-cols-4 > .item,
-  block-layout.large-cols-4 > block {
+  block-layout.large-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   block-layout.large-cols-4 > .item:nth-of-type(1n),
-  block-layout.large-cols-4 > block:nth-of-type(1n) {
+  block-layout.large-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-4 > .item:nth-of-type(4n + 1),
-  block-layout.large-cols-4 > block:nth-of-type(4n + 1) {
+  block-layout.large-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   block-layout.large-cols-5 > .item,
-  block-layout.large-cols-5 > block {
+  block-layout.large-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   block-layout.large-cols-5 > .item:nth-of-type(1n),
-  block-layout.large-cols-5 > block:nth-of-type(1n) {
+  block-layout.large-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-5 > .item:nth-of-type(5n + 1),
-  block-layout.large-cols-5 > block:nth-of-type(5n + 1) {
+  block-layout.large-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   block-layout.large-cols-6 > .item,
-  block-layout.large-cols-6 > block {
+  block-layout.large-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   block-layout.large-cols-6 > .item:nth-of-type(1n),
-  block-layout.large-cols-6 > block:nth-of-type(1n) {
+  block-layout.large-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-6 > .item:nth-of-type(6n + 1),
-  block-layout.large-cols-6 > block:nth-of-type(6n + 1) {
+  block-layout.large-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   block-layout.large-cols-7 > .item,
-  block-layout.large-cols-7 > block {
+  block-layout.large-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   block-layout.large-cols-7 > .item:nth-of-type(1n),
-  block-layout.large-cols-7 > block:nth-of-type(1n) {
+  block-layout.large-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-7 > .item:nth-of-type(7n + 1),
-  block-layout.large-cols-7 > block:nth-of-type(7n + 1) {
+  block-layout.large-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   block-layout.large-cols-8 > .item,
-  block-layout.large-cols-8 > block {
+  block-layout.large-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   block-layout.large-cols-8 > .item:nth-of-type(1n),
-  block-layout.large-cols-8 > block:nth-of-type(1n) {
+  block-layout.large-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-8 > .item:nth-of-type(8n + 1),
-  block-layout.large-cols-8 > block:nth-of-type(8n + 1) {
+  block-layout.large-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   block-layout.large-cols-9 > .item,
-  block-layout.large-cols-9 > block {
+  block-layout.large-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   block-layout.large-cols-9 > .item:nth-of-type(1n),
-  block-layout.large-cols-9 > block:nth-of-type(1n) {
+  block-layout.large-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-9 > .item:nth-of-type(9n + 1),
-  block-layout.large-cols-9 > block:nth-of-type(9n + 1) {
+  block-layout.large-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   block-layout.large-cols-10 > .item,
-  block-layout.large-cols-10 > block {
+  block-layout.large-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   block-layout.large-cols-10 > .item:nth-of-type(1n),
-  block-layout.large-cols-10 > block:nth-of-type(1n) {
+  block-layout.large-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-10 > .item:nth-of-type(10n + 1),
-  block-layout.large-cols-10 > block:nth-of-type(10n + 1) {
+  block-layout.large-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   block-layout.large-cols-11 > .item,
-  block-layout.large-cols-11 > block {
+  block-layout.large-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   block-layout.large-cols-11 > .item:nth-of-type(1n),
-  block-layout.large-cols-11 > block:nth-of-type(1n) {
+  block-layout.large-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-11 > .item:nth-of-type(11n + 1),
-  block-layout.large-cols-11 > block:nth-of-type(11n + 1) {
+  block-layout.large-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   block-layout.large-cols-12 > .item,
-  block-layout.large-cols-12 > block {
+  block-layout.large-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   block-layout.large-cols-12 > .item:nth-of-type(1n),
-  block-layout.large-cols-12 > block:nth-of-type(1n) {
+  block-layout.large-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   block-layout.large-cols-12 > .item:nth-of-type(12n + 1),
-  block-layout.large-cols-12 > block:nth-of-type(12n + 1) {
+  block-layout.large-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
   .block-layout {
@@ -2984,159 +2984,159 @@ messages {
     width: 100%;
   }
   .block-layout.large-cols-1 > .item,
-  .block-layout.large-cols-1 > block {
+  .block-layout.large-cols-1 > item {
     list-style: none;
     width: 100%;
   }
   .block-layout.large-cols-1 > .item:nth-of-type(1n),
-  .block-layout.large-cols-1 > block:nth-of-type(1n) {
+  .block-layout.large-cols-1 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-1 > .item:nth-of-type(1n + 1),
-  .block-layout.large-cols-1 > block:nth-of-type(1n + 1) {
+  .block-layout.large-cols-1 > item:nth-of-type(1n + 1) {
     clear: both;
   }
   .block-layout.large-cols-2 > .item,
-  .block-layout.large-cols-2 > block {
+  .block-layout.large-cols-2 > item {
     list-style: none;
     width: 50%;
   }
   .block-layout.large-cols-2 > .item:nth-of-type(1n),
-  .block-layout.large-cols-2 > block:nth-of-type(1n) {
+  .block-layout.large-cols-2 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-2 > .item:nth-of-type(2n + 1),
-  .block-layout.large-cols-2 > block:nth-of-type(2n + 1) {
+  .block-layout.large-cols-2 > item:nth-of-type(2n + 1) {
     clear: both;
   }
   .block-layout.large-cols-3 > .item,
-  .block-layout.large-cols-3 > block {
+  .block-layout.large-cols-3 > item {
     list-style: none;
     width: 33.33333333%;
   }
   .block-layout.large-cols-3 > .item:nth-of-type(1n),
-  .block-layout.large-cols-3 > block:nth-of-type(1n) {
+  .block-layout.large-cols-3 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-3 > .item:nth-of-type(3n + 1),
-  .block-layout.large-cols-3 > block:nth-of-type(3n + 1) {
+  .block-layout.large-cols-3 > item:nth-of-type(3n + 1) {
     clear: both;
   }
   .block-layout.large-cols-4 > .item,
-  .block-layout.large-cols-4 > block {
+  .block-layout.large-cols-4 > item {
     list-style: none;
     width: 25%;
   }
   .block-layout.large-cols-4 > .item:nth-of-type(1n),
-  .block-layout.large-cols-4 > block:nth-of-type(1n) {
+  .block-layout.large-cols-4 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-4 > .item:nth-of-type(4n + 1),
-  .block-layout.large-cols-4 > block:nth-of-type(4n + 1) {
+  .block-layout.large-cols-4 > item:nth-of-type(4n + 1) {
     clear: both;
   }
   .block-layout.large-cols-5 > .item,
-  .block-layout.large-cols-5 > block {
+  .block-layout.large-cols-5 > item {
     list-style: none;
     width: 20%;
   }
   .block-layout.large-cols-5 > .item:nth-of-type(1n),
-  .block-layout.large-cols-5 > block:nth-of-type(1n) {
+  .block-layout.large-cols-5 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-5 > .item:nth-of-type(5n + 1),
-  .block-layout.large-cols-5 > block:nth-of-type(5n + 1) {
+  .block-layout.large-cols-5 > item:nth-of-type(5n + 1) {
     clear: both;
   }
   .block-layout.large-cols-6 > .item,
-  .block-layout.large-cols-6 > block {
+  .block-layout.large-cols-6 > item {
     list-style: none;
     width: 16.66666667%;
   }
   .block-layout.large-cols-6 > .item:nth-of-type(1n),
-  .block-layout.large-cols-6 > block:nth-of-type(1n) {
+  .block-layout.large-cols-6 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-6 > .item:nth-of-type(6n + 1),
-  .block-layout.large-cols-6 > block:nth-of-type(6n + 1) {
+  .block-layout.large-cols-6 > item:nth-of-type(6n + 1) {
     clear: both;
   }
   .block-layout.large-cols-7 > .item,
-  .block-layout.large-cols-7 > block {
+  .block-layout.large-cols-7 > item {
     list-style: none;
     width: 14.28571429%;
   }
   .block-layout.large-cols-7 > .item:nth-of-type(1n),
-  .block-layout.large-cols-7 > block:nth-of-type(1n) {
+  .block-layout.large-cols-7 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-7 > .item:nth-of-type(7n + 1),
-  .block-layout.large-cols-7 > block:nth-of-type(7n + 1) {
+  .block-layout.large-cols-7 > item:nth-of-type(7n + 1) {
     clear: both;
   }
   .block-layout.large-cols-8 > .item,
-  .block-layout.large-cols-8 > block {
+  .block-layout.large-cols-8 > item {
     list-style: none;
     width: 12.5%;
   }
   .block-layout.large-cols-8 > .item:nth-of-type(1n),
-  .block-layout.large-cols-8 > block:nth-of-type(1n) {
+  .block-layout.large-cols-8 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-8 > .item:nth-of-type(8n + 1),
-  .block-layout.large-cols-8 > block:nth-of-type(8n + 1) {
+  .block-layout.large-cols-8 > item:nth-of-type(8n + 1) {
     clear: both;
   }
   .block-layout.large-cols-9 > .item,
-  .block-layout.large-cols-9 > block {
+  .block-layout.large-cols-9 > item {
     list-style: none;
     width: 11.11111111%;
   }
   .block-layout.large-cols-9 > .item:nth-of-type(1n),
-  .block-layout.large-cols-9 > block:nth-of-type(1n) {
+  .block-layout.large-cols-9 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-9 > .item:nth-of-type(9n + 1),
-  .block-layout.large-cols-9 > block:nth-of-type(9n + 1) {
+  .block-layout.large-cols-9 > item:nth-of-type(9n + 1) {
     clear: both;
   }
   .block-layout.large-cols-10 > .item,
-  .block-layout.large-cols-10 > block {
+  .block-layout.large-cols-10 > item {
     list-style: none;
     width: 10%;
   }
   .block-layout.large-cols-10 > .item:nth-of-type(1n),
-  .block-layout.large-cols-10 > block:nth-of-type(1n) {
+  .block-layout.large-cols-10 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-10 > .item:nth-of-type(10n + 1),
-  .block-layout.large-cols-10 > block:nth-of-type(10n + 1) {
+  .block-layout.large-cols-10 > item:nth-of-type(10n + 1) {
     clear: both;
   }
   .block-layout.large-cols-11 > .item,
-  .block-layout.large-cols-11 > block {
+  .block-layout.large-cols-11 > item {
     list-style: none;
     width: 9.09090909%;
   }
   .block-layout.large-cols-11 > .item:nth-of-type(1n),
-  .block-layout.large-cols-11 > block:nth-of-type(1n) {
+  .block-layout.large-cols-11 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-11 > .item:nth-of-type(11n + 1),
-  .block-layout.large-cols-11 > block:nth-of-type(11n + 1) {
+  .block-layout.large-cols-11 > item:nth-of-type(11n + 1) {
     clear: both;
   }
   .block-layout.large-cols-12 > .item,
-  .block-layout.large-cols-12 > block {
+  .block-layout.large-cols-12 > item {
     list-style: none;
     width: 8.33333333%;
   }
   .block-layout.large-cols-12 > .item:nth-of-type(1n),
-  .block-layout.large-cols-12 > block:nth-of-type(1n) {
+  .block-layout.large-cols-12 > item:nth-of-type(1n) {
     clear: none;
   }
   .block-layout.large-cols-12 > .item:nth-of-type(12n + 1),
-  .block-layout.large-cols-12 > block:nth-of-type(12n + 1) {
+  .block-layout.large-cols-12 > item:nth-of-type(12n + 1) {
     clear: both;
   }
 }
@@ -6752,6 +6752,7 @@ body .ui.menu {
 
 .calendar {
   overflow: hidden;
+  display: block;
   position: relative;
   font-family: Arial, sans-serif;
 }
@@ -6865,7 +6866,6 @@ body .ui.menu {
   display: inline-block;
   width: 1.75em;
   height: 1.75em;
-  padding: 1px;
   line-height: 1.75em;
   cursor: pointer;
 }
@@ -8710,4 +8710,127 @@ c-breadcrumb > item > i:before {
 .ui.breadcrumb > item:last-of-type > i,
 c-breadcrumb > item:last-of-type > i {
   display: none;
+}
+
+c-progress,
+.ui.progress {
+  background-color: #fff !important;
+  position: relative;
+  margin: 0;
+}
+c-progress.circle > svg,
+.ui.progress.circle > svg {
+  display: block;
+}
+c-progress.circle > svg path.track,
+.ui.progress.circle > svg path.track {
+  stroke: #e5e9f2;
+  fill: none;
+}
+c-progress.circle > svg path.progress,
+.ui.progress.circle > svg path.progress {
+  stroke: #2185d0;
+  fill: none;
+  transition: stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease;
+}
+c-progress.circle text,
+.ui.progress.circle text {
+  font-size: 1.5em;
+  line-height: 1em;
+  position: absolute;
+  display: block;
+  width: 100%;
+  text-align: center;
+  top: 50%;
+  margin-top: -0.5em;
+}
+c-progress.circle.success > svg path.track,
+.ui.progress.circle.success > svg path.track,
+c-progress.circle.positive > svg path.track,
+.ui.progress.circle.positive > svg path.track {
+  stroke: #a3c293;
+}
+c-progress.circle.success > svg path.progress,
+.ui.progress.circle.success > svg path.progress,
+c-progress.circle.positive > svg path.progress,
+.ui.progress.circle.positive > svg path.progress {
+  stroke: #21ba45;
+}
+c-progress.circle.success > text,
+.ui.progress.circle.success > text,
+c-progress.circle.positive > text,
+.ui.progress.circle.positive > text {
+  color: #21ba45;
+}
+c-progress.circle.exception > svg path.track,
+.ui.progress.circle.exception > svg path.track,
+c-progress.circle.negative > svg path.track,
+.ui.progress.circle.negative > svg path.track {
+  stroke: #a3c293;
+}
+c-progress.circle.exception > svg path.progress,
+.ui.progress.circle.exception > svg path.progress,
+c-progress.circle.negative > svg path.progress,
+.ui.progress.circle.negative > svg path.progress {
+  stroke: #db2828;
+}
+c-progress.circle.exception > text,
+.ui.progress.circle.exception > text,
+c-progress.circle.negative > text,
+.ui.progress.circle.negative > text {
+  color: #db2828;
+}
+c-progress.circle.warning > svg path.track,
+.ui.progress.circle.warning > svg path.track {
+  stroke: #c9ba9b;
+}
+c-progress.circle.warning > svg path.progress,
+.ui.progress.circle.warning > svg path.progress {
+  stroke: #f2c037;
+}
+c-progress.circle.warning > text,
+.ui.progress.circle.warning > text {
+  color: #f2c037;
+}
+c-progress:not(.circle),
+.ui.progress:not(.circle) {
+  height: 2em;
+}
+c-progress > .track,
+.ui.progress > .track {
+  background-color: #e5e9f2;
+  height: 1em;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 4em;
+  margin-top: -0.5em;
+}
+c-progress > .track .progress,
+.ui.progress > .track .progress {
+  background-color: #2185d0;
+  height: 1em;
+  transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+}
+c-progress > text,
+.ui.progress > text {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 4em;
+  line-height: 2em;
+}
+c-progress.inline > .track,
+.ui.progress.inline > .track {
+  right: 0;
+  margin-top: -0.5em;
+}
+c-progress.inline > text,
+.ui.progress.inline > text {
+  width: initial;
+  position: absolute;
+  right: 50%;
+  top: 0px;
+  color: #fff;
+  line-height: 2em;
 }

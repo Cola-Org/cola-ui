@@ -30,7 +30,6 @@ c-progress, .ui.progress {
 			text-align: center;
 			top: 50%;
 			margin-top: -0.5em;
-			opacity: 0.8;
 
 		}
 		&.success, &.positive {
@@ -44,6 +43,9 @@ c-progress, .ui.progress {
 					}
 				}
 			}
+			>text {
+				color: @successColor;
+			}
 		}
 		&.exception, &.negative {
 			> svg {
@@ -55,6 +57,9 @@ c-progress, .ui.progress {
 						stroke: @errorColor;
 					}
 				}
+			}
+			>text {
+				color: @errorColor;
 			}
 		}
 		&.warning {
@@ -68,6 +73,9 @@ c-progress, .ui.progress {
 					}
 				}
 			}
+			>text {
+				color: @warningColor;
+			}
 		}
 	}
 	@basicProgressHeight: 1em;
@@ -79,7 +87,7 @@ c-progress, .ui.progress {
 		height: @basicProgressHeight;
 		.progress {
 			background-color: @primaryColor;
-			width: 50%;
+
 			height: @basicProgressHeight;
 			.transition(all .4s cubic-bezier(.08, .82, .17, 1) 0s);
 		}
