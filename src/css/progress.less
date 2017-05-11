@@ -1,0 +1,125 @@
+@import (reference) "global";
+
+@trackBackgroundColor: rgb(229, 233, 242);
+c-progress, .ui.progress {
+	background-color: #fff !important;
+	position: relative;
+	margin: 0;
+	&.circle {
+		> svg {
+			display: block;
+			path {
+				&.track {
+					stroke: @trackBackgroundColor;
+					fill: none;
+				}
+				&.progress {
+					stroke: @primaryColor;
+					fill: none;
+					transition: stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease;
+				}
+
+			}
+		}
+		text {
+			font-size: 1.5em;
+			line-height: 1em;
+			position: absolute;
+			display: block;
+			width: 100%;
+			text-align: center;
+			top: 50%;
+			margin-top: -0.5em;
+
+		}
+		&.success, &.positive {
+			> svg {
+				path {
+					&.track {
+						stroke: @successBorderColor;
+					}
+					&.progress {
+						stroke: @successColor;
+					}
+				}
+			}
+			>text {
+				color: @successColor;
+			}
+		}
+		&.exception, &.negative {
+			> svg {
+				path {
+					&.track {
+						stroke: @successBorderColor;
+					}
+					&.progress {
+						stroke: @errorColor;
+					}
+				}
+			}
+			>text {
+				color: @errorColor;
+			}
+		}
+		&.warning {
+			> svg {
+				path {
+					&.track {
+						stroke: @warningBorderColor;
+					}
+					&.progress {
+						stroke: @warningColor;
+					}
+				}
+			}
+			>text {
+				color: @warningColor;
+			}
+		}
+	}
+	@basicProgressHeight: 1em;
+	&:not(.circle) {
+		height: 2em;
+	}
+	> .track {
+		background-color: @trackBackgroundColor;
+		height: @basicProgressHeight;
+		.progress {
+			background-color: @primaryColor;
+
+			height: @basicProgressHeight;
+			.transition(all .4s cubic-bezier(.08, .82, .17, 1) 0s);
+		}
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 4em;
+		margin-top: -@basicProgressHeight/2;
+	}
+
+	> text {
+		position: absolute;
+		right: 0px;
+		top: 0px;
+		width: 4em;
+		line-height: 2em;
+	}
+
+	&.inline {
+		> .track {
+			right: 0;
+			margin-top: -@basicProgressHeight/2;
+		}
+
+		> text {
+			width: initial;
+			position: absolute;
+			right: 50%;
+			top: 0px;
+			color: #fff;
+			line-height: 2em;
+		}
+	}
+
+}

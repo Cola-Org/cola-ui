@@ -1,4 +1,4 @@
-/*! Cola UI - 1.0.6
+/*! Cola UI - 1.0.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -11022,11 +11022,11 @@
   };
 
   _doRenderDomTemplate = function(dom, scope, context) {
-    var aa, attr, attrName, attrValue, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
+    var aa, attr, attrName, attrValue, base, bindingExpr, bindingType, builder, child, childContext, customDomCompiler, defaultPath, domBinding, f, feature, features, initializer, initializers, k, l, len1, len2, len3, len4, len5, len6, len7, len8, o, parts, q, ref, ref1, ref2, ref3, removeAttr, removeAttrs, result, tailDom, u, v, x, y, z;
     if (dom.nodeType === 8 || dom.nodeName === "SVG") {
       return;
     }
-    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)) {
+    if (dom.nodeType === 1 && (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) || (typeof (base = dom.className).indexOf === "function" ? base.indexOf(cola.constants.IGNORE_DIRECTIVE) : void 0) >= 0)) {
       return;
     }
     if (IGNORE_NODES.indexOf(dom.nodeName) > -1) {
@@ -13182,7 +13182,7 @@
 
 }).call(this);
 
-/*! Cola UI - 1.0.6
+/*! Cola UI - 1.0.8
  * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
  *
  * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
@@ -14162,7 +14162,7 @@ Template
       return Separator.__super__.constructor.apply(this, arguments);
     }
 
-    Separator.tagName = "c-separator";
+    Separator.tagName = "separator";
 
     Separator.parentWidget = cola.ButtonGroup;
 
@@ -14204,6 +14204,8 @@ Template
     return Separator;
 
   })(cola.Widget);
+
+  cola.registerWidget(cola.buttonGroup.Separator);
 
   cola.buttonGroup.emptyItems = [];
 
@@ -14455,7 +14457,7 @@ Template
 
   cola.registerType("button-group", "_default", cola.Button);
 
-  cola.registerType("button-group", "Separator", cola.buttonGroup.Separator);
+  cola.registerType("button-group", "separator", cola.buttonGroup.Separator);
 
   cola.registerTypeResolver("button-group", function(config) {
     return cola.resolveType("widget", config);
@@ -16116,6 +16118,8 @@ Template
 
       Calendar.CLASS_NAME = "calendar";
 
+      Calendar.tagName = "c-calendar";
+
       Calendar.attributes = {
         date: {
           getter: function() {
@@ -16359,6 +16363,8 @@ Template
 
     })(cola.Widget);
   })();
+
+  cola.registerWidget(cola.Calendar);
 
   cola.Divider = (function(superClass) {
     extend(Divider, superClass);
@@ -18753,16 +18759,15 @@ Template
     };
 
     Tab.prototype._tabContentRender = function(tab) {
-      var container, contentDom, contentsContainer, tagName;
+      var container, contentDom, contentsContainer;
       contentsContainer = this.getContentsContainer();
       container = tab.get("contentContainer");
       if (container && container.parentNode === contentsContainer) {
         return;
       }
-      tagName = contentsContainer.nodeName === "UL" ? "li" : "div";
       container = $.xCreate({
-        tagName: tagName,
-        "class": "item"
+        tagName: "content",
+        name: tab.get("name")
       });
       contentsContainer.appendChild(container);
       tab.set("contentContainer", container);
@@ -18774,7 +18779,7 @@ Template
 
     Tab.prototype._makeControlBtn = function() {
       var tabBar, tabControl;
-      tabBar = $(this._dom).find(">.tab-bar");
+      tabBar = $(this._dom).find(">nav");
       tabControl = this;
       tabBar.prepend($.xCreate({
         tagName: "div",
@@ -18803,7 +18808,7 @@ Template
       dom = tabButton.getDom();
       pDom = $(dom).parent();
       index = -1;
-      ref = pDom.find(".ui.tab-button");
+      ref = pDom.find("tab");
       for (i = n = 0, len1 = ref.length; n < len1; i = ++n) {
         item = ref[i];
         if (item === dom) {
@@ -18816,7 +18821,7 @@ Template
     Tab.prototype._getTabButtonsSize = function() {
       var $dom, buttons, direction, firstLeft, firstTab, firstTop, horizontal, lastLeft, lastTab, lastTop;
       $dom = this._$dom || $(this._dom);
-      buttons = $dom.find(">.tab-bar>.tabs>.tab-button");
+      buttons = $dom.find(">nav>tabs>tab");
       direction = this._direction;
       horizontal = direction === "top" || direction === "bottom";
       lastTab = buttons[buttons.length - 1];
@@ -18835,12 +18840,12 @@ Template
     Tab.prototype.refreshNavButtons = function() {
       var $dom, buttons, buttonsSize, controlButtons, direction, firstLeft, firstTab, firstTop, horizontal, lastELeft, lastETop, lastTab, left, oldPosition, style, tabBar, tabBarHeight, tabBarWidth, tabsWrap, top, visible;
       $dom = this._$dom || $(this._dom);
-      buttons = $dom.find(">.tab-bar>.tabs>.tab-button");
+      buttons = $dom.find(">nav>tabs>tab");
       visible = false;
       direction = this._direction;
-      tabsWrap = $dom.find(">.tab-bar>.tabs");
+      tabsWrap = $dom.find(">nav>tabs");
       horizontal = direction === "top" || direction === "bottom";
-      tabBar = $dom.find(">.tab-bar");
+      tabBar = $dom.find(">nav");
       style = horizontal ? "left" : "top";
       if (!horizontal) {
         setTimeout(function() {
@@ -18856,11 +18861,11 @@ Template
       firstTab = buttons[0];
       buttonsSize = this._getTabButtonsSize();
       if (horizontal) {
-        tabBarWidth = $dom.find(">.tab-bar").innerWidth();
+        tabBarWidth = $dom.find(">nav").innerWidth();
         firstLeft = $(firstTab).offset().left;
         visible = tabBarWidth < buttonsSize;
       } else {
-        tabBarHeight = $dom.find(">.tab-bar").innerHeight();
+        tabBarHeight = $dom.find(">nav").innerHeight();
         firstTop = $(firstTab).offset().top;
         visible = tabBarHeight < buttonsSize;
       }
@@ -18875,7 +18880,7 @@ Template
           if (oldPosition === 0) {
             tabsWrap.css("left", tabBar.find(">.next-button").width() + "px");
           }
-          left = $dom.find(">.tab-bar").offset().left;
+          left = $dom.find(">nav").offset().left;
           lastELeft = $(lastTab).offset().left + $(lastTab).outerWidth();
           tabBar.find(">.next-button").toggleClass("disabled", lastELeft < left + tabBarWidth);
           tabBar.find(">.pre-button").toggleClass("disabled", firstLeft > left);
@@ -18886,7 +18891,7 @@ Template
           if (oldPosition === 0) {
             tabsWrap.css("top", tabBar.find(">.next-button").height() + "px");
           }
-          top = $dom.find(">.tab-bar").offset().top;
+          top = $dom.find(">nav").offset().top;
           lastETop = $(lastTab).offset().top + $(lastTab).outerHeight();
           tabBar.find(">.next-button").toggleClass("disabled", lastETop < top + tabBarHeight);
           tabBar.find(">.pre-button").toggleClass("disabled", firstTop > top);
@@ -18904,22 +18909,22 @@ Template
       direction = this._direction;
       horizontal = direction === "top" || direction === "bottom";
       style = horizontal ? "left" : "top";
-      size = this._getTabButtonsSize() / $dom.find(">.tab-bar>.tabs>.tab-button").length;
+      size = this._getTabButtonsSize() / $dom.find(">nav>tabs>tab").length;
       if (horizontal) {
         size = size / 2;
       }
-      tabsWrap = $dom.find(">.tab-bar>.tabs");
+      tabsWrap = $dom.find(">nav>tabs");
       oldPosition = tabsWrap.css(style);
       oldPosition = parseInt(oldPosition.replace("px", ""));
       if (next) {
         size = -1 * size;
       }
-      buttons = $dom.find(">.tab-bar>.tabs>.tab-button");
+      buttons = $dom.find(">nav>tabs>tab");
       direction = this._direction;
       horizontal = direction === "top" || direction === "bottom";
       lastTab = buttons[buttons.length - 1];
       firstTab = buttons[0];
-      $tabBar = $dom.find(">.tab-bar");
+      $tabBar = $dom.find(">nav");
       tabBarOffset = $tabBar.offset();
       controlBtn = $tabBar.find(".next-button");
       if (horizontal) {
@@ -18967,9 +18972,26 @@ Template
       this.refreshNavButtons();
     };
 
+    Tab.prototype._getTabContentDom = function(tab) {
+      var content, contents;
+      contents = this.getContentsContainer();
+      content = $(contents).find(">content[name='" + tab._name + "']");
+      if (content.length > 0) {
+        return content[0];
+      }
+    };
+
+    Tab.prototype.getCurrentTab = function(index) {
+      var $tabDom;
+      $tabDom = this._$dom.find(">nav>tabs>tab.active");
+      if ($tabDom.length > 0) {
+        return cola.widget($tabDom[0]);
+      }
+    };
+
     Tab.prototype.setCurrentTab = function(index) {
       var arg, container, newTab, oldTab;
-      oldTab = this.get("currentTab");
+      oldTab = this.getCurrentTab();
       newTab = this.getTab(index);
       if (oldTab === newTab) {
         return true;
@@ -18983,11 +19005,11 @@ Template
       }
       if (oldTab) {
         oldTab.get$Dom().removeClass("active");
-        $(oldTab.get("contentContainer")).removeClass("active");
+        $(this._getTabContentDom(oldTab)).removeClass("active");
       }
       if (newTab) {
         newTab.get$Dom().addClass("active");
-        container = newTab.get("contentContainer");
+        container = this._getTabContentDom(newTab);
         if (!container) {
           this._tabContentRender(newTab);
           container = newTab.get("contentContainer");
@@ -19011,7 +19033,7 @@ Template
           }
         };
       })(this);
-      $(dom).delegate("> .tab-bar > .tabs > .tab-button", "click", function(event) {
+      $(dom).delegate("> nav > tabs > tab", "click", function(event) {
         return activeExclusive(this, event);
       });
       renderTabs.push(this);
@@ -19042,89 +19064,6 @@ Template
         renderTabs.splice(i, 1);
       }
       return Tab.__super__.destroy.call(this);
-    };
-
-    Tab.prototype._parseTabBarDom = function(dom) {
-      var child, parseTabs;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      parseTabs = (function(_this) {
-        return function(node) {
-          var childNode, name, tab;
-          childNode = node.firstChild;
-          while (childNode) {
-            if (childNode.nodeType === 1) {
-              tab = cola.widget(childNode);
-              name = $(childNode).attr("name");
-              if (!tab && name) {
-                tab = new cola.TabButton({
-                  dom: childNode
-                });
-              }
-              if (tab && name) {
-                tab.set("name", name);
-              }
-              if (tab && tab instanceof cola.TabButton) {
-                _this.addTab(tab);
-              }
-            }
-            childNode = childNode.nextSibling;
-          }
-        };
-      })(this);
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1 && !this._doms.tabs && cola.util.hasClass(child, "tabs")) {
-          this._doms.tabs = child;
-          parseTabs(child);
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    Tab.prototype._parseDom = function(dom) {
-      var _contents, child, content, item, len1, n, name, parseContents, tab, tabs;
-      child = dom.firstChild;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      _contents = {};
-      parseContents = function(node) {
-        var contentNode, name;
-        contentNode = node.firstChild;
-        while (contentNode) {
-          if (contentNode.nodeType === 1) {
-            name = $(contentNode).attr("name");
-            _contents[name] = contentNode;
-            $(contentNode).addClass("item");
-          }
-          contentNode = contentNode.nextSibling;
-        }
-      };
-      while (child) {
-        if (child.nodeType === 1) {
-          if (!this._doms.contents && cola.util.hasClass(child, "contents")) {
-            this._doms.contents = child;
-            parseContents(child);
-          } else if (!this._doms.tabs && cola.util.hasClass(child, "tab-bar")) {
-            this._doms.tabBar = child;
-            this._parseTabBarDom(child);
-          }
-        }
-        child = child.nextSibling;
-      }
-      tabs = this._tabs || [];
-      for (n = 0, len1 = tabs.length; n < len1; n++) {
-        tab = tabs[n];
-        name = tab.get("name");
-        if (name && _contents[name]) {
-          item = _contents[name];
-          content = item.children[0];
-          tab.set("content", _contents[name]);
-          tab.set("contentContainer", item);
-        }
-      }
     };
 
     Tab.prototype.getTabBarDom = function() {
@@ -19158,15 +19097,17 @@ Template
     };
 
     Tab.prototype.getContentsContainer = function() {
-      var dom;
-      if (!this._doms.contents) {
-        dom = this._doms.contents = $.xCreate({
-          tagName: "ul",
-          "class": "contents"
-        });
-        this._dom.appendChild(dom);
+      var $contents, dom;
+      $contents = $(this._dom).find(">contents");
+      if ($contents) {
+        return $contents[0];
       }
-      return this._doms.contents;
+      dom = $.xCreate({
+        tagName: "contents",
+        "class": "contents"
+      });
+      this._dom.appendChild(dom);
+      return dom;
     };
 
     Tab.prototype._tabRender = function(tab) {
@@ -19216,27 +19157,27 @@ Template
     };
 
     Tab.prototype.removeTab = function(tab) {
-      var contentContainer, index, newIndex, obj;
-      index = -1;
-      if (typeof tab === "number") {
-        index = tab;
-        obj = this._tabs[index];
-      } else if (tab instanceof cola.TabButton) {
-        index = this._tabs.indexOf(tab);
+      var contentContainer, obj, tabDom, targetDom, targetTab;
+      if (tab instanceof cola.TabButton) {
         obj = tab;
       } else if (typeof tab === "string") {
         obj = this.getTab(tab);
-        index = this._tabs.indexOf(obj);
       }
-      if (index > -1 && obj) {
+      if (obj) {
         if (this.get("currentTab") === obj) {
-          newIndex = index === (this._tabs.length - 1) ? index - 1 : index + 1;
-          if (!this.setCurrentTab(newIndex)) {
-            return false;
+          tabDom = obj._dom;
+          targetDom = tabDom.previousElementSibling || tabDom.nextElementSibling;
+          if (targetDom) {
+            targetTab = cola.widget(targetDom);
+            if (!this.setCurrentTab(targetTab)) {
+              return false;
+            }
           }
         }
-        this._tabs.splice(index, 1);
         contentContainer = obj.get("contentContainer");
+        if (!contentContainer) {
+          contentContainer = this._getTabContentDom(obj);
+        }
         obj.remove();
         if ((contentContainer != null ? contentContainer.parentNode : void 0) === this._doms.contents) {
           $(contentContainer).remove();
@@ -19488,7 +19429,7 @@ Template
       return TabButton.__super__.constructor.apply(this, arguments);
     }
 
-    TabButton.tagName = "c-tabButton";
+    TabButton.tagName = "tab";
 
     TabButton.CLASS_NAME = "tab-button";
 
@@ -19510,7 +19451,7 @@ Template
     };
 
     TabButton.prototype.close = function() {
-      var arg, ref;
+      var arg, tab;
       arg = {
         tab: this
       };
@@ -19518,9 +19459,8 @@ Template
       if (arg.processDefault === false) {
         return this;
       }
-      if ((ref = this._parent) != null) {
-        ref.removeTab(this);
-      }
+      tab = cola.findWidget(this._dom, cola.Tab);
+      tab.removeTab(this);
       this.destroy();
       this.fire("afterClose", this, arg);
       return this;
@@ -20916,7 +20856,10 @@ Template
 
     AbstractInput.prototype._refreshButton = function() {
       var actionButton, btnDom, buttonPosition, leftAction;
-      actionButton = this.get("actionButton");
+      btnDom = $(this._dom).find(">.ui.button");
+      if (btnDom.length > 0) {
+        actionButton = cola.widget(btnDom[0]);
+      }
       buttonPosition = this.get("buttonPosition");
       this._classNamePool.remove("left action");
       this._classNamePool.remove("action");
@@ -20995,9 +20938,6 @@ Template
       AbstractInput.__super__._doRefreshDom.call(this);
       this._finalReadOnly = !!this.get("readOnly");
       this._refreshIcon();
-      this._refreshButton();
-      this._refreshCorner();
-      this._refreshLabel();
       this._refreshInput();
     };
 
@@ -21222,295 +21162,97 @@ Template
 
     Progress.CLASS_NAME = "progress";
 
-    Progress.SEMANTIC_CLASS = ["left floated", "right floated"];
-
     Progress.attributes = {
       total: {
         type: "number",
         defaultValue: 0,
-        setter: function(value) {
-          this._total = value;
-          this._setting("total", value);
-        }
+        refreshDom: true
       },
       value: {
         type: "number",
         defaultValue: 0,
-        setter: function(value) {
-          this._value = value;
-          this.progress(value);
-        }
-      },
-      showProgress: {
-        defaultValue: true,
-        type: "boolean",
         refreshDom: true
       },
-      progressFormat: {
-        "enum": ["percent", "ratio"],
-        defaultValue: "percent",
-        setter: function(value) {
-          this._progressFormat = value;
-          if (this._dom) {
-            this._setting("label", value);
-          }
-        }
-      },
-      ratioText: {
-        defaultValue: "{percent}%",
-        setter: function(value) {
-          this._ratioText = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      activeMessage: {
-        refreshDom: true,
-        setter: function(value) {
-          this._activeMessage = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      successMessage: {
-        refreshDom: true,
-        setter: function(value) {
-          this._successMessage = value;
-          if (this._dom) {
-            this._settingText();
-          }
-        }
-      },
-      autoSuccess: {
-        defaultValue: true,
-        type: "boolean",
-        setter: function(value) {
-          this._autoSuccess = !!value;
-          if (this._dom) {
-            this._setting("autoSuccess", this._autoSuccess);
-          }
-        }
-      },
-      showActivity: {
-        type: "boolean",
-        defaultValue: true,
-        setter: function(value) {
-          this._showActivity = !!value;
-          if (this._dom) {
-            this._setting("showActivity", this._showActivity);
-          }
-        }
-      },
-      limitValues: {
-        type: "boolean",
-        defaultValue: true,
-        setter: function(value) {
-          this._limitValues = value;
-          if (this._dom) {
-            this._setting("limitValues", this._limitValues);
-          }
-        }
-      },
-      precision: {
+      strokeWidth: {
         type: "number",
-        refreshDom: true,
-        defaultValue: 1
+        defaultValue: 5.2,
+        refreshDom: true
+      },
+      circle: {
+        readonlyAfterCreate: true,
+        type: "boolean",
+        defaultValue: false
       }
     };
 
     Progress.events = {
-      change: null,
-      success: null,
-      active: null,
-      error: null,
-      warning: null
+      change: null
     };
 
     Progress.prototype._initDom = function(dom) {
+      var progressDom;
       if (this._doms == null) {
         this._doms = {};
       }
-      return $(dom).empty().append($.xCreate([
-        {
-          tagName: "div",
-          "class": "bar",
-          content: {
-            tagName: "div",
-            "class": "progress",
-            contextKey: "progress"
-          },
-          contextKey: "bar"
-        }, {
-          tagName: "div",
-          "class": "label",
-          contextKey: "label"
-        }
-      ], this._doms));
-    };
-
-    Progress.prototype._setting = function(name, value) {
-      if (!this._dom) {
-        return;
-      }
-      if (name === "total") {
-        this.get$Dom().progress("set total", progress);
+      if (this._circle) {
+        progressDom = '<svg viewBox="0 0 100 100"><path class="track" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path><path class="progress" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path></svg>';
+        return $(dom).addClass("circle").append(progressDom).append(document.createElement("text"));
       } else {
-        if (this._dom) {
-          this.get$Dom().progress("setting", name, value);
-        }
+        return $(dom).addClass("basic").append($.xCreate([
+          {
+            tagName: "div",
+            "class": "track",
+            content: {
+              tagName: "div",
+              "class": "progress"
+            }
+          }, {
+            tagName: "text"
+          }
+        ]));
       }
-    };
-
-    Progress.prototype._settingText = function() {
-      this._setting("text", {
-        active: this._activeMessage || "",
-        success: this._successMessage || "",
-        ratio: this._ratioText || "{percent}%"
-      });
     };
 
     Progress.prototype._doRefreshDom = function() {
-      var $dom;
+      var $dom, dashOffset, perimeter, pool, progressDom, status, total, trackDom, value;
       if (!this._dom) {
         return;
       }
       Progress.__super__._doRefreshDom.call(this);
       $dom = this.get$Dom();
-      if (this._doms == null) {
-        this._doms = {};
+      value = this._value;
+      total = this._total || 100;
+      status = "";
+      if (value === total) {
+        status = "success";
+      } else if (value > total) {
+        status = "exception";
       }
-      if (this._activeMessage || this._successMessage) {
-        if (!this._doms.label.parentNode) {
-          $dom.append(this._doms.label);
+      if (this._circle) {
+        perimeter = 2 * Math.PI * 47;
+        progressDom = $dom.find(">svg>path.progress")[0];
+        trackDom = $dom.find(">svg>path.track")[0];
+        trackDom.setAttribute("stroke-width", this._strokeWidth);
+        progressDom.setAttribute("stroke-width", this._strokeWidth);
+        progressDom.setAttribute("stroke-dasharray", perimeter + "px, " + perimeter + "px");
+        dashOffset = 0;
+        if (status !== "exception") {
+          dashOffset = (1 - value / total) * perimeter + 'px';
         }
-      } else {
-        if (this._doms.label.parentNode) {
-          $(this._doms.label).remove();
-        }
+        progressDom.setAttribute("stroke-dashoffset", dashOffset);
       }
-      if (this._showProgress) {
-        if (this._doms.progress.parentNode !== this._doms.bar) {
-          this._doms.bar.appendChild(this._doms.progress);
-        }
-      } else {
-        if (this._doms.progress.parentNode) {
-          $(this._doms.progress).remove();
-        }
-      }
+      $dom.find(">text").text(Math.ceil(Math.round(value / total * 10000) / 100) + "%");
+      pool = this._classNamePool;
+      pool.remove("exception");
+      pool.remove("success");
+      status && pool.add(status);
     };
 
-    Progress.prototype._setDom = function(dom, parseChild) {
-      var listenState;
-      Progress.__super__._setDom.call(this, dom, parseChild);
-      listenState = (function(_this) {
-        return function(eventName, arg) {
-          return _this.fire(eventName, _this, arg);
-        };
-      })(this);
-      this.get$Dom().progress({
-        total: this.get("total"),
-        label: this._labelFormat,
-        autoSuccess: this._autoSuccess,
-        showActivity: this._showActivity,
-        limitValues: this._limitValues,
-        precision: this._precision,
-        text: {
-          active: this._activeMessage || "",
-          success: this._successMessage || "",
-          ratio: this._ratioText
-        },
-        onChange: function(percent, value, total) {
-          var arg;
-          arg = {
-            percent: percent,
-            value: value,
-            total: total
-          };
-          return listenState("change", arg);
-        },
-        onSuccess: function(total) {
-          var arg;
-          arg = {
-            total: total
-          };
-          return listenState("success", arg);
-        },
-        onActive: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("active", arg);
-        },
-        onWarning: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("warning", arg);
-        },
-        onError: function(value, total) {
-          var arg;
-          arg = {
-            value: value,
-            total: total
-          };
-          return listenState("error", arg);
-        }
-      });
-      this.progress(this._value);
-    };
+    Progress.prototype.reset = function() {};
 
-    Progress.prototype.reset = function() {
-      if (this._dom) {
-        this.get$Dom().progress("reset");
-      }
-      return this;
-    };
+    Progress.prototype.progress = function(progress) {};
 
-    Progress.prototype.success = function(message) {
-      if (message == null) {
-        message = "";
-      }
-      if (this._dom) {
-        this.get$Dom().progress("set success", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.warning = function(message) {
-      if (this._dom) {
-        this.get$Dom().progress("set warning", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.error = function(message) {
-      if (this._dom) {
-        this.get$Dom().progress("set error", message);
-      }
-      return this;
-    };
-
-    Progress.prototype.progress = function(progress) {
-      this._value = progress;
-      if (this._dom) {
-        this.get$Dom().progress("set progress", progress);
-      }
-      return this;
-    };
-
-    Progress.prototype.complete = function() {
-      this._value = this._total;
-      if (this._dom) {
-        this.get$Dom().progress("complete");
-      }
-      return this;
-    };
+    Progress.prototype.complete = function() {};
 
     Progress.prototype.destroy = function() {
       var ref;
@@ -24306,6 +24048,21 @@ Template
 
   })(cola.CustomDropdown);
 
+  cola.YearMonthPicker = (function(superClass) {
+    extend(YearMonthPicker, superClass);
+
+    function YearMonthPicker() {
+      return YearMonthPicker.__super__.constructor.apply(this, arguments);
+    }
+
+    YearMonthPicker.tagName = "c-monthpicker";
+
+    YearMonthPicker.CLASS_NAME = "year-month input date drop";
+
+    return YearMonthPicker;
+
+  })(cola.YearMonthDropDown);
+
   cola.TimeEditor = (function(superClass) {
     extend(TimeEditor, superClass);
 
@@ -24428,6 +24185,8 @@ Template
   cola.registerWidget(cola.DatePicker);
 
   cola.registerWidget(cola.YearMonthDropDown);
+
+  cola.registerWidget(cola.YearMonthPicker);
 
   isIE11 = /Trident\/7\./.test(navigator.userAgent);
 
@@ -25922,427 +25681,41 @@ Template
 
   cola.Element.mixin(cola.ItemsView, cola.DataItemsWidgetMixin);
 
-  if (cola.breadcrumb == null) {
-    cola.breadcrumb = {};
-  }
-
-  cola.breadcrumb.Section = (function(superClass) {
-    extend(Section, superClass);
-
-    function Section() {
-      return Section.__super__.constructor.apply(this, arguments);
-    }
-
-    Section.CLASS_NAME = "section";
-
-    Section.tagName = "a";
-
-    Section.attributes = {
-      text: {
-        refreshDom: true
-      },
-      active: {
-        type: "boolean",
-        refreshDom: true,
-        defaultValue: false
-      },
-      href: {
-        refreshDom: true
-      },
-      target: {
-        refreshDom: true
-      }
-    };
-
-    Section.prototype._parseDom = function(dom) {
-      var href, target, text;
-      if (!this._text) {
-        text = cola.util.getTextChildData(dom);
-        if (text) {
-          this._text = text;
-        }
-      }
-      if (!this._href) {
-        href = dom.getAttribute("href");
-        if (href) {
-          this._href = href;
-        }
-      }
-      if (!this._target) {
-        target = dom.getAttribute("target");
-        if (target) {
-          this._target = target;
-        }
-      }
-    };
-
-    Section.prototype._doRefreshDom = function() {
-      var $dom, text;
-      if (!this._dom) {
-        return;
-      }
-      Section.__super__._doRefreshDom.call(this);
-      text = this.get("text");
-      this.get$Dom().text(text || "");
-      this._classNamePool.toggle("active", this._active);
-      $dom = this.get$Dom();
-      if (this._href) {
-        $dom.attr("href", this._href);
-      } else {
-        $dom.removeAttr("href");
-      }
-      $dom.attr("target", this._target || "");
-    };
-
-    return Section;
-
-  })(cola.Widget);
-
-  cola.Breadcrumb = (function(superClass) {
-    extend(Breadcrumb, superClass);
-
-    function Breadcrumb() {
-      return Breadcrumb.__super__.constructor.apply(this, arguments);
-    }
-
-    Breadcrumb.tagName = "c-breadcrumb";
-
-    Breadcrumb.CHILDREN_TYPE_NAMESPACE = "breadcrumb";
-
-    Breadcrumb.CLASS_NAME = "breadcrumb";
-
-    Breadcrumb.attributes = {
-      divider: {
-        "enum": ["chevron", "slash"],
-        defaultValue: "chevron"
-      },
-      size: {
-        "enum": ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"],
-        refreshDom: true,
-        setter: function(value) {
-          var oldValue;
-          oldValue = this["_size"];
-          if (oldValue && oldValue !== value && this._dom) {
-            this.get$Dom().removeClass(oldValue);
+  cola.defineWidget({
+    tagName: "c-breadcrumb",
+    attributes: {
+      bind: null
+    },
+    events: {
+      itemClick: null
+    },
+    template: {
+      "class": "ui breadcrumb",
+      content: {
+        tagName: "item",
+        "c-repeat": "item in @bind",
+        "c-onclick": "itemClick(item,$dom)",
+        content: [
+          {
+            tagName: "a",
+            "c-bind": "item.text",
+            "c-href": "item.href||'#'",
+            "c-target": "item.target||'_black'"
+          }, {
+            tagName: "i"
           }
-          this["_size"] = value;
-          return this;
-        }
-      },
-      sections: {
-        refreshDom: true,
-        setter: function(value) {
-          var len1, n, section;
-          this.clear();
-          for (n = 0, len1 = value.length; n < len1; n++) {
-            section = value[n];
-            this.addSection(section);
-          }
-          return this;
-        }
-      },
-      currentIndex: {
-        type: "number",
-        setter: function(value) {
-          this._currentIndex = value;
-          return this.setCurrent(value);
-        },
-        getter: function() {
-          if (this._current && this._sections) {
-            return this._sections.indexOf(this._current);
-          } else {
-            return -1;
-          }
-        }
+        ]
       }
-    };
-
-    Breadcrumb.events = {
-      sectionClick: null,
-      change: null
-    };
-
-    Breadcrumb.prototype._initDom = function(dom) {
-      var active, activeSection, len1, n, ref, ref1, section;
-      Breadcrumb.__super__._initDom.call(this, dom);
-      if ((ref = this._sections) != null ? ref.length : void 0) {
-        ref1 = this._sections;
-        for (n = 0, len1 = ref1.length; n < len1; n++) {
-          section = ref1[n];
-          this._rendSection(section);
-          if (section.get("active")) {
-            active = section;
-          }
-        }
-        if (active) {
-          this._doChange(active);
-        }
-      }
-      activeSection = (function(_this) {
-        return function(targetDom) {
-          _this.fire("sectionClick", _this, {
-            sectionDom: targetDom
-          });
-          return _this._doChange(targetDom);
-        };
-      })(this);
-      return this.get$Dom().delegate(">.section", "click", function(event) {
-        return activeSection(this, event);
+    },
+    itemClick: function(item, dom) {
+      this.fire("itemClick", this, {
+        item: item,
+        dom: dom
       });
-    };
-
-    Breadcrumb.prototype._parseDom = function(dom) {
-      var child, section, sectionConfig;
-      if (!dom) {
-        return;
+      if (!item.get("href")) {
+        return event.preventDefault();
       }
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          section = cola.widget(child);
-          if (!section && cola.util.hasClass(child, "section")) {
-            sectionConfig = {
-              dom: child
-            };
-            if (cola.util.hasClass(child, "active")) {
-              sectionConfig.active = true;
-            }
-            section = new cola.breadcrumb.Section(sectionConfig);
-          }
-          if (section instanceof cola.breadcrumb.Section) {
-            this.addSection(section);
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    Breadcrumb.prototype._doRefreshDom = function() {
-      var size;
-      if (!this._dom) {
-        return;
-      }
-      Breadcrumb.__super__._doRefreshDom.call(this);
-      size = this.get("size");
-      if (size) {
-        this._classNamePool.add(size);
-      }
-    };
-
-    Breadcrumb.prototype._makeDivider = function() {
-      var divider;
-      divider = this.get("divider");
-      if (divider === "chevron") {
-        return $.xCreate({
-          tagName: "i",
-          "class": "right chevron icon divider"
-        });
-      } else {
-        return $.xCreate({
-          tagName: "div",
-          "class": "divider",
-          content: "/"
-        });
-      }
-    };
-
-    Breadcrumb.prototype._rendSection = function(section) {
-      var divider, index, prev, sectionDom;
-      index = this._sections.indexOf(section);
-      if (this._dividers == null) {
-        this._dividers = [];
-      }
-      sectionDom = section.getDom();
-      if (sectionDom.parentNode !== this._dom) {
-        if (this._dividers.length < index) {
-          divider = this._makeDivider();
-          this._dividers.push(divider);
-          this._dom.appendChild(divider);
-        }
-        this._dom.appendChild(section.getDom());
-      } else if (index > 0) {
-        prev = sectionDom.previousElementSibling;
-        if (prev && !cola.util.hasClass(prev, "divider")) {
-          divider = this._makeDivider();
-          this._dividers.push(divider);
-          section.get$Dom().before(divider);
-        }
-      }
-    };
-
-    Breadcrumb.prototype._doChange = function(section) {
-      var len1, n, ref, s, targetDom, targetSection;
-      if (section.nodeType === 1) {
-        targetDom = section;
-      } else if (section instanceof cola.breadcrumb.Section) {
-        targetDom = section.getDom();
-      } else {
-        return;
-      }
-      $(">.section.active", this._dom).each(function(index, itemDom) {
-        if (itemDom !== targetDom) {
-          section = cola.widget(itemDom);
-          if (section) {
-            section.set("active", false);
-          } else {
-            $fly(itemDom).removeClass("active");
-          }
-        }
-      });
-      targetSection = cola.widget(targetDom);
-      ref = this._sections;
-      for (n = 0, len1 = ref.length; n < len1; n++) {
-        s = ref[n];
-        if (s !== targetSection) {
-          s.set("active", false);
-        }
-      }
-      this._current = targetSection;
-      if (targetSection) {
-        targetSection.set("active", true);
-      } else {
-        $fly(targetDom).addClass("active");
-      }
-      if (this._rendered) {
-        this.fire("change", this, {
-          currentDom: targetDom
-        });
-      }
-    };
-
-    Breadcrumb.prototype.addSection = function(config) {
-      var active, section;
-      if (this._destroyed) {
-        return this;
-      }
-      if (this._sections == null) {
-        this._sections = [];
-      }
-      if (config instanceof cola.breadcrumb.Section) {
-        section = config;
-      } else if (typeof config === "string") {
-        section = new cola.breadcrumb.Section({
-          text: config
-        });
-      } else if (config.constructor === Object.prototype.constructor) {
-        section = new cola.breadcrumb.Section(config);
-      }
-      if (section) {
-        this._sections.push(section);
-        if (this._dom) {
-          this._rendSection(section);
-        }
-        active = section.get("active");
-        if (active) {
-          this._doChange(section);
-        }
-      }
-      return this;
-    };
-
-    Breadcrumb.prototype.removeSection = function(section) {
-      if (!this._sections) {
-        return this;
-      }
-      if (typeof section === "number") {
-        section = this._sections[section];
-      }
-      if (section) {
-        this._doRemove(section);
-      }
-      return this;
-    };
-
-    Breadcrumb.prototype._doRemove = function(section) {
-      var dIndex, divider, index;
-      index = this._sections.indexOf(section);
-      if (index > -1) {
-        this._sections.splice(index, 1);
-        step.remove();
-        if (index > 0 && this._dividers) {
-          dIndex = index - 1;
-          divider = this._dividers[dIndex];
-          $(divider).remove();
-          this._dividers.splice(dIndex, 1);
-        }
-      }
-    };
-
-    Breadcrumb.prototype.clear = function() {
-      if (!this._sections) {
-        return this;
-      }
-      if (this._dom) {
-        this.get$Dom().empty();
-      }
-      if (this._sections.length) {
-        this._sections = [];
-      }
-      return this;
-    };
-
-    Breadcrumb.prototype.getSection = function(index) {
-      var el, len1, n, section, sections;
-      sections = this._sections || [];
-      if (typeof index === "number") {
-        section = sections[index];
-      } else if (typeof index === "string") {
-        for (n = 0, len1 = sections.length; n < len1; n++) {
-          el = sections[n];
-          if (index === el.get("text")) {
-            section = el;
-            break;
-          }
-        }
-      }
-      return section;
-    };
-
-    Breadcrumb.prototype.setCurrent = function(section) {
-      var currentSection;
-      if (section instanceof cola.breadcrumb.Section) {
-        currentSection = section;
-      } else {
-        currentSection = this.getSection(section);
-      }
-      if (currentSection) {
-        this._doChange(currentSection);
-      }
-      return this;
-    };
-
-    Breadcrumb.prototype.getCurrent = function() {
-      return this._current;
-    };
-
-    Breadcrumb.prototype.getCurrentIndex = function() {
-      if (this._cuurent) {
-        return this._sections.indexOf(this._current);
-      }
-    };
-
-    Breadcrumb.prototype.destroy = function() {
-      if (this._destroyed) {
-        return;
-      }
-      Breadcrumb.__super__.destroy.call(this);
-      delete this._current;
-      delete this._sections;
-      delete this._dividers;
-    };
-
-    return Breadcrumb;
-
-  })(cola.Widget);
-
-  cola.registerWidget(cola.Breadcrumb);
-
-  cola.registerType("breadcrumb", "_default", cola.breadcrumb.Section);
-
-  cola.registerType("breadcrumb", "section", cola.breadcrumb.Section);
-
-  cola.registerTypeResolver("breadcrumb", function(config) {
-    return cola.resolveType("widget", config);
+    }
   });
 
   cola.CardBook = (function(superClass) {
@@ -26368,6 +25741,22 @@ Template
       }
     };
 
+    CardBook.prototype._parseDom = function(dom) {};
+
+    CardBook.prototype.setCurrent = function(name) {
+      var $dom, index, target;
+      if (!this._dom) {
+        return;
+      }
+      $dom = this.get$Dom();
+      target = $dom.find(">[name='" + name + "']");
+      if (target.length > 0) {
+        index = $(target).index();
+        this.setCurrentIndex(index);
+      }
+      return this;
+    };
+
     CardBook.prototype.setCurrentIndex = function(index) {
       var $dom, arg, children, newItem, oldItem;
       if (this._currentIndex == null) {
@@ -26376,8 +25765,8 @@ Template
       arg = {};
       if (this._dom) {
         $dom = $(this._dom);
-        children = $dom.find(">.item");
-        oldItem = $dom.find(">.item.active")[0];
+        children = $dom.find(">.item,>item");
+        oldItem = $dom.find(">.item.active,>item.active")[0];
         if (children.length > index) {
           newItem = children[index];
           if (newItem === oldItem) {
@@ -26540,6 +25929,7 @@ Template
       }
       template = this.getTemplate();
       carousel = this;
+      debugger;
       if (template) {
         if (this._bind) {
           $fly(template).attr("c-repeat", this._bind);
@@ -26561,6 +25951,7 @@ Template
       }
       this.setCurrentIndex(0);
       carousel = this;
+      debugger;
       setTimeout(function() {
         return carousel._scroller = new Swipe(carousel._dom, {
           vertical: carousel._orientation === "vertical",
@@ -31060,7 +30451,6 @@ Template
       listConfig = {
         $type: "listView",
         "class": this._ui,
-        highlightCurrentitem: true,
         allowNoCurrent: !highlightCurrentItem,
         highlightCurrentItem: highlightCurrentItem,
         height: "100%",

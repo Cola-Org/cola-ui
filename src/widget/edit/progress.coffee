@@ -1,233 +1,87 @@
 class cola.Progress extends cola.Widget
 	@tagName: "c-progress"
 	@CLASS_NAME: "progress"
-	@SEMANTIC_CLASS: [
-		"left floated", "right floated"
-	]
-
 	@attributes:
 		total:
 			type: "number"
 			defaultValue: 0
-			setter: (value)->
-				@_total = value
-				@_setting("total", value)
-				return
-
+			refreshDom: true
 		value:
 			type: "number"
 			defaultValue: 0
-			setter: (value)->
-				@_value = value
-				@progress(value)
-				return
-
-		showProgress:
-			defaultValue: true
-			type: "boolean"
 			refreshDom: true
-
-		progressFormat:
-			enum: ["percent", "ratio"]
-			defaultValue: "percent"
-			setter: (value)->
-				@_progressFormat = value
-				if @_dom then @_setting("label", value)
-				return
-
-		ratioText:
-			defaultValue: "{percent}%"
-			setter: (value)->
-				@_ratioText = value
-				@_settingText() if @_dom
-				return
-
-		activeMessage:
-			refreshDom: true
-			setter: (value)->
-				@_activeMessage = value
-				@_settingText() if @_dom
-				return
-
-		successMessage:
-			refreshDom: true
-			setter: (value)->
-				@_successMessage = value
-				@_settingText() if @_dom
-				return
-
-		autoSuccess:
-			defaultValue: true
-			type: "boolean"
-			setter: (value)->
-				@_autoSuccess = !!value
-				@_setting("autoSuccess", @_autoSuccess) if @_dom
-				return
-
-		showActivity:
-			type: "boolean"
-			defaultValue: true
-			setter: (value)->
-				@_showActivity = !!value
-				@_setting("showActivity", @_showActivity) if @_dom
-				return
-
-		limitValues:
-			type: "boolean"
-			defaultValue: true
-			setter: (value)->
-				@_limitValues = value
-				@_setting("limitValues", @_limitValues) if @_dom
-				return
-
-		precision:
+		strokeWidth:
 			type: "number"
+			defaultValue: 5.2
 			refreshDom: true
-			defaultValue: 1
-
-
+		circle:
+			readonlyAfterCreate: true
+			type: "boolean"
+			defaultValue: false
 	@events:
 		change: null
-		success: null
-		active: null
-		error: null
-		warning: null
 
 	_initDom: (dom)->
 		@_doms ?= {}
-		$(dom).empty().append(
-			$.xCreate([
-				{
-					tagName: "div"
-					class: "bar"
-					content: {
-						tagName: "div"
-						class: "progress"
-						contextKey: "progress"
-					}
-					contextKey: "bar"
-				}
-				{
-					tagName: "div"
-					class: "label"
-					contextKey: "label"
-				}
-			], @_doms)
-		)
-
-	_setting: (name, value)->
-		return unless @_dom
-		if name is "total"
-			@get$Dom().progress("set total", progress)
+		if @_circle
+			progressDom = '<svg viewBox="0 0 100 100"><path class="track" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path><path class="progress" d="M 50 50 m 0 -47 a 47 47 0 1 1 0 94 a 47 47 0 1 1 0 -94"></path></svg>'
+			$(dom).addClass("circle").append(progressDom).append(document.createElement("text"))
 		else
-			@get$Dom().progress("setting", name, value) if @_dom
-		return
+			$(dom).addClass("basic").append($.xCreate([
+				{
+					tagName: "div", class: "track",
+					content: {
+						tagName: "div", class: "progress"
+					}
+				},
+				{
+					tagName: "text"
+				}
 
-	_settingText: ()->
-		@_setting("text", {
-			active: @_activeMessage or ""
-			success: @_successMessage or ""
-			ratio: @_ratioText or "{percent}%"
-		})
-		return
-
+			]))
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 		$dom = @get$Dom()
-		@_doms ?= {}
-		if @_activeMessage or @_successMessage
-			$dom.append(@_doms.label) if !@_doms.label.parentNode
-		else
-			$(@_doms.label).remove() if @_doms.label.parentNode
+		value = @_value
+		total = @_total || 100
 
-		if @_showProgress
-			if @_doms.progress.parentNode isnt @_doms.bar
-				@_doms.bar.appendChild(@_doms.progress)
-		else
-			if @_doms.progress.parentNode
-				$(@_doms.progress).remove()
+		status = ""
+		if value == total
+			status = "success"
+		else if value > total
+			status = "exception"
 
-		return
 
-	_setDom: (dom, parseChild)->
-		super(dom, parseChild)
+		if @_circle
+			perimeter = 2 * Math.PI * 47
+			progressDom = $dom.find(">svg>path.progress")[0]
+			trackDom = $dom.find(">svg>path.track")[0]
 
-		listenState = (eventName, arg)=>
-			return @fire(eventName, @, arg)
+			trackDom.setAttribute("stroke-width", @_strokeWidth)
+			progressDom.setAttribute("stroke-width", @_strokeWidth)
+			progressDom.setAttribute("stroke-dasharray", "#{perimeter}px, #{perimeter}px")
 
-		@get$Dom().progress({
-			total: @get("total")
-			label: @_labelFormat
-			autoSuccess: @_autoSuccess
-			showActivity: @_showActivity
-			limitValues: @_limitValues
-			precision: @_precision
-			text: {
-				active: @_activeMessage or ""
-				success: @_successMessage or ""
-				ratio: @_ratioText
-			}
-			onChange: (percent, value, total)->
-				arg =
-					percent: percent
-					value: value
-					total: total
-				listenState("change", arg)
+			dashOffset = 0
 
-			onSuccess: (total)->
-				arg =
-					total: total
-				listenState("success", arg)
+			if status != "exception"
+				dashOffset = (1 - value / total) * perimeter + 'px';
+			progressDom.setAttribute("stroke-dashoffset", dashOffset)
 
-			onActive: (value, total)->
-				arg =
-					value: value
-					total: total
-				listenState("active", arg)
+		$dom.find(">text").text(Math.ceil(Math.round(value / total * 10000) / 100) + "%")
+		pool = @_classNamePool
 
-			onWarning: (value, total)->
-				arg =
-					value: value
-					total: total
-				listenState("warning", arg)
-
-			onError: (value, total)->
-				arg =
-					value: value
-					total: total
-				listenState("error", arg)
-		})
-
-		@progress(@_value)
+		pool.remove("exception")
+		pool.remove("success")
+		status && pool.add(status)
 
 		return
 
 	reset: ()->
-		if @_dom then @get$Dom().progress("reset")
-		return @
-
-	success: (message = "")->
-		if @_dom then @get$Dom().progress("set success", message)
-		return @
-
-	warning: (message)->
-		if @_dom then @get$Dom().progress("set warning", message)
-		return @
-
-	error: (message)->
-		if @_dom then @get$Dom().progress("set error", message)
-		return @
 
 	progress: (progress)->
-		@_value = progress
-		if @_dom then @get$Dom().progress("set progress", progress)
-		return @
 
 	complete: ()->
-		@_value = @_total
-		if @_dom then @get$Dom().progress("complete")
-		return @
 
 	destroy: ()->
 		return if @_destroyed
@@ -239,3 +93,5 @@ class cola.Progress extends cola.Widget
 		return
 
 cola.registerWidget(cola.Progress)
+
+

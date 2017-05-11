@@ -14,9 +14,9 @@ do->
 
 		if element != element.ownerDocument.body
 			return {
-			row: row
-			column: column
-			element: element
+				row: row
+				column: column
+				element: element
 			}
 		return null
 
@@ -142,8 +142,8 @@ do->
 				month = if month == 11 then 0 else month + 1
 
 			return {
-			year: year
-			month: month
+				year: year
+				month: month
 			}
 
 		doFireRefreshEvent: (eventArg)->
@@ -406,6 +406,8 @@ do->
 
 	class cola.Calendar extends cola.Widget
 		@CLASS_NAME: "calendar"
+		@tagName: "c-calendar"
+
 		@attributes:
 			date:
 				getter: ()->
@@ -625,4 +627,5 @@ do->
 		getDateCellDom: (date)-> @_datePicker.getDateCellDom(date)
 
 
+cola.registerWidget(cola.Calendar)
 

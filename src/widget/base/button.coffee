@@ -167,7 +167,7 @@ cola.registerWidget(cola.Button)
 cola.buttonGroup = {}
 
 class cola.buttonGroup.Separator extends cola.Widget
-	@tagName: "c-separator"
+	@tagName: "separator"
 	@parentWidget: cola.ButtonGroup
 
 	@SEMANTIC_CLASS: []
@@ -193,6 +193,7 @@ class cola.buttonGroup.Separator extends cola.Widget
 
 		@get$Dom().attr("data-text", @_text) if @_dom
 		return @
+cola.registerWidget(cola.buttonGroup.Separator)
 
 cola.buttonGroup.emptyItems = []
 class cola.ButtonGroup extends cola.AbstractButton
@@ -364,6 +365,6 @@ class cola.ButtonGroup extends cola.AbstractButton
 cola.registerWidget(cola.ButtonGroup)
 
 cola.registerType("button-group", "_default", cola.Button)
-cola.registerType("button-group", "Separator", cola.buttonGroup.Separator)
+cola.registerType("button-group", "separator", cola.buttonGroup.Separator)
 cola.registerTypeResolver "button-group", (config) ->
 	return cola.resolveType("widget", config)

@@ -142,7 +142,6 @@ class cola.NestedList extends cola.Widget
 		listConfig =
 			$type: "listView"
 			class: @_ui
-			highlightCurrentitem: true
 			allowNoCurrent: not highlightCurrentItem
 			highlightCurrentItem: highlightCurrentItem
 			height: "100%"

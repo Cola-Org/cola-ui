@@ -39,16 +39,15 @@ class cola.Tab extends cola.Widget
 	@events:
 		beforeChange: null
 		change: null
-
 	_tabContentRender: (tab)->
 		contentsContainer = @getContentsContainer()
 		container = tab.get("contentContainer")
 
 		return if container and container.parentNode is contentsContainer
-		tagName = if contentsContainer.nodeName is "UL" then "li" else "div"
+
 		container = $.xCreate({
-			tagName: tagName
-			class: "item"
+			tagName: "content",
+			name: tab.get("name")
 		})
 		contentsContainer.appendChild(container)
 		tab.set("contentContainer", container)
@@ -56,7 +55,7 @@ class cola.Tab extends cola.Widget
 		container.appendChild(contentDom) if contentDom
 
 	_makeControlBtn: ()->
-		tabBar = $(@_dom).find(">.tab-bar")
+		tabBar = $(@_dom).find(">nav")
 		tabControl = @
 		tabBar.prepend($.xCreate({
 			tagName: "div"
@@ -81,13 +80,13 @@ class cola.Tab extends cola.Widget
 		dom = tabButton.getDom();
 		pDom = $(dom).parent()
 		index = -1;
-		for item,i in pDom.find(".ui.tab-button")
-			if item==dom then return i
+		for item,i in pDom.find("tab")
+			if item == dom then return i
 		return index;
 
 	_getTabButtonsSize: ()->
 		$dom = @_$dom or $(@_dom)
-		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		buttons = $dom.find(">nav>tabs>tab")
 		direction = @_direction
 		horizontal = direction is "top" or direction is "bottom"
 		lastTab = buttons[buttons.length - 1]
@@ -103,12 +102,12 @@ class cola.Tab extends cola.Widget
 
 	refreshNavButtons: ()->
 		$dom = @_$dom or $(@_dom)
-		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		buttons = $dom.find(">nav>tabs>tab")
 		visible = false
 		direction = @_direction
-		tabsWrap = $dom.find(">.tab-bar>.tabs")
+		tabsWrap = $dom.find(">nav>tabs")
 		horizontal = direction is "top" or direction is "bottom"
-		tabBar = $dom.find(">.tab-bar")
+		tabBar = $dom.find(">nav")
 		style = if horizontal then "left" else "top"
 		unless horizontal
 			setTimeout(()->
@@ -124,11 +123,11 @@ class cola.Tab extends cola.Widget
 		firstTab = buttons[0]
 		buttonsSize = @_getTabButtonsSize()
 		if horizontal
-			tabBarWidth = $dom.find(">.tab-bar").innerWidth()
+			tabBarWidth = $dom.find(">nav").innerWidth()
 			firstLeft = $(firstTab).offset().left
 			visible = tabBarWidth < buttonsSize
 		else
-			tabBarHeight = $dom.find(">.tab-bar").innerHeight()
+			tabBarHeight = $dom.find(">nav").innerHeight()
 			firstTop = $(firstTab).offset().top
 			visible = tabBarHeight < buttonsSize
 
@@ -140,7 +139,7 @@ class cola.Tab extends cola.Widget
 				oldPosition = parseInt(oldPosition.replace("px", ""))
 				if oldPosition == 0
 					tabsWrap.css("left", tabBar.find(">.next-button").width() + "px");
-				left = $dom.find(">.tab-bar").offset().left
+				left = $dom.find(">nav").offset().left
 				lastELeft = $(lastTab).offset().left + $(lastTab).outerWidth()
 				tabBar.find(">.next-button").toggleClass("disabled", lastELeft < left + tabBarWidth)
 				tabBar.find(">.pre-button").toggleClass("disabled", firstLeft > left)
@@ -150,7 +149,7 @@ class cola.Tab extends cola.Widget
 				tabsWrap.css("left", "0px");
 				if oldPosition == 0
 					tabsWrap.css("top", tabBar.find(">.next-button").height() + "px");
-				top = $dom.find(">.tab-bar").offset().top
+				top = $dom.find(">nav").offset().top
 
 				lastETop = $(lastTab).offset().top + $(lastTab).outerHeight()
 				tabBar.find(">.next-button").toggleClass("disabled", lastETop < top + tabBarHeight)
@@ -165,21 +164,21 @@ class cola.Tab extends cola.Widget
 		direction = @_direction
 		horizontal = direction is "top" or direction is "bottom"
 		style = if horizontal then "left" else "top"
-		size = @_getTabButtonsSize() / $dom.find(">.tab-bar>.tabs>.tab-button").length
+		size = @_getTabButtonsSize() / $dom.find(">nav>tabs>tab").length
 		if horizontal then size = size / 2
 
-		tabsWrap = $dom.find(">.tab-bar>.tabs")
+		tabsWrap = $dom.find(">nav>tabs")
 		oldPosition = tabsWrap.css(style)
 		oldPosition = parseInt(oldPosition.replace("px", ""))
 		if next
 			size = -1 * size
 
-		buttons = $dom.find(">.tab-bar>.tabs>.tab-button")
+		buttons = $dom.find(">nav>tabs>tab")
 		direction = @_direction
 		horizontal = direction is "top" or direction is "bottom"
 		lastTab = buttons[buttons.length - 1]
 		firstTab = buttons[0]
-		$tabBar = $dom.find(">.tab-bar")
+		$tabBar = $dom.find(">nav")
 		tabBarOffset = $tabBar.offset()
 		controlBtn = $tabBar.find(".next-button")
 		if horizontal
@@ -216,9 +215,17 @@ class cola.Tab extends cola.Widget
 		@_classNamePool.add("#{@_direction}-tab")
 		@refreshNavButtons()
 		return
-
+	_getTabContentDom: (tab)->
+		contents = @getContentsContainer()
+		content = $(contents).find(">content[name='" + tab._name + "']")
+		if content.length > 0
+			return content[0]
+	getCurrentTab: (index)->
+		$tabDom = @_$dom.find(">nav>tabs>tab.active")
+		if $tabDom.length > 0
+			return cola.widget($tabDom[0])
 	setCurrentTab: (index)->
-		oldTab = @get("currentTab")
+		oldTab = @getCurrentTab()
 		newTab = @getTab(index)
 		return true if oldTab is newTab
 
@@ -227,13 +234,13 @@ class cola.Tab extends cola.Widget
 			newTab: newTab
 
 		return false if @fire("beforeChange", @, arg) is false
-
 		if oldTab
 			oldTab.get$Dom().removeClass("active")
-			$(oldTab.get("contentContainer")).removeClass("active")
+			$(@_getTabContentDom(oldTab)).removeClass("active")
+
 		if newTab
 			newTab.get$Dom().addClass("active")
-			container = newTab.get("contentContainer")
+			container = @_getTabContentDom(newTab)
 
 			unless container #懒渲染
 				@_tabContentRender(newTab)
@@ -253,7 +260,7 @@ class cola.Tab extends cola.Widget
 				@setCurrentTab(tab)
 			return
 
-		$(dom).delegate("> .tab-bar > .tabs > .tab-button", "click", (event)->
+		$(dom).delegate("> nav > tabs > tab", "click", (event)->
 			activeExclusive(this, event)
 		)
 		renderTabs.push(this)
@@ -271,70 +278,6 @@ class cola.Tab extends cola.Widget
 		if i > -1
 			renderTabs.splice(i, 1)
 		super()
-	_parseTabBarDom: (dom)->
-		@_doms ?= {}
-
-		parseTabs = (node)=>
-			childNode = node.firstChild
-			while childNode
-				if childNode.nodeType == 1
-					tab = cola.widget(childNode)
-
-					name = $(childNode).attr("name")
-					if !tab and name
-						tab = new cola.TabButton({
-							dom: childNode
-						})
-					tab.set("name", name) if tab and name
-					@addTab(tab)if tab and tab instanceof cola.TabButton
-
-				childNode = childNode.nextSibling
-			return
-		child = dom.firstChild
-		while child
-			if  child.nodeType == 1 and !@_doms.tabs and cola.util.hasClass(child, "tabs")
-				@_doms.tabs = child
-				parseTabs(child)
-			child = child.nextSibling
-		return
-
-	_parseDom: (dom)->
-		child = dom.firstChild
-		@_doms ?= {}
-		_contents = {}
-
-		parseContents = (node)->
-			contentNode = node.firstChild
-
-			while contentNode
-				if contentNode.nodeType == 1
-					name = $(contentNode).attr("name")
-					_contents[name] = contentNode
-					$(contentNode).addClass("item")
-				contentNode = contentNode.nextSibling
-			return
-
-		while child
-			if child.nodeType == 1
-				if !@_doms.contents and cola.util.hasClass(child, "contents")
-					@_doms.contents = child
-					parseContents(child)
-				else if !@_doms.tabs and cola.util.hasClass(child, "tab-bar")
-					@_doms.tabBar = child
-					@_parseTabBarDom(child)
-			child = child.nextSibling
-
-		tabs = @_tabs or []
-		for tab in tabs
-			name = tab.get("name")
-
-			if name and _contents[name]
-				item = _contents[name]
-				content = item.children[0]
-				tab.set("content", _contents[name])
-				tab.set("contentContainer", item)
-
-		return
 
 	getTabBarDom: ()->
 		@_doms ?= {}
@@ -357,14 +300,19 @@ class cola.Tab extends cola.Widget
 		return @_doms.tabs
 
 	getContentsContainer: ()->
-		unless @_doms.contents
-			dom = @_doms.contents = $.xCreate({
-				tagName: "ul"
-				class: "contents"
-			})
-			@_dom.appendChild(dom)
+		$contents = $(@_dom).find(">contents")
+		if $contents
+			return $contents[0]
 
-		return  @_doms.contents
+		dom = $.xCreate({
+			tagName: "contents"
+			class: "contents"
+		})
+
+		@_dom.appendChild(dom)
+
+		return dom
+
 	_tabRender: (tab)->
 		container = @getTabsContainer()
 		dom = tab.getDom()
@@ -397,23 +345,22 @@ class cola.Tab extends cola.Widget
 
 
 	removeTab: (tab)->
-		index = -1
-		if typeof tab is "number"
-			index = tab
-			obj = @_tabs[index]
-		else if tab instanceof cola.TabButton
-			index = @_tabs.indexOf(tab)
+		if tab instanceof cola.TabButton
 			obj = tab
 		else if typeof tab is "string"
 			obj = @getTab(tab)
-			index = @_tabs.indexOf(obj)
-
-		if index > -1 and obj
+		if obj
 			if @get("currentTab") is obj
-				newIndex = if index == (@_tabs.length - 1) then index - 1 else index + 1
-				return false unless @setCurrentTab(newIndex)
-			@_tabs.splice(index, 1)
+
+				tabDom = obj._dom;
+
+				targetDom = tabDom.previousElementSibling || tabDom.nextElementSibling
+				if targetDom
+					targetTab = cola.widget(targetDom)
+					return false unless @setCurrentTab(targetTab)
 			contentContainer = obj.get("contentContainer")
+			unless contentContainer
+				contentContainer = @_getTabContentDom(obj)
 			obj.remove()
 			$(contentContainer).remove() if contentContainer?.parentNode is @_doms.contents
 		@refreshNavButtons()
@@ -439,7 +386,6 @@ class cola.tab.AbstractTabButton extends cola.Widget
 				if oldValue and oldValue isnt value and @_dom and @_doms?.icon
 					$fly(@_doms.icon).removeClass(oldValue)
 				return
-
 		closeable:
 			type: "boolean"
 			refreshDom: true
@@ -458,6 +404,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 			dom.className = "caption"
 			@_dom.appendChild(dom)
 		return @_doms.caption
+
 
 	getCloseDom: ()->
 		@_doms ?= {}
@@ -573,7 +520,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 		return @
 
 class cola.TabButton extends cola.tab.AbstractTabButton
-	@tagName: "c-tabButton"
+	@tagName: "tab"
 	@CLASS_NAME: "tab-button"
 	@parentWidget: cola.Tab
 
@@ -594,7 +541,10 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 
 		@fire("beforeClose", @, arg)
 		return @ if arg.processDefault is false
-		@_parent?.removeTab(@)
+
+		tab = cola.findWidget(@_dom, cola.Tab)
+		tab.removeTab(@);
+
 		@destroy()
 		@fire("afterClose", @, arg)
 		return @
