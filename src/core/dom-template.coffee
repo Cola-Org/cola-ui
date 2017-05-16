@@ -159,7 +159,7 @@ cola._renderDomTemplate = (dom, scope, context = {}) ->
 _doRenderDomTemplate = (dom, scope, context) ->
 	return if dom.nodeType == 8 or dom.nodeName is "SVG"
 	return if dom.nodeType == 1 and
-		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf(cola.constants.IGNORE_DIRECTIVE) >= 0)
+		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
 	return if IGNORE_NODES.indexOf(dom.nodeName) > -1
 
 	if dom.nodeType == 3 # #text
