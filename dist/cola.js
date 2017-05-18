@@ -3454,7 +3454,11 @@
     filtered = [];
     filtered.$origin = collection.$origin || collection;
     if (!option.mode) {
-      option.mode = collection instanceof cola.EntityList ? "entity" : "json";
+      if (collection instanceof cola.EntityList || collection[0] instanceof cola.Entity) {
+        option.mode = "entity";
+      } else {
+        option.mode = "json";
+      }
     }
     cola.each(collection, function(item) {
       var children;
@@ -5883,6 +5887,9 @@
 
   cola.util.find = function(data, criteria, option) {
     var result;
+    if (option == null) {
+      option = {};
+    }
     option.one = true;
     result = cola.util.where(data, criteria, option);
     return result != null ? result[0] : void 0;
@@ -22101,7 +22108,7 @@ Template
           contextKey: "valueContent"
         }, this._doms);
       }
-      $fly(dom).delegate(">.icon", "click", (function(_this) {
+      $fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", (function(_this) {
         return function() {
           if (_this._finalReadOnly && !_this._disabled && !_this._opened) {
             _this.open();
@@ -22128,7 +22135,7 @@ Template
             inputValue: _this._doms.input.value
           };
           _this.fire("keyDown", _this, arg);
-          if (_this._dropdownContent) {
+          if (_this._onKeyDown(evt) !== false && _this._dropdownContent) {
             $(_this._dropdownContent).trigger(evt);
           }
         };
@@ -22526,9 +22533,8 @@ Template
       }
     };
 
-    AbstractDropdown.prototype._selectData = function(item) {
+    AbstractDropdown.prototype._getItemValue = function(item) {
       var value;
-      this._inputEdited = false;
       if (this._valueProperty && item) {
         if (item instanceof cola.Entity) {
           value = item.get(this._valueProperty);
@@ -22538,6 +22544,13 @@ Template
       } else {
         value = item;
       }
+      return value;
+    };
+
+    AbstractDropdown.prototype._selectData = function(item) {
+      var value;
+      this._inputEdited = false;
+      value = this._getItemValue(item);
       this._skipFindCurrentItem = true;
       if (this.fire("selectData", this, {
         data: item
@@ -22753,74 +22766,113 @@ Template
     };
 
     Dropdown.prototype._initDom = function(dom) {
+      var inputDom;
       if (this._filterable) {
         $fly(dom).addClass("filterable");
       }
       this._regDefaultTempaltes();
+      inputDom = this._doms.input;
+      $fly(inputDom).on("input", (function(_this) {
+        return function() {
+          return _this._onInput(inputDom.value);
+        };
+      })(this));
       return Dropdown.__super__._initDom.call(this, dom);
     };
 
     Dropdown.prototype.open = function() {
-      var inputDom, list;
+      var list;
       if (Dropdown.__super__.open.call(this)) {
         list = this._list;
         if (list && this._currentItem !== list.get("currentItem")) {
           list.set("currentItem", this._currentItem);
         }
         if (this._opened && this._filterable) {
-          inputDom = this._doms.input;
-          $fly(inputDom).on("input.filterItem", (function(_this) {
-            return function() {
-              return _this._onInput(inputDom.value);
-            };
-          })(this));
-          this._list.set("filterCriteria", null).refresh();
+          if (this._list.get("filterCriteria") !== null) {
+            this._list.set("filterCriteria", null).refresh();
+          }
         }
         return true;
       }
     };
 
-    Dropdown.prototype.close = function(selectedValue) {
-      if (this._filterable) {
-        $fly(this._doms.input).off("input.filterItem");
-      }
-      return Dropdown.__super__.close.call(this, selectedValue);
-    };
-
     Dropdown.prototype._onInput = function(value) {
+      this._inputDirty = true;
       cola.util.delay(this, "filterItems", 150, function() {
-        var criteria, currentItemDom, exactlyMatch, filterProperty, firstItem, items;
-        criteria = value;
-        filterProperty = this._filterProperty || this._textProperty;
-        if (value !== null) {
-          if (filterProperty) {
-            criteria = {};
-            criteria[filterProperty] = value;
-          }
+        var criteria, currentItemDom, entityId, exactlyMatch, filterProperty, firstItem, item, items;
+        if (!this._list) {
+          return;
         }
-        this._list.set("filterCriteria", criteria).refresh();
-        items = this._list.getItems();
-        currentItemDom = null;
-        if (value !== null) {
-          exactlyMatch;
-          firstItem = items[0];
-          if (firstItem) {
+        criteria = value;
+        if (this._opened && this._filterable) {
+          filterProperty = this._filterProperty || this._textProperty;
+          if (!value) {
             if (filterProperty) {
-              exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) === value;
-            } else {
-              exactlyMatch = firstItem === value;
+              criteria = {};
+              criteria[filterProperty] = value;
             }
           }
-          if (exactlyMatch) {
-            currentItemDom = this._list._getFirstItemDom();
+          this._list.set("filterCriteria", criteria).refresh();
+        }
+        items = this._list.getItems();
+        currentItemDom = null;
+        if (this._filterable) {
+          if (value !== null) {
+            exactlyMatch;
+            firstItem = items[0];
+            if (firstItem) {
+              if (filterProperty) {
+                exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) === value;
+              } else {
+                exactlyMatch = firstItem === value;
+              }
+            }
+            if (exactlyMatch) {
+              currentItemDom = this._list._getFirstItemDom();
+            }
+          }
+          this._list._setCurrentItemDom(currentItemDom);
+        } else {
+          item = cola.util.find(items, criteria);
+          if (item) {
+            entityId = cola.Entity._getEntityId(item);
+            if (entityId) {
+              this._list.set("currentItem", item);
+            } else {
+              this._list._setCurrentItemDom(currentItemDom);
+            }
+          } else {
+            this._list._setCurrentItemDom(null);
           }
         }
-        this._list._setCurrentItemDom(currentItemDom);
       });
     };
 
+    Dropdown.prototype._onKeyDown = function(evt) {
+      var ref;
+      if (evt.keyCode === 13) {
+        this.close(((ref = this._list) != null ? ref.get("currentItem") : void 0) || null);
+        return false;
+      } else if (evt.keyCode === 27) {
+        this.close(this._currentItem || null);
+      }
+    };
+
+    Dropdown.prototype._selectData = function(item) {
+      this._inputDirty = false;
+      return Dropdown.__super__._selectData.call(this, item);
+    };
+
+    Dropdown.prototype._doBlur = function() {
+      var ref;
+      if (this._inputDirty) {
+        this.close(((ref = this._list) != null ? ref.get("currentItem") : void 0) || null);
+      }
+      return Dropdown.__super__._doBlur.call(this);
+    };
+
     Dropdown.prototype._getDropdownContent = function() {
-      var hasDefaultTemplate, inputDom, list, name, ref, templ, template, templateName;
+      var hasDefaultTemplate, list, name, ref, templ, template, templateName;
       if (!this._dropdownContent) {
         if (this._filterable && this._finalOpenMode !== "drop") {
           templateName = "filterable-list";
@@ -22853,23 +22905,6 @@ Template
             return _this.close(list.get("currentItem"));
           };
         })(this));
-        list.get$Dom().on("keydown", (function(_this) {
-          return function(evt) {
-            if (evt.keyCode === 13) {
-              _this.close(list.get("currentItem") || null);
-              return false;
-            }
-          };
-        })(this));
-        if (this._filterable && this._doms.filterInput) {
-          this._filterInput = cola.widget(this._doms.input);
-          inputDom = this._filterInput._doms.input;
-          $fly(inputDom).on("input", (function(_this) {
-            return function() {
-              return _this._onInput(inputDom.value);
-            };
-          })(this));
-        }
       }
       if (typeof this._refreshDropdownContent === "function") {
         this._refreshDropdownContent();
@@ -25542,7 +25577,7 @@ Template
         } else {
           cola.currentScope = itemScope;
           if (itemScope.data.getTargetData() !== item) {
-            if (itemDom._itemId) {
+            if (itemDom._itemId && this._itemDomMap[itemDom._itemId] === itemDom) {
               delete this._itemDomMap[itemDom._itemId];
             }
             if (itemScope.data.alias !== alias) {

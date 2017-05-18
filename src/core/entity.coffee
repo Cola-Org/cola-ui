@@ -140,7 +140,10 @@ _filterCollection = (collection, criteria, option = {}) ->
 	filtered.$origin = collection.$origin or collection
 
 	if not option.mode
-		option.mode = if collection instanceof cola.EntityList then "entity" else "json"
+		if collection instanceof cola.EntityList or collection[0] instanceof cola.Entity
+			option.mode = "entity"
+		else
+			option.mode = "json"
 
 	cola.each(collection, (item) ->
 		children = if option.deep then [] else null
@@ -1887,7 +1890,7 @@ cola.util.where = (data, criteria, option = {}) ->
 	criteria = cola._trimCriteria(criteria, option)
 	return _filterCollection(data, criteria, option)
 
-cola.util.find = (data, criteria, option) ->
+cola.util.find = (data, criteria, option = {}) ->
 	option.one = true
 	result = cola.util.where(data, criteria, option)
 	return result?[0]

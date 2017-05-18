@@ -3454,7 +3454,11 @@
     filtered = [];
     filtered.$origin = collection.$origin || collection;
     if (!option.mode) {
-      option.mode = collection instanceof cola.EntityList ? "entity" : "json";
+      if (collection instanceof cola.EntityList || collection[0] instanceof cola.Entity) {
+        option.mode = "entity";
+      } else {
+        option.mode = "json";
+      }
     }
     cola.each(collection, function(item) {
       var children;
@@ -5883,6 +5887,9 @@
 
   cola.util.find = function(data, criteria, option) {
     var result;
+    if (option == null) {
+      option = {};
+    }
     option.one = true;
     result = cola.util.where(data, criteria, option);
     return result != null ? result[0] : void 0;

@@ -82,9 +82,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			}, @_doms)
 
 		$fly(dom)
-			#.attr("tabIndex", 1)
+			.attr("tabIndex", 1)
 			.delegate(">.icon", "click", () =>
-
 				if  @_finalReadOnly and not @_disabled and not @_opened
 					@open()
 					return
@@ -105,7 +104,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					inputValue: @_doms.input.value
 				@fire("keyDown", @, arg)
 
-				if @_dropdownContent
+				if @_onKeyDown(evt) isnt false and @_dropdownContent
 					$(@_dropdownContent).trigger(evt)
 				return
 			).on("keypress", (evt)=>
@@ -150,7 +149,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		super(dom)
 		@_parseTemplates()
 
-		if !@_icon
+		if not @_icon
 			child = @_doms.input.nextSibling
 			while child
 				if child.nodeType is 1 and child.nodeName isnt "TEMPLATE"
@@ -412,9 +411,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container?.hide?(callback)
 		return
 
-	_selectData: (item) ->
-		@_inputEdited = false
-
+	_getItemValue: (item) ->
 		if @_valueProperty and item
 			if item instanceof cola.Entity
 				value = item.get(@_valueProperty)
@@ -422,7 +419,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				value = item[@_valueProperty]
 		else
 			value = item
+		return value
 
+	_selectData: (item) ->
+		@_inputEdited = false
+
+		value = @_getItemValue(item)
 		@_skipFindCurrentItem = true
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
@@ -592,6 +594,10 @@ class cola.Dropdown extends cola.AbstractDropdown
 	_initDom: (dom)->
 		if @_filterable then $fly(dom).addClass("filterable")
 		@_regDefaultTempaltes()
+
+		inputDom = @_doms.input
+		$fly(inputDom).on("input", () => @_onInput(inputDom.value))
+
 		super(dom)
 
 	open: () ->
@@ -601,45 +607,73 @@ class cola.Dropdown extends cola.AbstractDropdown
 				list.set("currentItem", @_currentItem)
 
 			if @_opened and @_filterable
-				inputDom = @_doms.input
-				$fly(inputDom).on("input.filterItem", () => @_onInput(inputDom.value))
-				@_list.set("filterCriteria", null).refresh()
+				if @_list.get("filterCriteria") isnt null
+					@_list.set("filterCriteria", null).refresh()
 			return true
 		return
 
-	close: (selectedValue) ->
-		if @_filterable
-			$fly(@_doms.input).off("input.filterItem")
-		return super(selectedValue)
-
 	_onInput: (value) ->
+		@_inputDirty = true
 		cola.util.delay(@, "filterItems", 150, () ->
+			return unless @_list
+
 			criteria = value
+			if @_opened and @_filterable
+				filterProperty = @_filterProperty or @_textProperty
+				if not value
+					if filterProperty
+						criteria = {}
+						criteria[filterProperty] = value
+				@_list.set("filterCriteria", criteria).refresh()
 
-			filterProperty = @_filterProperty or @_textProperty
-			if value isnt null
-				if filterProperty
-					criteria = {}
-					criteria[filterProperty] = value
-
-			@_list.set("filterCriteria", criteria).refresh()
 			items = @_list.getItems()
 
 			currentItemDom = null
-			if value isnt null
-				exactlyMatch
-				firstItem = items[0]
-				if firstItem
-					if filterProperty
-						exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) is value
+
+			if @_filterable
+				if value isnt null
+					exactlyMatch
+					firstItem = items[0]
+					if firstItem
+						if filterProperty
+							exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) is value
+						else
+							exactlyMatch = firstItem is value
+					if exactlyMatch
+						currentItemDom = @_list._getFirstItemDom()
+
+				@_list._setCurrentItemDom(currentItemDom)
+			else
+				item = cola.util.find(items, criteria)
+				if item
+					entityId = cola.Entity._getEntityId(item)
+					if entityId
+						@_list.set("currentItem", item)
 					else
-						exactlyMatch = firstItem is value
-				if exactlyMatch
-					currentItemDom = @_list._getFirstItemDom()
-			@_list._setCurrentItemDom(currentItemDom)
+						@_list._setCurrentItemDom(currentItemDom)
+				else
+					@_list._setCurrentItemDom(null)
+
 			return
 		)
 		return
+
+	_onKeyDown: (evt) ->
+		if evt.keyCode is 13 # Enter
+			@close(@_list?.get("currentItem") or null)
+			return false
+		else if evt.keyCode is 27 # ESC
+			@close(@_currentItem or null)
+		return
+
+	_selectData: (item) ->
+		@_inputDirty = false
+		return super(item)
+
+	_doBlur: ()->
+		if @_inputDirty
+			@close(@_list?.get("currentItem") or null)
+		return super()
 
 	_getDropdownContent: () ->
 		if not @_dropdownContent
@@ -663,17 +697,6 @@ class cola.Dropdown extends cola.AbstractDropdown
 				})
 
 			list.on("itemClick", () => @close(list.get("currentItem")))
-
-			list.get$Dom().on("keydown", (evt) =>
-				if evt.keyCode is 13 # Enter
-					@close(list.get("currentItem") or null)
-					return false
-			)
-
-			if @_filterable and @_doms.filterInput
-				@_filterInput = cola.widget(@_doms.input)
-				inputDom = @_filterInput._doms.input
-				$fly(inputDom).on("input", () => @_onInput(inputDom.value))
 
 		@_refreshDropdownContent?()
 		return template

@@ -358,11 +358,15 @@ class cola.ItemsView extends cola.Widget
 			else
 				cola.currentScope = itemScope
 				if itemScope.data.getTargetData() != item
-					delete @_itemDomMap[itemDom._itemId] if itemDom._itemId
+					if itemDom._itemId and @_itemDomMap[itemDom._itemId] is itemDom
+						delete @_itemDomMap[itemDom._itemId]
+
 					if itemScope.data.alias != alias
 						throw new cola.Exception("Repeat alias mismatch. Expect \"#{itemScope.alias}\" but \"#{alias}\".")
+
 					cola.util.userData(itemDom, "item", originItem)
 					itemScope.data.setTargetData(item)
+
 				@_doRefreshItemDom?(itemDom, item, itemScope)
 			parentScope.regItemScope(itemId, itemScope) if itemId
 
