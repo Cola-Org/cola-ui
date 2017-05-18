@@ -8027,6 +8027,7 @@
         url: url,
         type: options.method || "post",
         contentType: options.contentType || "application/json",
+        dataType: "json",
         data: JSON.stringify(data),
         options: options
       }).then(function(responseData) {

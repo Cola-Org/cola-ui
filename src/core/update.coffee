@@ -66,6 +66,7 @@ cola.util.update = (url, data, options = {}) ->
 			url: url
 			type: options.method or "post"
 			contentType: options.contentType or "application/json"
+			dataType: "json"
 			data: JSON.stringify(data)
 			options: options
 		).then (responseData) ->
