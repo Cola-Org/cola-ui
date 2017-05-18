@@ -87,7 +87,10 @@ class cola.SplitPane extends cola.Widget
 			return (event)->
 				event.preventDefault?()
 				left = Math.min(Math.max(sideMinWidth, leftOffset + pageXof(event)), sideMaxWidth)
+				if splitPane._direction is "right"
+					left = dom.offsetWidth - left
 				splitPane._setPosition(left)
+
 
 		fixedHorizontalHandler = (pageY)->
 			sideMinHeight = minHeight(doms.sideDom)
@@ -96,6 +99,8 @@ class cola.SplitPane extends cola.Widget
 			return (event)->
 				event.preventDefault?()
 				top = Math.min(Math.max(sideMinHeight, topOffset + pageYof(event)), sideMaxHeight)
+				if splitPane._direction is "bottom"
+					top = dom.offsetHeight - top
 				splitPane._setPosition(top)
 
 		createMouseMove = ($splitPane, pageX, pageY)->

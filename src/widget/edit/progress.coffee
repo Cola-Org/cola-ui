@@ -18,9 +18,6 @@ class cola.Progress extends cola.Widget
 			readonlyAfterCreate: true
 			type: "boolean"
 			defaultValue: false
-	@events:
-		change: null
-
 	_initDom: (dom)->
 		@_doms ?= {}
 		if @_circle
@@ -51,7 +48,8 @@ class cola.Progress extends cola.Widget
 			status = "success"
 		else if value > total
 			status = "exception"
-
+		pValue = Math.ceil(Math.round(value / total * 10000) / 100);
+		progress = pValue + "%"
 
 		if @_circle
 			perimeter = 2 * Math.PI * 47
@@ -67,8 +65,11 @@ class cola.Progress extends cola.Widget
 			if status != "exception"
 				dashOffset = (1 - value / total) * perimeter + 'px';
 			progressDom.setAttribute("stroke-dashoffset", dashOffset)
+		else
+			$dom.find(">.track>.progress").css("width", if status != "exception" then progress else "100%");
+			$dom.hasClass("inline") && $dom.find("text").css("right", if status != "exception" then (100 - pValue) + "%" else "0%")
 
-		$dom.find(">text").text(Math.ceil(Math.round(value / total * 10000) / 100) + "%")
+		$dom.find(">text").text(progress)
 		pool = @_classNamePool
 
 		pool.remove("exception")
@@ -78,10 +79,13 @@ class cola.Progress extends cola.Widget
 		return
 
 	reset: ()->
+		@set("value", 0)
 
 	progress: (progress)->
+		@set("value", progress)
 
 	complete: ()->
+		@set("value", @get("total") || 100)
 
 	destroy: ()->
 		return if @_destroyed
