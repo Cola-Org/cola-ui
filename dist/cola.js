@@ -11000,7 +11000,7 @@
         cola.currentScope = oldScope;
       }
     }
-    if (!dom.parentNode && (dom != null ? dom.getAttribute("c-repeat") : void 0)) {
+    if (dom && !dom.parentNode && dom.getAttribute("c-repeat")) {
       documentFragment = document.createDocumentFragment();
       documentFragment.appendChild(dom);
       dom = null;
