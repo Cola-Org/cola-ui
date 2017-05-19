@@ -59,30 +59,31 @@ class cola.AbstractInput extends cola.AbstractEditor
 				return
 
 		corner:
+			getter: () ->
+				return if @["_corner"] then cola.widget(@["_corner"]) else null
 			setter: (value)->
 				oldValue = @["_corner"]
-				oldValue?.destroy()
+				if oldValue then cola.widget(oldValue)?.destroy()
 				delete @["_corner"]
 				if value
+					if value.$type?.toLowerCase() is "corner"
+						value = cola.widget(value)
 					if value instanceof cola.Corner
-						@["_corner"] = value
-					else if value.$type is "Corner"
-						@["_corner"] = cola.widget(value)
+						@["_corner"] = value.getDom()
 				return
 		label:
 			refreshDom: true
+			getter: () ->
+				return if @["_label"] then cola.widget(@["_label"]) else null
 			setter: (value)->
 				oldValue = @["_label"]
-				oldValue?.destroy()
+				if oldValue then cola.widget(oldValue)?.destroy()
 				delete @["_label"]
 				if value
+					if value.$type?.toLowerCase() is "label"
+						value = cola.widget(value)
 					if value instanceof cola.Label
-						@["_label"] = value
-					else if value.$type
-						@["_label"] = cola.widget(value)
-					else
-						delete @["_label"]
-
+						@["_label"] = value.getDom()
 				return
 
 		labelPosition:
@@ -91,22 +92,23 @@ class cola.AbstractInput extends cola.AbstractEditor
 			enum: ["left", "right"]
 		actionButton:
 			refreshDom: true
+			getter: () ->
+				return if @["_actionButton"] then cola.widget(@["_actionButton"]) else null
 			setter: (value)->
 				oldValue = @["_actionButton"]
-				oldValue?.destroy()
+				if oldValue then cola.widget(oldValue)?.destroy()
 				delete @["_actionButton"]
 				if value
-					if value instanceof cola.Button
-						@["_actionButton"] = value
-					else if value.$type is "Button"
-						@["_actionButton"] = cola.widget(value)
+					if value.$type?.toLowerCase() is "button"
+						value = cola.widget(value)
+					if value instanceof cola.Label
+						@["_actionButton"] = value.getDom()
 				return
 
 		buttonPosition:
 			refreshDom: true
 			defaultValue: "right"
 			enum: ["left", "right"]
-
 
 	destroy: ()->
 		unless @_destroyed
@@ -124,7 +126,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_parseDom: (dom)->
-		return  unless dom
+		return unless dom
+
 		@_doms ?= {}
 		inputIndex = -1
 		buttonIndex = 0
@@ -132,24 +135,21 @@ class cola.AbstractInput extends cola.AbstractEditor
 		childConfig = {}
 		for child,index in dom.childNodes
 			continue if child.nodeType isnt 1
-			widget = cola.widget(child)
-			if widget
-				if widget instanceof cola.Corner
-					childConfig.corner = @_corner = widget
-				else if widget instanceof cola.Label
-					labelIndex = index
-					childConfig.label = @_label = widget
-				else if widget instanceof cola.Button
-					buttonIndex = index
-					childConfig.actionButton = @_actionButton = widget
-			else
-				if child.nodeName is "I"
-					@_doms.iconDom = child
-					@_icon = child.className
-
-				else if @_isEditorDom(child)
-					inputIndex = index
-					@_doms.input = child
+			childTagName = child.tagName
+			if childTagName is "C-CORNER"
+				childConfig.corner = @_corner = child
+			else if childTagName is "C-LABEL"
+				labelIndex = index
+				childConfig.label = @_label = child
+			else if childTagName is "C-BUTTON"
+				buttonIndex = index
+				childConfig.actionButton = @_actionButton = child
+			else if childTagName is "I"
+				@_doms.iconDom = child
+				@_icon = child.className
+			else if @_isEditorDom(child)
+				inputIndex = index
+				@_doms.input = child
 
 		if childConfig.label and inputIndex > -1 and labelIndex > inputIndex and not config.labelPosition
 			@_labelPosition = "right"
@@ -161,19 +161,19 @@ class cola.AbstractInput extends cola.AbstractEditor
 			inputDom = @_doms.input = @_createEditorDom()
 
 			if childConfig.label
-				$labelDom = childConfig.label.get$Dom()
+				$labelDom = $fly(childConfig.label)
 				if @_labelPosition is "right"
 					$labelDom.before(inputDom)
 				else
 					$labelDom.after(inputDom)
 			else if childConfig.actionButton
-				$actionButtonDom = childConfig.actionButton.get$Dom()
+				$actionButtonDom = $fly(childConfig.actionButton)
 				if @_buttonPosition is "left"
 					$actionButtonDom.after(inputDom)
 				else
 					$actionButtonDom.before(inputDom)
 			else if childConfig.corner
-				childConfig.corner.get$Dom().before(inputDom)
+				$fly(childConfig.corner).before(inputDom)
 			else
 				@get$Dom().append(inputDom)
 
@@ -204,8 +204,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 	_refreshCorner: ()->
 		corner = @get("corner")
 		return unless corner
-		cornerDom = corner.getDom()
-		if cornerDom.parentNode isnt @_dom then @_dom.appendChild(cornerDom)
+		if corner.parentNode isnt @_dom then @_dom.appendChild(corner)
 
 		@_classNamePool.remove("labeled")
 		@_classNamePool.add("corner labeled")
@@ -222,27 +221,26 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_classNamePool.remove("labeled")
 		return unless label
 
-		labelDom = label.getDom()
 		rightLabeled = labelPosition is "right"
 		@_classNamePool.add(if rightLabeled then "right labeled" else "labeled")
-		if rightLabeled then @_dom.appendChild(labelDom) else $(@_doms.input).before(labelDom)
+		if rightLabeled then @_dom.appendChild(label) else $(@_doms.input).before(label)
 
 		return
 
 	_refreshButton: ()->
-		btnDom = $(@_dom).find(">.ui.button");
+		btnDom = $(@_dom).find(">c-button");
 
 		if btnDom.length > 0
-			actionButton = cola.widget(btnDom[0])
+			actionButton = btnDom[0]
 		buttonPosition = @get("buttonPosition")
 		@_classNamePool.remove("left action")
 		@_classNamePool.remove("action")
 		return unless actionButton
-		btnDom = actionButton.getDom()
+
 		leftAction = buttonPosition is "left"
 		@_classNamePool.add(if leftAction then "left action" else "action")
 
-		if leftAction then $(@_doms.input).before(btnDom) else @_dom.appendChild(btnDom)
+		if leftAction then $(@_doms.input).before(actionButton) else @_dom.appendChild(actionButton)
 		return
 
 	_refreshIcon: ()->
@@ -298,9 +296,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_finalReadOnly = !!@get("readOnly")
 
 		@_refreshIcon()
-		#@_refreshButton()
-		#@_refreshCorner()
-		#@_refreshLabel()
+		@_refreshButton()
+		@_refreshCorner()
+		@_refreshLabel()
 		@_refreshInput()
 		return
 
@@ -402,7 +400,6 @@ class cola.Input extends cola.AbstractInput
 
 			if event.keyCode is 13 && isIE11 then doPost()
 		)
-
 
 		return
 

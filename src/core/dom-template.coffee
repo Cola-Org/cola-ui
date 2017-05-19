@@ -157,17 +157,17 @@ cola._renderDomTemplate = (dom, scope, context = {}) ->
 	return
 
 _doRenderDomTemplate = (dom, scope, context) ->
-	return if dom.nodeType == 8 or dom.nodeName is "SVG"
-	return if dom.nodeType == 1 and
+	return if dom.nodeType is 8 or dom.nodeName is "SVG"
+	return if dom.nodeType is 1 and
 		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
 	return if IGNORE_NODES.indexOf(dom.nodeName) > -1
 
-	if dom.nodeType == 3 # #text
+	if dom.nodeType is 3 # #text
 		bindingExpr = dom.nodeValue
 		parts = cola._compileText(bindingExpr)
 		buildContent(parts, dom, scope) if parts?.length
 		return dom
-	else if dom.nodeType == 11 # #documentFragment
+	else if dom.nodeType is 11 # #documentFragment
 		child = dom.firstChild
 		while child
 			child = _doRenderDomTemplate(child, scope, context) or child
@@ -262,7 +262,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		childContext = {}
 		for k, v of context
 			childContext[k] = v
-		childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType == "repeat"
+		childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType is "repeat"
 		childContext.defaultPath = defaultPath if defaultPath
 
 		if cola._userDomCompiler.$startContent.length

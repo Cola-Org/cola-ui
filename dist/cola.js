@@ -20651,38 +20651,56 @@ Template
         }
       },
       corner: {
+        getter: function() {
+          if (this["_corner"]) {
+            return cola.widget(this["_corner"]);
+          } else {
+            return null;
+          }
+        },
         setter: function(value) {
-          var oldValue;
+          var oldValue, ref, ref1;
           oldValue = this["_corner"];
-          if (oldValue != null) {
-            oldValue.destroy();
+          if (oldValue) {
+            if ((ref = cola.widget(oldValue)) != null) {
+              ref.destroy();
+            }
           }
           delete this["_corner"];
           if (value) {
+            if (((ref1 = value.$type) != null ? ref1.toLowerCase() : void 0) === "corner") {
+              value = cola.widget(value);
+            }
             if (value instanceof cola.Corner) {
-              this["_corner"] = value;
-            } else if (value.$type === "Corner") {
-              this["_corner"] = cola.widget(value);
+              this["_corner"] = value.getDom();
             }
           }
         }
       },
       label: {
         refreshDom: true,
+        getter: function() {
+          if (this["_label"]) {
+            return cola.widget(this["_label"]);
+          } else {
+            return null;
+          }
+        },
         setter: function(value) {
-          var oldValue;
+          var oldValue, ref, ref1;
           oldValue = this["_label"];
-          if (oldValue != null) {
-            oldValue.destroy();
+          if (oldValue) {
+            if ((ref = cola.widget(oldValue)) != null) {
+              ref.destroy();
+            }
           }
           delete this["_label"];
           if (value) {
+            if (((ref1 = value.$type) != null ? ref1.toLowerCase() : void 0) === "label") {
+              value = cola.widget(value);
+            }
             if (value instanceof cola.Label) {
-              this["_label"] = value;
-            } else if (value.$type) {
-              this["_label"] = cola.widget(value);
-            } else {
-              delete this["_label"];
+              this["_label"] = value.getDom();
             }
           }
         }
@@ -20694,18 +20712,28 @@ Template
       },
       actionButton: {
         refreshDom: true,
+        getter: function() {
+          if (this["_actionButton"]) {
+            return cola.widget(this["_actionButton"]);
+          } else {
+            return null;
+          }
+        },
         setter: function(value) {
-          var oldValue;
+          var oldValue, ref, ref1;
           oldValue = this["_actionButton"];
-          if (oldValue != null) {
-            oldValue.destroy();
+          if (oldValue) {
+            if ((ref = cola.widget(oldValue)) != null) {
+              ref.destroy();
+            }
           }
           delete this["_actionButton"];
           if (value) {
-            if (value instanceof cola.Button) {
-              this["_actionButton"] = value;
-            } else if (value.$type === "Button") {
-              this["_actionButton"] = cola.widget(value);
+            if (((ref1 = value.$type) != null ? ref1.toLowerCase() : void 0) === "button") {
+              value = cola.widget(value);
+            }
+            if (value instanceof cola.Label) {
+              this["_actionButton"] = value.getDom();
             }
           }
         }
@@ -20737,7 +20765,7 @@ Template
     };
 
     AbstractInput.prototype._parseDom = function(dom) {
-      var $actionButtonDom, $labelDom, buttonIndex, child, childConfig, index, inputDom, inputIndex, labelIndex, len1, n, ref, widget;
+      var $actionButtonDom, $labelDom, buttonIndex, child, childConfig, childTagName, index, inputDom, inputIndex, labelIndex, len1, n, ref;
       if (!dom) {
         return;
       }
@@ -20754,25 +20782,21 @@ Template
         if (child.nodeType !== 1) {
           continue;
         }
-        widget = cola.widget(child);
-        if (widget) {
-          if (widget instanceof cola.Corner) {
-            childConfig.corner = this._corner = widget;
-          } else if (widget instanceof cola.Label) {
-            labelIndex = index;
-            childConfig.label = this._label = widget;
-          } else if (widget instanceof cola.Button) {
-            buttonIndex = index;
-            childConfig.actionButton = this._actionButton = widget;
-          }
-        } else {
-          if (child.nodeName === "I") {
-            this._doms.iconDom = child;
-            this._icon = child.className;
-          } else if (this._isEditorDom(child)) {
-            inputIndex = index;
-            this._doms.input = child;
-          }
+        childTagName = child.tagName;
+        if (childTagName === "C-CORNER") {
+          childConfig.corner = this._corner = child;
+        } else if (childTagName === "C-LABEL") {
+          labelIndex = index;
+          childConfig.label = this._label = child;
+        } else if (childTagName === "C-BUTTON") {
+          buttonIndex = index;
+          childConfig.actionButton = this._actionButton = child;
+        } else if (childTagName === "I") {
+          this._doms.iconDom = child;
+          this._icon = child.className;
+        } else if (this._isEditorDom(child)) {
+          inputIndex = index;
+          this._doms.input = child;
         }
       }
       if (childConfig.label && inputIndex > -1 && labelIndex > inputIndex && !config.labelPosition) {
@@ -20784,21 +20808,21 @@ Template
       if (inputIndex === -1) {
         inputDom = this._doms.input = this._createEditorDom();
         if (childConfig.label) {
-          $labelDom = childConfig.label.get$Dom();
+          $labelDom = $fly(childConfig.label);
           if (this._labelPosition === "right") {
             $labelDom.before(inputDom);
           } else {
             $labelDom.after(inputDom);
           }
         } else if (childConfig.actionButton) {
-          $actionButtonDom = childConfig.actionButton.get$Dom();
+          $actionButtonDom = $fly(childConfig.actionButton);
           if (this._buttonPosition === "left") {
             $actionButtonDom.after(inputDom);
           } else {
             $actionButtonDom.before(inputDom);
           }
         } else if (childConfig.corner) {
-          childConfig.corner.get$Dom().before(inputDom);
+          $fly(childConfig.corner).before(inputDom);
         } else {
           this.get$Dom().append(inputDom);
         }
@@ -20833,21 +20857,20 @@ Template
     };
 
     AbstractInput.prototype._refreshCorner = function() {
-      var corner, cornerDom;
+      var corner;
       corner = this.get("corner");
       if (!corner) {
         return;
       }
-      cornerDom = corner.getDom();
-      if (cornerDom.parentNode !== this._dom) {
-        this._dom.appendChild(cornerDom);
+      if (corner.parentNode !== this._dom) {
+        this._dom.appendChild(corner);
       }
       this._classNamePool.remove("labeled");
       this._classNamePool.add("corner labeled");
     };
 
     AbstractInput.prototype._refreshLabel = function() {
-      var label, labelDom, labelPosition, rightLabeled;
+      var label, labelPosition, rightLabeled;
       if (!this._dom) {
         return;
       }
@@ -20858,21 +20881,20 @@ Template
       if (!label) {
         return;
       }
-      labelDom = label.getDom();
       rightLabeled = labelPosition === "right";
       this._classNamePool.add(rightLabeled ? "right labeled" : "labeled");
       if (rightLabeled) {
-        this._dom.appendChild(labelDom);
+        this._dom.appendChild(label);
       } else {
-        $(this._doms.input).before(labelDom);
+        $(this._doms.input).before(label);
       }
     };
 
     AbstractInput.prototype._refreshButton = function() {
       var actionButton, btnDom, buttonPosition, leftAction;
-      btnDom = $(this._dom).find(">.ui.button");
+      btnDom = $(this._dom).find(">c-button");
       if (btnDom.length > 0) {
-        actionButton = cola.widget(btnDom[0]);
+        actionButton = btnDom[0];
       }
       buttonPosition = this.get("buttonPosition");
       this._classNamePool.remove("left action");
@@ -20880,13 +20902,12 @@ Template
       if (!actionButton) {
         return;
       }
-      btnDom = actionButton.getDom();
       leftAction = buttonPosition === "left";
       this._classNamePool.add(leftAction ? "left action" : "action");
       if (leftAction) {
-        $(this._doms.input).before(btnDom);
+        $(this._doms.input).before(actionButton);
       } else {
-        this._dom.appendChild(btnDom);
+        this._dom.appendChild(actionButton);
       }
     };
 
@@ -20952,6 +20973,9 @@ Template
       AbstractInput.__super__._doRefreshDom.call(this);
       this._finalReadOnly = !!this.get("readOnly");
       this._refreshIcon();
+      this._refreshButton();
+      this._refreshCorner();
+      this._refreshLabel();
       this._refreshInput();
     };
 
