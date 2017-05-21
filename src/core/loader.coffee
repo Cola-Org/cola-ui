@@ -85,17 +85,15 @@ cola.loadSubView = (targetDom, context) ->
 				resourceLoadCallback(success, result, htmlUrl)
 		})
 
-	if jsUrls
-		for jsUrl in jsUrls
-			_loadJs(context, jsUrl, {
-				complete: (success, result) -> resourceLoadCallback(success, result, jsUrl)
-			})
+	jsUrls?.forEach (jsUrl) ->
+		_loadJs(context, jsUrl, {
+			complete: (success, result) -> resourceLoadCallback(success, result, jsUrl)
+		})
 
-	if cssUrls
-		for cssUrl in cssUrls
-			_loadCss(context, cssUrl, {
-				complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
-			})
+	cssUrls?.forEach (cssUrl) ->
+		_loadCss(context, cssUrl, {
+			complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
+		})
 	return
 
 cola.unloadSubView = (targetDom, context) ->

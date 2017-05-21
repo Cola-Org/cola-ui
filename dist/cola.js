@@ -9098,7 +9098,7 @@
   }
 
   cola.loadSubView = function(targetDom, context) {
-    var cssUrl, cssUrls, failed, htmlUrl, jsUrl, jsUrls, l, len1, len2, len3, len4, loadingUrls, o, q, ref, ref1, resourceLoadCallback, u;
+    var cssUrl, cssUrls, failed, htmlUrl, jsUrl, jsUrls, l, len1, len2, loadingUrls, o, ref, ref1, resourceLoadCallback;
     loadingUrls = [];
     failed = false;
     resourceLoadCallback = function(success, result, url) {
@@ -9202,25 +9202,23 @@
         }
       });
     }
-    if (jsUrls) {
-      for (q = 0, len3 = jsUrls.length; q < len3; q++) {
-        jsUrl = jsUrls[q];
-        _loadJs(context, jsUrl, {
+    if (jsUrls != null) {
+      jsUrls.forEach(function(jsUrl) {
+        return _loadJs(context, jsUrl, {
           complete: function(success, result) {
             return resourceLoadCallback(success, result, jsUrl);
           }
         });
-      }
+      });
     }
-    if (cssUrls) {
-      for (u = 0, len4 = cssUrls.length; u < len4; u++) {
-        cssUrl = cssUrls[u];
-        _loadCss(context, cssUrl, {
+    if (cssUrls != null) {
+      cssUrls.forEach(function(cssUrl) {
+        return _loadCss(context, cssUrl, {
           complete: function(success, result) {
             return resourceLoadCallback(success, result, cssUrl);
           }
         });
-      }
+      });
     }
   };
 
