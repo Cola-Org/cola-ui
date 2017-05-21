@@ -80,6 +80,7 @@ cola.loadSubView = (targetDom, context) ->
 	context.suspendedInitFuncs = []
 
 	if htmlUrl
+
 		_loadHtml(targetDom, htmlUrl, context, {
 			complete: (success, result) ->
 				resourceLoadCallback(success, result, htmlUrl)
