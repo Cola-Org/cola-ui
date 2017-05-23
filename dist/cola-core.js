@@ -1494,6 +1494,9 @@
       if (this.constructor.attributes.$has(attr)) {
         attrConfig = this.constructor.attributes[attr.toLowerCase()];
         if (attrConfig) {
+          if (attrConfig.name) {
+            attr = attrConfig.name;
+          }
           if (attrConfig.readOnly) {
             if (ignoreError) {
               return;
@@ -7133,6 +7136,9 @@
       if (path) {
         for (l = 0, len1 = path.length; l < len1; l++) {
           part = path[l];
+          if (part.charCodeAt(part.length - 1) === 35) {
+            part = part.substring(0, part.length - 1);
+          }
           subNode = node[part];
           if (subNode == null) {
             nodePath = !node.__path ? part : node.__path + "." + part;
@@ -7168,6 +7174,9 @@
       node = this.bindingRegistry;
       for (l = 0, len1 = path.length; l < len1; l++) {
         part = path[l];
+        if (part.charCodeAt(part.length - 1) === 35) {
+          part = part.substring(0, part.length - 1);
+        }
         node = node[part];
         if (node == null) {
           break;

@@ -770,6 +770,9 @@ class cola.AbstractDataModel
 		node = @bindingRegistry
 		if path
 			for part in path
+				if part.charCodeAt(part.length - 1) is 35 # `#`
+					part =  part.substring(0, part.length - 1)
+
 				subNode = node[part]
 				if not subNode?
 					nodePath = if not node.__path then part else (node.__path + "." + part)
@@ -794,6 +797,9 @@ class cola.AbstractDataModel
 	_unbind: (path, processor) ->
 		node = @bindingRegistry
 		for part in path
+			if part.charCodeAt(part.length - 1) is 35 # `#`
+				part =  part.substring(0, part.length - 1)
+
 			node = node[part]
 			if not node? then break
 

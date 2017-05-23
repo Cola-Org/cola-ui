@@ -228,6 +228,8 @@ class cola.Element
 		if @constructor.attributes.$has(attr)
 			attrConfig = @constructor.attributes[attr.toLowerCase()]
 			if attrConfig
+				if attrConfig.name
+					attr = attrConfig.name
 				if attrConfig.readOnly
 					if ignoreError then return
 					throw new cola.Exception("Attribute \"#{attr}\" is readonly.")
