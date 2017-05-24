@@ -43,9 +43,13 @@ class cola.AbstractContainer extends cola.Widget
 
 		if value instanceof Array
 			for el in value
+				if typeof el == "string"
+					el= {content:el}
 				result = cola.xRender(el,@_scope)
 				@_addContentElement(result, target) if result
 		else
+			if typeof el == "string"
+				el= {content:el}
 			result =cola.xRender(value,@_scope)
 			@_addContentElement(result, target)  if result
 

@@ -221,7 +221,8 @@ class cola.Tab extends cola.Widget
 		if content.length > 0
 			return content[0]
 	getCurrentTab: (index)->
-		$tabDom = @_$dom.find(">nav>tabs>tab.active")
+		unless @_dom then return
+		$tabDom = @get$Dom().find(">nav>tabs>tab.active")
 		if $tabDom.length > 0
 			return cola.widget($tabDom[0])
 	setCurrentTab: (index)->
@@ -293,7 +294,7 @@ class cola.Tab extends cola.Widget
 		@_doms ?= {}
 		unless @_doms.tabs
 			dom = @_doms.tabs = $.xCreate({
-				tagName: "ul"
+				tagName: "tabs"
 				class: "tabs"
 			})
 			@getTabBarDom().appendChild(dom)
@@ -301,7 +302,7 @@ class cola.Tab extends cola.Widget
 
 	getContentsContainer: ()->
 		$contents = $(@_dom).find(">contents")
-		if $contents
+		if $contents.length
 			return $contents[0]
 
 		dom = $.xCreate({
@@ -490,6 +491,8 @@ class cola.tab.AbstractTabButton extends cola.Widget
 			@_dom.appendChild(closeDom) if closeDom.parentNode isnt @_dom
 		else if @_doms and @_doms.closeDom
 			$(@_doms.closeDom).remove()
+
+		if @_name then @get$Dom().attr("name", @_name)
 		return
 
 	_createCaptionDom: ()->
@@ -527,14 +530,20 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 	@attributes:
 		content:
 			setter: (value)->
-				@_content = cola.xRender(value, @_scope)
+				if typeof value is "string"
+					@_content = cola.xRender({content: value}, @_scope)
+				else
+					@_content = cola.xRender(value, @_scope)
+
 		contentContainer: null
 		parent: null
 
 	@events:
 		beforeClose: null
 		afterClose: null
-
+	constructor: (config)->
+		config.name ?= cola.uniqueId()
+		super(config)
 	close: ()->
 		arg =
 			tab: @

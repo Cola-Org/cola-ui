@@ -13800,12 +13800,22 @@ Template
       if (value instanceof Array) {
         for (n = 0, len1 = value.length; n < len1; n++) {
           el = value[n];
+          if (typeof el === "string") {
+            el = {
+              content: el
+            };
+          }
           result = cola.xRender(el, this._scope);
           if (result) {
             this._addContentElement(result, target);
           }
         }
       } else {
+        if (typeof el === "string") {
+          el = {
+            content: el
+          };
+        }
         result = cola.xRender(value, this._scope);
         if (result) {
           this._addContentElement(result, target);
@@ -18998,7 +19008,10 @@ Template
 
     Tab.prototype.getCurrentTab = function(index) {
       var $tabDom;
-      $tabDom = this._$dom.find(">nav>tabs>tab.active");
+      if (!this._dom) {
+        return;
+      }
+      $tabDom = this.get$Dom().find(">nav>tabs>tab.active");
       if ($tabDom.length > 0) {
         return cola.widget($tabDom[0]);
       }
@@ -19103,7 +19116,7 @@ Template
       }
       if (!this._doms.tabs) {
         dom = this._doms.tabs = $.xCreate({
-          tagName: "ul",
+          tagName: "tabs",
           "class": "tabs"
         });
         this.getTabBarDom().appendChild(dom);
@@ -19114,7 +19127,7 @@ Template
     Tab.prototype.getContentsContainer = function() {
       var $contents, dom;
       $contents = $(this._dom).find(">contents");
-      if ($contents) {
+      if ($contents.length) {
         return $contents[0];
       }
       dom = $.xCreate({
@@ -19398,6 +19411,9 @@ Template
       } else if (this._doms && this._doms.closeDom) {
         $(this._doms.closeDom).remove();
       }
+      if (this._name) {
+        this.get$Dom().attr("name", this._name);
+      }
     };
 
     AbstractTabButton.prototype._createCaptionDom = function() {
@@ -19440,10 +19456,6 @@ Template
   cola.TabButton = (function(superClass) {
     extend(TabButton, superClass);
 
-    function TabButton() {
-      return TabButton.__super__.constructor.apply(this, arguments);
-    }
-
     TabButton.tagName = "tab";
 
     TabButton.CLASS_NAME = "tab-button";
@@ -19453,7 +19465,13 @@ Template
     TabButton.attributes = {
       content: {
         setter: function(value) {
-          return this._content = cola.xRender(value, this._scope);
+          if (typeof value === "string") {
+            return this._content = cola.xRender({
+              content: value
+            }, this._scope);
+          } else {
+            return this._content = cola.xRender(value, this._scope);
+          }
         }
       },
       contentContainer: null,
@@ -19464,6 +19482,13 @@ Template
       beforeClose: null,
       afterClose: null
     };
+
+    function TabButton(config) {
+      if (config.name == null) {
+        config.name = cola.uniqueId();
+      }
+      TabButton.__super__.constructor.call(this, config);
+    }
 
     TabButton.prototype.close = function() {
       var arg, tab;
