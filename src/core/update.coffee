@@ -60,6 +60,9 @@ cola.util.update = (url, data, options = {}) ->
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
 
+	if options.preProcessor
+		data = options.preProcessor(data, options)
+
 	if data or options.alwaysExecute
 		return $.ajax(
 			url: url
@@ -68,23 +71,38 @@ cola.util.update = (url, data, options = {}) ->
 			dataType: "json"
 			data: JSON.stringify(data)
 			options: options
-		).then (responseData) ->
+		).done (responseData) ->
 			if context
-				for entityId, entityDiff of responseData.entityMap
-					state = null
-					entity = context.entityMap[entityId]
-					if entityDiff
-						if entityDiff.data
-							for p, v of entityDiff.data
-								entity._set(p, v, true)
-						state = entityDiff.state
+				if options.postProcessor
+					return options.postProcessor(responseData, options)
 
-					if state
-						entity.setState(state)
-					else if entity.state is cola.Entity.STATE_DELETED
-						entity._page?._removeElement(entity)
-					else
-						entity.setState(cola.Entity.STATE_NONE)
+				if responseData
+					for entityId, entityDiff of responseData.entityMap
+						state = null
+						entity = context.entityMap[entityId]
+						if entityDiff
+							if entityDiff.data
+								for p, v of entityDiff.data
+									entity._set(p, v, true)
+							state = entityDiff.state
+
+						if state
+							if state is cola.Entity.STATE_DELETED or
+								(state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
+									if entity._page
+										entity._page._removeElement(entity)
+									else if entity.parent
+										entity.parent._set(entity._parentProperty, null, true)
+							else
+								entity.setState(state)
+						else
+							entity.setState(cola.Entity.STATE_NONE)
+				else
+					for entityId, entity of context.entityMap
+						if entity.state is cola.Entity.STATE_DELETED
+							entity._page?._removeElement(entity)
+						else
+							entity.setState(cola.Entity.STATE_NONE)
 
 			return responseData.result
 	else

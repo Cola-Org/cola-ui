@@ -8041,6 +8041,9 @@
     if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
       data = cola.util.dirtyTree(data, options);
     }
+    if (options.preProcessor) {
+      data = options.preProcessor(data, options);
+    }
     if (data || options.alwaysExecute) {
       return $.ajax({
         url: url,
@@ -8049,32 +8052,53 @@
         dataType: "json",
         data: JSON.stringify(data),
         options: options
-      }).then(function(responseData) {
-        var entity, entityDiff, entityId, p, ref, ref1, ref2, state, v;
+      }).done(function(responseData) {
+        var entity, entityDiff, entityId, p, ref, ref1, ref2, ref3, state, v;
         if (context) {
-          ref = responseData.entityMap;
-          for (entityId in ref) {
-            entityDiff = ref[entityId];
-            state = null;
-            entity = context.entityMap[entityId];
-            if (entityDiff) {
-              if (entityDiff.data) {
-                ref1 = entityDiff.data;
-                for (p in ref1) {
-                  v = ref1[p];
-                  entity._set(p, v, true);
+          if (options.postProcessor) {
+            return options.postProcessor(responseData, options);
+          }
+          if (responseData) {
+            ref = responseData.entityMap;
+            for (entityId in ref) {
+              entityDiff = ref[entityId];
+              state = null;
+              entity = context.entityMap[entityId];
+              if (entityDiff) {
+                if (entityDiff.data) {
+                  ref1 = entityDiff.data;
+                  for (p in ref1) {
+                    v = ref1[p];
+                    entity._set(p, v, true);
+                  }
                 }
+                state = entityDiff.state;
               }
-              state = entityDiff.state;
+              if (state) {
+                if (state === cola.Entity.STATE_DELETED || (state === cola.Entity.STATE_NONE && entity.state === cola.Entity.STATE_DELETED)) {
+                  if (entity._page) {
+                    entity._page._removeElement(entity);
+                  } else if (entity.parent) {
+                    entity.parent._set(entity._parentProperty, null, true);
+                  }
+                } else {
+                  entity.setState(state);
+                }
+              } else {
+                entity.setState(cola.Entity.STATE_NONE);
+              }
             }
-            if (state) {
-              entity.setState(state);
-            } else if (entity.state === cola.Entity.STATE_DELETED) {
-              if ((ref2 = entity._page) != null) {
-                ref2._removeElement(entity);
+          } else {
+            ref2 = context.entityMap;
+            for (entityId in ref2) {
+              entity = ref2[entityId];
+              if (entity.state === cola.Entity.STATE_DELETED) {
+                if ((ref3 = entity._page) != null) {
+                  ref3._removeElement(entity);
+                }
+              } else {
+                entity.setState(cola.Entity.STATE_NONE);
               }
-            } else {
-              entity.setState(cola.Entity.STATE_NONE);
             }
           }
         }
