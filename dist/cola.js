@@ -13074,7 +13074,7 @@
         for (property in ref) {
           dynaPath = ref[property];
           if (isParentPath(dynaPath, path)) {
-            if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_REMOVE) {
+            if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_REMOVE || type === cola.constants.MESSAGE_INSERT || type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
               this._transferDynaProperty(property);
               this.onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, arg);
             }
