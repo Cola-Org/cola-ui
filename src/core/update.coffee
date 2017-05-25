@@ -2,10 +2,9 @@
 dirty tree
 ###
 
-cola.util.dirtyTree = (data, options, context) ->
+cola.util.dirtyTree = (data, options) ->
 	return undefined unless data
-
-	context ?= {}
+	context = options?.context or {}
 	context.entityMap = {}
 	return _extractDirtyTree(data, context, options or {})
 
@@ -57,9 +56,9 @@ _extractDirtyTree = (data, context, options) ->
 		return _processEntity(data, context, options)
 
 cola.util.update = (url, data, options = {}) ->
+	context = options.context = options.context or {}
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
-		context = {}
-		data = cola.util.dirtyTree(data, options, context)
+		data = cola.util.dirtyTree(data, options)
 
 	if data or options.alwaysExecute
 		return $.ajax(

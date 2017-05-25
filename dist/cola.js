@@ -4609,9 +4609,10 @@
     };
 
     Entity.prototype.toJSON = function(options) {
-      var data, entityId, json, oldData, prop, simpleValue, state;
+      var data, dataType, entityId, json, oldData, prop, ref, ref1, simpleValue, state;
       entityId = (options != null ? options.entityId : void 0) || false;
       state = (options != null ? options.state : void 0) || false;
+      dataType = (options != null ? options.dataType : void 0) || false;
       oldData = (options != null ? options.oldData : void 0) || false;
       simpleValue = (options != null ? options.simpleValue : void 0) || false;
       data = this._data;
@@ -4638,6 +4639,9 @@
       }
       if (state) {
         json.state$ = this.state;
+      }
+      if (dataType && ((ref = this.dataType) != null ? ref._name : void 0)) {
+        json.dataType$ = (ref1 = this.dataType) != null ? ref1._name : void 0;
       }
       if (oldData && this._oldData) {
         json.$oldData = this._oldData;
@@ -7950,13 +7954,12 @@
   dirty tree
    */
 
-  cola.util.dirtyTree = function(data, options, context) {
+  cola.util.dirtyTree = function(data, options) {
+    var context;
     if (!data) {
       return void 0;
     }
-    if (context == null) {
-      context = {};
-    }
+    context = (options != null ? options.context : void 0) || {};
     context.entityMap = {};
     return _extractDirtyTree(data, context, options || {});
   };
@@ -8034,9 +8037,9 @@
     if (options == null) {
       options = {};
     }
+    context = options.context = options.context || {};
     if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
-      context = {};
-      data = cola.util.dirtyTree(data, options, context);
+      data = cola.util.dirtyTree(data, options);
     }
     if (data || options.alwaysExecute) {
       return $.ajax({

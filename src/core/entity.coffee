@@ -947,6 +947,7 @@ class cola.Entity
 	toJSON: (options) ->
 		entityId = options?.entityId or false
 		state = options?.state or false
+		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
 
@@ -966,6 +967,7 @@ class cola.Entity
 
 		if entityId then json.entityId$ = @id
 		if state then json.state$ = @state
+		if dataType and @dataType?._name then json.dataType$ = @dataType?._name
 		if oldData and @_oldData
 			json.$oldData = @_oldData
 		return json
