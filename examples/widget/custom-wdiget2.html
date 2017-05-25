@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../include-all.js"></script>
+
+	<style>
+		menubar li {
+			margin: 0.5em;
+		}
+
+		menubar .label {
+			display: inline-block;
+			margin: 0.25em 0.5em;
+		}
+
+		menubar .path {
+			display: inline-block;
+			margin: 0.25em 0.5em;
+		}
+	</style>
+
+	<script type="text/javascript">
+		cola.defineWidget({
+			tagName: "menubar",
+			attributes: {
+				bind: null
+			},
+			template: {
+				content: [
+					{
+						tagName: "c-button",
+						class: "icon teal",
+						icon: "plus",
+						"c-onclick": "addItem()"
+					},
+					{
+						tagName: "div",
+						content: {
+							tagName: "li",
+							"c-repeat": "item in @bind",
+							content: [
+								{
+									class: "label",
+									"c-bind": "item.label"
+								},
+								{
+									class: "path",
+									"c-bind": "item.path"
+								},
+								{
+									tagName: "c-button",
+									class: "icon mini red",
+									icon: "minus",
+									"c-onclick": "removeItem(item)"
+								}
+							]
+						}
+					}
+				]
+			},
+			addItem: function () {
+				var widgetModel = this.get("widgetModel");
+
+				this._index = (this._index || 0) + 1;
+				widgetModel.get("@bind").insert({
+					label: "NEW " + this._index
+				});
+			},
+			removeItem: function (item) {
+				item.remove();
+			}
+		});
+
+		cola(function (model) {
+			model.set("menus", [
+				{
+					"label": "门诊备药",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "发药",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "入库",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "申领",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "盘点",
+					"path": "http://baidu.com"
+				}
+			]);
+		})
+	</script>
+</head>
+<body style="padding:20px;">
+
+<menubar bind="menus"></menubar>
+
+</body>
+</html>

@@ -83,7 +83,8 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 			for property, dynaPath of @dynaPropertyPathMap
 				if isParentPath(dynaPath, path)
 					if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
-						type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+						type is cola.constants.MESSAGE_REMOVE or type is cola.constants.MESSAGE_INSERT or
+						type is cola.constants.MESSAGE_PROPERTY_CHANGE
 							@_transferDynaProperty(property)
 							@onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, arg)
 				else if isParentPath(path, dynaPath)

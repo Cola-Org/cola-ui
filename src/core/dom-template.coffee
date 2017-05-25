@@ -126,7 +126,7 @@ cola.xRender = (template, model, context) ->
 			cola.currentScope = oldScope
 
 	# 处理xRender的顶层节点中包含c-repeat的情况
-	if dom and not dom.parentNode && dom.getAttribute("c-repeat")
+	if dom and not dom.parentNode and dom.getAttribute("c-repeat")
 		documentFragment = document.createDocumentFragment()
 		documentFragment.appendChild(dom)
 		dom = null
