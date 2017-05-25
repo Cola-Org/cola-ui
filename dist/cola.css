@@ -4778,6 +4778,7 @@ messages {
   min-height: 2.7em;
   padding: 0.25em;
   line-height: 2.2em;
+  white-space: nowrap;
 }
 .ui.tree .tree.node > .expand-button {
   float: left;

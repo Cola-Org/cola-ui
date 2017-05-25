@@ -86,7 +86,7 @@ class cola.CascadeBind extends cola.Element
 		return
 
 	retrieveChildNodes: (parentNode, callback, dataCtx) ->
-		isRoot = !parentNode._parent
+		isRoot = not parentNode._parent
 		hasChild = false
 		funcs = []
 		if @_recursive or isRoot
@@ -105,7 +105,7 @@ class cola.CascadeBind extends cola.Element
 					else
 						hasChild = recursiveItems.length > 0
 
-		if @_child and !isRoot
+		if @_child and not isRoot
 			dataCtx ?= {}
 			items = @_child._expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items == undefined and dataCtx.unloaded
@@ -131,7 +131,7 @@ class cola.CascadeBind extends cola.Element
 									hasChild = recursiveItems.entityCount > 0
 								else
 									hasChild = recursiveItems.length > 0
-						if @_child and !isRoot
+						if @_child and not isRoot
 							hasChild = true
 							childItems = @_child._expression.evaluate(parentNode._scope, "never")
 							originChildItems = childItems.$origin if childItems instanceof Array
@@ -157,7 +157,7 @@ class cola.CascadeBind extends cola.Element
 		if @_recursive
 			dataCtx = {}
 			items = @_expression.evaluate(parentScope, "never", dataCtx)
-			if !dataCtx.unloaded
+			if not dataCtx.unloaded
 				if items
 					if items instanceof cola.EntityList
 						hasChild = items.entityCount > 0
@@ -170,7 +170,7 @@ class cola.CascadeBind extends cola.Element
 		if @_child
 			dataCtx = {}
 			items = @_child._expression.evaluate(parentScope, "never", dataCtx)
-			if !dataCtx.unloaded
+			if not dataCtx.unloaded
 				if items
 					if items instanceof cola.EntityList
 						hasChild = items.entityCount > 0
@@ -207,12 +207,12 @@ class cola.Node extends cola.Element
 						dataCtx = {}
 						items = bind._expression.evaluate(@_scope, "never", dataCtx)
 						if dataCtx.unloaded then return
-						if !items then return false
+						if not items then return false
 					if bind._child
 						dataCtx = {}
 						items = bind._child._expression.evaluate(@_scope, "never", dataCtx)
 						if dataCtx.unloaded then return
-						if !items then return false
+						if not items then return false
 				return
 
 		parent:

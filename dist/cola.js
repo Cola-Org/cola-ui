@@ -77,7 +77,7 @@
       ref = xCreate.templateProcessors;
       for (o = 0, len2 = ref.length; o < len2; o++) {
         templateProcessor = ref[o];
-        element = templateProcessor(template);
+        element = templateProcessor(template, context);
         if (element != null) {
           return element;
         }
@@ -8721,9 +8721,6 @@
         };
       }
       options.data = parameter;
-      if (options.dataType == null) {
-        options.dataType = "json";
-      }
       return options;
     };
 
@@ -10940,7 +10937,7 @@
   cola.xCreate = $.xCreate;
 
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
+    var child, div, documentFragment, dom, l, len1, next, node, oldScope;
     if (!template) {
       return;
     }
@@ -10974,34 +10971,13 @@
           documentFragment = document.createDocumentFragment();
           for (l = 0, len1 = template.length; l < len1; l++) {
             node = template[l];
-            child = null;
-            ref = cola.xRender.nodeProcessors;
-            for (o = 0, len2 = ref.length; o < len2; o++) {
-              processor = ref[o];
-              child = processor(node, context);
-              if (child) {
-                break;
-              }
-            }
-            if (child == null) {
-              child = $.xCreate(node, context);
-            }
+            child = $.xCreate(node, context);
             if (child) {
               documentFragment.appendChild(child);
             }
           }
         } else {
-          ref1 = cola.xRender.nodeProcessors;
-          for (q = 0, len3 = ref1.length; q < len3; q++) {
-            processor = ref1[q];
-            dom = processor(template, context);
-            if (dom) {
-              break;
-            }
-          }
-          if (!dom) {
-            dom = $.xCreate(template, context);
-          }
+          dom = $.xCreate(template, context);
         }
       } finally {
         cola.currentScope = oldScope;
@@ -11024,8 +11000,6 @@
     }
     return dom;
   };
-
-  cola.xRender.nodeProcessors = [];
 
   cola._renderDomTemplate = function(dom, scope, context) {
     if (context == null) {
@@ -11657,16 +11631,21 @@
     return rect;
   };
 
-  $.xCreate.templateProcessors.push(function(template) {
-    var dom;
+  $.xCreate.templateProcessors.push(function(template, context) {
+    var dom, widget;
     if (template instanceof cola.Widget) {
-      dom = template.getDom();
-      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-      return dom;
+      widget = template;
+    } else if (template.$type) {
+      widget = cola.widget(template, context.namespace);
     }
+    if (widget instanceof cola.Widget) {
+      dom = widget.getDom();
+      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+    }
+    return dom;
   });
 
-  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
+  cola.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
     var configKey, widgetConfigs;
     if (!attrValue) {
       return;
@@ -11683,20 +11662,6 @@
       widgetConfigs[configKey] = attrValue;
     }
   };
-
-  cola.xRender.nodeProcessors.push(function(node, context) {
-    var dom, widget;
-    if (node instanceof cola.Widget) {
-      widget = node;
-    } else if (node.$type) {
-      widget = cola.widget(node, context.namespace);
-    }
-    if (widget) {
-      dom = widget.getDom();
-      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-    }
-    return dom;
-  });
 
   cola.Model.prototype.widgetConfig = function(id, config) {
     var k, ref, v;

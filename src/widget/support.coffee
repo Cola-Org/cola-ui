@@ -1,11 +1,15 @@
-$.xCreate.templateProcessors.push (template) ->
+$.xCreate.templateProcessors.push (template, context) ->
     if template instanceof cola.Widget
-        dom = template.getDom()
-        dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-        return dom
-    return
+        widget = template
+    else if template.$type
+        widget = cola.widget(template, context.namespace)
 
-$.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
+    if widget instanceof cola.Widget
+        dom = widget.getDom()
+        dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+    return dom
+
+cola.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
     return unless attrValue
     if typeof attrValue == "string"
         $dom.attr(attrName, attrValue)
@@ -17,16 +21,6 @@ $.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) 
             context.widgetConfigs = widgetConfigs = {}
         widgetConfigs[configKey] = attrValue
     return
-
-cola.xRender.nodeProcessors.push (node, context) ->
-    if node instanceof cola.Widget
-        widget = node
-    else if node.$type
-        widget = cola.widget(node, context.namespace)
-    if widget
-        dom = widget.getDom()
-        dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-    return dom
 
 cola.Model::widgetConfig = (id, config) ->
     if arguments.length == 1
