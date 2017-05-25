@@ -24649,16 +24649,28 @@ Template
                 content: caption
               }, field.editContent
             ];
-          } else if (field.type === "checkbox" || propertyType instanceof cola.BooleanDataType) {
-            fieldContent = [
-              {
-                tagName: "label",
-                content: caption
-              }, {
-                tagName: "c-checkbox",
-                bind: this._bind + "." + field.property
-              }
-            ];
+          } else if (propertyType instanceof cola.BooleanDataType) {
+            if (field.type === "checkbox") {
+              fieldContent = [
+                {
+                  tagName: "label",
+                  content: caption
+                }, {
+                  tagName: "c-checkbox",
+                  bind: this._bind + "." + field.property
+                }
+              ];
+            } else {
+              fieldContent = [
+                {
+                  tagName: "label",
+                  content: caption
+                }, {
+                  tagName: "c-toggle",
+                  bind: this._bind + "." + field.property
+                }
+              ];
+            }
           } else if (field.type === "date" || propertyType instanceof cola.DateDataType) {
             fieldContent = [
               {

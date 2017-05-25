@@ -10,6 +10,10 @@
 			margin: 0.5em;
 		}
 
+		menubar li.current {
+			background: yellow;
+		}
+
 		menubar .label {
 			display: inline-block;
 			margin: 0.25em 0.5em;
@@ -40,6 +44,7 @@
 						content: {
 							tagName: "li",
 							"c-repeat": "item in @bind",
+							"c-onclick": "setCurrentItem(item)",
 							content: [
 								{
 									class: "label",
@@ -63,13 +68,16 @@
 			addItem: function () {
 				var widgetModel = this.get("widgetModel");
 
-				this._index = (this._index || 0) + 1;
+				this.index = (this.index || 0) + 1;
 				widgetModel.get("@bind").insert({
-					label: "NEW " + this._index
+					label: "NEW " + this.index
 				});
 			},
 			removeItem: function (item) {
 				item.remove();
+			},
+			setCurrentItem: function (item) {
+				this.get("widgetModel.@bind").setCurrent(item);
 			}
 		});
 
@@ -102,6 +110,10 @@
 <body style="padding:20px;">
 
 <menubar bind="menus"></menubar>
+
+<p>
+	<input c-bind="menus#.label">
+</p>
 
 </body>
 </html>
