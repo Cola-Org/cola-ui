@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.dataType({
+                name: "Company",
+                properties: {
+                    depts: {
+                        provider: "//open-data.cola-ui.com/service/company/{{@id}}/depts"
+                    }
+                }
+            });
+            model.describe("companies", {
+                dataType: "Company",
+                provider: "//open-data.cola-ui.com/service/company"
+            });
+
+            model.action({
+                getData: function () {
+                    var data = model.get("companies");
+                    debugger
+                    var result = cola.util.filter(data,
+                        {
+//                            url: {
+//                                value: ".org",
+////                                strict: true,
+//                                caseSensitive: false
+//                            },
+                            name: {
+                                value: "公司",
+                                strict: true,
+                                caseSensitive: false
+                            }
+                        }
+                    );
+                    console.log(result)
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+<c-button click="getData" caption="过滤"></c-button>
+<li c-repeat="company in companies">
+    <span c-bind="$index"></span>
+    <span c-bind="company.name" c-href="company.url" c-onclick="setCurrent(company)"></span>
+</li>
+</body>
+</html>
