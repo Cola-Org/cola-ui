@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../include-all.js"></script>
+
+	<style>
+		menubar li {
+			margin: 0.5em;
+		}
+
+		menubar li.current {
+			background: yellow;
+		}
+
+		menubar .label {
+			display: inline-block;
+			margin: 0.25em 0.5em;
+		}
+
+		menubar .path {
+			display: inline-block;
+			margin: 0.25em 0.5em;
+		}
+	</style>
+
+	<script type="text/javascript">
+		cola.defineWidget({
+			tagName: "menubar",
+			attributes: {
+				bind: null
+			},
+			template: {
+				content: [
+					{
+						tagName: "c-button",
+						class: "icon teal",
+						icon: "plus",
+						"c-onclick": "addItem()"
+					},
+					{
+						tagName: "div",
+						content: {
+							tagName: "li",
+							"c-repeat": "item in @bind",
+							"c-onclick": "setCurrentItem(item)",
+							content: [
+								{
+									class: "label",
+									"c-bind": "item.label"
+								},
+								{
+									class: "path",
+									"c-bind": "item.path"
+								},
+								{
+									tagName: "c-button",
+									class: "icon mini red",
+									icon: "minus",
+									"c-onclick": "removeItem(item)"
+								}
+							]
+						}
+					}
+				]
+			},
+			addItem: function () {
+				var widgetModel = this.get("widgetModel");
+
+				this.index = (this.index || 0) + 1;
+				widgetModel.get("@bind").insert({
+					label: "NEW " + this.index
+				});
+			},
+			removeItem: function (item) {
+				item.remove();
+			},
+			setCurrentItem: function (item) {
+				this.get("widgetModel.@bind").setCurrent(item);
+			}
+		});
+
+		cola(function (model) {
+			model.set("menus", [
+				{
+					"label": "门诊备药",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "发药",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "入库",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "申领",
+					"path": "http://baidu.com"
+				},
+				{
+					"label": "盘点",
+					"path": "http://baidu.com"
+				}
+			]);
+		})
+	</script>
+</head>
+<body style="padding:20px;">
+
+<menubar bind="menus"></menubar>
+
+<p>
+	<input c-bind="menus#.label">
+</p>
+
+</body>
+</html>

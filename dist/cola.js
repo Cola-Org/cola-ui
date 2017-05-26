@@ -77,7 +77,7 @@
       ref = xCreate.templateProcessors;
       for (o = 0, len2 = ref.length; o < len2; o++) {
         templateProcessor = ref[o];
-        element = templateProcessor(template);
+        element = templateProcessor(template, context);
         if (element != null) {
           return element;
         }
@@ -4609,9 +4609,10 @@
     };
 
     Entity.prototype.toJSON = function(options) {
-      var data, entityId, json, oldData, prop, simpleValue, state;
+      var data, dataType, entityId, json, oldData, prop, ref, ref1, simpleValue, state;
       entityId = (options != null ? options.entityId : void 0) || false;
       state = (options != null ? options.state : void 0) || false;
+      dataType = (options != null ? options.dataType : void 0) || false;
       oldData = (options != null ? options.oldData : void 0) || false;
       simpleValue = (options != null ? options.simpleValue : void 0) || false;
       data = this._data;
@@ -4638,6 +4639,9 @@
       }
       if (state) {
         json.state$ = this.state;
+      }
+      if (dataType && ((ref = this.dataType) != null ? ref._name : void 0)) {
+        json.dataType$ = (ref1 = this.dataType) != null ? ref1._name : void 0;
       }
       if (oldData && this._oldData) {
         json.$oldData = this._oldData;
@@ -7950,13 +7954,12 @@
   dirty tree
    */
 
-  cola.util.dirtyTree = function(data, options, context) {
+  cola.util.dirtyTree = function(data, options) {
+    var context;
     if (!data) {
       return void 0;
     }
-    if (context == null) {
-      context = {};
-    }
+    context = (options != null ? options.context : void 0) || {};
     context.entityMap = {};
     return _extractDirtyTree(data, context, options || {});
   };
@@ -8034,9 +8037,12 @@
     if (options == null) {
       options = {};
     }
+    context = options.context = options.context || {};
     if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
-      context = {};
-      data = cola.util.dirtyTree(data, options, context);
+      data = cola.util.dirtyTree(data, options);
+    }
+    if (options.preProcessor) {
+      data = options.preProcessor(data, options);
     }
     if (data || options.alwaysExecute) {
       return $.ajax({
@@ -8046,32 +8052,53 @@
         dataType: "json",
         data: JSON.stringify(data),
         options: options
-      }).then(function(responseData) {
-        var entity, entityDiff, entityId, p, ref, ref1, ref2, state, v;
+      }).done(function(responseData) {
+        var entity, entityDiff, entityId, p, ref, ref1, ref2, ref3, state, v;
         if (context) {
-          ref = responseData.entityMap;
-          for (entityId in ref) {
-            entityDiff = ref[entityId];
-            state = null;
-            entity = context.entityMap[entityId];
-            if (entityDiff) {
-              if (entityDiff.data) {
-                ref1 = entityDiff.data;
-                for (p in ref1) {
-                  v = ref1[p];
-                  entity._set(p, v, true);
+          if (options.postProcessor) {
+            return options.postProcessor(responseData, options);
+          }
+          if (responseData) {
+            ref = responseData.entityMap;
+            for (entityId in ref) {
+              entityDiff = ref[entityId];
+              state = null;
+              entity = context.entityMap[entityId];
+              if (entityDiff) {
+                if (entityDiff.data) {
+                  ref1 = entityDiff.data;
+                  for (p in ref1) {
+                    v = ref1[p];
+                    entity._set(p, v, true);
+                  }
                 }
+                state = entityDiff.state;
               }
-              state = entityDiff.state;
+              if (state) {
+                if (state === cola.Entity.STATE_DELETED || (state === cola.Entity.STATE_NONE && entity.state === cola.Entity.STATE_DELETED)) {
+                  if (entity._page) {
+                    entity._page._removeElement(entity);
+                  } else if (entity.parent) {
+                    entity.parent._set(entity._parentProperty, null, true);
+                  }
+                } else {
+                  entity.setState(state);
+                }
+              } else {
+                entity.setState(cola.Entity.STATE_NONE);
+              }
             }
-            if (state) {
-              entity.setState(state);
-            } else if (entity.state === cola.Entity.STATE_DELETED) {
-              if ((ref2 = entity._page) != null) {
-                ref2._removeElement(entity);
+          } else {
+            ref2 = context.entityMap;
+            for (entityId in ref2) {
+              entity = ref2[entityId];
+              if (entity.state === cola.Entity.STATE_DELETED) {
+                if ((ref3 = entity._page) != null) {
+                  ref3._removeElement(entity);
+                }
+              } else {
+                entity.setState(cola.Entity.STATE_NONE);
               }
-            } else {
-              entity.setState(cola.Entity.STATE_NONE);
             }
           }
         }
@@ -8721,9 +8748,6 @@
         };
       }
       options.data = parameter;
-      if (options.dataType == null) {
-        options.dataType = "json";
-      }
       return options;
     };
 
@@ -10940,7 +10964,7 @@
   cola.xCreate = $.xCreate;
 
   cola.xRender = function(template, model, context) {
-    var child, div, documentFragment, dom, l, len1, len2, len3, next, node, o, oldScope, processor, q, ref, ref1;
+    var child, div, documentFragment, dom, l, len1, next, node, oldScope;
     if (!template) {
       return;
     }
@@ -10974,34 +10998,13 @@
           documentFragment = document.createDocumentFragment();
           for (l = 0, len1 = template.length; l < len1; l++) {
             node = template[l];
-            child = null;
-            ref = cola.xRender.nodeProcessors;
-            for (o = 0, len2 = ref.length; o < len2; o++) {
-              processor = ref[o];
-              child = processor(node, context);
-              if (child) {
-                break;
-              }
-            }
-            if (child == null) {
-              child = $.xCreate(node, context);
-            }
+            child = $.xCreate(node, context);
             if (child) {
               documentFragment.appendChild(child);
             }
           }
         } else {
-          ref1 = cola.xRender.nodeProcessors;
-          for (q = 0, len3 = ref1.length; q < len3; q++) {
-            processor = ref1[q];
-            dom = processor(template, context);
-            if (dom) {
-              break;
-            }
-          }
-          if (!dom) {
-            dom = $.xCreate(template, context);
-          }
+          dom = $.xCreate(template, context);
         }
       } finally {
         cola.currentScope = oldScope;
@@ -11024,8 +11027,6 @@
     }
     return dom;
   };
-
-  cola.xRender.nodeProcessors = [];
 
   cola._renderDomTemplate = function(dom, scope, context) {
     if (context == null) {
@@ -11657,16 +11658,21 @@
     return rect;
   };
 
-  $.xCreate.templateProcessors.push(function(template) {
-    var dom;
+  $.xCreate.templateProcessors.push(function(template, context) {
+    var dom, widget;
     if (template instanceof cola.Widget) {
-      dom = template.getDom();
-      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-      return dom;
+      widget = template;
+    } else if (template.$type) {
+      widget = cola.widget(template, context.namespace);
     }
+    if (widget instanceof cola.Widget) {
+      dom = widget.getDom();
+      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+    }
+    return dom;
   });
 
-  $.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
+  cola.xCreate.attributeProcessor["c-widget"] = function($dom, attrName, attrValue, context) {
     var configKey, widgetConfigs;
     if (!attrValue) {
       return;
@@ -11683,20 +11689,6 @@
       widgetConfigs[configKey] = attrValue;
     }
   };
-
-  cola.xRender.nodeProcessors.push(function(node, context) {
-    var dom, widget;
-    if (node instanceof cola.Widget) {
-      widget = node;
-    } else if (node.$type) {
-      widget = cola.widget(node, context.namespace);
-    }
-    if (widget) {
-      dom = widget.getDom();
-      dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
-    }
-    return dom;
-  });
 
   cola.Model.prototype.widgetConfig = function(id, config) {
     var k, ref, v;
@@ -13106,7 +13098,7 @@
         for (property in ref) {
           dynaPath = ref[property];
           if (isParentPath(dynaPath, path)) {
-            if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_REMOVE) {
+            if (type === cola.constants.MESSAGE_REFRESH || type === cola.constants.MESSAGE_CURRENT_CHANGE || type === cola.constants.MESSAGE_REMOVE || type === cola.constants.MESSAGE_INSERT || type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
               this._transferDynaProperty(property);
               this.onDataMessage(["@" + property], cola.constants.MESSAGE_REFRESH, arg);
             }
@@ -24681,16 +24673,28 @@ Template
                 content: caption
               }, field.editContent
             ];
-          } else if (field.type === "checkbox" || propertyType instanceof cola.BooleanDataType) {
-            fieldContent = [
-              {
-                tagName: "label",
-                content: caption
-              }, {
-                tagName: "c-checkbox",
-                bind: this._bind + "." + field.property
-              }
-            ];
+          } else if (propertyType instanceof cola.BooleanDataType) {
+            if (field.type === "checkbox") {
+              fieldContent = [
+                {
+                  tagName: "label",
+                  content: caption
+                }, {
+                  tagName: "c-checkbox",
+                  bind: this._bind + "." + field.property
+                }
+              ];
+            } else {
+              fieldContent = [
+                {
+                  tagName: "label",
+                  content: caption
+                }, {
+                  tagName: "c-toggle",
+                  bind: this._bind + "." + field.property
+                }
+              ];
+            }
           } else if (field.type === "date" || propertyType instanceof cola.DateDataType) {
             fieldContent = [
               {

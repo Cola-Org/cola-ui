@@ -17,7 +17,7 @@ $.xCreate = xCreate = (template, context) ->
 
 	if xCreate.templateProcessors.length
 		for templateProcessor in xCreate.templateProcessors
-			element = templateProcessor(template)
+			element = templateProcessor(template, context)
 			return element if element?
 
 	if typeof template == "string"

@@ -118,22 +118,15 @@ cola.xRender = (template, model, context) ->
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()
 				for node in template
-					child = null
-					for processor in cola.xRender.nodeProcessors
-						child = processor(node, context)
-						if child then break
-					child ?= $.xCreate(node, context)
+					child = $.xCreate(node, context)
 					documentFragment.appendChild(child) if child
 			else
-				for processor in cola.xRender.nodeProcessors
-					dom = processor(template, context)
-					if dom then break
-				unless dom then dom = $.xCreate(template, context)
+				dom = $.xCreate(template, context)
 		finally
 			cola.currentScope = oldScope
 
 	# 处理xRender的顶层节点中包含c-repeat的情况
-	if dom and not dom.parentNode && dom.getAttribute("c-repeat")
+	if dom and not dom.parentNode and dom.getAttribute("c-repeat")
 		documentFragment = document.createDocumentFragment()
 		documentFragment.appendChild(dom)
 		dom = null
@@ -148,8 +141,6 @@ cola.xRender = (template, model, context) ->
 		else
 			dom = documentFragment
 	return dom
-
-cola.xRender.nodeProcessors = []
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
 	if _doRenderDomTemplate(dom, scope, context)

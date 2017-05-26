@@ -53,7 +53,7 @@ class cola.Tree extends cola.AbstractList
 		bind:
 			refreshItems: true
 			setter: (bind) ->
-				if bind and !(bind instanceof cola.TreeNodeBind)
+				if bind and not (bind instanceof cola.TreeNodeBind)
 					bind = new cola.TreeNodeBind(@, bind)
 
 				@_bind = bind
@@ -204,7 +204,6 @@ class cola.Tree extends cola.AbstractList
 #					span.appendChild(templ) for templ in template
 #					template = span
 #					@regTemplate("node-" + itemType, template)
-
 				contentDom = @_cloneTemplate(template)
 				$fly(contentDom).addClass("node-content")
 				nodeDom.appendChild(contentDom)

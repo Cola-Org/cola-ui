@@ -49,11 +49,17 @@ class cola.Form extends cola.Widget
 						{ tagName: "label", content: caption }
 						field.editContent
 					]
-				else if field.type is "checkbox" or propertyType instanceof cola.BooleanDataType
-					fieldContent = [
-						{ tagName: "label", content: caption }
-						{ tagName: "c-checkbox", bind: @_bind + "." + field.property }
-					]
+				else if propertyType instanceof cola.BooleanDataType
+					if field.type is "checkbox"
+						fieldContent = [
+							{ tagName: "label", content: caption }
+							{ tagName: "c-checkbox", bind: @_bind + "." + field.property }
+						]
+					else
+						fieldContent = [
+							{ tagName: "label", content: caption }
+							{ tagName: "c-toggle", bind: @_bind + "." + field.property }
+						]
 				else if field.type is "date" or propertyType instanceof cola.DateDataType
 					fieldContent = [
 						{ tagName: "label", content: caption }

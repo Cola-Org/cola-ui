@@ -947,6 +947,7 @@ class cola.Entity
 	toJSON: (options) ->
 		entityId = options?.entityId or false
 		state = options?.state or false
+		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
 
@@ -966,6 +967,7 @@ class cola.Entity
 
 		if entityId then json.entityId$ = @id
 		if state then json.state$ = @state
+		if dataType and @dataType?._name then json.dataType$ = @dataType?._name
 		if oldData and @_oldData
 			json.$oldData = @_oldData
 		return json
@@ -977,7 +979,7 @@ class LinkedList
 		if !@_first
 			@_first = @_last = element
 		else
-			if not insertMode || insertMode is "end"
+			if not insertMode or insertMode is "end"
 				element._previous = @_last
 				delete element._next
 				@_last._next = element
@@ -988,15 +990,15 @@ class LinkedList
 				refEntity._previous = element
 				element._previous = previous
 				element._next = refEntity
-				if @_first == refEntity then @_first = element
-			else if insertMode == "after"
+				if @_first is refEntity then @_first = element
+			else if insertMode is "after"
 				next = refEntity._next
 				next?._previous = element
 				refEntity._next = element
 				element._previous = refEntity
 				element._next = next
-				if @_last == refEntity then @_last = element
-			else if insertMode == "begin"
+				if @_last is refEntity then @_last = element
+			else if insertMode is "begin"
 				delete element._previous
 				element._next = @_first
 				@_first._previous = element
@@ -1010,8 +1012,8 @@ class LinkedList
 		next = element._next
 		previous?._next = next
 		next?._previous = previous
-		if @_first == element then @_first = next
-		if @_last == element then @_last = previous
+		if @_first is element then @_first = next
+		if @_last is element then @_last = previous
 		@_size++
 		return
 
@@ -1073,14 +1075,14 @@ class Page extends LinkedList
 		entity.parent = entityList
 		delete entity._parentProperty
 
-		if !@dontAutoSetCurrent and !entityList.current?
+		if not @dontAutoSetCurrent and not entityList.current?
 			if entity.state != _Entity.STATE_DELETED
 				entityList.current = entity
 				entityList._setCurrentPage(entity._page)
 
 		entity._setDataModel(entityList._dataModel)
 		entity._onPathChange()
-		@entityCount++ if entity.state != _Entity.STATE_DELETED
+		@entityCount++ if entity.state isnt _Entity.STATE_DELETED
 		return
 
 	_removeElement: (entity) ->
@@ -1089,7 +1091,7 @@ class Page extends LinkedList
 		delete entity.parent
 		entity._setDataModel(null)
 		entity._onPathChange()
-		@entityCount-- if entity.state != _Entity.STATE_DELETED
+		@entityCount-- if entity.state isnt _Entity.STATE_DELETED
 		return
 
 	_clearElements: () ->
@@ -1154,7 +1156,7 @@ class cola.EntityList extends LinkedList
 		@_dataModel = dataModel
 
 		page = @_first
-		if !page then return
+		if not page then return
 
 		next = page._first
 		while page
