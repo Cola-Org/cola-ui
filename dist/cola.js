@@ -24628,6 +24628,17 @@ Template
           return this._bindSetter(bindStr);
         }
       },
+      dataType: {
+        setter: function(dataType) {
+          if (dataType) {
+            if (dataType instanceof cola.DataType) {
+              this._dataType = dataType;
+            } else {
+              this._dataType = this._scope.dataType(dataType);
+            }
+          }
+        }
+      },
       defaultCols: {
         defaultValue: 3
       },
@@ -24646,7 +24657,7 @@ Template
       Form.__super__._initDom.call(this, dom);
       this._$messages = this.get$Dom().find("messages, .ui.message").addClass("messages");
       if (this._fields) {
-        dataType = this.getBindingDataType();
+        dataType = this._dataType || this.getBindingDataType();
         childDoms = [];
         maxCols = this._defaultCols;
         defaultFieldCols = 1;

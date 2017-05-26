@@ -5,6 +5,14 @@ class cola.Form extends cola.Widget
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
+		dataType:
+			setter: (dataType) ->
+				if dataType
+					if dataType instanceof cola.DataType
+						@_dataType = dataType
+					else
+						@_dataType = @_scope.dataType(dataType)
+				return
 
 		defaultCols:
 			defaultValue: 3
@@ -20,7 +28,7 @@ class cola.Form extends cola.Widget
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
 
 		if @_fields
-			dataType = @getBindingDataType()
+			dataType = @_dataType or @getBindingDataType()
 			childDoms = []
 			maxCols = @_defaultCols
 			defaultFieldCols = 1
