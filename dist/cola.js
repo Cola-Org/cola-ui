@@ -1089,6 +1089,9 @@
     if (!callback) {
       return;
     }
+    if (success === void 0) {
+      success = true;
+    }
     if (typeof callback === "function") {
       if (success) {
         return callback.call(this, result);
@@ -3970,8 +3973,9 @@
     };
 
     Entity.prototype._set = function(prop, value, ignoreState) {
-      var actualType, changed, convert, dataType, expectedType, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
+      var actualType, changed, convert, dataType, expectedType, isSpecialProp, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
       oldValue = this._data[prop];
+      isSpecialProp = prop.charCodeAt(0) !== 36;
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       if (value != null) {
         if (value instanceof cola.Provider) {
@@ -4011,7 +4015,7 @@
                 value = dataType.parse(value);
               }
             }
-          } else if (typeof value === "object" && (value != null) && prop.charCodeAt(0) !== 36) {
+          } else if (typeof value === "object" && (value != null) && !isSpecialProp) {
             if (value instanceof Array) {
               convert = true;
               if (value.length > 0) {
@@ -4079,7 +4083,7 @@
             }
           }
         }
-        if (this._disableWriteObservers === 0) {
+        if (this._disableWriteObservers === 0 && !isSpecialProp) {
           if ((oldValue != null) && (oldValue instanceof _Entity || oldValue instanceof _EntityList)) {
             oldValue._setDataModel(null);
             delete oldValue.parent;
@@ -4090,7 +4094,7 @@
           }
         }
         this._data[prop] = value;
-        if ((value != null) && (value instanceof _Entity || value instanceof _EntityList)) {
+        if (!isSpecialProp && (value != null) && (value instanceof _Entity || value instanceof _EntityList)) {
           if (value.parent && value.parent !== this) {
             throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"" + prop + "\"");
           }

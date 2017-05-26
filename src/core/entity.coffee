@@ -158,6 +158,7 @@ _filterCollection = (collection, criteria, option = {}) ->
 	return filtered
 
 _filterEntity = (entity, criteria, option = {}, children) ->
+
 	_searchChildren = (value) ->
 		if option.mode is "entity"
 			if value instanceof cola.EntityList
@@ -183,41 +184,44 @@ _filterEntity = (entity, criteria, option = {}, children) ->
 	if not option.mode
 		option.mode = if entity instanceof cola.Entity then "entity" else "json"
 
-	matches = false
-	if not criteria?
-		matches = true
-	else if typeof criteria is "object"
-		if cola.util.isSimpleValue(entity)
-			if criteria.$
-				matches = _matchValue(v, criteria.$)
-		else
-			for prop, propFilter of criteria
-				data = null
-				if prop == "$"
-					if option.mode is "entity"
-						data = entity._data
-					else
-						data = entity
+	matches = true
+	if criteria?
+		if typeof criteria is "object"
+			if cola.util.isSimpleValue(entity)
+				if criteria.$
+					matches = _matchValue(v, criteria.$)
+			else
+				for prop, propFilter of criteria
+					data = null
+					if prop == "$"
+						matches = false
+						if option.mode is "entity"
+							data = entity._data
+						else
+							data = entity
 
-					for p, v of data
-						if _matchValue(v, propFilter)
-							matches = true
+						m = false
+						for p, v of data
+							if _matchValue(v, propFilter)
+								m = true
+								break
+
+						if not m
+							matches = false
 							break unless children
 
-					if matches and not children then break
+					else if option.mode is "entity"
+						if not _matchValue(entity.get(prop), propFilter)
+							matches = false
+							break unless children
 
-				else if option.mode is "entity"
-					if _matchValue(entity.get(prop), propFilter)
-						matches = true
-						break unless children
+					else
+						if not _matchValue(entity[prop], propFilter)
+							matches = false
+							break unless children
 
-				else
-					if _matchValue(entity[prop], propFilter)
-						matches = true
-						break unless children
-
-	else if typeof criteria is "function"
-		matches = criteria(entity, option)
+		else if typeof criteria is "function"
+			matches = criteria(entity, option)
 
 	if children and (not option.one or not matches)
 		if not data?
@@ -510,6 +514,7 @@ class cola.Entity
 
 	_set: (prop, value, ignoreState) ->
 		oldValue = @_data[prop]
+		isSpecialProp = prop.charCodeAt(0) isnt 36	# `$`
 
 		property = @dataType?.getProperty(prop)
 		if value?
@@ -543,7 +548,7 @@ class cola.Entity
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
-				else if typeof value is "object" and value? and prop.charCodeAt(0) isnt 36    # `$`
+				else if typeof value is "object" and value? and not isSpecialProp
 					if value instanceof Array
 						convert = true
 						if value.length > 0
@@ -588,7 +593,7 @@ class cola.Entity
 							if message is "error"
 								throw new cola.Exception(message.text)
 
-			if @_disableWriteObservers is 0
+			if @_disableWriteObservers is 0 and not isSpecialProp
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
 					oldValue._setDataModel(null)
 					delete oldValue.parent
@@ -598,8 +603,8 @@ class cola.Entity
 
 			@_data[prop] = value
 
-			if value? and (value instanceof _Entity or value instanceof _EntityList)
-				if value.parent and value.parent != @
+			if not isSpecialProp and value? and (value instanceof _Entity or value instanceof _EntityList)
+				if value.parent and value.parent isnt @
 					throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"#{prop}\"")
 
 				value.parent = @
