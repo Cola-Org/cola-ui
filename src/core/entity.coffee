@@ -514,7 +514,7 @@ class cola.Entity
 
 	_set: (prop, value, ignoreState) ->
 		oldValue = @_data[prop]
-		isSpecialProp = prop.charCodeAt(0) isnt 36	# `$`
+		isSpecialProp = prop.charCodeAt(0) is 36	# `$`
 
 		property = @dataType?.getProperty(prop)
 		if value?
@@ -804,7 +804,7 @@ class cola.Entity
 		return
 
 	_setDataModel: (dataModel) ->
-		return if @_dataModel == dataModel
+		return if @_dataModel is dataModel
 
 		if @_dataModel
 			@_dataModel.onEntityDetach(@)

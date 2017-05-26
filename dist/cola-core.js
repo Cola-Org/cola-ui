@@ -3483,7 +3483,7 @@
   };
 
   _filterEntity = function(entity, criteria, option, children) {
-    var _searchChildren, data, matches, p, prop, propFilter, v;
+    var _searchChildren, data, m, matches, p, prop, propFilter, v;
     if (option == null) {
       option = {};
     }
@@ -3515,55 +3515,58 @@
     if (!option.mode) {
       option.mode = entity instanceof cola.Entity ? "entity" : "json";
     }
-    matches = false;
-    if (criteria == null) {
-      matches = true;
-    } else if (typeof criteria === "object") {
-      if (cola.util.isSimpleValue(entity)) {
-        if (criteria.$) {
-          matches = _matchValue(v, criteria.$);
-        }
-      } else {
-        for (prop in criteria) {
-          propFilter = criteria[prop];
-          data = null;
-          if (prop === "$") {
-            if (option.mode === "entity") {
-              data = entity._data;
+    matches = true;
+    if (criteria != null) {
+      if (typeof criteria === "object") {
+        if (cola.util.isSimpleValue(entity)) {
+          if (criteria.$) {
+            matches = _matchValue(v, criteria.$);
+          }
+        } else {
+          for (prop in criteria) {
+            propFilter = criteria[prop];
+            data = null;
+            if (prop === "$") {
+              matches = false;
+              if (option.mode === "entity") {
+                data = entity._data;
+              } else {
+                data = entity;
+              }
+              m = false;
+              for (p in data) {
+                v = data[p];
+                if (_matchValue(v, propFilter)) {
+                  m = true;
+                  break;
+                }
+              }
+              if (!m) {
+                matches = false;
+                if (!children) {
+                  break;
+                }
+              }
+            } else if (option.mode === "entity") {
+              if (!_matchValue(entity.get(prop), propFilter)) {
+                matches = false;
+                if (!children) {
+                  break;
+                }
+              }
             } else {
-              data = entity;
-            }
-            for (p in data) {
-              v = data[p];
-              if (_matchValue(v, propFilter)) {
-                matches = true;
+              if (!_matchValue(entity[prop], propFilter)) {
+                matches = false;
                 if (!children) {
                   break;
                 }
               }
             }
-            if (matches && !children) {
-              break;
-            }
-          } else if (option.mode === "entity") {
-            if (_matchValue(entity.get(prop), propFilter)) {
-              matches = true;
-              if (!children) {
-                break;
-              }
-            }
-          } else {
-            if (_matchValue(entity[prop], propFilter)) {
-              matches = true;
-              if (!children) {
-                break;
-              }
-            }
           }
         }
+      } else if (typeof criteria === "function") {
+        matches = criteria(entity, option);
       }
-    } else if (typeof criteria === "function") {
-      matches = criteria(entity, option);
     }
     if (children && (!option.one || !matches)) {
       if (data == null) {
@@ -3975,7 +3978,7 @@
     Entity.prototype._set = function(prop, value, ignoreState) {
       var actualType, changed, convert, dataType, expectedType, isSpecialProp, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
       oldValue = this._data[prop];
-      isSpecialProp = prop.charCodeAt(0) !== 36;
+      isSpecialProp = prop.charCodeAt(0) === 36;
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       if (value != null) {
         if (value instanceof cola.Provider) {
