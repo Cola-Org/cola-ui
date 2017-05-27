@@ -5,14 +5,7 @@ class cola.Form extends cola.Widget
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
-		dataType:
-			setter: (dataType) ->
-				if dataType
-					if dataType instanceof cola.DataType
-						@_dataType = dataType
-					else
-						@_dataType = @_scope.dataType(dataType)
-				return
+		setter: cola.DataType.dataTypeSetter
 
 		defaultCols:
 			defaultValue: 3
