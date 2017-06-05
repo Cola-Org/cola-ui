@@ -41,7 +41,11 @@ class cola.NotifyTip extends cola.Layer
 		return unless @_dom
 		super()
 		$(@_doms.header).text(@_message || "")
-		$(@_doms.description).text(@_description || "")
+		$description = $fly(@_doms.description)
+		if (typeof @_description is "string" or not @_description)
+			$description.text(@_description || "")
+		else
+			$description.empty().xAppend(@_description)
 		$(@_dom).addClass(@_type)
 
 	_doTransition: (options, callback)->

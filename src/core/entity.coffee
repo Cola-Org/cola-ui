@@ -458,7 +458,7 @@ class cola.Entity
 				value = undefined
 				context?.unloaded = true
 
-# TODO: delete this
+		# TODO: delete this
 		else if typeof value is "function"
 			providerInvoker = {
 				_$providerInvoker: true
@@ -699,6 +699,21 @@ class cola.Entity
 		if parent and parent instanceof _EntityList
 			parent.insert(brother)
 		return brother
+
+	setCurrent: (cascade) ->
+		if cascade
+			node = @
+			parent = node.parent
+			while parent
+				if parent instanceof _EntityList
+					parent.setCurrent(node)
+				node = parent
+				parent = node.parent
+		else
+			parent = @parent
+			if parent and parent instanceof _EntityList
+				parent.setCurrent(@)
+		return @
 
 	setState: (state) ->
 		return @ if @state == state
@@ -1548,6 +1563,12 @@ class cola.EntityList extends LinkedList
 			return entity
 		else
 			return @current
+
+	hasPrevious: () ->
+		return !!@_findPrevious(@current)
+
+	hasNext: () ->
+		return !!@_findNext(@current)
 
 	_reset: () ->
 		@current = null

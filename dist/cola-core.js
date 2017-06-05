@@ -4222,6 +4222,27 @@
       return brother;
     };
 
+    Entity.prototype.setCurrent = function(cascade) {
+      var node, parent;
+      if (cascade) {
+        node = this;
+        parent = node.parent;
+        while (parent) {
+          if (parent instanceof _EntityList) {
+            parent.setCurrent(node);
+          }
+          node = parent;
+          parent = node.parent;
+        }
+      } else {
+        parent = this.parent;
+        if (parent && parent instanceof _EntityList) {
+          parent.setCurrent(this);
+        }
+      }
+      return this;
+    };
+
     Entity.prototype.setState = function(state) {
       var oldState;
       if (this.state === state) {
@@ -5401,6 +5422,14 @@
       } else {
         return this.current;
       }
+    };
+
+    EntityList.prototype.hasPrevious = function() {
+      return !!this._findPrevious(this.current);
+    };
+
+    EntityList.prototype.hasNext = function() {
+      return !!this._findNext(this.current);
     };
 
     EntityList.prototype._reset = function() {

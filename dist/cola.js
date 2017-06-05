@@ -4222,6 +4222,27 @@
       return brother;
     };
 
+    Entity.prototype.setCurrent = function(cascade) {
+      var node, parent;
+      if (cascade) {
+        node = this;
+        parent = node.parent;
+        while (parent) {
+          if (parent instanceof _EntityList) {
+            parent.setCurrent(node);
+          }
+          node = parent;
+          parent = node.parent;
+        }
+      } else {
+        parent = this.parent;
+        if (parent && parent instanceof _EntityList) {
+          parent.setCurrent(this);
+        }
+      }
+      return this;
+    };
+
     Entity.prototype.setState = function(state) {
       var oldState;
       if (this.state === state) {
@@ -5401,6 +5422,14 @@
       } else {
         return this.current;
       }
+    };
+
+    EntityList.prototype.hasPrevious = function() {
+      return !!this._findPrevious(this.current);
+    };
+
+    EntityList.prototype.hasNext = function() {
+      return !!this._findNext(this.current);
     };
 
     EntityList.prototype._reset = function() {
@@ -19875,12 +19904,18 @@ Template
     };
 
     NotifyTip.prototype._doRefreshDom = function() {
+      var $description;
       if (!this._dom) {
         return;
       }
       NotifyTip.__super__._doRefreshDom.call(this);
       $(this._doms.header).text(this._message || "");
-      $(this._doms.description).text(this._description || "");
+      $description = $fly(this._doms.description);
+      if (typeof this._description === "string" || !this._description) {
+        $description.text(this._description || "");
+      } else {
+        $description.empty().xAppend(this._description);
+      }
       return $(this._dom).addClass(this._type);
     };
 
@@ -24628,17 +24663,7 @@ Template
           return this._bindSetter(bindStr);
         }
       },
-      dataType: {
-        setter: function(dataType) {
-          if (dataType) {
-            if (dataType instanceof cola.DataType) {
-              this._dataType = dataType;
-            } else {
-              this._dataType = this._scope.dataType(dataType);
-            }
-          }
-        }
-      },
+      setter: cola.DataType.dataTypeSetter,
       defaultCols: {
         defaultValue: 3
       },
