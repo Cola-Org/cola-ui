@@ -283,21 +283,31 @@ class cola.Tab extends cola.Widget
 	getTabBarDom: ()->
 		@_doms ?= {}
 		unless @_doms.tabBar
-			dom = @_doms.tabBar = $.xCreate({
-				tagName: "nav"
-				class: "tab-bar"
-			})
-			@_dom.appendChild(dom)
-		return @_doms.tabBar
+			$tabs = $(@_dom).find(">nav")
+			if $tabs.length >= 0
+				dom = $tabs[0]
+			else
+				dom = @_doms.tabBar = $.xCreate({
+					tagName: "nav"
+					class: "tab-bar"
+				})
+				@_dom.appendChild(dom)
+		return @_doms.tabBar || dom
 
 	getTabsContainer: ()->
 		@_doms ?= {}
 		unless @_doms.tabs
-			dom = @_doms.tabs = $.xCreate({
-				tagName: "tabs"
-				class: "tabs"
-			})
-			@getTabBarDom().appendChild(dom)
+			barDom = @getTabBarDom()
+			$tabs = $(barDom).find(">tabs")
+			if $tabs.length
+				dom = $tabs[0]
+			unless dom
+				dom = $.xCreate({
+					tagName: "tabs"
+					class: "tabs"
+				})
+				barDom.appendChild(dom)
+			@_doms.tabs = dom
 		return @_doms.tabs
 
 	getContentsContainer: ()->
@@ -319,31 +329,48 @@ class cola.Tab extends cola.Widget
 		dom = tab.getDom()
 		if dom.parentNode isnt container
 			container.appendChild(dom)
+		contentDom = tab.getContentDom()
+
+		if not contentDom?.parentNode
+			d = $.xCreate({
+				tagName: "content",
+				name: tab.get("name")
+			})
+			tab.set("contentContainer", d)
+			@getContentsContainer().appendChild(d)
+			d.appendChild(contentDom)
+
 		return
 
 	addTab: (tab)->
-		@_tabs ?= []
 		if tab.constructor == Object::constructor
 			tab = new cola.TabButton(tab)
-		return @ if @_tabs.indexOf(tab) > -1
-		@_tabs.push(tab)
 		tab.set("parent", @)
+
 		@_tabRender(tab)if @_dom
 		@refreshNavButtons()
 
-		return @
+		return tab
+
 	getTab: (index)->
-		tabs = @_tabs or []
+		tabs = @getTabsContainer()
+		tabButtonDom = null
+
 		if typeof index == "string"
-			for tab in tabs
-				if tab.get("name") is index
-					return tab
+			$tabDom = $(tabs).find(">tab[name='" + index + "']")
+			if $tabDom.length > 0
+				tabButtonDom = $tabDom[0]
+
 		else if typeof index == "number"
-			return tabs[index]
+			$tabDom = $(tabs).find(">tab")
+			if index < $tabDom.length
+				tabButtonDom = $tabDom[index]
 		else if index instanceof cola.TabButton
 			return index
-		return null
+		if tabButtonDom
+			return cola.widget(tabButtonDom)
 
+		return null
 
 	removeTab: (tab)->
 		if tab instanceof cola.TabButton
@@ -351,6 +378,7 @@ class cola.Tab extends cola.Widget
 		else if typeof tab is "string"
 			obj = @getTab(tab)
 		if obj
+
 			if @get("currentTab") is obj
 
 				tabDom = obj._dom;
@@ -363,7 +391,7 @@ class cola.Tab extends cola.Widget
 			unless contentContainer
 				contentContainer = @_getTabContentDom(obj)
 			obj.remove()
-			$(contentContainer).remove() if contentContainer?.parentNode is @_doms.contents
+			$(contentContainer).remove()
 		@refreshNavButtons()
 		return true
 
