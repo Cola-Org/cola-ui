@@ -536,6 +536,9 @@ class cola.ItemsScope extends cola.ExpressionScope
 		return false
 
 	_processMessage: (bindingPath, path, type, arg)->
+		if @onMessage?(path, type, arg) is false
+			return true
+
 		if type is cola.constants.MESSAGE_REFRESH
 			if arg.originType is cola.constants.MESSAGE_CURRENT_CHANGE and
 			  (arg.entityList is @items or @isOriginItems(arg.entityList))
@@ -1221,7 +1224,7 @@ cola.data = (config) ->
 		if typeof dataType is "string"
 			name = dataType
 			dataType = cola.currentScope.dataType(name)
-			if !dataType
+			if not dataType
 				throw new cola.Exception("Unrecognized DataType \"#{name}\".")
 		else if not (dataType instanceof cola.DataType)
 			dataType = new cola.EntityDataType(dataType)

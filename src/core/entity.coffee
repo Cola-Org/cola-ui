@@ -672,9 +672,10 @@ class cola.Entity
 		if propertyDataType and !(propertyDataType instanceof cola.EntityDataType)
 			throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"#{propertyDataType._name}\".")
 
-		if property?._aggregated
-			entityList = @_get(prop, "never")
-			if !entityList?
+		oldValue = @_get(prop, "never")
+		if property?._aggregated or oldValue instanceof cola.EntityList
+			entityList = oldValue
+			if not entityList?
 				entityList = new cola.EntityList(null, propertyDataType)
 
 				provider = property._provider
@@ -1706,13 +1707,13 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 			else
 				data = data[part]
 		else
-			isLast = (i is lastIndex)
-			if not noEntityList
-				if not isLast
-					returnCurrent = true
-				if part.charCodeAt(part.length - 1) is 35 # '#'
-					returnCurrent = true
-					part = part.substring(0, part.length - 1)
+			if part.charCodeAt(part.length - 1) is 35 # '#'
+				returnCurrent = true
+				part = part.substring(0, part.length - 1)
+			else
+				isLast = (i is lastIndex)
+				if not noEntityList and not isLast
+						returnCurrent = true
 
 			if data instanceof _Entity
 				data = data._get(part, loadMode, (result) ->
@@ -1745,13 +1746,13 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 				else
 					data = data[part]
 			else
-				isLast = (i is lastIndex)
-				if not noEntityList
-					if not isLast
+				if part.charCodeAt(part.length - 1) is 35 # '#'
+					returnCurrent = true
+					part = part.substring(0, part.length - 1)
+				else
+					isLast = (i is lastIndex)
+					if not noEntityList and not isLast
 						returnCurrent = true
-					if part.charCodeAt(part.length - 1) is 35 # '#'
-						returnCurrent = true
-						part = part.substring(0, part.length - 1)
 
 				if data instanceof _Entity
 					result = data._get(part, loadMode, null, context)

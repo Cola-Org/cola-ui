@@ -36,7 +36,6 @@
 					<div id="tree">
 						<template name="node-default">
 							<div><span c-bind="node.name"></span>
-
 								<div class="node-operation">
 									<i c-onclick="add()" class="link icon plus"></i>
 									<i c-onclick="remove(node)" class="link icon trash outline"></i>
@@ -68,48 +67,50 @@
 
 <script>
 	cola(function (model) {
-		model.set("node", {
-			nodes: [
-				{
-					name: "中国",
-					nodes: [
-						{
-							name: "上海",
-							nodes: [
-								{
-									name: "浦东新区"
-								},
-								{
-									name: "杨浦"
-								},
-								{
-									name: "松江"
-								}, {
-									name: "徐汇区"
-								}
-							]
-						}, {
-							name: "内蒙古",
-							nodes: [
-								{
-									name: "兴安盟"
-								}, {
-									name: "通辽"
-								}, {
-									name: "锡林郭勒"
-								}, {
-									name: "呼伦贝尔"
-								}, {
-									name: "赤峰"
-								}
-							]
-						}
-					]
-				},{
-					name: "11"
-				}
-			]
-		});
+		setTimeout(function() {
+			model.set("node", {
+				nodes: [
+					{
+						name: "中国",
+						nodes: [
+							{
+								name: "上海",
+								nodes: [
+									{
+										name: "浦东新区"
+									},
+									{
+										name: "杨浦"
+									},
+									{
+										name: "松江"
+									}, {
+										name: "徐汇区"
+									}
+								]
+							}, {
+								name: "内蒙古",
+								nodes: [
+									{
+										name: "兴安盟"
+									}, {
+										name: "通辽"
+									}, {
+										name: "锡林郭勒"
+									}, {
+										name: "呼伦贝尔"
+									}, {
+										name: "赤峰"
+									}
+								]
+							}
+						]
+					},{
+						name: "11"
+					}
+				]
+			});
+		}, 500);
 
 		model.action({
 			remove: function (node) {
@@ -127,7 +128,7 @@
 				});
 				var tree = cola.widget("tree");
 				var currentNode = tree.findNode(currentEditItem);
-				tree.expand(currentNode);
+//				tree.expand(currentNode);
 				tree.set("currentItem", entity);
 				event && event.stopPropagation();
 			},

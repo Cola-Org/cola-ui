@@ -4178,7 +4178,7 @@
     };
 
     Entity.prototype.createChild = function(prop, data) {
-      var entityList, property, propertyDataType, provider, ref;
+      var entityList, oldValue, property, propertyDataType, provider, ref;
       if (data && data instanceof Array) {
         throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".");
       }
@@ -4187,8 +4187,9 @@
       if (propertyDataType && !(propertyDataType instanceof cola.EntityDataType)) {
         throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"" + propertyDataType._name + "\".");
       }
-      if (property != null ? property._aggregated : void 0) {
-        entityList = this._get(prop, "never");
+      oldValue = this._get(prop, "never");
+      if ((property != null ? property._aggregated : void 0) || oldValue instanceof cola.EntityList) {
+        entityList = oldValue;
         if (entityList == null) {
           entityList = new cola.EntityList(null, propertyDataType);
           provider = property._provider;
@@ -5627,14 +5628,13 @@
           data = data[part];
         }
       } else {
-        isLast = i === lastIndex;
-        if (!noEntityList) {
-          if (!isLast) {
+        if (part.charCodeAt(part.length - 1) === 35) {
+          returnCurrent = true;
+          part = part.substring(0, part.length - 1);
+        } else {
+          isLast = i === lastIndex;
+          if (!noEntityList && !isLast) {
             returnCurrent = true;
-          }
-          if (part.charCodeAt(part.length - 1) === 35) {
-            returnCurrent = true;
-            part = part.substring(0, part.length - 1);
           }
         }
         if (data instanceof _Entity) {
@@ -5676,14 +5676,13 @@
             data = data[part];
           }
         } else {
-          isLast = i === lastIndex;
-          if (!noEntityList) {
-            if (!isLast) {
+          if (part.charCodeAt(part.length - 1) === 35) {
+            returnCurrent = true;
+            part = part.substring(0, part.length - 1);
+          } else {
+            isLast = i === lastIndex;
+            if (!noEntityList && !isLast) {
               returnCurrent = true;
-            }
-            if (part.charCodeAt(part.length - 1) === 35) {
-              returnCurrent = true;
-              part = part.substring(0, part.length - 1);
             }
           }
           if (data instanceof _Entity) {

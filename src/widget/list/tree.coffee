@@ -141,6 +141,44 @@ class cola.Tree extends cola.AbstractList
 		@_rootNode._scope = @_scope
 		@_rootNode._itemsScope = itemsScope
 
+		itemsScope.onMessage = (path, type, arg) =>
+			if type is cola.constants.MESSAGE_REFRESH
+				if itemsScope.isParentOfTarget(path)
+					@_refreshItems()
+					return true
+				else
+					node = @findNode(arg.entityList or arg.entity)
+					if node
+						node._scope?.processMessage(null, path, type, arg)
+						if node.get("expanded")
+							@_prepareChildNode(node, true)
+					return true
+
+			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE
+				node = @findNode(arg.entity)
+				if node
+					node._scope?.processMessage(null, path, type, arg)
+					if arg.value and arg.value instanceof cola.EntityList or
+					  arg.oldValue and arg.oldValue instanceof cola.EntityList
+						if node.get("expanded")
+							@_prepareChildNode(node, true)
+					return true
+				else if itemsScope.isParentOfTarget(path)
+					@_refreshItems()
+					return true
+
+			else if type is cola.constants.MESSAGE_INSERT
+				parentNode = @findNode(arg.entityList.parent)
+				if parentNode then @_prepareChildNode(parentNode, parentNode.get("expanded"))
+				return true
+
+			else if type is cola.constants.MESSAGE_REMOVE
+				node = @findNode(arg.entity)
+				if node then @_removeNode(node)
+				return true
+
+			return
+
 		if @_bind
 			@_itemsRetrieved = true
 			@_bind.retrieveChildNodes(@_rootNode)
@@ -185,7 +223,7 @@ class cola.Tree extends cola.AbstractList
 		else
 			itemType = node._itemType
 
-		if !itemType and node._bind._checkedProperty
+		if not itemType and node._bind._checkedProperty
 			itemType = "checkable"
 		return itemType or "default"
 
@@ -223,7 +261,7 @@ class cola.Tree extends cola.AbstractList
 		nodeScope = super(itemDom, node, parentScope)
 		node._scope = nodeScope
 
-		if !itemDom._binded
+		if not itemDom._binded
 			itemDom._binded = true
 			if itemDom._itemType == "checkable"
 				checkboxDom = itemDom.querySelector(".node-checkbox")
@@ -239,7 +277,6 @@ class cola.Tree extends cola.AbstractList
 						bind: dataPath
 						click: () -> tree._onCheckboxClick(node)
 					)
-
 
 		if not collapsed and node.get("expanded")
 			if node._hasExpanded
@@ -263,7 +300,7 @@ class cola.Tree extends cola.AbstractList
 
 	_refreshChildNodes: (parentItemDom, parentNode, hidden) ->
 		nodesWrapper = parentItemDom.lastChild
-		if !$fly(nodesWrapper).hasClass("child-nodes")
+		if not $fly(nodesWrapper).hasClass("child-nodes")
 			nodesWrapper = $.xCreate(
 				tagName: "ul"
 				class: "child-nodes"
@@ -325,7 +362,6 @@ class cola.Tree extends cola.AbstractList
 		@_setCurrentNode(node)
 		return super(evt)
 
-
 	_expandButtonClick: (evt)->
 		buttonDom = evt.currentTarget
 		return unless buttonDom
@@ -336,7 +372,7 @@ class cola.Tree extends cola.AbstractList
 		node = cola.util.userData(itemDom, "item")
 		return unless node
 
-		node.set("expanded", !node.get("expanded"))
+		node.set("expanded", not node.get("expanded"))
 
 		evt.stopPropagation()
 		return false
@@ -346,7 +382,7 @@ class cola.Tree extends cola.AbstractList
 		return unless itemId
 
 		itemDom = @_itemDomMap[itemId]
-		return cola.util.userData(itemDom, "item")
+		return if itemDom then  cola.util.userData(itemDom, "item") else null
 
 	_prepareChildNode: (node, expand, noAnimation, callback) ->
 		itemDom = @_itemDomMap[node._id]
@@ -428,10 +464,7 @@ class cola.Tree extends cola.AbstractList
 			$fly(itemDom).removeClass("current") if itemDom
 		return super()
 
-	_onItemRemove: (arg) ->
-		nodeId = _getEntityId(arg.entity)
-		node = @_nodeMap[nodeId]
-
+	_removeNode: (node) ->
 		if node
 			if @_currentNode.data == node.data
 				children = node._parent._children
@@ -444,20 +477,17 @@ class cola.Tree extends cola.AbstractList
 					newCurrentNode = node._parent
 				@_setCurrentNode(newCurrentNode) if newCurrentNode
 
+			itemDom = @_itemDomMap[node._id]
+			if itemDom then $fly(itemDom).remove()
+
 			node.remove()
-
-		super(arg)
-		return
-
-	_onItemInsert: () ->    # 只对顶层节点插入有效
-		@_refreshItems()
 		return
 
 	_onCurrentItemChange: null
 
 	_resetNodeAutoCheckedState: (node) ->
 		if node._bind._checkedProperty and node._bind._autoCheckChildren
-			if !@_autoChecking then @_autoCheckingParent = true;
+			if not @_autoChecking then @_autoCheckingParent = true;
 			if @_autoCheckingParent
 				@_autoCheckingChildren = false
 				checkedCount = 0
@@ -475,7 +505,7 @@ class cola.Tree extends cola.AbstractList
 				if checkableCount
 					@_autoChecking = true
 					c = undefined
-					if !halfCheck
+					if not halfCheck
 						if checkedCount == 0
 							c = false
 						else if checkedCount == checkableCount
@@ -487,7 +517,7 @@ class cola.Tree extends cola.AbstractList
 
 	_nodeCheckedChanged: (node, processChildren, processParent) ->
 		if processChildren and node._children and node._bind._autoCheckChildren
-			if !@_autoChecking then @_autoCheckingChildren = true
+			if not @_autoChecking then @_autoCheckingChildren = true
 			if @_autoCheckingChildren
 				@_autoCheckingParent = false
 				@_autoChecking = true
