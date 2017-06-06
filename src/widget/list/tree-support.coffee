@@ -6,7 +6,7 @@ class cola.CascadeBind extends cola.Element
 			setter: (expression) ->
 				expression = cola._compileExpression(expression, "repeat")
 				if expression
-					if !expression.repeat
+					if not expression.repeat
 						throw new cola.Exception("\"#{bindStr}\" is not a repeat expression.")
 				else
 					delete @_alias

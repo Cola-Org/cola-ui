@@ -1089,6 +1089,9 @@
     if (!callback) {
       return;
     }
+    if (success === void 0) {
+      success = true;
+    }
     if (typeof callback === "function") {
       if (success) {
         return callback.call(this, result);
@@ -3480,7 +3483,7 @@
   };
 
   _filterEntity = function(entity, criteria, option, children) {
-    var _searchChildren, data, matches, p, prop, propFilter, v;
+    var _searchChildren, data, m, matches, p, prop, propFilter, v;
     if (option == null) {
       option = {};
     }
@@ -3512,55 +3515,58 @@
     if (!option.mode) {
       option.mode = entity instanceof cola.Entity ? "entity" : "json";
     }
-    matches = false;
-    if (criteria == null) {
-      matches = true;
-    } else if (typeof criteria === "object") {
-      if (cola.util.isSimpleValue(entity)) {
-        if (criteria.$) {
-          matches = _matchValue(v, criteria.$);
-        }
-      } else {
-        for (prop in criteria) {
-          propFilter = criteria[prop];
-          data = null;
-          if (prop === "$") {
-            if (option.mode === "entity") {
-              data = entity._data;
+    matches = true;
+    if (criteria != null) {
+      if (typeof criteria === "object") {
+        if (cola.util.isSimpleValue(entity)) {
+          if (criteria.$) {
+            matches = _matchValue(v, criteria.$);
+          }
+        } else {
+          for (prop in criteria) {
+            propFilter = criteria[prop];
+            data = null;
+            if (prop === "$") {
+              matches = false;
+              if (option.mode === "entity") {
+                data = entity._data;
+              } else {
+                data = entity;
+              }
+              m = false;
+              for (p in data) {
+                v = data[p];
+                if (_matchValue(v, propFilter)) {
+                  m = true;
+                  break;
+                }
+              }
+              if (!m) {
+                matches = false;
+                if (!children) {
+                  break;
+                }
+              }
+            } else if (option.mode === "entity") {
+              if (!_matchValue(entity.get(prop), propFilter)) {
+                matches = false;
+                if (!children) {
+                  break;
+                }
+              }
             } else {
-              data = entity;
-            }
-            for (p in data) {
-              v = data[p];
-              if (_matchValue(v, propFilter)) {
-                matches = true;
+              if (!_matchValue(entity[prop], propFilter)) {
+                matches = false;
                 if (!children) {
                   break;
                 }
               }
             }
-            if (matches && !children) {
-              break;
-            }
-          } else if (option.mode === "entity") {
-            if (_matchValue(entity.get(prop), propFilter)) {
-              matches = true;
-              if (!children) {
-                break;
-              }
-            }
-          } else {
-            if (_matchValue(entity[prop], propFilter)) {
-              matches = true;
-              if (!children) {
-                break;
-              }
-            }
           }
         }
+      } else if (typeof criteria === "function") {
+        matches = criteria(entity, option);
       }
-    } else if (typeof criteria === "function") {
-      matches = criteria(entity, option);
     }
     if (children && (!option.one || !matches)) {
       if (data == null) {
@@ -3970,8 +3976,9 @@
     };
 
     Entity.prototype._set = function(prop, value, ignoreState) {
-      var actualType, changed, convert, dataType, expectedType, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
+      var actualType, changed, convert, dataType, expectedType, isSpecialProp, item, l, len1, len2, len3, matched, message, messages, o, oldValue, property, provider, q, ref, ref1, ref2, ref3, ref4, validator;
       oldValue = this._data[prop];
+      isSpecialProp = prop.charCodeAt(0) === 36;
       property = (ref = this.dataType) != null ? ref.getProperty(prop) : void 0;
       if (value != null) {
         if (value instanceof cola.Provider) {
@@ -4011,7 +4018,7 @@
                 value = dataType.parse(value);
               }
             }
-          } else if (typeof value === "object" && (value != null) && prop.charCodeAt(0) !== 36) {
+          } else if (typeof value === "object" && (value != null) && !isSpecialProp) {
             if (value instanceof Array) {
               convert = true;
               if (value.length > 0) {
@@ -4079,7 +4086,7 @@
             }
           }
         }
-        if (this._disableWriteObservers === 0) {
+        if (this._disableWriteObservers === 0 && !isSpecialProp) {
           if ((oldValue != null) && (oldValue instanceof _Entity || oldValue instanceof _EntityList)) {
             oldValue._setDataModel(null);
             delete oldValue.parent;
@@ -4090,7 +4097,7 @@
           }
         }
         this._data[prop] = value;
-        if ((value != null) && (value instanceof _Entity || value instanceof _EntityList)) {
+        if (!isSpecialProp && (value != null) && (value instanceof _Entity || value instanceof _EntityList)) {
           if (value.parent && value.parent !== this) {
             throw new cola.Exception("Entity/EntityList is already belongs to another owner. \"" + prop + "\"");
           }
@@ -4213,6 +4220,27 @@
         parent.insert(brother);
       }
       return brother;
+    };
+
+    Entity.prototype.setCurrent = function(cascade) {
+      var node, parent;
+      if (cascade) {
+        node = this;
+        parent = node.parent;
+        while (parent) {
+          if (parent instanceof _EntityList) {
+            parent.setCurrent(node);
+          }
+          node = parent;
+          parent = node.parent;
+        }
+      } else {
+        parent = this.parent;
+        if (parent && parent instanceof _EntityList) {
+          parent.setCurrent(this);
+        }
+      }
+      return this;
     };
 
     Entity.prototype.setState = function(state) {
@@ -5394,6 +5422,14 @@
       } else {
         return this.current;
       }
+    };
+
+    EntityList.prototype.hasPrevious = function() {
+      return !!this._findPrevious(this.current);
+    };
+
+    EntityList.prototype.hasNext = function() {
+      return !!this._findNext(this.current);
     };
 
     EntityList.prototype._reset = function() {
@@ -19868,12 +19904,18 @@ Template
     };
 
     NotifyTip.prototype._doRefreshDom = function() {
+      var $description;
       if (!this._dom) {
         return;
       }
       NotifyTip.__super__._doRefreshDom.call(this);
       $(this._doms.header).text(this._message || "");
-      $(this._doms.description).text(this._description || "");
+      $description = $fly(this._doms.description);
+      if (typeof this._description === "string" || !this._description) {
+        $description.text(this._description || "");
+      } else {
+        $description.empty().xAppend(this._description);
+      }
       return $(this._dom).addClass(this._type);
     };
 
@@ -24621,6 +24663,7 @@ Template
           return this._bindSetter(bindStr);
         }
       },
+      setter: cola.DataType.dataTypeSetter,
       defaultCols: {
         defaultValue: 3
       },
@@ -24639,7 +24682,7 @@ Template
       Form.__super__._initDom.call(this, dom);
       this._$messages = this.get$Dom().find("messages, .ui.message").addClass("messages");
       if (this._fields) {
-        dataType = this.getBindingDataType();
+        dataType = this._dataType || this.getBindingDataType();
         childDoms = [];
         maxCols = this._defaultCols;
         defaultFieldCols = 1;

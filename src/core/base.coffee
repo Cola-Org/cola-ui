@@ -303,6 +303,9 @@ Methods
 
 cola.callback = (callback, success, result) ->
 	return unless callback
+	if success is undefined
+		success = true
+
 	if typeof callback == "function"
 		if success
 			return callback.call(@, result)

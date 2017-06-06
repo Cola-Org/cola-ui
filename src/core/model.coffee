@@ -106,11 +106,11 @@ class cola.Scope
 		return @
 
 	watch: (path, fn) ->
-		processor = {
+		processor =
 			processMessage: (bindingPath, path, type, arg) ->
 				fn(path, type, arg)
 				return
-		}
+
 		if path instanceof Array
 			for p in path
 				@data.bind(p, processor)

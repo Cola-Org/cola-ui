@@ -21,17 +21,16 @@
             model.action({
                 getData: function () {
                     var data = model.get("companies");
-                    debugger
                     var result = cola.util.filter(data,
                         {
-//                            url: {
-//                                value: ".org",
-////                                strict: true,
-//                                caseSensitive: false
-//                            },
+                            url: {
+                                value: ".org",
+//                                strict: true,
+                                caseSensitive: false
+                            },
                             name: {
                                 value: "公司",
-                                strict: true,
+//                                strict: true,
                                 caseSensitive: false
                             }
                         }
