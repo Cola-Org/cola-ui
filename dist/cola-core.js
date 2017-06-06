@@ -1336,7 +1336,14 @@
           }
         }
       },
-      userdata: null
+      userdata: {
+        getter: function() {
+          return this._userData;
+        },
+        setter: function(data) {
+          this._userData = data;
+        }
+      }
     };
 
     Element.events = {

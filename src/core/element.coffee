@@ -113,7 +113,11 @@ class cola.Element
 					@_tag = null
 				return
 
-		userdata: null
+		userdata:
+			getter: () -> @_userData
+			setter: (data) ->
+				@_userData = data
+				return
 
 	@events:
 		create: null

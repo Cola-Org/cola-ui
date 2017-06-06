@@ -300,7 +300,7 @@ class cola.Tree extends cola.AbstractList
 
 		if not @_currentNode
 			@_setCurrentNode(node)
-		else if node == @_currentNode and @_highlightCurrentItem
+		else if node is @_currentNode and @_highlightCurrentItem
 			$fly(itemDom).addClass("current")
 		return nodeScope
 
