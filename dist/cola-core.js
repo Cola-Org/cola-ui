@@ -6874,6 +6874,9 @@
 
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, i, items, parent, processMoreMessage, ref;
+      if ((typeof this.onMessage === "function" ? this.onMessage(path, type, arg) : void 0) === false) {
+        return true;
+      }
       if (type === cola.constants.MESSAGE_REFRESH) {
         if (arg.originType === cola.constants.MESSAGE_CURRENT_CHANGE && (arg.entityList === this.items || this.isOriginItems(arg.entityList))) {
           if (typeof this.onCurrentItemChange === "function") {

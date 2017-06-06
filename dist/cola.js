@@ -6874,6 +6874,9 @@
 
     ItemsScope.prototype._processMessage = function(bindingPath, path, type, arg) {
       var allProcessed, i, items, parent, processMoreMessage, ref;
+      if ((typeof this.onMessage === "function" ? this.onMessage(path, type, arg) : void 0) === false) {
+        return true;
+      }
       if (type === cola.constants.MESSAGE_REFRESH) {
         if (arg.originType === cola.constants.MESSAGE_CURRENT_CHANGE && (arg.entityList === this.items || this.isOriginItems(arg.entityList))) {
           if (typeof this.onCurrentItemChange === "function") {
@@ -19122,31 +19125,44 @@ Template
     };
 
     Tab.prototype.getTabBarDom = function() {
-      var dom;
+      var $tabs, dom;
       if (this._doms == null) {
         this._doms = {};
       }
       if (!this._doms.tabBar) {
-        dom = this._doms.tabBar = $.xCreate({
-          tagName: "nav",
-          "class": "tab-bar"
-        });
-        this._dom.appendChild(dom);
+        $tabs = $(this._dom).find(">nav");
+        if ($tabs.length >= 0) {
+          dom = $tabs[0];
+        } else {
+          dom = this._doms.tabBar = $.xCreate({
+            tagName: "nav",
+            "class": "tab-bar"
+          });
+          this._dom.appendChild(dom);
+        }
       }
-      return this._doms.tabBar;
+      return this._doms.tabBar || dom;
     };
 
     Tab.prototype.getTabsContainer = function() {
-      var dom;
+      var $tabs, barDom, dom;
       if (this._doms == null) {
         this._doms = {};
       }
       if (!this._doms.tabs) {
-        dom = this._doms.tabs = $.xCreate({
-          tagName: "tabs",
-          "class": "tabs"
-        });
-        this.getTabBarDom().appendChild(dom);
+        barDom = this.getTabBarDom();
+        $tabs = $(barDom).find(">tabs");
+        if ($tabs.length) {
+          dom = $tabs[0];
+        }
+        if (!dom) {
+          dom = $.xCreate({
+            tagName: "tabs",
+            "class": "tabs"
+          });
+          barDom.appendChild(dom);
+        }
+        this._doms.tabs = dom;
       }
       return this._doms.tabs;
     };
@@ -19166,47 +19182,55 @@ Template
     };
 
     Tab.prototype._tabRender = function(tab) {
-      var container, dom;
+      var container, contentDom, d, dom;
       container = this.getTabsContainer();
       dom = tab.getDom();
       if (dom.parentNode !== container) {
         container.appendChild(dom);
       }
+      contentDom = tab.getContentDom();
+      if (!(contentDom != null ? contentDom.parentNode : void 0)) {
+        d = $.xCreate({
+          tagName: "content",
+          name: tab.get("name")
+        });
+        tab.set("contentContainer", d);
+        this.getContentsContainer().appendChild(d);
+        d.appendChild(contentDom);
+      }
     };
 
     Tab.prototype.addTab = function(tab) {
-      if (this._tabs == null) {
-        this._tabs = [];
-      }
       if (tab.constructor === Object.prototype.constructor) {
         tab = new cola.TabButton(tab);
       }
-      if (this._tabs.indexOf(tab) > -1) {
-        return this;
-      }
-      this._tabs.push(tab);
       tab.set("parent", this);
       if (this._dom) {
         this._tabRender(tab);
       }
       this.refreshNavButtons();
-      return this;
+      return tab;
     };
 
     Tab.prototype.getTab = function(index) {
-      var len1, n, tab, tabs;
-      tabs = this._tabs || [];
+      var $tabDom, tabButtonDom, tabs;
+      tabs = this.getTabsContainer();
+      tabButtonDom = null;
       if (typeof index === "string") {
-        for (n = 0, len1 = tabs.length; n < len1; n++) {
-          tab = tabs[n];
-          if (tab.get("name") === index) {
-            return tab;
-          }
+        $tabDom = $(tabs).find(">tab[name='" + index + "']");
+        if ($tabDom.length > 0) {
+          tabButtonDom = $tabDom[0];
         }
       } else if (typeof index === "number") {
-        return tabs[index];
+        $tabDom = $(tabs).find(">tab");
+        if (index < $tabDom.length) {
+          tabButtonDom = $tabDom[index];
+        }
       } else if (index instanceof cola.TabButton) {
         return index;
+      }
+      if (tabButtonDom) {
+        return cola.widget(tabButtonDom);
       }
       return null;
     };
@@ -19234,9 +19258,7 @@ Template
           contentContainer = this._getTabContentDom(obj);
         }
         obj.remove();
-        if ((contentContainer != null ? contentContainer.parentNode : void 0) === this._doms.contents) {
-          $(contentContainer).remove();
-        }
+        $(contentContainer).remove();
       }
       this.refreshNavButtons();
       return true;
@@ -31080,6 +31102,56 @@ Template
       this._rootNode = new cola.TreeNode(this._bind);
       this._rootNode._scope = this._scope;
       this._rootNode._itemsScope = itemsScope;
+      itemsScope.onMessage = (function(_this) {
+        return function(path, type, arg) {
+          var node, parentNode, ref, ref1;
+          if (type === cola.constants.MESSAGE_REFRESH) {
+            if (itemsScope.isParentOfTarget(path)) {
+              _this._refreshItems();
+              return true;
+            } else {
+              node = _this.findNode(arg.entityList || arg.entity);
+              if (node) {
+                if ((ref = node._scope) != null) {
+                  ref.processMessage(null, path, type, arg);
+                }
+                if (node.get("expanded")) {
+                  _this._prepareChildNode(node, true);
+                }
+              }
+              return true;
+            }
+          } else if (type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
+            node = _this.findNode(arg.entity);
+            if (node) {
+              if ((ref1 = node._scope) != null) {
+                ref1.processMessage(null, path, type, arg);
+              }
+              if (arg.value && arg.value instanceof cola.EntityList || arg.oldValue && arg.oldValue instanceof cola.EntityList) {
+                if (node.get("expanded")) {
+                  _this._prepareChildNode(node, true);
+                }
+              }
+              return true;
+            } else if (itemsScope.isParentOfTarget(path)) {
+              _this._refreshItems();
+              return true;
+            }
+          } else if (type === cola.constants.MESSAGE_INSERT) {
+            parentNode = _this.findNode(arg.entityList.parent);
+            if (parentNode) {
+              _this._prepareChildNode(parentNode, parentNode.get("expanded"));
+            }
+            return true;
+          } else if (type === cola.constants.MESSAGE_REMOVE) {
+            node = _this.findNode(arg.entity);
+            if (node) {
+              _this._removeNode(node);
+            }
+            return true;
+          }
+        };
+      })(this);
       if (this._bind) {
         this._itemsRetrieved = true;
         this._bind.retrieveChildNodes(this._rootNode);
@@ -31332,7 +31404,11 @@ Template
         return;
       }
       itemDom = this._itemDomMap[itemId];
-      return cola.util.userData(itemDom, "item");
+      if (itemDom) {
+        return cola.util.userData(itemDom, "item");
+      } else {
+        return null;
+      }
     };
 
     Tree.prototype._prepareChildNode = function(node, expand, noAnimation, callback) {
@@ -31464,10 +31540,8 @@ Template
       return Tree.__super__._refreshItems.call(this);
     };
 
-    Tree.prototype._onItemRemove = function(arg) {
-      var children, i, newCurrentNode, node, nodeId;
-      nodeId = _getEntityId(arg.entity);
-      node = this._nodeMap[nodeId];
+    Tree.prototype._removeNode = function(node) {
+      var children, i, itemDom, newCurrentNode;
       if (node) {
         if (this._currentNode.data === node.data) {
           children = node._parent._children;
@@ -31483,13 +31557,12 @@ Template
             this._setCurrentNode(newCurrentNode);
           }
         }
+        itemDom = this._itemDomMap[node._id];
+        if (itemDom) {
+          $fly(itemDom).remove();
+        }
         node.remove();
       }
-      Tree.__super__._onItemRemove.call(this, arg);
-    };
-
-    Tree.prototype._onItemInsert = function() {
-      this._refreshItems();
     };
 
     Tree.prototype._onCurrentItemChange = null;
