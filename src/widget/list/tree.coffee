@@ -64,6 +64,7 @@ class cola.Tree extends cola.AbstractList
 
 		currentNode:
 			readOnly: true
+
 		currentItemAlias:
 			setter: (alias) ->
 				if @_currentItemAlias
@@ -189,6 +190,11 @@ class cola.Tree extends cola.AbstractList
 		return unless currentItemDom
 		node = cola.util.userData(currentItemDom, "item")
 		if node then @_setCurrentNode(node)
+
+	setCurrentItem: (item) ->
+		node = @findNode(item)
+		@_setCurrentNode(node)
+		return node
 
 	_setCurrentNode: (node) ->
 		return if @_currentNode == node

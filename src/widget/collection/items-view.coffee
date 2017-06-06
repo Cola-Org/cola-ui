@@ -357,11 +357,11 @@ class cola.ItemsView extends cola.Widget
 				cola.xRender(itemDom, itemScope, @_templateContext)
 			else
 				cola.currentScope = itemScope
-				if itemScope.data.getTargetData() != item
+				if itemScope.data.getTargetData() isnt item
 					if itemDom._itemId and @_itemDomMap[itemDom._itemId] is itemDom
 						delete @_itemDomMap[itemDom._itemId]
 
-					if itemScope.data.alias != alias
+					if itemScope.data.alias isnt alias
 						throw new cola.Exception("Repeat alias mismatch. Expect \"#{itemScope.alias}\" but \"#{alias}\".")
 
 					cola.util.userData(itemDom, "item", originItem)

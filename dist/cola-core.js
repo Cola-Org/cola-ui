@@ -1336,7 +1336,7 @@
           }
         }
       },
-      userData: null
+      userdata: null
     };
 
     Element.events = {

@@ -5,7 +5,8 @@ class cola.Form extends cola.Widget
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
-		setter: cola.DataType.dataTypeSetter
+		dataType:
+			setter: cola.DataType.dataTypeSetter
 
 		defaultCols:
 			defaultValue: 3
@@ -46,6 +47,9 @@ class cola.Form extends cola.Widget
 					childDoms.push(fieldsDom)
 
 				if field.editContent
+					if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
+						field.editContent.readOnly = field.readOnly
+
 					fieldContent = [
 						{ tagName: "label", content: caption }
 						field.editContent
@@ -54,27 +58,27 @@ class cola.Form extends cola.Widget
 					if field.type is "checkbox"
 						fieldContent = [
 							{ tagName: "label", content: caption }
-							{ tagName: "c-checkbox", bind: @_bind + "." + field.property }
+							{ tagName: "c-checkbox", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 						]
 					else
 						fieldContent = [
 							{ tagName: "label", content: caption }
-							{ tagName: "c-toggle", bind: @_bind + "." + field.property }
+							{ tagName: "c-toggle", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 						]
 				else if field.type is "date" or propertyType instanceof cola.DateDataType
 					fieldContent = [
 						{ tagName: "label", content: caption }
-						{ tagName: "c-datepicker", bind: @_bind + "." + field.property }
+						{ tagName: "c-datepicker", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 					]
 				else if field.type is "textarea"
 					fieldContent = [
 						{ tagName: "label", content: caption }
-						{ tagName: "c-textarea", bind: @_bind  + "." + field.property, height: field.height or "4em" }
+						{ tagName: "c-textarea", bind: @_bind  + "." + field.property, readOnly: field.readOnly, height: field.height or "4em" }
 					]
 				else
 					fieldContent = [
 						{ tagName: "label", content: caption }
-						{ tagName: "c-input", bind: @_bind + "." + field.property }
+						{ tagName: "c-input", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 					]
 
 				usedCols += field.cols or defaultFieldCols
@@ -176,6 +180,8 @@ class cola.Field extends cola.Widget
 				return
 
 		property: null
+		readOnly: null
+
 		message:
 			readOnly: true
 			getter: () ->

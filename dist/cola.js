@@ -1336,7 +1336,7 @@
           }
         }
       },
-      userData: null
+      userdata: null
     };
 
     Element.events = {
@@ -20312,20 +20312,29 @@ Template
     };
 
     AbstractEditor.prototype._initDom = function(dom) {
-      var bind, fieldDom;
+      var bind, field, fieldDom;
       if (this._state) {
         cola.util.addClass(dom, this._state);
       }
       if (!this._bind) {
         fieldDom = dom.parentNode;
         if ((fieldDom != null ? fieldDom.nodeName : void 0) === "FIELD") {
-          this._field = cola.widget(fieldDom);
-          if (this._field && (this._field._bind || this._field._property)) {
-            bind = this._field._bind;
-            if (!bind && this._field._form) {
-              bind = this._field._form._bind + "." + this._field._property;
+          field = this._field = cola.widget(fieldDom);
+          if (field) {
+            if (field._bind || field._property) {
+              bind = field._bind;
+              if (!bind && field._form) {
+                bind = field._form._bind + "." + field._property;
+              }
+              this.set("bind", bind);
             }
-            this.set("bind", bind);
+            field.on("attributeChange", (function(_this) {
+              return function(self, arg) {
+                if (arg.attribute === "readOnly") {
+                  _this.set("readOnly", feild._readOnly);
+                }
+              };
+            })(this));
           }
         }
       }
@@ -24684,7 +24693,9 @@ Template
           return this._bindSetter(bindStr);
         }
       },
-      setter: cola.DataType.dataTypeSetter,
+      dataType: {
+        setter: cola.DataType.dataTypeSetter
+      },
       defaultCols: {
         defaultValue: 3
       },
@@ -24731,6 +24742,9 @@ Template
             childDoms.push(fieldsDom);
           }
           if (field.editContent) {
+            if (typeof field.editContent === "object" && !field.editContent.readOnly === void 0 && field.readOnly !== void 0) {
+              field.editContent.readOnly = field.readOnly;
+            }
             fieldContent = [
               {
                 tagName: "label",
@@ -24745,7 +24759,8 @@ Template
                   content: caption
                 }, {
                   tagName: "c-checkbox",
-                  bind: this._bind + "." + field.property
+                  bind: this._bind + "." + field.property,
+                  readOnly: field.readOnly
                 }
               ];
             } else {
@@ -24755,7 +24770,8 @@ Template
                   content: caption
                 }, {
                   tagName: "c-toggle",
-                  bind: this._bind + "." + field.property
+                  bind: this._bind + "." + field.property,
+                  readOnly: field.readOnly
                 }
               ];
             }
@@ -24766,7 +24782,8 @@ Template
                 content: caption
               }, {
                 tagName: "c-datepicker",
-                bind: this._bind + "." + field.property
+                bind: this._bind + "." + field.property,
+                readOnly: field.readOnly
               }
             ];
           } else if (field.type === "textarea") {
@@ -24777,6 +24794,7 @@ Template
               }, {
                 tagName: "c-textarea",
                 bind: this._bind + "." + field.property,
+                readOnly: field.readOnly,
                 height: field.height || "4em"
               }
             ];
@@ -24787,7 +24805,8 @@ Template
                 content: caption
               }, {
                 tagName: "c-input",
-                bind: this._bind + "." + field.property
+                bind: this._bind + "." + field.property,
+                readOnly: field.readOnly
               }
             ];
           }
@@ -24918,6 +24937,7 @@ Template
         }
       },
       property: null,
+      readOnly: null,
       message: {
         readOnly: true,
         getter: function() {
@@ -31172,6 +31192,13 @@ Template
       if (node) {
         return this._setCurrentNode(node);
       }
+    };
+
+    Tree.prototype.setCurrentItem = function(item) {
+      var node;
+      node = this.findNode(item);
+      this._setCurrentNode(node);
+      return node;
     };
 
     Tree.prototype._setCurrentNode = function(node) {

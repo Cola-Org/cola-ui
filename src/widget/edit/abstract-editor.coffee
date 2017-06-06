@@ -38,12 +38,19 @@ class cola.AbstractEditor extends cola.Widget
 		if not @_bind
 			fieldDom = dom.parentNode
 			if fieldDom?.nodeName is "FIELD"
-				@_field = cola.widget(fieldDom)
-				if @_field and (@_field._bind or @_field._property)
-					bind = @_field._bind
-					if not bind and @_field._form
-						bind = @_field._form._bind + "." + @_field._property
-					@set("bind", bind)
+				field = @_field = cola.widget(fieldDom)
+				if field
+					if field._bind or field._property
+						bind = field._bind
+						if not bind and field._form
+							bind = field._form._bind + "." + field._property
+						@set("bind", bind)
+
+					field.on "attributeChange", (self, arg) =>
+						if arg.attribute is "readOnly"
+							@set("readOnly", feild._readOnly)
+						return
+
 		return
 
 	_setValue: (value) ->
