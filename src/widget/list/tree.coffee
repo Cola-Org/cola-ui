@@ -284,6 +284,11 @@ class cola.Tree extends cola.AbstractList
 						click: () -> tree._onCheckboxClick(node)
 					)
 
+		if not @_currentNode
+			@_setCurrentNode(node)
+		else if node is @_currentNode and @_highlightCurrentItem
+			$fly(itemDom).addClass("current")
+
 		if not collapsed and node.get("expanded")
 			if node._hasExpanded
 				@_refreshChildNodes(itemDom, node)
@@ -298,10 +303,6 @@ class cola.Tree extends cola.AbstractList
 			nodeDom = itemDom.firstChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
 
-		if not @_currentNode
-			@_setCurrentNode(node)
-		else if node is @_currentNode and @_highlightCurrentItem
-			$fly(itemDom).addClass("current")
 		return nodeScope
 
 	_refreshChildNodes: (parentItemDom, parentNode, hidden) ->

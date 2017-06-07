@@ -669,7 +669,7 @@ class cola.Entity
 
 		property = @dataType?.getProperty(prop)
 		propertyDataType = property?._dataType
-		if propertyDataType and !(propertyDataType instanceof cola.EntityDataType)
+		if propertyDataType and not (propertyDataType instanceof cola.EntityDataType)
 			throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"#{propertyDataType._name}\".")
 
 		oldValue = @_get(prop, "never")
@@ -717,13 +717,13 @@ class cola.Entity
 		return @
 
 	setState: (state) ->
-		return @ if @state == state
+		return @ if @state is state
 
 		if state is _Entity.STATE_DELETED and @dataType
 			if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
 				return @
 
-		if @state == _Entity.STATE_NONE and state == _Entity.STATE_MODIFIED
+		if @state is _Entity.STATE_NONE and state is _Entity.STATE_MODIFIED
 			@_storeOldData()
 
 		oldState = @state
@@ -762,7 +762,7 @@ class cola.Entity
 			@disableObservers()
 			data = @_data
 			for prop, value of data
-				if value != undefined
+				if value isnt undefined
 					delete data[prop]
 			@resetState()
 			@enableObservers()
@@ -782,13 +782,13 @@ class cola.Entity
 				parts = path.split(".")
 				for part in parts
 					property = dataType.getProperty?(part)
-					if !property? then break
+					if not property? then break
 					dataType = property.get("dataType")
-					if !dataType? then break
+					if not dataType? then break
 		else
 			dataType = @dataType
 
-		if !dataType?
+		if not dataType?
 			data = @get(path)
 			dataType = data?.dataType
 		return dataType
@@ -803,7 +803,7 @@ class cola.Entity
 
 		@_set(property, undefined)
 
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+		if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 			callback = loadMode
 			loadMode = "async"
 

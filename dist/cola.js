@@ -31307,6 +31307,11 @@ Template
           }
         }
       }
+      if (!this._currentNode) {
+        this._setCurrentNode(node);
+      } else if (node === this._currentNode && this._highlightCurrentItem) {
+        $fly(itemDom).addClass("current");
+      }
       if (!collapsed && node.get("expanded")) {
         if (node._hasExpanded) {
           this._refreshChildNodes(itemDom, node);
@@ -31323,11 +31328,6 @@ Template
         }
         nodeDom = itemDom.firstChild;
         $fly(nodeDom).toggleClass("leaf", node.get("hasChild") === false);
-      }
-      if (!this._currentNode) {
-        this._setCurrentNode(node);
-      } else if (node === this._currentNode && this._highlightCurrentItem) {
-        $fly(itemDom).addClass("current");
       }
       return nodeScope;
     };
