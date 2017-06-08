@@ -527,12 +527,13 @@ class cola.Entity
 
 				if dataType
 					if value?
-						if dataType instanceof cola.StringDataType and typeof value != "string" or dataType instanceof cola.BooleanDataType and typeof value != "boolean" or dataType instanceof cola.NumberDataType and typeof value != "number" or dataType instanceof cola.DateDataType and !(value instanceof Date)
+						if dataType instanceof cola.StringDataType and typeof value isnt "string" or dataType instanceof cola.BooleanDataType and
+						  typeof value isnt "boolean" or dataType instanceof cola.NumberDataType and typeof value isnt "number" or dataType instanceof cola.DateDataType and not (value instanceof Date)
 							value = dataType.parse(value)
 						else if dataType instanceof cola.EntityDataType
 							matched = true
 							if value instanceof _Entity
-								matched = value.dataType == dataType and !property._aggregated
+								matched = value.dataType == dataType and not property._aggregated
 							else if value instanceof _EntityList
 								matched = value.dataType == dataType and property._aggregated
 							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
