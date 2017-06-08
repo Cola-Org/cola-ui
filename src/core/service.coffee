@@ -40,12 +40,12 @@ class cola.AjaxServiceInvoker
 		if @_beforeSend then @_beforeSend(options)
 
 		$.ajax(options).done( (result) =>
-			result = ajaxService.translateResult(result, options)
-
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
 				result = arg.result
+
+			result = ajaxService.translateResult(result, options)
 
 			@invokeCallback(true, result)
 

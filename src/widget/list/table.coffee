@@ -103,7 +103,7 @@ class cola.Table extends cola.AbstractTable
 		nextCol = colgroup.firstChild
 		for colInfo, i in @_columnsInfo.dataColumns
 			col = nextCol
-			if !col
+			if not col
 				col = document.createElement("col")
 				colgroup.appendChild(col)
 			else

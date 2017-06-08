@@ -16,11 +16,12 @@ class cola.CascadeBind extends cola.Element
 		recursive: null
 		child:
 			setter: (child) ->
-				if child and !(child instanceof cola.CascadeBind)
+				if child and not (child instanceof cola.CascadeBind)
 					child = new @constructor(@_widget, child)
 				@_child = child
 				return
 
+		hasChild: null
 		hasChildProperty: null
 
 	constructor: (widget, config) ->
@@ -127,14 +128,19 @@ class cola.CascadeBind extends cola.Element
 							recursiveItems = @_expression.evaluate(parentNode._scope, "never")
 							originRecursiveItems = recursiveItems.$origin if recursiveItems instanceof Array
 							if recursiveItems
-								if recursiveItems instanceof cola.EntityList
-									hasChild = recursiveItems.entityCount > 0
-								else
-									hasChild = recursiveItems.length > 0
+								if recursiveItems instanceof cola.EntityList and recursiveItems.entityCount > 0
+									hasChild = true
+								else if recursiveItems.length > 0
+									hasChild = true
+
 						if @_child and not isRoot
-							hasChild = true
 							childItems = @_child._expression.evaluate(parentNode._scope, "never")
 							originChildItems = childItems.$origin if childItems instanceof Array
+							if recursiveItems
+								if childItems instanceof cola.EntityList and childItems.entityCount > 0
+									hasChild = true
+								else if childItems.length > 0
+									hasChild = true
 
 						@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
 							originChildItems)
@@ -195,6 +201,8 @@ class cola.Node extends cola.Element
 				return @_hasChild if @_hasChild?
 
 				bind = @_bind
+				return bind._hasChild if bind._hasChild?
+
 				prop = bind._hasChildProperty
 				if prop and @_data
 					if @_data instanceof cola.Entity
@@ -208,11 +216,19 @@ class cola.Node extends cola.Element
 						items = bind._expression.evaluate(@_scope, "never", dataCtx)
 						if dataCtx.unloaded then return
 						if not items then return false
+						if items instanceof cola.EntityList
+							return items.entityCount > 0
+						else
+							return items.length > 0
 					if bind._child
 						dataCtx = {}
 						items = bind._child._expression.evaluate(@_scope, "never", dataCtx)
 						if dataCtx.unloaded then return
 						if not items then return false
+						if items instanceof cola.EntityList
+							return items.entityCount > 0
+						else
+							return items.length > 0
 				return
 
 		parent:

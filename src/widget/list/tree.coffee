@@ -3,6 +3,7 @@ class cola.TreeNode extends cola.Node
 		expanded:
 			getter: () ->
 				if @_expanded? then return @_expanded
+				if @_bind._expanded? then return @_bind._expanded
 
 				prop = @_bind._expandedProperty
 				if prop and @_data
@@ -40,6 +41,7 @@ class cola.TreeNodeBind extends cola.CascadeBind
 
 	@attributes:
 		textProperty: null
+		expanded: null
 		expandedProperty: null
 		checkedProperty: null
 		autoCheckChildren:
@@ -150,7 +152,7 @@ class cola.Tree extends cola.AbstractList
 				else
 					node = @findNode(arg.entityList or arg.entity)
 					if node
-						node._scope?.processMessage(null, path, type, arg)
+						@refreshNode(node)
 						if node.get("expanded")
 							@_prepareChildNode(node, true)
 					return true
@@ -158,7 +160,7 @@ class cola.Tree extends cola.AbstractList
 			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE
 				node = @findNode(arg.entity)
 				if node
-					node._scope?.processMessage(null, path, type, arg)
+					@refreshNode(node)
 					if arg.value and arg.value instanceof cola.EntityList or
 					  arg.oldValue and arg.oldValue instanceof cola.EntityList
 						if node.get("expanded")
@@ -170,12 +172,17 @@ class cola.Tree extends cola.AbstractList
 
 			else if type is cola.constants.MESSAGE_INSERT
 				parentNode = @findNode(arg.entityList.parent)
-				if parentNode then @_prepareChildNode(parentNode, parentNode.get("expanded"))
+				if parentNode
+					@refreshNode(parentNode)
+					@_prepareChildNode(parentNode, parentNode.get("expanded"))
 				return true
 
 			else if type is cola.constants.MESSAGE_REMOVE
 				node = @findNode(arg.entity)
 				if node then @_removeNode(node)
+
+				parentNode = @findNode(arg.entityList.parent)
+				if parentNode then @refreshNode(parentNode)
 				return true
 
 			return
@@ -258,6 +265,13 @@ class cola.Tree extends cola.AbstractList
 		if textProperty
 			return (node._alias) + "." + textProperty
 
+	refreshNode: (node) ->
+		nodeId = _getEntityId(node)
+		nodeDom = @_itemDomMap[nodeId]
+		if nodeDom and node._parent
+			@_refreshItemDom(nodeDom, node, node._parent._itemsScope)
+		return
+
 	_refreshItemDom: (itemDom, node, parentScope) ->
 		nodeScope = cola.util.userData(itemDom, "scope")
 		# TODO 尝试修复新增节点数据时父节点自动收缩的bug
@@ -289,7 +303,7 @@ class cola.Tree extends cola.AbstractList
 		else if node is @_currentNode and @_highlightCurrentItem
 			$fly(itemDom).addClass("current")
 
-		if not collapsed and node.get("expanded")
+		if node.get("hasChild") isnt false and not collapsed and node.get("expanded")
 			if node._hasExpanded
 				@_refreshChildNodes(itemDom, node)
 			else
@@ -412,9 +426,12 @@ class cola.Tree extends cola.AbstractList
 		$fly(nodeDom).addClass("expanding") if expand
 		node._bind.retrieveChildNodes(node, () ->
 			$fly(nodeDom).removeClass("expanding") if expand
-			if node._children
+			if node._children?.length > 0
 				tree._refreshChildNodes(itemDom, node, true)
-				$fly(nodeDom).addClass("expanded") if expand
+
+				$nodeDom = $fly(nodeDom)
+				$nodeDom.removeClass("leaf")
+				$nodeDom.addClass("expanded") if expand
 
 				$nodesWrapper = $fly(itemDom.lastChild)
 				if expand and $nodesWrapper.hasClass("child-nodes")
@@ -424,6 +441,7 @@ class cola.Tree extends cola.AbstractList
 						$nodesWrapper.slideDown(150)
 			else
 				$fly(nodeDom).addClass("leaf")
+
 			node._expanded = true if expand
 			node._hasExpanded = true
 

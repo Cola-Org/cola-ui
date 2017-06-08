@@ -833,7 +833,8 @@ class cola.Entity
 		if @_mayHasSubEntity
 			data = @_data
 			for p, value of data
-				if value and (value instanceof _Entity or value instanceof _EntityList)
+				if value and (value instanceof _Entity or value instanceof _EntityList) and
+				  p.charCodeAt(0) isnt 36	# `$`
 					value._setDataModel(dataModel)
 		return
 
@@ -1097,7 +1098,7 @@ class Page extends LinkedList
 		delete entity._parentProperty
 
 		if not @dontAutoSetCurrent and not entityList.current?
-			if entity.state != _Entity.STATE_DELETED
+			if entity.state isnt _Entity.STATE_DELETED
 				entityList.current = entity
 				entityList._setCurrentPage(entity._page)
 

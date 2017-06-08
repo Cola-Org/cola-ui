@@ -4408,7 +4408,7 @@
         data = this._data;
         for (p in data) {
           value = data[p];
-          if (value && (value instanceof _Entity || value instanceof _EntityList)) {
+          if (value && (value instanceof _Entity || value instanceof _EntityList) && p.charCodeAt(0) !== 36) {
             value._setDataModel(dataModel);
           }
         }
@@ -8419,7 +8419,6 @@
       $.ajax(options).done((function(_this) {
         return function(result) {
           var arg;
-          result = ajaxService.translateResult(result, options);
           if (ajaxService.getListeners("response")) {
             arg = {
               options: options,
@@ -8428,6 +8427,7 @@
             ajaxService.fire("response", ajaxService, arg);
             result = arg.result;
           }
+          result = ajaxService.translateResult(result, options);
           _this.invokeCallback(true, result);
           if (ajaxService.getListeners("success")) {
             ajaxService.fire("success", ajaxService, {

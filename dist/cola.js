@@ -4408,7 +4408,7 @@
         data = this._data;
         for (p in data) {
           value = data[p];
-          if (value && (value instanceof _Entity || value instanceof _EntityList)) {
+          if (value && (value instanceof _Entity || value instanceof _EntityList) && p.charCodeAt(0) !== 36) {
             value._setDataModel(dataModel);
           }
         }
@@ -8419,7 +8419,6 @@
       $.ajax(options).done((function(_this) {
         return function(result) {
           var arg;
-          result = ajaxService.translateResult(result, options);
           if (ajaxService.getListeners("response")) {
             arg = {
               options: options,
@@ -8428,6 +8427,7 @@
             ajaxService.fire("response", ajaxService, arg);
             result = arg.result;
           }
+          result = ajaxService.translateResult(result, options);
           _this.invokeCallback(true, result);
           if (ajaxService.getListeners("success")) {
             ajaxService.fire("success", ajaxService, {
@@ -30085,6 +30085,7 @@ Template
           this._child = child;
         }
       },
+      hasChild: null,
       hasChildProperty: null
     };
 
@@ -30231,18 +30232,24 @@ Template
                   originRecursiveItems = recursiveItems.$origin;
                 }
                 if (recursiveItems) {
-                  if (recursiveItems instanceof cola.EntityList) {
-                    hasChild = recursiveItems.entityCount > 0;
-                  } else {
-                    hasChild = recursiveItems.length > 0;
+                  if (recursiveItems instanceof cola.EntityList && recursiveItems.entityCount > 0) {
+                    hasChild = true;
+                  } else if (recursiveItems.length > 0) {
+                    hasChild = true;
                   }
                 }
               }
               if (this._child && !isRoot) {
-                hasChild = true;
                 childItems = this._child._expression.evaluate(parentNode._scope, "never");
                 if (childItems instanceof Array) {
                   originChildItems = childItems.$origin;
+                }
+                if (recursiveItems) {
+                  if (childItems instanceof cola.EntityList && childItems.entityCount > 0) {
+                    hasChild = true;
+                  } else if (childItems.length > 0) {
+                    hasChild = true;
+                  }
                 }
               }
               this._wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems);
@@ -30338,6 +30345,9 @@ Template
             return this._hasChild;
           }
           bind = this._bind;
+          if (bind._hasChild != null) {
+            return bind._hasChild;
+          }
           prop = bind._hasChildProperty;
           if (prop && this._data) {
             if (this._data instanceof cola.Entity) {
@@ -30356,6 +30366,11 @@ Template
               if (!items) {
                 return false;
               }
+              if (items instanceof cola.EntityList) {
+                return items.entityCount > 0;
+              } else {
+                return items.length > 0;
+              }
             }
             if (bind._child) {
               dataCtx = {};
@@ -30365,6 +30380,11 @@ Template
               }
               if (!items) {
                 return false;
+              }
+              if (items instanceof cola.EntityList) {
+                return items.entityCount > 0;
+              } else {
+                return items.length > 0;
               }
             }
           }
@@ -30933,6 +30953,9 @@ Template
           if (this._expanded != null) {
             return this._expanded;
           }
+          if (this._bind._expanded != null) {
+            return this._bind._expanded;
+          }
           prop = this._bind._expandedProperty;
           if (prop && this._data) {
             if (this._data instanceof cola.Entity) {
@@ -30993,6 +31016,7 @@ Template
 
     TreeNodeBind.attributes = {
       textProperty: null,
+      expanded: null,
       expandedProperty: null,
       checkedProperty: null,
       autoCheckChildren: {
@@ -31131,7 +31155,7 @@ Template
       this._rootNode._itemsScope = itemsScope;
       itemsScope.onMessage = (function(_this) {
         return function(path, type, arg) {
-          var node, parentNode, ref, ref1;
+          var node, parentNode;
           if (type === cola.constants.MESSAGE_REFRESH) {
             if (itemsScope.isParentOfTarget(path)) {
               _this._refreshItems();
@@ -31139,9 +31163,7 @@ Template
             } else {
               node = _this.findNode(arg.entityList || arg.entity);
               if (node) {
-                if ((ref = node._scope) != null) {
-                  ref.processMessage(null, path, type, arg);
-                }
+                _this.refreshNode(node);
                 if (node.get("expanded")) {
                   _this._prepareChildNode(node, true);
                 }
@@ -31151,9 +31173,7 @@ Template
           } else if (type === cola.constants.MESSAGE_PROPERTY_CHANGE) {
             node = _this.findNode(arg.entity);
             if (node) {
-              if ((ref1 = node._scope) != null) {
-                ref1.processMessage(null, path, type, arg);
-              }
+              _this.refreshNode(node);
               if (arg.value && arg.value instanceof cola.EntityList || arg.oldValue && arg.oldValue instanceof cola.EntityList) {
                 if (node.get("expanded")) {
                   _this._prepareChildNode(node, true);
@@ -31167,6 +31187,7 @@ Template
           } else if (type === cola.constants.MESSAGE_INSERT) {
             parentNode = _this.findNode(arg.entityList.parent);
             if (parentNode) {
+              _this.refreshNode(parentNode);
               _this._prepareChildNode(parentNode, parentNode.get("expanded"));
             }
             return true;
@@ -31174,6 +31195,10 @@ Template
             node = _this.findNode(arg.entity);
             if (node) {
               _this._removeNode(node);
+            }
+            parentNode = _this.findNode(arg.entityList.parent);
+            if (parentNode) {
+              _this.refreshNode(parentNode);
             }
             return true;
           }
@@ -31278,6 +31303,15 @@ Template
       }
     };
 
+    Tree.prototype.refreshNode = function(node) {
+      var nodeDom, nodeId;
+      nodeId = _getEntityId(node);
+      nodeDom = this._itemDomMap[nodeId];
+      if (nodeDom && node._parent) {
+        this._refreshItemDom(nodeDom, node, node._parent._itemsScope);
+      }
+    };
+
     Tree.prototype._refreshItemDom = function(itemDom, node, parentScope) {
       var checkbox, checkboxDom, checkedPropValue, collapsed, dataPath, nodeDom, nodeScope, tree;
       nodeScope = cola.util.userData(itemDom, "scope");
@@ -31312,7 +31346,7 @@ Template
       } else if (node === this._currentNode && this._highlightCurrentItem) {
         $fly(itemDom).addClass("current");
       }
-      if (!collapsed && node.get("expanded")) {
+      if (node.get("hasChild") !== false && !collapsed && node.get("expanded")) {
         if (node._hasExpanded) {
           this._refreshChildNodes(itemDom, node);
         } else {
@@ -31477,14 +31511,16 @@ Template
         $fly(nodeDom).addClass("expanding");
       }
       node._bind.retrieveChildNodes(node, function() {
-        var $nodesWrapper;
+        var $nodeDom, $nodesWrapper, ref;
         if (expand) {
           $fly(nodeDom).removeClass("expanding");
         }
-        if (node._children) {
+        if (((ref = node._children) != null ? ref.length : void 0) > 0) {
           tree._refreshChildNodes(itemDom, node, true);
+          $nodeDom = $fly(nodeDom);
+          $nodeDom.removeClass("leaf");
           if (expand) {
-            $fly(nodeDom).addClass("expanded");
+            $nodeDom.addClass("expanded");
           }
           $nodesWrapper = $fly(itemDom.lastChild);
           if (expand && $nodesWrapper.hasClass("child-nodes")) {
