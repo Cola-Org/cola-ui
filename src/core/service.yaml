@@ -8,7 +8,9 @@ attributes:
   - name: url
     type: string
     label: Ajax服务的URL
-
+  - name: loadMode
+    type: string
+    label: Ajax服务的URL
   - name: method
     type: string
     enum:

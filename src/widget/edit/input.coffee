@@ -223,7 +223,14 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 		rightLabeled = labelPosition is "right"
 		@_classNamePool.add(if rightLabeled then "right labeled" else "labeled")
-		if rightLabeled then @_dom.appendChild(label) else $(@_doms.input).before(label)
+		if rightLabeled
+			labelWidget = cola.widget(label)
+			if labelWidget
+				@_dom.appendChild(labelWidget.getDom())
+			else
+				@_dom.appendChild(label)
+		else
+			$(@_doms.input).before(label)
 
 		return
 
@@ -296,9 +303,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_finalReadOnly = !!@get("readOnly")
 
 		@_refreshIcon()
-		@_refreshButton()
-		@_refreshCorner()
-		@_refreshLabel()
+		#@_refreshButton()
+		#@_refreshCorner()
+		#@_refreshLabel()
 		@_refreshInput()
 		return
 

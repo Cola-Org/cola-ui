@@ -24,7 +24,8 @@ class cola.Tab extends cola.Widget
 		tabs:
 			setter: (list)->
 				@clear()
-				@addTab(tab) for tab in list
+				@_tabConfigs = list
+
 				return
 
 		currentTab:
@@ -213,7 +214,17 @@ class cola.Tab extends cola.Widget
 		super()
 		@_classNamePool.remove("top-tab")
 		@_classNamePool.add("#{@_direction}-tab")
+		list = @_tabConfigs
+		@_tabConfigs = null
+
+		if list
+			@addTab(tab) for tab in list
+			if list.length > 0
+				@setCurrentTab(list[0].name)
+
 		@refreshNavButtons()
+
+
 		return
 	_getTabContentDom: (tab)->
 		contents = @getContentsContainer()
@@ -284,7 +295,7 @@ class cola.Tab extends cola.Widget
 		@_doms ?= {}
 		unless @_doms.tabBar
 			$tabs = $(@_dom).find(">nav")
-			if $tabs.length >= 0
+			if $tabs.length > 0
 				dom = $tabs[0]
 			else
 				dom = @_doms.tabBar = $.xCreate({
@@ -330,7 +341,6 @@ class cola.Tab extends cola.Widget
 		if dom.parentNode isnt container
 			container.appendChild(dom)
 		contentDom = tab.getContentDom()
-
 		if not contentDom?.parentNode
 			d = $.xCreate({
 				tagName: "content",
@@ -338,7 +348,7 @@ class cola.Tab extends cola.Widget
 			})
 			tab.set("contentContainer", d)
 			@getContentsContainer().appendChild(d)
-			d.appendChild(contentDom)
+			contentDom && d.appendChild(contentDom)
 
 		return
 
@@ -382,8 +392,14 @@ class cola.Tab extends cola.Widget
 			if @get("currentTab") is obj
 
 				tabDom = obj._dom;
+				sibling=$(tabDom).parent().find(">tab,>.tab-button")
+				index=sibling.index(tabDom);
 
-				targetDom = tabDom.previousElementSibling || tabDom.nextElementSibling
+				if index>0
+					targetDom=sibling[index-1]
+				else if index<sibling.length-1
+					targetDom=sibling[index+1]
+
 				if targetDom
 					targetTab = cola.widget(targetDom)
 					return false unless @setCurrentTab(targetTab)

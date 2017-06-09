@@ -404,12 +404,14 @@ class cola.DatePicker extends cola.CustomDropdown
 			doPost()
 			return
 		).on("focus", ()=>
+			debugger
 			@_inputFocused = true
 			@_refreshInputValue(@_value)
 			@addClass("focused") if not @_finalReadOnly
 			@fire("focus", @)
 			return
 		).on("blur", ()=>
+			debugger
 			@_inputFocused = false
 			@removeClass("focused")
 			@_refreshInputValue(@_value)
@@ -429,6 +431,7 @@ class cola.DatePicker extends cola.CustomDropdown
 				altlKey: event.altlKey
 				event: event
 			@fire("keyDown", @, arg)
+			if arg.keyCode == 9 then @_closeDropdown()
 		).on("keypress", (event)=>
 			arg =
 				keyCode: event.keyCode
