@@ -31,7 +31,7 @@ cola.util.cacheDom = (ele) ->
 			style:
 				display: "none"
 		)
-		doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+		doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)
 		document.body.appendChild(doms.hiddenDiv)
 	doms.hiddenDiv.appendChild(ele)
 	cola._ignoreNodeRemoved = false

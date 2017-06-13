@@ -8849,7 +8849,7 @@
           display: "none"
         }
       });
-      doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+      doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
       document.body.appendChild(doms.hiddenDiv);
     }
     doms.hiddenDiv.appendChild(ele);
@@ -32386,6 +32386,12 @@ Template
       }
       if (this._doms == null) {
         this._doms = {};
+      }
+      child = dom.firstChild;
+      while (child) {
+        cola.xRender(child);
+        child.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
+        child = child.nextSibling;
       }
       columns = [];
       child = dom.firstChild;
