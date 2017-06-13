@@ -102,9 +102,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					altKey: evt.altKey
 					event: evt
 					inputValue: @_doms.input.value
-				@fire("keyDown", @, arg)
 
-				if @_onKeyDown(evt) isnt false and @_dropdownContent
+
+				@fire("keyDown", @, arg)
+				if evt.keyCode is 9 then @_closeDropdown()
+
+
+				if @?_onKeyDown(evt) isnt false and @_dropdownContent
 					$(@_dropdownContent).trigger(evt)
 				return
 			).on("keypress", (evt)=>
@@ -410,7 +414,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container = @_getContainer()
 		container?.hide?(callback)
 		return
-
+	_closeDropdown:()->
+		container = @_getContainer()
+		container?.hide?()
 	_getItemValue: (item) ->
 		if @_valueProperty and item
 			if item instanceof cola.Entity
@@ -502,6 +508,7 @@ class DropBox extends cola.Layer
 		super()
 		@_bodyListener = (evt) =>
 			target = evt.target
+			unless @_dropdown then return
 			dropdownDom = @_dropdown._dom
 			dropContainerDom = @_dom
 			while target
