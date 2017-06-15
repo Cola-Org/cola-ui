@@ -157,7 +157,7 @@
   };
 
   setAttrs = function(el, $el, attrs, context) {
-    var attrName, attrValue, attributeProcessor;
+    var attrName, attrValue, attributeProcessor, k, v;
     for (attrName in attrs) {
       attrValue = attrs[attrName];
       attributeProcessor = xCreate.attributeProcessor[attrName];
@@ -176,8 +176,13 @@
             }
             break;
           case "data":
-            if (context instanceof Object && attrValue && typeof attrValue === "string") {
-              context[attrValue] = el;
+            if (typeof attrValue === "object" && !(attrValue instanceof Date)) {
+              for (k in attrValue) {
+                v = attrValue[k];
+                $el.data(k, v);
+              }
+            } else {
+              $el.attr("data", attrValue);
             }
             break;
           case "classname":
@@ -7456,9 +7461,9 @@
           definition = new cola.EntityDataType(definition);
           this._definitionStore[name] = definition;
         }
-        if (!definition) {
-          definition = this.model.parent.data.definition(name);
-        }
+      }
+      if (!definition) {
+        definition = this.model.parent.data.definition(name);
       }
       if (!definition) {
         definition = cola.DataType.defaultDataTypes[name];
@@ -13183,6 +13188,20 @@
       return this;
     };
 
+    WidgetDataModel.prototype.dataType = function(name) {
+      var ref;
+      if (typeof name === "string") {
+        return (ref = this.model.parent) != null ? ref.data.dataType(name) : void 0;
+      } else {
+        throw new cola.Exception("Unsupported operation.");
+      }
+    };
+
+    WidgetDataModel.prototype.definition = function(name) {
+      var ref;
+      return (ref = this.model.parent) != null ? ref.data.definition(name) : void 0;
+    };
+
     return WidgetDataModel;
 
   })(cola.AbstractDataModel);
@@ -16603,6 +16622,10 @@ Template
 
     SubView.attributes = {
       loading: null,
+      loadMode: {
+        readOnlyAfterCreate: true,
+        defaultValue: "auto"
+      },
       url: {
         readOnlyAfterCreate: true
       },
@@ -16649,7 +16672,7 @@ Template
         content[cola.constants.IGNORE_DIRECTIVE] = true;
         $dom.xAppend(content);
       }
-      if (this._url) {
+      if (this._url && this._loadMode === "auto") {
         this.load({
           url: this._url,
           jsUrl: this._jsUrl,
@@ -18792,12 +18815,8 @@ Template
       },
       tabs: {
         setter: function(list) {
-          var len1, n, tab;
           this.clear();
-          for (n = 0, len1 = list.length; n < len1; n++) {
-            tab = list[n];
-            this.addTab(tab);
-          }
+          this._tabConfigs = list;
         }
       },
       currentTab: {
@@ -19025,12 +19044,24 @@ Template
     };
 
     Tab.prototype._doRefreshDom = function() {
+      var len1, list, n, tab;
       if (!this._dom) {
         return;
       }
       Tab.__super__._doRefreshDom.call(this);
       this._classNamePool.remove("top-tab");
       this._classNamePool.add(this._direction + "-tab");
+      list = this._tabConfigs;
+      this._tabConfigs = null;
+      if (list) {
+        for (n = 0, len1 = list.length; n < len1; n++) {
+          tab = list[n];
+          this.addTab(tab);
+        }
+        if (list.length > 0) {
+          this.setCurrentTab(list[0].name);
+        }
+      }
       this.refreshNavButtons();
     };
 
@@ -19138,7 +19169,7 @@ Template
       }
       if (!this._doms.tabBar) {
         $tabs = $(this._dom).find(">nav");
-        if ($tabs.length >= 0) {
+        if ($tabs.length > 0) {
           dom = $tabs[0];
         } else {
           dom = this._doms.tabBar = $.xCreate({
@@ -19203,7 +19234,7 @@ Template
         });
         tab.set("contentContainer", d);
         this.getContentsContainer().appendChild(d);
-        d.appendChild(contentDom);
+        contentDom && d.appendChild(contentDom);
       }
     };
 
@@ -19243,7 +19274,7 @@ Template
     };
 
     Tab.prototype.removeTab = function(tab) {
-      var contentContainer, obj, tabDom, targetDom, targetTab;
+      var contentContainer, index, obj, sibling, tabDom, targetDom, targetTab;
       if (tab instanceof cola.TabButton) {
         obj = tab;
       } else if (typeof tab === "string") {
@@ -19252,7 +19283,13 @@ Template
       if (obj) {
         if (this.get("currentTab") === obj) {
           tabDom = obj._dom;
-          targetDom = tabDom.previousElementSibling || tabDom.nextElementSibling;
+          sibling = $(tabDom).parent().find(">tab,>.tab-button");
+          index = sibling.index(tabDom);
+          if (index > 0) {
+            targetDom = sibling[index - 1];
+          } else if (index < sibling.length - 1) {
+            targetDom = sibling[index + 1];
+          }
           if (targetDom) {
             targetTab = cola.widget(targetDom);
             if (!this.setCurrentTab(targetTab)) {
@@ -20973,7 +21010,7 @@ Template
     };
 
     AbstractInput.prototype._refreshLabel = function() {
-      var label, labelPosition, rightLabeled;
+      var label, labelPosition, labelWidget, rightLabeled;
       if (!this._dom) {
         return;
       }
@@ -20987,7 +21024,12 @@ Template
       rightLabeled = labelPosition === "right";
       this._classNamePool.add(rightLabeled ? "right labeled" : "labeled");
       if (rightLabeled) {
-        this._dom.appendChild(label);
+        labelWidget = cola.widget(label);
+        if (labelWidget) {
+          this._dom.appendChild(labelWidget.getDom());
+        } else {
+          this._dom.appendChild(label);
+        }
       } else {
         $(this._doms.input).before(label);
       }
@@ -21076,9 +21118,6 @@ Template
       AbstractInput.__super__._doRefreshDom.call(this);
       this._finalReadOnly = !!this.get("readOnly");
       this._refreshIcon();
-      this._refreshButton();
-      this._refreshCorner();
-      this._refreshLabel();
       this._refreshInput();
     };
 
@@ -22262,7 +22301,10 @@ Template
             inputValue: _this._doms.input.value
           };
           _this.fire("keyDown", _this, arg);
-          if (_this._onKeyDown(evt) !== false && _this._dropdownContent) {
+          if (evt.keyCode === 9) {
+            _this._closeDropdown();
+          }
+          if (typeof _this === "function" ? _this(_onKeyDown(evt) !== false && _this._dropdownContent) : void 0) {
             $(_this._dropdownContent).trigger(evt);
           }
         };
@@ -22660,6 +22702,12 @@ Template
       }
     };
 
+    AbstractDropdown.prototype._closeDropdown = function() {
+      var container;
+      container = this._getContainer();
+      return container != null ? typeof container.hide === "function" ? container.hide() : void 0 : void 0;
+    };
+
     AbstractDropdown.prototype._getItemValue = function(item) {
       var value;
       if (this._valueProperty && item) {
@@ -22776,6 +22824,9 @@ Template
         return function(evt) {
           var dropContainerDom, dropdownDom, inDropdown, target;
           target = evt.target;
+          if (!_this._dropdown) {
+            return;
+          }
           dropdownDom = _this._dropdown._dom;
           dropContainerDom = _this._dom;
           while (target) {
@@ -23658,7 +23709,10 @@ Template
             altlKey: event.altlKey,
             event: event
           };
-          return _this.fire("keyDown", _this, arg);
+          _this.fire("keyDown", _this, arg);
+          if (arg.keyCode === 9) {
+            return _this._closeDropdown();
+          }
         };
       })(this)).on("keypress", (function(_this) {
         return function(event) {
@@ -24717,7 +24771,7 @@ Template
     }
 
     Form.prototype._initDom = function(dom) {
-      var caption, childDom, childDoms, dataType, defaultFieldCols, field, fieldContent, fieldsDom, len1, len2, maxCols, n, o, propertyDef, propertyType, ref, usedCols;
+      var caption, childDom, childDoms, dataType, defaultFieldCols, field, fieldContent, fieldsDom, labelUserData, len1, len2, maxCols, n, o, propertyDef, propertyType, ref, usedCols;
       Form.__super__._initDom.call(this, dom);
       this._$messages = this.get$Dom().find("messages, .ui.message").addClass("messages");
       if (this._fields) {
@@ -24748,6 +24802,9 @@ Template
             };
             childDoms.push(fieldsDom);
           }
+          labelUserData = {
+            captionSetted: true
+          };
           if (field.editContent) {
             if (typeof field.editContent === "object" && !field.editContent.readOnly === void 0 && field.readOnly !== void 0) {
               field.editContent.readOnly = field.readOnly;
@@ -24755,7 +24812,8 @@ Template
             fieldContent = [
               {
                 tagName: "label",
-                content: caption
+                content: caption,
+                data: labelUserData
               }, field.editContent
             ];
           } else if (propertyType instanceof cola.BooleanDataType) {
@@ -24763,7 +24821,8 @@ Template
               fieldContent = [
                 {
                   tagName: "label",
-                  content: caption
+                  content: caption,
+                  data: labelUserData
                 }, {
                   tagName: "c-checkbox",
                   bind: this._bind + "." + field.property,
@@ -24774,7 +24833,8 @@ Template
               fieldContent = [
                 {
                   tagName: "label",
-                  content: caption
+                  content: caption,
+                  data: labelUserData
                 }, {
                   tagName: "c-toggle",
                   bind: this._bind + "." + field.property,
@@ -24786,7 +24846,8 @@ Template
             fieldContent = [
               {
                 tagName: "label",
-                content: caption
+                content: caption,
+                data: labelUserData
               }, {
                 tagName: "c-datepicker",
                 bind: this._bind + "." + field.property,
@@ -24797,7 +24858,8 @@ Template
             fieldContent = [
               {
                 tagName: "label",
-                content: caption
+                content: caption,
+                data: labelUserData
               }, {
                 tagName: "c-textarea",
                 bind: this._bind + "." + field.property,
@@ -24809,7 +24871,8 @@ Template
             fieldContent = [
               {
                 tagName: "label",
-                content: caption
+                content: caption,
+                data: labelUserData
               }, {
                 tagName: "c-input",
                 bind: this._bind + "." + field.property,
@@ -24943,6 +25006,7 @@ Template
           }
         }
       },
+      caption: null,
       property: null,
       readOnly: null,
       message: {
@@ -24958,7 +25022,7 @@ Template
     };
 
     Field.prototype._parseDom = function(dom) {
-      var $label, bind, formBind, len1, n, propertyDef, ref, ref1, ref2, validator;
+      var $label, bind, formBind, len1, n, propertyDef, ref, ref1, ref2, ref3, validator;
       this._domParsed = true;
       if (!this._bind && this._property) {
         if (dom.parentNode) {
@@ -24989,24 +25053,36 @@ Template
       }
       this._labelDom = dom.querySelector("label");
       this._messageDom = dom.querySelector("message");
-      bind = bind || this._bind;
-      if (bind) {
-        this._bind = null;
-        this._bindSetter(bind);
-        propertyDef = this.getBindingProperty();
-        if (propertyDef) {
-          $label = $fly(this._labelDom);
-          $label.text(propertyDef._caption || propertyDef._name);
-          if (propertyDef._validators) {
-            ref2 = propertyDef._validators;
-            for (n = 0, len1 = ref2.length; n < len1; n++) {
-              validator = ref2[n];
-              if (validator instanceof cola.RequiredValidator) {
-                $label.addClass("required");
-                break;
+      if (this._labelDom) {
+        $label = $fly(this._labelDom);
+        if (!$label.data("labelUserData")) {
+          if (((ref2 = this._form) != null ? ref2._dataType : void 0) && this._property) {
+            propertyDef = this._form._dataType.getProperty(this._property);
+          } else {
+            bind = bind || this._bind;
+            if (bind) {
+              this._bind = null;
+              this._bindSetter(bind);
+              propertyDef = this.getBindingProperty();
+            }
+          }
+          if (propertyDef) {
+            if (this._labelDom.innerHTML === "") {
+              $label.text(this._caption || propertyDef.get("caption") || this._property);
+            }
+            if (propertyDef._validators) {
+              ref3 = propertyDef._validators;
+              for (n = 0, len1 = ref3.length; n < len1; n++) {
+                validator = ref3[n];
+                if (validator instanceof cola.RequiredValidator) {
+                  $label.addClass("required");
+                  break;
+                }
               }
             }
           }
+        } else if (this._caption && this._labelDom.innerHTML === "") {
+          $label.text(this._caption);
         }
       }
     };

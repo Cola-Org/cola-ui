@@ -157,7 +157,7 @@
   };
 
   setAttrs = function(el, $el, attrs, context) {
-    var attrName, attrValue, attributeProcessor;
+    var attrName, attrValue, attributeProcessor, k, v;
     for (attrName in attrs) {
       attrValue = attrs[attrName];
       attributeProcessor = xCreate.attributeProcessor[attrName];
@@ -176,8 +176,13 @@
             }
             break;
           case "data":
-            if (context instanceof Object && attrValue && typeof attrValue === "string") {
-              context[attrValue] = el;
+            if (typeof attrValue === "object" && !(attrValue instanceof Date)) {
+              for (k in attrValue) {
+                v = attrValue[k];
+                $el.data(k, v);
+              }
+            } else {
+              $el.attr("data", attrValue);
             }
             break;
           case "classname":
@@ -7456,9 +7461,9 @@
           definition = new cola.EntityDataType(definition);
           this._definitionStore[name] = definition;
         }
-        if (!definition) {
-          definition = this.model.parent.data.definition(name);
-        }
+      }
+      if (!definition) {
+        definition = this.model.parent.data.definition(name);
       }
       if (!definition) {
         definition = cola.DataType.defaultDataTypes[name];
@@ -13181,6 +13186,20 @@
         }
       }
       return this;
+    };
+
+    WidgetDataModel.prototype.dataType = function(name) {
+      var ref;
+      if (typeof name === "string") {
+        return (ref = this.model.parent) != null ? ref.data.dataType(name) : void 0;
+      } else {
+        throw new cola.Exception("Unsupported operation.");
+      }
+    };
+
+    WidgetDataModel.prototype.definition = function(name) {
+      var ref;
+      return (ref = this.model.parent) != null ? ref.data.definition(name) : void 0;
     };
 
     return WidgetDataModel;

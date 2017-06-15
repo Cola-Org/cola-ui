@@ -17,7 +17,7 @@ class cola.AbstractContainer extends cola.Widget
 
 		child = dom.firstChild
 		while child
-			if child.nodeType == 1
+			if child.nodeType is 1
 				widget = cola.widget(child)
 				@_content.push(widget) if widget
 			child = child.nextSibling
@@ -43,12 +43,12 @@ class cola.AbstractContainer extends cola.Widget
 
 		if value instanceof Array
 			for el in value
-				if typeof el == "string"
+				if typeof el is "string"
 					el= {content:el}
 				result = cola.xRender(el,@_scope)
 				@_addContentElement(result, target) if result
 		else
-			if typeof el == "string"
+			if typeof el is "string"
 				el= {content:el}
 			result =cola.xRender(value,@_scope)
 			@_addContentElement(result, target)  if result

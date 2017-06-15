@@ -146,7 +146,7 @@ class cola.EntityDataType extends cola.DataType
 		return @_properties
 
 cola.DataType.dataTypeSetter = (dataType) ->
-	if typeof dataType == "string"
+	if typeof dataType is "string"
 		name = dataType
 		scope = @_scope
 		if scope
@@ -178,7 +178,7 @@ class cola.Property extends cola.Definition
 
 		provider:
 			setter: (provider) ->
-				if provider? and !(provider instanceof cola.Provider)
+				if provider? and not (provider instanceof cola.Provider)
 					provider = new cola.Provider(provider)
 				@_provider = provider
 				return

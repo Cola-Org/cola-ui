@@ -4,6 +4,11 @@ class cola.SubView extends cola.Widget
 
 	@attributes:
 		loading: null
+
+		loadMode:
+			readOnlyAfterCreate: true
+			defaultValue: "auto"
+
 		url:
 			readOnlyAfterCreate: true
 		jsUrl:
@@ -35,7 +40,7 @@ class cola.SubView extends cola.Widget
 			content[cola.constants.IGNORE_DIRECTIVE] = true
 			$dom.xAppend(content)
 
-		if @_url
+		if @_url and @_loadMode is "auto"
 			@load(
 				url: @_url
 				jsUrl: @_jsUrl

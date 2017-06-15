@@ -109,6 +109,15 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 			@model.parent?.data.getDataType(name.substring(1), loadMode)
 		return @
 
+	dataType: (name) ->
+		if typeof name is "string"
+			return @model.parent?.data.dataType(name)
+		else
+			throw  new cola.Exception("Unsupported operation.")
+
+	definition: (name) ->
+		return @model.parent?.data.definition(name)
+
 class cola.WidgetModel extends cola.SubScope
 	repeatNotification: true
 

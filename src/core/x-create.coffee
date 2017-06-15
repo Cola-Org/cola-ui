@@ -93,8 +93,11 @@ setAttrs = (el, $el, attrs, context)  ->
 					if context instanceof Object and attrValue and typeof attrValue == "string"
 						context[attrValue] = el
 				when "data"
-					if context instanceof Object and attrValue and typeof attrValue == "string"
-						context[attrValue] = el
+					if typeof attrValue is "object" and not (attrValue instanceof Date)
+						for k, v of attrValue
+							$el.data(k, v)
+					else
+						$el.attr("data", attrValue)
 				when "classname"
 					$el.attr("class", attrValue)
 				else
