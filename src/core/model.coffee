@@ -950,7 +950,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				definition = new cola.EntityDataType(definition)
 				@_definitionStore[name] = definition
 
-		if not definition
+		if not definition and @model.parent
 			definition = @model.parent.data.definition(name)
 
 		if not definition

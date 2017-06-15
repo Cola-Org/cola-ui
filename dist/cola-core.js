@@ -7462,7 +7462,7 @@
           this._definitionStore[name] = definition;
         }
       }
-      if (!definition) {
+      if (!definition && this.model.parent) {
         definition = this.model.parent.data.definition(name);
       }
       if (!definition) {
