@@ -184,7 +184,10 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 		if not @pageNo >= 1 then @pageNo = 1
 		@from = @pageSize * (@pageNo - 1)
 		@limit = @pageSize
-		@applyPagingParameters(options) if @pageSize
+		if @pageSize
+			@applyPagingParameters(options)
+		else
+			@_replaceSysParams(options)
 		return
 
 _SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]

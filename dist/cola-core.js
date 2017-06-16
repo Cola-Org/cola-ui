@@ -4066,34 +4066,32 @@
             return;
           }
         }
-        if (property) {
-          if (property._validators && property._rejectInvalidValue) {
-            messages = null;
-            ref2 = property._validators;
-            for (l = 0, len1 = ref2.length; l < len1; l++) {
-              validator = ref2[l];
-              if ((value != null) || validator instanceof cola.RequiredValidator) {
-                if (!(validator._disabled && validator instanceof cola.AsyncValidator && validator.get("async"))) {
-                  message = validator.validate(value);
-                  if (message) {
-                    if (messages == null) {
-                      messages = [];
-                    }
-                    if (message instanceof Array) {
-                      Array.prototype.push.apply(messages, message);
-                    } else {
-                      messages.push(message);
-                    }
+        if ((property != null ? property._validators : void 0) && property._rejectInvalidValue) {
+          messages = null;
+          ref2 = property._validators;
+          for (l = 0, len1 = ref2.length; l < len1; l++) {
+            validator = ref2[l];
+            if ((value != null) || validator instanceof cola.RequiredValidator) {
+              if (!(validator._disabled && validator instanceof cola.AsyncValidator && validator.get("async"))) {
+                message = validator.validate(value);
+                if (message) {
+                  if (messages == null) {
+                    messages = [];
+                  }
+                  if (message instanceof Array) {
+                    Array.prototype.push.apply(messages, message);
+                  } else {
+                    messages.push(message);
                   }
                 }
               }
             }
-            if (messages) {
-              for (o = 0, len2 = messages.length; o < len2; o++) {
-                message = messages[o];
-                if (message === "error") {
-                  throw new cola.Exception(message.text);
-                }
+          }
+          if (messages) {
+            for (o = 0, len2 = messages.length; o < len2; o++) {
+              message = messages[o];
+              if (message === "error") {
+                throw new cola.Exception(message.text);
               }
             }
           }
@@ -4128,28 +4126,32 @@
             oldValue: oldValue
           });
         }
-        if (messages !== void 0) {
-          if ((ref3 = this._messageHolder) != null) {
-            ref3.clear(prop);
-          }
-          this.addMessage(prop, messages);
-          if (value != null) {
-            ref4 = property._validators;
-            for (q = 0, len3 = ref4.length; q < len3; q++) {
-              validator = ref4[q];
-              if (!validator._disabled && validator instanceof cola.AsyncValidator && validator.get("async")) {
-                validator.validate(value, (function(_this) {
-                  return function(message) {
-                    if (message) {
-                      _this.addMessage(prop, message);
-                    }
-                  };
-                })(this));
+        if (property != null ? property._validators : void 0) {
+          if (messages !== void 0) {
+            if ((ref3 = this._messageHolder) != null) {
+              ref3.clear(prop);
+            }
+            this.addMessage(prop, messages);
+            if (value != null) {
+              ref4 = property._validators;
+              for (q = 0, len3 = ref4.length; q < len3; q++) {
+                validator = ref4[q];
+                if (!validator._disabled && validator instanceof cola.AsyncValidator && validator.get("async")) {
+                  validator.validate(value, (function(_this) {
+                    return function(message) {
+                      if (message) {
+                        message.entity = _this;
+                        message.property = prop;
+                        _this.addMessage(prop, message);
+                      }
+                    };
+                  })(this));
+                }
               }
             }
+          } else {
+            this.validate(prop);
           }
-        } else {
-          this.validate(prop);
         }
         if (this.dataType && this.dataType.getListeners("dataChange")) {
           this.dataType.fire("dataChange", this.dataType, {
@@ -4513,6 +4515,8 @@
                 validator.validate(data, (function(_this) {
                   return function(message) {
                     if (message) {
+                      message.entity = _this;
+                      message.property = prop;
                       _this.addMessage(prop, message);
                     }
                   };
@@ -4520,7 +4524,9 @@
               } else {
                 message = validator.validate(data);
                 if (message) {
-                  this._addMessage(prop, message);
+                  message.entity = this;
+                  message.property = prop;
+                  this.addMessage(prop, message);
                   messageChanged = true;
                 }
               }
@@ -8014,6 +8020,25 @@
     return _extractDirtyTree(data, context, options || {});
   };
 
+  cola.util.collectValidateMessages = function(entityMap) {
+    var context, entity, entityId, l, len1, message, messages, name1;
+    context = {};
+    for (entityId in entityMap) {
+      entity = entityMap[entityId];
+      messages = entity.findMessages();
+      if (messages) {
+        for (l = 0, len1 = messages.length; l < len1; l++) {
+          message = messages[l];
+          if (context[name1 = message.type] == null) {
+            context[name1] = [];
+          }
+          context[message.type].push(message);
+        }
+      }
+    }
+    return context;
+  };
+
   _processEntity = function(entity, context, options) {
     var data, json, prop, toJSONOptions, val;
     toJSONOptions = {
@@ -8083,13 +8108,19 @@
   };
 
   cola.util.update = function(url, data, options) {
-    var context;
+    var context, messages;
     if (options == null) {
       options = {};
     }
     context = options.context = options.context || {};
     if (data && (data instanceof cola.Entity || data instanceof cola.EntityList)) {
       data = cola.util.dirtyTree(data, options);
+    }
+    if (!options.ignoreValidation) {
+      messages = cola.util.collectValidateMessages(context.entityMap);
+      if (messages.error) {
+        return $.Deferred().reject(messages);
+      }
     }
     if (options.preProcessor) {
       data = options.preProcessor(data, options);
@@ -8157,6 +8188,81 @@
     } else {
       return $.Deferred().reject("NO_DATA");
     }
+  };
+
+  cola.util.autoUpdate = function(url, model, path, options) {
+    var autoUpdateHanlder, delay;
+    if (options == null) {
+      options = {};
+    }
+    delay = options.delay || 5000;
+    autoUpdateHanlder = {
+      _doneHandlers: [],
+      _failHandlers: [],
+      _updateTimerId: 0,
+      dirty: false,
+      schedule: function() {
+        if (this._updateTimerId) {
+          clearTimeout(this._updateTimerId);
+          this._updateTimerId = 0;
+        }
+        this.dirty = true;
+        this._updateTimerId = setTimeout((function(_this) {
+          return function() {
+            _this.updateIfNecessary();
+          };
+        })(this), delay);
+      },
+      updateIfNecessary: function() {
+        var data;
+        if (this.dirty) {
+          this._updateTimerId = 0;
+          data = model.get(path, "never");
+          if (data) {
+            cola.util.update(url, data, options).done((function(_this) {
+              return function(result) {
+                var retVal;
+                retVal = _this._notify("done", result);
+                _this.dirty = false;
+                return retVal;
+              };
+            })(this)).fail((function(_this) {
+              return function(result) {
+                return _this._notify("fail", result);
+              };
+            })(this));
+          }
+          return true;
+        }
+        return false;
+      },
+      _notify: function(type, result) {
+        var handler, l, len1, ref, retVal;
+        ref = this["_" + type + "Handlers"];
+        for (l = 0, len1 = ref.length; l < len1; l++) {
+          handler = ref[l];
+          retVal = handler(result);
+          if (retVal !== void 0) {
+            result = retVal;
+          }
+        }
+        return result;
+      },
+      done: function(fn) {
+        this._doneHandlers.push(fn);
+        return this;
+      },
+      fail: function(fn) {
+        this._failHandlers.push(fn);
+        return this;
+      }
+    };
+    model.watch(path + ".**", function(messagePath, type) {
+      if (type === cola.constants.MESSAGE_PROPERTY_CHANGE || type === cola.constants.MESSAGE_INSERT || type === cola.constants.MESSAGE_REMOVE) {
+        autoUpdateHanlder.schedule();
+      }
+    });
+    return autoUpdateHanlder;
   };
 
   defaultActionTimestamp = 0;
@@ -8654,6 +8760,8 @@
       this.limit = this.pageSize;
       if (this.pageSize) {
         this.applyPagingParameters(options);
+      } else {
+        this._replaceSysParams(options);
       }
     };
 
