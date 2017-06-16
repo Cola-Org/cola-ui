@@ -1,5 +1,66 @@
+@import (reference) "global";
+
 .ui.grouped {
-	.radio,.slider,.toggle {
+	.radio, .slider, .toggle {
 		padding: 0 0.5em;
 	}
 }
+
+.ui.radio-group {
+	> item {
+		display: inline-block;
+		padding: 0 0.5em;
+		height: auto;
+		cursor: pointer;
+		input {
+			display: none;
+
+			& + label {
+				padding: 0 0 0 1.5em;
+				display: inline-block;
+				position: relative;
+				cursor: pointer;
+				&:before {
+					-webkit-appearance: none;
+					background-color: #fafafa;
+					border: 1px solid @borderColor;
+					width: 12px;
+					height: 12px;
+					border-radius: 50%;
+					position: absolute;
+					top: 3px;
+					left: 4px;
+					content: "";
+				}
+			}
+
+			&:checked {
+				+ label {
+					&:before {
+						border-color: @primaryColor;
+					}
+					&:after {
+						-webkit-appearance: none;
+						background-color: @primaryColor;
+						width: 6px;
+						height: 6px;
+						border-radius: 50%;
+						position: absolute;
+						top: 6px;
+						left: 7px;
+						content: "";
+					}
+				}
+			}
+
+		}
+
+		&:hover input:not(:checked) + label {
+			&:before {
+				border-color: @primaryColor;
+			}
+		}
+
+	}
+}
+
