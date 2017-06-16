@@ -147,12 +147,12 @@ cola.util.autoUpdate = (url, model, path, options = {}) ->
 
 		updateIfNecessary: () ->
 			if @dirty
+				@dirty = false
 				@_updateTimerId = 0
 				data = model.get(path, "never")
 				if data
 					cola.util.update(url, data, options).done((result) =>
 						retVal = @_notify("done", result)
-						@dirty = false
 						return retVal
 					).fail((result) =>
 						return @_notify("fail", result)

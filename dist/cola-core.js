@@ -8216,6 +8216,7 @@
       updateIfNecessary: function() {
         var data;
         if (this.dirty) {
+          this.dirty = false;
           this._updateTimerId = 0;
           data = model.get(path, "never");
           if (data) {
@@ -8223,7 +8224,6 @@
               return function(result) {
                 var retVal;
                 retVal = _this._notify("done", result);
-                _this.dirty = false;
                 return retVal;
               };
             })(this)).fail((function(_this) {
