@@ -430,7 +430,7 @@ class cola.AbstractTable extends cola.AbstractList
 		child = dom.firstChild
 		while child
 			cola.xRender(child)
-			child.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)
+			child.setAttribute?(cola.constants.IGNORE_DIRECTIVE, true)
 			child = child.nextSibling
 
 		columns = []

@@ -13249,7 +13249,7 @@ Template
  */
 
 (function() {
-  var BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_DATE_TIME_DISPLAY_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, TEMP_TEMPLATE, TipManager, _columnsSetter, _createGroupArray, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, emptyRadioGroupItems, isIE11, now, renderTabs, slotAttributeGetter, slotAttributeSetter,
+  var BLANK_PATH, DEFAULT_DATE_DISPLAY_FORMAT, DEFAULT_DATE_INPUT_FORMAT, DEFAULT_DATE_TIME_DISPLAY_FORMAT, DEFAULT_TIME_DISPLAY_FORMAT, DEFAULT_TIME_INPUT_FORMAT, DropBox, LIST_SIZE_PREFIXS, SAFE_PULL_EFFECT, SAFE_SLIDE_EFFECT, SLIDE_ANIMATION_SPEED, TEMP_TEMPLATE, TipManager, _columnsSetter, _createGroupArray, _getEntityId, _pageCodeMap, _pagesItems, _removeTranslateStyle, containerEmptyChildren, currentDate, currentHours, currentMinutes, currentMonth, currentSeconds, currentYear, dateTimeSlotConfigs, dateTypeConfig, dropdownDialogMargin, isIE11, now, renderTabs, slotAttributeGetter, slotAttributeSetter,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
@@ -18792,12 +18792,8 @@ Template
       },
       tabs: {
         setter: function(list) {
-          var len1, n, tab;
           this.clear();
-          for (n = 0, len1 = list.length; n < len1; n++) {
-            tab = list[n];
-            this.addTab(tab);
-          }
+          this._tabConfigs = list;
         }
       },
       currentTab: {
@@ -19025,12 +19021,24 @@ Template
     };
 
     Tab.prototype._doRefreshDom = function() {
+      var len1, list, n, tab;
       if (!this._dom) {
         return;
       }
       Tab.__super__._doRefreshDom.call(this);
       this._classNamePool.remove("top-tab");
       this._classNamePool.add(this._direction + "-tab");
+      list = this._tabConfigs;
+      this._tabConfigs = null;
+      if (list) {
+        for (n = 0, len1 = list.length; n < len1; n++) {
+          tab = list[n];
+          this.addTab(tab);
+        }
+        if (list.length > 0) {
+          this.setCurrentTab(list[0].name);
+        }
+      }
       this.refreshNavButtons();
     };
 
@@ -19138,7 +19146,7 @@ Template
       }
       if (!this._doms.tabBar) {
         $tabs = $(this._dom).find(">nav");
-        if ($tabs.length >= 0) {
+        if ($tabs.length > 0) {
           dom = $tabs[0];
         } else {
           dom = this._doms.tabBar = $.xCreate({
@@ -19203,7 +19211,7 @@ Template
         });
         tab.set("contentContainer", d);
         this.getContentsContainer().appendChild(d);
-        d.appendChild(contentDom);
+        contentDom && d.appendChild(contentDom);
       }
     };
 
@@ -19243,7 +19251,7 @@ Template
     };
 
     Tab.prototype.removeTab = function(tab) {
-      var contentContainer, obj, tabDom, targetDom, targetTab;
+      var contentContainer, index, obj, sibling, tabDom, targetDom, targetTab;
       if (tab instanceof cola.TabButton) {
         obj = tab;
       } else if (typeof tab === "string") {
@@ -19252,7 +19260,13 @@ Template
       if (obj) {
         if (this.get("currentTab") === obj) {
           tabDom = obj._dom;
-          targetDom = tabDom.previousElementSibling || tabDom.nextElementSibling;
+          sibling = $(tabDom).parent().find(">tab,>.tab-button");
+          index = sibling.index(tabDom);
+          if (index > 0) {
+            targetDom = sibling[index - 1];
+          } else if (index < sibling.length - 1) {
+            targetDom = sibling[index + 1];
+          }
           if (targetDom) {
             targetTab = cola.widget(targetDom);
             if (!this.setCurrentTab(targetTab)) {
@@ -20973,7 +20987,7 @@ Template
     };
 
     AbstractInput.prototype._refreshLabel = function() {
-      var label, labelPosition, rightLabeled;
+      var label, labelPosition, labelWidget, rightLabeled;
       if (!this._dom) {
         return;
       }
@@ -20987,7 +21001,12 @@ Template
       rightLabeled = labelPosition === "right";
       this._classNamePool.add(rightLabeled ? "right labeled" : "labeled");
       if (rightLabeled) {
-        this._dom.appendChild(label);
+        labelWidget = cola.widget(label);
+        if (labelWidget) {
+          this._dom.appendChild(labelWidget.getDom());
+        } else {
+          this._dom.appendChild(label);
+        }
       } else {
         $(this._doms.input).before(label);
       }
@@ -21076,9 +21095,6 @@ Template
       AbstractInput.__super__._doRefreshDom.call(this);
       this._finalReadOnly = !!this.get("readOnly");
       this._refreshIcon();
-      this._refreshButton();
-      this._refreshCorner();
-      this._refreshLabel();
       this._refreshInput();
     };
 
@@ -21420,455 +21436,128 @@ Template
 
   cola.registerWidget(cola.Progress);
 
-  cola.RadioButton = (function(superClass) {
-    extend(RadioButton, superClass);
-
-    function RadioButton() {
-      return RadioButton.__super__.constructor.apply(this, arguments);
-    }
-
-    RadioButton.tagName = "c-radio";
-
-    RadioButton.CLASS_NAME = "checkbox";
-
-    RadioButton.INPUT_TYPE = "radio";
-
-    RadioButton.attributes = {
-      type: {
-        "enum": ["radio", "toggle", "slider"],
-        defaultValue: "radio",
-        refreshDom: true,
-        setter: function(value) {
-          var oldValue;
-          oldValue = this._type;
-          this._type = value;
-          if (oldValue && this._dom && oldValue !== value) {
-            $fly(this._dom).removeClass(oldValue);
-          }
-          return this;
-        }
-      },
-      label: {
-        refreshDom: true
-      },
-      name: {
-        refreshDom: true
-      },
-      disabled: {
-        type: "boolean",
-        refreshDom: true,
-        defaultValue: false
-      },
-      checked: {
-        type: "boolean",
-        refreshDom: true,
-        defaultValue: false
-      },
-      value: {
-        defaultValue: true,
-        refreshDom: true
-      },
-      readOnly: {
-        type: "boolean",
-        refreshDom: true,
-        defaultValue: false
-      }
-    };
-
-    RadioButton._modelValue = false;
-
-    RadioButton.prototype._parseDom = function(dom) {
-      var $dom, child, nameAttr;
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      $dom = this.get$Dom();
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          if (child.nodeName === "LABEL") {
-            this._doms.label = child;
-            if (this._label == null) {
-              this._label = cola.util.getTextChildData(child);
-            }
-          } else if (child.nodeName === "INPUT") {
-            nameAttr = child.getAttribute("name");
-            if (nameAttr) {
-              if (this._name == null) {
-                this._name = nameAttr;
-              }
-            }
-            this._doms.input = child;
-          }
-        }
-        child = child.nextSibling;
-      }
-      if (!this._doms.label && !this._doms.input) {
-        $dom.append($.xCreate([
-          {
-            tagName: "input",
-            type: this.constructor.INPUT_TYPE,
-            contextKey: "input",
-            name: this._name || ""
-          }, {
-            tagName: "label",
-            content: this._label || "",
-            contextKey: "label"
-          }
-        ], this._doms));
-      }
-      if (!this._doms.label) {
-        this._doms.label = $.xCreate({
-          tagName: "label",
-          content: this._label || this._value || ""
-        });
-        $dom.append(this._doms.label);
-      }
-      if (!this._doms.input) {
-        this._doms.input = $.xCreate({
-          tagName: "input",
-          type: this.constructor.INPUT_TYPE,
-          name: this._name
-        });
-        $(this._doms.label).before(this._doms.input);
-      }
-      this._bindToSemantic();
-    };
-
-    RadioButton.prototype._createDom = function() {
-      return $.xCreate({
-        tagName: "DIV",
-        "class": "ui " + this.constructor.CLASS_NAME,
-        content: [
-          {
-            tagName: "input",
-            type: this.constructor.INPUT_TYPE,
-            contextKey: "input",
-            name: this._name
-          }, {
-            tagName: "label",
-            content: this._label || this._value || "",
-            contextKey: "label"
-          }
-        ]
-      }, this._doms);
-    };
-
-    RadioButton.prototype._bindToSemantic = function() {
-      return this.get$Dom().checkbox({
-        onChange: (function(_this) {
-          return function() {
-            return _this._changeState();
-          };
-        })(this)
-      });
-    };
-
-    RadioButton.prototype._changeState = function() {
-      var ref;
-      this._checked = this.get$Dom().checkbox("is checked");
-      if (this._checked) {
-        return (ref = this._parent) != null ? ref.set("value", this._value) : void 0;
-      }
-    };
-
-    RadioButton.prototype._setDom = function(dom, parseChild) {
-      this._dom = dom;
-      if (!parseChild) {
-        this._bindToSemantic();
-      }
-      RadioButton.__super__._setDom.call(this, dom, parseChild);
-    };
-
-    RadioButton.prototype._refreshEditorDom = function() {
-      var $dom;
-      $dom = this.get$Dom();
-      if (this._checked === $dom.checkbox("is checked")) {
-        return;
-      }
-      return $dom.checkbox(this._checked ? "check" : "uncheck");
-    };
-
-    RadioButton.prototype._doRefreshDom = function() {
-      var $dom, label, readOnly;
-      if (!this._dom) {
-        return;
-      }
-      RadioButton.__super__._doRefreshDom.call(this);
-      if (this._doms == null) {
-        this._doms = {};
-      }
-      label = this._label || this._value || "";
-      $(this._doms.label).text(label);
-      readOnly = this.get("readOnly");
-      this._classNamePool.toggle("read-only", readOnly);
-      this._classNamePool.add(this._type);
-      $dom = this.get$Dom();
-      $dom.checkbox(!!this._disabled ? "disable" : "enable");
-      $(this._doms.input).attr("name", this._name).attr("value", this._value);
-      return this._refreshEditorDom();
-    };
-
-    RadioButton.prototype.toggle = function() {
-      var state;
-      state = !!this.get("checked");
-      this.set("checked", !state);
-      return this;
-    };
-
-    RadioButton.prototype.remove = function() {
-      RadioButton.__super__.remove.call(this);
-      return delete this._parent;
-    };
-
-    RadioButton.prototype.destroy = function() {
-      if (this._destroyed) {
-        return this;
-      }
-      delete this._parent;
-      RadioButton.__super__.destroy.call(this);
-      return delete this._doms;
-    };
-
-    return RadioButton;
-
-  })(cola.Widget);
-
-  cola.registerWidget(cola.RadioButton);
-
-  emptyRadioGroupItems = [];
-
   cola.RadioGroup = (function(superClass) {
     extend(RadioGroup, superClass);
 
-    RadioGroup.tagName = "c-radioGroup";
-
-    RadioGroup.CLASS_NAME = "grouped";
-
-    RadioGroup.attributes = {
-      name: null,
-      items: {
-        setter: function(items) {
-          var i, index, item, len1, len2, len3, n, o, q;
-          if (typeof items === "string") {
-            items = items.split(/[\,,\;]/);
-            for (i = n = 0, len1 = items.length; n < len1; i = ++n) {
-              item = items[i];
-              index = item.indexOf("=");
-              if (index >= 0) {
-                items[i] = {
-                  value: item.substring(0, index),
-                  label: item.substring(index + 1)
-                };
-              }
-            }
-          } else if (items instanceof Array) {
-            for (o = 0, len2 = items.length; o < len2; o++) {
-              item = items[o];
-              if (item.value == null) {
-                item.value = item.key;
-              }
-              if (item.label == null) {
-                item.label = item.text;
-              }
-            }
-          }
-          this.clear();
-          for (q = 0, len3 = items.length; q < len3; q++) {
-            item = items[q];
-            this._addItem(item);
-          }
-          return this;
-        }
-      },
-      type: {
-        "enum": ["radio", "toggle", "slider"],
-        defaultValue: "radio",
-        refreshDom: true,
-        setter: function(value) {
-          var item, len1, n, ref;
-          this._type = value;
-          if (this._items) {
-            ref = this._items;
-            for (n = 0, len1 = ref.length; n < len1; n++) {
-              item = ref[n];
-              item.set("type", value);
-            }
-          }
-          return this;
-        }
-      }
-    };
-
-    function RadioGroup(config) {
-      RadioGroup.__super__.constructor.call(this, config);
-      if (this._name == null) {
-        this._name = (new Date()).getTime() + "";
-      }
-      return;
+    function RadioGroup() {
+      return RadioGroup.__super__.constructor.apply(this, arguments);
     }
 
-    RadioGroup.prototype._doRefreshDom = function() {
-      var item, len1, n, ref, value;
-      if (!this._dom) {
-        return;
-      }
-      RadioGroup.__super__._doRefreshDom.call(this);
-      value = this._value;
-      if (!this._items) {
-        return;
-      }
-      ref = this._items;
-      for (n = 0, len1 = ref.length; n < len1; n++) {
-        item = ref[n];
-        item.set("readOnly", this._readOnly);
-        item.set("checked", item.get("value") === value);
-      }
+    RadioGroup.tagName = "c-radio-group";
+
+    RadioGroup.CLASS_NAME = "ui radio-group";
+
+    RadioGroup.attributes = {
+      items: {
+        expressionType: "repeat",
+        setter: function(items) {
+          var result;
+          if (!this._valueProperty && !this._textProperty) {
+            result = cola.util.decideValueProperty(items);
+            if (result) {
+              this._valueProperty = result.valueProperty;
+              this._textProperty = result.textProperty;
+            }
+          }
+          this._items = items;
+          if (this._itemsTimestamp !== (items != null ? items.timestamp : void 0)) {
+            if (items) {
+              this._itemsTimestamp = items.timestamp;
+            }
+            delete this._itemsIndex;
+          }
+        }
+      },
+      valueProperty: null,
+      textProperty: null
     };
 
     RadioGroup.prototype._initDom = function(dom) {
-      var item, itemDom, len1, n, ref;
+      var selector;
       RadioGroup.__super__._initDom.call(this, dom);
-      if (!this._items) {
-        return;
-      }
-      ref = this._items;
-      for (n = 0, len1 = ref.length; n < len1; n++) {
-        item = ref[n];
-        itemDom = item.getDom();
-        if (itemDom.parentNode === this._dom) {
-          continue;
+      selector = this;
+      return $(dom).delegate(">item", "click", function() {
+        var value;
+        if (selector._readOnly) {
+          return;
         }
-        this._dom.appendChild(itemDom);
-      }
-    };
-
-    RadioGroup.prototype._parseDom = function(dom) {
-      var child, widget;
-      child = dom.firstChild;
-      while (child) {
-        if (child.nodeType === 1) {
-          widget = cola.widget(child);
-          if (widget && widget instanceof cola.RadioButton) {
-            this._addItem(widget);
-          }
-        }
-        child = child.nextSibling;
-      }
-    };
-
-    RadioGroup.prototype._addItem = function(item) {
-      var classType, config, radioBtn, radioDom;
-      if (this._destroyed) {
-        return this;
-      }
-      if (this._items == null) {
-        this._items = [];
-      }
-      if (item instanceof cola.RadioButton) {
-        radioBtn = item;
-      } else {
-        classType = cola.util.getType(item);
-        if (classType === "number" || classType === "string") {
-          config = {
-            value: item
-          };
-        } else {
-          if (item.hasOwnProperty("key")) {
-            config = $.extend(item, null);
-            config.label = item.value;
-            config.value = item.key;
-          } else {
-            config = item;
-          }
-        }
-        radioBtn = new cola.RadioButton(config);
-      }
-      if (!radioBtn) {
-        return;
-      }
-      radioBtn.set({
-        name: this._name,
-        type: this._type
+        value = $(this).find("input").attr("value");
+        selector._setValue(value);
+        return selector._select(value);
       });
-      radioBtn._parent = this;
-      this._items.push(radioBtn);
-      if (this._dom) {
-        radioDom = radioBtn.getDom();
-        radioDom.parentNode !== this._dom;
-        this._dom.appendChild(radioDom);
-      }
-      return this;
     };
 
-    RadioGroup.prototype.addRadioButton = function(config) {
-      this._addItem(config);
-      return this;
+    RadioGroup.prototype._doRefreshDom = function() {
+      var itemsDom, value;
+      RadioGroup.__super__._doRefreshDom.call(this);
+      itemsDom = this._getItemsDom();
+      if (itemsDom) {
+        $fly(this._dom).empty();
+        $fly(this._dom).append(itemsDom);
+      }
+      value = this._value;
+      return this._select(value);
     };
 
-    RadioGroup.prototype.getRadioButton = function(index) {
-      var item, len1, n, ref;
-      if (!this._items) {
-        return;
+    RadioGroup.prototype._select = function(value) {
+      return $(this._dom).find("[value='" + value + "']")[0].checked = true;
+    };
+
+    RadioGroup.prototype._getItemsDom = function() {
+      var attrBinding, cText, cValue, item, itemsDom, len1, n, raw, ref, ref1;
+      attrBinding = (ref = this._elementAttrBindings) != null ? ref["items"] : void 0;
+      if (this._name == null) {
+        this._name = "name_" + cola.sequenceNo();
       }
-      if (typeof index === "string") {
-        ref = this._items;
-        for (n = 0, len1 = ref.length; n < len1; n++) {
-          item = ref[n];
-          if (item.get("value") === index) {
-            return;
-          }
+      if (attrBinding) {
+        if (this._textProperty) {
+          cText = "item." + this._textProperty;
+        } else {
+          cText = "item";
         }
-      } else {
-        return this._items[index];
-      }
-      return null;
-    };
-
-    RadioGroup.prototype.removeRadioButton = function(index) {
-      var radio;
-      if (index instanceof cola.RadioButton) {
-        radio = index;
-      } else {
-        radio = getRadioButton(index);
-      }
-      if (!radio) {
-        return this;
-      }
-      index = this._items.indexOf(radio);
-      this._items.splice(index, 1);
-      radio.remove();
-      return this;
-    };
-
-    RadioGroup.prototype.clear = function() {
-      var item, len1, n, ref;
-      if (!this._items) {
-        return;
-      }
-      ref = this._items;
-      for (n = 0, len1 = ref.length; n < len1; n++) {
-        item = ref[n];
-        item.destroy();
-      }
-      return this._items = [];
-    };
-
-    RadioGroup.prototype.destroy = function() {
-      var item, len1, n, ref;
-      if (this._destroyed) {
-        return this;
-      }
-      if (this._items) {
-        ref = this._items;
-        for (n = 0, len1 = ref.length; n < len1; n++) {
-          item = ref[n];
-          item.destroy();
+        if (this._valueProperty) {
+          cValue = "item." + this._valueProperty;
+        } else {
+          cValue = "item";
         }
-        delete this._items;
+        raw = attrBinding.expression.raw;
+        itemsDom = cola.xRender({
+          tagName: "item",
+          "c-repeat": "item in " + raw,
+          content: [
+            {
+              tagName: "input",
+              type: "radio",
+              name: this._name,
+              "c-value": cValue
+            }, {
+              tagName: "label",
+              "c-bind": cText
+            }
+          ]
+        }, attrBinding.scope);
+      } else {
+        itemsDom = document.createDocumentFragment();
+        ref1 = this._items;
+        for (n = 0, len1 = ref1.length; n < len1; n++) {
+          item = ref1[n];
+          itemsDom.appendChild({
+            tagName: "item",
+            "c-repeat": "item in " + raw,
+            content: [
+              {
+                tagName: "input",
+                type: "radio",
+                name: this._name,
+                value: item.value
+              }, {
+                tagName: "label"
+              }
+            ]
+          });
+        }
       }
-      RadioGroup.__super__.destroy.call(this);
-      return this;
+      return itemsDom;
     };
 
     return RadioGroup;
@@ -22262,7 +21951,10 @@ Template
             inputValue: _this._doms.input.value
           };
           _this.fire("keyDown", _this, arg);
-          if (_this._onKeyDown(evt) !== false && _this._dropdownContent) {
+          if (evt.keyCode === 9) {
+            _this._closeDropdown();
+          }
+          if (typeof _this === "function" ? _this(_onKeyDown(evt) !== false && _this._dropdownContent) : void 0) {
             $(_this._dropdownContent).trigger(evt);
           }
         };
@@ -22660,6 +22352,12 @@ Template
       }
     };
 
+    AbstractDropdown.prototype._closeDropdown = function() {
+      var container;
+      container = this._getContainer();
+      return container != null ? typeof container.hide === "function" ? container.hide() : void 0 : void 0;
+    };
+
     AbstractDropdown.prototype._getItemValue = function(item) {
       var value;
       if (this._valueProperty && item) {
@@ -22776,6 +22474,9 @@ Template
         return function(evt) {
           var dropContainerDom, dropdownDom, inDropdown, target;
           target = evt.target;
+          if (!_this._dropdown) {
+            return;
+          }
           dropdownDom = _this._dropdown._dom;
           dropContainerDom = _this._dom;
           while (target) {
@@ -23658,7 +23359,10 @@ Template
             altlKey: event.altlKey,
             event: event
           };
-          return _this.fire("keyDown", _this, arg);
+          _this.fire("keyDown", _this, arg);
+          if (arg.keyCode === 9) {
+            return _this._closeDropdown();
+          }
         };
       })(this)).on("keypress", (function(_this) {
         return function(event) {
@@ -32390,7 +32094,9 @@ Template
       child = dom.firstChild;
       while (child) {
         cola.xRender(child);
-        child.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
+        if (typeof child.setAttribute === "function") {
+          child.setAttribute(cola.constants.IGNORE_DIRECTIVE, true);
+        }
         child = child.nextSibling;
       }
       columns = [];

@@ -6972,6 +6972,50 @@ html.ios body {
 .ui.grouped .toggle {
   padding: 0 0.5em;
 }
+.ui.radio-group > item {
+  display: inline-block;
+  padding: 0 0.5em;
+  height: auto;
+  cursor: pointer;
+}
+.ui.radio-group > item input {
+  display: none;
+}
+.ui.radio-group > item input + label {
+  padding: 0 0 0 1.5em;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+.ui.radio-group > item input + label:before {
+  -webkit-appearance: none;
+  background-color: #fafafa;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  content: "";
+}
+.ui.radio-group > item input:checked + label:before {
+  border-color: #2185d0;
+}
+.ui.radio-group > item input:checked + label:after {
+  -webkit-appearance: none;
+  background-color: #2185d0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  content: "";
+}
+.ui.radio-group > item:hover input:not(:checked) + label:before {
+  border-color: #2185d0;
+}
 
 .ui.sidebar {
   display: none;
