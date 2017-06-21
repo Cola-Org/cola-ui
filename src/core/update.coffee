@@ -8,6 +8,16 @@ cola.util.dirtyTree = (data, options) ->
 	context.entityMap = {}
 	return _extractDirtyTree(data, context, options or {})
 
+cola.util.collectValidateMessages = (entityMap) ->
+	context = {}
+	for entityId, entity of entityMap
+		messages = entity.findMessages()
+		if messages
+			for message in messages
+				context[message.type] ?= []
+				context[message.type].push(message)
+	return context
+
 _processEntity = (entity, context, options) ->
 	toJSONOptions =
 		simpleValue: true
@@ -60,6 +70,11 @@ cola.util.update = (url, data, options = {}) ->
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
 
+	if not options.ignoreValidation
+		messages = cola.util.collectValidateMessages(context.entityMap)
+		if messages.error
+			return $.Deferred().reject(messages)
+
 	if options.preProcessor
 		data = options.preProcessor(data, options)
 
@@ -107,3 +122,64 @@ cola.util.update = (url, data, options = {}) ->
 			return responseData.result
 	else
 		return $.Deferred().reject("NO_DATA")
+
+cola.util.autoUpdate = (url, model, path, options = {}) ->
+	delay = options.delay or 5000
+
+	autoUpdateHanlder =
+		_doneHandlers: [],
+		_failHandlers: [],
+
+		_updateTimerId: 0,
+		dirty: false
+
+		schedule: () ->
+			if @_updateTimerId
+				clearTimeout(@_updateTimerId)
+				@_updateTimerId = 0
+
+			@dirty = true
+			@_updateTimerId = setTimeout(() =>
+				@updateIfNecessary()
+				return
+			, delay)
+			return
+
+		updateIfNecessary: () ->
+			if @dirty
+				@dirty = false
+				@_updateTimerId = 0
+				data = model.get(path, "never")
+				if data
+					cola.util.update(url, data, options).done((result) =>
+						retVal = @_notify("done", result)
+						return retVal
+					).fail((result) =>
+						return @_notify("fail", result)
+					)
+				return true
+			return false
+
+		_notify: (type, result) ->
+			for handler in @["_" + type + "Handlers"]
+				retVal = handler(result)
+				if retVal isnt undefined
+					result = retVal
+			return result
+
+		done: (fn) ->
+			@_doneHandlers.push(fn)
+			return @
+
+		fail: (fn) ->
+			@_failHandlers.push(fn)
+			return @
+
+	model.watch path + ".**", (messagePath, type) ->
+		if type is cola.constants.MESSAGE_PROPERTY_CHANGE or
+		  type is cola.constants.MESSAGE_INSERT or
+		  type is cola.constants.MESSAGE_REMOVE
+			autoUpdateHanlder.schedule()
+		return
+
+	return autoUpdateHanlder

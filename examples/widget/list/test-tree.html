@@ -36,9 +36,9 @@
 				model.set("nodes", [{"name":"江苏","nodes":[{"name":"南京","nodes":[{"name":"高淳县"},{"name":"溧阳县"}]},{"name":"苏州"}]},
 					{"name":"安徽","nodes":[{"name":"合肥"},{"name":"芜湖"}]}
 				]);
+
 				model.action({
 					remove: function (node) {
-						console.log(node)
 						node.remove(true);
 					},
 					add: function () {

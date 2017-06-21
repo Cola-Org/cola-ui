@@ -576,23 +576,22 @@ class cola.Entity
 				}) is false
 					return
 
-			if property
-				if property._validators and property._rejectInvalidValue
-					messages = null
-					for validator in property._validators
-						if value? or validator instanceof cola.RequiredValidator
-							unless validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
-								message = validator.validate(value)
-								if message
-									messages ?= []
-									if message instanceof Array
-										Array::push.apply(messages, message)
-									else
-										messages.push(message)
-					if messages
-						for message in messages
-							if message is "error"
-								throw new cola.Exception(message.text)
+			if property?._validators and property._rejectInvalidValue
+				messages = null
+				for validator in property._validators
+					if value? or validator instanceof cola.RequiredValidator
+						unless validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
+							message = validator.validate(value)
+							if message
+								messages ?= []
+								if message instanceof Array
+									Array::push.apply(messages, message)
+								else
+									messages.push(message)
+				if messages
+					for message in messages
+						if message is "error"
+							throw new cola.Exception(message.text)
 
 			if @_disableWriteObservers is 0 and not isSpecialProp
 				if oldValue? and (oldValue instanceof _Entity or oldValue instanceof _EntityList)
@@ -623,19 +622,23 @@ class cola.Entity
 					oldValue: oldValue
 				})
 
-			if messages != undefined
-				@_messageHolder?.clear(prop)
-				@addMessage(prop, messages)
+			if property?._validators
+				if messages != undefined
+					@_messageHolder?.clear(prop)
+					@addMessage(prop, messages)
 
-				if value?
-					for validator in property._validators
-						if not validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
-							validator.validate(value, (message) =>
-								if message then @addMessage(prop, message)
-								return
-							)
-			else
-				@validate(prop)
+					if value?
+						for validator in property._validators
+							if not validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
+								validator.validate(value, (message) =>
+									if message
+										message.entity = @
+										message.property = prop
+										@addMessage(prop, message)
+									return
+								)
+				else
+					@validate(prop)
 
 			if @dataType and @dataType.getListeners("dataChange")
 				@dataType.fire("dataChange", @dataType, {
@@ -897,13 +900,18 @@ class cola.Entity
 					if not validator._disabled
 						if validator instanceof cola.AsyncValidator and validator.get("async")
 							validator.validate(data, (message) =>
-								if message then @addMessage(prop, message)
+								if message
+									message.entity = @
+									message.property = prop
+									@addMessage(prop, message)
 								return
 							)
 						else
 							message = validator.validate(data)
 							if message
-								@_addMessage(prop, message)
+								message.entity = @
+								message.property = prop
+								@addMessage(prop, message)
 								messageChanged = true
 		return messageChanged
 
@@ -1715,7 +1723,7 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 			else
 				isLast = (i is lastIndex)
 				if not noEntityList and not isLast
-						returnCurrent = true
+					returnCurrent = true
 
 			if data instanceof _Entity
 				data = data._get(part, loadMode, (result) ->

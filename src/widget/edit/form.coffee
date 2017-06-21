@@ -46,38 +46,39 @@ class cola.Form extends cola.Widget
 						content: []
 					childDoms.push(fieldsDom)
 
+				labelUserData = { captionSetted: true }
 				if field.editContent
 					if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
 						field.editContent.readOnly = field.readOnly
 
 					fieldContent = [
-						{ tagName: "label", content: caption }
+						{ tagName: "label", content: caption, data: labelUserData }
 						field.editContent
 					]
 				else if propertyType instanceof cola.BooleanDataType
 					if field.type is "checkbox"
 						fieldContent = [
-							{ tagName: "label", content: caption }
+							{ tagName: "label", content: caption, data: labelUserData }
 							{ tagName: "c-checkbox", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 						]
 					else
 						fieldContent = [
-							{ tagName: "label", content: caption }
+							{ tagName: "label", content: caption, data: labelUserData }
 							{ tagName: "c-toggle", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 						]
 				else if field.type is "date" or propertyType instanceof cola.DateDataType
 					fieldContent = [
-						{ tagName: "label", content: caption }
+						{ tagName: "label", content: caption, data: labelUserData }
 						{ tagName: "c-datepicker", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 					]
 				else if field.type is "textarea"
 					fieldContent = [
-						{ tagName: "label", content: caption }
+						{ tagName: "label", content: caption, data: labelUserData }
 						{ tagName: "c-textarea", bind: @_bind  + "." + field.property, readOnly: field.readOnly, height: field.height or "4em" }
 					]
 				else
 					fieldContent = [
-						{ tagName: "label", content: caption }
+						{ tagName: "label", content: caption, data: labelUserData }
 						{ tagName: "c-input", bind: @_bind + "." + field.property, readOnly: field.readOnly }
 					]
 
@@ -179,6 +180,7 @@ class cola.Field extends cola.Widget
 					@_bind = bindStr
 				return
 
+		caption: null
 		property: null
 		readOnly: null
 
@@ -217,19 +219,28 @@ class cola.Field extends cola.Widget
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
 
-		bind = bind or @_bind
-		if bind
-			@_bind = null
-			@_bindSetter(bind)
-			propertyDef = @getBindingProperty()
-			if propertyDef
-				$label = $fly(@_labelDom)
-				$label.text(propertyDef._caption or propertyDef._name)
-				if propertyDef._validators
-					for validator in propertyDef._validators
-						if validator instanceof cola.RequiredValidator
-							$label.addClass("required")
-							break
+		if @_labelDom
+			$label = $fly(@_labelDom)
+			if not $label.data("labelUserData")
+				if @_form?._dataType and @_property
+					propertyDef = @_form._dataType.getProperty(@_property)
+				else
+					bind = bind or @_bind
+					if bind
+						@_bind = null
+						@_bindSetter(bind)
+						propertyDef = @getBindingProperty()
+
+				if propertyDef
+					if @_labelDom.innerHTML is ""
+						$label.text(@_caption or propertyDef.get("caption") or @_property)
+					if propertyDef._validators
+						for validator in propertyDef._validators
+							if validator instanceof cola.RequiredValidator
+								$label.addClass("required")
+								break
+			else if @_caption and @_labelDom.innerHTML is ""
+				$label.text(@_caption)
 		return
 
 	_filterDataMessage: (path, type, arg) ->

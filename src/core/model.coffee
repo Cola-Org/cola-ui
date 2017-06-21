@@ -631,9 +631,18 @@ class cola.AbstractDataModel
 		if @_aliasMap
 			i = path.indexOf('.')
 			firstPart = if i > 0 then path.substring(0, i) else path
+
+			if firstPart.charCodeAt(firstPart.length - 1) is 35 # '#'
+				returnCurrent = true
+				firstPart = firstPart.substring(0, firstPart.length - 1)
+
 			aliasHolder = @_aliasMap[firstPart]
 			if aliasHolder
 				aliasData = aliasHolder.data
+
+				if aliasData and aliasData instanceof _EntityList and  returnCurrent
+					aliasData = aliasData.current
+
 				if i > 0
 					if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 						loadMode = "async"
@@ -949,8 +958,9 @@ class cola.DataModel extends cola.AbstractDataModel
 			if not (definition instanceof cola.Definition)
 				definition = new cola.EntityDataType(definition)
 				@_definitionStore[name] = definition
-			if not definition
-				definition = @model.parent.data.definition(name)
+
+		if not definition and @model.parent
+			definition = @model.parent.data.definition(name)
 
 		if not definition
 			definition = cola.DataType.defaultDataTypes[name]
