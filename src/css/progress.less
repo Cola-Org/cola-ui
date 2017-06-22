@@ -79,6 +79,25 @@ c-progress, .ui.progress {
 			}
 		}
 	}
+
+	&.plain {
+		text {
+			display: none !important;
+		}
+		&:not(.circle) {
+			height: @basicProgressHeight/2;
+			> .track {
+				top: 0;
+				margin-top: 0;
+				border-radius: 0;
+				height: @basicProgressHeight/2;
+				.progress {
+					border-radius: 0;
+					height: @basicProgressHeight/2;
+				}
+			}
+		}
+	}
 	@basicProgressHeight: 1em;
 	&:not(.circle) {
 		height: 2em;
@@ -106,6 +125,7 @@ c-progress, .ui.progress {
 			right: 0px;
 			top: 0px;
 			width: 4em;
+			transform: scale(0.85, 0.85);
 			line-height: 2em;
 		}
 
@@ -122,6 +142,7 @@ c-progress, .ui.progress {
 				top: 0px;
 				color: #fff;
 				line-height: 2em;
+				transform: scale(0.75, 0.75);
 			}
 		}
 
