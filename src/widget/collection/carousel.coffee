@@ -87,7 +87,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 		template = @getTemplate()
 		carousel = @
-		debugger
+		
 
 		if template
 			if @_bind
@@ -109,7 +109,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 		@setCurrentIndex(0)
 		carousel = @
-		debugger
+		
 		setTimeout(()->
 			carousel._scroller = new Swipe(carousel._dom, {
 				vertical: carousel._orientation == "vertical",

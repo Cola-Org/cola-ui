@@ -36,6 +36,15 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			setter: (value)-> @_setValue(value)
 
 	@_modelValue: false
+
+	post: ()->
+		if @_bindInfo?.writeable
+			entity = @_scope.get(@_bindInfo.entityPath)
+			if entity instanceof cola.EntityList
+				entity = entity.current
+			if entity
+				super()
+		return @
 	_parseDom: (dom)->
 		@_doms ?= {}
 		@_$dom ?= $(dom)

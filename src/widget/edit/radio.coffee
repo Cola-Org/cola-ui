@@ -41,6 +41,8 @@ class cola.RadioGroup extends cola.AbstractEditor
 		@_select(value)
 
 	_select: (value)->
+		if typeof value == "undefined"
+			return
 		$(@_dom).find("[value='" + value + "']")[0].checked = true;
 
 	_getItemsDom: ()->
