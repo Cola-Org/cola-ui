@@ -17,12 +17,14 @@ class cola.SubView extends cola.Widget
 			readOnlyAfterCreate: true
 		timeout:
 			readOnlyAfterCreate: true
+
 		parentModel: null
 		modelName: null
 		contentModel:
 			readOnly: true
 			getter: () ->
 				return if @_dom then cola.util.userData(@_dom, "_model") else null
+
 		param:
 			readOnlyAfterCreate: true
 
@@ -134,7 +136,8 @@ class cola.SubView extends cola.Widget
 			callback = options
 			options = null
 
-		if @_currentUrl and @_currentUrl is options?.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl
+		if  @_currentUrl and
+		  (not options or @_currentUrl is options.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl)
 			cola.callback(callback, true)
 		else
 			@load(options, callback)

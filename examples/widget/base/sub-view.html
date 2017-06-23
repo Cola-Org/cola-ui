@@ -8,11 +8,23 @@
 		cola(function (model) {
 			model.set("name", "Tom");
 
+			model.set("languages", [
+				{name: "Javascript"},
+				{name: "Java"},
+				{name: "C"},
+				{name: "C++"},
+				{name: "Coffee"},
+				{name: "Ruby"},
+				{name: "R"},
+				{name: "Python"},
+				{name: "Pascal"}
+			]);
+
 			model.widgetConfig({
 				btnLoad: {
 					$type: "button",
 					caption: "Load",
-					click: function() {
+					click: function () {
 						var subView = cola.widget("subView");
 						subView.load({
 							url: "sub-view-1.html",
@@ -24,24 +36,11 @@
 				btnUnload: {
 					$type: "button",
 					caption: "Unload",
-					click: function() {
+					click: function () {
 						var subView = cola.widget("subView");
 						subView.unload();
 					}
-				},
-				subView: {
-					$type: "subView",
-					height: 480
 				}
-			});
-
-			cola.ready(function() {
-				var subView = cola.widget("subView");
-				subView.load({
-					url: "sub-view-1.html",
-					jsUrl: "sub-view-1.js",
-					cssUrl: "sub-view-1.css"
-				});
 			});
 		});
 	</script>
@@ -54,7 +53,9 @@
 
 <p></p>
 
-<div id="subView" c-widget="subView"></div>
+<div>
+	<c-subview c-alias="languages as languages2" id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="$" style="height:480px"></c-subview>
+</div>
 
 </body>
 </html>

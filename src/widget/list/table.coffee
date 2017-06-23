@@ -463,7 +463,7 @@ class cola.Table extends cola.AbstractTable
 
 	_getFixedHeader: (create) ->
 		fixedHeaderWrapper = @_doms.fixedHeaderWrapper
-		if !fixedHeaderWrapper and create
+		if not fixedHeaderWrapper and create
 			fixedHeaderWrapper = $.xCreate({
 				tagName: "div"
 				contextKey: "fixedHeaderWrapper"
@@ -480,12 +480,11 @@ class cola.Table extends cola.AbstractTable
 					tagName: "tr"
 			)
 			@_refreshFakeRow(fakeThead.firstChild)
-			$fly(@_doms.tbody).before(fakeThead)
 		return fixedHeaderWrapper
 
 	_getFixedFooter: (create) ->
 		fixedFooterWrapper = @_doms.fixedFooterWrapper
-		if !fixedFooterWrapper and create
+		if not fixedFooterWrapper and create
 			fixedFooterWrapper = $.xCreate({
 				tagName: "div"
 				contextKey: "fixedFooterWrapper"
@@ -502,7 +501,6 @@ class cola.Table extends cola.AbstractTable
 					tagName: "tr"
 			)
 			@_refreshFakeRow(fakeTfoot.firstChild)
-			$fly(@_doms.tbody).after(fakeTfoot)
 		return fixedFooterWrapper
 
 	_refreshFixedColgroup: (colgroup, fixedColgroup) ->
@@ -552,20 +550,23 @@ class cola.Table extends cola.AbstractTable
 	_refreshFixedHeader: () ->
 		itemsWrapper = @_doms.itemsWrapper
 		scrollTop = itemsWrapper.scrollTop
-		showFixedHeader = scrollTop > 0
+		showFixedHeader = scrollTop > 0 and not (cola.browser.ie is 11)
 		return if showFixedHeader == @_fixedHeaderVisible
 
 		@_fixedHeaderVisible = showFixedHeader
 		if showFixedHeader
 			fixedHeader = @_getFixedHeader(true)
 			@_setFixedHeaderSize()
-			$fly(@_doms.tbody).before(@_doms.fakeThead)
+			if @_doms.fakeThead.parentNode
+				@_doms.fixedHeaderTable.removeChild(@_doms.fakeThead)
 			@_doms.fixedHeaderTable.appendChild(@_doms.thead)
+			$fly(@_doms.tbody).before(@_doms.fakeThead)
 			$fly(fixedHeader).width(itemsWrapper.clientWidth).show()
 		else
 			fixedHeader = @_getFixedHeader()
 			if fixedHeader
 				$fly(fixedHeader).hide()
+				@_doms.fixedHeaderTable.removeChild(@_doms.thead)
 				@_doms.fixedHeaderTable.appendChild(@_doms.fakeThead)
 				$fly(@_doms.tbody).before(@_doms.thead)
 		return
@@ -578,15 +579,17 @@ class cola.Table extends cola.AbstractTable
 		itemsWrapper = @_doms.itemsWrapper
 		scrollTop = itemsWrapper.scrollTop
 		maxScrollTop = itemsWrapper.scrollHeight - itemsWrapper.clientHeight
-		showFixedFooter = scrollTop < maxScrollTop
+		showFixedFooter = scrollTop < maxScrollTop and not (cola.browser.ie is 11)
 		return if showFixedFooter == @_fixedFooterVisible
 
 		@_fixedFooterVisible = showFixedFooter
 		if showFixedFooter
 			fixedFooter = @_getFixedFooter(true)
 			@_setFixedFooterSize()
-			$fly(@_doms.tbody).after(@_doms.fakeTfoot)
+			if @_doms.fakeTfoot.parentNode
+				@_doms.fixedFooterTable.removeChild(@_doms.fakeTfoot)
 			@_doms.fixedFooterTable.appendChild(@_doms.tfoot)
+			$fly(@_doms.tbody).after(@_doms.fakeTfoot)
 			$fixedFooter = $fly(fixedFooter).width(itemsWrapper.clientWidth)
 			if duration
 				$fixedFooter.fadeIn(duration)
@@ -596,6 +599,7 @@ class cola.Table extends cola.AbstractTable
 			fixedFooter = @_getFixedFooter()
 			if fixedFooter
 				$fly(fixedFooter).hide()
+				@_doms.fixedFooterTable.removeChild(@_doms.tfoot)
 				@_doms.fixedFooterTable.appendChild(@_doms.fakeTfoot)
 				$fly(@_doms.tbody).after(@_doms.tfoot)
 		return

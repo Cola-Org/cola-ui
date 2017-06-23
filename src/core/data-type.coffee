@@ -216,9 +216,9 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 	if aggregated == undefined
 		if json instanceof Array
 			aggregated = true
-		else if typeof json == "object" and json.hasOwnProperty("$data")
+		else if typeof json is "object" and json.hasOwnProperty("$data")
 			aggregated = json.$data instanceof Array
-		else if typeof json == "object" and json.hasOwnProperty("data$")
+		else if typeof json is "object" and json.hasOwnProperty("data$")
 			aggregated = json.data$ instanceof Array
 		else
 			aggregated = false
@@ -234,7 +234,7 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 		return new cola.Entity(json, dataType)
 
 cola.DataType.jsonToData = (json, dataType, aggregated, pageSize) ->
-	if dataType instanceof cola.StringDataType and typeof json != "string" or dataType instanceof cola.BooleanDataType and typeof json != "boolean" or dataType instanceof cola.NumberDataType and typeof json != "number" or dataType instanceof cola.DateDataType and !(json instanceof Date)
+	if dataType instanceof cola.StringDataType and typeof json isnt "string" or dataType instanceof cola.BooleanDataType and typeof json isnt "boolean" or dataType instanceof cola.NumberDataType and typeof json isnt "number" or dataType instanceof cola.DateDataType and not (json instanceof Date)
 		result = dataType.parse(json)
 	else if dataType instanceof cola.EntityDataType
 		result = cola.DataType.jsonToEntity(json, dataType, aggregated, pageSize)

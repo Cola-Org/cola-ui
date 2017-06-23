@@ -242,6 +242,10 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		domBinding = cola._domBindingBuilder[bindingType or "$"](dom, scope, features)
 		defaultPath = scope.data.alias if scope.data.alias
 
+	if domBinding?.scope
+		oldScope = scope
+		scope = domBinding.scope
+
 	if initializers
 		if context.inRepeatTemplate or bindingType is "repeat"
 			cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY, initializers)
@@ -270,6 +274,9 @@ _doRenderDomTemplate = (dom, scope, context) ->
 				customDomCompiler(scope, dom, context, childContext)
 	else
 		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
+
+	if oldScope
+		scope = oldScope
 
 	if features?.length
 		domBinding.refresh(true) unless context.inRepeatTemplate
