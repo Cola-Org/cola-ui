@@ -111,7 +111,7 @@ cola.unloadSubView = (targetDom, context) ->
 	return
 
 _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
-	if resUrl == "$"
+	if resUrl is "$"
 		defaultRes = true
 	else if resUrl.indexOf("$.") == 0
 		defaultRes = true

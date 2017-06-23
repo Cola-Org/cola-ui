@@ -427,16 +427,16 @@ class cola.AbstractTable extends cola.AbstractList
 		return unless dom
 		@_doms ?= {}
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			cola.xRender(child)
-			child.setAttribute?(cola.constants.IGNORE_DIRECTIVE, true)
-			child = child.nextSibling
+			child.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)
+			child = child.nextElementSibling
 
 		columns = []
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
-			next = child.nextSibling
+			next = child.nextElementSibling
 			nodeName = child.nodeName
 			if nodeName is "TEMPLATE"
 				@regTemplate(child)
