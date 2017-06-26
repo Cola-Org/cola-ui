@@ -131,6 +131,13 @@ class cola.WidgetModel extends cola.SubScope
 				return () -> method.apply(widget, arguments)
 			return widget._scope.action(name)
 
+	_getAction: (name) ->
+		method = @widget[name]
+		if method instanceof Function
+			fn = () -> method.apply(@widget, arguments)
+		fn ?= @parent?._getAction(name)
+		return @action(name)
+
 	processMessage: (bindingPath, path, type, arg) ->
 		if @messageTimestamp >= arg.timestamp then return
 		return @data.processMessage(bindingPath, path, type, arg)

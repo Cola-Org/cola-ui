@@ -40,6 +40,11 @@ class cola.Scope
 			delete @_childScopes
 		return
 
+	_getAction: (name) ->
+		fn = @action[name]
+		fn ?= @parent?._getAction(name)
+		return fn
+
 	get: (path, loadMode, context) ->
 		return @data.get(path, loadMode, context)
 
@@ -169,16 +174,7 @@ class cola.Model extends cola.Scope
 			store = @action
 			if arguments.length is 1
 				if typeof name is "string"
-					scope = @
-					while store
-						fn = store[name]
-						if fn
-							return fn.action or fn
-						scope = scope.parent
-						break unless scope
-						store = scope.action
-
-					return cola.defaultAction[name]
+					return @_getAction(name) or cola.defaultAction[name]
 				else if name and typeof name is "object"
 					config = name
 					for n, a of config
