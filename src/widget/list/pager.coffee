@@ -35,40 +35,49 @@ class cola.Pager extends cola.Menu
 					data = pager._getBindItems()
 					data?.previousPage()
 			pageSize:
-				$type: "input"
+				tagName: "c-input"
 				class: "page-item page-size"
-				inputType: "number",
-				initDom: (self, arg)->
-					self.get$Dom().find("input").attr("min", 0)
-					return
-				keyDown: (self, arg)->
-					k = arg.keyCode
-					if k is 190 then event.preventDefault()
+				content: [
+					{
+						tagName: "input",
+						type: "number"
+						min: "1"
+					}
+				]
 
-				change: (self, arg)->
-					value = arg.value
+				change: ()->
+					value = $(this).find("input").val()
 					collection = pager._getBindItems()
 					if collection
 						if value then value = parseInt(value)
 						if value is collection.pageSize then return
+
 						if collection instanceof cola.EntityList
 							invoker = collection._providerInvoker
 							invoker.ajaxService.set("pageSize", value)
-							cola.util.flush(collection)
+							collection.pageSize = value;
 			goto:
-				$type: "input"
-				class: "goto"
+				tagName: "c-input"
+				class: "goto action"
 				inputType: "number",
-				initDom: (self, arg)->
-					self.get$Dom().find("input").attr("min", 0)
-					return
-
-				keyDown: (self, arg)->
-					k = arg.keyCode
-					if k is 190 then event.preventDefault()
-
-				change: (self, arg)->
-					value = arg.value
+				content: [
+					{
+						tagName: "input",
+						min: "1",
+						type: "number"
+					},
+					{
+						tagName: "c-button"
+						caption: "Go"
+						click: ()->
+							if pager._targetPageNo
+								data = pager._getBindItems()
+								data?.gotoPage(pager._targetPageNo)
+					}
+				]
+				change: ()->
+					$input = $(this).find("input");
+					value = $input.val()
 					if value then value = parseInt(value)
 					if value is @_targetPageNo then return
 					data = pager._getBindItems()
@@ -80,21 +89,17 @@ class cola.Pager extends cola.Menu
 							if value > pageCount then value = pageCount
 							if value < 1 then value = 1
 							setTimeout(()->
-								self.get$Dom().find("input").val(value)
+								$input.val(value)
 							, 10)
-						button = self.get("actionButton")
-						setTimeout(()->
-							button.set("disabled", value is pageNo)
-						, 100)
+						buttonDom = $(this).find(".button")[0];
+						if buttonDom
+							button = cola.widget(buttonDom)
+							setTimeout(()->
+								button.set("disabled", value is pageNo)
+							, 100)
 						pager._targetPageNo = value
 
-				actionButton:
-					$type: "Button"
-					caption: "Go"
-					click: ()->
-						if pager._targetPageNo
-							data = pager._getBindItems()
-							data?.gotoPage(pager._targetPageNo)
+
 
 			nextPage:
 				icon: "angle right"
