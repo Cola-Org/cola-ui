@@ -5,12 +5,11 @@
     <title>表单布局</title>
     <script src="../include-all.js"></script>
     <style>
-        .ui.form > fields > field {
+        .ui.form > fields > field,form-layout > fields > field {
             position: relative;
             height: 4em;
         }
-
-        .ui.form > fields > field:before {
+        .ui.form > fields > field:before,form-layout > fields > field:before {
             position: absolute;
             content: "";
             left: 1px;
@@ -22,15 +21,6 @@
     </style>
 </head>
 <body>
-
-<v-box>
-    <box>
-
-    </box>
-    <flex-box>
-
-    </flex-box>
-</v-box>
 <div class="ui form">
     <fields class="cols-2">
         <field></field>
@@ -76,5 +66,51 @@
         <field></field>
     </fields>
 </div>
+
+<form-layout>
+    <fields class="cols-2">
+        <field></field>
+    </fields>
+    <fields class="cols-2">
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-3">
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-3">
+        <field class="cols-2"></field>
+        <field></field>
+    </fields>
+    <fields class="cols-4">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-6">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+    <fields class="cols-6">
+        <field class="cols-2"></field>
+        <field class="cols-3"></field>
+        <field></field>
+    </fields>
+    <fields class="cols-12">
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+        <field></field>
+    </fields>
+</form-layout>
 </body>
 </html>

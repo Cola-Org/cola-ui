@@ -1,33 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>Breadcrumb</title>
-	<script src="../../include-all.js"></script>
+    <meta charset="utf-8">
+    <title>Breadcrumb</title>
+    <script src="../../include-all.js"></script>
 </head>
 <body style="padding: 20px;" class="demo">
-<div c-widget="Breadcrumb">
-	<a class="section" href="#button" >home</a>
-	<a class="section" href="#list">store</a>
-</div>
-<p></p>
-
-<div id="jsonExample"></div>
-<p></p>
-<div c-widget="Breadcrumb; sections:{{sections}}; currentIndex:1"></div>
+<c-breadcrumb bind="sections" itemClick="itemClick"></c-breadcrumb>
+<c-button caption="刷新" click></c-button>
 <script type="text/javascript">
-	cola(function (model) {
-		model.set("sections",["首页","全部商品","爆款单品"])
-		model.widgetConfig({
-			jsonExample: {
-				$type: "Breadcrumb",
-				sections: [
-					"com", "bstek", "cola", "addons", "cola-ui"
-				],
-				currentIndex: 2
-			}
-		})
-	});
+    cola(function (model) {
+        model.set("sections", [
+            {text: "首页", href: "http://cola-ui.com"},
+            {text: "组件", href: "http://cola-ui.com/docs"},
+            {text: "按钮", href: "http://cola-ui.com/docs/button"}
+        ]);
+        model.action({
+            itemClick: function (self, arg) {
+                model.get("sections").setCurrent(arg.item)
+            }
+        })
+    });
 </script>
 </body>
 </html>

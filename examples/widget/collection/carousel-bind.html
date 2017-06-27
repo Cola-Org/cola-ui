@@ -5,19 +5,23 @@
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <title>Carousel</title>
     <script src="../../include-all.js"></script>
+    <style>
+        #carousel1 > .items-wrap > a {
+            font-size: 40px;
+            color: #fff;
+            padding: 20px;
+        }
+    </style>
     <script type="text/javascript">
         cola(function (model) {
+            model.set("items", [
+                {color: "blue", content: "Blue"},
+                {color: "red", content: "Red"},
+                {color: "yellow", content: "Yellow"},
+                {color: "orange", content: "Orange"}
+            ]);
             model.action({
                 setData: function () {
-                    model.set("items", [
-                        {image: "../../images/avatar/large/ade.jpg"},
-                        {image: "../../images/avatar/large/chris.jpg"},
-                        {image: "../../images/avatar/large/daniel.jpg"},
-                        {image: "../../images/avatar/large/christian.jpg"},
-                        {image: "../../images/avatar/large/helen.jpg"},
-                        {image: "../../images/avatar/large/laura.jpg"}
-                    ]);
-
                 },
                 clearData: function () {
                     model.set("items", []);
@@ -33,11 +37,9 @@
 <c-button caption="setData" click="setData"></c-button>
 <c-button caption="clearData" click="clearData"></c-button>
 <c-button caption="addData" click="addData"></c-button>
-<c-carousel bind="item in items" height="400">
+<c-carousel id="carousel1" bind="item in items" height="400">
     <template>
-        <a href="#" style="display:block">
-            <img c-widget="image; src:{{item.image}}; class:centered;"/>
-        </a>
+        <a href="#" style="display:block" c-class="item.color+'-background'" c-bind="item.content"></a>
     </template>
 </c-carousel>
 </body>

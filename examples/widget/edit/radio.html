@@ -9,32 +9,34 @@
 
 </head>
 <body style="padding: 20px;" class="">
-<div id="radioGroupDemo"></div>
-
+<c-radio-group items="{{items}}" bind="cValue" name="test"></c-radio-group>
+<!--<input c-repeat="item in items" c-bind="item.key" c-onclick="select(item)"/>-->
+<c-input bind="cValue"></c-input>
 <script type="text/javascript">
     cola(function (model) {
-        model.widgetConfig({
-            radioGroupDemo: {
-                $type: "RadioGroup",
-                name: "cola",
-                readOnly: true,
-                items: [
-                    {
-                        value: "苹果"
-                    },
-                    {
-                        value: "小米"
-                    },
-                    {
-                        value: "华为"
-                    },
-                    {
-
-                        value: "三星"
-                    }
-                ]
+        model.action({
+            select: function (item) {
+                debugger
             }
         })
+        model.set("items", [
+            {
+                key: 2,
+                value: "苹果"
+            },
+            {
+                key: 3,
+                value: "小米"
+            },
+            {
+                key: "C",
+                value: "三星"
+            },
+            {
+                key: "D",
+                value: "Google"
+            }
+        ]);
     })
 </script>
 </body>

@@ -19,12 +19,10 @@
 				{name: "Pascal"}
 			]);
 
-
 			model.set("items", [
 				{k: "1", v: "A"},
 				{k: "2", v: "B"}
 			]);
-
 
 			model.action({
 				pickValue: function (self) {
@@ -55,10 +53,17 @@
 					$type: "dropdown",
 					filterable: false,
 					openMode: "drop",
-					items: "{{language in languages}}",
+					//items: "{{language in languages}}",
 					bind: "selected",
 					valueProperty: "name",
-					textProperty: "name"
+					textProperty: "name",
+                    beforeChange: function (self, arg) {
+						debugger;
+                        console.log(arg)
+                    },
+					input:function (self,arg) {
+                        console.log(arg)
+                    }
 				},
 				dropdown2: {
 					$type: "dropdown",

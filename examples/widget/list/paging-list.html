@@ -29,43 +29,29 @@
                     allowNoCurrent: false,
                     height: "100%",
                     autoLoadPage: true,
-					currentPageOnly: true,
+                    currentPageOnly: true,
                     columns: [
                         {
-                            name: "medName"
+                            property: "medName"
                         }
                     ]
                 }
-
             });
         });
     </script>
     <style>
     </style>
 </head>
-<body style="padding:0px;margin:0;" class="v-box">
-<!--<c-pager c-bind="item in items">-->
-<!--<a caption="zcxv"></a>-->
-<!--<div class="right menu">-->
-<!--<a page-code="pages" class="item"></a>-->
-<!--</div>-->
-<!--</c-pager>-->
+<body style="padding:0px; margin:0;" class="v-box">
 <c-pager c-bind="item in items">
-    <!--<a page-code="|<" class="item"></a>-->
-    <!--<a page-code="<" class="item"></a>-->
-    <!--<div page-code="info" class="item"></div>-->
-    <!--<div page-code="goto" class="item"></div>-->
-    <!--<div page-code="pageSize" class="item"></div>-->
-    <!--<a page-code=">" class="item"></a>-->
-    <!--<a page-code=">|" class="item"></a>-->
-    <a page-code="pages" class="item"></a>
-    <div page-code="goto" class="item"></div>
-    <div page-code="pageSize" class="item"></div>
-</c-pager>
-<div class="flex-box" c-class="show:action;">
-    <div id="table">
-
+    <div class="right menu">
+        <a page-code="pages" class="item"></a>
+        <div page-code="pageSize" class="item"></div>
     </div>
+</c-pager>
+
+<div class="flex-box">
+
 </div>
 </body>
 </html>

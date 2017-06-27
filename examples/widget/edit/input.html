@@ -1,84 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<script src="../../include-all.js"></script>
-	<style>
-	</style>
-	<script type="text/javascript">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+    <style>
+    </style>
+    <script type="text/javascript">
 
-		cola(function (model) {
-			model.describe({
-				id: {
-					validators: ["required", "email"]
-				},
-				num: {
-					dataType: "int",
-					validators: [{
-						$type: "number",
-						min: 1,
-						max: 100
-					}]
-				}
-			});
-			model.set("username", "alex")
-			model.action({
-				inputChange: function () {
-					console.log("change")
-				}
-			})
-			model.widgetConfig({
-				inputEventTest: {
-					postOnInput:true,
-					focus: function (self, arg) {
-//						console.log("focus")
-					},
-					blur: function () {
-//						console.log("blur")
-					},
-					keyDown: function (self, arg) {
-						console.log("keyDown")
-						console.log(event);
-						console.log(event.altKey);
-						console.log(event.keyCode);
+        cola(function (model) {
+            model.describe({
+                id: {
+                    validators: ["required", "email"]
+                },
+                num: {
+                    dataType: "int",
+                    validators: [{
+                        $type: "number",
+                        min: 1,
+                        max: 100
+                    }]
+                }
+            });
 
-					},
-					keyPress: function (self, arg) {
+
+            model.set("person",{})
+            model.set("username", "alex")
+            model.action({
+                inputChange: function () {
+                    console.log("change")
+                }
+            })
+            model.widgetConfig({
+                inputEventTest: {
+                    postOnInput: true,
+//					focus: function (self, arg) {
+////						console.log("focus")
+//					},
+//					blur: function () {
+////						console.log("blur")
+//					},
+//					keyDown: function (self, arg) {
+//						console.log("keyDown")
+//						console.log(event);
+//						console.log(event.altKey);
+//						console.log(event.keyCode);
+//
+//					},
+                    keyPress: function (self, arg) {
 //						console.log("keyPress")
 //						console.log(arg)
-						console.log(self.get("value"))
-					}, change: function (self, arg) {
-						console.log("change");
-						console.log(arg)
-					}
-				}
-			});
-		});
-	</script>
+                        console.log(arg)
+                    },
+//					change: function (self, arg) {
+//						console.log("change");
+//						console.log(arg)
+//					}
+                }
+            });
+        });
+    </script>
 </head>
 <body style="padding:20px;">
 
-<div id="form1">
-	<div class="field">
-		<div id="inputEventTest" c-widget="input; bind:id;"></div>
-	</div>
-
-	<!--<div class="field">-->
-		<!--<div c-widget="input; bind:num; inputType:number;"></div>-->
-	<!--</div>-->
-
-	<!--<span c-bind="id"></span>-->
-
-	<!--<div class="field">-->
-		<!--<div id="inputEventTest" c-widget="input;"></div>-->
-	<!--</div>-->
-
-	<!--<div class="field">-->
-		<!--<input type="number">-->
-	<!--</div>-->
-
-	<!--<c-input maxLength="4"></c-input>-->
-</div>
-<!--<div class="fluid" c-widget="Input; placeholder:搜索99位同学; icon:search; iconPosition:left; bind:username; keydown:query"></div>-->
+<c-input class="action" bind="person.name">
+</c-input>
+<c-input c-readOnly="person.name?'false':'true'" >
+</c-input>
 </body>
+
 </html>

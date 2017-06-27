@@ -10,11 +10,11 @@
 <c-input c-bind="prop"></c-input>
 
 
-<c-select-button c-items="items" c-bind="prop" keyProperty="key" valueProperty="value"></c-select-button>
+<c-select-button class="mini" c-items="items" c-bind="prop" valueProperty="key" textProperty="value"></c-select-button>
 
 <script type="text/javascript">
     cola(function (model) {
-        model.set("prop", "苹果");
+        model.set("prop", "mi");
         model.set("items", [
             {
                 key: "apple",

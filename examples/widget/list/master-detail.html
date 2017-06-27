@@ -38,12 +38,19 @@
         });
     </script>
     <style>
+        .max-width:after {
+            content: "..."
+        }
     </style>
 </head>
 <body style="padding:0px;margin:0;" class="v-box">
 <c-button click="next" caption="next"></c-button>
 <div class="ui segment basic">
     <span c-bind="items.hosAdvice.hosAdviceNo"></span>
+</div>
+
+<div class="max-width">
+    <div></div>
 </div>
 <div class="flex-box">
     <c-table id="table1"></c-table>

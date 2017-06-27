@@ -1,66 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<script src="../../include-all.js"></script>
-	<script type="text/javascript">
-		cola(function (model) {
-			model.set("languages", [
-				{name: "Javascript"},
-				{name: "Java"},
-				{name: "C"},
-				{name: "C++"},
-				{name: "Coffee"},
-				{name: "Ruby"},
-				{name: "R"},
-				{name: "Python"},
-				{name: "Pascal"}
-			]);
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.set("languages", [
+                {name: "Javascript"},
+                {name: "Java"},
+                {name: "C"},
+                {name: "C++"},
+                {name: "Coffee"},
+                {name: "Ruby"},
+                {name: "R"},
+                {name: "Python"},
+                {name: "Pascal"}
+            ]);
 
-			model.action({
-				addLanguage: function () {
-					var languages = model.get("languages");
-					var newLanguage = languages.insert();
-					languages.setCurrent(newLanguage)
-				},
-				deleteLanguage: function (language) {
-					language.remove();
-				}
-			});
+            model.action({
+                addLanguage: function () {
+                    var languages = model.get("languages");
+                    var newLanguage = languages.insert();
+                    languages.setCurrent(newLanguage)
+                },
+                deleteLanguage: function (language) {
+                    language.remove();
+                }
+            });
 
-			model.widgetConfig({
-				listSimple: {
-					$type: "listView"
-				},
-				listTemplate: {
-					$type: "listView",
-					bind: "language in sort(languages,sortParam)",
+            model.widgetConfig({
+                listSimple: {
+                    $type: "listView"
+                },
+                listTemplate: {
+                    $type: "listView",
+                    bind: "language in sort(languages,sortParam)",
 //					group: true,
 //					indexBar: true,
 //					height: 260,
 //					columns: "row 2 4",
-					getGroupString: function (self, arg) {
-						var name = arg.item.get("name");
-						if (name) arg.result = name.charAt(0).toUpperCase();
-					}
-				}
-			});
-		});
-	</script>
+                    getGroupString: function (self, arg) {
+                        var name = arg.item.get("name");
+                        if (name) arg.result = name.charAt(0).toUpperCase();
+                    }
+                }
+            });
+        });
+    </script>
 </head>
 <body style="padding:20px;">
 
 <div c-widget="input; bind:languages.name">
-	<div c-widget="label">Name</div>
-	<div c-widget="button; caption:Add; class:positive; click:{{addLanguage()}}"></div>
+    <div c-widget="label">Name</div>
+    <div c-widget="button; caption:Add; class:positive; click:{{addLanguage()}}"></div>
 </div>
 
 Sort: <select c-bind="sortParam" c-options="['$none', '$random', '+name','-name']"></select>
 
 <div id="listTemplate">
-	<template name="default">
-		<c-button c-caption="language"></c-button>
-	</template>
+    <template name="default">
+        <div>
+            <c-button c-caption="language"></c-button>
+        </div>
+    </template>
 </div>
 
 </body>

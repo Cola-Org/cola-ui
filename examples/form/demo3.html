@@ -7,9 +7,12 @@
 </head>
 <body style="padding: 20px">
 
+<div class="ui segment">
 <c-form>
+
     <fields class="cols-2">
-        <field property="name"></field>
+        <field property="name">
+        </field>
         <field property="age"></field>
     </fields>
     <fields class="cols-2">
@@ -44,7 +47,7 @@
         <label></label>
         <c-button class="red" c-onclick="submit()">提交</c-button>
     </field>
-</c-form>
+</c-form></div>
 
 <script>
     cola(function (model) {

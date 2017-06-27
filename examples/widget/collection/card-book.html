@@ -1,36 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
-	<title>Carc-Book</title>
-	<script src="../../include-all.js"></script>
-	<script type="text/javascript">
-		cola(function () {
-		});
-	</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Carc-Book</title>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.action({
+                change: function (self, arg) {
+                    var name = "card" + self.get("caption");
+                    cola.widget("book").setCurrent(name)
+
+                }
+            })
+        });
+    </script>
+    <style>
+        container {
+            display: block;
+            height: 600px;
+            width: 400px;
+        }
+
+        c-cardbook > item {
+            padding: 20px;
+            height: 500px;
+            border: 1px solid #e6e6e6;
+            font-size: 48px;
+        }
+    </style>
 </head>
 <body style="padding: 20px;" class="demo">
-<div c-widget="CardBook; height:100%;">
-	<div class="item active">
-		<img c-widget="image; src:../../images/avatar/large/ade.jpg; centered:true"/>
-	</div>
-	<div class="item">
-		<img c-widget="image; src:../../images/avatar/large/chris.jpg"/>
-	</div>
-	<div class="item">
-		<img c-widget="image; src:../../images/avatar/large/daniel.jpg"/>
-	</div>
-	<div class="item">
-		<img c-widget="image; src:../../images/avatar/large/christian.jpg"/>
-	</div>
-	<div class="item">
-		<img c-widget="image; src:../../images/avatar/large/helen.jpg"/>
-	</div>
-	<div class="item">
-		<img c-widget="image; src:../../images/avatar/large/laura.jpg"/>
-	</div>
-
-</div>
+<container>
+    <c-buttongroup>
+        <c-button caption="1" state="active" click="change"></c-button>
+        <c-button caption="2" click="change"></c-button>
+        <c-button caption="3" click="change"></c-button>
+        <c-button caption="4" click="change"></c-button>
+    </c-buttongroup>
+    <c-cardbook id="book">
+        <item name="card1" class="active">
+            1
+        </item>
+        <item name="card2">
+            2
+        </item>
+        <item name="card3">
+            3
+        </item>
+        <item name="card4">
+            4
+        </item>
+    </c-cardbook>
+</container>
 </body>
 </html>

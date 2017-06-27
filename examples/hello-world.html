@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="./semantic.css">
+    <link rel="stylesheet" type="text/css" href="./cola.css">
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="./3rd.js"></script>
+    <script src="./semantic.js"></script>
+    <script src="./cola.js"></script>
+
+    <script type="text/javascript">
+        cola(function (model) {
+            model.set("name", "World");
+        });
+    </script>
+</head>
+<body>
+    Hello <span c-bind="name"></span>
+    <br>
+    <input c-bind="name">
+</body>
+</html>

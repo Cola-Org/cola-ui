@@ -1,71 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>Checkbox</title>
+    <meta charset="utf-8">
+    <title>Checkbox</title>
 
-	<script src="../../include-all.js"></script>
+    <script src="../../include-all.js"></script>
 
 
 </head>
 <body style="padding: 20px;">
 
-<div c-widget="Toggle; onValue:{{d.on}}; offValue:{{d.off}}; bind:currentValue"></div>
+<c-checkbox bind="currentValue" onValue="{{d.on}}" offValue="{{d.off}}"></c-checkbox>
 <span c-bind="currentValue"></span>
 <script type="text/javascript">
-	cola(function (model) {
-		model.set("currentValue",123)
-		model.set("d",{
-			on:122,
-			off:123
-		})
-	});
-
-
-	function createWidget(configs) {
-		configs.forEach(function (config) {
-			cola.widget({
-				$type: "Segment",
-				content: [
-					config
-				]
-			}).appendTo(document.body);
-		})
-	}
-
-	createWidget([
-		{
-			$type: "Checkbox",
-			label: "已阅读所有条款！"
-		}, {
-			$type: "Slider",
-			label: "开启"
-		}, {
-			$type: "Toggle",
-			label: "开关"
-		}, {
-			$type: "Segment",
-			content: [
-				{
-					$type: "RadioButton",
-					name: "name",
-					label: "1"
-				},
-				{
-					$type: "RadioButton",
-					name: "id",
-					label: "2"
-				},
-				{
-					$type: "RadioButton",
-					name: "id",
-					label: "3"
-				}
-			]
-		}
-	]);
-
-
+    cola(function (model) {
+        model.set("currentValue", 1)
+        model.set("d", {
+            on: 1,off: 0
+        });
+    });
 </script>
 </body>
 </html>

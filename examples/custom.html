@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>自定义控件</title>
+
+    <script src="./include-all.js"></script>
+</head>
+<body style="padding: 20px;">
+
+<c-buttons bind="menus" itemClick="menuItemClick" renderItem="menuRenderItem"></c-buttons>
+<script type="text/javascript">
+    cola.defineWidget({
+        tagName: "c-buttons",
+        attributes: {
+            bind: null
+        },
+        events: {
+            itemClick: null, renderItem: null
+        },
+        template: {
+            class: "ui buttons",
+            content: {
+                tagName: "div", class: "ui button",
+                "c-repeat": "item in @bind",
+                "c-onclick": "itemClick(item)",
+                "c-watch": "renderItem on item.*",
+                content: {
+                    tagName: "div", "c-bind": "item.label"
+                }
+            }
+        },
+        itemClick: function (entity) {
+            this.fire("itemClick", this, {item: entity});
+        },
+        renderItem: function ($dom, scope) {
+            var item = scope.get("item");
+            var result = this.fire("renderItem", this, {
+                dom: $dom,
+                item: item
+            });
+            if (result === false)return;
+        }
+    });
+
+    cola(function (model) {
+        model.action({
+            menuItemClick: function (self, arg) {
+               alert(arg.item.get("label"))
+            },
+            menuRenderItem: function (self, arg) {
+                return;
+            }
+        });
+
+        model.set("menus", [
+            {"label": "门诊备药", "path": "http://baidu.com"},
+            {"label": "发药", "path": "http://baidu.com"},
+            {"label": "入库", "path": "http://baidu.com"},
+            {"label": "申领", "path": "http://baidu.com"},
+            {"label": "盘点", "path": "http://baidu.com"}
+        ]);
+    });
+</script>
+</body>
+</html>

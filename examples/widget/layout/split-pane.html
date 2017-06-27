@@ -7,11 +7,27 @@
     <script src="../../include-all.js"></script>
 </head>
 <body>
-<c-split-pane direction="left">
+<!--<c-split-pane direction="right" position="20%">-->
+<!--<div class="pane">-->
+
+<!--</div>-->
+<!--<div class="pane">-->
+
+<!--</div>-->
+
+<!--</c-split-pane>-->
+<c-split-pane direction="left" position="20%">
     <div class="pane">
+
     </div>
-    <div class="pane">
-    </div>
+    <c-split-pane class="pane" position="50%" direction="bottom">
+        <div class="pane">
+
+        </div>
+        <div class="pane">
+
+        </div>
+    </c-split-pane>
 </c-split-pane>
 <script type="text/javascript">
     cola(function (model) {

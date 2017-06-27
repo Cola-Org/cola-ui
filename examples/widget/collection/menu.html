@@ -10,7 +10,7 @@
 <c-menu>
     <item icon="plus" caption="添加"></item>
     <a icon="minus" caption="删除"></a>
-    <a icon="edit" caption="修改"></a>
+    <a icon="edit" caption="修改" ></a>
 
     <div class="right menu">
         <a icon="wizard" caption="构建"></a>
@@ -22,9 +22,9 @@
 <c-menu class="secondary">
     <a icon="plus" caption="添加"></a>
     <a icon="minus" caption="删除"></a>
-    <a icon="edit" caption="修改"></a>
+    <a icon="edit" caption="修改" ></a>
     <div class="right menu">
-        <a icon="save" caption="保存" class="primary"  disabled="true"></a>
+        <a icon="save" caption="保存" class="primary"  click="edit"></a>
     </div>
 </c-menu>
 
@@ -93,6 +93,11 @@
         ]
     }).appendTo(document.body);
     cola(function (model) {
+        model.action({
+            edit: function (self, arg) {
+                debugger;
+            }
+        })
     })
 </script>
 </body>

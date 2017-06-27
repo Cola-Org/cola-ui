@@ -255,11 +255,11 @@ module.exports = (grunt) ->
 	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
-	                             "coffee:i18n",
-	                             "less:build", "cola-ui-license", "concat:3rd-core", "concat:3rd", "concat:cola",
-	                             "clean:core-widget", "copy:semantic",
-	                             "uglify:build",
-	                             "cssmin",
+		"coffee:i18n",
+		"less:build", "cola-ui-license", "concat:3rd-core", "concat:3rd", "concat:cola",
+		"clean:core-widget", "copy:semantic",
+		"uglify:build",
+		"cssmin",
 #								 "compress",
-                                 "clean:workTemp"]
-	grunt.registerTask "concat-all", ["build","concat:all"]
+		"clean:workTemp"]
+	grunt.registerTask "concat-all", ["build", "concat:all"]
