@@ -115,7 +115,7 @@ _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
 		defaultRes = true
 	else if resUrl.indexOf("$.") == 0
 		defaultRes = true
-		suffix = resUrl.substring(2)
+		suffix = resUrl.substring(1)
 
 	if defaultRes
 		resUrl = null

@@ -199,7 +199,7 @@ class cola.Expression
 				else
 					context.paths.push(path)
 
-				parts.push("_getData(scope,'")
+				parts.push("this.getData(scope,'")
 				parts.push(path)
 				parts.push("',loadMode,dataCtx)")
 				pathParts.splice(0, pathParts.length)
@@ -215,12 +215,21 @@ class cola.Expression
 		@script = parts.join("")
 		return
 
+	getData: (scope, path, loadMode, dataCtx)  ->
+		if @pathReplacement
+			path = @pathReplacement[path] or path
+
+		retValue = scope.get(path, loadMode, dataCtx)
+		if retValue is undefined and dataCtx?.vars
+			retValue = dataCtx.vars[path]
+		return retValue
+
 	evaluate: (scope, loadMode, dataCtx)  ->
 		if @dynaPathMap
 			@pathReplacement = {}
 			for dynaPath, path of @dynaPathMap
 				originPath = path.join(".")
-				path[0] = "@" + _getData(scope, dynaPath, "never", dataCtx)
+				path[0] = this.getData(scope, dynaPath, "never", dataCtx)
 				@pathReplacement[originPath] = path.join(".")
 
 		retValue = eval(@script)
@@ -246,12 +255,3 @@ class cola.Expression
 
 	toString: () ->
 		return @raw
-
-_getData = (scope, path, loadMode, dataCtx)  ->
-	if @pathReplacement
-		path = @pathReplacement[path] or path
-
-	retValue = scope.get(path, loadMode, dataCtx)
-	if retValue is undefined and dataCtx?.vars
-		retValue = dataCtx.vars[path]
-	return retValue
