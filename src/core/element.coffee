@@ -225,7 +225,7 @@ class cola.Element
 	_set: (attr, value, ignoreError) ->
 		if typeof value is "string" and @_scope
 			if value.charCodeAt(0) is 123 # `{`
-				parts = cola._compileText(value)
+				parts = cola._compileText(@_scope, value)
 				if parts?.length > 0
 					value = parts[0]
 

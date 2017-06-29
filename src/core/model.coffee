@@ -624,7 +624,7 @@ class cola.AbstractDataModel
 		if not path
 			return @_getRootData() or @model.parent?.get()
 
-		if path.charCodeAt(0) is 64 or @_aliasMap # `@`
+		if @_aliasMap # `@`
 			i = path.indexOf('.')
 			firstPart = if i > 0 then path.substring(0, i) else path
 
@@ -632,26 +632,21 @@ class cola.AbstractDataModel
 				returnCurrent = true
 				firstPart = firstPart.substring(0, firstPart.length - 1)
 
-			if firstPart.charCodeAt(0) is 64
-				firstPart = @get(firstPart.substring(1))
-				path = firstPart + if i > 0 then path.substring(i + 1) else ""
+			aliasHolder = @_aliasMap[firstPart]
+			if aliasHolder
+				aliasData = aliasHolder.data
 
-			if @_aliasMap
-				aliasHolder = @_aliasMap[firstPart]
-				if aliasHolder
-					aliasData = aliasHolder.data
+				if aliasData and aliasData instanceof _EntityList and  returnCurrent
+					aliasData = aliasData.current
 
-					if aliasData and aliasData instanceof _EntityList and  returnCurrent
-						aliasData = aliasData.current
-
-					if i > 0
-						if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
-							loadMode = "async"
-							callback = loadMode
-						return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
-						  context)
-					else
-						return aliasData
+				if i > 0
+					if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
+						loadMode = "async"
+						callback = loadMode
+					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
+					  context)
+				else
+					return aliasData
 
 		rootData = @_rootData
 		if rootData?

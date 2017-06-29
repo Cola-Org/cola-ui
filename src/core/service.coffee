@@ -240,7 +240,7 @@ class cola.Provider extends cola.AjaxService
 			if expr.match(/^{{[^{{}}]+}}$/)
 				expression = expr.substring(2, expr.length - 2)
 				if _SYS_PARAMS.indexOf(expression) < 0
-					expression = cola._compileExpression(expression)
+					expression = cola._compileExpression(context.expressionScope, expression)
 					if expression
 						return expression.evaluate(context.expressionScope, "never")
 		return expr

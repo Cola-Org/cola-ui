@@ -19,7 +19,9 @@
 					str: "AAA",
 					num: 123
 				},
-				path: "dyna"
+				path: "dyna",
+
+				directions: ["east", "south", "west", "north"]
 			});
 
 			model.action({
@@ -49,14 +51,29 @@
 <!--<label c-bind="formatDate(dateProp,'yy-MM-dd')"></label>-->
 <!--</p>-->
 
-<input c-bind="path">
+<!--<p>-->
+	<!--<input c-bind="east">-->
+<!--</p>-->
+<!--<p>-->
+	<!--<input c-bind="west">-->
+<!--</p>-->
+<!--<li c-repeat="direction in directions">-->
+	<!--<input c-bind="?direction">-->
+<!--</li>-->
 
-<div c-alias="get(path) as p">
+<div c-alias="?path+' as path'">
 	<input c-bind="dyna.str">
 	<input c-bind="dyna.str">
 	<br>
-	<input c-bind="p.str">
-	<label c-bind="p.str"></label>
+	<input c-bind="path.str">
+	<label c-bind="path.str"></label>
+</div>
+
+<div c-alias="path as p">
+	<input c-bind="p">
+	<br>
+	<input c-bind="?p+'.str'">
+	<label c-bind="?p+'.str'"></label>
 </div>
 
 <c-button click="test">Test</c-button>

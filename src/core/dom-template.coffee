@@ -155,7 +155,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 
 	if dom.nodeType is 3 # #text
 		bindingExpr = dom.nodeValue
-		parts = cola._compileText(bindingExpr)
+		parts = cola._compileText(scope, bindingExpr)
 		buildContent(parts, dom, scope) if parts?.length
 		return dom
 	else if dom.nodeType is 11 # #documentFragment
@@ -173,7 +173,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 	if bindingExpr
 		bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
 		bindingType = "repeat"
-		feature = cola._domFeatureBuilder[bindingType](bindingExpr, bindingType, dom)
+		feature = cola._domFeatureBuilder[bindingType](scope, bindingExpr, bindingType, dom)
 		features ?= []
 		features.push(feature)
 		dom.removeAttribute("c-repeat")
@@ -182,7 +182,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		if bindingExpr
 			bindingExpr = bindingExpr.replace(ALIAS_REGEXP, context.defaultPath)
 			bindingType = "alias"
-			feature = cola._domFeatureBuilder[bindingType](bindingExpr, bindingType, dom)
+			feature = cola._domFeatureBuilder[bindingType](scope, bindingExpr, bindingType, dom)
 			features ?= []
 			features.push(feature)
 			dom.removeAttribute("c-alias")
@@ -222,10 +222,10 @@ _doRenderDomTemplate = (dom, scope, context) ->
 							initializers.push(result)
 				else
 					if attrName.indexOf("on") is 0
-						feature = cola._domFeatureBuilder.event(attrValue, attrName, dom)
+						feature = cola._domFeatureBuilder.event(scope, attrValue, attrName, dom)
 					else
 						builder = cola._domFeatureBuilder.hasOwnProperty(attrName) and cola._domFeatureBuilder[attrName]
-						feature = (builder or cola._domFeatureBuilder["$"]).call(cola._domFeatureBuilder, attrValue, attrName, dom)
+						feature = (builder or cola._domFeatureBuilder["$"]).call(cola._domFeatureBuilder, scope, attrValue, attrName, dom)
 
 					if feature
 						features ?= []
@@ -322,8 +322,8 @@ cola._domBindingBuilder =
 		return domBinding
 
 cola._domFeatureBuilder =
-	$: (attrValue, attrName, dom) ->
-		expression = cola._compileExpression(attrValue)
+	$: (scope, attrValue, attrName, dom) ->
+		expression = cola._compileExpression(scope, attrValue)
 		if expression
 			if attrName == "display"
 				feature = new cola._DisplayFeature(expression)
@@ -333,22 +333,22 @@ cola._domFeatureBuilder =
 				feature = new cola._DomAttrFeature(expression, attrName)
 		return feature
 
-	repeat: (attrValue) ->
-		expression = cola._compileExpression(attrValue, "repeat")
+	repeat: (scope, attrValue) ->
+		expression = cola._compileExpression(scope, attrValue, "repeat")
 		if expression
 			return new cola._RepeatFeature(expression)
 		else
 			return
 
-	alias: (attrValue) ->
-		expression = cola._compileExpression(attrValue, "alias")
+	alias: (scope, attrValue) ->
+		expression = cola._compileExpression(scope, attrValue, "alias")
 		if expression
 			return new cola._AliasFeature(expression)
 		else
 			return
 
-	bind: (attrValue, attrName, dom) ->
-		expression = cola._compileExpression(attrValue)
+	bind: (scope, attrValue, attrName, dom) ->
+		expression = cola._compileExpression(scope, attrValue)
 		nodeName = dom.nodeName
 		if nodeName == "INPUT"
 			type = dom.type
@@ -366,31 +366,31 @@ cola._domFeatureBuilder =
 			feature = new cola._DomAttrFeature(expression, "text")
 		return feature
 
-	style: (attrValue) ->
+	style: (scope, attrValue) ->
 		return false unless attrValue
 		style = cola.util.parseStyleLikeString(attrValue)
 
 		features = []
 		for styleProp, styleExpr of style
-			expression = cola._compileExpression(styleExpr)
+			expression = cola._compileExpression(scope, styleExpr)
 			if expression
 				feature = new cola._DomStylePropFeature(expression, styleProp)
 				features.push(feature)
 		return features
 
-	classname: (attrValue) ->
+	classname: (scope, attrValue) ->
 		return false unless attrValue
 
 		features = []
 		try
-			expression = cola._compileExpression(attrValue)
+			expression = cola._compileExpression(scope, attrValue)
 			if expression
 				feature = new cola._DomClassFeature(expression)
 				features.push(feature)
 		catch
 			classConfig = cola.util.parseStyleLikeString(attrValue)
 			for className, classExpr of classConfig
-				expression = cola._compileExpression(classExpr)
+				expression = cola._compileExpression(scope, classExpr)
 				if expression
 					feature = new cola._DomToggleClassFeature(expression, className)
 					features.push(feature)
@@ -398,13 +398,13 @@ cola._domFeatureBuilder =
 
 	class: () -> @classname.apply(@, arguments)
 
-	resource: (attrValue, attrName, dom) ->
+	resource: (scope, attrValue, attrName, dom) ->
 		attrValue = cola.util.trim(attrValue)
 		if attrValue
 			$fly(dom).text(cola.resource(attrValue))
 		return
 
-	watch: (attrValue) ->
+	watch: (scope, attrValue) ->
 		i = attrValue.indexOf(" on ")
 		if i > 0
 			action = attrValue.substring(0, i)
@@ -421,8 +421,8 @@ cola._domFeatureBuilder =
 			throw new cola.Exception("\"#{expr}\" is not a valid watch expression.")
 		return feature
 
-	event: (attrValue, attrName) ->
-		expression = cola._compileExpression(attrValue)
+	event: (scope, attrValue, attrName) ->
+		expression = cola._compileExpression(scope, attrValue)
 		if expression
 			feature = new cola._EventFeature(expression, attrName.substring(2))
 		return feature

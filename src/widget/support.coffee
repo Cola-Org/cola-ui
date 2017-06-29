@@ -43,7 +43,7 @@ _findWidgetConfig = (scope, name) ->
         scope = scope.parent
     return widgetConfig
 
-_compileWidgetDom = (dom, widgetType, config = {}, context) ->
+_compileWidgetDom = (scope, dom, widgetType, config = {}, context) ->
     if not widgetType.attributes._inited or not widgetType.events._inited
         cola.preprocessClass(widgetType)
 
@@ -62,7 +62,7 @@ _compileWidgetDom = (dom, widgetType, config = {}, context) ->
                 if prop is "bind"
                     config[prop] = attrValue
                 else
-                    config[prop] = cola._compileExpression(attrValue)
+                    config[prop] = cola._compileExpression(scope, attrValue)
 
                 removeAttrs ?= []
                 removeAttrs.push(attrName)
@@ -74,7 +74,7 @@ _compileWidgetDom = (dom, widgetType, config = {}, context) ->
                         prop = prop.slice(2)
 
                 if isEvent
-                    config[prop] = cola._compileExpression(attr.value)
+                    config[prop] = cola._compileExpression(scope, attr.value)
                     removeAttrs ?= []
                     removeAttrs.push(attrName)
         else
@@ -159,7 +159,7 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
             widgetType = parentWidget?.childTagNames?[tagName]
             widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
             if widgetType
-                config = _compileWidgetDom(dom, widgetType, config, context)
+                config = _compileWidgetDom(scope, dom, widgetType, config, context)
     return null unless config or jsonConfig
 
     config ?= {}

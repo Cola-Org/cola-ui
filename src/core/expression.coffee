@@ -8,7 +8,7 @@ else
 	cola = @cola
 #IMPORT_END
 
-cola._compileText = (text) ->
+cola._compileText = (scope, text) ->
 	p = 0
 	s = 0
 	while (s = text.indexOf("{{", p)) > -1
@@ -18,7 +18,7 @@ cola._compileText = (text) ->
 				if not parts then parts = []
 				parts.push(text.substring(p, s))
 
-			expr = cola._compileExpression(exprStr, if exprStr.indexOf(" in ") > 0 then "repeat" else undefined)
+			expr = cola._compileExpression(scope, exprStr, if exprStr.indexOf(" in ") > 0 then "repeat" else undefined)
 			if not parts then parts = [expr] else parts.push(expr)
 			p = s + exprStr.length + 4
 		else
@@ -51,8 +51,13 @@ digestExpression = (text, p) ->
 		p++
 	return
 
-cola._compileExpression = (exprStr, specialType) ->
-	if not exprStr then return null
+cola._compileExpression = (scope, exprStr, specialType) ->
+	return null unless exprStr
+
+	if exprStr.charCodeAt(0) is 63 # `?`
+		exp = cola._compileExpression(scope, exprStr.substring(1))
+		exprStr = exp.evaluate(scope, "never")
+		return null unless exprStr
 
 	if specialType is "repeat"
 		i = exprStr.indexOf(" in ")
@@ -203,9 +208,6 @@ class cola.Expression
 					context.paths = [path]
 				else
 					context.paths.push(path)
-
-				if path.charCodeAt(0) is 64 # `@`
-					context.hasDynaPath = true
 
 				parts.push("this.getData(scope,'")
 				parts.push(path)

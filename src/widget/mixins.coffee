@@ -128,7 +128,7 @@ cola.DataWidgetMixin =
 		if bindStr and @_scope
 			@_bindInfo = bindInfo = {}
 
-			bindInfo.expression = expression = cola._compileExpression(bindStr)
+			bindInfo.expression = expression = cola._compileExpression(@_scope, bindStr)
 			bindInfo.writeable = expression.writeable
 
 			if expression.repeat or expression.setAlias
@@ -220,7 +220,7 @@ cola.DataItemsWidgetMixin =
 		@_itemsRetrieved = false
 
 		if bindStr
-			expression = cola._compileExpression(bindStr, "repeat")
+			expression = cola._compileExpression(@_scope, bindStr, "repeat")
 			if not expression.repeat
 				throw new cola.Exception("Expression \"#{bindStr}\" must be a repeat expression.")
 			@_alias = expression.alias

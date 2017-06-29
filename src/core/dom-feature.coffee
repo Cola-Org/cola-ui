@@ -47,6 +47,7 @@ class cola._AliasFeature extends cola._ExpressionFeature
 
 	init: (domBinding) ->
 		domBinding.scope = new cola.AliasScope(domBinding.scope, @expression)
+		@_refresh(domBinding)
 		domBinding.subScopeCreated = true
 		return
 

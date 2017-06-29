@@ -4,7 +4,7 @@ class cola.CascadeBind extends cola.Element
 	@attributes:
 		expression:
 			setter: (expression) ->
-				expression = cola._compileExpression(expression, "repeat")
+				expression = cola._compileExpression(@_scope, expression, "repeat")
 				if expression
 					if not expression.repeat
 						throw new cola.Exception("\"#{bindStr}\" is not a repeat expression.")

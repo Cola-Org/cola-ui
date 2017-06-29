@@ -338,7 +338,7 @@ class cola.AbstractTable extends cola.AbstractList
 						if not column._property
 							column._property = bind.substring(1)
 					else
-						info.expression = cola._compileExpression(bind)
+						info.expression = cola._compileExpression(@_scope, bind)
 
 				if column._width
 					width = column._width
@@ -461,7 +461,7 @@ class cola.AbstractTable extends cola.AbstractList
 		for attr in dom.attributes
 			attrName = attr.name
 			if attrName.substring(0, 2) is "c-"
-				expression = cola._compileExpression(attr.value)
+				expression = cola._compileExpression(@_scope, attr.value)
 				column[attrName.substring(2)] = expression
 			else
 				column[attrName] = attr.value
