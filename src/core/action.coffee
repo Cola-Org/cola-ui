@@ -34,6 +34,8 @@ class cola.Chain
 
 cola.defaultAction.chain = (data) -> new cola.Chain(data)
 
+cola.defaultAction.get = (path) -> @get(path)
+
 cola.defaultAction["default"] = (value, defaultValue = "") -> value or defaultValue
 
 cola.defaultAction["int"] = (value) -> parseInt(value, 10) or 0

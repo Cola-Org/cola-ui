@@ -262,7 +262,7 @@ class cola.ExpressionScope extends cola.SubScope
 				for path in @expression.paths
 					@expressionPaths.push(path.split("."))
 
-			if not expression.paths and expression.hasCallStatement and not expression.hasDefinedPath
+			if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
 				@watchAllMessages()
 			else
 				@watchPath(expression.paths)
@@ -308,8 +308,8 @@ class cola.AliasScope extends cola.ExpressionScope
 
 	setExpression: (expression) ->
 		super(expression)
-		if expression and typeof expression.paths.length is 1 and not expression.hasCallStatement
-			@dataType = @parent.data.getDataType(expression.paths[0])
+		if expression and typeof expression.writable
+			@dataType = @parent.data.getDataType(expression.writeablePath or expression.paths[0])
 		return
 
 	setTargetData: (data) ->
@@ -345,7 +345,7 @@ class cola.AliasScope extends cola.ExpressionScope
 				@refreshTargetData()
 				allProcessed = true
 			else if @expression
-				if not @expressionPaths and @expression.hasCallStatement and not @expression.hasDefinedPath
+				if not @expressionPaths and @expression.hasComplexStatement and not @expression.hasDefinedPath
 					cola.util.delay(@, "retrieve", 100, () =>
 						@retrieveData()
 						@refreshTargetData()
@@ -603,7 +603,7 @@ class cola.ItemsScope extends cola.ExpressionScope
 			if @isParentOfTarget(path) then @itemsLoadingEnd(arg)
 
 		if processMoreMessage and @expression
-			if not @expressionPaths and @expression.hasCallStatement and not @expression.hasDefinedPath
+			if not @expressionPaths and @expression.hasComplexStatement and not @expression.hasDefinedPath
 				cola.util.delay(@, "retrieve", 100, () =>
 					@retrieveData()
 					@refreshItems()
@@ -624,7 +624,7 @@ class cola.AbstractDataModel
 		if not path
 			return @_getRootData() or @model.parent?.get()
 
-		if @_aliasMap
+		if path.charCodeAt(0) is 64 or @_aliasMap # `@`
 			i = path.indexOf('.')
 			firstPart = if i > 0 then path.substring(0, i) else path
 
@@ -632,21 +632,26 @@ class cola.AbstractDataModel
 				returnCurrent = true
 				firstPart = firstPart.substring(0, firstPart.length - 1)
 
-			aliasHolder = @_aliasMap[firstPart]
-			if aliasHolder
-				aliasData = aliasHolder.data
+			if firstPart.charCodeAt(0) is 64
+				firstPart = @get(firstPart.substring(1))
+				path = firstPart + if i > 0 then path.substring(i + 1) else ""
 
-				if aliasData and aliasData instanceof _EntityList and  returnCurrent
-					aliasData = aliasData.current
+			if @_aliasMap
+				aliasHolder = @_aliasMap[firstPart]
+				if aliasHolder
+					aliasData = aliasHolder.data
 
-				if i > 0
-					if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
-						loadMode = "async"
-						callback = loadMode
-					return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
-					  context)
-				else
-					return aliasData
+					if aliasData and aliasData instanceof _EntityList and  returnCurrent
+						aliasData = aliasData.current
+
+					if i > 0
+						if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
+							loadMode = "async"
+							callback = loadMode
+						return cola.Entity._evalDataPath(aliasData, path.substring(i + 1), false, loadMode, callback,
+						  context)
+					else
+						return aliasData
 
 		rootData = @_rootData
 		if rootData?
@@ -670,6 +675,11 @@ class cola.AbstractDataModel
 		if path
 			rootData = @_getRootData()
 			if typeof path is "string"
+				if path.charCodeAt(0) is 64 # `@`
+					firstPart = if i > 0 then path.substring(0, i) else path
+					firstPart = @get(firstPart.substring(1))
+					path = firstPart + if i > 0 then path.substring(i + 1) else ""
+
 				i = path.indexOf('.')
 				if i > 0
 					firstPart = path.substring(0, i)
@@ -1099,6 +1109,13 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 	get: (path, loadMode, context) ->
 		alias = @alias
+
+		if path.charCodeAt(0) is 64 # `@`
+			i = path.indexOf('.')
+			firstPart = if i > 0 then path.substring(0, i) else path
+			firstPart = @get(firstPart.substring(1))
+			path = firstPart + if i > 0 then path.substring(i + 1) else ""
+
 		aliasLen = alias.length
 		if path and path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
@@ -1115,6 +1132,13 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 
 	set: (path, data, context) ->
 		alias = @alias
+
+		if path.charCodeAt(0) is 64 # `@`
+			i = path.indexOf('.')
+			firstPart = if i > 0 then path.substring(0, i) else path
+			firstPart = @get(firstPart.substring(1))
+			path = firstPart + if i > 0 then path.substring(i + 1) else ""
+
 		aliasLen = alias.length
 		if path and path.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
@@ -1248,7 +1272,7 @@ class cola.ElementAttrBinding
 	constructor: (@element, @attr, @expression, scope) ->
 		@scope = scope
 		@paths = @expression.paths or []
-		@watchingMoreMessage = not @paths.length and @expression.hasCallStatement and not @expression.hasDefinedPath
+		@watchingMoreMessage = not @paths.length and @expression.hasComplexStatement and not @expression.hasDefinedPath
 
 		for path in @paths
 			scope.data.bind(path, @)

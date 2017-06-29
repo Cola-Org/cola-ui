@@ -10,7 +10,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		if @expression
 			@isStatic = @expression.isStatic
 			@paths = @expression.paths or []
-			if not @paths.length and @expression.hasCallStatement
+			if not @paths.length and @expression.hasComplexStatement
 				@paths = ["**"]
 				if not @isStatic then @delay = true
 				@watchingMoreMessage = not @expression.hasDefinedPath
@@ -321,11 +321,9 @@ class cola._EventFeature extends cola._ExpressionFeature
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
 		return unless @expression?.writeable
-		paths = @paths
-		if paths and paths.length is 1
-			@ignoreMessage = true
-			domBinding.scope.set(paths[0], value)
-			@ignoreMessage = false
+		@ignoreMessage = true
+		domBinding.scope.set(@expression.writeablePath, value)
+		@ignoreMessage = false
 		return
 
 	processMessage: (domBinding, bindingPath, path, type, arg)->

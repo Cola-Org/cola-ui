@@ -12,9 +12,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 	get: (path, loadMode, context) ->
 		cc = path.charCodeAt(0);
-		if cc is 36 # `$`
-			return undefined
-		else if cc is 64 # `@`
+		if cc is 64 # `@`
 			return @model.parent?.data.get(@_getRealPath(path), loadMode, context)
 		else
 			return @widget.get(path, true)

@@ -13,35 +13,57 @@
 				person: {
 					name: "Tom",
 					age: 26
-				}
+				},
+				dyna: {
+					path: "dyna.str",
+					str: "AAA",
+					num: 123
+				},
+				path: "dyna"
 			});
 
 			model.action({
 				double: function (value) {
 					return value * 2;
+				},
+				test: function () {
+					model.set("dyna", {str: "XXXX"});
 				}
 			});
 		});
 	</script>
 </head>
 <body style="padding:20px">
-<p>
-	<input c-bind="strProp">
-	<label c-bind="strProp"></label>
-</p>
+<!--<p>-->
+<!--<input c-bind="strProp">-->
+<!--<label c-bind="strProp"></label>-->
+<!--</p>-->
 
-<p>
-	<input c-bind="numberProp">
-	<label c-bind="double(numberProp)"></label>
-</p>
+<!--<p>-->
+<!--<input c-bind="numberProp">-->
+<!--<label c-bind="double(numberProp)"></label>-->
+<!--</p>-->
 
-<p>
-	<input c-bind="dateProp" type="date">
-	<label c-bind="formatDate(dateProp,'yy-MM-dd')"></label>
-</p>
+<!--<p>-->
+<!--<input c-bind="dateProp" type="date">-->
+<!--<label c-bind="formatDate(dateProp,'yy-MM-dd')"></label>-->
+<!--</p>-->
+
+<input c-bind="path">
+
+<div c-alias="get(path) as p">
+	<input c-bind="dyna.str">
+	<input c-bind="dyna.str">
+	<br>
+	<input c-bind="p.str">
+	<label c-bind="p.str"></label>
+</div>
+
+<c-button click="test">Test</c-button>
+
 <p>
 	<input c-bind="size" type="number">
-	<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>
+<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>
 </p>
 </body>
 </html>

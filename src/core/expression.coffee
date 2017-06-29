@@ -91,7 +91,7 @@ cola._compileExpression = (exprStr, specialType) ->
 
 class cola.Expression
 	#paths
-	#hasCallStatement
+	#hasComplexStatement
 	#hasDefinedPath
 
 	constructor: (exprStr) ->
@@ -115,8 +115,17 @@ class cola.Expression
 			@isStatic = true
 
 		@compile(exprStr)
-		@paths = watchPaths if watchPaths
-		@writeable = (@type == "MemberExpression" or @type == "Identifier") and not @hasCallStatement
+
+		@writeable = (@type is "MemberExpression" or @type is "Identifier") and not @hasComplexStatement
+		if @writeable
+			@writeablePath = @paths[0]
+
+		if @hasDynaPath
+			@hasComplexStatement = @hasDynaPath
+			delete @paths
+
+		if watchPaths
+			@paths = watchPaths
 
 	compile: (exprStr) ->
 
@@ -136,7 +145,7 @@ class cola.Expression
 						pathParts.push(node.name)
 
 				when "CallExpression"
-					context.hasCallStatement = true
+					context.hasComplexStatement = true
 
 					callee = node.callee
 					if callee.type is "Identifier"
@@ -188,22 +197,20 @@ class cola.Expression
 					parts.push("]")
 
 			if close and pathParts.length
-				if pathParts[0].charCodeAt(0) is 64 # `@`
-					context.isDyna = true
-					context.dynaPathMap ?= {}
-					context.dynaPathMap[pathParts[0].substring(1)] = pathParts.slice(0)
-
 				path = pathParts.join(".")
+
 				if not context.paths
 					context.paths = [path]
 				else
 					context.paths.push(path)
 
+				if path.charCodeAt(0) is 64 # `@`
+					context.hasDynaPath = true
+
 				parts.push("this.getData(scope,'")
 				parts.push(path)
 				parts.push("',loadMode,dataCtx)")
 				pathParts.splice(0, pathParts.length)
-
 			return
 
 		tree = jsep(exprStr)
@@ -216,24 +223,13 @@ class cola.Expression
 		return
 
 	getData: (scope, path, loadMode, dataCtx)  ->
-		if @pathReplacement
-			path = @pathReplacement[path] or path
-
 		retValue = scope.get(path, loadMode, dataCtx)
 		if retValue is undefined and dataCtx?.vars
 			retValue = dataCtx.vars[path]
 		return retValue
 
 	evaluate: (scope, loadMode, dataCtx)  ->
-		if @dynaPathMap
-			@pathReplacement = {}
-			for dynaPath, path of @dynaPathMap
-				originPath = path.join(".")
-				path[0] = this.getData(scope, dynaPath, "never", dataCtx)
-				@pathReplacement[originPath] = path.join(".")
-
 		retValue = eval(@script)
-
 		if retValue instanceof cola.Chain
 			retValue = retValue._data
 		return retValue
@@ -241,7 +237,7 @@ class cola.Expression
 	getParentPathInfo: () ->
 		return @parentPath if @parentPath isnt undefined
 		if @writeable
-			path = @paths[0]
+			path = @writeablePath
 			if @type == "Identifier"
 				info =
 					parentPath: null
