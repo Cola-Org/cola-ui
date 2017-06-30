@@ -154,15 +154,15 @@ class cola.Panel extends cola.AbstractContainer
         @_doms ?= {}
 
         _parseChild = (node, target)=>
-            childNode = node.firstChild
+            childNode = node.firstElementChild
             while childNode
                 if childNode.nodeType == 1
                     widget = cola.widget(childNode)
                     @_addContentElement(widget or childNode, target)
-                childNode = childNode.nextSibling
+                childNode = childNode.nextElementSibling
             return
 
-        child = dom.firstChild
+        child = dom.firstElementChild
         while child
             if child.nodeType == 1
                 if child.nodeName == "TEMPLATE"
@@ -175,7 +175,7 @@ class cola.Panel extends cola.AbstractContainer
                     @_doms["content"] = child
                     _parseChild(child, "content")
                     break
-            child = child.nextSibling
+            child = child.nextElementSibling
         return
 cola.Element.mixin(cola.Panel, cola.TemplateSupport)
 

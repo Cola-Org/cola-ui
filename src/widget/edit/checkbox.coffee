@@ -49,7 +49,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		@_doms ?= {}
 		@_$dom ?= $(dom)
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				if child.nodeName is "LABEL"
@@ -59,7 +59,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 					nameAttr = child.getAttribute("name")
 					@_name ?= nameAttr if nameAttr
 					@_doms.input = child
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		if !@_doms.label and !@_doms.input
 			@_$dom.append($.xCreate([

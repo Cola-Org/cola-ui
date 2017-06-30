@@ -27,16 +27,16 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 	_parseDom: (dom)->
 		parseItem = (node)=>
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			while childNode
 				if childNode.nodeType == 1
 					@_items = [] unless @_items
 					@addItem(childNode)
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
 
 		doms = @_doms
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				if cola.util.hasClass(child, "items-wrap")
@@ -46,7 +46,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 					doms.indicators = child
 				else if child.nodeName == "TEMPLATE"
 					@regTemplate(child)
-			child = child.nextSibling
+			child = child.nextElementSibling
 		if doms.indicators
 			@refreshIndicators()
 		else

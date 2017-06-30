@@ -29,7 +29,7 @@ class cola.MenuButton extends cola.Button
 		return
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				menu = cola.widget(child)
@@ -37,7 +37,7 @@ class cola.MenuButton extends cola.Button
 					@_menu = menu
 					menu._parent = @
 					break
-			child = child.nextSibling
+			child = child.nextElementSibling
 		return
 
 	onItemClick: (event, item)->

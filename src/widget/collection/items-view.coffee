@@ -53,9 +53,9 @@ class cola.ItemsView extends cola.Widget
 	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
-			next = child.nextSibling
+			next = child.nextElementSibling
 			nodeName = child.nodeName
 			if not itemsWrapper and nodeName is "UL"
 				itemsWrapper = child
@@ -195,10 +195,10 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_getFirstItemDom: () ->
-		itemDom = @_doms.itemsWrapper.firstChild
+		itemDom = @_doms.itemsWrapper.firstElementChild
 		while itemDom
 			if itemDom._itemType then return itemDom
-			itemDom = itemDom.nextSibling
+			itemDom = itemDom.nextElementSibling
 		return
 
 	_getLastItemDom: () ->
@@ -216,7 +216,7 @@ class cola.ItemsView extends cola.Widget
 
 	_getNextItemDom: (itemDom) ->
 		while itemDom
-			itemDom = itemDom.nextSibling
+			itemDom = itemDom.nextElementSibling
 			if itemDom?._itemType then return itemDom
 		return
 
@@ -249,7 +249,7 @@ class cola.ItemsView extends cola.Widget
 		@_realItems = items
 
 		documentFragment = null
-		nextItemDom = itemsWrapper.firstChild
+		nextItemDom = itemsWrapper.firstElementChild
 		currentItem = items?.current
 
 		if @_currentItemDom
@@ -274,13 +274,13 @@ class cola.ItemsView extends cola.Widget
 						if nextItemDom._itemType is itemType
 							break
 						else
-							_nextItemDom = nextItemDom.nextSibling
+							_nextItemDom = nextItemDom.nextElementSibling
 							if not cola.util.hasClass(nextItemDom, "protected")
 								itemsWrapper.removeChild(nextItemDom)
 							nextItemDom = _nextItemDom
 					itemDom = nextItemDom
 					if nextItemDom
-						nextItemDom = nextItemDom.nextSibling
+						nextItemDom = nextItemDom.nextElementSibling
 				else
 					itemDom = null
 
@@ -297,7 +297,7 @@ class cola.ItemsView extends cola.Widget
 		if nextItemDom
 			itemDom = nextItemDom
 			while itemDom
-				nextItemDom = itemDom.nextSibling
+				nextItemDom = itemDom.nextElementSibling
 				if not cola.util.hasClass(itemDom, "protected")
 					itemsWrapper.removeChild(itemDom)
 					delete @_itemDomMap[itemDom._itemId] if itemDom._itemId

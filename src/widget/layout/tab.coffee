@@ -493,11 +493,11 @@ class cola.tab.AbstractTabButton extends cola.Widget
 		return
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+		child = dom.firstElementChild
 		tabItem = @
 		@_doms ?= {}
 		parseCaption = (node)=>
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			while childNode
 				if childNode.nodeType == 1
 					if childNode.nodeName == "SPAN"
@@ -506,7 +506,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 					if childNode.nodeName == "I"
 						@_doms.icon = childNode
 						@_icon ?= childNode.className
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
 
 		while child
@@ -521,7 +521,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 						return false
 					)
 
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		return
 

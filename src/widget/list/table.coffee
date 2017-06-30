@@ -100,14 +100,14 @@ class cola.Table extends cola.AbstractTable
 			@set("columns", columnConfigs)
 
 		colgroup = @_doms.colgroup
-		nextCol = colgroup.firstChild
+		nextCol = colgroup.firstElementChild
 		for colInfo, i in @_columnsInfo.dataColumns
 			col = nextCol
 			if not col
 				col = document.createElement("col")
 				colgroup.appendChild(col)
 			else
-				nextCol = col.nextSibling
+				nextCol = col.nextElementSibling
 
 			if colInfo.widthType == "percent"
 				col.width = colInfo.width + "%"
@@ -123,7 +123,7 @@ class cola.Table extends cola.AbstractTable
 
 		col = nextCol
 		while col
-			nextCol = col.nextSibling
+			nextCol = col.nextElementSibling
 			colgroup.removeChild(col)
 			col = nextCol
 
@@ -244,7 +244,7 @@ class cola.Table extends cola.AbstractTable
 				else
 					cell.rowSpan = len - i
 					cell.colSpan = 1
-				contentWrapper = cell.firstChild
+				contentWrapper = cell.firstElementChild
 
 				@_refreshHeaderCell(contentWrapper, colInfo, isNew)
 
@@ -321,7 +321,7 @@ class cola.Table extends cola.AbstractTable
 				})
 				cell._name = column._name
 				row.appendChild(cell)
-			contentWrapper = cell.firstChild
+			contentWrapper = cell.firstElementChild
 
 			@_refreshFooterCell(contentWrapper, colInfo, isNew)
 
@@ -384,7 +384,7 @@ class cola.Table extends cola.AbstractTable
 					})
 					cell._name = column._name
 					itemDom.appendChild(cell)
-				contentWrapper = cell.firstChild
+				contentWrapper = cell.firstElementChild
 
 				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
 
@@ -444,7 +444,7 @@ class cola.Table extends cola.AbstractTable
 		return
 
 	_refreshFakeRow: (row) ->
-		nextCell = row.firstChild
+		nextCell = row.firstElementChild
 		for colInfo, i in @_columnsInfo.dataColumns
 			cell = nextCell
 			if !cell
@@ -453,11 +453,11 @@ class cola.Table extends cola.AbstractTable
 				})
 				row.appendChild(cell)
 			else
-				nextCell = nextCell.nextSibling
+				nextCell = nextCell.nextElementSibling
 
 		while nextCell
 			cell = nextCell
-			nextCell = nextCell.nextSibling
+			nextCell = nextCell.nextElementSibling
 			row.removeChild(cell)
 		return
 
@@ -479,7 +479,7 @@ class cola.Table extends cola.AbstractTable
 				content:
 					tagName: "tr"
 			)
-			@_refreshFakeRow(fakeThead.firstChild)
+			@_refreshFakeRow(fakeThead.firstElementChild)
 		return fixedHeaderWrapper
 
 	_getFixedFooter: (create) ->
@@ -500,28 +500,28 @@ class cola.Table extends cola.AbstractTable
 				content:
 					tagName: "tr"
 			)
-			@_refreshFakeRow(fakeTfoot.firstChild)
+			@_refreshFakeRow(fakeTfoot.firstElementChild)
 		return fixedFooterWrapper
 
 	_refreshFixedColgroup: (colgroup, fixedColgroup) ->
-		nextCol = colgroup.firstChild
-		nextFixedCol = fixedColgroup.firstChild
+		nextCol = colgroup.firstElementChild
+		nextFixedCol = fixedColgroup.firstElementChild
 		while nextCol
 			col = nextCol
-			nextCol = nextCol.nextSibling
+			nextCol = nextCol.nextElementSibling
 
 			fixedCol = nextFixedCol
 			if !fixedCol
 				fixedCol = document.createElement("col")
 			else
-				nextFixedCol = nextFixedCol.nextSibling
+				nextFixedCol = nextFixedCol.nextElementSibling
 
 			fixedCol.width = col.width
 			fixedCol.valign = col.valign
 
 		while nextFixedCol
 			fixedCol = nextFixedCol
-			nextFixedCol = nextFixedCol.nextSibling
+			nextFixedCol = nextFixedCol.nextElementSibling
 			fixedColgroup.removeChild(fixedCol)
 		return
 
@@ -533,7 +533,7 @@ class cola.Table extends cola.AbstractTable
 			@_doms.fixedHeaderTable.appendChild(fixedHeaderColgroup)
 		else
 			@_refreshFixedColgroup(colgroup, fixedHeaderColgroup)
-		$fly(@_doms.fakeThead.firstChild).height(@_doms.thead.offsetHeight)
+		$fly(@_doms.fakeThead.firstElementChild).height(@_doms.thead.offsetHeight)
 		return
 
 	_setFixedFooterSize: () ->
@@ -544,7 +544,7 @@ class cola.Table extends cola.AbstractTable
 			@_doms.fixedFooterTable.appendChild(fixedFooterColgroup)
 		else
 			@_refreshFixedColgroup(colgroup, fixedFooterColgroup)
-		$fly(@_doms.fakeTfoot.firstChild).height(@_doms.tfoot.offsetHeight)
+		$fly(@_doms.fakeTfoot.firstElementChild).height(@_doms.tfoot.offsetHeight)
 		return
 
 	_refreshFixedHeader: () ->

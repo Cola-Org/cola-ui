@@ -3,28 +3,45 @@ BindingFeature
 ###
 
 class cola._BindingFeature
-	init: () -> return
+	init: () ->
+		@prepared = true
+		return
+
+	clone: () ->
+		cloned = new @constructor()
+		for p, v of @
+			cloned[p] = v
+		delete cloned.id
+		return cloned
 
 class cola._ExpressionFeature extends cola._BindingFeature
-	constructor: (@expression) ->
-		if @expression
-			@isStatic = @expression.isStatic
-			@paths = @expression.paths or []
-			if not @paths.length and @expression.hasComplexStatement
-				@paths = ["**"]
-				if not @isStatic then @delay = true
-				@watchingMoreMessage = not @expression.hasDefinedPath
+	constructor: (@expressionStr) ->
+
+	init: (domBinding, force) ->
+		if force or @expressionStr.charCodeAt(0) isnt 63 # `?`
+			@prepared = true
+			@compile(domBinding.scope)
+		return
+
+	compile: (scope) ->
+		@prepared = true
+		expression = @expression = cola._compileExpression(scope, @expressionStr, @expressionType)
+		@isStatic = expression.isStatic
+		@paths = expression.paths or []
+		if not @paths.length and expression.hasComplexStatement
+			@paths = ["**"]
+			if not @isStatic then @delay = true
+			@watchingMoreMessage = not expression.hasDefinedPath
+		return
 
 	evaluate: (domBinding, dataCtx = {}, loadMode = "async") ->
 		scope = domBinding.scope
-
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
-
 		return @expression.evaluate(scope, loadMode, dataCtx)
 
 	refresh: (domBinding, force, dataCtx = {}) ->
-		return unless @_refresh
+		return unless @prepared and @_refresh
 		if @delay and not force
 			cola.util.delay(domBinding, "refresh", 100, () =>
 				@_refresh(domBinding, dataCtx)
@@ -39,13 +56,17 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		return
 
 class cola._AliasFeature extends cola._ExpressionFeature
+	expressionType: "alias"
 	ignoreBind: true
 
-	constructor: (expression) ->
-		super(expression)
-		@alias = expression.alias
+	compile: (scope) ->
+		super(scope)
+		@alias = @expression.alias
 
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		domBinding.scope = new cola.AliasScope(domBinding.scope, @expression)
 		@_refresh(domBinding)
 		domBinding.subScopeCreated = true
@@ -57,13 +78,17 @@ class cola._AliasFeature extends cola._ExpressionFeature
 		return
 
 class cola._RepeatFeature extends cola._ExpressionFeature
+	expressionType: "repeat"
 	ignoreBind: true
 
-	constructor: (expression) ->
-		super(expression)
-		@alias = expression.alias
+	compile: (scope) ->
+		super(scope)
+		@alias = @expression.alias
 
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
 
 		scope.onItemsRefresh = () =>
@@ -230,10 +255,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		itemScope.data.setIndex(index, true)
 
 		itemDom = templateDom.cloneNode(true)
-
 		@deepCloneNodeData(itemDom, itemScope, false)
-		templateDomBinding = cola.util.userData(templateDom, cola.constants.DOM_BINDING_KEY)
-		domBinding = templateDomBinding.clone(itemDom, itemScope)
+		domBinding = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
 		@refreshItemDomBinding(itemDom, itemScope)
 
 		if typeof item is "object"
@@ -245,24 +268,23 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		repeatDomBinding.itemDomBindingMap[itemId] = domBinding
 		return itemDom
 
-	deepCloneNodeData: (node, scope, cloneDomBinding) ->
+	deepCloneNodeData: (node, scope) ->
 		store = cola.util.userData(node)
 		if store
 			clonedStore = {}
 			for k, v of store
 				if k is cola.constants.DOM_BINDING_KEY
-					if cloneDomBinding
-						v = v.clone(node, scope)
+					v = v.clone(node, scope)
 				else if k.substring(0, 2) is "__"
 					continue
 				clonedStore[k] = v
 			cola.util.userData(node, clonedStore)
 
-		child = node.firstChild
+		child = node.firstElementChild
 		while child
 			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
-				@deepCloneNodeData(child, scope, true)
-			child = child.nextSibling
+				@deepCloneNodeData(child, scope)
+			child = child.nextElementSibling
 		return
 
 	refreshItemDomBinding: (dom, itemScope) ->
@@ -288,6 +310,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 class cola._WatchFeature extends cola._BindingFeature
 	constructor: (@action, @paths) ->
 		@watchingMoreMessage = true
+		@prepared = true
 
 	processMessage: (domBinding, bindingPath) ->
 		@refresh(domBinding)
@@ -303,9 +326,10 @@ class cola._WatchFeature extends cola._BindingFeature
 class cola._EventFeature extends cola._ExpressionFeature
 	ignoreBind: true
 
-	constructor: (@expression, @event) ->
+	constructor: (@expressionStr, @event) ->
 
 	init: (domBinding) ->
+		return unless @prepared
 		domBinding.$dom.on(@event, (evt) =>
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
@@ -321,7 +345,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value) ->
-		return unless @expression?.writeable
+		return unless @prepared and @expression?.writeable
 		@ignoreMessage = true
 		domBinding.scope.set(@expression.writeablePath, value)
 		@ignoreMessage = false
@@ -339,8 +363,7 @@ class cola._DomFeature extends cola._ExpressionFeature
 		return
 
 class cola._DomAttrFeature extends cola._DomFeature
-	constructor: (expression, @attr) ->
-		super(expression)
+	constructor: (@expressionStr, @attr) ->
 
 	_doRender: (domBinding, value) ->
 		if value instanceof Date
@@ -358,17 +381,13 @@ class cola._DomAttrFeature extends cola._DomFeature
 		return
 
 class cola._DomStylePropFeature extends cola._DomFeature
-	constructor: (expression, @prop) ->
-		super(expression)
+	constructor: (@expressionStr, @prop) ->
 
 	_doRender: (domBinding, value) ->
 		domBinding.$dom.css(@prop, value)
 		return
 
 class cola._DomClassFeature extends cola._DomFeature
-	constructor: (expression) ->
-		super(expression)
-
 	_doRender: (domBinding, value) ->
 		if @_lastClassName
 			domBinding.$dom.removeClass(@_lastClassName)
@@ -378,20 +397,21 @@ class cola._DomClassFeature extends cola._DomFeature
 		return
 
 class cola._DomToggleClassFeature extends cola._DomFeature
-	constructor: (expression, @className) ->
-		super(expression)
+	constructor: (@expressionStr, @className) ->
 
 	_doRender: (domBinding, value) ->
 		domBinding.$dom[if value then "addClass" else "removeClass"](@className)
 		return
 
 class cola._TextBoxFeature extends cola._DomFeature
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		feature = @
 		domBinding.$dom.on "input", () ->
 			feature.writeBack(domBinding, @value)
 			return
-		super()
 		return
 
 	_doRender: (domBinding, value)->
@@ -399,13 +419,15 @@ class cola._TextBoxFeature extends cola._DomFeature
 		return
 
 class cola._CheckboxFeature extends cola._DomFeature
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		feature = @
 		domBinding.$dom.on("click", () ->
 			feature.writeBack(domBinding, @checked)
 			return
 		)
-		super()
 		return
 
 	_doRender: (domBinding, value)->
@@ -414,13 +436,15 @@ class cola._CheckboxFeature extends cola._DomFeature
 		return
 
 class cola._RadioFeature extends cola._DomFeature
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		domBinding.$dom.on("click", () ->
 			checked = this.checked
 			if checked then @writeBack(domBinding, checked)
 			return
 		)
-		super()
 		return
 
 	_doRender: (domBinding, value)->
@@ -428,14 +452,16 @@ class cola._RadioFeature extends cola._DomFeature
 		return
 
 class cola._SelectFeature extends cola._DomFeature
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
+		return unless @prepared
+
 		feature = @
 		domBinding.$dom.on("change", () ->
 			value = @options[@selectedIndex]
 			feature.writeBack(domBinding, value?.value)
 			return
 		)
-		super()
 		return
 
 	_doRender: (domBinding, value)->

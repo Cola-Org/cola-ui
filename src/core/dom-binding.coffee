@@ -4,7 +4,7 @@ _destroyDomBinding = (node, data) ->
 	return
 
 class cola._DomBinding
-	constructor: (dom, @scope, features) ->
+	constructor: (dom, @scope, features, @forceInit, clone) ->
 		@dom = dom
 		@$dom = $(dom)
 
@@ -12,7 +12,8 @@ class cola._DomBinding
 			for f in features
 				@addFeature(f)
 
-		cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
+		if not clone
+			cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
 		cola.util.onNodeDispose(dom, _destroyDomBinding)
 
 	destroy: () ->
@@ -27,9 +28,10 @@ class cola._DomBinding
 		delete @$dom
 		return
 
-	addFeature: (feature) ->
+	addFeature: (feature, forceInit) ->
 		feature.id ?= cola.uniqueId()
-		feature.init?(@)
+		if not feature.prepared
+			feature.init(@, forceInit or @forceInit)
 
 		if not @features
 			@features = [feature]
@@ -56,7 +58,6 @@ class cola._DomBinding
 		return
 
 	unbindFeature: (feature) ->
-		return unless feature.processMessage
 		paths = feature.paths
 		if paths
 			@unbind(path, feature) for path in paths
@@ -100,19 +101,29 @@ class cola._DomBinding
 		return
 
 	clone: (dom, scope) ->
-		return new @constructor(dom, scope, @features, true)
+		domBinding = new @constructor(dom, scope, @features, @forceInit, true)
+		if @features
+			for feature in @features
+				if not feature.prepared and feature.compile
+					domBinding.removeFeature(feature)
+					feature = feature.clone()
+					domBinding.addFeature(feature, true)
+		return domBinding
 
 class cola._AliasDomBinding extends cola._DomBinding
+
 	destroy: () ->
 		super()
 		@scope.destroy() if @subScopeCreated
 		return
 
 class cola._RepeatDomBinding extends cola._DomBinding
-	constructor: (dom, scope, feature, clone) ->
+	constructor: (dom, scope, feature, forceInit, clone) ->
 		if clone
-			super(dom, scope, feature)
+			super(dom, scope, feature, forceInit, clone)
 		else
+			@forceInit = forceInit
+
 			@scope = scope
 			headerNode = document.createComment("Repeat Head ")
 			cola._ignoreNodeRemoved = true
@@ -151,7 +162,7 @@ class cola._RepeatDomBinding extends cola._DomBinding
 class cola._RepeatItemDomBinding extends cola._AliasDomBinding
 	destroy: () ->
 		super()
-		if !@isTemplate
+		if not @isTemplate
 			delete @repeatDomBinding.itemDomBindingMap?[@itemId]
 		return
 
@@ -169,7 +180,7 @@ class cola._RepeatItemDomBinding extends cola._AliasDomBinding
 		return super(feature)
 
 	processDataMessage: (path, type, arg) ->
-		if !@isTemplate
+		if not @isTemplate
 			@scope.data.processMessage("**", path, type, arg)
 		return
 

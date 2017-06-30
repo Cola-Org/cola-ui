@@ -117,10 +117,10 @@ class cola.NestedList extends cola.Widget
 
 	_parseDom: (dom)->
 		return unless dom
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			@regTemplate(child) if child.nodeName == "TEMPLATE"
-			child = child.nextSibling
+			child = child.nextElementSibling
 		return
 
 	_createLayer: (index) ->

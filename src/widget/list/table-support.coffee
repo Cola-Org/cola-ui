@@ -122,7 +122,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			defaultValue: "center"
 
 	renderHeader: (dom, item) ->
-		if !dom.firstChild
+		if not dom.firstElementChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
@@ -132,14 +132,14 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 				click: (self) =>
 					checked = self.get("checked")
 					@selectAll(checked)
-					@fire("change", this, {checkbox: self, oldValue: !checked, value: checked})
+					@fire("change", this, {checkbox: self, oldValue: not checked, value: checked})
 					return
 			)
 			checkbox.appendTo(dom)
 		return
 
 	renderCell: (dom, item) ->
-		if !dom.firstChild
+		if not dom.firstElementChild
 			checkbox = new cola.Checkbox(
 				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
@@ -466,9 +466,9 @@ class cola.AbstractTable extends cola.AbstractList
 			else
 				column[attrName] = attr.value
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
-			next = child.nextSibling
+			next = child.nextElementSibling
 			nodeName = child.nodeName
 			if nodeName is "TEMPLATE"
 				templateName = child.getAttribute("name")

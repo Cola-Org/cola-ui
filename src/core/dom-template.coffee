@@ -106,9 +106,9 @@ cola.xRender = (template, model, context) ->
 			documentFragment = document.createDocumentFragment()
 			div = document.createElement("div")
 			div.innerHTML = template
-			child = div.firstChild
+			child = div.firstElementChild
 			while child
-				next = child.nextSibling
+				next = child.nextElementSibling
 				documentFragment.appendChild(child)
 				child = next
 	else
@@ -159,10 +159,10 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		buildContent(parts, dom, scope) if parts?.length
 		return dom
 	else if dom.nodeType is 11 # #documentFragment
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			child = _doRenderDomTemplate(child, scope, context) or child
-			child = child.nextSibling
+			child = child.nextElementSibling
 		return dom
 
 	initializers = null
@@ -239,7 +239,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			dom.removeAttribute(removeAttr)
 
 	if features?.length
-		domBinding = cola._domBindingBuilder[bindingType or "$"](dom, scope, features)
+		domBinding = cola._domBindingBuilder[bindingType or "$"](dom, scope, features, context)
 		defaultPath = scope.data.alias if scope.data.alias
 
 	if domBinding?.scope
@@ -257,6 +257,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		childContext = {}
 		for k, v of context
 			childContext[k] = v
+
 		childContext.inRepeatTemplate = context.inRepeatTemplate or bindingType is "repeat"
 		childContext.defaultPath = defaultPath if defaultPath
 
@@ -264,10 +265,10 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			for customDomCompiler in cola._userDomCompiler.$startContent
 				customDomCompiler(scope, dom, context, childContext)
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			child = _doRenderDomTemplate(child, scope, childContext) or child
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		if cola._userDomCompiler.$endContent.length
 			for customDomCompiler in cola._userDomCompiler.$endContent
@@ -308,62 +309,54 @@ buildContent = (parts, dom, scope) ->
 	return
 
 cola._domBindingBuilder =
-	$: (dom, scope, features) ->
-		return new cola._DomBinding(dom, scope, features)
+	$: (dom, scope, features, context) ->
+		forceInit = not context?.inRepeatTemplate
+		return new cola._DomBinding(dom, scope, features, forceInit)
 
-	repeat: (dom, scope, features) ->
-		domBinding = new cola._RepeatDomBinding(dom, scope, features)
+	repeat: (dom, scope, features, context) ->
+		forceInit = not context?.inRepeatTemplate
+		domBinding = new cola._RepeatDomBinding(dom, scope, features, forceInit)
 		scope = domBinding.scope
 		return domBinding
 
-	alias: (dom, scope, features) ->
-		domBinding = new cola._AliasDomBinding(dom, scope, features)
+	alias: (dom, scope, features, context) ->
+		forceInit = not context?.inRepeatTemplate
+		domBinding = new cola._AliasDomBinding(dom, scope, features, forceInit)
 		scope = domBinding.scope
 		return domBinding
 
 cola._domFeatureBuilder =
 	$: (scope, attrValue, attrName, dom) ->
-		expression = cola._compileExpression(scope, attrValue)
-		if expression
-			if attrName == "display"
-				feature = new cola._DisplayFeature(expression)
-			else if attrName == "options" and dom.nodeName == "SELECT"
-				feature = new cola._SelectOptionsFeature(expression)
-			else
-				feature = new cola._DomAttrFeature(expression, attrName)
+		if attrName is "display"
+			feature = new cola._DisplayFeature(attrValue)
+		else if attrName is "options" and dom.nodeName is "SELECT"
+			feature = new cola._SelectOptionsFeature(attrValue)
+		else
+			feature = new cola._DomAttrFeature(attrValue, attrName)
 		return feature
 
 	repeat: (scope, attrValue) ->
-		expression = cola._compileExpression(scope, attrValue, "repeat")
-		if expression
-			return new cola._RepeatFeature(expression)
-		else
-			return
+		return new cola._RepeatFeature(attrValue, "repeat")
 
 	alias: (scope, attrValue) ->
-		expression = cola._compileExpression(scope, attrValue, "alias")
-		if expression
-			return new cola._AliasFeature(expression)
-		else
-			return
+		return new cola._AliasFeature(attrValue, "alias")
 
 	bind: (scope, attrValue, attrName, dom) ->
-		expression = cola._compileExpression(scope, attrValue)
 		nodeName = dom.nodeName
-		if nodeName == "INPUT"
+		if nodeName is "INPUT"
 			type = dom.type
-			if type == "checkbox"
-				feature = new cola._CheckboxFeature(expression)
-			else if type == "radio"
-				feature = new cola._RadioFeature(expression)
+			if type is "checkbox"
+				feature = new cola._CheckboxFeature(attrValue)
+			else if type is "radio"
+				feature = new cola._RadioFeature(attrValue)
 			else
-				feature = new cola._TextBoxFeature(expression)
-		else if nodeName == "SELECT"
-			feature = new cola._SelectFeature(expression)
-		else if nodeName == "TEXTAREA"
-			feature = new cola._TextBoxFeature(expression)
+				feature = new cola._TextBoxFeature(attrValue)
+		else if nodeName is "SELECT"
+			feature = new cola._SelectFeature(attrValue)
+		else if nodeName is "TEXTAREA"
+			feature = new cola._TextBoxFeature(attrValue)
 		else
-			feature = new cola._DomAttrFeature(expression, "text")
+			feature = new cola._DomAttrFeature(attrValue, "text")
 		return feature
 
 	style: (scope, attrValue) ->
@@ -372,9 +365,8 @@ cola._domFeatureBuilder =
 
 		features = []
 		for styleProp, styleExpr of style
-			expression = cola._compileExpression(scope, styleExpr)
-			if expression
-				feature = new cola._DomStylePropFeature(expression, styleProp)
+			if styleExpr
+				feature = new cola._DomStylePropFeature(styleExpr, styleProp)
 				features.push(feature)
 		return features
 
@@ -383,17 +375,13 @@ cola._domFeatureBuilder =
 
 		features = []
 		try
-			expression = cola._compileExpression(scope, attrValue)
-			if expression
-				feature = new cola._DomClassFeature(expression)
-				features.push(feature)
+			feature = new cola._DomClassFeature(attrValue)
+			features.push(feature)
 		catch
 			classConfig = cola.util.parseStyleLikeString(attrValue)
 			for className, classExpr of classConfig
-				expression = cola._compileExpression(scope, classExpr)
-				if expression
-					feature = new cola._DomToggleClassFeature(expression, className)
-					features.push(feature)
+				feature = new cola._DomToggleClassFeature(classExpr, className)
+				features.push(feature)
 		return features
 
 	class: () -> @classname.apply(@, arguments)
@@ -422,7 +410,4 @@ cola._domFeatureBuilder =
 		return feature
 
 	event: (scope, attrValue, attrName) ->
-		expression = cola._compileExpression(scope, attrValue)
-		if expression
-			feature = new cola._EventFeature(expression, attrName.substring(2))
-		return feature
+		return new cola._EventFeature(attrValue, attrName.substring(2))

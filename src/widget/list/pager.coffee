@@ -181,7 +181,7 @@ class cola.Pager extends cola.Menu
 
 	_parseItems: (node)->
 		parseRightMenu = (node)=>
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			@_rightItems ?= []
 			while childNode
 				if childNode.nodeType == 1
@@ -195,13 +195,13 @@ class cola.Pager extends cola.Menu
 						else if cola.util.hasClass(childNode, "item")
 							menuItem = new cola.menu.MenuItem({dom: childNode})
 							@addRightItem(menuItem)
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
-		childNode = node.firstChild
 
+		childNode = node.firstElementChild
 		while childNode
 			if childNode._eachIgnore
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 				continue
 			if childNode.nodeType == 1
 				pageCode = $fly(childNode).attr("page-code")
@@ -217,7 +217,7 @@ class cola.Pager extends cola.Menu
 					else if cola.util.hasClass(childNode, "item")
 						menuItem = new cola.menu.MenuItem({dom: childNode})
 						@addItem(menuItem)
-			childNode = childNode.nextSibling
+			childNode = childNode.nextElementSibling
 
 	_createItem: (config, floatRight)->
 		if typeof config is "string"

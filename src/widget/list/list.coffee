@@ -269,17 +269,17 @@ class cola.ListView extends cola.AbstractList
 
 		if not groupDom._headerCreated
 			groupDom._headerCreated = true
-			itemsWrapper = groupDom.firstChild
+			itemsWrapper = groupDom.firstElementChild
 			groupHeaderDom = @_createNewItem("group-header", group)
 			@_templateContext.defaultPath = group._alias
 			cola.xRender(groupHeaderDom, groupScope, @_templateContext)
 			groupDom.insertBefore(groupHeaderDom, itemsWrapper)
 			cola.util.userData(groupHeaderDom, "item", group)
 		else
-			itemsWrapper = groupDom.lastChild
+			itemsWrapper = groupDom.lastElementChild
 
 		documentFragment = null
-		currentItemDom = itemsWrapper.firstChild
+		currentItemDom = itemsWrapper.firstElementChild
 		for item in group.items
 			itemType = @_getItemType(item)
 
@@ -289,12 +289,12 @@ class cola.ListView extends cola.AbstractList
 					if currentItemDom._itemType is itemType
 						break
 					else
-						nextItemDom = currentItemDom.nextSibling
+						nextItemDom = currentItemDom.nextElementSibling
 						groupDom.removeChild(currentItemDom)
 						currentItemDom = nextItemDom
 				if currentItemDom
 					itemDom = currentItemDom
-					currentItemDom = currentItemDom.nextSibling
+					currentItemDom = currentItemDom.nextElementSibling
 
 			if itemDom
 				@_refreshItemDom(itemDom, item)
@@ -307,7 +307,7 @@ class cola.ListView extends cola.AbstractList
 		if currentItemDom
 			itemDom = currentItemDom
 			while itemDom
-				nextItemDom = itemDom.nextSibling
+				nextItemDom = itemDom.nextElementSibling
 				itemsWrapper.removeChild(itemDom)
 				delete @_itemDomMap[itemDom._itemId] if itemDom._itemId
 				itemDom = nextItemDom
@@ -355,7 +355,7 @@ class cola.ListView extends cola.AbstractList
 			floatGroupHeader = @_getFloatGroupHeader(group)
 
 			gap = 1
-			nextOffsetTop = topGroupDom.nextSibling?.offsetTop
+			nextOffsetTop = topGroupDom.nextElementSibling?.offsetTop
 			if nextOffsetTop > 0 and nextOffsetTop - scrollTop - gap < @_floatGroupHeaderHeight
 				offset = @_floatGroupHeaderHeight - (nextOffsetTop - scrollTop - gap)
 				floatGroupHeader.style.top = (@_floatGroupHeaderDefaultTop - offset) + "px"
@@ -387,7 +387,7 @@ class cola.ListView extends cola.AbstractList
 			@_floatGroupHeaderHeight = floatGroupHeaderWrapper.offsetHeight
 			floatGroupHeaderWrapper.style.top = @_floatGroupHeaderDefaultTop + "px"
 		else
-			floatGroupHeader = floatGroupHeaderWrapper.firstChild
+			floatGroupHeader = floatGroupHeaderWrapper.firstElementChild
 			groupScope = cola.util.userData(floatGroupHeader, "scope")
 			groupScope.data.setTargetData(group)
 			if floatGroupHeaderWrapper.style.display == "none"
@@ -398,17 +398,17 @@ class cola.ListView extends cola.AbstractList
 		groups = @_realItems
 		return unless groups?.length
 
-		currentGroupDom = @_topGroupDom or @_doms.itemsWrapper.firstChild
+		currentGroupDom = @_topGroupDom or @_doms.itemsWrapper.firstElementChild
 		currentGroupDomTop = currentGroupDom.offsetTop
 		if currentGroupDomTop <= scrollTop
-			groupDom = currentGroupDom.nextSibling
+			groupDom = currentGroupDom.nextElementSibling
 			while groupDom
 				groupDomOffsetTop = groupDom.offsetTop
 				if groupDomOffsetTop > scrollTop
 					groupDom = groupDom.previousSibling
 					@_topGroupDom = groupDom if @_topGroupDom isnt groupDom
 					break
-				groupDom = groupDom.nextSibling
+				groupDom = groupDom.nextElementSibling
 		else
 			groupDom = currentGroupDom.previousSibling
 			while groupDom
@@ -522,12 +522,12 @@ class cola.ListView extends cola.AbstractList
 			$fly(indexBar).show()
 
 		documentFragment = null
-		currentItemDom = indexBar.firstChild
+		currentItemDom = indexBar.firstElementChild
 		groups = @_realItems
 		for group, i in groups
 			if currentItemDom
 				itemDom = currentItemDom
-				currentItemDom = currentItemDom.nextSibling
+				currentItemDom = currentItemDom.nextElementSibling
 			else
 				itemDom = $.xCreate({
 					tagName: "div"
@@ -536,14 +536,14 @@ class cola.ListView extends cola.AbstractList
 				})
 				documentFragment ?= document.createDocumentFragment()
 				documentFragment.appendChild(itemDom)
-			$fly(itemDom.firstChild).text(group.name)
+			$fly(itemDom.firstElementChild).text(group.name)
 			itemDom._groupIndex = i
 
 		if documentFragment
 			indexBar.appendChild(documentFragment)
 		else
 			while currentItemDom
-				nextDom = currentItemDom.nextSibling
+				nextDom = currentItemDom.nextElementSibling
 				indexBar.removeChild(currentItemDom)
 				currentItemDom = nextDom
 		return
@@ -702,8 +702,8 @@ class cola.ListView extends cola.AbstractList
 			direction = "left"
 			factor = -1
 
-		if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
-			slideDom = itemDom.firstChild
+		if itemDom.firstElementChild and itemDom.firstElementChild is itemDom.lastChild
+			slideDom = itemDom.firstElementChild
 		else
 			slideDom = itemDom
 
@@ -771,8 +771,8 @@ class cola.ListView extends cola.AbstractList
 			})
 
 
-		if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
-			slideDom = itemDom.firstChild
+		if itemDom.firstElementChild and itemDom.firstElementChild is itemDom.lastChild
+			slideDom = itemDom.firstElementChild
 		else
 			slideDom = itemDom
 
@@ -833,8 +833,8 @@ class cola.ListView extends cola.AbstractList
 		direction = @_itemSlideDirection
 
 		if direction is "right"
-			if itemDom.firstChild and itemDom.firstChild is itemDom.lastChild
-				slideDom = itemDom.firstChild
+			if itemDom.firstElementChild and itemDom.firstElementChild is itemDom.lastChild
+				slideDom = itemDom.firstElementChild
 			else
 				slideDom = itemDom
 			$(slideDom).transit({

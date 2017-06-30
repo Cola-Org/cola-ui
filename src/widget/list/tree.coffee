@@ -246,7 +246,7 @@ class cola.Tree extends cola.AbstractList
 		$fly(itemDom).addClass("tree item " + itemType)
 		itemDom._itemType = itemType
 
-		nodeDom = itemDom.firstChild
+		nodeDom = itemDom.firstElementChild
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
 			template = @getTemplate("node-" + itemType, "node")
 			if template
@@ -314,7 +314,7 @@ class cola.Tree extends cola.AbstractList
 			else if not @_lazyRenderChildNodes
 				@_prepareChildNode(node, false)
 
-			nodeDom = itemDom.firstChild
+			nodeDom = itemDom.firstElementChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
 
 		return nodeScope
@@ -337,7 +337,7 @@ class cola.Tree extends cola.AbstractList
 		itemsScope.resetItemScopeMap()
 
 		documentFragment = null
-		currentItemDom = nodesWrapper.firstChild
+		currentItemDom = nodesWrapper.firstElementChild
 		if parentNode._children
 			for node in parentNode._children
 				itemType = @_getItemType(node)
@@ -347,12 +347,12 @@ class cola.Tree extends cola.AbstractList
 						if currentItemDom._itemType == itemType
 							break
 						else
-							nextItemDom = currentItemDom.nextSibling
+							nextItemDom = currentItemDom.nextElementSibling
 							nodesWrapper.removeChild(currentItemDom)
 							currentItemDom = nextItemDom
 					itemDom = currentItemDom
 					if currentItemDom
-						currentItemDom = currentItemDom.nextSibling
+						currentItemDom = currentItemDom.nextElementSibling
 				else
 					itemDom = null
 
@@ -367,7 +367,7 @@ class cola.Tree extends cola.AbstractList
 		if currentItemDom
 			itemDom = currentItemDom
 			while itemDom
-				nextItemDom = itemDom.nextSibling
+				nextItemDom = itemDom.nextElementSibling
 				nodesWrapper.removeChild(itemDom) if $fly(itemDom).hasClass("item")
 				itemDom = nextItemDom
 
@@ -422,7 +422,7 @@ class cola.Tree extends cola.AbstractList
 			itemsScope.onItemInsert = () -> @onItemsRefresh()
 			itemsScope.onItemRemove = (arg) -> tree._onItemRemove(arg)
 
-		nodeDom = itemDom.firstChild
+		nodeDom = itemDom.firstElementChild
 		$fly(nodeDom).addClass("expanding") if expand
 		node._bind.retrieveChildNodes(node, () ->
 			$fly(nodeDom).removeClass("expanding") if expand
@@ -471,7 +471,7 @@ class cola.Tree extends cola.AbstractList
 					break
 				parent = parent._parent
 
-		$fly(itemDom.firstChild).removeClass("expanded")
+		$fly(itemDom.firstElementChild).removeClass("expanded")
 		$nodesWrapper = $fly(itemDom.lastChild)
 		if $nodesWrapper.hasClass("child-nodes")
 			if noAnimation

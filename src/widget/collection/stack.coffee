@@ -42,7 +42,7 @@ class cola.Stack extends cola.Widget
 	_parseDom: (dom)->
 		parseItem = (node)=>
 			@_items = []
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			while childNode
 				if childNode.nodeType == 1
 					if $fly(childNode).hasClass("prev")
@@ -51,17 +51,17 @@ class cola.Stack extends cola.Widget
 						@_doms.currentItem = childNode
 					else if $fly(childNode).hasClass("next")
 						@_doms.nextItem = childNode
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
 
 		doms = @_doms
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				if cola.util.hasClass(child, "items-wrap")
 					doms.wrap = child
 					parseItem(child)
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 	getItemContainer: (key)-> @["_#{key}Item"]
 	getItemsWrap: ()->

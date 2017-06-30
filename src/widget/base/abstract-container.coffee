@@ -15,12 +15,12 @@ class cola.AbstractContainer extends cola.Widget
 	_parseDom: (dom)->
 		@_content ?= []
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType is 1
 				widget = cola.widget(child)
 				@_content.push(widget) if widget
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		return
 

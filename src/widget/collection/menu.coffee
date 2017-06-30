@@ -27,7 +27,7 @@ class cola.Menu extends cola.Widget
 
 	_parseItems: (node)->
 		parseRightMenu = (node)=>
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			@_rightItems ?= []
 			while childNode
 				if childNode.nodeType == 1
@@ -37,9 +37,9 @@ class cola.Menu extends cola.Widget
 					else if cola.util.hasClass(childNode, "item")
 						menuItem = new cola.menu.MenuItem({dom: childNode})
 						@addRightItem(menuItem)
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
-		childNode = node.firstChild
+		childNode = node.firstElementChild
 		while childNode
 			if childNode.nodeType == 1
 				menuItem = cola.widget(childNode)
@@ -51,7 +51,7 @@ class cola.Menu extends cola.Widget
 				else if cola.util.hasClass(childNode, "item")
 					menuItem = new cola.menu.MenuItem({dom: childNode})
 					@addItem(menuItem)
-			childNode = childNode.nextSibling
+			childNode = childNode.nextElementSibling
 
 	_parseDom: (dom)->
 		@_items ?= []
@@ -352,7 +352,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 			getter: ()->return @_subMenu?.get("items")
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+		child = dom.firstElementChild
 		@_doms ?= {}
 		while child
 			if child.nodeType == 1
@@ -366,7 +366,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 				else if cola.util.hasClass(child, "caption")
 					@_doms.captionDom = child
 
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		unless @_doms.captionDom
 			@_doms.captionDom = $.xCreate({
@@ -523,7 +523,7 @@ class cola.TitleBar extends cola.Menu
 			refreshDom: true
 
 	_parseDom: (dom)->
-		child = dom.firstChild
+		child = dom.firstElementChild
 		@_doms ?= {}
 		while child
 			if child.nodeType == 1
@@ -531,13 +531,12 @@ class cola.TitleBar extends cola.Menu
 					@_doms.title = child
 					@_title ?= cola.util.getTextChildData(child)
 					break
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		super(dom)
 
-		firstChild = dom.children[0]
-
-		if @_doms.title and firstChild isnt @_doms.title
+		firstChild = dom.firstChild
+		if @_doms.title and dom.firstChild isnt @_doms.title
 			$(@_doms.title).remove()
 			$(firstChild).before(@_doms.title)
 

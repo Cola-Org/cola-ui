@@ -43,15 +43,15 @@ class cola.Shape extends cola.AbstractItemGroup
 	_parseDom: (dom)->
 		parseItem = (node)=>
 			@_items = []
-			childNode = node.firstChild
+			childNode = node.firstElementChild
 			while childNode
 				@addItem(childNode) if childNode.nodeType == 1
 				$fly(childNode).addClass("side")
-				childNode = childNode.nextSibling
+				childNode = childNode.nextElementSibling
 			return
 		@_doms ?= {}
 		doms = @_doms
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				if cola.util.hasClass(child, "sides")
@@ -59,7 +59,7 @@ class cola.Shape extends cola.AbstractItemGroup
 					parseItem(child)
 				else if child.nodeName == "TEMPLATE"
 					@regTemplate(child)
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 		return
 

@@ -117,8 +117,9 @@ cola.util.removeUserData = (node, key) ->
 				value = store[key]
 				delete store[key]
 			else
+				value = store
 				delete cola.util.userDataStore[id]
-				userData.size--
+				cola.util.userDataStore.size--
 	return value
 
 ON_NODE_REMOVED_KEY = "__onNodeRemoved"

@@ -69,7 +69,7 @@ class cola.Reveal extends cola.Widget
 	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
-		child = dom.firstChild
+		child = dom.firstElementChild
 
 		while child
 			if child.nodeType == 1
@@ -83,7 +83,7 @@ class cola.Reveal extends cola.Widget
 					@_doms.visibleContent = widget if $child.has("visible content")
 					@_doms.hiddenContent = widget if $child.has("hidden content")
 
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 	_clearContent: (target)->
 		old = @["_#{target}"]

@@ -74,12 +74,12 @@ class cola.Steps extends cola.Widget
 
 		@_steps ?= []
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				step = cola.widget(child)
 				@addStep(step) if step and step instanceof cola.steps.Step
-			child = child.nextSibling
+			child = child.nextElementSibling
 		return
 
 	_doChange: (index)->
@@ -253,7 +253,7 @@ class cola.steps.Step extends cola.Widget
 			@_content = content if not @_content and content
 			return
 
-		child = dom.firstChild
+		child = dom.firstElementChild
 		while child
 			if child.nodeType == 1
 				if child.nodeName is "I"
@@ -276,7 +276,7 @@ class cola.steps.Step extends cola.Widget
 					else if $child.hasClass("description")
 						parseDescription(child)
 
-			child = child.nextSibling
+			child = child.nextElementSibling
 
 
 		parseContent(dom)
