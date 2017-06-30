@@ -1105,14 +1105,14 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 	get: (path, loadMode, context) ->
 		alias = @alias
 
-		if path.charCodeAt(0) is 64 # `@`
+		if path?.charCodeAt(0) is 64 # `@`
 			i = path.indexOf('.')
 			firstPart = if i > 0 then path.substring(0, i) else path
 			firstPart = @get(firstPart.substring(1))
 			path = firstPart + if i > 0 then path.substring(i + 1) else ""
 
 		aliasLen = alias.length
-		if path and path.substring(0, aliasLen) is alias
+		if path?.substring(0, aliasLen) is alias
 			c = path.charCodeAt(aliasLen)
 			if c is 46 # `.`
 				if path.indexOf(".") > 0
