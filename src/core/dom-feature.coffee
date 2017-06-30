@@ -280,11 +280,11 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				clonedStore[k] = v
 			cola.util.userData(node, clonedStore)
 
-		child = node.firstElementChild
+		child = node.firstChild
 		while child
 			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
 				@deepCloneNodeData(child, scope)
-			child = child.nextElementSibling
+			child = child.nextSibling
 		return
 
 	refreshItemDomBinding: (dom, itemScope) ->

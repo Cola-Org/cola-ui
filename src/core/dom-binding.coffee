@@ -5,6 +5,7 @@ _destroyDomBinding = (node, data) ->
 
 class cola._DomBinding
 	constructor: (dom, @scope, features, @forceInit, clone) ->
+		@forceInit = true
 		@dom = dom
 		@$dom = $(dom)
 
