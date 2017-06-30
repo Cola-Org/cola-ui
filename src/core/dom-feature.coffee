@@ -328,8 +328,10 @@ class cola._EventFeature extends cola._ExpressionFeature
 
 	constructor: (@expressionStr, @event) ->
 
-	init: (domBinding) ->
+	init: (domBinding, force) ->
+		super(domBinding, force)
 		return unless @prepared
+
 		domBinding.$dom.on(@event, (evt) =>
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
@@ -376,6 +378,11 @@ class cola._DomAttrFeature extends cola._DomFeature
 			cola.util.setText(domBinding.dom, if value? then value else "")
 		else if attr is "html"
 			domBinding.$dom.html(if value? then value else "")
+		else if typeof value is "boolean"
+			if value
+				domBinding.dom.setAttribute(attr, "")
+			else
+				domBinding.dom.removeAttribute(attr)
 		else
 			domBinding.dom.setAttribute(attr, if value? then value else "")
 		return

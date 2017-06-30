@@ -84,9 +84,7 @@ _matchValue = (value, propFilter) ->
 		else
 			return (value + "").indexOf(propFilter.value) > -1
 
-cola.defaultAction.filter = (collection, criteria, option) ->
-	criteria = cola._trimCriteria(criteria, option)
-	return cola.util.filter(collection, criteria, option)
+cola.defaultAction.filter = cola.util.filter
 	
 cola.defaultAction.sort = cola.util.sort
 

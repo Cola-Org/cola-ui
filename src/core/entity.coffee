@@ -206,9 +206,9 @@ _filterEntity = (entity, criteria, option = {}, children) ->
 								m = true
 								break
 
-						if not m
-							matches = false
-							break unless children
+						if m
+							matches = true
+							break
 
 					else if option.mode is "entity"
 						if not _matchValue(entity.get(prop), propFilter)

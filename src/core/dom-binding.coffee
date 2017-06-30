@@ -30,8 +30,7 @@ class cola._DomBinding
 
 	addFeature: (feature, forceInit) ->
 		feature.id ?= cola.uniqueId()
-		if not feature.prepared
-			feature.init(@, forceInit or @forceInit)
+		feature.init(@, forceInit or @forceInit)
 
 		if not @features
 			@features = [feature]

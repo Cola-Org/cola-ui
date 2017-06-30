@@ -375,9 +375,13 @@ cola._domFeatureBuilder =
 
 		features = []
 		try
+			cola._compileExpression(scope, attrValue)
 			feature = new cola._DomClassFeature(attrValue)
 			features.push(feature)
 		catch
+			# do nothing
+
+		if not features.length
 			classConfig = cola.util.parseStyleLikeString(attrValue)
 			for className, classExpr of classConfig
 				feature = new cola._DomToggleClassFeature(classExpr, className)
