@@ -312,15 +312,15 @@ class cola._WatchFeature extends cola._BindingFeature
 		@watchingMoreMessage = true
 		@prepared = true
 
-	processMessage: (domBinding, bindingPath) ->
-		@refresh(domBinding)
+	processMessage: (domBinding, bindingPath, path, type, arg) ->
+		@refresh(domBinding, type, arg)
 		return
 
 	refresh: (domBinding) ->
 		action = domBinding.scope.action(@action)
 		if not action
 			throw new cola.Exception("No action named \"#{@action}\" found.")
-		action(domBinding.dom, domBinding.scope)
+		action(domBinding.dom, domBinding.scope, type, arg)
 		return
 
 class cola._EventFeature extends cola._ExpressionFeature
