@@ -1068,10 +1068,10 @@ class Page extends LinkedList
 		else if json.hasOwnProperty("data$")
 			json = rawJson.data$
 
-		if not (json instanceof Array)
+		if json and not (json instanceof Array)
 			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
 
-		if json.length
+		if json?.length
 			dataType = entityList.dataType
 			for data in json
 				entity = new _Entity(data, dataType)
