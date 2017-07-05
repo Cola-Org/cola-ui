@@ -210,7 +210,10 @@ class cola.Field extends cola.Widget
 					bind = @_property
 
 		if bind and dom.childElementCount is 0
-			dom.appendChild($.xCreate(tagName: "label"))
+			dom.appendChild($.xCreate(
+			  tagName: "label"
+			  content: @_caption or ""
+			))
 			dom.appendChild($.xCreate(
 				tagName: "c-input"
 				bind: bind
