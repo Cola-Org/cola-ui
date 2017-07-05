@@ -19,6 +19,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 		valueProperty: null
 		textProperty: null
+		name:null
 
 	_initDom: (dom)->
 		super(dom)
@@ -46,19 +47,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 			dom[0].checked = true
 
 	_getDomValue:(itemDom)->
-		text=$(itemDom).find("label").text()
-		item=null
-		textProperty= @_textProperty
-
-		attrBinding = @_elementAttrBindings?["items"]
-		if attrBinding
-			raw = attrBinding.expression.raw
-			entityList=attrBinding.scope.get(raw)
-			entityList && entityList.each((entity)->
-				if entity.get(textProperty) is text
-					item=entity
-					return false
-			)
+		item=cola.util.getItemByItemDom(itemDom)
 		if item
 			return item.get(@_valueProperty)
 
