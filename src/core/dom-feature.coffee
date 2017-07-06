@@ -316,7 +316,7 @@ class cola._WatchFeature extends cola._BindingFeature
 		@refresh(domBinding, type, arg)
 		return
 
-	refresh: (domBinding) ->
+	refresh: (domBinding, type, arg) ->
 		action = domBinding.scope.action(@action)
 		if not action
 			throw new cola.Exception("No action named \"#{@action}\" found.")
