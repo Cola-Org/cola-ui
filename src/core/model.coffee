@@ -319,7 +319,7 @@ class cola.AliasScope extends cola.ExpressionScope
 	retrieveData: () ->
 		cola.util.cancelDelay(@, "retrieve")
 
-		data = @evaluate(@, )
+		data = @evaluate(@)
 		@setTargetData(data)
 		return
 
@@ -1144,6 +1144,7 @@ class cola.AliasDataModel extends cola.AbstractDataModel
 			else if isNaN(c)
 				@setTargetData(data)
 				return @
+
 		@parent.set(path, data, context)
 		return @
 
