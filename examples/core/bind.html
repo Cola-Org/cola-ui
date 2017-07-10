@@ -37,10 +37,10 @@
 </head>
 <body style="padding:20px">
 
-<!--<p>-->
-<!--<input c-bind="strProp">-->
-<!--<label c-bind="upperCase(strProp)"></label>-->
-<!--</p>-->
+<p>
+<input c-bind="strProp">
+<label c-bind="upperCase(strProp)"></label>
+</p>
 
 <!--<p>-->
 <!--<input c-bind="numberProp">-->
@@ -77,11 +77,12 @@
 
 <input c-bind="dyna.str">
 
-<div c-alias="dyna as p">
+<div c-alias="dyna as p;strProp as s">
 	<input c-bind="p.str">
+	<input c-bind="s">
 	<!--<br>-->
-	<!--<input c-bind="?p+'.str'">-->
-	<!--<label c-bind="?p+'.str'"></label>-->
+	<input c-bind="?'p.str'">
+	<label c-bind="?'p.str'"></label>
 </div>
 
 <c-button click="test">Test</c-button>
