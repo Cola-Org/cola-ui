@@ -850,9 +850,13 @@ class cola.AbstractDataModel
 		data?.notifyObservers?()
 		return @
 
+
 	onDataMessage: (path, type, arg = {}) ->
 		return unless @bindingRegistry
 		return if @disableObserverCount > 0
+		return @_onDataMessage(path, type, arg)
+
+	_onDataMessage: (path, type, arg = {}) ->
 		oldScope = cola.currentScope
 		cola.currentScope = @
 		try
@@ -1107,7 +1111,8 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				path = holder.path + path.substring(i + 1)
 		else
 			holder = @_aliasMap[path]
-			path = holder.alias
+			if holder?.path
+				path = holder.alias
 		return @parent.getProperty(path)
 
 	getDataType: (path) ->
@@ -1118,7 +1123,8 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				path = holder.path + path.substring(i + 1)
 		else
 			holder = @_aliasMap[path]
-			path = holder.alias
+			if holder?.path
+				path = holder.alias
 		return @parent.getDataType(path)
 
 	_isExBindingPath: (path) ->
@@ -1145,15 +1151,15 @@ class cola.SubDataModel extends cola.AbstractDataModel
 					else if data and typeof targetData is "object"
 						return data[path.substring(i + 1)]
 				else
-					return super(path, loadMode, context)
+					return @parent.get(path, loadMode, context)
 			else
 				holder = @_aliasMap[path]
 				if holder
 					return holder.data
 				else
-					return super(path, loadMode, context)
+					return @parent.get(path, loadMode, context)
 		else
-			return super(path, loadMode, context)
+			return @parent.get(path, loadMode, context)
 
 	set: (path, data, context) ->
 		i = path.indexOf(".")
@@ -1162,13 +1168,13 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			if holder
 				holder.data?.set(path.substring(i + 1), data, context)
 			else
-				super(path, data, context)
+				@parent.set(path, data, context)
 		else
 			holder = @_aliasMap[path]
 			if holder
 				@parent.set(holder.path, data, context)
 			else
-				super(path, data, context)
+				@parent.set(path, data, context)
 		return @
 
 	flush: (path, loadMode) ->
@@ -1203,7 +1209,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			if isChildData(data, holder.data)
 				path = path.slice(0)
 				path[0] = alias
-				super(path, type, arg)
+				@_onDataMessage(path, type, arg)
 				break
 		return
 
@@ -1241,12 +1247,12 @@ class cola.ItemDataModel extends cola.SubDataModel
 					property = dataType.getProperty(path.substring(i + 1))
 				return property
 			else
-				return super(path)
+				return @parent.getProperty(path)
 		else if path is @alias
 			dataType = if @_itemData instanceof cola.Entity or @_itemData instanceof cola.EntityList then @_itemData.dataType else null
 			return dataType or @dataType
 		else
-			return super(path)
+			return @parent.getProperty(path)
 
 	getDataType: (path) ->
 		i = path.indexOf(".")
@@ -1257,11 +1263,11 @@ class cola.ItemDataModel extends cola.SubDataModel
 					dataType = property?.get("dataType")
 				return dataType
 			else
-				return super(path)
+				return @parent.getDataType(path)
 		else if path is @alias
 			return @dataType
 		else
-			return super(path)
+			return @parent.getDataType(path)
 
 
 	_isExBindingPath: (path) ->
@@ -1296,7 +1302,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 							return itemData[path.substring(aliasLen + 1)]
 				else if isNaN(c)
 					return @_itemData
-			return super(path, loadMode, context)
+			return @parent.get(path, loadMode, context)
 
 	set: (path, data, context) ->
 		if path is cola.constants.REPEAT_INDEX or path is @alias
@@ -1313,7 +1319,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			else if isNaN(c)
 				throw new cola.Exception("Can not change \"#{alias}\" of ItemScope.")
 
-		super(path, data, context)
+		@parent.set(path, data, context)
 		return @
 
 	onDataMessage: (path, type, arg) ->
@@ -1331,7 +1337,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			if isChild
 				path = path.slice(0)
 				path[0] = @alias
-				super(path, type, arg)
+				@_onDataMessage(path, type, arg)
 		return
 
 
