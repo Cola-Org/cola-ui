@@ -55,26 +55,72 @@ class cola._ExpressionFeature extends cola._BindingFeature
 				@disabled = true
 		return
 
-class cola._AliasFeature extends cola._ExpressionFeature
+class cola._AliasFeature extends cola._BindingFeature
 	expressionType: "alias"
 	ignoreBind: true
 
-	compile: (scope) ->
-		super(scope)
-		@alias = @expression.alias
+	constructor: (expressionText) ->
+		@expressions = {}
+		@expressionStrs = expressionText.split(/;/)
 
 	init: (domBinding, force) ->
-		super(domBinding, force)
-		return unless @prepared
+		return if @prepared
 
-		domBinding.scope = new cola.AliasScope(domBinding.scope, @expression)
-		@_refresh(domBinding)
+		scope = domBinding.scope
+		expressionArray = []
+		for expressionStr in @expressionStrs
+			expression = @compile(scope, expressionStr)
+			expressionArray.push(expression)
+			@expressions[expression.alias] =
+				expression: expression
+
+		domBinding.scope = new cola.AliasScope(domBinding.scope, expressionArray)
 		domBinding.subScopeCreated = true
+		@_refresh(domBinding)
+
+		@prepared = true
+		return
+
+	compile: (scope, expressionStr) ->
+		expression = cola._compileExpression(scope, expressionStr, @expressionType)
+		@expressions[expression.alias] =
+			expression: expression
+
+		@isStatic = expression.isStatic
+		@paths = expression.paths or []
+		if not @paths.length and expression.hasComplexStatement
+			@paths = ["**"]
+			if not @isStatic then @delay = true
+			@watchingMoreMessage = not expression.hasDefinedPath
+		return expression
+
+	evaluate: (domBinding, alias, dataCtx = {}, loadMode = "async") ->
+		expression = @expressions[alias]
+		return unless expression
+		scope = domBinding.scope
+		dataCtx.vars ?= {}
+		dataCtx.vars.$dom = domBinding.dom
+		return expression.evaluate(scope, loadMode, dataCtx)
+
+	refresh: (domBinding, force, dataCtx = {}) ->
+		return unless @prepared and @_refresh
+		if @delay and not force
+			cola.util.delay(domBinding, "refresh", 100, () =>
+				@_refresh(domBinding, dataCtx)
+				if @isStatic and not dataCtx.unloaded
+					@disabled = true
+				return
+			)
+		else
+			@_refresh(domBinding, dataCtx)
+			if @isStatic and not dataCtx.unloaded
+				@disabled = true
 		return
 
 	_refresh: (domBinding, dataCtx)->
-		data = @evaluate(domBinding, dataCtx)
-		domBinding.scope.data.setTargetData(data)
+		for alias, expression of @expressions
+			data = @evaluate(alias, domBinding, dataCtx)
+			domBinding.scope.data.setTargetData(alias, data)
 		return
 
 class cola._RepeatFeature extends cola._ExpressionFeature
