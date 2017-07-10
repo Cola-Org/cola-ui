@@ -132,6 +132,11 @@ class cola.Expression
 		if watchPaths
 			@paths = watchPaths
 
+		if @paths
+			@splitedPaths = []
+			for path in @paths
+				@splitedPaths.push(path.split("."))
+
 	compile: (exprStr) ->
 
 		stringify = (node, parts, pathParts, close, context) ->

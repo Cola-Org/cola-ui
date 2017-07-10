@@ -95,12 +95,12 @@ class cola._AliasFeature extends cola._BindingFeature
 		return expression
 
 	evaluate: (domBinding, alias, dataCtx = {}, loadMode = "async") ->
-		expression = @expressions[alias]
-		return unless expression
+		expressionHolder = @expressions[alias]
+		return unless expressionHolder
 		scope = domBinding.scope
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
-		return expression.evaluate(scope, loadMode, dataCtx)
+		return expressionHolder.expression.evaluate(scope, loadMode, dataCtx)
 
 	refresh: (domBinding, force, dataCtx = {}) ->
 		return unless @prepared and @_refresh
@@ -118,8 +118,8 @@ class cola._AliasFeature extends cola._BindingFeature
 		return
 
 	_refresh: (domBinding, dataCtx)->
-		for alias, expression of @expressions
-			data = @evaluate(alias, domBinding, dataCtx)
+		for alias of @expressions
+			data = @evaluate(domBinding, alias, dataCtx)
 			domBinding.scope.data.setTargetData(alias, data)
 		return
 

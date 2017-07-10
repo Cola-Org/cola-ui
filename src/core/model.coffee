@@ -258,8 +258,8 @@ class cola.ExpressionScope extends cola.SubScope
 
 		if expression
 			if expression.paths
-				for path in @expression.paths
-					@expressionPaths.push(path.split("."))
+				for path in @expression.splitedPaths
+					@expressionPaths.push(path)
 
 			if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
 				@watchAllMessages()
@@ -315,7 +315,7 @@ class cola.AliasScope extends cola.SubScope
 					if path is "**"
 						@aliasPaths = null
 						break
-					@aliasPaths[path.split(".")] = null
+					@aliasPaths[path] = null
 			@data.addAlias(expression.alias, expression.writeablePath)
 
 		if @aliasPaths
@@ -386,13 +386,15 @@ class cola.AliasScope extends cola.SubScope
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
 					cola.util.delay(@, "retrieve", 100, () =>
 						@retrieveData(alias)
+						@refreshTargetData(alias)
 						return
 					)
 					allProcessed = true
 				else
-					isParent = @isParentOfTarget(expression.paths, path)
+					isParent = @isParentOfTarget(expression.splitedPaths, path)
 					if isParent
 						@retrieveData(alias)
+						@refreshTargetData(alias)
 						allProcessed = true
 		return allProcessed
 
