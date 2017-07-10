@@ -716,7 +716,7 @@ class cola.AbstractDataModel
 			else
 				return rootData.get(path, loadMode, context)
 		else
-			return @model?.data.get(path, loadMode, context)
+			return @parent?.data.get(path, loadMode, context)
 
 	set: (path, data, context) ->
 		if path
