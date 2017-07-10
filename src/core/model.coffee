@@ -1196,7 +1196,11 @@ class cola.AliasDataModel extends cola.AbstractAliasDataModel
 			else
 				@parent.set(path, data, context)
 		else
-			@parent.set(path, data, context)
+			holder = @_aliasMap[path]
+			if holder
+				@parent.set(holder.path, data, context)
+			else
+				@parent.set(path, data, context)
 		return @
 
 	flush: (path, loadMode) ->
