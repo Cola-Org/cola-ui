@@ -251,14 +251,14 @@ class cola.ListView extends cola.AbstractList
 		if not groupScope
 			groupDom._itemScope = groupScope = new cola.ItemScope(parentScope, group._alias)
 			parentScope.regItemScope(groupId, groupScope)
-			groupScope.data.setTargetData(group, true)
+			groupScope.data.setItemData(group, true)
 			cola.util.userData(groupDom, "scope", groupScope)
 			cola.util.userData(groupDom, "item", group)
 		else
 			oldGroup = cola.util.userData(groupDom, "item")
 			if oldGroup isnt groupScope.data.getTargetData()
 				delete groupDom._itemId if groupDom._itemId
-				groupScope.data.setTargetData(group)
+				groupScope.data.setItemData(group)
 				cola.util.userData(groupDom, "item", group)
 
 		if groupId
@@ -369,7 +369,7 @@ class cola.ListView extends cola.AbstractList
 		floatGroupHeaderWrapper = @_doms.floatGroupHeaderWrapper
 		if not floatGroupHeaderWrapper
 			groupScope = new cola.ItemScope(@_itemsScope, group._alias)
-			groupScope.data.setTargetData(group, true)
+			groupScope.data.setItemData(group, true)
 			floatGroupHeader = @_createNewItem("group-header", group)
 			cola.util.userData(floatGroupHeader, "scope", groupScope)
 			@_templateContext.defaultPath = group._alias
@@ -389,7 +389,7 @@ class cola.ListView extends cola.AbstractList
 		else
 			floatGroupHeader = floatGroupHeaderWrapper.firstElementChild
 			groupScope = cola.util.userData(floatGroupHeader, "scope")
-			groupScope.data.setTargetData(group)
+			groupScope.data.setItemData(group)
 			if floatGroupHeaderWrapper.style.display == "none"
 				floatGroupHeaderWrapper.style.display = ""
 		return floatGroupHeaderWrapper
@@ -634,7 +634,7 @@ class cola.ListView extends cola.AbstractList
 			@_itemSlidePane = slidePane = @getTemplate("slide-" + direction + "-pane")
 			if slidePane
 				itemScope = cola.util.userData(slidePane, "scope")
-				itemScope.data.setTargetData(item)
+				itemScope.data.setItemData(item)
 
 				if @getListeners("itemSlidePaneInit")
 					@fire("itemSlidePaneInit", @, {

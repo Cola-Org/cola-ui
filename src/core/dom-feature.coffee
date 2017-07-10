@@ -61,24 +61,24 @@ class cola._AliasFeature extends cola._BindingFeature
 
 	constructor: (expressionText) ->
 		@expressions = {}
-		@expressionStrs = expressionText.split(/;/)
+		@expressionStrs = expressionText?.split(/;/)
 
 	init: (domBinding, force) ->
-		return if @prepared
+		if not @prepared
+			scope = domBinding.scope
+			@expressionArray = []
+			for expressionStr in @expressionStrs
+				expression = @compile(scope, expressionStr)
+				@expressionArray.push(expression)
+				@expressions[expression.alias] =
+					expression: expression
+			@prepared = true
 
-		scope = domBinding.scope
-		expressionArray = []
-		for expressionStr in @expressionStrs
-			expression = @compile(scope, expressionStr)
-			expressionArray.push(expression)
-			@expressions[expression.alias] =
-				expression: expression
-
-		domBinding.scope = new cola.AliasScope(domBinding.scope, expressionArray)
-		domBinding.subScopeCreated = true
-		@_refresh(domBinding)
-
-		@prepared = true
+		if @prepared and not domBinding.subScopeCreated
+			domBinding.scope = new cola.SubScope(domBinding.scope)
+			domBinding.scope.setExpressions(@expressionArray)
+			domBinding.subScopeCreated = true
+			@_refresh(domBinding)
 		return
 
 	compile: (scope, expressionStr) ->
@@ -120,7 +120,7 @@ class cola._AliasFeature extends cola._BindingFeature
 	_refresh: (domBinding, dataCtx)->
 		for alias of @expressions
 			data = @evaluate(domBinding, alias, dataCtx)
-			domBinding.scope.data.setTargetData(alias, data)
+			domBinding.scope.data.setAliasTargetData(alias, data)
 		return
 
 class cola._RepeatFeature extends cola._ExpressionFeature
@@ -272,7 +272,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						scope.regItemScope(itemId, itemScope)
 						itemDomBinding.itemId = itemId
 						domBinding.itemDomBindingMap[itemId] = itemDomBinding
-						itemScope.data.setTargetData(item)
+						itemScope.data.setItemData(item)
 						itemScope.data.setIndex(i + 1)
 					else
 						itemDom = @createNewItem(domBinding, templateDom, scope, item, i + 1)
@@ -297,7 +297,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 	createNewItem: (repeatDomBinding, templateDom, scope, item, index) ->
 		itemScope = new cola.ItemScope(scope, @alias)
-		itemScope.data.setTargetData(item, true)
+		itemScope.data.setItemData(item, true)
 		itemScope.data.setIndex(index, true)
 
 		itemDom = templateDom.cloneNode(true)

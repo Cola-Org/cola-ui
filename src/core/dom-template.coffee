@@ -321,7 +321,7 @@ cola._domBindingBuilder =
 
 	alias: (dom, scope, features, context) ->
 		forceInit = not context?.inRepeatTemplate
-		domBinding = new cola._AliasDomBinding(dom, scope, features, forceInit)
+		domBinding = new cola._DomBinding(dom, scope, features, forceInit)
 		scope = domBinding.scope
 		return domBinding
 

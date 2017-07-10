@@ -110,13 +110,6 @@ class cola._DomBinding
 					domBinding.addFeature(feature, true)
 		return domBinding
 
-class cola._AliasDomBinding extends cola._DomBinding
-
-	destroy: () ->
-		super()
-		@scope.destroy() if @subScopeCreated
-		return
-
 class cola._RepeatDomBinding extends cola._DomBinding
 	constructor: (dom, scope, feature, forceInit, clone) ->
 		if clone
@@ -159,9 +152,10 @@ class cola._RepeatDomBinding extends cola._DomBinding
 		delete @currentItemDom
 		return
 
-class cola._RepeatItemDomBinding extends cola._AliasDomBinding
+class cola._RepeatItemDomBinding extends cola._DomBinding
 	destroy: () ->
 		super()
+		@scope.destroy() if @subScopeCreated
 		if not @isTemplate
 			delete @repeatDomBinding.itemDomBindingMap?[@itemId]
 		return

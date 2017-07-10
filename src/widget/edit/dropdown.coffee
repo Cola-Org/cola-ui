@@ -241,7 +241,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 				if not currentItemScope
 					@_currentItemScope = currentItemScope = new cola.ItemScope(@_scope, alias)
-				currentItemScope.data.setTargetData(item)
+				currentItemScope.data.setItemData(item)
 
 				valueContent = @_doms.valueContent
 				if not valueContent._inited
