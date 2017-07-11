@@ -584,7 +584,7 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 
 	@events:
 		beforeClose: null
-		afterClose: null
+		close: null
 	constructor: (config)->
 		config.name ?= cola.uniqueId()
 		super(config)
@@ -599,7 +599,7 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 		tab.removeTab(@);
 
 		@destroy()
-		@fire("afterClose", @, arg)
+		@fire("close", @, arg)
 		return @
 	getContentDom: ()->
 		return @_content
