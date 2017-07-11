@@ -350,7 +350,7 @@ class cola.ItemsView extends cola.Widget
 			if not itemScope
 				itemScope = new cola.ItemScope(parentScope, alias)
 				cola.currentScope = itemScope
-				itemScope.data.setTargetData(item, true)
+				itemScope.data.setItemData(item, true)
 				cola.util.userData(itemDom, "scope", itemScope)
 				cola.util.userData(itemDom, "item", originItem)
 				@_doRefreshItemDom?(itemDom, item, itemScope)
@@ -365,7 +365,7 @@ class cola.ItemsView extends cola.Widget
 						throw new cola.Exception("Repeat alias mismatch. Expect \"#{itemScope.alias}\" but \"#{alias}\".")
 
 					cola.util.userData(itemDom, "item", originItem)
-					itemScope.data.setTargetData(item)
+					itemScope.data.setItemData(item)
 
 				@_doRefreshItemDom?(itemDom, item, itemScope)
 			parentScope.regItemScope(itemId, itemScope) if itemId
