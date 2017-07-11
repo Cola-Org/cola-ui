@@ -207,7 +207,7 @@ class cola.SubScope extends cola.Scope
 
 	destroy: () ->
 		if @parent then @unwatchPath()
-		@data?.destroy()
+		@data?.destroy?()
 		return
 
 	setExpressions: (expressions) ->
@@ -707,7 +707,7 @@ class cola.AbstractDataModel
 						if rootData.hasValue(firstPart)
 							rootData.set(path, data, context)
 						else
-							@parent.data.set(path, data, context)
+							@parent.set(path, data, context)
 					else
 						rootData.set(path, data, context)
 				else
@@ -861,29 +861,28 @@ class cola.AbstractDataModel
 		cola.currentScope = @
 		try
 			arg.timestamp ?= cola.sequenceNo()
-			if path
-				node = @bindingRegistry
-				lastIndex = path.length - 1
-				for part, i in path
-					if i is lastIndex
-						anyPropNode = node["*"]
-						@processDataMessage(anyPropNode, path, type, arg) if anyPropNode
+			node = @bindingRegistry
+			if node
+				if path
+					lastIndex = path.length - 1
+					for part, i in path
+						if i is lastIndex
+							anyPropNode = node["*"]
+							@processDataMessage(anyPropNode, path, type, arg) if anyPropNode
+
+						anyChildNode = node["**"]
+						@processDataMessage(anyChildNode, path, type, arg) if anyChildNode
+
+						node = node[part]
+						break unless node
+				else
+					anyPropNode = node["*"]
+					@processDataMessage(anyPropNode, null, type, arg) if anyPropNode
 
 					anyChildNode = node["**"]
-					@processDataMessage(anyChildNode, path, type, arg) if anyChildNode
+					@processDataMessage(anyChildNode, null, type, arg) if anyChildNode
 
-					node = node[part]
-					break unless node
-			else
-				node = @bindingRegistry
-
-				anyPropNode = node["*"]
-				@processDataMessage(anyPropNode, null, type, arg) if anyPropNode
-
-				anyChildNode = node["**"]
-				@processDataMessage(anyChildNode, null, type, arg) if anyChildNode
-
-			@processDataMessage(node, path, type, arg, true) if node
+				@processDataMessage(node, path, type, arg, true) if node
 		finally
 			cola.currentScope = oldScope
 		return
@@ -1339,7 +1338,6 @@ class cola.ItemDataModel extends cola.SubDataModel
 				path[0] = @alias
 				@_onDataMessage(path, type, arg)
 		return
-
 
 ###
 Root Model
