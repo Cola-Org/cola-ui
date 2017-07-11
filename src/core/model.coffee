@@ -1268,7 +1268,6 @@ class cola.ItemDataModel extends cola.SubDataModel
 		else
 			return @parent.getDataType(path)
 
-
 	_isExBindingPath: (path) ->
 		firstPart = path[0]
 		return not @_aliasMap[firstPart] and firstPart isnt @alias and firstPart isnt cola.constants.REPEAT_INDEX

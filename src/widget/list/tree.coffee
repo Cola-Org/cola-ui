@@ -275,7 +275,7 @@ class cola.Tree extends cola.AbstractList
 	_refreshItemDom: (itemDom, node, parentScope) ->
 		nodeScope = cola.util.userData(itemDom, "scope")
 		# TODO 尝试修复新增节点数据时父节点自动收缩的bug
-		if nodeScope and nodeScope.data.getTargetData() isnt node.get("data")
+		if nodeScope and nodeScope.data.getItemData() isnt node.get("data")
 			collapsed = true
 
 		nodeScope = super(itemDom, node, parentScope)
@@ -481,13 +481,6 @@ class cola.Tree extends cola.AbstractList
 
 		node._expanded = false
 		return
-
-	_refreshItems: () ->
-		if @_currentNode
-			itemDom = @_itemDomMap[@_currentNode._id]
-			delete @_currentNode
-			$fly(itemDom).removeClass("current") if itemDom
-		return super()
 
 	_removeNode: (node) ->
 		if node

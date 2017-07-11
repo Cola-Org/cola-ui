@@ -157,7 +157,7 @@ cola.util.format = (value, format) ->
 cola.util.getItemByItemDom = (itemDom) ->
 	itemDom = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
 	if itemDom.scope and itemDom.scope instanceof cola.ItemScope
-		return itemDom.scope.data.getTargetData()
+		return itemDom.scope.data.getItemData()
 	return null
 
 ## URL

@@ -357,7 +357,7 @@ class cola.ItemsView extends cola.Widget
 				cola.xRender(itemDom, itemScope, @_templateContext)
 			else
 				cola.currentScope = itemScope
-				if itemScope.data.getTargetData() isnt item
+				if itemScope.data.getItemData() isnt item
 					if itemDom._itemId and @_itemDomMap[itemDom._itemId] is itemDom
 						delete @_itemDomMap[itemDom._itemId]
 

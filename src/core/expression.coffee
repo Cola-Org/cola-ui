@@ -245,7 +245,7 @@ class cola.Expression
 		return @parentPath if @parentPath isnt undefined
 		if @writeable
 			path = @writeablePath
-			if @type == "Identifier"
+			if @type is "Identifier"
 				info =
 					parentPath: null
 					property: path

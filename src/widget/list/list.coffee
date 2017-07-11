@@ -256,7 +256,7 @@ class cola.ListView extends cola.AbstractList
 			cola.util.userData(groupDom, "item", group)
 		else
 			oldGroup = cola.util.userData(groupDom, "item")
-			if oldGroup isnt groupScope.data.getTargetData()
+			if oldGroup isnt groupScope.data.getItemData()
 				delete groupDom._itemId if groupDom._itemId
 				groupScope.data.setItemData(group)
 				cola.util.userData(groupDom, "item", group)

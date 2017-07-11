@@ -280,7 +280,9 @@ _doRenderDomTemplate = (dom, scope, context) ->
 		scope = oldScope
 
 	if features?.length
-		domBinding.refresh(true) unless context.inRepeatTemplate
+		if not context.inRepeatTemplate
+			domBinding.refresh(true)
+
 		if domBinding instanceof cola._RepeatDomBinding
 			tailDom = cola.util.userData(domBinding.dom, cola.constants.REPEAT_TAIL_KEY)
 			dom = tailDom or domBinding.dom

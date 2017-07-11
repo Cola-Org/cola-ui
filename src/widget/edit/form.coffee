@@ -17,12 +17,15 @@ class cola.Form extends cola.Widget
 		@_messageHolder = new cola.Entity.MessageHolder()
 		super(config)
 
+	_getDataType: () ->
+		return @_dataType or @getBindingDataType()
+
 	_initDom: (dom) ->
 		super(dom)
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
 
 		if @_fields
-			dataType = @_dataType or @getBindingDataType()
+			dataType = @_getDataType()
 			childDoms = []
 			maxCols = @_defaultCols
 			defaultFieldCols = 1
@@ -183,6 +186,7 @@ class cola.Field extends cola.Widget
 		caption: null
 		property: null
 		readOnly: null
+		type: null
 
 		message:
 			readOnly: true
@@ -190,6 +194,22 @@ class cola.Field extends cola.Widget
 				if @_messageDom
 					return @_message
 				else
+					return null
+
+	_getPropertyDef: () ->
+		return @_propertyDef if @_propertyDef isnt undefined
+
+		if @_form
+			dataType = @_form.getBindingDataType()
+			if dataType and @_property
+				propertyDef = dataType.getProperty(@_property)
+		if not propertyDef
+			bind = bind or @_bind
+			if bind
+				@_bind = null
+				@_bindSetter(bind)
+				propertyDef = @getBindingProperty()
+		return @_propertyDef = propertyDef or null
 
 	_parseDom: (dom) ->
 		@_domParsed = true
@@ -214,10 +234,23 @@ class cola.Field extends cola.Widget
 			  tagName: "label"
 			  content: @_caption or ""
 			))
-			dom.appendChild($.xCreate(
-				tagName: "c-input"
-				bind: bind
-			))
+
+			propertyDef = @_getPropertyDef()
+			if propertyDef
+				propertyType = propertyDef.get("dataType")
+				if propertyType instanceof cola.BooleanDataType
+					if @_type is "checkbox"
+						editContent = { tagName: "c-checkbox", bind: bind, readOnly: @_readOnly }
+					else
+						editContent = { tagName: "c-toggle", bind: bind, readOnly: @_readOnly }
+				else if @_type is "date" or propertyType instanceof cola.DateDataType
+					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly }
+				else if @_type is "textarea"
+					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly }
+
+			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly }
+
+			dom.appendChild($.xCreate(editContent))
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
@@ -225,15 +258,7 @@ class cola.Field extends cola.Widget
 		if @_labelDom
 			$label = $fly(@_labelDom)
 			if not $label.data("labelUserData")
-				if @_form?._dataType and @_property
-					propertyDef = @_form._dataType.getProperty(@_property)
-				else
-					bind = bind or @_bind
-					if bind
-						@_bind = null
-						@_bindSetter(bind)
-						propertyDef = @getBindingProperty()
-
+				propertyDef = @_getPropertyDef()
 				if propertyDef
 					if @_labelDom.innerHTML is ""
 						$label.text(@_caption or propertyDef.get("caption") or @_property)
