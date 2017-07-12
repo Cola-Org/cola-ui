@@ -321,6 +321,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			for k, v of store
 				if k is cola.constants.DOM_BINDING_KEY
 					v = v.clone(node, scope)
+					childScope = v.scope
 				else if k.substring(0, 2) is "__"
 					continue
 				clonedStore[k] = v
@@ -329,7 +330,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		child = node.firstChild
 		while child
 			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
-				@deepCloneNodeData(child, scope)
+				@deepCloneNodeData(child, childScope or scope)
 			child = child.nextSibling
 		return
 

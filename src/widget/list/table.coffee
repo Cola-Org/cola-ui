@@ -18,6 +18,8 @@ class cola.Table extends cola.AbstractTable
 			else
 				for columnInfo in @_columnsInfo.dataColumns
 					column = columnInfo.column
+					if not column._property then continue
+
 					propertyDef = dataType.getProperty(column._property)
 					if propertyDef
 						if not column._caption
@@ -36,7 +38,6 @@ class cola.Table extends cola.AbstractTable
 							else
 								template = "input-column"
 							column.set("template", template)
-
 
 		$fly(window).resize () =>
 			if @_fixedHeaderVisible

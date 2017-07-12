@@ -25,6 +25,7 @@ class cola._DomBinding
 				@unbindFeature(_features[i])
 				i--
 
+		@scope.destroy() if @subScopeCreated
 		delete @dom
 		delete @$dom
 		return
@@ -101,14 +102,11 @@ class cola._DomBinding
 		return
 
 	clone: (dom, scope) ->
-		domBinding = new @constructor(dom, scope, @features, @forceInit, true)
-		if @features
-			for feature in @features
-				if not feature.prepared and feature.compile
-					domBinding.removeFeature(feature)
-					feature = feature.clone()
-					domBinding.addFeature(feature, true)
-		return domBinding
+		features = []
+		for feature in @features
+			features.push(feature.clone())
+
+		return new @constructor(dom, scope, features, @forceInit, true)
 
 class cola._RepeatDomBinding extends cola._DomBinding
 	constructor: (dom, scope, feature, forceInit, clone) ->
@@ -129,7 +127,7 @@ class cola._RepeatDomBinding extends cola._DomBinding
 			cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom)
 			cola.util.onNodeDispose(headerNode, _destroyDomBinding)
 
-			repeatItemDomBinding = new cola._RepeatItemDomBinding(dom, null)
+			repeatItemDomBinding = new cola._RepeatItemDomBinding(dom, scope)
 			repeatItemDomBinding.repeatDomBinding = @
 			repeatItemDomBinding.isTemplate = true
 
@@ -148,14 +146,12 @@ class cola._RepeatDomBinding extends cola._DomBinding
 
 	destroy: () ->
 		super()
-		@scope.destroy() if @subScopeCreated
 		delete @currentItemDom
 		return
 
 class cola._RepeatItemDomBinding extends cola._DomBinding
 	destroy: () ->
 		super()
-		@scope.destroy() if @subScopeCreated
 		if not @isTemplate
 			delete @repeatDomBinding.itemDomBindingMap?[@itemId]
 		return

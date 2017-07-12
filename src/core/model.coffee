@@ -216,7 +216,6 @@ class cola.SubScope extends cola.Scope
 		@data = new cola.SubDataModel(@)
 		@aliasExpressions = {}
 		@aliasPaths = {}
-		@repeatNotification = true
 
 		for expression in expressions
 			@aliasExpressions[expression.alias] = expression
@@ -326,9 +325,9 @@ class cola.SubScope extends cola.Scope
 	processMessage: (bindingPath, path, type, arg) ->
 		# 如果@aliasExpressions为空是不应该进入此方法的
 		if @messageTimestamp >= arg.timestamp then return
-		allProcessed = @_processMessage(bindingPath, path, type, arg)
+		@_processMessage(bindingPath, path, type, arg)
 
-		if @data and not allProcessed
+		if @data
 			@data.onDataMessage(path, type, arg)
 		return
 
@@ -342,14 +341,12 @@ class cola.SubScope extends cola.Scope
 						@refreshAliasTargetData(alias)
 						return
 					)
-					allProcessed = true
 				else
 					isParent = @isParentOfTarget(expression.splitedPaths, path)
 					if isParent
 						@retrieveAliasData(alias)
 						@refreshAliasTargetData(alias)
-						allProcessed = true
-		return allProcessed
+		return
 
 class cola.ItemScope extends cola.SubScope
 	constructor: (@parent, alias) ->
@@ -362,8 +359,6 @@ class cola.ItemScope extends cola.SubScope
 		return @data.onDataMessage(path, type, arg)
 
 class cola.ItemsScope extends cola.SubScope
-	# TODO 是否可删除
-	repeatNotification: true
 
 	constructor: (parent, expression) ->
 		@setParent(parent)
@@ -611,7 +606,7 @@ class cola.ItemsScope extends cola.SubScope
 			if @isParentOfTarget(@expressionPaths, path) then @itemsLoadingEnd(arg)
 
 		if processMoreMessage and @expression
-			if not @expressionPaths and @expression.hasComplexStatement and not @expression.hasDefinedPath
+			if not @expressionPaths? and @expression.hasComplexStatement and not @expression.hasDefinedPath
 				cola.util.delay(@, "retrieve", 100, () =>
 					@retrieveData()
 					@refreshItems()
@@ -1132,7 +1127,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	_bind: (path, processor) ->
 		super(path, processor)
 
-		if not @_exBindingProcessed and not @_isExBindingPath(path)
+		if not @_exBindingProcessed and @_isExBindingPath(path)
 			@_exBindingProcessed = true
 			@model.setHasExBinding(true)
 			@model.watchAllMessages()
@@ -1205,7 +1200,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 
 		data = arg.data or arg.entityList or arg.entity
 		for alias, holder of @_aliasMap
-			if isChildData(data, holder.data)
+			if data is null or isChildData(data, holder.data)
 				path = path.slice(0)
 				path[0] = alias
 				@_onDataMessage(path, type, arg)

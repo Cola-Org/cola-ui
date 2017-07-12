@@ -77,13 +77,21 @@
 
 <input c-bind="dyna.str">
 
-<div c-alias="dyna as p;strProp as s">
+<hr>
+
+<div c-repeat="[1,2]" c-alias="dyna as p;dyna.str as s">
+
+	<input c-bind="dyna.str">
 	<input c-bind="p.str">
 	<input c-bind="s">
-	<!--<br>-->
+	<br>
 	<input c-bind="?'p.str'">
 	<label c-bind="?'p.str'"></label>
+
 </div>
+
+
+
 
 <!--<c-button click="test">Test</c-button>-->
 
