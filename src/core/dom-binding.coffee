@@ -103,8 +103,9 @@ class cola._DomBinding
 
 	clone: (dom, scope) ->
 		features = []
-		for feature in @features
-			features.push(feature.clone())
+		if @features
+			for feature in @features
+				features.push(feature.clone())
 
 		return new @constructor(dom, scope, features, @forceInit, true)
 
