@@ -79,10 +79,11 @@
 
 <hr>
 
-<div c-repeat="[1,2]" c-alias="dyna as p;dyna.str as s">
+<div c-repeat="[1,2]" c-alias="dyna as p;dyna as q;dyna.str as s">
 
 	<input c-bind="dyna.str">
 	<input c-bind="p.str">
+	<input c-bind="q.str">
 	<input c-bind="s">
 	<br>
 	<input c-bind="?'p.str'">

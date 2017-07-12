@@ -1037,7 +1037,6 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	constructor: (model) ->
 		super(model)
 		@_aliasMap = {}
-		@_aliasPathMap = {}
 
 	definition: (name) ->
 		return @parent.definition(name)
@@ -1068,7 +1067,6 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			data: undefined
 			alias: alias
 			path: path
-		@_aliasPathMap[path] = alias
 		return
 
 	getAliasTargetData: (alias) ->
@@ -1204,7 +1202,6 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				path = path.slice(0)
 				path[0] = alias
 				@_onDataMessage(path, type, arg)
-				break
 		return
 
 class cola.ItemDataModel extends cola.SubDataModel

@@ -249,7 +249,7 @@ class cola.AbstractTable extends cola.AbstractList
 		showFooter:
 			type: "boolean"
 
-		columnStrecthable:
+		columnStretchable:
 			type: "boolean"
 			defaultValue: true
 		selectedProperty:
