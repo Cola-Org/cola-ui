@@ -4,6 +4,40 @@ class cola.Table extends cola.AbstractTable
 
 	_initDom: (dom) ->
 		super(dom)
+
+		dataType = @_getBindDataType()
+		if dataType and dataType instanceof cola.EntityDataType
+			if not @_columnsInfo.dataColumns.length
+				columnConfigs = []
+				for propertyDef in dataType.getProperties().elements
+					columnConfigs.push(
+						caption: propertyDef._caption
+						bind: propertyDef._property
+					)
+				@set("columns", columnConfigs)
+			else
+				for columnInfo in @_columnsInfo.dataColumns
+					column = columnInfo.column
+					propertyDef = dataType.getProperty(column._property)
+					if propertyDef
+						if not column._caption
+							caption = propertyDef._caption or propertyDef._property
+							if caption?.charCodeAt(0) is 95 # `_`
+								caption = column._bind
+							column.set("caption", caption)
+
+						if column._template is "$autoEditable"
+							propertyType = propertyDef.get("dataType")
+
+							if propertyType instanceof cola.BooleanDataType
+								template = "checkbox-column"
+							else if propertyType instanceof cola.DateDataType
+								template = "date-column"
+							else
+								template = "input-column"
+							column.set("template", template)
+
+
 		$fly(window).resize () =>
 			if @_fixedHeaderVisible
 				fixedHeader = @_getFixedHeader()
@@ -89,15 +123,6 @@ class cola.Table extends cola.AbstractTable
 
 	_doRefreshItems: () ->
 		return unless @_columnsInfo
-
-		dataType = @_getBindDataType()
-		if not @_columnsInfo.dataColumns.length and dataType and dataType instanceof cola.EntityDataType
-			columnConfigs = []
-			for propertyDef in dataType.getProperties().elements
-				columnConfigs.push(
-					bind: propertyDef._property
-				)
-			@set("columns", columnConfigs)
 
 		colgroup = @_doms.colgroup
 		nextCol = colgroup.firstElementChild
@@ -285,18 +310,9 @@ class cola.Table extends cola.AbstractTable
 				dom.appendChild(template)
 		return if column._real_headerTemplate
 
-		dataType = @_getBindDataType()
-
-		caption = column._caption
-		if not caption
-			if dataType and column._property
-				propertyDef = dataType.getProperty(column._property)
-				if propertyDef
-					caption = propertyDef._caption or propertyDef._property
-
-			caption ?= column._name
-			if caption?.charCodeAt(0) == 95 # `_`
-				caption = column._bind
+		caption = column._caption or column._name
+		if caption?.charCodeAt(0) == 95 # `_`
+			caption = column._bind
 		dom.innerText = caption or ""
 		return
 

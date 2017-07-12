@@ -280,8 +280,18 @@ class cola.AbstractTable extends cola.AbstractList
 			tagName: "c-checkbox"
 			class: "in-cell"
 			bind: "$default"
+		"toggle-column":
+			tagName: "c-toggle"
+			class: "in-cell"
+			bind: "$default"
 		"input-column":
 			tagName: "c-input"
+			class: "in-cell"
+			bind: "$default"
+			style:
+				width: "100%"
+		"date-column":
+			tagName: "c-datepicker"
 			class: "in-cell"
 			bind: "$default"
 			style:
@@ -350,7 +360,7 @@ class cola.AbstractTable extends cola.AbstractList
 					info.widthType = widthType
 					info.width = parseInt(width, 10)
 
-					if !widthType and info.width
+					if not widthType and info.width
 						context.totalWidth += info.width
 
 				info.index = context.dataColumns.length
