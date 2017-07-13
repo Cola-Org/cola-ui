@@ -30,6 +30,8 @@
 				},
 				test: function () {
 					model.set("dyna", {str: "XXXX"});
+				},
+				watch: function() {
 				}
 			});
 		});
@@ -37,10 +39,10 @@
 </head>
 <body style="padding:20px">
 
-<p>
-<input c-bind="strProp">
-<label c-bind="upperCase(strProp)"></label>
-</p>
+<!--<p>-->
+<!--<input c-bind="strProp">-->
+<!--<label c-bind="upperCase(strProp)"></label>-->
+<!--</p>-->
 
 <!--<p>-->
 <!--<input c-bind="numberProp">-->
@@ -79,22 +81,23 @@
 
 <hr>
 
-<div c-repeat="[1,2]" c-alias="dyna as p;dyna as q;dyna.str as s">
+<!--<div c-repeat="[1]">-->
+	<div c-alias="dyna as p">
+		<div c-alias="dyna.str as s;p as q">
 
-	<input c-bind="dyna.str">
-	<input c-bind="p.str">
-	<input c-bind="q.str">
-	<input c-bind="s">
-	<br>
-	<input c-bind="?'p.str'">
-	<label c-bind="?'p.str'"></label>
+			<input c-bind="dyna.str">
+			<input c-bind="p.str">
+			<input c-bind="q.str">
+			<input c-bind="s">
+			<br c-watch="watch on p.str">
+			<input c-bind="?'p.str'">
+			<input c-bind="?'q.str'">
 
-</div>
+		</div>
+	</div>
+<!--</div>-->
 
-
-
-
-<!--<c-button click="test">Test</c-button>-->
+<c-button click="test">Test</c-button>
 
 <!--<p>-->
 	<!--<input c-bind="size" type="number">-->

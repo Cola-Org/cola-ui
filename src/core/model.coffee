@@ -201,9 +201,11 @@ class cola.Model extends cola.Scope
 		return @_$doms.find(selector)
 
 class cola.SubScope extends cola.Scope
+	repeatNotification: true
 
 	constructor: (@parent) ->
 		@action = @parent.action
+		@parent.registerChild(@)
 
 	destroy: () ->
 		if @parent then @unwatchPath()
@@ -295,31 +297,22 @@ class cola.SubScope extends cola.Scope
 		@setAliasTargetData(alias, data)
 		return
 
-	refreshAliasTargetData: (alias) ->
-		expression = @aliasExpressions[alias]
-		if expression
-			@data.onDataMessage([expression.alias], cola.constants.MESSAGE_REFRESH, {
-				data: @data.getAliasTargetData(alias)
-			})
-		return
-
 	isParentOfTarget: (expressionPaths, changedPath) ->
 		if not expressionPaths.length then return false
 		if not changedPath then return true
 
-		if expressionPaths.length
-			for targetPath in expressionPaths
-				isParent = true
-				for part, i in changedPath
-					targetPart = targetPath[i]
-					if part isnt targetPart
-						if targetPart is "**" then continue
-						else if targetPart is "*"
-							if i is changedPath.length - 1 then continue
-						isParent = false
-						break
+		for targetPath in expressionPaths
+			isParent = true
+			for part, i in changedPath
+				targetPart = targetPath[i]
+				if part isnt targetPart
+					if targetPart is "**" then continue
+					else if targetPart is "*"
+						if i is changedPath.length - 1 then continue
+					isParent = false
+					break
 
-				if isParent then return true
+			if isParent then return true
 		return false
 
 	processMessage: (bindingPath, path, type, arg) ->
@@ -327,8 +320,7 @@ class cola.SubScope extends cola.Scope
 		if @messageTimestamp >= arg.timestamp then return
 		@_processMessage(bindingPath, path, type, arg)
 
-		if @data
-			@data.onDataMessage(path, type, arg)
+		@data?.onDataMessage(path, type, arg)
 		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
@@ -338,18 +330,17 @@ class cola.SubScope extends cola.Scope
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
 					cola.util.delay(@, "retrieve", 100, () =>
 						@retrieveAliasData(alias)
-						@refreshAliasTargetData(alias)
 						return
 					)
 				else
 					isParent = @isParentOfTarget(expression.splitedPaths, path)
 					if isParent
 						@retrieveAliasData(alias)
-						@refreshAliasTargetData(alias)
 		return
 
 class cola.ItemScope extends cola.SubScope
-	constructor: (@parent, alias) ->
+	constructor: (parent, alias) ->
+		super(parent)
 		@data = new cola.ItemDataModel(@, alias, @parent?.dataType)
 		@action = @parent.action
 
@@ -381,6 +372,8 @@ class cola.ItemsScope extends cola.SubScope
 		else
 			@unwatchPath()
 		return
+
+	registerChild: () ->
 
 	setParent: (parent) ->
 		if @parent then @unwatchPath()
@@ -845,7 +838,6 @@ class cola.AbstractDataModel
 		data?.notifyObservers?()
 		return @
 
-
 	onDataMessage: (path, type, arg = {}) ->
 		return unless @bindingRegistry
 		return if @disableObserverCount > 0
@@ -993,7 +985,7 @@ class cola.DataModel extends cola.AbstractDataModel
 			throw new cola.Exception("DataType(#{definition._name}) is already belongs to anthor Model.")
 
 		store = @_definitionStore
-		if !store?
+		if not store?
 			@_definitionStore = store = {}
 		else if store[name]
 			throw new cola.Exception("Duplicated Definition name \"#{name}\".")
