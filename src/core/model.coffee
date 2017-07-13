@@ -1192,7 +1192,6 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		data = arg.data or arg.entityList or arg.entity
 		for alias, holder of @_aliasMap
 			if data is null or isChildData(data, holder.data)
-				console.log(alias + " - " + holder.splittedPath.join(".") + " - " + path.join("."))
 				if path.length >= holder.splittedPath.length
 					matches = true
 					for part, i in holder.splittedPath
