@@ -1057,7 +1057,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			data: undefined
 			alias: alias
 			path: path
-			splittedPath: path.split(".")
+			splittedPath: path?.split(".") or []
 		return
 
 	getAliasTargetData: (alias) ->
