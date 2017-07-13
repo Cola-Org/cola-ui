@@ -99,10 +99,11 @@ class cola.Form extends cola.Widget
 					tagName: "messages"
 			)
 
-			childDoms = $.xCreate(childDoms)
+			childDoms = cola.xCreate(childDoms)
 			for childDom in childDoms
 				$(dom).append(childDom)
-				cola.xRender(childDom)
+				cola.xRender(childDom, @_scope)
+				childDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 		return
 
 	setMessages: (messages) ->
@@ -250,7 +251,10 @@ class cola.Field extends cola.Widget
 
 			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly }
 
-			dom.appendChild($.xCreate(editContent))
+			editDom = cola.xCreate(editContent)
+			dom.appendChild(editDom)
+			cola.xRender(editDom, @_scope)
+			editDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")

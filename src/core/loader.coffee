@@ -23,7 +23,7 @@ cola.loadSubView = (targetDom, context) ->
 					cola._renderDomTemplate(targetDom, model)
 
 					if hasIgnoreDirective
-						targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, true)
+						targetDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 
 					if cola.getListeners("ready")
 						cola.fire("ready", cola)

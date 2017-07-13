@@ -342,16 +342,16 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			if domBinding instanceof cola._RepeatDomBinding
 				currentDom = cola.util.userData(domBinding.dom, cola.constants.REPEAT_TAIL_KEY)
 
+		initializers = cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY)
+		if initializers
+			initializer(itemScope, dom) for initializer in initializers
+			cola.util.removeUserData(dom, cola.constants.DOM_INITIALIZER_KEY)
+
 		child = dom.firstChild
 		while child
 			if child.nodeType isnt 3 and not child.hasAttribute?(cola.constants.IGNORE_DIRECTIVE)
 				child = @refreshItemDomBinding(child, itemScope)
 			child = child.nextSibling
-
-		initializers = cola.util.userData(dom, cola.constants.DOM_INITIALIZER_KEY)
-		if initializers
-			initializer(itemScope, dom) for initializer in initializers
-			cola.util.removeUserData(dom, cola.constants.DOM_INITIALIZER_KEY)
 		return currentDom or dom
 
 class cola._WatchFeature extends cola._BindingFeature
