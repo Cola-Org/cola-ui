@@ -148,6 +148,8 @@ class cola.Scope
 		return
 
 class cola.Model extends cola.Scope
+	repeatNotification: true
+
 	constructor: (name, parent) ->
 		cola.currentScope ?= @
 
