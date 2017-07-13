@@ -31,7 +31,7 @@
 				test: function () {
 					model.set("dyna", {str: "XXXX"});
 				},
-				watch: function() {
+				watch: function () {
 				}
 			});
 		});
@@ -55,23 +55,23 @@
 <!--</p>-->
 
 <!--<li c-repeat="direction in directions">-->
-	<!--&lt;!&ndash;<span c-bind="direction"></span>&ndash;&gt;-->
-	<!--<input c-bind="?direction">-->
+<!--&lt;!&ndash;<span c-bind="direction"></span>&ndash;&gt;-->
+<!--<input c-bind="?direction">-->
 <!--</li>-->
 
 <!--<p>-->
-	<!--<input c-bind="east">-->
+<!--<input c-bind="east">-->
 <!--</p>-->
 <!--<p>-->
-	<!--<input c-bind="west">-->
+<!--<input c-bind="west">-->
 <!--</p>-->
 
 <!--<div c-alias="?path+' as path'">-->
-	<!--<input c-bind="dyna.str">-->
-	<!--<input c-bind="dyna.str">-->
-	<!--<br>-->
-	<!--<input c-bind="path.str">-->
-	<!--<label c-bind="path.str"></label>-->
+<!--<input c-bind="dyna.str">-->
+<!--<input c-bind="dyna.str">-->
+<!--<br>-->
+<!--<input c-bind="path.str">-->
+<!--<label c-bind="path.str"></label>-->
 <!--</div>-->
 
 <!--<input c-bind="dyna.str">-->
@@ -81,35 +81,39 @@
 
 <hr>
 
-<!--<div c-repeat="[1]">-->
+<div c-repeat="[1]">
 	<div c-alias="dyna as p">
-		<div c-alias="dyna.str as s;p as q">
 
-			<input c-bind="dyna.str">
-			<input c-bind="p.str">
-			<input c-bind="q.str">
-			<input c-bind="s">
-			<br c-watch="watch on p.str">
-			<input c-bind="?'p.str'">
-			<input c-bind="?'q.str'">
+		<div c-repeat="[1]">
+			<div c-alias="p as q">
 
+				<!--<input c-bind="dyna.str">-->
+				<input c-bind="p.str">
+				<input c-bind="q.str">
+				<!--<input c-bind="s">-->
+				<!--<br c-watch="watch on p.str">-->
+				<!--<input c-bind="?'p.str'">-->
+				<!--<input c-bind="?'q.str'">-->
+
+			</div>
+			<hr>
 		</div>
 	</div>
-<!--</div>-->
+</div>
 
 <c-button click="test">Test</c-button>
 
 <!--<p>-->
-	<!--<input c-bind="size" type="number">-->
+<!--<input c-bind="size" type="number">-->
 <!--<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>-->
 <!--</p>-->
 
 <!--<li c-repeat="direction in directions">-->
-	<!--<label c-alias="direction as d" c-bind="d"></label>-->
+<!--<label c-alias="direction as d" c-bind="d"></label>-->
 <!--</li>-->
 
 <!--<li c-repeat="direction in directions">-->
-	<!--<input c-alias="direction as d" c-bind="d"></input>-->
+<!--<input c-alias="direction as d" c-bind="d"></input>-->
 <!--</li>-->
 
 </body>

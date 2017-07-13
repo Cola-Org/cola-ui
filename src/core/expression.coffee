@@ -133,9 +133,9 @@ class cola.Expression
 			@paths = watchPaths
 
 		if @paths
-			@splitedPaths = []
+			@splittedPaths = []
 			for path in @paths
-				@splitedPaths.push(path.split("."))
+				@splittedPaths.push(path.split("."))
 
 	compile: (exprStr) ->
 

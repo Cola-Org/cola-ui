@@ -333,7 +333,7 @@ class cola.SubScope extends cola.Scope
 						return
 					)
 				else
-					isParent = @isParentOfTarget(expression.splitedPaths, path)
+					isParent = @isParentOfTarget(expression.splittedPaths, path)
 					if isParent
 						@retrieveAliasData(alias)
 		return
@@ -362,7 +362,7 @@ class cola.ItemsScope extends cola.SubScope
 
 		if expression
 			if expression.paths
-				for path in @expression.splitedPaths
+				for path in @expression.splittedPaths
 					@expressionPaths.push(path)
 
 			if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
@@ -1059,6 +1059,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			data: undefined
 			alias: alias
 			path: path
+			splittedPath: path.split(".")
 		return
 
 	getAliasTargetData: (alias) ->
@@ -1191,9 +1192,17 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		data = arg.data or arg.entityList or arg.entity
 		for alias, holder of @_aliasMap
 			if data is null or isChildData(data, holder.data)
-				path = path.slice(0)
-				path[0] = alias
-				@_onDataMessage(path, type, arg)
+				console.log(alias + " - " + holder.splittedPath.join(".") + " - " + path.join("."))
+				if path.length >= holder.splittedPath.length
+					matches = true
+					for part, i in holder.splittedPath
+						if part isnt path[i]
+							matches = false
+							break
+
+					if matches
+						aliasSubPath = [].concat(holder.alias, path.slice(holder.splittedPath.length))
+						@_onDataMessage(aliasSubPath, type, arg)
 		return
 
 class cola.ItemDataModel extends cola.SubDataModel

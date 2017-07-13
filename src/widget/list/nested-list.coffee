@@ -41,7 +41,7 @@ class cola.NestedList extends cola.Widget
 		layerIndex:
 			readOnly: true
 			getter: () -> @_layerIndex
-		splited:
+		splitted:
 			readOnly: true
 			getter: () -> @_autoSplit and @_largeScreen
 
