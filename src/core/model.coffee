@@ -935,26 +935,22 @@ class cola.DataModel extends cola.AbstractDataModel
 		return
 
 	getProperty: (path) ->
-		i = path.indexOf(".")
-		if i > 0
-			path1 = path.substring(0, i)
-			path2 = path.substring(i + 1)
+		if @_rootDataType
+			i = path.indexOf(".")
+			if i > 0
+				path1 = path.substring(0, i)
+				path2 = path.substring(i + 1)
+			else
+				path1 = null
+				path2 = path
+
+			if path1
+				dataType = @_rootDataType.getProperty(path1)?.get("dataType")
+			else
+				dataType = @_rootDataType
+			return dataType?.getProperty(path2)
 		else
-			path1 = null
-			path2 = path
-
-		dataModel = @
-		while dataModel
-			rootDataType = dataModel._rootDataType
-			if rootDataType
-				if path1
-					dataType = rootDataType.getProperty(path1)?.get("dataType")
-				else
-					dataType = rootDataType
-				if dataType then break
-			dataModel = dataModel.model.parent?.data
-
-		return dataType?.getProperty(path2)
+			return @parent?.getProperty(path)
 
 	getDataType: (path) ->
 		property = @getProperty(path)
@@ -1095,11 +1091,11 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
 			if holder?.path
-				path = holder.path + path.substring(i + 1)
+				path = holder.path + path.substring(i)
 		else
 			holder = @_aliasMap[path]
 			if holder?.path
-				path = holder.alias
+				path = holder.path
 		return @parent.getProperty(path)
 
 	getDataType: (path) ->
@@ -1107,11 +1103,11 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
 			if holder?.path
-				path = holder.path + path.substring(i + 1)
+				path = holder.path + path.substring(i)
 		else
 			holder = @_aliasMap[path]
 			if holder?.path
-				path = holder.alias
+				path = holder.path
 		return @parent.getDataType(path)
 
 	_isExBindingPath: (path) ->
