@@ -1323,9 +1323,8 @@ class cola.ItemDataModel extends cola.SubDataModel
 				entity = entity.parent
 
 			if isChild
-				path = path.slice(0)
-				path[0] = @alias
-				@_onDataMessage(path, type, arg)
+				relativePath = path.slice(itemData.getPath().length)
+				super([@alias].concat(relativePath), type, arg)
 		return
 
 ###
