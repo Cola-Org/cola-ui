@@ -5,7 +5,6 @@ _destroyDomBinding = (node, data) ->
 
 class cola._DomBinding
 	constructor: (dom, @scope, features, @forceInit, clone) ->
-		@forceInit = true
 		@dom = dom
 		@$dom = $(dom)
 
@@ -107,7 +106,7 @@ class cola._DomBinding
 			for feature in @features
 				features.push(feature.clone())
 
-		return new @constructor(dom, scope, features, @forceInit, true)
+		return new @constructor(dom, scope, features, true, true)
 
 class cola._RepeatDomBinding extends cola._DomBinding
 	constructor: (dom, scope, feature, forceInit, clone) ->

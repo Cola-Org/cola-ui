@@ -310,7 +310,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		itemScope.data.setIndex(index, true)
 
 		itemDom = templateDom.cloneNode(true)
-		@deepCloneNodeData(itemDom, itemScope, false)
+		@deepCloneNodeData(itemDom, itemScope)
 		domBinding = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
 		@refreshItemDomBinding(itemDom, itemScope)
 
