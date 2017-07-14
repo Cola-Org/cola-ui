@@ -64,7 +64,16 @@ class cola._AliasFeature extends cola._BindingFeature
 		@expressionStrs = expressionText?.split(/;/)
 
 	init: (domBinding, force) ->
-		if not @prepared
+		if not force
+			for expressionStr in @expressionStrs
+				if expressionStr.charCodeAt(0) is 63 # `?`
+					hasDynaExpression = true
+					break
+			shouldInit = not hasDynaExpression
+		else
+			shouldInit = true
+
+		if shouldInit and not @prepared
 			scope = domBinding.scope
 			@expressionArray = []
 			for expressionStr in @expressionStrs

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set({
+				str1: "A",
+				str2: "B",
+
+				paths: ["str1", "str2"]
+			});
+
+			model.action({
+
+			});
+		});
+	</script>
+</head>
+<body style="padding:20px">
+
+<div c-repeat="path in paths">
+	<div c-alias="?path + ' as p'">
+		<label c-bind="path"></label>
+		<input c-bind="p">
+	</div>
+</div>
+
+<c-button click="test">Test</c-button>
+
+</body>
+</html>
