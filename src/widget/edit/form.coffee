@@ -201,7 +201,7 @@ class cola.Field extends cola.Widget
 		return @_propertyDef if @_propertyDef isnt undefined
 
 		if @_form
-			dataType = @_form.getBindingDataType()
+			dataType = @_form._getDataType()
 			if dataType and @_property
 				propertyDef = dataType.getProperty(@_property)
 		if not propertyDef
