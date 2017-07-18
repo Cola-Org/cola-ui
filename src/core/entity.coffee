@@ -170,7 +170,7 @@ _filterEntity = (entity, criteria, option = {}, children) ->
 				Array::push.apply(children, r)
 
 		else
-			if typeof value is "array"
+			if value instanceof Array
 				r = _filterCollection(value, criteria, option)
 				Array::push.apply(children, r)
 			else if typeof value is "object" and not (value instanceof Date)

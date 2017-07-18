@@ -17,7 +17,7 @@ cola.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, contex
         configKey = cola.uniqueId()
         $dom.attr("c-widget-config", configKey)
         widgetConfigs = context.widgetConfigs
-        if !widgetConfigs
+        if not widgetConfigs
             context.widgetConfigs = widgetConfigs = {}
         widgetConfigs[configKey] = attrValue
     return

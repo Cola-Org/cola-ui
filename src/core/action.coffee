@@ -72,18 +72,6 @@ cola.defaultAction["capitalize"] = (value) -> cola.util.capitalize(value)
 
 cola.defaultAction.resource = (key, params...) -> cola.resource(key, params...)
 
-_matchValue = (value, propFilter) ->
-	if propFilter.strict
-		if !propFilter.caseSensitive and typeof propFilter.value == "string"
-			return (value + "").toLowerCase() == propFilter.value
-		else
-			return value == propFilter.value
-	else
-		if !propFilter.caseSensitive
-			return (value + "").toLowerCase().indexOf(propFilter.value) > -1
-		else
-			return (value + "").indexOf(propFilter.value) > -1
-
 cola.defaultAction.filter = cola.util.filter
 	
 cola.defaultAction.sort = cola.util.sort

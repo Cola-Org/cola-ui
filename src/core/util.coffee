@@ -203,18 +203,34 @@ cola.util.dictionary = (name, keyValues) ->
 	if keyValues is null
 		delete keyValuesMap[name]
 		delete dictionaryMap[name]
-		return
 	else if keyValues is undefined
-		return keyValuesMap[name]
+		return keyValuesMap[name]?list
+	else if typeof keyValues is "array"
+		dictionaryMap[name] = {
+			list: keyValues
+		}
 	else
-		keyValuesMap[name] = keyValues
-		dictionaryMap[name] = dictionary = {}
-		for pair in keyValues
-			dictionary[pair.key or ""] = pair.value
-		return dictionary
+		list = []
+		for key, value of keyValues
+			list.push(
+				key: key
+				value: value
+			)
+		dictionaryMap[name] = {
+			list: list
+			map: keyValues
+		}
+	return
 
 cola.util.translate = (dictionaryName, key) ->
-	return dictionaryMap[dictionaryName]?[key or ""]
+	holder = dictionaryMap[dictionaryName]
+	if holder
+		if not holder.map and holder.list
+			map = holder.map = {}
+			for pair in holder.list
+				map[pair.key or ""] = pair.value
+		return holder.map[key or ""]
+	return
 
 # OO
 
