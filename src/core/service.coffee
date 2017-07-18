@@ -164,7 +164,7 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 			for p, v of data
 				if typeof v is "string"
 					if v.charCodeAt(0) is 123 and v.match(/^{{\$[\w-]+}}$/) # `{`
-						options.originData ?= $.extend(data, null)
+						options.originData ?= $.extend({}, data)
 						data[p] = @[v.substring(3, v.length - 2)]
 						changed = true
 		return changed
