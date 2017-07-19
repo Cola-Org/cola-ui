@@ -49,14 +49,17 @@ class cola.RadioGroup extends cola.AbstractEditor
 	_getDomValue:(itemDom)->
 		item=cola.util.getItemByItemDom(itemDom)
 		if item
-			return item.get(@_valueProperty)
+			if item instanceof cola.Entity
+				return item.get(@_valueProperty)
+			return 	item[@_valueProperty]
 
 	_getItemsDom: ()->
 		attrBinding = @_elementAttrBindings?["items"]
 		@_name ?= ("name_" + cola.sequenceNo());
 		if attrBinding
 			textProperty = "item." + (@_textProperty or "value")
-			valueProperty += "item." + (@_valueProperty or "key")
+			valueProperty = "item." + (@_valueProperty or "key")
+
 			raw = attrBinding.expression.raw
 			itemsDom = cola.xRender({
 				tagName: "item",

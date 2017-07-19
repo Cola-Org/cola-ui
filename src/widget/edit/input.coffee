@@ -25,15 +25,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 			setter: (dataType) ->
 				return cola.DataType.dataTypeSetter.call(@, dataType)
 
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @["_size"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_size"] = value
-				return
-
 		placeholder:
 			refreshDom: true
 

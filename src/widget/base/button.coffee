@@ -1,61 +1,10 @@
 ###
     按钮的抽象类
 ###
-class cola.AbstractButton extends cola.Widget
-	@attributes:
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @_size
-				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@_size = value
-				return
 
-		color:
-			refreshDom: true
-			enum: ["red", "orange", "yellow", "olive", "green", "teal", "blue", "violet", "purple", "pink", "brown",
-				"grey", "black"]
-			setter: (value)->
-				oldValue = @_color
-				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@_color = value
-				return
-
-		attached:
-			refreshDom: true
-			defaultValue: ""
-			enum: ["left", "right", "top", "bottom", ""]
-			setter: (value)->
-				oldValue = @_attached
-				if oldValue and oldValue isnt value and @_dom
-					@removeClass("#{oldValue} attached", true)
-				@_attached = value
-				return
-
-	_doRefreshDom: ()->
-		return unless @_dom
-		super()
-		size = @get("size")
-		@_classNamePool.add(size) if size
-
-		color = @get("color")
-		@_classNamePool.add(color) if color
-
-		attached = @get("attached")
-		@_classNamePool.add("#{attached} attached") if attached
-
-		return
-
-class cola.Button extends cola.AbstractButton
+class cola.Button extends cola.Widget
 	@tagName: "c-button"
-
-	@SEMANTIC_CLASS: [
-		"left floated", "right floated",
-		"top attached", "bottom attached", "left attached", "right attached"
-	]
 	@CLASS_NAME: "button"
-
 	@attributes:
 		caption:
 			refreshDom: true
@@ -196,22 +145,14 @@ class cola.buttonGroup.Separator extends cola.Widget
 cola.registerWidget(cola.buttonGroup.Separator)
 
 cola.buttonGroup.emptyItems = []
-class cola.ButtonGroup extends cola.AbstractButton
+class cola.ButtonGroup extends cola.Widget
 	@tagName: "c-buttonGroup"
 
-	@SEMANTIC_CLASS: [
-		"left floated", "right floated",
-		"top attached", "bottom attached", "left attached", "right attached"
-	]
+
 	@CHILDREN_TYPE_NAMESPACE: "button-group"
 	@CLASS_NAME: "buttons"
 
 	@attributes:
-		fluid:
-			type: "boolean"
-			refreshDom: true
-			attrName: "c-fluid"
-			defaultValue: false
 
 		mutuallyExclusive:
 			type: "boolean"
@@ -272,33 +213,10 @@ class cola.ButtonGroup extends cola.AbstractButton
 
 		return
 
-	_resetFluid: ()->
-		return unless @_dom
-
-		$dom = @get$Dom()
-		attrName = @constructor.attributes.fluid.attrName
-		oldFluid = $dom.attr(attrName)
-		newFluid = 0
-		items = @_items or []
-
-		for item in items
-			newFluid++ if item instanceof cola.Button
-
-		unless newFluid is oldFluid
-			@_classNamePool.remove("#{oldFluid}") if oldFluid
-
-		fluid = @get("fluid")
-		if !!fluid
-			@_classNamePool.add("#{newFluid}")
-			@_classNamePool.add("fluid")
-			$dom.attr(attrName, newFluid)
-
-		return
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-		@_resetFluid()
 		return
 
 	addItem: (item)->
