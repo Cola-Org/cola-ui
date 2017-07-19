@@ -55,14 +55,9 @@ class cola.RadioGroup extends cola.AbstractEditor
 		attrBinding = @_elementAttrBindings?["items"]
 		@_name ?= ("name_" + cola.sequenceNo());
 		if attrBinding
-			textProperty = "item"
-			valueProperty = "item"
-			if @_textProperty
-				textProperty += "." + @_textProperty
-			if @_valueProperty
-				valueProperty += "." + @_valueProperty
+			textProperty = "item." + (@_textProperty or "value")
+			valueProperty += "item." + (@_valueProperty or "key")
 			raw = attrBinding.expression.raw
-
 			itemsDom = cola.xRender({
 				tagName: "item",
 				"c-repeat": "item in " + raw,
@@ -80,7 +75,6 @@ class cola.RadioGroup extends cola.AbstractEditor
 					}
 				]
 			}, attrBinding.scope)
-
 
 		return itemsDom
 

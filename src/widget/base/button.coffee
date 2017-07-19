@@ -210,7 +210,7 @@ class cola.ButtonGroup extends cola.AbstractButton
 		fluid:
 			type: "boolean"
 			refreshDom: true
-			attrName: "c-fuild"
+			attrName: "c-fluid"
 			defaultValue: false
 
 		mutuallyExclusive:

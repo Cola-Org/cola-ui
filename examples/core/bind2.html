@@ -5,13 +5,19 @@
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
+//			model.describe("map", "json");
+
 			setTimeout(function() {
 				model.set({
 					str1: "A",
 					str2: "B",
 
 					paths: ["str1", "str2"],
-					singlePath: "str1"
+					singlePath: "str1",
+					map: [
+						{ key: "male", value: "男"},
+						{ key: "female", value: "女"}
+					]
 				});
 			}, 500);
 
@@ -23,16 +29,18 @@
 </head>
 <body style="padding:20px">
 
-<div c-repeat="path in paths">
-	<div c-repeat="path2 in paths">
-		<div c-alias="?path2 + ' as p'">
-			<label c-bind="path2"></label>
-			<input c-bind="p">
-		</div>
-	</div>
-</div>
+<!--<div c-repeat="path in paths">-->
+	<!--<div c-repeat="path2 in paths">-->
+		<!--<div c-alias="?path2 + ' as p'">-->
+			<!--<label c-bind="path2"></label>-->
+			<!--<input c-bind="p">-->
+		<!--</div>-->
+	<!--</div>-->
+<!--</div>-->
 
-<c-button click="test">Test</c-button>
+<!--<c-button click="test">Test</c-button>-->
+
+<c-select-button c-items="map"></c-select-button>
 
 </body>
 </html>
