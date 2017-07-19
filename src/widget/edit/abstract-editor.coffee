@@ -82,7 +82,7 @@ class cola.AbstractEditor extends cola.Widget
 				if entity instanceof cola.EntityList
 					entity = entity.current
 				if entity
-					keyMessage = entity.getKeyMessage(@_bindInfo.property)
+					keyMessage = entity.getKeyMessage?(@_bindInfo.property)
 					@set("state", keyMessage?.type)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
