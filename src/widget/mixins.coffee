@@ -130,17 +130,18 @@ cola.DataWidgetMixin =
 
 			bindInfo.expression = expression = cola._compileExpression(@_scope, bindStr)
 			bindInfo.writeable = expression.writeable
+			bindInfo.writeablePath = expression.writeablePath
 
 			if expression.repeat or expression.setAlias
 				throw new cola.Exception("Expression \"#{bindStr}\" must be a simple expression.")
 			if bindInfo.writeable
-				i = bindStr.lastIndexOf(".")
+				i = bindInfo.writeablePath.lastIndexOf(".")
 				if i > 0
-					bindInfo.entityPath = bindStr.substring(0, i)
-					bindInfo.property = bindStr.substring(i + 1)
+					bindInfo.entityPath = bindInfo.writeablePath.substring(0, i)
+					bindInfo.property = bindInfo.writeablePath.substring(i + 1)
 				else
 					bindInfo.entityPath = null
-					bindInfo.property = bindStr
+					bindInfo.property = bindInfo.writeablePath
 
 			if not @_bindProcessor
 				@_bindProcessor = {
@@ -196,22 +197,22 @@ cola.DataWidgetMixin =
 
 	writeBindingValue: (value) ->
 		return unless @_bindInfo?.expression
-		if !@_bindInfo.writeable
+		if not @_bindInfo.writeable
 			throw new cola.Exception("Expression \"#{@_bind}\" is not writable.")
-		@_scope.set(@_bind, value)
+		@_scope.set(@_bindInfo.writeablePath, value)
 		return
 
 	getBindingProperty: () ->
 		return unless @_bindInfo
 		return @_bindInfo.bindingProperty if @_bindInfo.bindingProperty isnt undefined
 		return unless @_bindInfo.expression and @_bindInfo.writeable
-		return @_bindInfo.bindingProperty = @_scope.data.getProperty(@_bind) or null
+		return @_bindInfo.bindingProperty = @_scope.data.getProperty(@_bindInfo.writeablePath) or null
 
 	getBindingDataType: () ->
 		return @_bindInfo.bindingDataType if @_bindInfo?.bindingDataType isnt undefined
 		return unless @_bindInfo.expression and @_bindInfo.writeable
 		return unless @_bindInfo
-		return @_bindInfo.bindingDataType = @_scope.data.getDataType(@_bind) or null
+		return @_bindInfo.bindingDataType = @_scope.data.getDataType(@_bindInfo.writeablePath) or null
 
 cola.DataItemsWidgetMixin =
 	_dataItemsWidget: true

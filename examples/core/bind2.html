@@ -7,7 +7,7 @@
 		cola(function (model) {
 //			model.describe("map", "json");
 
-			setTimeout(function() {
+			setTimeout(function () {
 				model.set({
 					str1: "A",
 					str2: "B",
@@ -15,32 +15,39 @@
 					paths: ["str1", "str2"],
 					singlePath: "str1",
 					map: [
-						{ key: "male", value: "男"},
-						{ key: "female", value: "女"}
+						{key: "male", value: "男"},
+						{key: "female", value: "女"}
 					]
 				});
 			}, 500);
 
-			model.action({
+			model.set("directions", [
+				{value: "east", text: "东"},
+				{value: "south", text: "南"},
+				{value: "west", text: "西"},
+				{value: "north", text: "北"}
+			]);
 
-			});
+			model.action({});
 		});
 	</script>
 </head>
 <body style="padding:20px">
 
-<!--<div c-repeat="path in paths">-->
-	<!--<div c-repeat="path2 in paths">-->
-		<!--<div c-alias="?path2 + ' as p'">-->
-			<!--<label c-bind="path2"></label>-->
-			<!--<input c-bind="p">-->
-		<!--</div>-->
-	<!--</div>-->
-<!--</div>-->
+<div c-alias="directions as ds">
+	<!--<li c-repeat="d in ds" c-bind="d.text"></li>-->
+</div>
+
+<div c-repeat="path in ps">
+	<div c-repeat="path2 in ps">
+		<div c-alias="?path2 + ' as p'">
+			<label c-bind="path2"></label>
+			<input c-bind="p">
+		</div>
+	</div>
+</div>
 
 <!--<c-button click="test">Test</c-button>-->
-
-<c-select-button c-items="map"></c-select-button>
 
 </body>
 </html>
