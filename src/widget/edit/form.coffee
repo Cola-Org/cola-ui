@@ -204,12 +204,8 @@ class cola.Field extends cola.Widget
 			dataType = @_form._getDataType()
 			if dataType and @_property
 				propertyDef = dataType.getProperty(@_property)
-		if not propertyDef
-			bind = bind or @_bind
-			if bind
-				@_bind = null
-				@_bindSetter(bind)
-				propertyDef = @getBindingProperty()
+		if not propertyDef and @_bind
+			propertyDef = @getBindingProperty()
 		return @_propertyDef = propertyDef or null
 
 	_parseDom: (dom) ->
@@ -229,6 +225,7 @@ class cola.Field extends cola.Widget
 					bind = formBind + "." + @_property
 				else
 					bind = @_property
+				@_bindSetter(bind)
 
 		if bind and dom.childElementCount is 0
 			dom.appendChild($.xCreate(
