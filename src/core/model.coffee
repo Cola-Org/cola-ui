@@ -307,6 +307,10 @@ class cola.SubScope extends cola.Scope
 			isParent = true
 			for part, i in changedPath
 				targetPart = targetPath[i]
+
+				if targetPart and targetPart.charCodeAt(targetPart.length - 1) is 35 # '#'
+					targetPart = targetPart.substring(0, targetPart.length - 1)
+
 				if part isnt targetPart
 					if targetPart is "**" then continue
 					else if targetPart is "*"
