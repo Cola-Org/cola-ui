@@ -205,9 +205,11 @@ class cola.Model extends cola.Scope
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
-	constructor: (@parent) ->
+	constructor: (@parent, expressions) ->
 		@action = @parent.action
 		@parent.registerChild(@)
+		if expressions
+			@setExpressions(expressions)
 
 	destroy: () ->
 		if @parent then @unwatchPath()
@@ -1135,7 +1137,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 					data = holder.data
 					if data instanceof cola.Entity
 						return data.get(path.substring(i + 1), loadMode, context)
-					else if data and typeof targetData is "object"
+					else if data and typeof data is "object"
 						return data[path.substring(i + 1)]
 				else
 					return @parent.get(path, loadMode, context)
