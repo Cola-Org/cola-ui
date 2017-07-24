@@ -120,7 +120,7 @@ class cola.ItemsView extends cola.Widget
 			itemType = @_getItemType(item)
 			itemsWrapper = @_doms.itemsWrapper
 			insertMode = arg.insertMode
-			if !insertMode or insertMode is "end"
+			if not insertMode or insertMode is "end"
 				itemDom = @_createNewItem(itemType, item)
 				@_refreshItemDom(itemDom, item)
 				$fly(itemsWrapper).append(itemDom)

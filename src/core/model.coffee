@@ -1210,7 +1210,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 
 class cola.ItemDataModel extends cola.SubDataModel
 
-	constructor: (model, @alias, @defaultDataType) ->
+	constructor: (model, @alias, @dataType) ->
 		super(model)
 
 	getItemData: () ->
