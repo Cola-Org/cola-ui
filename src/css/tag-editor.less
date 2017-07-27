@@ -1,0 +1,69 @@
+@import (reference) "global";
+@import (reference) "list-view";
+.ui.tag-editor {
+	display: inline-block;
+	border: 1px solid rgba(34, 36, 38, .15);
+	border-radius: 4px;
+	padding: 4px;
+	.tag {
+		display: inline-block;
+		white-space: normal;
+		font-size: 1em;
+		color: rgba(0, 0, 0, .6);
+		padding: .35714286em .78571429em;
+		cursor: pointer;
+		line-height: 1em;
+		text-transform: none;
+		border: 0 solid transparent;
+		margin: 0.14285714rem 0.28571429rem 0.14285714rem 0;
+		border-radius: 4px;
+		position: relative;
+		.delete-icon {
+			cursor: pointer;
+			background-color: #E8E8E8;
+			text-align: center;
+			display: inline-block;
+			margin-top: -8px;
+			line-height: 1em;
+			margin-left: .58571429em;
+		}
+
+		box-shadow: 0 0 0 1px rgba(34, 36, 38, .15) inset;
+		background-color: #E8E8E8;
+
+		&:hover {
+			box-shadow: 0 0 0 1px rgba(34, 36, 38, .15) inset;
+			background-color: #E8E8E8;
+			.delete-icon {
+				color: @negativeColor;
+			}
+			color: @fontColor;
+		}
+	}
+
+	input {
+		background: none !important;
+		border: none !important;
+		box-shadow: none !important;
+		width: 60px;
+		border: 0;
+		outline: none;
+	}
+}
+
+.tag-items {
+	background-color: #fff;
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+	> li {
+		line-height: 32px;
+		padding: 0 12px;
+		cursor: pointer;
+		color: rgba(0,0,0,.87);
+		//border-bottom: 1px solid lighten(@itemsViewInvertedBackground, 75%);
+		&:hover, &.current {
+			background-color: @listViewIndexHoverBackground;
+		}
+	}
+}

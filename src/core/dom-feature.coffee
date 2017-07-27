@@ -285,7 +285,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 					else
 						itemDom = @createNewItem(domBinding, templateDom, scope, item, i + 1)
 						$fly(tailDom).before(itemDom)
-					itemScope.data.setIndex(i + 1)
+					itemScope?.data.setIndex(i + 1)
 
 					if item is (items.current or originItems?.current)
 						$fly(itemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)

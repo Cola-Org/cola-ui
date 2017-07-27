@@ -747,3 +747,4 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 		return @_dropdownContent
 
 cola.registerWidget(cola.CustomDropdown)
+cola.DropBox = DropBox

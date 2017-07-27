@@ -65,6 +65,7 @@ sources =
 			"src/widget/edit/textarea.coffee"
 			"src/widget/edit/select-button.coffee"
 			"src/widget/edit/form.coffee"
+			"src/widget/edit/tag-editor.coffee"
 		]
 		layout: [
 			"src/widget/layout/segment.coffee"
@@ -153,6 +154,7 @@ sources =
 			"src/css/toolbar.less"
 			"src/css/breadcrumb.less"
 			"src/css/progress.less"
+			"src/css/tag-editor.less"
 		]
 
 	lib:
