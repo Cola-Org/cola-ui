@@ -1,5 +1,6 @@
 @import (reference) "global";
 @import (reference) "list-view";
+
 .ui.tag-editor {
 	display: inline-block;
 	border: 1px solid rgba(34, 36, 38, .15);
@@ -49,6 +50,12 @@
 		border: 0;
 		outline: none;
 	}
+
+	&.read-only {
+		.tag .delete-icon {
+			display: none;
+		}
+	}
 }
 
 .tag-items {
@@ -60,7 +67,7 @@
 		line-height: 32px;
 		padding: 0 12px;
 		cursor: pointer;
-		color: rgba(0,0,0,.87);
+		color: rgba(0, 0, 0, .87);
 		//border-bottom: 1px solid lighten(@itemsViewInvertedBackground, 75%);
 		&:hover, &.current {
 			background-color: @listViewIndexHoverBackground;

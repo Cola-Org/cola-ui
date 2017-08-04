@@ -76,6 +76,29 @@ events:
           - name: result
             type: any
             description: 请求成功后Server端返回的结果
+  - name: response
+    label: 请求成功返回数据之后触发的事件，此事件可预处理服务端 返回的数据
+    description: |
+      <code>
+                 response:function(self,arg){
+                    var result=arg.result;
+                    var list=result.myDataList;
+                    //重新回设数据。
+                    arg.result=list
+                 }
+                 </code>
+    arguments:
+      - name: self
+        type: cola.Provider
+        label: Provider本身
+      - name: arg
+        properties:
+          - name: options
+            type: json
+            description: 内部调用jQuery.ajax()时使用的选项参数。
+          - name: result
+            type: any
+            description: 请求成功后Server端返回的结果
 
   - name: error
     label: 请求失败时触发的事件
