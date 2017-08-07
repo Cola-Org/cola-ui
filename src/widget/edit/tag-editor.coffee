@@ -4,7 +4,8 @@ cola.defineWidget({
 		bind: null,
 		items: null,
 		keyProperty: null,
-		valueProperty: null
+		valueProperty: null,
+		readOnly: null
 	},
 	events: {
 		createItemDom: null,
@@ -34,13 +35,19 @@ cola.defineWidget({
 			tagName: "input"
 		}]
 	},
+	_refreshDom: ()->
+		readOnly = !!@_readOnly;
+		@_dom && $(@_dom).toggleClass("read-only", readOnly);
+		input = $(@_dom).find("input")[0]
+		input.readOnly = readOnly
+
 	initDom: (dom)->
 		tagEditor = @
 		$(dom).on("click", ()->
 			$(@).find("input").focus();
 		);
 		$input = $(dom).find("input")
-		@_doms?={}
+		@_doms ?= {}
 		@_doms.input = dom
 
 		$input.on("focus", ()->
@@ -107,8 +114,10 @@ cola.defineWidget({
 			@fire("removeItem", @, {
 				item: item
 			})
+			
 	open: ()->
 		@_showDropBox()
+
 	isOpended: ()->
 		if @_dropBox
 			return @_dropBox.isVisible()
@@ -116,6 +125,7 @@ cola.defineWidget({
 		return false
 
 	_showDropBox: ()->
+		if !!@_readOnly then return
 		dropBox = @_getDropBox();
 		content = @_getDropContent();
 		dropBox.get$Dom().empty().append(content);
