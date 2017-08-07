@@ -81,6 +81,7 @@ xCreate.attributeProcessor =
 setAttrs = (el, $el, attrs, context)  ->
 	for attrName of attrs
 		attrValue = attrs[attrName]
+		if attrValue is undefined then continue
 
 		attributeProcessor = xCreate.attributeProcessor[attrName]
 		if attributeProcessor

@@ -209,7 +209,8 @@ cola.DataWidgetMixin =
 		return @_bindInfo.bindingProperty = @_scope.data.getProperty(@_bindInfo.writeablePath) or null
 
 	getBindingDataType: () ->
-		return @_bindInfo.bindingDataType if @_bindInfo?.bindingDataType isnt undefined
+		return unless @_bindInfo
+		return @_bindInfo.bindingDataType if @_bindInfo.bindingDataType isnt undefined
 		return unless @_bindInfo.expression and @_bindInfo.writeable
 		return unless @_bindInfo
 		return @_bindInfo.bindingDataType = @_scope.data.getDataType(@_bindInfo.writeablePath) or null

@@ -188,6 +188,7 @@ class cola.Field extends cola.Widget
 		property: null
 		readOnly: null
 		type: null
+		cols: null
 
 		message:
 			readOnly: true
