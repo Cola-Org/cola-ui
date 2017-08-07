@@ -77,7 +77,7 @@ class cola.Panel extends cola.AbstractContainer
         return @_doms.content
 
     _initDom: (dom)->
-        @_regDefaultTempaltes()
+        @_regDefaultTemplates()
         super(dom)
         @_headerContent = headerContent = $.xCreate({
             tagName: "div"

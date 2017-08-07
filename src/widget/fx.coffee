@@ -1,4 +1,4 @@
-do()->
+do() ->
 	docStyle = window.document.documentElement.style
 	translate3d = false
 
@@ -12,10 +12,10 @@ do()->
 		engine = 'trident'
 
 	vendorPrefix = {
-	trident: 'ms'
-	gecko: 'Moz'
-	webkit: 'Webkit'
-	presto: 'O'
+		trident: 'ms'
+		gecko: 'Moz'
+		webkit: 'Webkit'
+		presto: 'O'
 	}[engine]
 	cssPrefix = {trident: '-ms-', gecko: '-moz-', webkit: '-webkit-', presto: '-o-'}[engine]
 	helperElem = document.createElement("div")
@@ -45,7 +45,7 @@ do()->
 		transformValue = element.style[transformProperty];
 		if transformValue
 			transformValue = transformValue.replace(/translate\(\s*(-?\d+(\.?\d+?)?)px,\s*(-?\d+(\.\d+)?)px\)\s*translateZ\(0px\)/g,
-				"")
+			  "")
 			element.style[transformProperty] = transformValue
 
 	translateElement = (element, x, y)->
@@ -64,13 +64,13 @@ do()->
 		return element
 
 	cola.Fx =
-		transitionEndProperty:transitionEndProperty
-		translate3d:translate3d
+		transitionEndProperty: transitionEndProperty
+		translate3d: translate3d
 		transformProperty: transformProperty
 		transformStyleName: transformStyleName
 		transitionProperty: transitionProperty
 		transitionStyleName: transitionStyleName
-		perspectiveProperty:perspectiveProperty
+		perspectiveProperty: perspectiveProperty
 		getElementTranslate: getTranslate,
 		translateElement: translateElement,
 		cancelTranslateElement: cancelTranslateElement

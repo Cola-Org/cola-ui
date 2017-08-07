@@ -20,7 +20,7 @@ cola.TemplateSupport =
 			if child.nodeName == "TEMPLATE"
 				@regTemplate(child)
 			child = child.nextElementSibling
-		@_regDefaultTempaltes()
+		@_regDefaultTemplates()
 		return
 
 	_trimTemplate: (dom) ->
@@ -44,7 +44,7 @@ cola.TemplateSupport =
 		@_templates[name or "default"] = template
 		return
 
-	_regDefaultTempaltes: () ->
+	_regDefaultTemplates: () ->
 		for name, template of @constructor.TEMPLATES
 			if @_templates?.hasOwnProperty(name) or !template
 				continue

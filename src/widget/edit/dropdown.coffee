@@ -600,7 +600,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 	_initDom: (dom)->
 		if @_filterable then $fly(dom).addClass("filterable")
-		@_regDefaultTempaltes()
+		@_regDefaultTemplates()
 
 		inputDom = @_doms.input
 		$fly(inputDom).on("input", () => @_onInput(inputDom.value))

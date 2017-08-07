@@ -72,7 +72,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_initDom: (dom) ->
-		@_regDefaultTempaltes()
+		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
 		$itemsWrapper = $fly(@_doms.itemsWrapper)

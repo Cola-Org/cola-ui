@@ -153,13 +153,19 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
     if configKey
         dom.removeAttribute("c-widget-config")
         config = context.widgetConfigs?[configKey]
-    else
-        config = _compileWidgetAttribute(scope, dom, context)
-        if not config or (not config.$type and not config.$constr)
-            widgetType = parentWidget?.childTagNames?[tagName]
-            widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
-            if widgetType
-                config = _compileWidgetDom(scope, dom, widgetType, config, context)
+        if config
+            if jsonConfig
+                for k, v of config
+                    if not jsonConfig.hasOwnProperty(k) then jsonConfig[k] = v
+            else
+                jsonConfig = config
+
+    config = _compileWidgetAttribute(scope, dom, context)
+    if not config or (not config.$type and not config.$constr)
+        widgetType = parentWidget?.childTagNames?[tagName]
+        widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
+        if widgetType
+            config = _compileWidgetDom(scope, dom, widgetType, config, context)
     return null unless config or jsonConfig
 
     config ?= {}
