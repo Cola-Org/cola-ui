@@ -127,12 +127,11 @@ class cola.NestedList extends cola.Widget
 		highlightCurrentItem = (@_autoSplit and @_largeScreen and index == 0)
 		useLayer = index > (if @_autoSplit and @_largeScreen then 1 else 0)
 
-		hjson =
-			tagName: "div"
+		coson =
+			tagName: if useLayer then "layer" else "div"
 			style:
 				height: "100%"
 			contextKey: "container"
-			"c-widget": if useLayer then "layer" else "widget"
 			content:
 				tagName: "div"
 				class: "v-box"
@@ -140,7 +139,6 @@ class cola.NestedList extends cola.Widget
 					height: "100%"
 
 		listConfig =
-			$type: "listView"
 			class: @_ui
 			allowNoCurrent: not highlightCurrentItem
 			highlightCurrentItem: highlightCurrentItem
@@ -159,36 +157,34 @@ class cola.NestedList extends cola.Widget
 			else
 				menuItemsConfig = undefined
 
-			hjson.content.content = [
+			coson.content.content = [
 				{
 					tagName: "div"
 					class: "box title-box"
 					content:
-						tagName: "div"
+						tagName: "c-titlebar"
+						class: @_ui
+						items: menuItemsConfig
 						contextKey: "titleBar"
-						"c-widget":
-							$type: "titleBar"
-							class: @_ui
-							items: menuItemsConfig
 				},
 				{
 					tagName: "div"
 					class: "flex-box list-box"
 					content:
-						tagName: "div"
+						tagName: "c-listview"
 						contextKey: "list"
-						"c-widget": listConfig
+						widgetConfig: listConfig
 				}
 			]
 		else
-			hjson.content.content = {
+			coson.content.content = {
 				tagName: "div"
 				contextKey: "list"
-				"c-widget": listConfig
+				widgetConfig: listConfig
 			}
 
 		ctx = {}
-		new cola.xRender(hjson, @_scope, ctx)
+		new cola.xRender(coson, @_scope, ctx)
 
 		list = cola.widget(ctx.list)
 		oldRefreshItemDom = list._refreshItemDom

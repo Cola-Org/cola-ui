@@ -514,7 +514,7 @@ class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 cola.registerWidget(cola.menu.DropdownMenuItem)
 
 class cola.TitleBar extends cola.Menu
-	@tagName: "c-titleBar"
+	@tagName: "c-titlebar"
 	@CLASS_NAME: "menu title-bar"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
 

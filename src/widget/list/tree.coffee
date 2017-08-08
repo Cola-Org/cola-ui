@@ -108,11 +108,9 @@ class cola.Tree extends cola.AbstractList
 						class: "expand-button"
 					},
 					{
-						tagName: "div"
-						"c-widget":
-							$type: "checkbox"
-							class: "node-checkbox"
-							triState: true
+						tagName: "c-checkbox"
+						class: "node-checkbox"
+						triState: true
 					}
 				]
 		"node":

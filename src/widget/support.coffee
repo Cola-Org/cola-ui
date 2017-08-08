@@ -9,7 +9,7 @@ $.xCreate.templateProcessors.push (template, context) ->
         dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
     return dom
 
-cola.xCreate.attributeProcessor["c-widget"] = ($dom, attrName, attrValue, context) ->
+cola.xCreate.attributeProcessor["c-widget"] = cola.xCreate.attributeProcessor.widgetConfig = ($dom, attrName, attrValue, context) ->
     return unless attrValue
     if typeof attrValue == "string"
         $dom.attr(attrName, attrValue)

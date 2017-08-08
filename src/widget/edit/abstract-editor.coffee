@@ -47,7 +47,7 @@ class cola.AbstractEditor extends cola.Widget
 
 					field.on "attributeChange", (self, arg) =>
 						if arg.attribute is "readOnly"
-							@set("readOnly", feild._readOnly)
+							@set("readOnly", field._readOnly)
 						return
 
 		return
@@ -63,12 +63,15 @@ class cola.AbstractEditor extends cola.Widget
 		return true
 
 	post: ()->
-		return @ if @fire("beforePost", @) is false
+		if @fire("beforePost", @) is false
+			@refreshValue()
+			return @
+
 		@_post()
 		@fire("post", @)
 		return @
 
-	_post: ()->
+	_post: () ->
 		@writeBindingValue(@_value)
 		return
 
@@ -86,13 +89,15 @@ class cola.AbstractEditor extends cola.Widget
 					@set("state", keyMessage?.type)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
-			value = @readBindingValue()
-			if value? and @_dataType
-				value = @_dataType.parse(value)
-			@_modelValue = value
-			if @_setValue(value)
+			if @refreshValue()
 				cola.util.delay(@, "refreshDom", 50, @_refreshDom)
-
 		return
+
+	refreshValue: () ->
+		value = @readBindingValue()
+		if value? and @_dataType
+			value = @_dataType.parse(value)
+		@_modelValue = value
+		return @_setValue(value)
 
 cola.Element.mixin(cola.AbstractEditor, cola.DataWidgetMixin)
