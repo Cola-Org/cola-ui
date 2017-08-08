@@ -153,15 +153,9 @@ module.exports = (grunt) ->
 		"cola-ui-license":
 			options:
 				license: """
-/*! Cola UI - #{pkg.version}
- * Copyright (c) 2002-2016 BSTEK Corp. All rights reserved.
- *
- * This file is dual-licensed under the AGPLv3 (http://www.gnu.org/licenses/agpl-3.0.html)
- * and BSDN commercial (http://www.bsdn.org/licenses) licenses.
- *
- * If you are unsure which license is appropriate for your use, please contact the sales department
- * at http://www.bstek.com/contact.
- */
+/*! Colla - #{pkg.version}
+ * Copyright (C) 2015-2017 Benny Bao & Alex Tong.
+ * Licensed under the MIT license */
 
 """
 			build:
