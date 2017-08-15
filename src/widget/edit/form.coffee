@@ -37,6 +37,7 @@ class cola.Form extends cola.Widget
 				if propertyDef
 					caption = field.caption or propertyDef.get("caption") or field.property
 					propertyType = propertyDef.get("dataType")
+					labelUserData = { captionSetted: true }
 				else
 					caption = field.caption or field.property
 					propertyType = null
@@ -49,7 +50,6 @@ class cola.Form extends cola.Widget
 						content: []
 					childDoms.push(fieldsDom)
 
-				labelUserData = { captionSetted: true }
 				if field.editContent
 					if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
 						field.editContent.readOnly = field.readOnly
@@ -262,15 +262,15 @@ class cola.Field extends cola.Widget
 			if not $label.data("labelUserData")
 				propertyDef = @_getPropertyDef()
 				if propertyDef
-					if @_labelDom.innerHTML is ""
-						$label.text(@_caption or propertyDef.get("caption") or @_property)
+					caption = propertyDef.get("caption") or @_property
 					if propertyDef._validators
 						for validator in propertyDef._validators
 							if validator instanceof cola.RequiredValidator
 								$label.addClass("required")
 								break
-			else if @_caption and @_labelDom.innerHTML is ""
-				$label.text(@_caption)
+
+			if (caption or @_caption) and @_labelDom.innerHTML is ""
+				$label.text(caption or @_caption)
 		return
 
 	_filterDataMessage: (path, type, arg) ->

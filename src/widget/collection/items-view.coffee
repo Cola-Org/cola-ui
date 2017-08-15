@@ -40,7 +40,7 @@ class cola.ItemsView extends cola.Widget
 			@_refreshItemsScheduled = true
 		return super(attr, attrConfig, value)
 
-	_createDom: ()->
+	_createDom: () ->
 		@_doms ?= {}
 		dom = $.xCreate({
 			tagName: "div"
@@ -50,7 +50,7 @@ class cola.ItemsView extends cola.Widget
 		}, @_doms)
 		return dom
 
-	_parseDom: (dom)->
+	_parseDom: (dom) ->
 		return unless dom
 		@_doms ?= {}
 		child = dom.firstElementChild

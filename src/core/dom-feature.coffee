@@ -126,7 +126,7 @@ class cola._AliasFeature extends cola._BindingFeature
 				@disabled = true
 		return
 
-	_refresh: (domBinding, dataCtx)->
+	_refresh: (domBinding, dataCtx) ->
 		for alias of @expressions
 			data = @evaluate(domBinding, alias, dataCtx)
 			domBinding.scope.data.setAliasTargetData(alias, data)
@@ -145,6 +145,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return unless @prepared
 
 		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
+		domBinding.itemDomBindingMap = {}
 
 		scope.onItemsRefresh = () =>
 			@onItemsRefresh(domBinding)

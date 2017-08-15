@@ -11,7 +11,7 @@ cola.registerTypeResolver "table.column", (config) ->
 class cola.TableColumn extends cola.Element
 	@attributes:
 		name:
-			reaonlyAfterCreate: true
+			readOnlyAfterCreate: true
 		caption: null
 		align:
 			enum: ["left", "center", "right"]
@@ -27,7 +27,7 @@ class cola.TableColumn extends cola.Element
 
 	constructor: (config) ->
 		super(config)
-		if !@_name then @_name = cola.uniqueId()
+		if not @_name then @_name = cola.uniqueId()
 
 		@on("attributeChange", (self, arg) =>
 			return unless @_table

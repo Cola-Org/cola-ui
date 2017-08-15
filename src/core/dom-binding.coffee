@@ -67,6 +67,9 @@ class cola._DomBinding
 		pipe = {
 			path: path
 			processMessage: (bindingPath, path, type, arg) =>
+				if arg.timestamp <= @_lastTimestamp then return
+				@_lastTimestamp = arg.timestamp
+
 				if not feature.disabled
 					feature.processMessage(@, bindingPath, path, type, arg)
 					if feature.disabled then pipe.disabled = true

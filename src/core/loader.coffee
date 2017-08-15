@@ -50,28 +50,26 @@ cola.loadSubView = (targetDom, context) ->
 
 	if context.jsUrl
 		jsUrls = []
-		if context.jsUrl instanceof Array
-			for jsUrl in context.jsUrl
-				jsUrl = _compileResourceUrl(jsUrl, htmlUrl, ".js")
-				if jsUrl
-					loadingUrls.push(jsUrl)
-					jsUrls.push(jsUrl)
+		if typeof context.jsUrl is "string"
+			originJsUrls = context.jsUrl.split("|")
 		else
-			jsUrl = _compileResourceUrl(context.jsUrl, htmlUrl, ".js")
+			originJsUrls = context.jsUrl
+
+		for jsUrl in originJsUrls
+			jsUrl = _compileResourceUrl(jsUrl, htmlUrl, ".js")
 			if jsUrl
 				loadingUrls.push(jsUrl)
 				jsUrls.push(jsUrl)
 
 	if context.cssUrl
 		cssUrls = []
-		if context.cssUrl instanceof Array
-			for cssUrl in context.cssUrl
-				cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
-				if cssUrl
-					loadingUrls.push(cssUrl)
-					cssUrls.push(cssUrl)
+		if typeof context.cssUrl is "string"
+			originCssUrls = context.cssUrl.split("|")
 		else
-			cssUrl = _compileResourceUrl(context.cssUrl, htmlUrl, ".css")
+			originCssUrls = context.cssUrl
+
+		for cssUrl in originCssUrls
+			cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
 			if cssUrl
 				loadingUrls.push(cssUrl)
 				cssUrls.push(cssUrl)
@@ -101,12 +99,14 @@ cola.unloadSubView = (targetDom, context) ->
 
 	htmlUrl = context.htmlUrl
 	if context.cssUrl
-		if context.cssUrl instanceof Array
-			for cssUrl in context.cssUrl
-				cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
-				if cssUrl then _unloadCss(cssUrl)
+		cssUrls = []
+		if typeof context.cssUrl is "string"
+			cssUrls = context.cssUrl.split("|")
 		else
-			cssUrl = _compileResourceUrl(context.cssUrl, htmlUrl, ".css")
+			cssUrls = context.cssUrl
+
+		for cssUrl in cssUrls
+			cssUrl = _compileResourceUrl(cssUrl, htmlUrl, ".css")
 			if cssUrl then _unloadCss(cssUrl)
 	return
 

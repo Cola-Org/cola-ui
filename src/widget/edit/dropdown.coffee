@@ -439,10 +439,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@refresh()
 		return
 
-	_doRefreshDom:()->
+	_doRefreshDom:() ->
 		super()
-		if !@_dom then return
-		$(@_dom).toggleClass("disabled",@_disabled);
+		if not @_dom then return
+		$(@_dom).toggleClass("disabled", @_disabled);
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 

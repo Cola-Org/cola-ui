@@ -6,6 +6,13 @@ else
 	cola = @cola
 #IMPORT_END
 
+cola.util.findModel = (dom) ->
+	domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
+	if domBinding
+		return domBinding.subScope or domBinding.scope
+	else
+		return null
+
 cola.util.trim = (text) ->
 	return if text? then String.prototype.trim.call(text) else ""
 

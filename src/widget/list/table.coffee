@@ -254,7 +254,7 @@ class cola.Table extends cola.AbstractTable
 					row.removeChild(cell)
 					cell = row.cells[j]
 
-				if !cell
+				if not cell
 					isNew = true
 					cell = $.xCreate({
 						tagName: "th"

@@ -347,9 +347,9 @@ class cola.SubScope extends cola.Scope
 		return
 
 class cola.ItemScope extends cola.SubScope
-	constructor: (parent, alias) ->
+	constructor: (parent, @alias) ->
 		super(parent)
-		@data = new cola.ItemDataModel(@, alias, @parent?.dataType)
+		@data = new cola.ItemDataModel(@, @alias, @parent?.dataType)
 		@action = @parent.action
 
 	watchPath: () ->
@@ -360,6 +360,7 @@ class cola.ItemScope extends cola.SubScope
 class cola.ItemsScope extends cola.SubScope
 
 	constructor: (parent, expression) ->
+		@itemScopeMap = {}
 		@setParent(parent)
 		@setExpression(expression)
 
@@ -668,6 +669,9 @@ class cola.AbstractDataModel
 					prop = path.substring(0, i)
 				else
 					prop = path
+
+				if prop.charCodeAt(prop.length - 1) is 35 # '#'
+					prop = prop.substring(0, prop.length - 1)
 
 				if rootData.hasValue(prop)
 					return rootData.get(path, loadMode, context)
