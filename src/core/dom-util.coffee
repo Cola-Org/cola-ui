@@ -187,71 +187,32 @@ _DOMNodeRemovedListener = (evt) ->
 
 cleanStamp = 1
 
-if cola.browser.ie and cola.browser.ie < 9	# Damn old IE
-	setTimeout(() ->
-		i = 0
-		setInterval(() ->
-			return if cola.util.userDataStore.size < 256
-			userData = cola.util.userDataStore
+document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 
-			c = 0
-			len = document.all.length
-			while i < len
-				node = document.all[i]
-				id = null
-				if node.nodeType is 8
-					text = node.nodeValue
-					i = text.indexOf("|")
-					id = text.substring(i + 1) if i > -1
-				else if node.getAttribute
-					id = node.getAttribute(USER_DATA_KEY)
+$fly(window).on("unload", () ->
+	document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+	document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
+	return
+)
 
-				if id
-					store = userData[id]
-					if store
-						store.__cleanStamp = cleanStamp
+setInterval(() ->
+	for id, node of _nodesToBeRemove
+		store = cola.util.userDataStore[id]
+		if store
+			changed = true
+			nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
+			if nodeRemovedListener
+				if nodeRemovedListener instanceof Array
+					for listener in nodeRemovedListener
+						listener(node, store)
+				else
+					nodeRemovedListener(node, store)
+			delete cola.util.userDataStore[id]
 
-				i++
-				c++
-
-				if c >= 64 then return
-
-			for id, store of userData
-				if store isnt cleanStamp
-					delete userData[id]
-
-			cleanStamp++
-			return
-		, 1000)
-		return
-	, 10000)
-else
-	document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-	document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
-
-	$fly(window).on("unload", () ->
-		document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-		document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
-		return
-	)
-
-	setInterval(() ->
-		for id, node of _nodesToBeRemove
-			store = cola.util.userDataStore[id]
-			if store
-				changed = true
-				nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
-				if nodeRemovedListener
-					if nodeRemovedListener instanceof Array
-						for listener in nodeRemovedListener
-							listener(node, store)
-					else
-						nodeRemovedListener(node, store)
-				delete cola.util.userDataStore[id]
-
-		if changed then _nodesToBeRemove = {}
-		return
-	, 10000)
+	if changed then _nodesToBeRemove = {}
+	return
+, 5000)
 
 cola.util.getGlobalTemplate = (name) ->
 	template = document.getElementById(name)

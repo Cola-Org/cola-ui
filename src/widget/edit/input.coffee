@@ -286,7 +286,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$fly(@_doms.input).val(if value? then value + "" or "")
 		return
 
-	_doRefreshDom: ()->
+	_doRefreshDom: () ->
 		return unless @_dom
 		super()
 
@@ -298,6 +298,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 		#@_refreshCorner()
 		#@_refreshLabel()
 		@_refreshInput()
+
+		@_classNamePool.toggle("readonly", !!@_finalReadOnly)
 		return
 
 	focus: () ->
@@ -341,7 +343,7 @@ class cola.Input extends cola.AbstractInput
 		super(dom)
 		doPost = ()=>
 			readOnly = @_readOnly
-			if !readOnly
+			if not readOnly
 				value = $(@_doms.input).val()
 				dataType = @_dataType
 				if dataType

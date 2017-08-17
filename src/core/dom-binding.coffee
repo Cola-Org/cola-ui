@@ -67,10 +67,10 @@ class cola._DomBinding
 		pipe = {
 			path: path
 			processMessage: (bindingPath, path, type, arg) =>
-				if arg.timestamp <= @_lastTimestamp then return
-				@_lastTimestamp = arg.timestamp
-
 				if not feature.disabled
+					if arg.timestamp <= feature._lastTimestamp then return
+					feature._lastTimestamp = arg.timestamp
+
 					feature.processMessage(@, bindingPath, path, type, arg)
 					if feature.disabled then pipe.disabled = true
 				else
@@ -128,7 +128,10 @@ class cola._RepeatDomBinding extends cola._DomBinding
 
 			cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, @)
 			cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom)
-			cola.util.onNodeDispose(headerNode, _destroyDomBinding)
+			cola.util.onNodeDispose(headerNode, () ->
+				$fly(dom).remove()
+				return
+			)
 
 			repeatItemDomBinding = new cola._RepeatItemDomBinding(dom, scope)
 			repeatItemDomBinding.repeatDomBinding = @
