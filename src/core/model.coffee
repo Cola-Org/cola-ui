@@ -1392,6 +1392,7 @@ class cola.ElementAttrBinding
 		return
 
 	processMessage: (bindingPath, path, type)->
+		return if @element._freezed
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
 			@refresh()
 		return

@@ -377,7 +377,11 @@ class cola._WatchFeature extends cola._BindingFeature
 		action = domBinding.scope.action(@action)
 		if not action
 			throw new cola.Exception("No action named \"#{@action}\" found.")
-		action(domBinding.dom, domBinding.scope, type, arg)
+
+		if not domBinding.duringExecuting
+			domBinding.duringExecuting = true
+			action(domBinding.dom, domBinding.scope, type, arg)
+			domBinding.duringExecuting = false
 		return
 
 class cola._EventFeature extends cola._ExpressionFeature

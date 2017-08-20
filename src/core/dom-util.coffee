@@ -122,7 +122,9 @@ cola.util.removeUserData = (node, key) ->
 				cola.util.userDataStore.size--
 	return value
 
-ON_NODE_REMOVED_KEY = "__onNodeRemoved"
+ON_NODE_DISPOSE_KEY = "__onNodeDispose"
+ON_NODE_REMOVE_KEY = "__onNodeRemove"
+ON_NODE_INSERT_KEY = "__onNodeInsert"
 
 cola.detachNode = (node) ->
 	return unless node.parentNode
@@ -131,15 +133,37 @@ cola.detachNode = (node) ->
 	cola._ignoreNodeRemoved = false
 	return
 
-cola.util.onNodeDispose = (node, listener) ->
-	oldListener = cola.util.userData(node, ON_NODE_REMOVED_KEY)
+cola.util.onNodeRemove = (node, listener) ->
+	oldListener = cola.util.userData(node, ON_NODE_REMOVE_KEY)
 	if oldListener
 		if oldListener instanceof Array
 			oldListener.push(listener)
 		else
-			cola.util.userData(node, ON_NODE_REMOVED_KEY, [oldListener, listener])
+			cola.util.userData(node, ON_NODE_REMOVE_KEY, [oldListener, listener])
 	else
-		cola.util.userData(node, ON_NODE_REMOVED_KEY, listener)
+		cola.util.userData(node, ON_NODE_REMOVE_KEY, listener)
+	return
+
+cola.util.onNodeDispose = (node, listener) ->
+	oldListener = cola.util.userData(node, ON_NODE_DISPOSE_KEY)
+	if oldListener
+		if oldListener instanceof Array
+			oldListener.push(listener)
+		else
+			cola.util.userData(node, ON_NODE_DISPOSE_KEY, [oldListener, listener])
+	else
+		cola.util.userData(node, ON_NODE_DISPOSE_KEY, listener)
+	return
+
+cola.util.onNodeInsert = (node, listener) ->
+	oldListener = cola.util.userData(node, ON_NODE_INSERT_KEY)
+	if oldListener
+		if oldListener instanceof Array
+			oldListener.push(listener)
+		else
+			cola.util.userData(node, ON_NODE_INSERT_KEY, [oldListener, listener])
+	else
+		cola.util.userData(node, ON_NODE_INSERT_KEY, listener)
 	return
 
 _nodesToBeRemove = {}
@@ -162,11 +186,17 @@ _DOMNodeInsertedListener = (evt) ->
 	child = node.firstChild
 	while child
 		id = _getNodeDataId(child)
-		if id then delete _nodesToBeRemove[id]
+		if id
+			store = cola.util.userDataStore[id]
+			if store
+				listeners = store[ON_NODE_INSERT_KEY]
+				if listeners
+					if listeners instanceof Array
+						for listener in listeners
+							listener(node, store)
+					else
+						listeners(node, store)
 		child = child.nextSibling
-
-	id = _getNodeDataId(node)
-	if id then delete _nodesToBeRemove[id]
 	return
 
 _DOMNodeRemovedListener = (evt) ->
@@ -178,7 +208,17 @@ _DOMNodeRemovedListener = (evt) ->
 	child = node.firstChild
 	while child
 		id = _getNodeDataId(child)
-		if id then _nodesToBeRemove[id] = child
+		if id
+			_nodesToBeRemove[id] = child
+			store = cola.util.userDataStore[id]
+			if store
+				listeners = store[ON_NODE_REMOVE_KEY]
+				if listeners
+					if listeners instanceof Array
+						for listener in listeners
+							listener(node, store)
+					else
+						listeners(node, store)
 		child = child.nextSibling
 
 	id = _getNodeDataId(node)
@@ -201,13 +241,13 @@ setInterval(() ->
 		store = cola.util.userDataStore[id]
 		if store
 			changed = true
-			nodeRemovedListener = store[ON_NODE_REMOVED_KEY]
-			if nodeRemovedListener
-				if nodeRemovedListener instanceof Array
-					for listener in nodeRemovedListener
+			listeners = store[ON_NODE_DISPOSE_KEY]
+			if listeners
+				if listeners instanceof Array
+					for listener in listeners
 						listener(node, store)
 				else
-					nodeRemovedListener(node, store)
+					listeners(node, store)
 			delete cola.util.userDataStore[id]
 
 	if changed then _nodesToBeRemove = {}

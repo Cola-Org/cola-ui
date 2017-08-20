@@ -2,7 +2,7 @@ $.xCreate.templateProcessors.push (template, context) ->
     if template instanceof cola.Widget
         widget = template
     else if template.$type
-        widget = cola.widget(template, context.namespace)
+        widget = cola.widget(template, context?.namespace)
 
     if widget instanceof cola.Widget
         dom = widget.getDom()
@@ -227,7 +227,7 @@ cola.widget = (config, namespace, model) ->
             widgetModel = widgetModel.parent
         return match
 
-    if typeof config == "string"
+    if typeof config is "string"
         ele = window[config]
         return null unless ele
         if ele.nodeType
@@ -252,7 +252,7 @@ cola.widget = (config, namespace, model) ->
             for c in config
                 group.push(cola.widget(c, namespace, model))
             return cola.Element.createGroup(group)
-        else if config.nodeType == 1
+        else if config.nodeType is 1
             widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY)
             if model and not isSubWidget(widget)
                 widget = null

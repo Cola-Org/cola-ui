@@ -47,10 +47,19 @@ class cola.ClassNamePool
 		if !!status then @add(className) else @remove(className)
 		return
 
+_freezeRenderableElement = (node, data) ->
+	element = data[cola.constants.DOM_ELEMENT_KEY]
+	element?._freezed = true
+	return
+
+_unfreezeRenderableElement = (node, data) ->
+	element = data[cola.constants.DOM_ELEMENT_KEY]
+	delete element?._freezed
+	return
 
 _destroyRenderableElement = (node, data) ->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
-	if not element? _destroyed
+	if not element?._destroyed
 		element._domRemoved = true
 		element.destroy()
 	return
@@ -77,6 +86,8 @@ class cola.RenderableElement extends cola.Element
 		return unless dom
 		@_dom = dom
 		cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, @)
+		cola.util.onNodeRemove(dom, _freezeRenderableElement)
+		cola.util.onNodeInsert(dom, _unfreezeRenderableElement)
 		cola.util.onNodeDispose(dom, _destroyRenderableElement)
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
@@ -102,7 +113,6 @@ class cola.RenderableElement extends cola.Element
 	_doRefreshDom: ()->
 		cola.util.cancelDelay(@, "_refreshDom")
 
-		return unless @_dom
 		className = @constructor.CLASS_NAME
 		if className
 			@_classNamePool.add("ui")
@@ -110,11 +120,10 @@ class cola.RenderableElement extends cola.Element
 			@_classNamePool.add(name) for name in names
 
 		@_resetDimension()
-
 		return
 
 	_refreshDom: ()->
-		return unless @_dom or not @_destroyed
+		return if not @_dom or @_destroyed or @_freezed
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
 
 		@_doRefreshDom()
@@ -348,7 +357,6 @@ class cola.Widget extends cola.RenderableElement
 		return super(eventName, self, arg)
 
 	_doRefreshDom: ()->
-		return unless @_dom
 		super()
 
 		@_classNamePool.add("#{@_float} floated") if @_float
@@ -356,7 +364,6 @@ class cola.Widget extends cola.RenderableElement
 
 		if !@_rendered and @_class
 			@_classNamePool.add(name) for name in @_class.split(" ")
-
 
 		return
 
