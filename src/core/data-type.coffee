@@ -68,6 +68,12 @@ EntityDataType
 
 class cola.EntityDataType extends cola.DataType
 	@attributes:
+		validatorsDisabled:
+			setter: (disabled) ->
+				for propertyDef in @_properties.elements
+					propertyDef.set("disabled", disabled)
+				return
+
 		properties:
 			setter: (properties) ->
 				@_properties.clear()
@@ -185,6 +191,14 @@ class cola.Property extends cola.Definition
 		defaultValue: null
 		aggregated:
 			readOnlyAfterCreate: true
+
+		validatorsDisabled:
+			setter: (disabled) ->
+				if @_validators
+					for validator in @_validators
+						validator.set("disabled", disabled)
+				return
+
 		validators:
 			setter: (validators) ->
 				addValidator = (validator) =>

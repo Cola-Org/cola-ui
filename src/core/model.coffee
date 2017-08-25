@@ -46,7 +46,10 @@ class cola.Scope
 		return fn
 
 	get: (path, loadMode, context) ->
-		return @data.get(path, loadMode, context)
+		if typeof path is "string" and path.substring(0, 8) is "$parent." and @parent
+			return @parent.get(path.substring(8), loadMode, context)
+		else
+			return @data.get(path, loadMode, context)
 
 	getAsync: (prop, callback, context) ->
 		return $.Deferred (dfd) =>
@@ -63,7 +66,10 @@ class cola.Scope
 			}, context)
 
 	set: (path, data, context) ->
-		@data.set(path, data, context)
+		if typeof path is "string" and path.substring(0, 8) is "$parent." and @parent
+			@parent.set(path.substring(8), data, context)
+		else
+			@data.set(path, data, context)
 		return @
 
 	describe: (property, config) ->
