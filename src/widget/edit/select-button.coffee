@@ -69,6 +69,7 @@ class cola.SelectButton extends cola.AbstractEditor
 
 		else
 			itemsDom = document.createDocumentFragment();
+			@_items ?= []
 			for item in @_items
 				itemsDom.appendChild($.xCreate({
 					class: "ui button",

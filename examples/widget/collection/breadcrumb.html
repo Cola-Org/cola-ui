@@ -7,7 +7,7 @@
 </head>
 <body style="padding: 20px;" class="demo">
 <c-breadcrumb bind="sections" itemClick="itemClick"></c-breadcrumb>
-<c-button caption="刷新" click></c-button>
+<c-button caption="刷新" click="addItem"></c-button>
 <script type="text/javascript">
     cola(function (model) {
         model.set("sections", [
@@ -18,6 +18,11 @@
         model.action({
             itemClick: function (self, arg) {
                 model.get("sections").setCurrent(arg.item)
+            },
+            addItem: function () {
+                model.get("sections").insert({
+                    text: "组件2", href: "http://cola-ui.com/docs"
+                })
             }
         })
     });

@@ -8,7 +8,7 @@
 </head>
 <body style="padding: 20px;">
 
-<div c-widget="#panel">
+<c-panel caption="个人信息" width="400px" class="collapsed">
     <template name="tools">
         <div>
             <c-button caption="按钮"></c-button>
@@ -31,38 +31,9 @@
         <div c-widget="button; caption:GroupBox"></div>
         <div c-widget="button; caption:GroupBox"></div>
     </div>
-</div>
-<br>
-
-<c-panel class="basic" caption="个人信息">
-    <template name="tools">
-        <div>
-            <c-button caption="按钮"></c-button>
-        </div>
-    </template>
-    <div class="content">
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-        <div c-widget="button; caption:GroupBox"></div>
-    </div>
 </c-panel>
-<div c-widget="#fieldSet;"></div>
 <br>
 
-<div c-widget="#groupBox;">
-    <div c-widget="button; caption:GroupBox"></div>
-</div>
 
 <script type="text/javascript">
     cola(function (model) {
@@ -73,20 +44,6 @@
                 closable: false,
                 caption: "个人数据",
                 width: "40%"
-            },
-            fieldSet: {
-                icon: "user",
-                $type: "FieldSet",
-                closable: false,
-                caption: "个人数据",
-                width: "40%", height: "10em"
-            },
-            groupBox: {
-                icon: "user",
-                $type: "GroupBox",
-                closable: false,
-                caption: "个人数据",
-                width: "40%", height: "10em"
             }
         });
     })
