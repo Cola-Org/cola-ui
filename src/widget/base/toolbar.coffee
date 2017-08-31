@@ -73,7 +73,7 @@ class cola.ToolbarButton extends cola.Widget
 		else
 			$(captionDom).empty()
 
-		if @get("focusable") then $innerDom.attr("tabindex", "0") else  $innerDom.removeAttr("tabindex")
+		if @get("focusable") then $innerDom.attr("tabindex", "0") else $innerDom.removeAttr("tabindex")
 
 		@_refreshIcon()
 		$innerDom.toggleClass("disabled", @_disabled)

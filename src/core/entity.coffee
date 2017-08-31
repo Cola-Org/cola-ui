@@ -1717,11 +1717,11 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 			else
 				data = data[part]
 		else
+			isLast = (i is lastIndex)
 			if part.charCodeAt(part.length - 1) is 35 # '#'
 				returnCurrent = true
 				part = part.substring(0, part.length - 1)
 			else
-				isLast = (i is lastIndex)
 				if not noEntityList and not isLast
 					returnCurrent = true
 

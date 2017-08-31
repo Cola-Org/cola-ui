@@ -331,14 +331,15 @@ class cola.ItemsView extends cola.Widget
 
 		if item?.isDataWrapper
 			originItem = item
+			alias = originItem._alias
 			item = item._data
 		else
 			originItem = item
+			alias = item?._alias
 
 		if typeof item is "object"
 			itemId = _getEntityId(item)
 
-		alias = item._alias
 		if not alias
 			alias = originItem?._alias
 			alias ?= @_alias
