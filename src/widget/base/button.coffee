@@ -108,7 +108,6 @@ class cola.Button extends cola.Widget
 		state = @_state
 		if state then classNamePool.add(state)
 		classNamePool.toggle("disabled", @_disabled)
-
 		return
 
 cola.registerWidget(cola.Button)

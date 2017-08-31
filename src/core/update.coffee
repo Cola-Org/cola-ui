@@ -91,7 +91,7 @@ cola.util.update = (url, data, options = {}) ->
 				if options.postProcessor
 					return options.postProcessor(responseData, options)
 
-				if responseData
+				if responseData?.entityMap
 					for entityId, entityDiff of responseData.entityMap
 						state = null
 						entity = context.entityMap[entityId]

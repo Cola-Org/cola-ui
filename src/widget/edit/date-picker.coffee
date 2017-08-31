@@ -411,7 +411,6 @@ class cola.DatePicker extends cola.CustomDropdown
 			@fire("focus", @)
 			return
 		).on("blur", ()=>
-			
 			@_inputFocused = false
 			@removeClass("focused")
 			@_refreshInputValue(@_value)

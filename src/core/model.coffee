@@ -106,10 +106,16 @@ class cola.Scope
 
 	disableObservers: () ->
 		@data.disableObservers()
+		if @_childScopes
+			for childScope in @_childScopes
+				childScope.disableObservers()
 		return @
 
 	enableObservers: () ->
 		@data.enableObservers()
+		if @_childScopes
+			for childScope in @_childScopes
+				childScope.enableObservers()
 		return @
 
 	notifyObservers: (path) ->
@@ -389,6 +395,21 @@ class cola.ItemsScope extends cola.SubScope
 		return
 
 	registerChild: () ->
+
+	disableObservers: () ->
+		for key, childScope of @itemScopeMap
+			childScope.disableObservers()
+		return @
+
+	enableObservers: () ->
+		for key, childScope of @itemScopeMap
+			childScope.enableObservers()
+		return @
+
+	notifyObservers: (path) ->
+		for key, childScope of @itemScopeMap
+			childScope.notifyObservers(path)
+		return @
 
 	setParent: (parent) ->
 		if @parent then @unwatchPath()
