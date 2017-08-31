@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="utf-8"/>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.describe("employees", {
+                provider: {
+                    url: "//open-data.cola-ui.com/service/employee/find",
+                    pageSize: 20
+                }
+            });
+        });
+    </script>
+</head>
+<body style="padding:0px;margin:0;">
+<c-listView currentPageOnly="false" height="100%" textProperty="name" bind="employees" autoLoadPage="true"
+            highlightCurrentItem="false">
+</c-listView>
+
+<div id="listScroll">
+
+</div>
+
+</body>
+</html>

@@ -9,13 +9,8 @@
         cola(function (model) {
             model.describe("items", {
                 provider: {
-                    url: "languages{{$pageNo}}.json",
-                    pageSize: 10,
-                    success: function (self, arg) {
-                        model.get("items").each(function (entity) {
-                            entity.set("medName", entity.get("name") + "-MedName")
-                        })
-                    }
+                    url:"http://open-data.cola-ui.com/service/employee/find",
+                    pageSize:5
                 }
             });
 
@@ -43,10 +38,20 @@
     </style>
 </head>
 <body style="padding:0px; margin:0;" class="v-box">
-<c-pager c-bind="item in items">
+
+
+<c-subview c-alias="?block.path as root"  c-alias="?block.path + ''">
+
+
+</c-subview>
+
+
+
+<c-pager c-bind="item in items" >
     <div class="right menu">
         <a page-code="pages" class="item"></a>
         <div page-code="pageSize" class="item"></div>
+        <item page-code="goto" class="item"></item>
     </div>
 </c-pager>
 

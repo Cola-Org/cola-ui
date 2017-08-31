@@ -23,48 +23,21 @@
             });
 
 
-            model.set("person",{})
+            model.set("person", {})
             model.set("username", "alex")
             model.action({
                 inputChange: function () {
                     console.log("change")
                 }
-            })
-            model.widgetConfig({
-                inputEventTest: {
-                    postOnInput: true,
-//					focus: function (self, arg) {
-////						console.log("focus")
-//					},
-//					blur: function () {
-////						console.log("blur")
-//					},
-//					keyDown: function (self, arg) {
-//						console.log("keyDown")
-//						console.log(event);
-//						console.log(event.altKey);
-//						console.log(event.keyCode);
-//
-//					},
-                    keyPress: function (self, arg) {
-//						console.log("keyPress")
-//						console.log(arg)
-                        console.log(arg)
-                    },
-//					change: function (self, arg) {
-//						console.log("change");
-//						console.log(arg)
-//					}
-                }
             });
+
         });
     </script>
 </head>
 <body style="padding:20px;">
 
-<c-input class="action" bind="person.name">
-</c-input>
-<c-input c-readOnly="person.name?'false':'true'" >
+<c-input class="action" bind="person.name"></c-input>
+<c-input c-readOnly="person.name?'false':'true'">
 </c-input>
 </body>
 

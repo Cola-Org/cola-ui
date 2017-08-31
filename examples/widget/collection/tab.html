@@ -6,173 +6,97 @@
     <script src="../../include-all.js"></script>
     <script type="text/javascript">
         cola(function (model) {
-            var index = 0;
             model.action({
                 uiClick: function (self, arg) {
                     var caption = self.get("caption");
                     cola.widget("tabControl").set("direction", caption)
-                },
-                addTab: function (self, arg) {
-                    var name = "name" + index++;
-                    var tab = cola.widget("tabControl");
-
-                    var tabButton = tab.addTab({
-                        caption: name,
-                        name: name, closeable: true,
-                        content: {
-                            $type: "iFrame",
-                            path: "http://baidu.com"
-                        }
-                    })
-
                 }
             });
         });
     </script>
 </head>
-<body>
+<body style="padding:20px;">
+<div c-widget="buttonGroup">
+    <div c-repeat="ui in ['bottom','left','right','top']"
+         c-widget="button; caption:{{ui}}; click:uiClick"></div>
+</div>
+<p></p>
 
+<div class="ui segment" style="height: 70%;">
+    <div id="tabControl" class="ui c-tab vertical"  c-widget="Tab" style="height: 100%;">
+        <nav class="tab-bar">
 
-<v-box>
-    <box><!--查询域-->
-        <c-panel caption="rbacRole">
-            <div class="content">
-                <c-form bind="condition">
-                    <fields class="cols-3">
-                        <field property="typeId"></field>
-                        <field property="kind"></field>
-                        <field property="name"></field>
-                    </fields>
-                    <fields class="cols-3">
-                        <field property="status"></field>
-                        <field property="parentId"></field>
-                        <field property="structureId"></field>
-                    </fields>
-                    <fields class="cols-3">
-                        <field property="ownedStructureId"></field>
-                        <field property="label"></field>
-                    </fields>
-                </c-form>
-            </div>
-        </c-panel><!--菜单栏-->
-        <c-menu class="secondary bordered"><a caption="添加" icon="plus" click="insert"></a><a caption="取消" icon="undo"
-                                                                                             click=""></a><a
-                caption="删除" icon="minus" click="delete"></a><a caption="清空" icon="" click="clear"></a><a caption="查询"
-                                                                                                          icon=""
-                                                                                                          click="query"></a><a
-                caption="保存" icon="save" click="save"></a>
-            <div class="menu right">
-                <c-pager bind=""></c-pager>
-            </div>
-        </c-menu>
-    </box><!--数据展示表-->
-    <flex-box>
-        <c-tab>
-            <nav>
-                <tabs>
-                    <tab id="query" name="query" caption="查询" class="active"></tab>
-                    <tab id="edit" name="edit" caption="编辑"></tab>
-                    <tab name="accredit-data" caption="授权资料"></tab>
-                    <tab name="accredit-user" caption="授权用户"></tab>
-                    <tab name="accredit-role" caption="授权角色"></tab>
-                </tabs>
-            </nav>
-            <contents><!--数据列表-->
-                <content name="query" class="active">
-                    <c-table bind="rbacRoleList">
-                        <column property="roleId"></column>
-                        <column property="typeId"></column>
-                        <column property="kind"></column>
-                        <column property="name"></column>
-                        <column property="label"></column>
-                        <column property="parentId"></column>
-                        <column property="structureId"></column>
-                        <column property="status"></column>
-                    </c-table>
-                </content><!--编辑栏-->
-                <content name="edit">
-                    <c-form bind="rbacRoleList">
-                        <fields class="cols-3">
-                            <field property="roleId"></field>
-                            <field property="typeId"></field>
-                            <field property="kind"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="name"></field>
-                            <field property="label"></field>
-                            <field property="parentId"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="ownedStructureId"></field>
-                        </fields>
-                        <fields class="cols-1">
-                            <field property="defaultPage"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="status"></field>
-                            <field property="statusDate"></field>
-                            <field property="startDate"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="endDate"></field>
-                        </fields>
-                        <fields class="cols-1">
-                            <field property="description"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="businessType"></field>
-                            <field property="structureId"></field>
-                            <field property="ownerUserId"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="tenantId"></field>
-                            <field property="createDate"></field>
-                            <field property="updateDate"></field>
-                        </fields>
-                        <fields class="cols-3">
-                            <field property="createUserId"></field>
-                            <field property="updateUserId"></field>
-                            <field property="partitionId"></field>
-                        </fields>
-                    </c-form>
-                </content><!--授权资料-->
-                <content name="accredit-data">
-                    <v-box style="border:2px solid #eee;width:100%"><!--控制栏-->
-                        <box width="100%">
-                            <c-form bind="condition">
-                                <fields class="cols-4">
-                                    <field><label>资源类型</label>
-                                        <c-dropdown c-bind="condition.resourceType"
-                                                    c-item="dictionary('20001')"></c-dropdown>
-                                    </field>
-                                </fields>
-                            </c-form>
-                        </box><!--数据展示列表-->
-                        <flex-box style="border:2px solid #eee">
-                            <h-box height="100%"><!--左侧数据列表-->
-                                <box height="100%">
-                                    <c-table bind="rbacRoleList.permission">
-                                        <column property="kind"></column>
-                                        <column property="name"></column>
-                                        <column property="url"></column>
-                                    </c-table>
-                                </box><!--控制按钮-->
-                                <flex-box height="100%">
-                                    <c-button width="40px" height="20px"></c-button>
-                                    <c-button width="40px" height="20px"></c-button>
-                                </flex-box><!--右侧数据列表-->
-                                <box height="100%"></box>
-                            </h-box>
-                        </flex-box>
-                    </v-box>
-                </content><!--授权用户-->
-                <content name="accredit-user">sss</content><!--授权角色-->
-                <content name="accredit-role"></content>
-            </contents>
-        </c-tab>
-    </flex-box>
-</v-box>
+            <ul class="tabs">
+                <li name="cola" c-widget="TabButton; closeable:true" class="red">
+                    <div class="caption">产品维护</div>
+                    <div class="close-btn"><i class="close icon"></i></div>
+                </li>
+                <li name="cloudo" class="pink">
+                    <div class="caption"><i class="dashboard icon"></i><span>保险方案</span></div>
+                    <div class="close-btn"><i class="close icon"></i></div>
+                </li>
+                <li name="bdf" c-widget="TabButton; closeable:true" class="olive">
+                    <div class="caption"><i class="desktop icon"></i><span>投保单位维护</span></div>
+                    <div class="close-btn"><i class="close icon"></i></div>
+                </li>
+                <li name="sqf" c-widget="TabButton; closeable:true" class="teal">
+                    <div class="caption"><i class="browser icon"></i><span>保险分类</span></div>
+                    <div class="close-btn"><i class="close icon"></i></div>
+                </li>
+                <li name="jdbc" c-widget="TabButton; closeable:true">
+                    <div class="caption"><i class="tasks icon"></i><span>基本险种</span></div>
+                    <div class="close-btn"><i class="close icon"></i></div>
+                </li>
+                <li c-widget="TabButton; name:console; caption:系统维护; icon:setting;"></li>
+            </ul>
 
+        </nav>
+        <ul class="contents">
+            <li name="cola">
+                <div c-widget="IFrame; path:../layout/layer.html"></div>
+            </li>
+
+            <li name="cloudo">
+                <p>New Lorem ipsum dolor sit amet, consectetur adipisicing elit. Non a voluptatibus, ex odit totam
+                    cumque
+                    nihil eos asperiores ea, labore rerum. Doloribus tenetur quae impedit adipisci, laborum dolorum
+                    eaque
+                    ratione quaerat, eos dicta consequuntur atque ex facere voluptate cupiditate incidunt.</p>
+            </li>
+
+            <li name="bdf">
+                <p>Gallery Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cumque tenetur aut, cupiditate,
+                    libero
+                    eius rerum incidunt dolorem quo in officia.</p>
+            </li>
+
+            <li name="sqf">
+                <p>Store Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum recusandae rem animi accusamus
+                    quisquam reprehenderit sed voluptates, numquam, quibusdam velit dolores repellendus tempora corrupti
+                    accusantium obcaecati voluptate totam eveniet laboriosam?</p>
+            </li>
+
+            <li name="jdbc">
+                <p>Settings Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laboriosam nam magni, ullam nihil
+                    a
+                    suscipit, ex blanditiis, adipisci tempore deserunt maiores. Nostrum officia, ratione enim eaque
+                    nihil
+                    quis ea, officiis iusto repellendus. Animi illo in hic, maxime deserunt unde atque a nesciunt? Non
+                    odio
+                    quidem deserunt animi quod impedit nam, voluptates eum, voluptate consequuntur sit vel, et
+                    exercitationem sint atque dolores libero dolorem accusamus ratione iste tenetur possimus excepturi.
+                    Accusamus vero, dignissimos beatae tempore mollitia officia voluptate quam animi vitae.</p>
+            </li>
+
+            <li name="console">
+                <p>Trash Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque a iure nostrum animi
+                    praesentium, numquam quidem, nemo, voluptatem, aspernatur incidunt. Fugiat aspernatur excepturi
+                    fugit
+                    aut, dicta reprehenderit temporibus, nobis harum consequuntur quo sed, illum.</p>
+            </li>
+        </ul>
+    </div>
+</div>
 
 </body>
 </html>

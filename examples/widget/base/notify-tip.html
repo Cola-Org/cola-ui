@@ -21,14 +21,14 @@
                 cola.NotifyTipManager.show({
                     message: "系统消息",
                     description: "今晚19：00准时看新闻联播哦！",
-                    showDuration: 5000
+//                    showDuration: 5000
                 })
             },
             info: function () {
                 cola.NotifyTipManager.info({
                     message: "系统消息",
                     description: "今晚19：00准时看新闻联播哦！",
-                    showDuration: 5000
+//                    showDuration: 5000
                 })
             },
             warning: function () {
@@ -46,8 +46,9 @@
             success: function () {
                 cola.NotifyTipManager.success({
                     message: "提交成功",
-                    description: "后台任务执行成功！", showDuration: 1000
-                })
+                    description: "后台任务执行成功！",
+//                    showDuration: 1000
+                });
             },
             clear: function () {
                 cola.NotifyTipManager.clear()

@@ -60,7 +60,8 @@ Sort: <select c-bind="sortParam" c-options="['$none', '$random', '+name','-name'
 <div id="listTemplate">
     <template name="default">
         <div>
-            <c-button c-caption="language"></c-button>
+            <c-button c-caption="language.name"></c-button>
+            <div c-bind="$index"></div>
         </div>
     </template>
 </div>
