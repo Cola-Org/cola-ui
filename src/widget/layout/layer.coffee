@@ -75,7 +75,7 @@ class cola.Layer extends cola.AbstractLayer
 		animation:
 			defaultValue: "slide left"
 			enum: [
-				"scale", "drop", "browse right", "browse",
+				"none", "scale", "drop", "browse right", "browse",
 				"slide left", "slide right", "slide up", "slide down",
 				"fade left", "fade right", "fade up", "fade down",
 				"fly left", "fly right", "fly up", "fly down",

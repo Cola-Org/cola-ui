@@ -35,7 +35,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			refreshDom: true
 			setter: (value)-> @_setValue(value)
 
-	@_modelValue: false
+	_modelValue: false
 
 	post: ()->
 		if @_bindInfo?.writeable

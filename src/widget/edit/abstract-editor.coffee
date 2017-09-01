@@ -90,7 +90,7 @@ class cola.AbstractEditor extends cola.Widget
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
 			if @refreshValue()
-				cola.util.delay(@, "refreshDom", 50, @_refreshDom)
+				cola.util.delay(@, "refreshDom", 0, @_refreshDom)
 		return
 
 	refreshValue: () ->
