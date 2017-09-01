@@ -419,7 +419,7 @@ cola.defineWidget = (type, definition) ->
 
     tagNames = type.tagName?.toUpperCase()
     if tagNames
-        for tagName in tagNames.split(/\s|,|;/)
+        for tagName in tagNames.split(/[\s,;]/)
             if tagName and type.parentWidget
                 childTagNames = type.parentWidget.childTagNames
                 if not childTagNames

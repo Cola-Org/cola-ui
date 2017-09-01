@@ -6,7 +6,7 @@ class cola.Select extends cola.AbstractInput
 		options:
 			setter: (options) ->
 				if typeof options is "string"
-					options = options.split(/[\,,\;]/)
+					options = options.split(/[,;]/)
 					for item, i in options
 						index = item.indexOf("=")
 						if index >= 0

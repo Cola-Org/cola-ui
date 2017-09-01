@@ -6,7 +6,7 @@ class cola.SelectButton extends cola.AbstractEditor
 			expressionType: "repeat"
 			setter: (items) ->
 				if typeof items is "string"
-					items = items.split(/[\,,\;]/)
+					items = items.split(/[,;]/)
 					for item, i in items
 						index = item.indexOf("=")
 						if index >= 0
