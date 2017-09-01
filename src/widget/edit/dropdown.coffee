@@ -46,6 +46,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		valueProperty: null
 		textProperty: null
 
+		editable:
+			type: "boolean"
+			defaultValue: true
+
 		openOnActive:
 			type: "boolean"
 			defaultValue: true
@@ -190,7 +194,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return cola.device.mobile
+		return cola.device.mobile or not @_editable
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
