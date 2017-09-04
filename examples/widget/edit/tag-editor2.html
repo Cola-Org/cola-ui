@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+</head>
+<body style="padding:20px;">
+<c-input bind="selectedItems"></c-input>
+<c-multi-select bind="selectedItems" items="items" keyDown="keyDown" input="inputFire" width="240px"></c-multi-select>
+<script type="text/javascript">
+    cola(function (model) {
+        model.set("selectedItems", "1,2");
+        model.set("items", [
+            {key: "1", value:"发热"},
+            {key: "2", value: "头疼"},
+            {key: "3", value: "偏头疼"},
+            {key: "4", value: "咳嗽"},
+            {key: "5", value: "关节疼痛"},
+            {key: "6", value: "盗汗"}
+        ]);
+    });
+</script>
+</body>
+</html>

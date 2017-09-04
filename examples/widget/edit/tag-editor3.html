@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+</head>
+<body style="padding:20px;">
+<c-multiselect id="dropdown5"></c-multiselect>
+<c-input bind="selectedItems"></c-input>
+<script type="text/javascript">
+    cola(function (model) {
+        model.set("selectedItems", "1,2");
+        model.set("items", [
+            {key: "1", value: "发热"},
+            {key: "2", value: "头疼"},
+            {key: "3", value: "偏头疼"},
+            {key: "4", value: "咳嗽"},
+            {key: "5", value: "关节疼痛"},
+            {key: "6", value: "盗汗"}
+        ]);
+        model.widgetConfig({
+            dropdown5: {
+                openMode: "drop",
+                valueProperty: "key",
+                bind: "selectedItems",
+                openOnActive: true,
+                dropdownWidth:200,
+                content: {
+                    $type: "table",
+                    bind: "language in items",
+                    columns: [{bind: ".value"}],
+                    itemClick: function (self, arg) {
+                        var dropdown = cola.findDropDown(self);
+                        if (dropdown) dropdown.close(arg.item.get("key"));
+                    }
+                },
+                renderItem: function (self, arg) {
+                }
+            }
+        });
+
+
+    });
+</script>
+</body>
+</html>

@@ -281,12 +281,12 @@ class cola.Pager extends cola.Menu
 		pageSize = 0
 		if data
 			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
-			totalEntityCount = data.totalEntityCount
+			totalEntityCount = data.totalEntityCount || 0
 			hasPrev = data.pageNo > 1
 			hasNext = pageCount > data.pageNo
-			pageNo = data.pageNo
-			pageCount = data.pageCount
-			pageSize = data.pageSize
+			pageNo = data.pageNo || 0
+			pageCount = data.pageCount || 0
+			pageSize = data.pageSize || 0
 
 		@_pageNo = pageNo
 		pager._pagerItemMap["firstPage"]?.get$Dom().toggleClass("disabled", !hasPrev)

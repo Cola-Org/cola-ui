@@ -115,6 +115,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@events:
 		change: null
+		itemChange:null
 	@attributes:
 		width:
 			defaultValue: "42px"
@@ -143,9 +144,11 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox = new cola.Checkbox(
 				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
-				change: () =>
+				change: (self,arg) =>
 					if !@_ignoreCheckedChange
 						@refreshHeaderCheckbox()
+					arg.item=item;
+					@fire("itemChange",this,arg);
 					return
 			)
 			checkbox.appendTo(dom)

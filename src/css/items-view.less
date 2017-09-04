@@ -6,13 +6,13 @@
 @itemsViewItemBorderRadius: 0;
 @itemsViewTransition: @defaultDuration color @defaultEasing, @defaultDuration background-color @defaultEasing;
 
-@itemsViewCurrentBackground: fade(@teal, 20%);
+@itemsViewCurrentBackground: fade(@primaryColor, 20%);
 @itemsViewCurrentColor: @darkTextColor;
-@itemsViewHoverBackground: fade(@teal, 10%);
+@itemsViewHoverBackground: fade(@primaryColor, 10%);
 
 @itemsViewInvertedBackground: lighten(@black, 12%);
 @itemsViewInvertedTextColor: @invertedTextColor;
-@itemsViewInvertedCurrentBackground: @blue;
+@itemsViewInvertedCurrentBackground: @primaryColor;
 @itemsViewInvertedHoverBackground: fade(@itemsViewInvertedCurrentBackground, 20%);
 
 .ui.items-view {
@@ -48,16 +48,16 @@
 		height: 5em;
 		.transition-duration(0.8s);
 		.transition-property(background);
-		background: @grey;
+		background: @primaryColor;
 		color: @invertedTextColor;
 		font-weight: bold;
 		text-align: center;
 
 		&.reached {
-			background: darken(@grey, 18%);
+			background: darken(@primaryColor, 18%);
 		}
 		&.executing {
-			background: @teal;
+			background: @primaryColor;
 		}
 	}
 }

@@ -15,6 +15,7 @@
 	}
 }
 
+
 @keyframes breath {
 	.breathKeyframes()
 }
@@ -65,7 +66,7 @@
 				z-index: 1;
 				opacity: 0.5;
 				font-size: 1em;
-				color: @secondaryColor;
+				color: @headerFontColor;
 				line-height: 2rem;
 			}
 			.close-btn:hover {
@@ -74,9 +75,10 @@
 			> .header {
 				background: #ffffff;
 				margin: 0em;
+				box-sizing: border-box;
 				padding: 1rem 1.25rem;
 				box-shadow: none;
-				color: @secondaryColor;
+				color: @headerFontColor;
 				border-bottom: 1px solid rgba(34, 36, 38, 0.15);
 				&:not(.ui) {
 					font-size: 1.42857143rem;
@@ -107,9 +109,11 @@
 			}
 			> .content {
 				width: 100%;
+
 				font-size: 1em;
 				line-height: 1.4;
 				padding: 1.5rem;
+				box-sizing: border-box;
 				background: #ffffff;
 				> .image {
 					min-width: 4em;
@@ -133,6 +137,7 @@
 				}
 			}
 			.actions {
+				box-sizing: border-box;
 				background: #f9fafb;
 				padding: 0.75rem 1rem;
 				width: 100%;
@@ -224,17 +229,17 @@
 			}
 			&.info {
 				.header > .close-btn, &::before {
-					background-color: @blue;
+					background-color: @infoColor;
 				}
 			}
 			&.warning {
 				.header > .close-btn, &::before {
-					background-color: @yellow;
+					background-color: @warningColor;
 				}
 			}
 			&.error {
 				.header > .close-btn, &::before {
-					background-color: @red;
+					background-color: @errorColor;
 				}
 			}
 		}
@@ -273,30 +278,30 @@
 				width: 100%;
 			}
 			&.info {
-				color: @blue;
+				color: @infoColor;
 				.header::after {
-					background-color: @blue;
+					background-color: @infoColor;
 				}
 				&::before {
-					background-color: @blue;
+					background-color: @infoColor;
 				}
 			}
 			&.warning {
-				color: @yellow;
+				color: @warningColor;
 				.header::after {
-					background-color: @yellow;
+					background-color: @warningColor;
 				}
 				&::before {
-					background-color: @yellow;
+					background-color: @warningColor;
 				}
 			}
 			&.error {
-				color: @red;
+				color: @errorColor;
 				.header::after {
-					background-color: @red;
+					background-color: @errorColor;
 				}
 				&::before {
-					background-color: @red;
+					background-color: @errorColor;
 				}
 			}
 		}
@@ -329,19 +334,19 @@
 
 			&.info {
 				.header {
-					background-color: @blue;
+					background-color: @infoColor;
 				}
 			}
 
 			&.warning {
 				.header {
-					background-color: @yellow;
+					background-color: @warningColor;
 				}
 			}
 
 			&.error {
 				.header {
-					background-color: @red;
+					background-color: @errorColor;
 				}
 			}
 		}
@@ -375,19 +380,19 @@
 
 			&.info {
 				.header {
-					background-color: @blue;
+					background-color: @infoColor;
 				}
 			}
 
 			&.warning {
 				.header {
-					background-color: @yellow;
+					background-color: @warningColor;
 				}
 			}
 
 			&.error {
 				.header {
-					background-color: @red;
+					background-color: @errorColor;
 				}
 			}
 		}

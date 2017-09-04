@@ -65,45 +65,7 @@ template {
 	}
 }
 
-.colored(background, @red, red, background-color);
-.colored(background, @orange, orange, background-color);
-.colored(background, @yellow, yellow, background-color);
-.colored(background, @olive, olive, background-color);
-.colored(background, @green, green, background-color);
-.colored(background, @teal, teal, background-color);
-.colored(background, @blue, blue, background-color);
-.colored(background, @violet, violet, background-color);
-.colored(background, @purple, purple, background-color);
-.colored(background, @pink, pink, background-color);
-.colored(background, @brown, brown, background-color);
-.colored(background, @grey, grey, background-color);
-.colored(background, @black, black, background-color);
-.colored(text, @red, red, color);
-.colored(text, @orange, orange, color);
-.colored(text, @yellow, yellow, color);
-.colored(text, @olive, olive, color);
-.colored(text, @green, green, color);
-.colored(text, @teal, teal, color);
-.colored(text, @blue, blue, color);
-.colored(text, @violet, violet, color);
-.colored(text, @purple, purple, color);
-.colored(text, @pink, pink, color);
-.colored(text, @brown, brown, color);
-.colored(text, @grey, grey, color);
-.colored(text, @black, black, color);
-.colored(border, @red, red, border-color);
-.colored(border, @orange, orange, border-color);
-.colored(border, @yellow, yellow, border-color);
-.colored(border, @olive, olive, border-color);
-.colored(border, @green, green, border-color);
-.colored(border, @teal, teal, border-color);
-.colored(border, @blue, blue, border-color);
-.colored(border, @violet, violet, border-color);
-.colored(border, @purple, purple, border-color);
-.colored(border, @pink, pink, border-color);
-.colored(border, @brown, brown, border-color);
-.colored(border, @grey, grey, border-color);
-.colored(border, @black, black, border-color);
+
 
 .ui.fragment {
 	position: relative;
@@ -135,18 +97,7 @@ template {
 	&.crowd {
 		padding: 0em;
 	}
-	.mixin_fragment(red, @red);
-	.mixin_fragment(orange, @orange);
-	.mixin_fragment(yellow, @yellow);
-	.mixin_fragment(olive, @olive);
-	.mixin_fragment(green, @green);
-	.mixin_fragment(teal, @teal);
-	.mixin_fragment(blue, @blue);
-	.mixin_fragment(violet, @violet);
-	.mixin_fragment(purple, @purple);
-	.mixin_fragment(pink, @pink);
-	.mixin_fragment(brown, @brown);
-	.mixin_fragment(grey, @grey);
+
 }
 
 .ui.city-selector {
@@ -154,7 +105,7 @@ template {
 	height: 280px;
 	display: inline-block;
 	overflow: hidden;
-	border: 1px solid @blue;
+	border: 1px solid @primaryColor;
 	.content {
 		.province, .cities, .hot {
 			display: none;
@@ -163,7 +114,7 @@ template {
 				cursor: pointer;
 				display: inline-block;
 				&:hover {
-					color: @blue;
+					color: @primaryColor;
 				}
 			}
 			&.active {
@@ -183,11 +134,11 @@ template {
 			width: 33.33%;
 			cursor: pointer;
 			&.active, &:active {
-				background-color: @blue;
+				background-color: @primaryColor;
 				color: #fff;
 			}
 			&:hover {
-				background-color: fadeout(@blue, 20%);
+				background-color: fadeout(@primaryColor, 20%);
 				color: #fff;
 			}
 		}
