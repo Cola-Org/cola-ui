@@ -114,7 +114,7 @@ cola.defineWidget({
 			@fire("removeItem", @, {
 				item: item
 			})
-			
+
 	open: ()->
 		@_showDropBox()
 

@@ -13,6 +13,7 @@
 		display: block;
 		float: left;
 		height: auto;
+		box-sizing: border-box;
 	}
 }
 
@@ -90,6 +91,8 @@
 		-ms-flex-align: center;
 		align-items: center;
 
+		box-sizing: border-box;
+
 		> label {
 			padding-right: 1em;
 			width: 6em;
@@ -132,11 +135,14 @@
 
 	> fields > field {
 		width: 100%;
+		box-sizing: border-box;
 	}
 	> fields {
 		.base-fields();
+
 	}
 	> field {
+		box-sizing: border-box;
 		width: 100%;
 		padding: 0 (@fields-default-spacing/2) @fields-default-spacing;
 	}
@@ -150,6 +156,7 @@
 
 .small-form-field() {
 	> field {
+		box-sizing: border-box;
 		> label {
 			display: block;
 		}

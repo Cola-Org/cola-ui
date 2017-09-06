@@ -28,6 +28,15 @@
                 },
                 addData: function () {
                     model.get("items").insert({image: "../../images/avatar/large/ade.jpg"})
+                },
+                play: function () {
+                    cola.widget("carousel1").play();
+                }
+            });
+
+            model.widgetConfig({
+                carousel1: {
+                    pause: 1000
                 }
             });
         });
@@ -37,6 +46,7 @@
 <c-button caption="setData" click="setData"></c-button>
 <c-button caption="clearData" click="clearData"></c-button>
 <c-button caption="addData" click="addData"></c-button>
+<c-button caption="play" click="play"></c-button>
 <c-carousel id="carousel1" bind="item in items" height="400">
     <template>
         <a href="#" style="display:block" c-class="item.color+'-background'" c-bind="item.content"></a>

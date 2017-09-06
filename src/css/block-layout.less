@@ -43,7 +43,7 @@
 		}
 		.mixin-loop(1);
 	}
-	.block-layout {
+	.block-layout,.blocks {
 		display: block;
 		width: 100%;
 		.mixin-loop (@i) when (@i<=@block-layout-elements) {
@@ -56,7 +56,7 @@
 	}
 }
 
-.block-layout {
+.block-layout,.blocks {
 	.base-block-layout();
 }
 

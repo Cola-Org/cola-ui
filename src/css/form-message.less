@@ -33,7 +33,7 @@ background @defaultDuration @defaultEasing,
 box-shadow @defaultDuration @defaultEasing;
 
 /* Header */
-@headerFontSize: @relativeLarge;
+@headerFontSize: 1em;
 @headerFontWeight: bold;
 @headerDisplay: block;
 @headerDistance: 0rem;
@@ -213,7 +213,6 @@ message, messages {
 	}
 }
 
-
 /*******************************
             States
 *******************************/
@@ -368,35 +367,8 @@ message, messages {
 ---------------*/
 
 message, messages {
-	font-size: @relativeMedium;
+	font-size: 1em;
 
-	&.mini {
-		font-size: @relativeMini;
-	}
-
-	&.tiny {
-		font-size: @relativeTiny;
-	}
-
-	&.small {
-		font-size: @relativeSmall;
-	}
-
-	&.large {
-		font-size: @relativeLarge;
-	}
-
-	&.big {
-		font-size: @relativeBig;
-	}
-
-	&.huge {
-		font-size: @relativeHuge;
-	}
-
-	&.massive {
-		font-size: @relativeMassive;
-	}
 }
 
 messages {
@@ -508,50 +480,7 @@ messages {
 	opacity: 1;
 }
 
-/*--------------
-    Loading
----------------*/
 
-.loading.form {
-	position: relative;
-	cursor: default;
-	point-events: none;
-}
-
-.loading.form:before {
-	position: absolute;
-	content: '';
-	top: 0%;
-	left: 0%;
-	background: @loaderDimmerColor;
-	width: 100%;
-	height: 100%;
-	z-index: @loaderDimmerZIndex;
-}
-
-.loading.form:after {
-	position: absolute;
-	content: '';
-	top: 50%;
-	left: 50%;
-
-	margin: @loaderMargin;
-	width: @loaderSize;
-	height: @loaderSize;
-
-	animation: form-spin @loaderSpeed linear;
-	animation-iteration-count: infinite;
-
-	border-radius: @circularRadius;
-
-	border-color: @loaderLineColor @loaderFillColor @loaderFillColor @loaderFillColor;
-	border-style: solid;
-	border-width: @loaderLineWidth;
-
-	box-shadow: 0px 0px 0px 1px transparent;
-	visibility: visible;
-	z-index: @loaderLineZIndex;
-}
 
 @keyframes form-spin {
 	from {

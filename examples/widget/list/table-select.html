@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="utf-8"/>
+    <script src="../../include-all.js"></script>
+</head>
+
+<body style="padding:0px;margin:8px;" class="v-box">
+<c-table bind="items">
+    <select-column change="headerChange" bind="" itemChange="itemChange"></select-column>
+    <column property="rate">
+        <template>
+            <div c-bind="formatNumber($default,'###.00')"></div>
+        </template>
+    </column>
+</c-table>
+<script type="text/javascript">
+    cola(function (model) {
+        model.dataType("");
+        model.set("items", [{
+            rate: 99898
+        }, {
+            rate: 999
+        }, {
+            rate: 878
+        }]);
+
+        model.action({
+            headerChange: function (self, arg) {
+                debugger;
+            },
+            itemChange: function (self, arg) {
+                debugger;
+            }
+        });
+    });
+
+
+</script>
+</body>
+
+</body>
+</html>

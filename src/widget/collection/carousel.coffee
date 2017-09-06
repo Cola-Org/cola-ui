@@ -15,6 +15,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		controls:
 			defaultValue: true
 		pause:
+
 			defaultValue: 3000
 
 	@events:
