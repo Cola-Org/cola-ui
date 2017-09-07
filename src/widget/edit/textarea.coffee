@@ -118,11 +118,11 @@ class cola.Textarea extends cola.AbstractEditor
         unit = cola.constants.WIDGET_DIMENSION_UNIT
 
         height = @get("height")
-        height = "#{parseInt(height)}#{unit}" if isFinite(height)
+        height = "#{+height}#{unit}" if isFinite(height)
         $fly(@_doms.input).css("height", height) if height
 
         width = @get("width")
-        width = "#{parseInt(width)}#{unit}" if isFinite(width)
+        width = "#{+width}#{unit}" if isFinite(width)
         $dom.css("width", width) if width
 
         return

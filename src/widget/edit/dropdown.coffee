@@ -439,6 +439,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
 			@set("value", value)
+			@fire("change", @);
+
 		@_skipFindCurrentItem = false
 		@refresh()
 		return

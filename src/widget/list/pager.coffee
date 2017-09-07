@@ -21,7 +21,7 @@ class cola.Pager extends cola.Menu
 		#暂使用此方法获得总页数
 		_getPageCount = ()->
 			data = pager._getBindItems()
-			return parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			return Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 		@_pagerItemConfig =
 			firstPage:
 				icon: "angle double left"
@@ -49,7 +49,7 @@ class cola.Pager extends cola.Menu
 					value = $(this).find("input").val()
 					collection = pager._getBindItems()
 					if collection
-						if value then value = parseInt(value)
+						if value then value = +value
 						if value is collection.pageSize then return
 
 						if collection instanceof cola.EntityList
@@ -78,7 +78,7 @@ class cola.Pager extends cola.Menu
 				change: ()->
 					$input = $(this).find("input");
 					value = $input.val()
-					if value then value = parseInt(value)
+					if value then value = +value
 					if value is @_targetPageNo then return
 					data = pager._getBindItems()
 					if data
@@ -280,7 +280,7 @@ class cola.Pager extends cola.Menu
 		totalEntityCount = 0
 		pageSize = 0
 		if data
-			pageCount = parseInt((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			pageCount = Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			totalEntityCount = data.totalEntityCount || 0
 			hasPrev = data.pageNo > 1
 			hasNext = pageCount > data.pageNo

@@ -63,7 +63,7 @@ if XDate
 					part = parts[pattern]
 					if part.len
 						digit = dateStr.substring(start, start + part.len)
-						part.value = parseInt(digit, 10)
+						part.value = +digit
 						start += part.len
 		else
 			digits = dateStr.split(/\D+/)
@@ -72,7 +72,7 @@ if XDate
 			if patterns.length == digits.length
 				shouldReturn = true
 				for pattern, i in patterns
-					parts[pattern].value = parseInt(digits[i], 10)
+					parts[pattern].value = +digits[i]
 
 		if shouldReturn
 			return new XDate(parts.y.value, parts.M.value - 1, parts.d.value, parts.h.value, parts.m.value, parts.s.value)

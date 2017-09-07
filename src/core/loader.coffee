@@ -235,7 +235,7 @@ _loadCss = (context, url, callback) ->
 			cola.callback(callback, true)
 		return true
 	else
-		refNum = parseInt(linkElement.getAttribute("_refNum")) or 1
+		refNum = +linkElement.getAttribute("_refNum") or 1
 		linkElement.setAttribute("_refNum", (refNum + 1) + "")
 		cola.callback(callback, true)
 		return false
@@ -243,7 +243,7 @@ _loadCss = (context, url, callback) ->
 _unloadCss = (url) ->
 	linkElement = _cssCache[url]
 	if linkElement
-		refNum = parseInt(linkElement.getAttribute("_refNum")) or 1
+		refNum = +linkElement.getAttribute("_refNum") or 1
 		if refNum > 1
 			linkElement.setAttribute("_refNum", (refNum - 1) + "")
 		else

@@ -38,8 +38,8 @@ cola.defaultAction.get = (path) -> @get(path)
 
 cola.defaultAction["default"] = (value, defaultValue = "") -> value or defaultValue
 
-cola.defaultAction["int"] = (value) -> parseInt(value, 10) or 0
-cola.defaultAction["float"] = (value) -> parseFloat(value) or 0
+cola.defaultAction["int"] = (value) -> +value or 0
+cola.defaultAction["float"] = (value) -> +value or 0
 
 cola.defaultAction["is"] = (value) -> !!value
 cola.defaultAction["bool"] = cola.defaultAction.is

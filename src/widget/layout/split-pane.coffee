@@ -76,7 +76,7 @@ class cola.SplitPane extends cola.Widget
 
 		splitPane = this
 
-		minSize = (element, name)-> parseInt($(element).css('min-' + name), 10) || 0
+		minSize = (element, name)-> +$(element).css('min-' + name) || 0
 		minWidth = (element)-> minSize(element, "width")
 		minHeight = (element)-> minSize(element, "height")
 

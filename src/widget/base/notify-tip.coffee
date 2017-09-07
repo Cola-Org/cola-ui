@@ -59,7 +59,7 @@ class cola.NotifyTip extends cola.Layer
 			if @_showDuration
 				setTimeout(()->
 					notifyTip.hide()
-				, parseInt(@_showDuration))
+				, +@_showDuration)
 		else
 			options.animation = "scale"
 		super(options, callback)

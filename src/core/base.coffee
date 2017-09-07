@@ -28,24 +28,24 @@ if window?
 
 		if (s = ua.match(/webkit\/([\d.]+)/))
 			cola.browser.webkit = s[1] or -1
-			if (s = ua.match(/chrome\/([\d.]+)/)) then cola.browser.chrome = parseFloat(s[1]) or -1
-			else if (s = ua.match(/version\/([\d.]+).*safari/)) then cola.browser.safari = parseFloat(s[1]) or -1
-			if (s = ua.match(/qqbrowser\/([\d.]+)/)) then cola.browser.qqbrowser = parseFloat(s[1]) or -1
-		else if (s = ua.match(/msie ([\d.]+)/)) then cola.browser.ie = parseFloat(s[1]) or -1
+			if (s = ua.match(/chrome\/([\d.]+)/)) then cola.browser.chrome = +s[1] or -1
+			else if (s = ua.match(/version\/([\d.]+).*safari/)) then cola.browser.safari = +s[1] or -1
+			if (s = ua.match(/qqbrowser\/([\d.]+)/)) then cola.browser.qqbrowser = +s[1] or -1
+		else if (s = ua.match(/msie ([\d.]+)/)) then cola.browser.ie = +s[1] or -1
 		else if (s = ua.match(/trident/)) then cola.browser.ie = 11
-		else if (s = ua.match(/firefox\/([\d.]+)/)) then cola.browser.mozilla = parseFloat(s[1]) or -1
-		else if (s = ua.match(/opera.([\d.]+)/)) then cola.browser.opera = parseFloat(s[1]) or -1
+		else if (s = ua.match(/firefox\/([\d.]+)/)) then cola.browser.mozilla = +s[1] or -1
+		else if (s = ua.match(/opera.([\d.]+)/)) then cola.browser.opera = +s[1] or -1
 
 		if (s = ua.match(/(iphone|ipad).*os\s([\d_]+)/))
-			cola.os.ios = parseFloat(s[2]) or -1
+			cola.os.ios = +s[2] or -1
 			cola.device.pad = s[1] == "ipad"
 			cola.device.phone = !cola.device.pad
 		else
 			if (s = ua.match(/(android)\s+([\d.]+)/))
-				cola.os.android = parseFloat(s[1]) or -1
-			else if (s = ua.match(/(windows)[\D]*([\d]+)/)) then cola.os.windows = parseFloat(s[1]) or -1
+				cola.os.android = +s[1] or -1
+			else if (s = ua.match(/(windows)[\D]*([\d]+)/)) then cola.os.windows = +s[1] or -1
 
-		if (s = ua.match(/micromessenger\/([\d.]+)/)) then cola.browser.weixin = parseFloat(s[1]) or -1
+		if (s = ua.match(/micromessenger\/([\d.]+)/)) then cola.browser.weixin = +s[1] or -1
 
 		cola.device.mobile = !!(`("ontouchstart" in window)` and ua.match(/(mobile)/))
 		cola.device.desktop = !cola.device.mobile
@@ -166,7 +166,7 @@ setting = {
 	defaultCharset: "utf-8"
 	defaultNumberFormat: "#,##0.##"
 	defaultDateFormat: "yyyy-MM-dd"
-	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss'T'"
+	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss"
 }
 
 cola.setting = (key, value) ->

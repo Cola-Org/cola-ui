@@ -34,9 +34,9 @@ class cola.NumberDataType extends cola.BaseDataType
 				return text
 
 		if @_isInteger
-			n = Math.round(parseInt(text, 10))
+			n = Math.round(+text)
 		else
-			n = parseFloat(text, 10)
+			n = +text
 		return if isNaN(n) then 0 else n
 
 class cola.BooleanDataType extends cola.BaseDataType

@@ -300,7 +300,7 @@ class cola.DateGrid extends cola.RenderableElement
 		month = ym.month + 1
 		d = cellState.text
 		if month < 10 then month = "0#{month}"
-		if parseInt(d) < 10 then d = "0#{d}"
+		if +d < 10 then d = "0#{d}"
 		$fly(cell).attr("cell-date", "#{ym.year}-#{month}-#{d}")
 
 
@@ -671,8 +671,8 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		date = new Date()
 		if @_value
 			values = @_value.split("-")
-			@_year = parseInt(values[0])
-			@_month = parseInt(values[1])
+			@_year = +values[0]
+			@_month = +values[1]
 		else
 			@_year ?= date.getFullYear()
 			@_month ?= date.getMonth() + 1
@@ -696,7 +696,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 	selectCell: (cell)->
 		month = $(cell).attr("month")
 		year = @_year
-		if parseInt(month) < 10
+		if +month < 10
 			month = "0#{month}"
 
 		@set("value", "#{year}-#{month}")
@@ -713,8 +713,8 @@ class cola.YearMonthGrid extends cola.RenderableElement
 
 	refreshGrid: ()->
 		values = @_value.split("-")
-		year = parseInt(values[0])
-		month = parseInt(values[1])
+		year = +values[0]
+		month = +values[1]
 		$dom = $(@_dom)
 		$dom.find(".selected").removeClass("selected")
 		if @_year == year
@@ -891,7 +891,7 @@ class cola.TimeEditor extends cola.Widget
 		}, @_doms)
 
 		doPost = (input)=>
-			@["_#{input.className}"] = parseInt($(input).val() || "00")
+			@["_#{input.className}"] = +$(input).val() or 0
 			@fire("change", @, {
 				hour: @_hour, minute: @_minute, second: @_second
 			})
@@ -902,7 +902,7 @@ class cola.TimeEditor extends cola.Widget
 				return
 
 			if event.keyCode != 8 and val
-				intVal = parseInt(this.value)
+				intVal = +this.value
 				if event.keyCode == 38
 					intVal++
 				else if event.keyCode == 40

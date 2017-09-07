@@ -89,7 +89,7 @@ class cola.Sidebar extends cola.AbstractLayer
 	_setSize: ()->
 		unit = cola.constants.WIDGET_DIMENSION_UNIT
 		size = @get("size")
-		size = "#{parseInt(size)}#{unit}" if isFinite(size)
+		size = "#{+size}#{unit}" if isFinite(size)
 
 		direction = @_direction or "left"
 		style = if direction is "left" or direction is "right" then "width" else "height"

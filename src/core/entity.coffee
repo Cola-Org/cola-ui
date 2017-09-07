@@ -1084,7 +1084,7 @@ class Page extends LinkedList
 
 			if entityList.totalEntityCount?
 				if entityList.pageSize
-					entityList.pageCount = parseInt((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+					entityList.pageCount = Math.trunc((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
 				entityList.pageCountDetermined = true
 
 			entityList.entityCount += json.length

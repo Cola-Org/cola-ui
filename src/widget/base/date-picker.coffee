@@ -504,7 +504,7 @@ class cola.MultiSlotPicker extends cola.AbstractSlotList
             minValue = range[0]
             maxValue = range[1]
 
-            value = parseInt(value, 10)
+            value = +value
 
             value = config.defaultValue || 0 if isNaN(value)
             if maxValue != null && value > maxValue
@@ -586,7 +586,7 @@ class cola.MultiSlotPicker extends cola.AbstractSlotList
         i = 0
         while i < columnCount
             flex = flexes[i]
-            totalFlex += parseInt(flex, 10) || 90
+            totalFlex += +flex || 90
             i++
 
         unitWidth = viewWidth / totalFlex

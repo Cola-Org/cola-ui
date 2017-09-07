@@ -137,7 +137,7 @@ class cola.Tab extends cola.Widget
 			if controlButtons.length < 1 then @_makeControlBtn()
 			if horizontal
 				oldPosition = tabsWrap.css("left")
-				oldPosition = parseInt(oldPosition.replace("px", ""))
+				oldPosition = +oldPosition.replace("px", "")
 				if oldPosition == 0
 					tabsWrap.css("left", tabBar.find(">.next-button").width() + "px");
 				left = $dom.find(">nav").offset().left
@@ -146,7 +146,7 @@ class cola.Tab extends cola.Widget
 				tabBar.find(">.pre-button").toggleClass("disabled", firstLeft > left)
 			else
 				oldPosition = tabsWrap.css("top")
-				oldPosition = parseInt(oldPosition.replace("px", ""))
+				oldPosition = +oldPosition.replace("px", "")
 				tabsWrap.css("left", "0px");
 				if oldPosition == 0
 					tabsWrap.css("top", tabBar.find(">.next-button").height() + "px");
@@ -170,7 +170,7 @@ class cola.Tab extends cola.Widget
 
 		tabsWrap = $dom.find(">nav>tabs")
 		oldPosition = tabsWrap.css(style)
-		oldPosition = parseInt(oldPosition.replace("px", ""))
+		oldPosition = +oldPosition.replace("px", "")
 		if next
 			size = -1 * size
 
