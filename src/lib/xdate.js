@@ -1,19 +1,839 @@
+/**
+ * @preserve XDate v0.8.2
+ * Docs & Licensing: http://arshaw.com/xdate/
+ */
+
 /*
- XDate v0.8.2
- Docs & Licensing: http://arshaw.com/xdate/
-*/
-var XDate=function(g,q,E,t){function h(){var a=this instanceof h?this:new h,c=arguments,b=c.length;if("boolean"==typeof c[b-1]){var d=c[--b];c=u(c,0,b)}if(b)if(1==b)if(b=c[0],b instanceof g)a[0]=new g(b.getTime());else if("number"==typeof b)a[0]=new g(b);else if(b instanceof h){var c=a,f=new g(b[0].getTime());n(b)&&(f.toString=z);c[0]=f}else{if("string"==typeof b){a[0]=new g(0);a:{for(var c=b,b=d||!1,f=h.parsers,A=0,e;A<f.length;A++)if(e=f[A](c,b,a)){a=e;break a}a[0]=new g(c)}}}else a[0]=new g(p.apply(g,
-c)),d||(a[0]=v(a[0]));else a[0]=new g;"boolean"==typeof d&&F(a,d);return a}function n(a){return a[0].toString===z}function F(a,c,b){c?n(a)||(b&&(c=a[0],c=new g(p(c.getFullYear(),c.getMonth(),c.getDate(),c.getHours(),c.getMinutes(),c.getSeconds(),c.getMilliseconds())),a[0]=c),a[0].toString=z):n(a)&&(a[0]=b?v(a[0]):new g(a[0].getTime()));return a}function G(a,c,b,d,f){var e=l(k,a[0],f);a=l(H,a[0],f);f=!1;2==d.length&&"boolean"==typeof d[1]&&(f=d[1],d=[b]);b=1==c?(b%12+12)%12:e(1);a(c,d);f&&e(1)!=b&&
-(a(1,[e(1)-1]),a(2,[I(e(0),e(1))]))}function J(a,c,b,d){b=Number(b);var f=q.floor(b);a["set"+r[c]](a["get"+r[c]]()+f,d||!1);f!=b&&6>c&&J(a,c+1,(b-f)*K[c],d)}function L(a,c,b){a=a.clone().setUTCMode(!0,!0);c=h(c).setUTCMode(!0,!0);var d=0;if(0==b||1==b){for(var f=6;f>=b;f--)d/=K[f],d+=k(c,!1,f)-k(a,!1,f);1==b&&(d+=12*(c.getFullYear()-a.getFullYear()))}else 2==b?(b=a.toDate().setUTCHours(0,0,0,0),d=c.toDate().setUTCHours(0,0,0,0),d=q.round((d-b)/864E5)+(c-d-(a-b))/864E5):d=(c-a)/[36E5,6E4,1E3,1][b-
-3];return d}function w(a){var c=a(0),b=a(1),d=a(2);a=new g(p(c,b,d));c=x(M(c,b,d));return q.floor(q.round((a-c)/864E5)/7)+1}function M(a,c,b){c=new g(p(a,c,b));return c<x(a)?a-1:c>=x(a+1)?a+1:a}function x(a){a=new g(p(a,0,4));a.setUTCDate(a.getUTCDate()-(a.getUTCDay()+6)%7);return a}function N(a,c,b,d){var f=l(k,a,d),e=l(H,a,d);b===t&&(b=M(f(0),f(1),f(2)));b=x(b);d||(b=v(b));a.setTime(b.getTime());e(2,[f(2)+7*(c-1)])}function O(a,c,b,d,f){var e=h.locales,g=e[h.defaultLocale]||{},P=l(k,a,f);b=("string"==
-typeof b?e[b]:b)||{};return B(a,c,function(a){if(d)for(var b=(7==a?2:a)-1;0<=b;b--)d.push(P(b));return P(a)},function(a){return b[a]||g[a]},f)}function B(a,c,b,d,e){for(var f,h,g="";f=c.match(S);){g+=c.substr(0,f.index);if(f[1]){h=g;for(var m=a,k=f[1],n=b,p=d,q=e,l=k.length,r="";0<l;)g=T(m,k.substr(0,l),n,p,q),g!==t?(r+=g,k=k.substr(l),l=k.length):l--;g=h+(r+k)}else f[3]?(h=B(a,f[4],b,d,e),parseInt(h.replace(/\D/g,""),10)&&(g+=h)):g+=f[7]||"'";c=c.substr(f.index+f[0].length)}return g+c}function T(a,
-c,b,d,f){var e=h.formatters[c];if("string"==typeof e)return B(a,e,b,d,f);if("function"==typeof e)return e(a,f||!1,d);switch(c){case "fff":return m(b(6),3);case "s":return b(5);case "ss":return m(b(5));case "m":return b(4);case "mm":return m(b(4));case "h":return b(3)%12||12;case "hh":return m(b(3)%12||12);case "H":return b(3);case "HH":return m(b(3));case "d":return b(2);case "dd":return m(b(2));case "ddd":return d("dayNamesShort")[b(7)]||"";case "dddd":return d("dayNames")[b(7)]||"";case "M":return b(1)+
-1;case "MM":return m(b(1)+1);case "MMM":return d("monthNamesShort")[b(1)]||"";case "MMMM":return d("monthNames")[b(1)]||"";case "yy":return(b(0)+"").substring(2);case "yyyy":return b(0);case "t":return y(b,d).substr(0,1).toLowerCase();case "tt":return y(b,d).toLowerCase();case "T":return y(b,d).substr(0,1);case "TT":return y(b,d);case "z":case "zz":case "zzz":return f?c="Z":(d=a.getTimezoneOffset(),a=0>d?"+":"-",b=q.floor(q.abs(d)/60),d=q.abs(d)%60,f=b,"zz"==c?f=m(b):"zzz"==c&&(f=m(b)+":"+m(d)),c=
-a+f),c;case "w":return w(b);case "ww":return m(w(b));case "S":return c=b(2),10<c&&20>c?"th":["st","nd","rd"][c%10-1]||"th"}}function y(a,c){return 12>a(3)?c("amDesignator"):c("pmDesignator")}function C(a){return!isNaN(a[0].getTime())}function k(a,c,b){return a["get"+(c?"UTC":"")+r[b]]()}function H(a,c,b,d){a["set"+(c?"UTC":"")+r[b]].apply(a,d)}function v(a){return new g(a.getUTCFullYear(),a.getUTCMonth(),a.getUTCDate(),a.getUTCHours(),a.getUTCMinutes(),a.getUTCSeconds(),a.getUTCMilliseconds())}function I(a,
-c){return 32-(new g(p(a,c,32))).getUTCDate()}function D(a){return function(){return a.apply(t,[this].concat(u(arguments)))}}function l(a){var c=u(arguments,1);return function(){return a.apply(t,c.concat(u(arguments)))}}function u(a,c,b){return E.prototype.slice.call(a,c||0,b===t?a.length:b)}function Q(a,c){for(var b=0;b<a.length;b++)c(a[b],b)}function m(a,c){c=c||2;for(a+="";a.length<c;)a="0"+a;return a}var r="FullYear Month Date Hours Minutes Seconds Milliseconds Day Year".split(" "),R=["Years",
-"Months","Days"],K=[12,31,24,60,60,1E3,1],S=/(([a-zA-Z])\2*)|(\((('.*?'|\(.*?\)|.)*?)\))|('(.*?)')/,p=g.UTC,z=g.prototype.toUTCString,e=h.prototype;e.length=1;e.splice=E.prototype.splice;e.getUTCMode=D(n);e.setUTCMode=D(F);e.getTimezoneOffset=function(){return n(this)?0:this[0].getTimezoneOffset()};Q(r,function(a,c){e["get"+a]=function(){return k(this[0],n(this),c)};8!=c&&(e["getUTC"+a]=function(){return k(this[0],!0,c)});7!=c&&(e["set"+a]=function(a){G(this,c,a,arguments,n(this));return this},8!=
-c&&(e["setUTC"+a]=function(a){G(this,c,a,arguments,!0);return this},e["add"+(R[c]||a)]=function(a,d){J(this,c,a,d);return this},e["diff"+(R[c]||a)]=function(a){return L(this,a,c)}))});e.getWeek=function(){return w(l(k,this,!1))};e.getUTCWeek=function(){return w(l(k,this,!0))};e.setWeek=function(a,c){N(this,a,c,!1);return this};e.setUTCWeek=function(a,c){N(this,a,c,!0);return this};e.addWeeks=function(a){return this.addDays(7*Number(a))};e.diffWeeks=function(a){return L(this,a,2)/7};h.parsers=[function(a,
-c,b){if(a=a.match(/^(\d{4})(-(\d{2})(-(\d{2})([T ](\d{2}):(\d{2})(:(\d{2})(\.(\d+))?)?(Z|(([-+])(\d{2})(:?(\d{2}))?))?)?)?)?$/)){var d=new g(p(a[1],a[3]?a[3]-1:0,a[5]||1,a[7]||0,a[8]||0,a[10]||0,a[12]?1E3*Number("0."+a[12]):0));a[13]?a[14]&&d.setUTCMinutes(d.getUTCMinutes()+("-"==a[15]?1:-1)*(60*Number(a[16])+(a[18]?Number(a[18]):0))):c||(d=v(d));return b.setTime(d.getTime())}}];h.parse=function(a){return+h(""+a)};e.toString=function(a,c,b){return a!==t&&C(this)?O(this,a,c,b,n(this)):this[0].toString()};
-e.toUTCString=e.toGMTString=function(a,c,b){return a!==t&&C(this)?O(this,a,c,b,!0):this[0].toUTCString()};e.toISOString=function(){return this.toUTCString("yyyy-MM-dd'T'HH:mm:ss(.fff)zzz")};h.defaultLocale="";h.locales={"":{monthNames:"January February March April May June July August September October November December".split(" "),monthNamesShort:"Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" "),dayNames:"Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" "),dayNamesShort:"Sun Mon Tue Wed Thu Fri Sat".split(" "),
-amDesignator:"AM",pmDesignator:"PM"}};h.formatters={i:"yyyy-MM-dd'T'HH:mm:ss(.fff)",u:"yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"};Q("getTime valueOf toDateString toTimeString toLocaleString toLocaleDateString toLocaleTimeString toJSON".split(" "),function(a){e[a]=function(){return this[0][a]()}});e.setTime=function(a){this[0].setTime(a);return this};e.valid=D(C);e.clone=function(){return new h(this)};e.clearTime=function(){return this.setHours(0,0,0,0)};e.toDate=function(){return new g(this[0].getTime())};
-h.now=function(){return(new g).getTime()};h.today=function(){return(new h).clearTime()};h.UTC=p;h.getDaysInMonth=I;"undefined"!==typeof module&&module.exports&&(module.exports=h);"function"===typeof define&&define.amd&&define([],function(){return h});return h}(Date,Math,Array);
+ * Internal Architecture
+ * ---------------------
+ * An XDate wraps a native Date. The native Date is stored in the '0' property of the object.
+ * UTC-mode is determined by whether the internal native Date's toString method is set to
+ * Date.prototype.toUTCString (see getUTCMode).
+ *
+ */
+
+var XDate = (function(Date, Math, Array, undefined) {
+
+
+/** @const */ var FULLYEAR     = 0;
+/** @const */ var MONTH        = 1;
+/** @const */ var DATE         = 2;
+/** @const */ var HOURS        = 3;
+/** @const */ var MINUTES      = 4;
+/** @const */ var SECONDS      = 5;
+/** @const */ var MILLISECONDS = 6;
+/** @const */ var DAY          = 7;
+/** @const */ var YEAR         = 8;
+/** @const */ var WEEK         = 9;
+/** @const */ var DAY_MS = 86400000;
+var ISO_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ss(.fff)";
+var ISO_FORMAT_STRING_TZ = ISO_FORMAT_STRING + "zzz";
+
+
+var methodSubjects = [
+	'FullYear',     // 0
+	'Month',        // 1
+	'Date',         // 2
+	'Hours',        // 3
+	'Minutes',      // 4
+	'Seconds',      // 5
+	'Milliseconds', // 6
+	'Day',          // 7
+	'Year'          // 8
+];
+var subjectPlurals = [
+	'Years',        // 0
+	'Months',       // 1
+	'Days'          // 2
+];
+var unitsWithin = [
+	12,   // months in year
+	31,   // days in month (sort of)
+	24,   // hours in day
+	60,   // minutes in hour
+	60,   // seconds in minute
+	1000, // milliseconds in second
+	1     //
+];
+var formatStringRE = new RegExp(
+	"(([a-zA-Z])\\2*)|" + // 1, 2
+	"(\\(" + "(('.*?'|\\(.*?\\)|.)*?)" + "\\))|" + // 3, 4, 5 (allows for 1 level of inner quotes or parens)
+	"('(.*?)')" // 6, 7
+);
+var UTC = Date.UTC;
+var toUTCString = Date.prototype.toUTCString;
+var proto = XDate.prototype;
+
+
+
+// This makes an XDate look pretty in Firebug and Web Inspector.
+// It makes an XDate seem array-like, and displays [ <internal-date>.toString() ]
+proto.length = 1;
+proto.splice = Array.prototype.splice;
+
+
+
+
+/* Constructor
+---------------------------------------------------------------------------------*/
+
+// TODO: in future, I'd change signature for the constructor regarding the `true` utc-mode param. ~ashaw
+//   I'd move the boolean to be the *first* argument. Still optional. Seems cleaner.
+//   I'd remove it from the `xdate`, `nativeDate`, and `milliseconds` constructors.
+//      (because you can simply call .setUTCMode(true) after)
+//   And I'd only leave it for the y/m/d/h/m/s/m and `dateString` constructors
+//      (because those are the only constructors that need it for DST-gap data-loss reasons)
+//   Should do this for 1.0
+
+function XDate() {
+	return init(
+		(this instanceof XDate) ? this : new XDate(),
+		arguments
+	);
+}
+
+
+function init(xdate, args) {
+	var len = args.length;
+	var utcMode;
+	if (isBoolean(args[len-1])) {
+		utcMode = args[--len];
+		args = slice(args, 0, len);
+	}
+	if (!len) {
+		xdate[0] = new Date();
+	}
+	else if (len == 1) {
+		var arg = args[0];
+		if (arg instanceof Date) {
+			xdate[0] = new Date(arg.getTime());
+		}
+		else if (isNumber(arg)) {
+			xdate[0] = new Date(arg);
+		}
+		else if (arg instanceof XDate) {
+			xdate[0] = _clone(arg);
+		}
+		else if (isString(arg)) {
+			xdate[0] = new Date(0);
+			xdate = parse(arg, utcMode || false, xdate);
+		}
+	}
+	else {
+		xdate[0] = new Date(UTC.apply(Date, args));
+		if (!utcMode) {
+			xdate[0] = coerceToLocal(xdate[0]);
+		}
+	}
+	if (isBoolean(utcMode)) {
+		setUTCMode(xdate, utcMode);
+	}
+	return xdate;
+}
+
+
+
+/* UTC Mode Methods
+---------------------------------------------------------------------------------*/
+
+
+proto.getUTCMode = methodize(getUTCMode);
+function getUTCMode(xdate) {
+	return xdate[0].toString === toUTCString;
+};
+
+
+proto.setUTCMode = methodize(setUTCMode);
+function setUTCMode(xdate, utcMode, doCoercion) {
+	if (utcMode) {
+		if (!getUTCMode(xdate)) {
+			if (doCoercion) {
+				xdate[0] = coerceToUTC(xdate[0]);
+			}
+			xdate[0].toString = toUTCString;
+		}
+	}else{
+		if (getUTCMode(xdate)) {
+			if (doCoercion) {
+				xdate[0] = coerceToLocal(xdate[0]);
+			}else{
+				xdate[0] = new Date(xdate[0].getTime());
+			}
+			// toString will have been cleared
+		}
+	}
+	return xdate; // for chaining
+}
+
+
+proto.getTimezoneOffset = function() {
+	if (getUTCMode(this)) {
+		return 0;
+	}else{
+		return this[0].getTimezoneOffset();
+	}
+};
+
+
+
+/* get / set / add / diff Methods (except for week-related)
+---------------------------------------------------------------------------------*/
+
+
+each(methodSubjects, function(subject, fieldIndex) {
+
+	proto['get' + subject] = function() {
+		return _getField(this[0], getUTCMode(this), fieldIndex);
+	};
+
+	if (fieldIndex != YEAR) { // because there is no getUTCYear
+
+		proto['getUTC' + subject] = function() {
+			return _getField(this[0], true, fieldIndex);
+		};
+
+	}
+
+	if (fieldIndex != DAY) { // because there is no setDay or setUTCDay
+	                         // and the add* and diff* methods use DATE instead
+
+		proto['set' + subject] = function(value) {
+			_set(this, fieldIndex, value, arguments, getUTCMode(this));
+			return this; // for chaining
+		};
+
+		if (fieldIndex != YEAR) { // because there is no setUTCYear
+		                          // and the add* and diff* methods use FULLYEAR instead
+
+			proto['setUTC' + subject] = function(value) {
+				_set(this, fieldIndex, value, arguments, true);
+				return this; // for chaining
+			};
+
+			proto['add' + (subjectPlurals[fieldIndex] || subject)] = function(delta, preventOverflow) {
+				_add(this, fieldIndex, delta, preventOverflow);
+				return this; // for chaining
+			};
+
+			proto['diff' + (subjectPlurals[fieldIndex] || subject)] = function(otherDate) {
+				return _diff(this, otherDate, fieldIndex);
+			};
+
+		}
+
+	}
+
+});
+
+
+function _set(xdate, fieldIndex, value, args, useUTC) {
+	var getField = curry(_getField, xdate[0], useUTC);
+	var setField = curry(_setField, xdate[0], useUTC);
+	var expectedMonth;
+	var preventOverflow = false;
+	if (args.length == 2 && isBoolean(args[1])) {
+		preventOverflow = args[1];
+		args = [ value ];
+	}
+	if (fieldIndex == MONTH) {
+		expectedMonth = (value % 12 + 12) % 12;
+	}else{
+		expectedMonth = getField(MONTH);
+	}
+	setField(fieldIndex, args);
+	if (preventOverflow && getField(MONTH) != expectedMonth) {
+		setField(MONTH, [ getField(MONTH) - 1 ]);
+		setField(DATE, [ getDaysInMonth(getField(FULLYEAR), getField(MONTH)) ]);
+	}
+}
+
+
+function _add(xdate, fieldIndex, delta, preventOverflow) {
+	delta = Number(delta);
+	var intDelta = Math.floor(delta);
+	xdate['set' + methodSubjects[fieldIndex]](
+		xdate['get' + methodSubjects[fieldIndex]]() + intDelta,
+		preventOverflow || false
+	);
+	if (intDelta != delta && fieldIndex < MILLISECONDS) {
+		_add(xdate, fieldIndex+1, (delta-intDelta)*unitsWithin[fieldIndex], preventOverflow);
+	}
+}
+
+
+function _diff(xdate1, xdate2, fieldIndex) { // fieldIndex=FULLYEAR is for years, fieldIndex=DATE is for days
+	xdate1 = xdate1.clone().setUTCMode(true, true);
+	xdate2 = XDate(xdate2).setUTCMode(true, true);
+	var v = 0;
+	if (fieldIndex == FULLYEAR || fieldIndex == MONTH) {
+		for (var i=MILLISECONDS, methodName; i>=fieldIndex; i--) {
+			v /= unitsWithin[i];
+			v += _getField(xdate2, false, i) - _getField(xdate1, false, i);
+		}
+		if (fieldIndex == MONTH) {
+			v += (xdate2.getFullYear() - xdate1.getFullYear()) * 12;
+		}
+	}
+	else if (fieldIndex == DATE) {
+		var clear1 = xdate1.toDate().setUTCHours(0, 0, 0, 0); // returns an ms value
+		var clear2 = xdate2.toDate().setUTCHours(0, 0, 0, 0); // returns an ms value
+		v = Math.round((clear2 - clear1) / DAY_MS) + ((xdate2 - clear2) - (xdate1 - clear1)) / DAY_MS;
+	}
+	else {
+		v = (xdate2 - xdate1) / [
+			3600000, // milliseconds in hour
+			60000,   // milliseconds in minute
+			1000,    // milliseconds in second
+			1        //
+			][fieldIndex - 3];
+	}
+	return v;
+}
+
+
+
+/* Week Methods
+---------------------------------------------------------------------------------*/
+
+
+proto.getWeek = function() {
+	return _getWeek(curry(_getField, this, false));
+};
+
+
+proto.getUTCWeek = function() {
+	return _getWeek(curry(_getField, this, true));
+};
+
+
+proto.setWeek = function(n, year) {
+	_setWeek(this, n, year, false);
+	return this; // for chaining
+};
+
+
+proto.setUTCWeek = function(n, year) {
+	_setWeek(this, n, year, true);
+	return this; // for chaining
+};
+
+
+proto.addWeeks = function(delta) {
+	return this.addDays(Number(delta) * 7);
+};
+
+
+proto.diffWeeks = function(otherDate) {
+	return _diff(this, otherDate, DATE) / 7;
+};
+
+
+function _getWeek(getField) {
+	return getWeek(getField(FULLYEAR), getField(MONTH), getField(DATE));
+}
+
+
+function getWeek(year, month, date) {
+	var d = new Date(UTC(year, month, date));
+	var week1 = getWeek1(
+		getWeekYear(year, month, date)
+	);
+	return Math.floor(Math.round((d - week1) / DAY_MS) / 7) + 1;
+}
+
+
+function getWeekYear(year, month, date) { // get the year that the date's week # belongs to
+	var d = new Date(UTC(year, month, date));
+	if (d < getWeek1(year)) {
+		return year - 1;
+	}
+	else if (d >= getWeek1(year + 1)) {
+		return year + 1;
+	}
+	return year;
+}
+
+
+function getWeek1(year) { // returns Date of first week of year, in UTC
+	var d = new Date(UTC(year, 0, 4));
+	d.setUTCDate(d.getUTCDate() - (d.getUTCDay() + 6) % 7); // make it Monday of the week
+	return d;
+}
+
+
+function _setWeek(xdate, n, year, useUTC) {
+	var getField = curry(_getField, xdate, useUTC);
+	var setField = curry(_setField, xdate, useUTC);
+
+	if (year === undefined) {
+		year = getWeekYear(
+			getField(FULLYEAR),
+			getField(MONTH),
+			getField(DATE)
+		);
+	}
+
+	var week1 = getWeek1(year);
+	if (!useUTC) {
+		week1 = coerceToLocal(week1);
+	}
+
+	xdate.setTime(week1.getTime());
+	setField(DATE, [ getField(DATE) + (n-1) * 7 ]); // would have used xdate.addUTCWeeks :(
+		// n-1 because n is 1-based
+}
+
+
+
+/* Parsing
+---------------------------------------------------------------------------------*/
+
+
+XDate.parsers = [
+	parseISO
+];
+
+
+XDate.parse = function(str) {
+	return +XDate(''+str);
+};
+
+
+function parse(str, utcMode, xdate) {
+	var parsers = XDate.parsers;
+	var i = 0;
+	var res;
+	for (; i<parsers.length; i++) {
+		res = parsers[i](str, utcMode, xdate);
+		if (res) {
+			return res;
+		}
+	}
+	xdate[0] = new Date(str);
+	return xdate;
+}
+
+
+function parseISO(str, utcMode, xdate) {
+	var m = str.match(/^(\d{4})(-(\d{2})(-(\d{2})([T ](\d{2}):(\d{2})(:(\d{2})(\.(\d+))?)?(Z|(([-+])(\d{2})(:?(\d{2}))?))?)?)?)?$/);
+	if (m) {
+		var d = new Date(UTC(
+			m[1],
+			m[3] ? m[3] - 1 : 0,
+			m[5] || 1,
+			m[7] || 0,
+			m[8] || 0,
+			m[10] || 0,
+			m[12] ? Number('0.' + m[12]) * 1000 : 0
+		));
+		if (m[13]) { // has gmt offset or Z
+			if (m[14]) { // has gmt offset
+				d.setUTCMinutes(
+					d.getUTCMinutes() +
+					(m[15] == '-' ? 1 : -1) * (Number(m[16]) * 60 + (m[18] ? Number(m[18]) : 0))
+				);
+			}
+		}else{ // no specified timezone
+			if (!utcMode) {
+				d = coerceToLocal(d);
+			}
+		}
+		return xdate.setTime(d.getTime());
+	}
+}
+
+
+
+/* Formatting
+---------------------------------------------------------------------------------*/
+
+
+proto.toString = function(formatString, settings, uniqueness) {
+	if (formatString === undefined || !valid(this)) {
+		return this[0].toString(); // already accounts for utc-mode (might be toUTCString)
+	}else{
+		return format(this, formatString, settings, uniqueness, getUTCMode(this));
+	}
+};
+
+
+proto.toUTCString = proto.toGMTString = function(formatString, settings, uniqueness) {
+	if (formatString === undefined || !valid(this)) {
+		return this[0].toUTCString();
+	}else{
+		return format(this, formatString, settings, uniqueness, true);
+	}
+};
+
+
+proto.toISOString = function() {
+	return this.toUTCString(ISO_FORMAT_STRING_TZ);
+};
+
+
+XDate.defaultLocale = '';
+XDate.locales = {
+	'': {
+		monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+		monthNamesShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+		dayNames: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+		dayNamesShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+		amDesignator: 'AM',
+		pmDesignator: 'PM'
+	}
+};
+XDate.formatters = {
+	i: ISO_FORMAT_STRING,
+	u: ISO_FORMAT_STRING_TZ
+};
+
+
+function format(xdate, formatString, settings, uniqueness, useUTC) {
+
+	var locales = XDate.locales;
+	var defaultLocaleSettings = locales[XDate.defaultLocale] || {};
+	var getField = curry(_getField, xdate, useUTC);
+
+	settings = (isString(settings) ? locales[settings] : settings) || {};
+
+	function getSetting(name) {
+		return settings[name] || defaultLocaleSettings[name];
+	}
+
+	function getFieldAndTrace(fieldIndex) {
+		if (uniqueness) {
+			var i = (fieldIndex == DAY ? DATE : fieldIndex) - 1;
+			for (; i>=0; i--) {
+				uniqueness.push(getField(i));
+			}
+		}
+		return getField(fieldIndex);
+	}
+
+	return _format(xdate, formatString, getFieldAndTrace, getSetting, useUTC);
+}
+
+
+function _format(xdate, formatString, getField, getSetting, useUTC) {
+	var m;
+	var subout;
+	var out = '';
+	while (m = formatString.match(formatStringRE)) {
+		out += formatString.substr(0, m.index);
+		if (m[1]) { // consecutive alphabetic characters
+			out += processTokenString(xdate, m[1], getField, getSetting, useUTC);
+		}
+		else if (m[3]) { // parenthesis
+			subout = _format(xdate, m[4], getField, getSetting, useUTC);
+			if (parseInt(subout.replace(/\D/g, ''), 10)) { // if any of the numbers are non-zero. or no numbers at all
+				out += subout;
+			}
+		}
+		else { // else if (m[6]) { // single quotes
+			out += m[7] || "'"; // if inner is blank, meaning 2 consecutive quotes = literal single quote
+		}
+		formatString = formatString.substr(m.index + m[0].length);
+	}
+	return out + formatString;
+}
+
+
+function processTokenString(xdate, tokenString, getField, getSetting, useUTC) {
+	var end = tokenString.length;
+	var replacement;
+	var out = '';
+	while (end > 0) {
+		replacement = getTokenReplacement(xdate, tokenString.substr(0, end), getField, getSetting, useUTC);
+		if (replacement !== undefined) {
+			out += replacement;
+			tokenString = tokenString.substr(end);
+			end = tokenString.length;
+		}else{
+			end--;
+		}
+	}
+	return out + tokenString;
+}
+
+
+function getTokenReplacement(xdate, token, getField, getSetting, useUTC) {
+	var formatter = XDate.formatters[token];
+	if (isString(formatter)) {
+		return _format(xdate, formatter, getField, getSetting, useUTC);
+	}
+	else if (isFunction(formatter)) {
+		return formatter(xdate, useUTC || false, getSetting);
+	}
+	switch (token) {
+		case 'fff'  : return zeroPad(getField(MILLISECONDS), 3);
+		case 's'    : return getField(SECONDS);
+		case 'ss'   : return zeroPad(getField(SECONDS));
+		case 'm'    : return getField(MINUTES);
+		case 'mm'   : return zeroPad(getField(MINUTES));
+		case 'h'    : return getField(HOURS) % 12 || 12;
+		case 'hh'   : return zeroPad(getField(HOURS) % 12 || 12);
+		case 'H'    : return getField(HOURS);
+		case 'HH'   : return zeroPad(getField(HOURS));
+		case 'd'    : return getField(DATE);
+		case 'dd'   : return zeroPad(getField(DATE));
+		case 'ddd'  : return getSetting('dayNamesShort')[getField(DAY)] || '';
+		case 'dddd' : return getSetting('dayNames')[getField(DAY)] || '';
+		case 'M'    : return getField(MONTH) + 1;
+		case 'MM'   : return zeroPad(getField(MONTH) + 1);
+		case 'MMM'  : return getSetting('monthNamesShort')[getField(MONTH)] || '';
+		case 'MMMM' : return getSetting('monthNames')[getField(MONTH)] || '';
+		case 'yy'   : return (getField(FULLYEAR)+'').substring(2);
+		case 'yyyy' : return getField(FULLYEAR);
+		case 't'    : return _getDesignator(getField, getSetting).substr(0, 1).toLowerCase();
+		case 'tt'   : return _getDesignator(getField, getSetting).toLowerCase();
+		case 'T'    : return _getDesignator(getField, getSetting).substr(0, 1);
+		case 'TT'   : return _getDesignator(getField, getSetting);
+		case 'z'    :
+		case 'zz'   :
+		case 'zzz'  : return useUTC ? 'Z' : _getTZString(xdate, token);
+		case 'w'    : return _getWeek(getField);
+		case 'ww'   : return zeroPad(_getWeek(getField));
+		case 'S'    :
+			var d = getField(DATE);
+			if (d > 10 && d < 20) return 'th';
+			return ['st', 'nd', 'rd'][d % 10 - 1] || 'th';
+	}
+}
+
+
+function _getTZString(xdate, token) {
+	var tzo = xdate.getTimezoneOffset();
+	var sign = tzo < 0 ? '+' : '-';
+	var hours = Math.floor(Math.abs(tzo) / 60);
+	var minutes = Math.abs(tzo) % 60;
+	var out = hours;
+	if (token == 'zz') {
+		out = zeroPad(hours);
+	}
+	else if (token == 'zzz') {
+		out = zeroPad(hours) + ':' + zeroPad(minutes);
+	}
+	return sign + out;
+}
+
+
+function _getDesignator(getField, getSetting) {
+	return getField(HOURS) < 12 ? getSetting('amDesignator') : getSetting('pmDesignator');
+}
+
+
+
+/* Misc Methods
+---------------------------------------------------------------------------------*/
+
+
+each(
+	[ // other getters
+		'getTime',
+		'valueOf',
+		'toDateString',
+		'toTimeString',
+		'toLocaleString',
+		'toLocaleDateString',
+		'toLocaleTimeString',
+		'toJSON'
+	],
+	function(methodName) {
+		proto[methodName] = function() {
+			return this[0][methodName]();
+		};
+	}
+);
+
+
+proto.setTime = function(t) {
+	this[0].setTime(t);
+	return this; // for chaining
+};
+
+
+proto.valid = methodize(valid);
+function valid(xdate) {
+	return !isNaN(xdate[0].getTime());
+}
+
+
+proto.clone = function() {
+	return new XDate(this);
+};
+
+
+proto.clearTime = function() {
+	return this.setHours(0, 0, 0, 0); // will return an XDate for chaining
+};
+
+
+proto.toDate = function() {
+	return new Date(this[0].getTime());
+};
+
+
+
+/* Misc Class Methods
+---------------------------------------------------------------------------------*/
+
+
+XDate.now = function() {
+	return (new Date()).getTime();
+};
+
+
+XDate.today = function() {
+	return new XDate().clearTime();
+};
+
+
+XDate.UTC = UTC;
+
+
+XDate.getDaysInMonth = getDaysInMonth;
+
+
+
+/* Internal Utilities
+---------------------------------------------------------------------------------*/
+
+
+function _clone(xdate) { // returns the internal Date object that should be used
+	var d = new Date(xdate[0].getTime());
+	if (getUTCMode(xdate)) {
+		d.toString = toUTCString;
+	}
+	return d;
+}
+
+
+function _getField(d, useUTC, fieldIndex) {
+	return d['get' + (useUTC ? 'UTC' : '') + methodSubjects[fieldIndex]]();
+}
+
+
+function _setField(d, useUTC, fieldIndex, args) {
+	d['set' + (useUTC ? 'UTC' : '') + methodSubjects[fieldIndex]].apply(d, args);
+}
+
+
+
+/* Date Math Utilities
+---------------------------------------------------------------------------------*/
+
+
+function coerceToUTC(date) {
+	return new Date(UTC(
+		date.getFullYear(),
+		date.getMonth(),
+		date.getDate(),
+		date.getHours(),
+		date.getMinutes(),
+		date.getSeconds(),
+		date.getMilliseconds()
+	));
+}
+
+
+function coerceToLocal(date) {
+	return new Date(
+		date.getUTCFullYear(),
+		date.getUTCMonth(),
+		date.getUTCDate(),
+		date.getUTCHours(),
+		date.getUTCMinutes(),
+		date.getUTCSeconds(),
+		date.getUTCMilliseconds()
+	);
+}
+
+
+function getDaysInMonth(year, month) {
+	return 32 - new Date(UTC(year, month, 32)).getUTCDate();
+}
+
+
+
+/* General Utilities
+---------------------------------------------------------------------------------*/
+
+
+function methodize(f) {
+	return function() {
+		return f.apply(undefined, [this].concat(slice(arguments)));
+	};
+}
+
+
+function curry(f) {
+	var firstArgs = slice(arguments, 1);
+	return function() {
+		return f.apply(undefined, firstArgs.concat(slice(arguments)));
+	};
+}
+
+
+function slice(a, start, end) {
+	return Array.prototype.slice.call(
+		a,
+		start || 0, // start and end cannot be undefined for IE
+		end===undefined ? a.length : end
+	);
+}
+
+
+function each(a, f) {
+	for (var i=0; i<a.length; i++) {
+		f(a[i], i);
+	};
+}
+
+
+function isString(arg) {
+	return typeof arg == 'string';
+}
+
+
+function isNumber(arg) {
+	return typeof arg == 'number';
+}
+
+
+function isBoolean(arg) {
+	return typeof arg == 'boolean';
+}
+
+
+function isFunction(arg) {
+	return typeof arg == 'function';
+}
+
+
+function zeroPad(n, len) {
+	len = len || 2;
+	n += '';
+	while (n.length < len) {
+		n = '0' + n;
+	}
+	return n;
+}
+
+
+
+// Export for Node.js
+if (typeof module !== 'undefined' && module.exports) {
+	module.exports = XDate;
+}
+
+// AMD
+if (typeof define === 'function' && define.amd) {
+	define([], function() {
+		return XDate;
+	});
+}
+
+
+return XDate;
+
+})(Date, Math, Array);

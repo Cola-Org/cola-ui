@@ -166,7 +166,7 @@ setting = {
 	defaultCharset: "utf-8"
 	defaultNumberFormat: "#,##0.##"
 	defaultDateFormat: "yyyy-MM-dd"
-	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss"
+	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"
 }
 
 cola.setting = (key, value) ->
