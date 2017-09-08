@@ -270,6 +270,12 @@ class cola.Tree extends cola.AbstractList
 			@_refreshItemDom(nodeDom, node, node._parent._itemsScope)
 		return
 
+	refreshItem: (item) ->
+		node = @findNode(item)
+		if node
+			@refreshNode(node)
+		return
+
 	_refreshItemDom: (itemDom, node, parentScope) ->
 		nodeScope = cola.util.userData(itemDom, "scope")
 		# TODO 尝试修复新增节点数据时父节点自动收缩的bug
@@ -289,7 +295,7 @@ class cola.Tree extends cola.AbstractList
 					# TODO 尝试修复Checkbox 默认第三态的bug
 					dataPath = nodeScope.data.alias + "." + node._bind._checkedProperty
 					checkedPropValue = nodeScope.get(dataPath)
-					if typeof checkedPropValue == "undefined"
+					if typeof checkedPropValue is "undefined"
 						nodeScope.set(dataPath, false)
 					checkbox.set(
 						bind: dataPath

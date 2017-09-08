@@ -8,6 +8,7 @@ class cola.Form extends cola.Widget
 		dataType:
 			setter: cola.DataType.dataTypeSetter
 
+		readOnly: null
 		defaultCols:
 			defaultValue: 3
 		fields:
@@ -52,7 +53,7 @@ class cola.Form extends cola.Widget
 
 				if field.editContent
 					if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
-						field.editContent.readOnly = field.readOnly
+						field.editContent.readOnly = field.readOnly or @_readOnly
 
 					fieldContent = [
 						{ tagName: "label", content: caption, data: labelUserData }
@@ -221,6 +222,7 @@ class cola.Field extends cola.Widget
 
 			if @_formDom
 				@_form = cola.widget(@_formDom)
+				formReadOnly = @_form?._readOnly
 				formBind = @_form?._bind
 				if formBind
 					bind = formBind + "." + @_property
@@ -239,15 +241,15 @@ class cola.Field extends cola.Widget
 				propertyType = propertyDef.get("dataType")
 				if propertyType instanceof cola.BooleanDataType
 					if @_type is "checkbox"
-						editContent = { tagName: "c-checkbox", bind: bind, readOnly: @_readOnly }
+						editContent = { tagName: "c-checkbox", bind: bind, readOnly: @_readOnly or formReadOnly }
 					else
-						editContent = { tagName: "c-toggle", bind: bind, readOnly: @_readOnly }
+						editContent = { tagName: "c-toggle", bind: bind, readOnly: @_readOnly or formReadOnly }
 				else if @_type is "date" or propertyType instanceof cola.DateDataType
-					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly }
+					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly or formReadOnly }
 				else if @_type is "textarea"
-					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly }
+					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly or formReadOnly }
 
-			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly }
+			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly or formReadOnly }
 
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)

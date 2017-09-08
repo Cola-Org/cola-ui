@@ -78,12 +78,11 @@ class cola.CascadeBind extends cola.Element
 
 		itemsScope = parentNode._itemsScope
 		if itemsScope
-			args = [nodes]
 			if recursiveItems
-				args.push(originRecursiveItems or recursiveItems)
+				nodes.$origin = originRecursiveItems or recursiveItems
 			if childItems
-				args.push(originChildItems or childItems)
-			itemsScope._setItems.apply(itemsScope, args)
+				nodes.$origin = originChildItems or childItems
+			itemsScope._setItems.call(itemsScope, nodes)
 		return
 
 	retrieveChildNodes: (parentNode, callback, dataCtx) ->

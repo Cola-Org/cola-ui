@@ -314,7 +314,7 @@ class cola.SubScope extends cola.Scope
 		return
 
 	isParentOfTarget: (expressionPaths, changedPath) ->
-		if not expressionPaths.length then return false
+		if not expressionPaths?.length then return false
 		if not changedPath then return true
 
 		for targetPath in expressionPaths
@@ -563,7 +563,7 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
-	_processMessage: (bindingPath, path, type, arg)->
+	_processMessage: (bindingPath, path, type, arg) ->
 		if @onMessage?(path, type, arg) is false
 			return true
 
@@ -585,7 +585,7 @@ class cola.ItemsScope extends cola.SubScope
 				allProcessed = true
 			else
 				parent = arg.entity?.parent
-				if parent is @items or @isOriginItems(arg.parent)
+				if parent is @items or @isOriginItems(parent)
 					@refreshItem(arg)
 				else
 					processMoreMessage = true

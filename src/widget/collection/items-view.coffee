@@ -389,7 +389,7 @@ class cola.ItemsView extends cola.Widget
 		itemId = _getEntityId(item)
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
-			@_doRefreshItemDom?(itemDom, item, @_itemsScope)
+			@_refreshItemDom(itemDom, item, @_itemsScope)
 		return
 
 	_onItemRefresh: (arg) ->

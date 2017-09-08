@@ -333,10 +333,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-#_parent
-#_parentProperty
-#_providerInvoker
-#_disableWriteObservers
+	#_parent
+	#_parentProperty
+	#_providerInvoker
+	#_disableWriteObservers
 
 	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
@@ -692,7 +692,9 @@ class cola.Entity
 				@_disableWriteObservers--
 			return entityList.insert(data)
 		else
-			return @_set(prop, data)
+			child = new _Entity(data, propertyDataType)
+			@_set(prop, child)
+			return child
 
 	createBrother: (data) ->
 		if data and data instanceof Array
@@ -1456,9 +1458,9 @@ class cola.EntityList extends LinkedList
 		return entity
 
 	remove: (entity, detach) ->
-		if !entity?
+		if not entity?
 			entity = @current
-			if !entity? then return undefined
+			return undefined
 
 		return undefined if entity.parent != @
 
