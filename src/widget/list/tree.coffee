@@ -416,7 +416,7 @@ class cola.Tree extends cola.AbstractList
 		tree = @
 		itemsScope = node._itemsScope
 		if not itemsScope
-			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope)
+			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope, node._bind?._expression)
 			itemsScope.alias = node._alias
 			itemsScope._retrieveItems = (dataCtx) -> node._bind.retrieveChildNodes(node, null, dataCtx)
 			itemsScope.onItemsRefresh = () ->
