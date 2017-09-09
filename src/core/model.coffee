@@ -540,6 +540,16 @@ class cola.ItemsScope extends cola.SubScope
 					return true
 		return false
 
+	isChildOfOriginItems: (items) ->
+		return false unless @originItems
+		return true if @originItems is items
+
+		if @originItems instanceof Array and @originItems._multiItems
+			for originItems in @originItems
+				if originItems is items
+					return true
+		return false
+
 	isWatchPathPreciseMatch: (changedPath) ->
 		expressionPaths = @expressionPaths
 
@@ -1360,7 +1370,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 				entity = entity.parent
 
 			if isChild
-				relativePath = path.slice(itemData.getPath().length)
+				relativePath = arg.originPath.slice(itemData.getPath().length)
 				super([@alias].concat(relativePath), type, arg)
 		return
 

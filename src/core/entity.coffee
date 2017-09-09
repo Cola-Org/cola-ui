@@ -775,6 +775,25 @@ class cola.Entity
 			@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
+	cancel: (prop) ->
+		if prop
+			if @_oldData.hasOwnProperty(prop)
+				@_set(prop, @_oldData[prop])
+				@clearMessages(prop)
+		else
+			if @_oldData
+				@disableObservers()
+				oldData = @_oldData
+				for prop of oldData
+					if oldData.hasOwnProperty(prop)
+						@_set(prop, @_oldData[prop])
+				@resetState()
+				@enableObservers()
+				@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+			else
+				@resetState()
+		return @
+
 	resetState: () ->
 		delete @_oldData
 		@clearMessages()
@@ -887,6 +906,7 @@ class cola.Entity
 		return
 
 	_doNotify: (path, type, arg) ->
+		arg.originPath = path
 		@_dataModel?.onDataMessage(path, type, arg)
 		return
 
@@ -1615,7 +1635,9 @@ class cola.EntityList extends LinkedList
 
 	_notify: (type, arg) ->
 		if @_disableObserverCount == 0
-			@_dataModel?.onDataMessage(@getPath(), type, arg)
+			path = @getPath()
+			arg.originPath = path
+			@_dataModel?.onDataMessage(path, type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher(["*"], type, arg)
