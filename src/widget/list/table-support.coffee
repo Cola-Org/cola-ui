@@ -361,7 +361,7 @@ class cola.AbstractTable extends cola.AbstractList
 						else if width.indexOf("%") > 0
 							widthType = "percent"
 					info.widthType = widthType
-					info.width = +width
+					info.width = parseFloat(width)
 
 					if not widthType and info.width
 						context.totalWidth += info.width
