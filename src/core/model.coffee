@@ -1307,7 +1307,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 
 	_isExBindingPath: (path) ->
 		firstPart = path[0]
-		return not @_aliasMap[firstPart] and firstPart isnt @alias and firstPart isnt cola.constants.REPEAT_INDEX
+		return @alias isnt firstPart isnt @alias and firstPart isnt cola.constants.REPEAT_INDEX
 
 	getIndex: () -> @_index
 	setIndex: (index, silence) ->

@@ -89,6 +89,11 @@ cola.defaultAction["top"] = (collection, top = 1) ->
 		return i < top
 	return items
 
+cola.defaultAction.toJSON = (data) ->
+	if data instanceOf cola.Entity or data instanceOf cola.EntityList
+		return data.toJSON()
+	return data
+
 cola.defaultAction.formatDate = cola.util.formatDate
 
 cola.defaultAction.formatNumber = cola.util.formatNumber

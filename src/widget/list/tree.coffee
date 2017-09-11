@@ -143,8 +143,8 @@ class cola.Tree extends cola.AbstractList
 		@_rootNode._itemsScope = itemsScope
 
 		itemsScope.onMessage = (path, type, arg) =>
-			if type is cola.constants.MESSAGE_REFRESH
-				if itemsScope.isParentOfTarget(path)
+			if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE
+				if itemsScope.isParentOfTarget(itemsScope.expressionPaths, path)
 					@_refreshItems()
 					return true
 				else
@@ -164,7 +164,7 @@ class cola.Tree extends cola.AbstractList
 						if node.get("expanded")
 							@_prepareChildNode(node, true)
 					return true
-				else if itemsScope.isParentOfTarget(path)
+				else if itemsScope.isParentOfTarget(itemsScope.expressionPaths, path)
 					@_refreshItems()
 					return true
 
@@ -188,7 +188,8 @@ class cola.Tree extends cola.AbstractList
 		if @_bind
 			@_itemsRetrieved = true
 			@_bind.retrieveChildNodes(@_rootNode)
-			itemsScope._retrieveItems = (dataCtx) => @_bind.retrieveChildNodes(@_rootNode, null, dataCtx)
+			itemsScope._retrieveItems = (dataCtx) =>
+				@_bind.retrieveChildNodes(@_rootNode, null, dataCtx)
 		return
 
 	_setCurrentItemDom: (currentItemDom)->
@@ -202,13 +203,13 @@ class cola.Tree extends cola.AbstractList
 		return node
 
 	_setCurrentNode: (node) ->
-		return if @_currentNode == node
+		return if @_currentNode is node
 
 		eventArg =
 			oldCurrent: @_currentNode
 			newCurrent: node
 
-		if @fire("beforeCurrentNodeChange", @, eventArg) == false
+		if @fire("beforeCurrentNodeChange", @, eventArg) is false
 			return
 
 		if @_currentNode
@@ -304,8 +305,8 @@ class cola.Tree extends cola.AbstractList
 
 		if not @_currentNode
 			@_setCurrentNode(node)
-		else if node is @_currentNode and @_highlightCurrentItem
-			$fly(itemDom).addClass("current")
+		else
+			$fly(itemDom).toggleClass("current", node is @_currentNode and @_highlightCurrentItem)
 
 		if node.get("hasChild") isnt false and not collapsed and node.get("expanded")
 			if node._hasExpanded
@@ -317,6 +318,8 @@ class cola.Tree extends cola.AbstractList
 				if collapsed then @collapse(node, true)
 			else if not @_lazyRenderChildNodes
 				@_prepareChildNode(node, false)
+			else
+				$fly(itemDom).find(">.child-nodes").empty()
 
 			nodeDom = itemDom.firstElementChild
 			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
@@ -377,14 +380,15 @@ class cola.Tree extends cola.AbstractList
 
 		if documentFragment
 			nodesWrapper.appendChild(documentFragment)
+
+		if @_currentNode
+			if not @_nodeMap[@_currentNode._id]
+				@_setCurrentNode(parentNode)
 		return
 
 	_onItemClick: (evt) ->
 		itemDom = evt.currentTarget
 		return unless itemDom
-
-		node = cola.util.userData(itemDom, "item")
-		@_setCurrentNode(node)
 		return super(evt)
 
 	_expandButtonClick: (evt)->
@@ -407,7 +411,7 @@ class cola.Tree extends cola.AbstractList
 		return unless itemId
 
 		itemDom = @_itemDomMap[itemId]
-		return if itemDom then  cola.util.userData(itemDom, "item") else null
+		return if itemDom then cola.util.userData(itemDom, "item") else null
 
 	_prepareChildNode: (node, expand, noAnimation, callback) ->
 		itemDom = @_itemDomMap[node._id]
@@ -418,13 +422,6 @@ class cola.Tree extends cola.AbstractList
 		if not itemsScope
 			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope, node._bind?._expression)
 			itemsScope.alias = node._alias
-			itemsScope._retrieveItems = (dataCtx) -> node._bind.retrieveChildNodes(node, null, dataCtx)
-			itemsScope.onItemsRefresh = () ->
-				itemDom = tree._itemDomMap[node._id]
-				tree._refreshChildNodes(itemDom, node) if itemDom
-				return
-			itemsScope.onItemInsert = () -> @onItemsRefresh()
-			itemsScope.onItemRemove = (arg) -> tree._onItemRemove(arg)
 
 		nodeDom = itemDom.firstElementChild
 		$fly(nodeDom).addClass("expanding") if expand
@@ -470,7 +467,7 @@ class cola.Tree extends cola.AbstractList
 		if @_currentNode
 			parent = @_currentNode._parent
 			while parent
-				if parent == node
+				if parent is node
 					@_setCurrentNode(node)
 					break
 				parent = parent._parent
@@ -488,14 +485,14 @@ class cola.Tree extends cola.AbstractList
 
 	_removeNode: (node) ->
 		if node
-			if @_currentNode.data == node.data
+			if @_currentNode.data is node.data
 				children = node._parent._children
 				i = children.indexOf(node)
 				if i < children.length - 1
 					newCurrentNode = children[i + 1]
 				else if i > 0
 					newCurrentNode = children[i - 1]
-				else if node._parent != @_rootNode
+				else if node._parent isnt @_rootNode
 					newCurrentNode = node._parent
 				@_setCurrentNode(newCurrentNode) if newCurrentNode
 

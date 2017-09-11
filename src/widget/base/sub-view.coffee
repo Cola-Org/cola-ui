@@ -25,9 +25,7 @@ class cola.SubView extends cola.Widget
 			getter: () ->
 				return if @_dom then cola.util.userData(@_dom, "_model") else null
 
-		param:
-			readOnlyAfterCreate: true
-
+		param: null
 		showLoadingContent: null
 
 	@events:

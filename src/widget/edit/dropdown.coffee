@@ -439,7 +439,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
 			@set("value", value)
-			@fire("change", @);
 
 		@_skipFindCurrentItem = false
 		@refresh()
@@ -560,8 +559,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 			content:
 				tagName: "c-listview"
 				contextKey: "list"
-				allowNoCurrent: false
-				changeCurrentItem: false
+				allowNoCurrent: true
+				changeCurrentItem: true
 				highlightCurrentItem: true
 				style: "overflow:auto"
 			keydown: (evt) ->
@@ -592,8 +591,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 					content:
 						tagName: "c-listview"
 						contextKey: "list"
-						allowNoCurrent: false
-						changeCurrentItem: false
+						allowNoCurrent: true
+						changeCurrentItem: true
 						highlightCurrentItem: true
 				}
 			]
