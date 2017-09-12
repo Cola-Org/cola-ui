@@ -19,14 +19,14 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 		valueProperty: null
 		textProperty: null
-		name:null
+		name: null
 
 	_initDom: (dom)->
 		super(dom)
 		selector = @
 		$(dom).delegate(">item", "click", ()->
 			if selector._readOnly then return
-			value=selector._getDomValue(this)
+			value = selector._getDomValue(this)
 			selector._setValue(value);
 			selector._select(value)
 		)
@@ -46,12 +46,12 @@ class cola.RadioGroup extends cola.AbstractEditor
 		if dom.length > 0
 			dom[0].checked = true
 
-	_getDomValue:(itemDom)->
-		item=cola.util.getItemByItemDom(itemDom)
+	_getDomValue: (itemDom)->
+		item = cola.util.getItemByItemDom(itemDom)
 		if item
 			if item instanceof cola.Entity
 				return item.get(@_valueProperty)
-			return 	item[@_valueProperty]
+			return item[@_valueProperty]
 
 	_getItemsDom: ()->
 		attrBinding = @_elementAttrBindings?["items"]
@@ -69,7 +69,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 					{
 						tagName: "input",
 						name: @_name,
-						type:"radio",
+						type: "radio",
 						"c-value": valueProperty
 					},
 					{

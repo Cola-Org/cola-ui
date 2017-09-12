@@ -398,6 +398,9 @@ class cola.ItemsView extends cola.Widget
 			@refreshItem(item)
 		return
 
+	getItemByItemDom: (itemDom) ->
+		return cola.util.userData(itemDom, "item")
+
 	_findItemDom: (target) ->
 		while target
 			if target._itemType

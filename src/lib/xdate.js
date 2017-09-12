@@ -611,7 +611,7 @@ function _getTZString(xdate, token) {
 		out = zeroPad(hours);
 	}
 	else if (token == 'zzz') {
-		out = zeroPad(hours) + ':' + zeroPad(minutes);
+		out = zeroPad(hours) + zeroPad(minutes);
 	}
 	return sign + out;
 }
