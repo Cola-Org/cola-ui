@@ -100,16 +100,10 @@ class cola.Table extends cola.AbstractTable
 						parameter = invoker.invokerOptions.data
 						if not parameter
 							invoker.invokerOptions.data = parameter = {}
-						else if typeof parameter isnt "object" or parameter instanceof Date
+						else if typeof parameter isnt "object" or parameter instanceof cola.EntityList or parameter instanceof Date
 							throw new cola.Exception("Can not set sort parameter automatically.")
-						parameter.sort = criteria
-
-						provider = invoker.ajaxService
-						parameter = provider.get("parameter")
-						if not parameter
-							provider.set("parameter", parameter = {})
-						else if typeof parameter isnt "object" or parameter instanceof Date
-							throw new cola.Exception("Can not set sort parameter automatically.")
+						else if parameter instanceof cola.Entity
+							parameter = parameter.toJSON()
 						parameter.sort = criteria
 
 						cola.util.flush(collection)

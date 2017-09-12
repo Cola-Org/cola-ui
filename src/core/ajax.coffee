@@ -1,10 +1,8 @@
 _toJSON = (data) ->
 	if data
 		if typeof data is "object"
-			if data instanceof cola.Entity or data instanceof cola.EntityList
+			if data instanceof cola.Entity or data instanceof cola.EntityList or data instanceof Date
 				data = data.toJSON()
-			else if data instanceof Date
-				data = cola.util.formatDate(data, cola.setting("defaultSubmitDateFormat"))
 			else
 				rawData = data
 				data = {}

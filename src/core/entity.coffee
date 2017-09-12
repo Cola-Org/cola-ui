@@ -1841,8 +1841,8 @@ _Entity._getEntityId = (entity) ->
 		return entity._id
 
 TYPE_SEVERITY =
-	success: 1
-	warning: 2
+	info: 1
+	warn: 2
 	error: 4
 
 class cola.Entity.MessageHolder

@@ -19,7 +19,7 @@ class cola.Validator extends cola.Definition
 		message: null
 		messageType:
 			defaultValue: "error"
-			enum: ["error", "warning", "info"]
+			enum: ["error", "warn", "info"]
 		disabled: null
 		validateEmptyValue: null
 

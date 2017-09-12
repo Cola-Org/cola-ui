@@ -1,7 +1,3 @@
-DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd"
-DEFAULT_DATE_INPUT_FORMAT = "yyyyMMdd"
-DEFAULT_TIME_DISPLAY_FORMAT = "HH:mm:ss"
-DEFAULT_TIME_INPUT_FORMAT = "HHmmss"
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.AbstractInput extends cola.AbstractEditor
@@ -303,7 +299,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	focus: () ->
-		@_doms.input?.focus();
+		@_doms.input?.focus()
 		return
 
 class cola.Input extends cola.AbstractInput
@@ -350,7 +346,7 @@ class cola.Input extends cola.AbstractInput
 					if @_inputType == "text"
 						inputFormat = @_inputFormat
 						if dataType instanceof cola.DateDataType
-							inputFormat ?= DEFAULT_DATE_INPUT_FORMAT
+							inputFormat ?= cola.setting("defaultDateInputFormat")
 							value = inputFormat + "||" + value
 					value = dataType.parse(value)
 				@set("value", value)
@@ -412,26 +408,26 @@ class cola.Input extends cola.AbstractInput
 					value = formatNumber(format, value)
 			else if value instanceof Date
 				if not format
-					format = if @_inputFocused then DEFAULT_DATE_INPUT_FORMAT else DEFAULT_DATE_DISPLAY_FORMAT
+					format = if @_inputFocused then cola.setting("defaultDateTimeFormat") else cola.setting("defaultDateFormat")
 				value = (new XDate(value)).toString(format)
 		else
 			if value instanceof Date
 				if inputType is "date"
-					format = DEFAULT_DATE_DISPLAY_FORMAT
+					format = cola.setting("defaultDateFormat")
 				else if inputType is "time"
-					format = DEFAULT_TIME_DISPLAY_FORMAT
+					format = cola.setting("defaultTimeFormat")
 				else
-					format = ISO_FORMAT_STRING
+					format = cola.setting("defaultDateFormat")
 				value = (new XDate(value)).toString(format)
 		return super(value)
 
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
-		$input = $(@_doms.input);
+		$input = $(@_doms.input)
 		if @_maxLength
 			$input.attr("maxlength", @_maxLength)
 		else
-			$input.removeAttr("maxlength");
+			$input.removeAttr("maxlength")
 
 cola.registerWidget(cola.Input)

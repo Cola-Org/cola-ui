@@ -16,7 +16,7 @@
 @verticalMargin: 1em;
 @verticalPadding: 1em;
 @horizontalPadding: 1.5em;
-@padding: @verticalPadding @horizontalPadding;
+@padding: 0.5em 0.75em;
 @background: #F8F8F9;
 @lineHeightOffset: ((@lineHeight - 1em) / 2);
 
@@ -32,18 +32,6 @@ color @defaultDuration @defaultEasing,
 background @defaultDuration @defaultEasing,
 box-shadow @defaultDuration @defaultEasing;
 
-/* Header */
-@headerFontSize: 1em;
-@headerFontWeight: bold;
-@headerDisplay: block;
-@headerDistance: 0rem;
-@headerMargin: -@headerLineHeightOffset 0em @headerDistance 0em;
-@headerParagraphDistance: 0.25em;
-
-/* Paragraph */
-@messageTextOpacity: 0.85;
-@messageParagraphMargin: 0.75em;
-
 /* List */
 @listOpacity: 0.85;
 @listStylePosition: inside;
@@ -51,48 +39,12 @@ box-shadow @defaultDuration @defaultEasing;
 @listItemIndent: 1em;
 @listItemMargin: 0.3em;
 
-/* Icon */
-@iconDistance: 0.6em;
-
-/* Close Icon */
-@closeTopDistance: @verticalPadding - @lineHeightOffset;
-@closeRightDistance: 0.5em;
-@closeOpacity: 0.7;
-@closeTransition: opacity @defaultDuration @defaultEasing;
-
-/*-------------------
-        Types
---------------------*/
-
-/* Icon Message */
-@iconSize: 3em;
-@iconOpacity: 0.8;
-@iconContentDistance: 0rem;
-@iconVerticalAlign: middle;
-
-/* Attached */
-@attachedXOffset: -1px;
-@attachedYOffset: -1px;
-@attachedBoxShadow: 0em 0em 0em @borderWidth @borderColor inset;
-@attachedBottomBoxShadow: @attachedBoxShadow,
-@subtleShadow;
-
-/* Floating */
-@floatingBoxShadow: @borderShadow,
-@floatingShadow;
-
-/* Warning / Positive / Negative / Info */
-@positiveBoxShadow: 0px 0px 0px @borderWidth @positiveBorderColor inset,
-@shadowShadow;
-@negativeBoxShadow: 0px 0px 0px @borderWidth @negativeBorderColor inset,
-@shadowShadow;
+/* warn / Positive / Negative / Info */
 @infoBoxShadow: 0px 0px 0px @borderWidth @infoBorderColor inset,
 @shadowShadow;
-@warningBoxShadow: 0px 0px 0px @borderWidth @warningBorderColor inset,
+@warnBoxShadow: 0px 0px 0px @borderWidth @warningBorderColor inset,
 @shadowShadow;
 @errorBoxShadow: 0px 0px 0px @borderWidth @errorBorderColor inset,
-@shadowShadow;
-@successBoxShadow: 0px 0px 0px @borderWidth @successBorderColor inset,
 @shadowShadow;
 
 /*******************************
@@ -100,72 +52,24 @@ box-shadow @defaultDuration @defaultEasing;
 *******************************/
 
 message, messages {
-	position: relative;
 	min-height: 1em;
 	margin: @verticalMargin 0em;
-	background: @background;
 	padding: @padding;
 	line-height: @lineHeight;
 	color: @textColor;
 	transition: @transition;
 	border-radius: @borderRadius;
-	box-shadow: @boxShadow;
 }
-
-message:first-child, messages:first-child {
-	margin-top: 0em;
-}
-
-message:last-child, messages:last-child {
-	margin-bottom: 0em;
-}
-
-/*--------------
-     Content
----------------*/
 
 message, messages {
-
-	/* Header */
-	.header {
-		display: @headerDisplay;
-		font-family: @headerFont;
-		font-weight: @headerFontWeight;
-		margin: @headerMargin;
-	}
-
-	/* Default font size */
-	.header:not(.ui) {
-		font-size: @headerFontSize;
-	}
-
-	/* Paragraph */
-	p {
-		opacity: @messageTextOpacity;
-		margin: @messageParagraphMargin 0em;
-	}
-	p:first-child {
-		margin-top: 0em;
-	}
-	p:last-child {
-		margin-bottom: 0em;
-	}
-	.header + p {
-		margin-top: @headerParagraphDistance;
-	}
 
 	/* List */
 	.list:not(.ui) {
 		text-align: left;
 		padding: 0em;
-		opacity: @listOpacity;
-		list-style-position: @listStylePosition;
 		margin: @listMargin 0em 0em;
 	}
-	.list:not(.ui):first-child {
-		margin-top: 0em;
-	}
-	.list:not(.ui):last-child {
+	.list:not(.ui):first-child, .list:not(.ui):last-child {
 		margin-bottom: 0em;
 	}
 	.list:not(.ui) li {
@@ -174,319 +78,61 @@ message, messages {
 		margin: 0em 0em @listItemMargin @listItemIndent;
 		padding: 0em;
 	}
-	.list:not(.ui) li:before {
-		position: absolute;
-		content: '•';
-		left: -1em;
-		height: 100%;
-		vertical-align: baseline;
-	}
-	.list:not(.ui) li:last-child {
-		margin-bottom: 0em;
-	}
-
-	/* Icon */
-	> .icon {
-		margin-right: @iconDistance;
-	}
-
-	/* Close Icon */
-	> .close.icon {
-		cursor: pointer;
-		position: absolute;
-		margin: 0em;
-		top: @closeTopDistance;
-		right: @closeRightDistance;
-		opacity: @closeOpacity;
-		transition: @closeTransition;
-	}
-	> .close.icon:hover {
-		opacity: 1;
-	}
-
-	/* First / Last Element */
-	> :first-child {
-		margin-top: 0em;
-	}
-	> :last-child {
-		margin-bottom: 0em;
-	}
 }
-
-/*******************************
-            States
-*******************************/
-
-/*--------------
-    Visible
----------------*/
-
-message, messages {
-	&.visible {
-		display: block;
-	}
-	&.icon.visible {
-		display: flex;
-	}
-}
-
-/*--------------
-     Hidden
----------------*/
-
-message, messages {
-	&.hidden {
-		display: none;
-	}
-}
-
-/*******************************
-            Variations
-*******************************/
-
-/*--------------
-    Compact
----------------*/
-
-message, messages {
-	&.compact {
-		display: inline-block;
-	}
-}
-
-/*--------------
-      Icon
----------------*/
-
-message, messages {
-	&.icon {
-		display: flex;
-		width: 100%;
-		align-items: center;
-	}
-
-	&.icon > .icon:not(.close) {
-		display: block;
-		flex: 0 0 auto;
-		width: auto;
-		line-height: 1;
-		vertical-align: @iconVerticalAlign;
-		font-size: @iconSize;
-		opacity: @iconOpacity;
-	}
-
-	&.icon > .content {
-		display: block;
-		flex: 1 1 auto;
-		vertical-align: @iconVerticalAlign;
-	}
-
-	&.icon .icon:not(.close) + .content {
-		padding-left: @iconContentDistance;
-	}
-
-	&.icon .circular.icon {
-		width: 1em;
-	}
-}
-
-/*--------------
-     Types
----------------*/
 
 /* Info */
 message, messages {
 	&.info {
-		background-color: @infoBackgroundColor;
 		color: @infoTextColor;
-	}
-
-	&.info,
-	&.attached.info {
-		box-shadow: @infoBoxShadow;
-	}
-
-	&.info .header {
-		color: @infoHeaderColor;
+		&:before {
+			content: "\f05a";
+			font-family: "Icons";
+		}
 	}
 }
 
-/* Warning */
+/* warn */
 message, messages {
-	&.warning {
-		background-color: @warningBackgroundColor;
+	&.warn {
 		color: @warningTextColor;
-	}
-
-	&.warning,
-	&.attached.warning {
-		box-shadow: @warningBoxShadow;
-	}
-
-	&.warning .header {
-		color: @warningHeaderColor;
+		&:before {
+			content: "\f06a";
+			font-family: "Icons";
+		}
 	}
 }
 
 /* Error */
 message, messages {
 	&.error {
-		background-color: @errorBackgroundColor;
 		color: @errorTextColor;
+		&:before {
+			content: "\f071";
+			font-family: "Icons";
+		}
 	}
-
-	&.error,
-	&.attached.error {
-		box-shadow: @errorBoxShadow;
-	}
-
-	&.error .header {
-		color: @errorHeaderColor;
-	}
-}
-
-/* Success */
-message, messages {
-	&.success {
-		background-color: @successBackgroundColor;
-		color: @successTextColor;
-	}
-
-	&.success,
-	&.attached.success {
-		box-shadow: @successBoxShadow;
-	}
-
-	&.success .header {
-		color: @successHeaderColor;
-	}
-}
-
-/*--------------
-     Sizes
----------------*/
-
-message, messages {
-	font-size: 1em;
-
 }
 
 messages {
 	width: 100%;
 }
 
-///////////////////////////////////////////////////
-
-@loaderLineZIndex: 101;
-
-@loaderDimmerZIndex: 100;
-@loaderDimmerColor: rgba(255, 255, 255, 0.8);
-
-@disabledLabelOpacity: @disabledOpacity;
-@formErrorColor: @negativeTextColor;
-@formErrorBorder: @negativeBorderColor;
-@formErrorBackground: @negativeBackgroundColor;
-
-/*--------------------
-   Types of Messages
----------------------*/
-
-.form messages,
-.form message.info,
-.form message.warning,
-.form message.error {
+.form message,
+.form messages {
 	display: none;
 }
 
-/* Assumptions */
-.form message:first-child {
-	margin-top: 0px;
-}
-
-/*--------------------
-        Info
----------------------*/
-
-/* On Form */
-.form.success message.info:not(:empty),
-.form.success messages.info:not(:empty) {
+.form message.info,
+.form messages.info {
 	display: block;
 }
 
-.form.success message.icon.success:not(:empty),
-.form.success messages.icon.success:not(:empty) {
-	display: flex;
-}
-
-/*--------------------
-        Warning
----------------------*/
-
-/* On Form */
-.form.warning message.warning:not(:empty),
-.form.warning messages.warning:not(:empty) {
+.form message.warn,
+.form messages.warn {
 	display: block;
 }
 
-.form.warning message.icon.warning:not(:empty),
-.form.warning messages.icon.warning:not(:empty) {
-	display: flex;
-}
-
-/*--------------------
-        Error
----------------------*/
-
-/* On Form */
-.form.error message.error:not(:empty),
-.form.error messages.error:not(:empty) {
+.form message.error,
+.form messages.error {
 	display: block;
-}
-
-.form.error message.icon.error:not(:empty)
-.form.error messages.icon.error:not(:empty) {
-	display: flex;
-}
-
-/* On Field(s) */
-.form fields.error field label,
-.form field.error label,
-.form fields.error field .input,
-.form field.error input {
-	color: @formErrorColor;
-}
-
-.form fields.error field .corner.label,
-.form field.error .corner.label {
-	border-color: @formErrorColor;
-	color: @white;
-}
-
-/*--------------------
-       Disabled
----------------------*/
-.form fields.disabled field,
-.form field.disabled,
-.form field :disabled {
-	pointer-events: none;
-	opacity: @disabledOpacity;
-}
-
-.form field.disabled label {
-	opacity: @disabledLabelOpacity;
-}
-
-.form field.disabled :disabled {
-	opacity: 1;
-}
-
-
-
-@keyframes form-spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
 }

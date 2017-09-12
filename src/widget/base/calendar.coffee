@@ -163,7 +163,7 @@ do->
 
 			return
 		getDateCellDom: (date)->
-			value = new XDate(date).toString("yyyy-M-d")
+			value = new XDate(date).toString(cola.setting("defaultDateFormat"))
 			return $(@_dom).find("td[cell-date='#{value}']")
 
 		doRefreshCell: (cell, row, column) ->

@@ -231,6 +231,7 @@ class cola.Field extends cola.Widget
 				@_bindSetter(bind)
 
 		if bind and dom.childElementCount is 0
+			@_autoContent = true
 			dom.appendChild($.xCreate(
 			  tagName: "label"
 			  content: @_caption or ""
@@ -258,6 +259,10 @@ class cola.Field extends cola.Widget
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
+		if @_messageDom
+			$fly(@_messageDom).popup({
+				position: "bottom center"
+			})
 
 		if @_labelDom
 			$label = $fly(@_labelDom)
@@ -297,13 +302,30 @@ class cola.Field extends cola.Widget
 
 		@_message = message
 
+		if message
+			@get$Dom().addClass(message.type)
+			if not @_messageDom and @_autoContent
+				@_messageDom = document.createElement("message")
+				@getDom().appendChild(@_messageDom)
+				$fly(@_messageDom).popup({
+					position: "bottom center"
+				})
+
+		else if @_state
+			@get$Dom().removeClass(@_state)
+
 		if @_messageDom
 			$message = $fly(@_messageDom)
-			$message.removeClass("error warning success")
 			if message
-				$message.addClass(message.type).text(message.text)
+				$message.addClass(message.type)
+				if $message.hasClass("text")
+					$message.text(message.text)
+				else
+					$message.attr("data-content", message.text)
 			else
-				$message.empty()
+				$message.removeClass(@_state).empty().attr("data-content", null)
+
+		@_state = message?.type
 
 		@_form?.refreshMessages()
 		return

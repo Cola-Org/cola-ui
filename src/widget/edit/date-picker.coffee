@@ -265,11 +265,10 @@ class cola.DateGrid extends cola.RenderableElement
 		label = document.createElement("div")
 		label.className = "label"
 		cell.appendChild(label)
-
-
 		return
+
 	getDateCellDom: (date)->
-		value = new XDate(date).toString("yyyy-MM-dd")
+		value = new XDate(date).toString(cola.setting("defaultDateFormat"))
 		return $(@_dom).find("td[cell-date='#{value}']")[0]
 
 	setCurrentDate: (date)->
@@ -361,9 +360,6 @@ class cola.DateGrid extends cola.RenderableElement
 		return @ unless @_dom
 		return @
 
-DEFAULT_DATE_DISPLAY_FORMAT = "yyyy-MM-dd"
-DEFAULT_DATE_TIME_DISPLAY_FORMAT = "yyyy-MM-dd HH:mm:ss"
-
 class cola.DatePicker extends cola.CustomDropdown
 	@tagName: "c-datepicker"
 	@CLASS_NAME: "date input drop"
@@ -381,6 +377,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		blur: null
 		keyDown: null
 		keyPress: null
+
 	_initDom: (dom)->
 		super(dom)
 		doPost = ()=>
@@ -390,9 +387,9 @@ class cola.DatePicker extends cola.CustomDropdown
 				inputFormat = @_inputFormat or @_displayFormat
 				unless inputFormat
 					if @_inputType == "date"
-						inputFormat = DEFAULT_DATE_DISPLAY_FORMAT
+						inputFormat = cola.setting("defaultDateInputFormat")
 					else
-						inputFormat = DEFAULT_DATE_TIME_DISPLAY_FORMAT
+						inputFormat = cola.setting("defaultDateTimeInputFormat")
 				if inputFormat and value
 					value = inputFormat + "||" + value
 					xDate = new XDate(value)
@@ -443,6 +440,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			if event.keyCode == 13 && isIE11 then doPost()
 		)
 		return
+
 	_refreshInputValue: (value) ->
 		inputType = @_inputType
 		if value instanceof Date
@@ -452,9 +450,9 @@ class cola.DatePicker extends cola.CustomDropdown
 				format = @_inputFormat or @_displayFormat
 				unless format
 					if inputType is "date"
-						format = DEFAULT_DATE_DISPLAY_FORMAT
+						format = cola.setting("defaultDateFormat")
 					else
-						format = DEFAULT_DATE_TIME_DISPLAY_FORMAT
+						format = cola.setting("defaultDateTimeFormat")
 				value = (new XDate(value)).toString(format)
 		return super(value)
 

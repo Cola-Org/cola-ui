@@ -166,6 +166,11 @@ setting = {
 	defaultCharset: "utf-8"
 	defaultNumberFormat: "#,##0.##"
 	defaultDateFormat: "yyyy-MM-dd"
+	defaultDateInputFormat: "yyyyMMdd"
+	defaultTimeFormat: "HH:mm:ss"
+	defaultTimeInputFormat: "HHmmss"
+	defaultDateTimeFormat: "yyyy-MM-dd HH:mm:ss"
+	defaultDateTimeInputFormat: "yyyyMMddHHmmss"
 	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"
 }
 
@@ -319,3 +324,9 @@ cola.callback = (callback, success, result) ->
 			return
 		else
 			return callback.complete.call(scope, success, result)
+
+###
+Lang
+###
+Date.prototype.toJSON = () ->
+	cola.util.formatDate(@, cola.setting("defaultSubmitDateFormat"))
