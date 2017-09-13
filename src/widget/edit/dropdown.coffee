@@ -107,7 +107,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					event: evt
 					inputValue: @_doms.input.value
 
-
 				@fire("keyDown", @, arg)
 				if evt.keyCode is 9 then @_closeDropdown()
 
@@ -194,7 +193,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return cola.device.mobile or not @_editable
+		return not @_editable
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)

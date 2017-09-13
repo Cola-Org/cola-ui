@@ -379,7 +379,7 @@ class cola.ItemsScope extends cola.SubScope
 	setExpression: (expression) ->
 		@expression = expression
 		@alias = if expression then expression.alias else "item"
-		@expressionPaths ?= []
+		@expressionPaths = []
 
 		if expression
 			if expression.paths
@@ -392,6 +392,18 @@ class cola.ItemsScope extends cola.SubScope
 				@watchPath(expression.paths)
 		else
 			@unwatchPath()
+		return
+
+	addAuxExpression: (expression) ->
+		@expressionPaths ?= []
+		if expression.paths
+			for path in @expression.splittedPaths
+				@expressionPaths.push(path)
+
+		if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
+			@watchAllMessages()
+		else
+			@watchPath(expression.paths)
 		return
 
 	registerChild: () ->

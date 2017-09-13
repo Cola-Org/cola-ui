@@ -4,16 +4,24 @@ class cola.CascadeBind extends cola.Element
 	@attributes:
 		expression:
 			setter: (expression) ->
-				expression = cola._compileExpression(@_scope, expression, "repeat")
 				if expression
-					if not expression.repeat
+					expression = cola._compileExpression(@_scope, expression, "repeat")
+					if not expression?.repeat
 						throw new cola.Exception("\"#{bindStr}\" is not a repeat expression.")
-				else
-					delete @_alias
 				@_expression = expression
 				return
 
 		recursive: null
+		recursiveExpression:
+			setter: (expression) ->
+				if expression
+					@_recursive = true
+					expression = cola._compileExpression(@_scope, expression, "repeat")
+					if not expression?.repeat
+						throw new cola.Exception("\"#{bindStr}\" is not a repeat expression.")
+				@_recursiveExpression = expression
+				return
+
 		child:
 			setter: (child) ->
 				if child and not (child instanceof cola.CascadeBind)
@@ -91,7 +99,11 @@ class cola.CascadeBind extends cola.Element
 		funcs = []
 		if @_recursive or isRoot
 			dataCtx ?= {}
-			items = @_expression.evaluate(parentNode._scope, "async", dataCtx)
+			if isRoot
+				expression = @_expression
+			else
+				expression = @_recursiveExpression or @_expression
+			items = expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items == undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
 				if recursiveLoader
@@ -124,7 +136,12 @@ class cola.CascadeBind extends cola.Element
 					if success
 						hasChild = false
 						if @_recursive or isRoot
-							recursiveItems = @_expression.evaluate(parentNode._scope, "never")
+							if isRoot
+								expression = @_expression
+							else
+								expression = @_recursiveExpression or @_expression
+
+							recursiveItems = expression.evaluate(parentNode._scope, "never")
 							originRecursiveItems = recursiveItems.$origin if recursiveItems instanceof Array
 							if recursiveItems
 								if recursiveItems instanceof cola.EntityList and recursiveItems.entityCount > 0
@@ -161,7 +178,14 @@ class cola.CascadeBind extends cola.Element
 	hasChildItems: (parentScope) ->
 		if @_recursive
 			dataCtx = {}
-			items = @_expression.evaluate(parentScope, "never", dataCtx)
+
+			isRoot = not parentNode._parent
+			if isRoot
+				expression = @_expression
+			else
+				expression = @_recursiveExpression or @_expression
+
+			items = expression.evaluate(parentScope, "never", dataCtx)
 			if not dataCtx.unloaded
 				if items
 					if items instanceof cola.EntityList

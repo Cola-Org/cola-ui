@@ -420,8 +420,17 @@ class cola.Tree extends cola.AbstractList
 		tree = @
 		itemsScope = node._itemsScope
 		if not itemsScope
-			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope, node._bind?._expression)
-			itemsScope.alias = node._alias
+			expressions = []
+			bind = node._bind
+			if bind
+				if bind._recursive
+					expressions.push(bind._recursiveExpression or bind._expression)
+				if bind._child
+					expressions.push(bind._child._expression)
+
+			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope, expressions[0])
+			if expressions.length > 1
+				itemsScope.addAuxExpression(expressions[1])
 
 		nodeDom = itemDom.firstElementChild
 		$fly(nodeDom).addClass("expanding") if expand
