@@ -57,8 +57,8 @@ class cola.SelectButton extends cola.AbstractEditor
 	_getItemsDom: ()->
 		attrBinding = @_elementAttrBindings?["items"]
 		if attrBinding
-			cText = "item." + (@_textProperty or "value")
-			cValue = "item." + (@_valueProperty or "key")
+			cText = if @_textProperty then "item." + @_textProperty else "item"
+			cValue = if @_valueProperty then "item." + @_valueProperty else "item"
 			raw = attrBinding.expression.raw
 			itemsDom = cola.xRender({
 				tagName: "c-button",

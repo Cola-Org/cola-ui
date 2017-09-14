@@ -352,7 +352,8 @@ class cola.Entity
 
 		if data?
 			@_disableWriteObservers++
-			@set(data)
+			for prop, value of data
+				@_set(prop, value, true)
 			if data.state$ then @state = data.state$
 			@_disableWriteObservers--
 
@@ -392,7 +393,7 @@ class cola.Entity
 			providerInvoker = provider.getInvoker(data: @)
 			if loadMode == "sync"
 				retValue = providerInvoker.invokeSync()
-				@_set(prop, retValue)
+				@_set(prop, retValue, true)
 				retValue = @_data[prop]
 				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
 					retValue._providerInvoker = providerInvoker
@@ -444,7 +445,7 @@ class cola.Entity
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
-				value = @_set(prop, value)
+				value = @_set(prop, value, true)
 			else if loadMode == "async"
 				if callback then providerInvoker.callbacks.push(callback)
 				callbackProcessed = true
@@ -502,8 +503,8 @@ class cola.Entity
 			_setValue(@, prop, value, context)
 		else if prop and (typeof prop == "object")
 			config = prop
-			for prop of config
-				@set(prop, config[prop])
+			for prop, val of config
+				@set(prop, val)
 		return @
 
 	_jsonToEntity: (value, dataType, aggregated, provider) ->
@@ -576,7 +577,7 @@ class cola.Entity
 				}) is false
 					return
 
-			if property?._validators and property._rejectInvalidValue
+			if not ignoreState and property?._validators and property._rejectInvalidValue
 				messages = null
 				for validator in property._validators
 					if value? or validator instanceof cola.RequiredValidator
@@ -622,7 +623,7 @@ class cola.Entity
 					oldValue: oldValue
 				})
 
-			if property?._validators
+			if not ignoreState and property?._validators
 				if messages != undefined
 					@_messageHolder?.clear(prop)
 					@addMessage(prop, messages)

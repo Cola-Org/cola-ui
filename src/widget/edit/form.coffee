@@ -182,7 +182,7 @@ class cola.Field extends cola.Widget
 				if @_domParsed
 					@_bindSetter(bindStr)
 				else
-					@_bind = bindStr
+					@_bindStr = bindStr
 				return
 
 		caption: null
@@ -213,7 +213,8 @@ class cola.Field extends cola.Widget
 	_parseDom: (dom) ->
 		@_domParsed = true
 
-		if not @_bind and @_property
+		bind = @_bindStr
+		if not bind and @_property
 			if dom.parentNode
 				if dom.parentNode.nodeName is "C-FORM"
 					@_formDom = dom.parentNode
@@ -228,10 +229,9 @@ class cola.Field extends cola.Widget
 					bind = formBind + "." + @_property
 				else
 					bind = @_property
-				@_bindSetter(bind)
 
+		if bind then @_bindSetter(bind)
 		if bind and dom.childElementCount is 0
-			@_autoContent = true
 			dom.appendChild($.xCreate(
 			  tagName: "label"
 			  content: @_caption or ""
@@ -304,7 +304,7 @@ class cola.Field extends cola.Widget
 
 		if message
 			@get$Dom().addClass(message.type)
-			if not @_messageDom and @_autoContent
+			if not @_messageDom
 				@_messageDom = document.createElement("message")
 				@getDom().appendChild(@_messageDom)
 				$fly(@_messageDom).popup({

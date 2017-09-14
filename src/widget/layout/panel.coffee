@@ -22,6 +22,7 @@ class cola.Panel extends cola.AbstractContainer
         beforeOpen: null
         beforeCollapsedChange: null
         beforeClose: null
+
     collapsedChange: ()->
         $dom = @_$dom
         collapsed = @isCollapsed()

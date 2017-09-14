@@ -144,7 +144,8 @@ cola.xRender = (template, model, context) ->
 
 cola._renderDomTemplate = (dom, scope, context = {}) ->
 	if _doRenderDomTemplate(dom, scope, context)
-		$(dom).find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
+		$(dom).removeClass(cola.constants.SHOW_ON_READY_CLASS)
+			.find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 	return
 
 _doRenderDomTemplate = (dom, scope, context) ->

@@ -155,7 +155,7 @@ class cola.Tree extends cola.AbstractList
 							@_prepareChildNode(node, true)
 					return true
 
-			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE
+			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_EDITING_STATE_CHANGE
 				node = @findNode(arg.entity)
 				if node
 					@refreshNode(node)
@@ -171,8 +171,8 @@ class cola.Tree extends cola.AbstractList
 			else if type is cola.constants.MESSAGE_INSERT
 				parentNode = @findNode(arg.entityList.parent)
 				if parentNode
-					@refreshNode(parentNode)
 					@_prepareChildNode(parentNode, parentNode.get("expanded"))
+					@refreshNode(parentNode)
 				return true
 
 			else if type is cola.constants.MESSAGE_REMOVE
@@ -180,7 +180,9 @@ class cola.Tree extends cola.AbstractList
 				if node then @_removeNode(node)
 
 				parentNode = @findNode(arg.entityList.parent)
-				if parentNode then @refreshNode(parentNode)
+				if parentNode
+					@_prepareChildNode(parentNode, parentNode.get("expanded"))
+					@refreshNode(parentNode)
 				return true
 
 			return
@@ -249,12 +251,7 @@ class cola.Tree extends cola.AbstractList
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
 			template = @getTemplate("node-" + itemType, "node")
 			if template
-#				if template instanceof Array
-#					span = document.createElement("span")
-#					span.appendChild(templ) for templ in template
-#					template = span
-#					@regTemplate("node-" + itemType, template)
-				contentDom = @_cloneTemplate(template)
+				contentDom = @_cloneTemplate(template, true)
 				$fly(contentDom).addClass("node-content")
 				nodeDom.appendChild(contentDom)
 		return itemDom
@@ -433,7 +430,7 @@ class cola.Tree extends cola.AbstractList
 				itemsScope.addAuxExpression(expressions[1])
 
 		nodeDom = itemDom.firstElementChild
-		$fly(nodeDom).addClass("expanding") if expand
+		$fly(nodeDom).addClass("expanding") if expand and not node._expanded
 		node._bind.retrieveChildNodes(node, () ->
 			$fly(nodeDom).removeClass("expanding") if expand
 			if node._children?.length > 0

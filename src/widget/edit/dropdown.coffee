@@ -417,9 +417,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container = @_getContainer()
 		container?.hide?(callback)
 		return
+
 	_closeDropdown:()->
 		container = @_getContainer()
 		container?.hide?()
+
 	_getItemValue: (item) ->
 		if @_valueProperty and item
 			if item instanceof cola.Entity
@@ -707,7 +709,10 @@ class cola.Dropdown extends cola.AbstractDropdown
 					"c-bind": "$default"
 				})
 
-			list.on("itemClick", () => @close(list.get("currentItem")))
+			list.on("itemClick", (self, arg) =>
+				@close(self.getItemByItemDom(arg.itemDom))
+				return
+			)
 
 		@_refreshDropdownContent?()
 		return template
