@@ -93,8 +93,6 @@ class cola.Layer extends cola.AbstractLayer
 			layer.fire(options.target, layer, {})
 			return null
 
-		$(window.document.body).toggleClass("hide-overflow", options.target is "show")
-
 		if options.animation == "none"
 			@get$Dom().transition(options.target)
 			onComplete()
