@@ -67,6 +67,7 @@ class cola.MultiSelect extends cola.CustomDropdown
 		$(dom).delegate(".tag", "click", ()->
 			multiSelect.removeItem(@)
 		)
+		@_doms.input = dom;
 
 
 cola.registerWidget(cola.MultiSelect)
