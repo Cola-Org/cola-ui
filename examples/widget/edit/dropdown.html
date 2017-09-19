@@ -1,115 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<script src="../../include-all.js"></script>
-	<style>
-	</style>
-	<script type="text/javascript">
-		cola(function (model) {
-			model.set("languages", [
-				{name: "Javascript"},
-				{name: "Java"},
-				{name: "C"},
-				{name: "C++"},
-				{name: "Coffee"},
-				{name: "Ruby"},
-				{name: "R"},
-				{name: "Python"},
-				{name: "Pascal"}
-			]);
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+    <style>
+    </style>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.set("languages", [
+                {name: "Javascript"},
+                {name: "Java"},
+                {name: "C"},
+                {name: "C++"},
+                {name: "Coffee"},
+                {name: "Ruby"},
+                {name: "R"},
+                {name: "Python"},
+                {name: "Pascal"}
+            ]);
 
-			model.set("items", [
-				{k: "1", v: "A"},
-				{k: "2", v: "B"}
-			]);
+            model.set("items", [
+                {k: "1", v: "A"},
+                {k: "2", v: "B"}
+            ]);
 
-			model.action({
-				pickValue: function (self) {
-					dropdown = cola.findDropDown(self);
-					if (dropdown) {
-						dropdown.close("Yeah!");
-					}
-				},
-				setPersonClass: function (clazz) {
-					var id = clazz.get("id");
-					model.set("pserson.classId", id);
-				}
+            model.action({
+                pickValue: function (self) {
+                    dropdown = cola.findDropDown(self);
+                    if (dropdown) {
+                        dropdown.close("Yeah!");
+                    }
+                },
+                setPersonClass: function (clazz) {
+                    var id = clazz.get("id");
+                    model.set("pserson.classId", id);
+                }
 
-			});
+            });
 
 
-			model.set("currentSelected", 1);
+            model.set("currentSelected", 1);
 
-			model.widgetConfig({
-				button1: {
-					$type: "button",
-					caption: "Test",
-					click: function () {
-						model.set("selected", null);
-					}
-				},
-				dropdown1: {
-					$type: "dropdown",
-					filterable: false,
-					openMode: "drop",
-					//items: "{{language in languages}}",
-					bind: "selected",
-					valueProperty: "name",
-					textProperty: "name",
+            model.widgetConfig({
+                button1: {
+                    $type: "button",
+                    caption: "Test",
+                    click: function () {
+                        model.set("selected", null);
+                    }
+                },
+                dropdown1: {
+                    $type: "dropdown",
+                    filterable: false,
+                    openMode: "drop",
+                    //items: "{{language in languages}}",
+                    bind: "selected",
+                    valueProperty: "name",
+                    textProperty: "name",
                     beforeChange: function (self, arg) {
-						debugger;
+                        debugger;
                         console.log(arg)
                     },
-					input:function (self,arg) {
+                    input: function (self, arg) {
                         console.log(arg)
                     }
-				},
-				dropdown2: {
-					$type: "dropdown",
-					openMode: "drop",
-					items: "{{language in languages}}",
-					bind: "selected",
-					valueProperty: "name",
-					textProperty: "name"
-				},
-				dropdown3: {
-					$type: "dropdown",
-					class: "error",
-					openMode: "drop",
-					items: "{{language in languages}}",
-					textProperty: "name"
-				},
-				dropdown4: {
-					$type: "customDropdown",
-					openMode: "drop"
-				},
-				dropdown5: {
-					$type: "customDropdown",
-					openMode: "drop",
-					valueProperty: "name",
-					openOnActive:false,
-					content: {
-						$type: "table",
-						bind: "language in languages",
-						columns: [{bind: ".name"}],
-						itemClick: function (self, arg) {
-							var dropdown = cola.findDropDown(self);
-							if (dropdown) dropdown.close(arg.item);
-						}
-					}
-				},
-				mappingDropDown: {
-					$type: "dropdown",
-					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
+                },
+                dropdown2: {
+                    $type: "dropdown",
+                    openMode: "drop",
+                    items: "{{language in languages}}",
+                    bind: "selected",
+                    valueProperty: "name",
+                    textProperty: "name"
+                },
+                dropdown3: {
+                    $type: "dropdown",
+                    class: "error",
+                    openMode: "drop",
+                    items: "{{language in languages}}",
+                    textProperty: "name"
+                },
+                dropdown4: {
+                    $type: "customDropdown",
+                    openMode: "drop"
+                },
+                dropdown5: {
+                    $type: "customDropdown",
+                    openMode: "drop",
+                    valueProperty: "name",
+                    openOnActive: false,
+                    content: {
+                        $type: "table",
+                        bind: "language in languages",
+                        columns: [{bind: ".name"}],
+                        itemClick: function (self, arg) {
+                            var dropdown = cola.findDropDown(self);
+                            if (dropdown) dropdown.close(arg.item);
+                        }
+                    }
+                },
+                mappingDropDown: {
+                    $type: "dropdown",
+                    items: "{{item in items}}",
+                    valueProperty: "k",
+                    textProperty: "v",
 //					openOnActive:false,
-					bind: "currentSelected"
-				}
-			});
-		});
-	</script>
+                    bind: "currentSelected"
+                }
+            });
+        });
+    </script>
 </head>
 <body style="padding:20px;">
 
@@ -119,28 +119,28 @@
 <p></p>
 
 <div id="dropdown2">
-	<template name="value-content">
-		<button c-bind="$default"></button>
-	</template>
+    <template name="value-content">
+        <button c-bind="$default"></button>
+    </template>
 </div>
 
 <p></p>
 
 <div id="dropdown3">
-	<!--<template>-->
-		<!--<li>-->
-			<!--<i class="green checkmark icon"></i>-->
-			<!--<label c-bind="language.name"></label>-->
-		<!--</li>-->
-	<!--</template>-->
+    <!--<template>-->
+    <!--<li>-->
+    <!--<i class="green checkmark icon"></i>-->
+    <!--<label c-bind="language.name"></label>-->
+    <!--</li>-->
+    <!--</template>-->
 </div>
 
 <p></p>
 
 <div id="dropdown4">
-	<!--<template>-->
-		<!--<div c-widget="button; caption:Pick Value; click:{{pickValue(self)}}"></div>-->
-	<!--</template>-->
+    <!--<template>-->
+    <!--<div c-widget="button; caption:Pick Value; click:{{pickValue(self)}}"></div>-->
+    <!--</template>-->
 </div>
 
 <p></p>

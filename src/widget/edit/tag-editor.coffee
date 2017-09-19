@@ -110,10 +110,13 @@ cola.defineWidget({
 
 	removeItem: (item)->
 		if item
-			item.remove()
-			@fire("removeItem", @, {
+			result = @fire("removeItem", @, {
 				item: item
 			})
+
+			if result is false then return
+
+			item.remove()
 
 	open: ()->
 		@_showDropBox()

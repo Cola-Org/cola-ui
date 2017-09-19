@@ -45,7 +45,22 @@
 				}
 			}
 		});
-
+		model.set('items',[
+			{
+			    name:"01",
+				items:[
+					{name:"0101"},
+					{name:"0102"},
+				]
+			},
+            {
+                name:"02",
+                items:[
+                    {name:"0201"},
+                    {name:"0202"},
+                ]
+            }
+		])
 
 		model.describe("person", "Person");
 		model.set("person", {id: "001"});
@@ -53,6 +68,8 @@
 
 
 </script>
+<div c-repeat="item in items">
 
+</div>
 </body>
 </html>
