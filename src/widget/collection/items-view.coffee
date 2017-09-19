@@ -399,6 +399,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	getItemByItemDom: (itemDom) ->
+		return null unless itemDom
 		return cola.util.userData(itemDom, "item")
 
 	_findItemDom: (target) ->

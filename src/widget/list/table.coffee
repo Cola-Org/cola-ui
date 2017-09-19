@@ -107,10 +107,6 @@ class cola.Table extends cola.AbstractTable
 						parameter.sort = criteria
 
 						cola.util.flush(collection)
-						processed = true
-
-				if not processed
-					throw new cola.Exception("Remote sort not supported.")
 			else
 				@_sortCriteria = criteria
 				@_refreshItems()

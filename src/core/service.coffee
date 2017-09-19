@@ -126,7 +126,11 @@ class cola.AjaxService extends cola.Definition
 		options.url = @getUrl(context)
 		options.method = @_method if @_method
 		options.timeout = @_timeout if @_timeout
-		options.data = @_parameter
+
+		if @_parameter instanceof cola.Entity or @_parameter instanceof cola.EntityList
+			options.data = @_parameter.toJSON()
+		else
+			options.data = @_parameter
 
 		if @_sendJson
 			options.sendJson = true

@@ -178,8 +178,8 @@ class cola.Panel extends cola.AbstractContainer
                     break
             child = child.nextElementSibling
         return
-cola.Element.mixin(cola.Panel, cola.TemplateSupport)
 
+cola.Element.mixin(cola.Panel, cola.TemplateSupport)
 
 class cola.FieldSet extends cola.Panel
     @CLASS_NAME: "panel fieldset"

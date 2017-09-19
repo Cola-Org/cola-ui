@@ -421,7 +421,6 @@ class cola.Widget extends cola.RenderableElement
 		content = options.content
 		content = @_dimmer.content if !content and @_dimmer
 
-
 		if content
 			if typeof content is "string"
 				dimmerContent = $.xCreate({

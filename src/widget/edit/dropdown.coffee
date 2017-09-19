@@ -110,7 +110,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				@fire("keyDown", @, arg)
 				if evt.keyCode is 9 then @_closeDropdown()
 
-
 				if @?_onKeyDown(evt) isnt false and @_dropdownContent
 					$(@_dropdownContent).trigger(evt)
 				return
@@ -710,7 +709,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				})
 
 			list.on("itemClick", (self, arg) =>
-				@close(self.getItemByItemDom(arg.itemDom))
+				@close(self.getItemByItemDom(arg.dom))
 				return
 			)
 

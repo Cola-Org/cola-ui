@@ -33,6 +33,9 @@ _processEntity = (entity, context, options) ->
 		if prop.charCodeAt(0) is 36 # `$`
 			continue
 		if val and (val instanceof cola.Entity or val instanceof cola.EntityList)
+			if not options.ignoreValidation and val instanceof cola.Entity
+				val.validate()
+
 			context.parentProperty = prop
 			val = _extractDirtyTree(val, context, options)
 			if val?
