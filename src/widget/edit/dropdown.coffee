@@ -255,7 +255,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				$fly(valueContent).show()
 
 			if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
-				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty)
+				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
 			else
 				text = item
 			input.value = text or ""
@@ -271,7 +271,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_initValueContent: (valueContent, context) ->
-		property = @_textProperty or @_valueProperty
+		property = @_textProperty or @_valueProperty or "value"
 		if property
 			context.defaultPath += "." + property
 
@@ -719,7 +719,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 	_refreshDropdownContent: () ->
 		attrBinding = @_elementAttrBindings?["items"]
 		list = @_list
-		list._textProperty = @_textProperty or @_valueProperty
+		list._textProperty = @_textProperty or @_valueProperty or "value"
 		if attrBinding
 			list.set("bind", attrBinding.expression.raw)
 		else
@@ -729,7 +729,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 cola.registerWidget(cola.Dropdown)
 
 class cola.CustomDropdown extends cola.AbstractDropdown
-	@tagName: "c-customDropdown"
+	@tagName: "c-custom-dropdown"
 
 	@attributes:
 		content: null

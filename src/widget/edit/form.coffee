@@ -94,12 +94,6 @@ class cola.Form extends cola.Widget
 					content: fieldContent
 				)
 
-			childDoms.push(
-				tagName: "field"
-				content:
-					tagName: "messages"
-			)
-
 			childDoms = cola.xCreate(childDoms)
 			for childDom in childDoms
 				$(dom).append(childDom)

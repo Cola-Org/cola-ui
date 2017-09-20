@@ -145,8 +145,8 @@ class cola.Element
 				constructor.call(@)
 
 		if config then @set(config, true)
-		delete @_constructing
 		@fire("create", @)
+		delete @_constructing
 
 	destroy: ()->
 		classType = @constructor
