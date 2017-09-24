@@ -101,7 +101,7 @@ class cola.Tab extends cola.Widget
 			lastTop = $(lastTab).offset().top
 			return lastTop + $(lastTab).outerHeight() - firstTop
 
-	refreshNavButtons: ()->
+	refreshNavButtons: (width)->
 		$dom = @_$dom or $(@_dom)
 		buttons = $dom.find(">nav>tabs>tab")
 		visible = false
@@ -157,6 +157,9 @@ class cola.Tab extends cola.Widget
 				tabBar.find(">.pre-button").toggleClass("disabled", firstTop > top)
 
 		$dom.find(".control-button").toggleClass("visible", visible)
+		if oldPosition < 0 && width
+			position = oldPosition + width
+			tabsWrap.css(style, (if position > 0 then 0 else position) + "px")
 		unless  visible then  tabsWrap.css(style, "0px")
 		return
 
@@ -392,23 +395,26 @@ class cola.Tab extends cola.Widget
 			if @get("currentTab") is obj
 
 				tabDom = obj._dom;
-				sibling=$(tabDom).parent().find(">tab,>.tab-button")
-				index=sibling.index(tabDom);
+				sibling = $(tabDom).parent().find(">tab,>.tab-button")
+				index = sibling.index(tabDom);
 
-				if index>0
-					targetDom=sibling[index-1]
-				else if index<sibling.length-1
-					targetDom=sibling[index+1]
+				if index > 0
+					targetDom = sibling[index - 1]
+				else if index < sibling.length - 1
+					targetDom = sibling[index + 1]
 
 				if targetDom
 					targetTab = cola.widget(targetDom)
 					return false unless @setCurrentTab(targetTab)
 			contentContainer = obj.get("contentContainer")
 			unless contentContainer
-				contentContainer = @_getTabContentDom(obj)
-			obj.remove()
+				contentContainer = @_getTabContentDom(obj);
+			if obj
+				width = obj.get$Dom().outerWidth()
+				obj.remove()
+
 			$(contentContainer).remove()
-		@refreshNavButtons()
+		@refreshNavButtons(width)
 		return true
 
 	clear: ()->

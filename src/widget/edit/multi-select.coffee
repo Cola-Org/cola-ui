@@ -47,16 +47,23 @@ class cola.MultiSelect extends cola.CustomDropdown
 
 	_selectData: (item) ->
 		@_inputEdited = false
-		cValue = @_value
-		values = cValue.split(",")
+		cValue = @_value || ""
+
+		if cValue
+			values = cValue.split(",")
+		else
+			values = []
+
 		for val in values
 			if val == item then return;
+
 		values.push(item);
 		value = values.join(",")
 		@_skipFindCurrentItem = true
 		if @fire("selectData", @, {item: item, oldValue: cValue, value: value}) isnt false
 			@_currentItem = item
 			@set("value", value)
+
 		@_skipFindCurrentItem = false
 		@refresh()
 		return
