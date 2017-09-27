@@ -267,7 +267,7 @@ class cola.Field extends cola.Widget
 					if propertyDef._validators
 						for validator in propertyDef._validators
 							if validator instanceof cola.RequiredValidator
-								$label.addClass("required")
+								$(dom).addClass("required")
 								break
 
 			if (caption or @_caption) and @_labelDom.innerHTML is ""
