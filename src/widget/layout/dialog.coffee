@@ -94,11 +94,7 @@ class cola.Dialog extends cola.Layer
 	_onShow: ()->
 		if @_doms.content
 			height = @_dom.offsetHeight
-			pHeight = $(window).height()
-			css = "min-height";
-			if height > pHeight
-				height = pHeight
-				css = "height"
+			css = "height"
 			actionsDom = @_doms.actions
 			if actionsDom
 				actionsHeight = actionsDom.offsetHeight
