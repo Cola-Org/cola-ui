@@ -1,22 +1,10 @@
 @import (reference) "global";
 
-@type: 'collection';
-@element: 'message';
-
-/*******************************
-            Message
-*******************************/
-
-// @textColor
-
-/*-------------------
-       Elements
---------------------*/
-
+@headerDisplay: inline-block;
 @verticalMargin: 1em;
 @verticalPadding: 1em;
 @horizontalPadding: 1.5em;
-@padding: 0.5em 0.75em;
+@padding: 0.5em 1em;
 @background: #F8F8F9;
 @lineHeightOffset: ((@lineHeight - 1em) / 2);
 
@@ -24,40 +12,78 @@
 @borderWidth: 1px;
 @borderShadow: 0px 0px 0px @borderWidth @strongBorderColor inset;
 @shadowShadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
-@boxShadow: @borderShadow,
-@shadowShadow;
-
+@boxShadow: @borderShadow, @shadowShadow;
+@messageParagraphMargin: 0.25em;
+@headerParagraphDistance: 0.25em;
 @transition: opacity @defaultDuration @defaultEasing,
 color @defaultDuration @defaultEasing,
 background @defaultDuration @defaultEasing,
 box-shadow @defaultDuration @defaultEasing;
 
-/* List */
 @listOpacity: 0.85;
 @listStylePosition: inside;
 @listMargin: 0.5em;
 @listItemIndent: 1em;
 @listItemMargin: 0.3em;
 
-/* warn / Positive / Negative / Info */
-@infoBoxShadow: 0px 0px 0px @borderWidth @infoBorderColor inset,
-@shadowShadow;
-@warnBoxShadow: 0px 0px 0px @borderWidth @warningBorderColor inset,
-@shadowShadow;
-@errorBoxShadow: 0px 0px 0px @borderWidth @errorBorderColor inset,
-@shadowShadow;
-
-/*******************************
-            Message
-*******************************/
+@infoBoxShadow: 0px 0px 0px @borderWidth @infoBorderColor inset, @shadowShadow;
+@warnBoxShadow: 0px 0px 0px @borderWidth @warningBorderColor inset, @shadowShadow;
+@errorBoxShadow: 0px 0px 0px @borderWidth @errorBorderColor inset, @shadowShadow;
+@successBoxShadow: 0px 0px 0px @borderWidth @successBorderColor inset, @shadowShadow;
 
 message, messages {
+	position: relative;
 	min-height: 1em;
 	padding: @padding;
 	line-height: @lineHeight;
 	color: @textColor;
 	transition: @transition;
 	border-radius: @borderRadius;
+	box-shadow: @boxShadow;
+	box-sizing: border-box;
+	.header {
+		display: @headerDisplay;
+		font-family: @headerFont;
+		font-weight: @headerFontWeight;
+		margin: 0.5em;
+	}
+	p {
+		opacity: 1;
+		margin: @messageParagraphMargin 0em;
+		&:first-child {
+			margin-top: 0.5em;
+		}
+		&:last-child {
+			margin-bottom: 0.5em;
+		}
+	}
+
+	.header + p {
+		margin-top: 0;
+	}
+
+	> .icon {
+		margin-right: 1em;
+	}
+
+	> .close.icon {
+		cursor: pointer;
+		position: absolute;
+		margin: 0em;
+		top: 0.5em;
+		right: 0.5em;;
+		opacity: 0.7;
+	}
+	> .close.icon:hover {
+		opacity: 1;
+	}
+
+	> :first-child {
+		margin-top: 0em;
+	}
+	> :last-child {
+		margin-bottom: 0em;
+	}
 }
 
 messages {
@@ -65,8 +91,6 @@ messages {
 }
 
 message, messages {
-
-	/* List */
 	.list:not(.ui) {
 		text-align: left;
 		padding: 0em;
@@ -81,36 +105,44 @@ message, messages {
 		margin: 0em 0em @listItemMargin @listItemIndent;
 		padding: 0em;
 	}
-}
 
-/* Info */
-message, messages {
 	&.info {
 		color: @infoTextColor;
+		background-color: @infoBackgroundColor;
+		box-shadow: @infoBoxShadow;
+
 		&:before {
 			content: "\f05a";
 			font-family: "Icons";
 		}
 	}
-}
 
-/* warn */
-message, messages {
-	&.warn {
+	&.warning {
 		color: @warningTextColor;
+		background-color: @warningBackgroundColor;
+		box-shadow: @warnBoxShadow;
 		&:before {
 			content: "\f06a";
 			font-family: "Icons";
 		}
 	}
-}
 
-/* Error */
-message, messages {
 	&.error {
 		color: @errorTextColor;
+		background-color: @errorBackgroundColor;
+		box-shadow: @errorBoxShadow;
 		&:before {
 			content: "\f071";
+			font-family: "Icons";
+		}
+	}
+
+	&.success {
+		color: @successTextColor;
+		background-color: @successBackgroundColor;
+		box-shadow: @successBoxShadow;
+		&:before {
+			content: "\f05a";
 			font-family: "Icons";
 		}
 	}
@@ -138,4 +170,10 @@ messages {
 .form message.error,
 .form messages.error {
 	display: block;
+}
+
+#c-notify-tip-container {
+	message {
+		margin: @verticalMargin 0em;
+	}
 }
