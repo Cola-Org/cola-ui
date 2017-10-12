@@ -173,6 +173,9 @@ class cola.Tree extends cola.AbstractList
 				if parentNode
 					@_prepareChildNode(parentNode, parentNode.get("expanded"))
 					@refreshNode(parentNode)
+				else if @_bind?._expression
+					if @_bind._expression.evaluate(parentNode._scope, "never") is arg.entityList
+						@_bind.retrieveChildNodes(@_rootNode)
 				return true
 
 			else if type is cola.constants.MESSAGE_REMOVE
@@ -181,7 +184,7 @@ class cola.Tree extends cola.AbstractList
 
 				parentNode = @findNode(arg.entityList.parent)
 				if parentNode
-					@_prepareChildNode(parentNode, parentNode.get("expanded"))
+					# @_prepareChildNode(parentNode, parentNode.get("expanded"))
 					@refreshNode(parentNode)
 				return true
 

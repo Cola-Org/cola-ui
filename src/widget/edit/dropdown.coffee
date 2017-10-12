@@ -711,7 +711,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 			list.on("itemClick", (self, arg) =>
 				@close(self.getItemByItemDom(arg.dom))
 				return
-			)
+			).on("click", () -> false)
 
 		@_refreshDropdownContent?()
 		return template

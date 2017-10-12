@@ -155,7 +155,7 @@ _loadJs = (context, url, callback) ->
 		$.ajax(url, {
 			dataType: "text"
 			cache: true
-			async: false
+			async: false	# TODO
 			timeout: context.timeout
 		}).done((script) ->
 			scriptElement = $.xCreate(
@@ -167,12 +167,20 @@ _loadJs = (context, url, callback) ->
 			scriptElement.text = script
 			cola._suspendedInitFuncs = context.suspendedInitFuncs
 			try
+				if not context.suspendedInitFuncs
+					oldLen = 0
+				else
+					oldLen = context.suspendedInitFuncs.length
+
 				try
 					head = document.querySelector("head") or document.documentElement
 					head.appendChild(scriptElement)
 				finally
 					delete cola._suspendedInitFuncs
-					_jsCache[url] = context.suspendedInitFuncs
+
+					if context.suspendedInitFuncs?.length > oldLen
+						_jsCache[url] = context.suspendedInitFuncs.slice(oldLen)
+
 				cola.callback(callback, true)
 			catch e
 				cola.callback(callback, false, e)
