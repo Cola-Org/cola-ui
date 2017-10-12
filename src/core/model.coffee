@@ -511,19 +511,19 @@ class cola.ItemsScope extends cola.SubScope
 		if items or originItems
 			while item
 				if item instanceof cola.Entity
-					matched = (item.parent is items)
-					if !matched and originItems
+					matched = ((item.parent or item._parent) is items)
+					if not matched and originItems
 						if multiOriginItems
 							for oi in originItems
-								if item.parent is oi
+								if (item.parent or item._parent) is oi
 									matched = true
 									break
 						else
-							matched = (item.parent is originItems)
+							matched = ((item.parent or item._parent) is originItems)
 					if matched
 						itemId = cola.Entity._getEntityId(item)
 						return if itemId then itemScopeMap[itemId] else null
-				item = item.parent
+				item = (item.parent or item._parent)
 		return null
 
 	processMessage: (bindingPath, path, type, arg) ->
