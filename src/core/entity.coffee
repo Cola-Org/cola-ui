@@ -1068,7 +1068,7 @@ class LinkedList
 		next?._previous = previous
 		if @_first is element then @_first = next
 		if @_last is element then @_last = previous
-		@_size++
+		@_size--
 		return
 
 	_clearElements: () ->
@@ -1142,6 +1142,7 @@ class Page extends LinkedList
 	_removeElement: (entity) ->
 		super(entity)
 		delete entity._page
+		entity._parent = entity.parent
 		delete entity.parent
 		entity._setDataModel(null)
 		entity._onPathChange()
@@ -1152,6 +1153,7 @@ class Page extends LinkedList
 		entity = @_first
 		while entity
 			delete entity._page
+			entity._parent = entity.parent
 			delete entity.parent
 			entity._setDataModel(null)
 			entity._onPathChange()

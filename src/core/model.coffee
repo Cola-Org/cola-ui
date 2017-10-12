@@ -1243,7 +1243,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				if data is targetData
 					isChild = true
 					break
-				data = data.parent
+				data = data.parent or data._parent
 			return isChild
 
 		data = arg.data or arg.entityList or arg.entity
