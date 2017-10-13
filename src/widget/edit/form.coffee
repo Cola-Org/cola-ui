@@ -225,13 +225,16 @@ class cola.Field extends cola.Widget
 					bind = @_property
 
 		if bind then @_bindSetter(bind)
+
+		propertyDef = @_getPropertyDef()
+		@_applyPropertyDefProperties?(propertyDef)
+
 		if bind and dom.childElementCount is 0
 			dom.appendChild($.xCreate(
 			  tagName: "label"
 			  content: @_caption or ""
 			))
 
-			propertyDef = @_getPropertyDef()
 			if propertyDef
 				propertyType = propertyDef.get("dataType")
 				if propertyType instanceof cola.BooleanDataType
@@ -243,8 +246,6 @@ class cola.Field extends cola.Widget
 					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly or formReadOnly }
 				else if @_type is "textarea"
 					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly or formReadOnly }
-
-			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly or formReadOnly }
 
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)
