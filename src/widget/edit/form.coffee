@@ -227,7 +227,8 @@ class cola.Field extends cola.Widget
 		if bind then @_bindSetter(bind)
 
 		propertyDef = @_getPropertyDef()
-		@_applyPropertyDefProperties?(propertyDef)
+		if propertyDef
+			@_applyPropertyDefProperties?(propertyDef)
 
 		if bind and dom.childElementCount is 0
 			dom.appendChild($.xCreate(
@@ -246,11 +247,13 @@ class cola.Field extends cola.Widget
 					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly or formReadOnly }
 				else if @_type is "textarea"
 					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly or formReadOnly }
+				else
+					editContent = { tagName: "c-input", bind: bind, readOnly: @_readOnly or formReadOnly }
 
-			editDom = cola.xCreate(editContent)
-			dom.appendChild(editDom)
-			cola.xRender(editDom, @_scope)
-			editDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+				editDom = cola.xCreate(editContent)
+				dom.appendChild(editDom)
+				cola.xRender(editDom, @_scope)
+				editDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
