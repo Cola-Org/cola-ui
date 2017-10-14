@@ -777,16 +777,16 @@ class cola.Entity
 		return @
 
 	cancel: (prop) ->
+		data = @_data
 		if prop
-			if @_oldData.hasOwnProperty(prop)
+			if data.hasOwnProperty(prop)
 				@_set(prop, @_oldData[prop])
 				@clearMessages(prop)
 		else
 			if @_oldData
 				@disableObservers()
-				oldData = @_oldData
-				for prop of oldData
-					if oldData.hasOwnProperty(prop)
+				for prop of data
+					if data.hasOwnProperty(prop)
 						@_set(prop, @_oldData[prop])
 				@resetState()
 				@enableObservers()

@@ -114,7 +114,10 @@ cola.util.update = (url, data, options = {}) ->
 							else
 								entity.setState(state)
 						else
-							entity.setState(cola.Entity.STATE_NONE)
+							if entity.state is cola.Entity.STATE_DELETED
+								entity._page?._removeElement(entity)
+							else
+								entity.setState(cola.Entity.STATE_NONE)
 				else
 					for entityId, entity of context.entityMap
 						if entity.state is cola.Entity.STATE_DELETED

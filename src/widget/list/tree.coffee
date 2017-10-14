@@ -184,7 +184,7 @@ class cola.Tree extends cola.AbstractList
 
 				parentNode = @findNode(arg.entityList.parent)
 				if parentNode
-					# @_prepareChildNode(parentNode, parentNode.get("expanded"))
+					@_prepareChildNode(parentNode, parentNode.get("expanded"))
 					@refreshNode(parentNode)
 				return true
 

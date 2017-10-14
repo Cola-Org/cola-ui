@@ -68,7 +68,10 @@ class cola.AbstractList extends cola.ItemsView
 		return items
 
 	_refreshEmptyItemDom: () ->
-		emptyItemDom = @_emptyItemDom = @getTemplate("empty-item")
+		emptyItemDom = @_emptyItemDom
+		if not emptyItemDom
+			emptyItemDom = @_emptyItemDom = @getTemplate("empty-item")
+
 		if emptyItemDom
 			items = @_realItems
 			if items instanceof cola.EntityList and items.entityCount is 0 or items instanceof Array and items.length is 0

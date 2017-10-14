@@ -336,7 +336,7 @@ class cola.SubScope extends cola.Scope
 		return false
 
 	processMessage: (bindingPath, path, type, arg) ->
-		# 如果@aliasExpressions为空是不应该进入此方法的
+# 如果@aliasExpressions为空是不应该进入此方法的
 		if @messageTimestamp >= arg.timestamp then return
 		@_processMessage(bindingPath, path, type, arg)
 
@@ -344,7 +344,7 @@ class cola.SubScope extends cola.Scope
 		return
 
 	_processMessage: (bindingPath, path, type, arg) ->
-		# 如果@aliasExpressions为空是不应该进入此方法的
+# 如果@aliasExpressions为空是不应该进入此方法的
 		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
 			for alias, expression of @aliasExpressions
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
@@ -698,7 +698,7 @@ class cola.AbstractDataModel
 			if shortcutHolder
 				aliasData = shortcutHolder.data
 
-				if aliasData and aliasData instanceof _EntityList and  returnCurrent
+				if aliasData and aliasData instanceof _EntityList and returnCurrent
 					aliasData = aliasData.current
 
 				if i > 0
@@ -772,7 +772,16 @@ class cola.AbstractDataModel
 		hasValue = rootData.hasValue(prop)
 
 		if @_shortcutMap?[prop]
+			oldShortcutData = @_shortcutMap?[prop]?.data
 			@removeShortcut(prop)
+			if not data or not (data instanceof cola.Entity or data instanceof cola.EntityList) or
+			  not data.parent or data is rootData._data[prop] # is not alias
+				@onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+					entity: @_rootData
+					property: prop
+					oldValue: oldShortcutData
+					value: data
+				})
 
 		if data? # 判断是数据还是数据声明
 			if data.$provider or data.$dataType
@@ -787,7 +796,7 @@ class cola.AbstractDataModel
 				property.set("dataType", data.$dataType) if data.$dataType
 
 		if not provider or hasValue
-			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data != rootData._data[prop] # is alias
+			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data isnt rootData._data[prop] # is alias
 				@addShortcut(prop, data)
 			else
 				rootData.set(prop, data, context)
@@ -849,7 +858,7 @@ class cola.AbstractDataModel
 		if path
 			for part in path
 				if part.charCodeAt(part.length - 1) is 35 # `#`
-					part =  part.substring(0, part.length - 1)
+					part = part.substring(0, part.length - 1)
 
 				subNode = node[part]
 				if not subNode?
@@ -876,7 +885,7 @@ class cola.AbstractDataModel
 		node = @bindingRegistry
 		for part in path
 			if part.charCodeAt(part.length - 1) is 35 # `#`
-				part =  part.substring(0, part.length - 1)
+				part = part.substring(0, part.length - 1)
 
 			node = node[part]
 			if not node? then break
