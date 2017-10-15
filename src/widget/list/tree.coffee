@@ -148,7 +148,7 @@ class cola.Tree extends cola.AbstractList
 					@_refreshItems()
 					return true
 				else
-					node = @findNode(arg.entityList or arg.entity)
+					node = @findNode(arg.data or arg.entityList or arg.entity)
 					if node
 						@refreshNode(node)
 						if node.get("expanded")
