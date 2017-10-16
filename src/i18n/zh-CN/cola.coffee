@@ -7,6 +7,10 @@ cola.resource(
 	"cola.date.pmDesignator": "下午"
 	"cola.date.time": "时间"
 
+	"cola.data.noDataSubmit": "没有数据可提交。"
+	"cola.data.validateErrorTitle": "数据无法提交"
+	"cola.data.validateErrorMessage": "目前数据中仍包含{0}项错误。"
+
 	"cola.validator.error.required": "不能为空。"
 	"cola.validator.error.length": "长度不在正确的范围内。"
 	"cola.validator.error.number": "数值不在正确的范围内。"
@@ -21,6 +25,6 @@ cola.resource(
 
 	"cola.message.approve": "确认"
 	"cola.message.deny": "取消"
-	"cola.pager.info": "第{0}页\/共{1}页({2}笔记录)"
+	"cola.pager.info": "第{0}页\/共{1}页({2}笔)"
 	"cola.pager.pageSize": "每页记录数:"
 )

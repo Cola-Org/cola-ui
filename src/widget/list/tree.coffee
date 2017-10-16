@@ -180,7 +180,11 @@ class cola.Tree extends cola.AbstractList
 
 			else if type is cola.constants.MESSAGE_REMOVE
 				node = @findNode(arg.entity)
-				if node then @_removeNode(node)
+				if node
+					parentNode = node._parent
+					@_removeNode(node)
+					if parentNode?._children?.length
+						return true
 
 				parentNode = @findNode(arg.entityList.parent)
 				if parentNode
@@ -333,7 +337,7 @@ class cola.Tree extends cola.AbstractList
 				tagName: "ul"
 				class: "child-nodes"
 				style:
-					display: if hidden then "hidden" else ""
+					display: if hidden then "none" else ""
 					padding: 0
 					margin: 0
 					overflow: "hidden"
@@ -429,6 +433,10 @@ class cola.Tree extends cola.AbstractList
 					expressions.push(bind._child._expression)
 
 			node._itemsScope = itemsScope = new cola.ItemsScope(node._scope, expressions[0])
+
+			itemsScope.onItemsRefresh = () =>
+				@_refreshChildNodes(itemDom, node)
+
 			if expressions.length > 1
 				itemsScope.addAuxExpression(expressions[1])
 

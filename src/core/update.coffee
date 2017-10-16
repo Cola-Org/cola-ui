@@ -76,58 +76,75 @@ cola.util.update = (url, data, options = {}) ->
 	if not options.ignoreValidation
 		messages = cola.util.collectValidateMessages(context.entityMap)
 		if messages.error
-			return $.Deferred().reject(messages)
+			deferred = $.Deferred().reject(messages: messages)
 
-	if options.preProcessor
-		data = options.preProcessor(data, options)
+	if not deferred
+		if options.preProcessor
+			data = options.preProcessor(data, options)
 
-	if data or options.alwaysExecute
-		return $.ajax(
-			url: url
-			type: options.method or "post"
-			contentType: options.contentType or "application/json"
-			dataType: "json"
-			data: JSON.stringify(data)
-			options: options
-		).done (responseData) ->
-			if context
-				if options.postProcessor
-					return options.postProcessor(responseData, options)
+		if data or options.alwaysExecute
+			deferred = $.ajax(
+				url: url
+				type: options.method or "post"
+				contentType: options.contentType or "application/json"
+				dataType: "json"
+				data: JSON.stringify(data)
+				options: options
+			).done (responseData) ->
+				if context
+					if options.postProcessor
+						return options.postProcessor(responseData, options)
 
-				if responseData?.entityMap
-					for entityId, entityDiff of responseData.entityMap
-						state = null
-						entity = context.entityMap[entityId]
-						if entityDiff
-							if entityDiff.data
-								for p, v of entityDiff.data
-									entity._set(p, v, true)
-							state = entityDiff.state
+					if responseData?.entityMap
+						for entityId, entityDiff of responseData.entityMap
+							state = null
+							entity = context.entityMap[entityId]
+							if entityDiff
+								if entityDiff.data
+									for p, v of entityDiff.data
+										entity._set(p, v, true)
+								state = entityDiff.state
 
-						if state
-							if state is cola.Entity.STATE_DELETED or
-								(state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
-									if entity._page
-										entity._page._removeElement(entity)
-									else if entity.parent
-										entity.parent._set(entity._parentProperty, null, true)
+							if state
+								if state is cola.Entity.STATE_DELETED or
+									(state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
+										if entity._page
+											entity._page._removeElement(entity)
+										else if entity.parent
+											entity.parent._set(entity._parentProperty, null, true)
+								else
+									entity.setState(state)
 							else
-								entity.setState(state)
-						else
+								if entity.state is cola.Entity.STATE_DELETED
+									entity._page?._removeElement(entity)
+								else
+									entity.setState(cola.Entity.STATE_NONE)
+					else
+						for entityId, entity of context.entityMap
 							if entity.state is cola.Entity.STATE_DELETED
 								entity._page?._removeElement(entity)
 							else
 								entity.setState(cola.Entity.STATE_NONE)
-				else
-					for entityId, entity of context.entityMap
-						if entity.state is cola.Entity.STATE_DELETED
-							entity._page?._removeElement(entity)
-						else
-							entity.setState(cola.Entity.STATE_NONE)
 
-			return responseData.result
-	else
-		return $.Deferred().reject("NO_DATA")
+				return responseData.result
+		else
+			deferred = $.Deferred().reject("NO_DATA")
+
+	deferred.fail (error) ->
+		if error is "NO_DATA"
+			cola.NotifyTipManager.warning(
+				message: cola.resource("cola.data.noDataSubmit")
+				showDuration: 5000
+			)
+		else
+			cola.NotifyTipManager.error(
+				message: cola.resource("cola.data.validateErrorTitle")
+				description: cola.resource("cola.data.validateErrorMessage", error.messages.error.length)
+				showDuration: 5000
+			)
+		return
+
+	return deferred
 
 cola.util.autoUpdate = (url, model, path, options = {}) ->
 	delay = options.delay or 5000

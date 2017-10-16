@@ -7,6 +7,8 @@ cola.resource(
 	"cola.date.pmDesignator": "PM"
 	"cola.date.time": "Time"
 
+	"cola.data.noDataSubmit": "No data to submit."
+
 	"cola.validator.error.required": "Cannot be empty."
 	"cola.validator.error.length": "Length is not within the correct range."
 	"cola.validator.error.number": "Value is not within the correct range."

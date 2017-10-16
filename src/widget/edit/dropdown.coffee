@@ -282,7 +282,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_getFinalOpenMode: () ->
 		openMode = @_openMode
-		if !openMode or openMode == "auto"
+		if !openMode or openMode is "auto"
 			if cola.device.desktop
 				openMode = "drop"
 			else if cola.device.phone

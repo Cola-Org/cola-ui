@@ -224,7 +224,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 				if itemScope
 					index = itemScope.data.getIndex()
-					if index < arg.entityList.entityCount
+					if index <= arg.entityList.entityCount
 						for id, iScope of itemsScope.itemScopeMap
 							i = iScope.data.getIndex()
 							if i > index then iScope.data.setIndex(i - 1)
