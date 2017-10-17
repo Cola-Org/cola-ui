@@ -131,17 +131,28 @@ cola.util.update = (url, data, options = {}) ->
 			deferred = $.Deferred().reject("NO_DATA")
 
 	deferred.fail (error) ->
-		if error is "NO_DATA"
-			cola.NotifyTipManager.warning(
-				message: cola.resource("cola.data.noDataSubmit")
-				showDuration: 5000
-			)
-		else
-			cola.NotifyTipManager.error(
-				message: cola.resource("cola.data.validateErrorTitle")
-				description: cola.resource("cola.data.validateErrorMessage", error.messages.error.length)
-				showDuration: 5000
-			)
+		return if options.silence
+		setTimeout(() =>
+			return if @errorProcessed
+
+			if error is "NO_DATA"
+				cola.NotifyTipManager.warning(
+					message: cola.resource("cola.data.noDataSubmit")
+					showDuration: 5000
+				)
+			else if error.messages
+				cola.NotifyTipManager.error(
+					message: cola.resource("cola.data.validateErrorTitle")
+					description: cola.resource("cola.data.validateErrorMessage", error.messages.error.length)
+					showDuration: 5000
+				)
+			else
+				cola.NotifyTipManager.error(
+					message: cola.resource("cola.data.validateErrorTitle")
+					showDuration: 5000
+				)
+			return
+		, 0)
 		return
 
 	return deferred
@@ -174,11 +185,16 @@ cola.util.autoUpdate = (url, model, path, options = {}) ->
 				@_updateTimerId = 0
 				data = model.get(path, "never")
 				if data
+					self = @
 					cola.util.update(url, data, options).done((result) =>
 						retVal = @_notify("done", result)
 						return retVal
-					).fail((result) =>
-						return @_notify("fail", result)
+					).fail((error) ->
+						if error is "NO_DATA"
+							@errorProcessed = true
+						else
+							self._notify("fail", error)
+						return
 					)
 				return true
 			return false

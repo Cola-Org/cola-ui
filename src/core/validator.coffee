@@ -38,10 +38,10 @@ class cola.Validator extends cola.Definition
 			result = {type: @_messageType, text: result}
 		return result
 
-	validate: (data) ->
+	validate: (data, entity) ->
 		if not @_validateEmptyValue
 			return unless data? and data isnt ""
-		result = @_validate(data)
+		result = @_validate(data, entity)
 		return @_parseValidResult(result, data)
 
 class cola.RequiredValidator extends cola.Validator
@@ -143,11 +143,15 @@ class cola.AsyncValidator extends cola.Validator
 		async:
 			defaultValue: true
 
-	validate: (data, callback) ->
+	validate: (data, entity, callback) ->
+		if entity instanceof Function
+			callback = entity
+			entity = undefined
+
 		if not @_validateEmptyValue
 			return unless data? and data isnt ""
 		if @_async
-			result = @_validate(data, {
+			result = @_validate(data, entity, {
 				complete: (success, result) =>
 					if success
 						result = @_parseValidResult(result)
@@ -155,7 +159,7 @@ class cola.AsyncValidator extends cola.Validator
 					return
 			})
 		else
-			result = @_validate(data)
+			result = @_validate(data, entity)
 			result = @_parseValidResult(result)
 			cola.callback(callback, true, result)
 		return result
@@ -171,7 +175,7 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		super(config)
 		@_ajaxService = new cola.AjaxService()
 
-	_validate: (data, callback) ->
+	_validate: (data, entity, callback) ->
 		sendData = @_data
 		if not sendData? or sendData is ":data"
 			sendData = data
@@ -212,12 +216,12 @@ class cola.CustomValidator extends cola.AsyncValidator
 		else
 			super(config)
 
-	_validate: (data, callback) ->
+	_validate: (data, entity, callback) ->
 		if @_async and callback
 			if @_func
-				@_func(data, callback)
+				@_func(data, entity, callback)
 			else
 				cola.callback(callback, true)
 			return
 		else
-			return @_func?(data)
+			return @_func?(data, entity)

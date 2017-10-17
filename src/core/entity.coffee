@@ -582,7 +582,7 @@ class cola.Entity
 				for validator in property._validators
 					if value? or validator instanceof cola.RequiredValidator
 						unless validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
-							message = validator.validate(value)
+							message = validator.validate(value, @)
 							if message
 								messages ?= []
 								if message instanceof Array
@@ -631,7 +631,7 @@ class cola.Entity
 					if value?
 						for validator in property._validators
 							if not validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
-								validator.validate(value, (message) =>
+								validator.validate(value, @, (message) =>
 									if message
 										message.entity = @
 										message.property = prop
@@ -922,7 +922,7 @@ class cola.Entity
 				for validator in property._validators
 					if not validator._disabled
 						if validator instanceof cola.AsyncValidator and validator.get("async")
-							validator.validate(data, (message) =>
+							validator.validate(data, @, (message) =>
 								if message
 									message.entity = @
 									message.property = prop
@@ -930,7 +930,7 @@ class cola.Entity
 								return
 							)
 						else
-							message = validator.validate(data)
+							message = validator.validate(data, @)
 							if message
 								message.entity = @
 								message.property = prop
