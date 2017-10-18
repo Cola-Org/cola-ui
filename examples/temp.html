@@ -1,5 +1,56 @@
-<c-form bind="role">
-    <field property="unitInsuredSum"></field>
-    <field property="countNumber"></field>
-</c-form>
-<hr>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>演示</title>
+
+    <script src="./include-all.js"></script>
+</head>
+<body style="padding: 20px;">
+
+<c-input bind="policy.age" displayFormat="#,##0.00"></c-input>
+<script type="text/javascript">
+    cola(function (model) {
+        var size=4;
+        model.action({
+            getItems: function (item) {
+                return [
+                    {key: new Date().getTime(), value: "红色"},
+                    {key: new Date().getTime(), value: "蓝色"},
+                    {key: new Date().getTime(), value: "黄色"}
+                ]
+            },
+            flushData: function () {
+                var data=[];
+                if(size===4){
+                    size--
+                }else{
+                    size++
+                }
+                for(var i=0;i<size;i++){
+                    data.push({
+                        name: new Date().getTime()
+                    })
+                }
+                model.set("items",data);
+            }
+        });
+
+        model.set("items", [
+            {name: "01"},
+            {name: "01"}
+        ]);
+
+
+    })
+</script>
+<c-button caption="flushData" click="flushData"></c-button>
+<c-table bind="item in items">
+    <column property="name">
+        <template >
+            <c-select-button c-items="getItems(item)" bind="$default"></c-select-button>
+        </template>
+    </column>
+</c-table>
+</body>
+</html>
