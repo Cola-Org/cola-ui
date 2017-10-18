@@ -8,16 +8,15 @@
 </head>
 <body style="padding: 20px;">
 
-<c-input bind="policy.age" displayFormat="#,##0.00"></c-input>
 <script type="text/javascript">
     cola(function (model) {
         var size=4;
         model.action({
             getItems: function (item) {
                 return [
-                    {key: new Date().getTime(), value: "红色"},
-                    {key: new Date().getTime(), value: "蓝色"},
-                    {key: new Date().getTime(), value: "黄色"}
+                    {key: "red", value: "红色"},
+                    {key: "blue", value: "蓝色"},
+                    {key: "yellow", value: "黄色"}
                 ]
             },
             flushData: function () {
