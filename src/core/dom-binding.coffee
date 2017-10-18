@@ -15,6 +15,7 @@ _destroyDomBinding = (node, data) ->
 
 class cola._DomBinding
 	constructor: (dom, @scope, features, @forceInit, clone) ->
+		@id = cola.uniqueId()
 		@dom = dom
 		@$dom = $(dom)
 
@@ -24,6 +25,7 @@ class cola._DomBinding
 
 		if not clone
 			cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
+
 		cola.util.onNodeRemove(dom, _freezeDomBinding)
 		cola.util.onNodeInsert(dom, _unfreezeDomBinding)
 		cola.util.onNodeDispose(dom, _destroyDomBinding)
@@ -130,27 +132,24 @@ class cola._RepeatDomBinding extends cola._DomBinding
 		if clone
 			super(dom, scope, feature, forceInit, clone)
 		else
+			@id = cola.uniqueId()
 			@forceInit = forceInit
 
 			@scope = scope
 			headerNode = document.createComment("Repeat Head ")
 			cola._ignoreNodeRemoved = true
 			dom.parentNode.replaceChild(headerNode, dom)
+			cola.util.cacheDom(dom);
 			cola._ignoreNodeRemoved = false
 			@dom = headerNode
 
 			cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, @)
 			cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom)
 
-			cola.util.onNodeRemove(headerNode, () ->
-				data = cola.util.userData(dom)
-				if data then _freezeDomBinding(dom, data)
-			)
-			cola.util.onNodeInsert(headerNode, () ->
-				data = cola.util.userData(dom)
-				if data then _unfreezeDomBinding(dom, data)
-			)
-			cola.util.onNodeDispose(headerNode, () ->
+			cola.util.onNodeRemove(headerNode, _freezeDomBinding)
+			cola.util.onNodeInsert(headerNode, _unfreezeDomBinding)
+			cola.util.onNodeDispose(headerNode, (node, data) ->
+				_destroyDomBinding(headerNode, data)
 				$fly(dom).remove()
 				return
 			)

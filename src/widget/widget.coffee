@@ -362,7 +362,7 @@ class cola.Widget extends cola.RenderableElement
 		@_classNamePool.add("#{@_float} floated") if @_float
 		@_classNamePool.toggle("display-none", !!!@_display)
 
-		if !@_rendered and @_class
+		if not @_rendered and @_class
 			@_classNamePool.add(name) for name in @_class.split(" ")
 
 		return

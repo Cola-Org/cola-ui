@@ -7,7 +7,8 @@ else
 	cola = @cola
 #IMPORT_END
 
-class cola.AjaxServiceInvoker
+class cola.ProviderInvoker
+
 	constructor: (@ajaxService, @invokerOptions) ->
 		@callbacks = []
 
@@ -18,138 +19,6 @@ class cola.AjaxServiceInvoker
 		for callback in callbacks
 			cola.callback(callback, success, result)
 		return
-
-	_internalInvoke: (async = true) ->
-		ajaxService = @ajaxService
-
-		invokerOptions = @invokerOptions
-		retValue = undefined
-
-		options = {}
-		for p, v of invokerOptions
-			options[p] = v
-		options.async = async
-
-		if options.sendJson
-			options.data = JSON.stringify(options.data)
-
-		if ajaxService.getListeners("beforeSend")
-			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
-				return
-
-		if @_beforeSend then @_beforeSend(options)
-
-		$.ajax(options).done( (result) =>
-			if ajaxService.getListeners("response")
-				arg = {options: options, result: result}
-				ajaxService.fire("response", ajaxService, arg)
-				result = arg.result
-
-			result = ajaxService.translateResult(result, options)
-
-			@invokeCallback(true, result)
-
-			if ajaxService.getListeners("success")
-				ajaxService.fire("success", ajaxService, {options: options, result: result})
-			if ajaxService.getListeners("complete")
-				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result})
-			retValue = result
-			return
-		).fail( (xhr, status, message) =>
-			error =
-				xhr: xhr
-				status: status
-				message: message
-				data: xhr.responseJSON
-
-			ret = @invokeCallback(false, error)
-			retValue = ret if ret isnt undefined
-			return retValue if retValue is false
-
-			ret = ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
-			retValue = ret if ret isnt undefined
-			return retValue if retValue is false
-
-			ret = ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
-			retValue = ret if ret isnt undefined
-			return retValue
-		)
-		return retValue
-
-	invokeAsync: (callback) ->
-		@callbacks.push(callback)
-		if @invoking then return false
-
-		@invoking = true
-		@_internalInvoke()
-		return true
-
-	invokeSync: (callback) ->
-		if @invoking
-			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
-		@callbacks.push(callback)
-		return @_internalInvoke(false)
-
-class cola.AjaxService extends cola.Definition
-	@attributes:
-		url: null
-		method: null
-		sendJson: null
-		parameter: null
-		timeout: null
-		ajaxOptions: null
-
-	@events:
-		beforeSend: null
-		response: null
-		complete: null
-		success: null
-		error: null
-
-	constructor: (config) ->
-		if typeof config is "string"
-			config = {
-				url: config
-			}
-		super(config)
-
-	getUrl: () ->
-		return @_url
-
-	getInvokerOptions: (context) ->
-		options = {}
-		ajaxOptions = @_ajaxOptions
-		if ajaxOptions
-			for p, v of ajaxOptions
-				options[p] = v
-
-		options.url = @getUrl(context)
-		options.method = @_method if @_method
-		options.timeout = @_timeout if @_timeout
-
-		if @_parameter instanceof cola.Entity or @_parameter instanceof cola.EntityList
-			options.data = @_parameter.toJSON()
-		else
-			options.data = @_parameter
-
-		if @_sendJson
-			options.sendJson = true
-			options.method = "POST" if not options.method
-			options.contentType = "application/json" if not options.contentType
-
-		return options
-
-	getInvoker: (context) ->
-		return new cola.AjaxServiceInvoker(@, @getInvokerOptions(context))
-
-	translateResult: (result, invokerOptions) ->
-		return result
-
-class cola.ProviderInvoker extends cola.AjaxServiceInvoker
-
-	# pageSize
-	# pageNo
-	# detectEnd
 
 	_replaceSysParams: (options) ->
 		url = options.originUrl or options.url
@@ -194,50 +63,116 @@ class cola.ProviderInvoker extends cola.AjaxServiceInvoker
 			@_replaceSysParams(options)
 		return
 
-_SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
+	_internalInvoke: (async = true) ->
+		ajaxService = @ajaxService
 
-class _ExpressionDataModel extends cola.AbstractDataModel
-	constructor: (model, @entity) ->
-		super(model)
+		invokerOptions = @invokerOptions
 
-	get: (path, loadMode, context) ->
-		if path.charCodeAt(0) is 64 # `@`
-			return @entity.get(path.substring(1))
-		else
-			return @model.parent?.data.get(path, loadMode, context)
+		options = {}
+		for p, v of invokerOptions
+			options[p] = v
+		options.async = async
 
-	set: cola._EMPTY_FUNC
-	processMessage: cola._EMPTY_FUNC
-	getDataType: cola._EMPTY_FUNC
-	getProperty: cola._EMPTY_FUNC
-	flush: cola._EMPTY_FUNC
+		if options.sendJson
+			options.data = JSON.stringify(options.data)
 
-class _ExpressionScope extends cola.SubScope
-	constructor: (@parent, @entity) ->
-		@data = new _ExpressionDataModel(@, @entity)
-		@action = @parent.action
+		if ajaxService.getListeners("beforeSend")
+			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
+				return
 
-class cola.Provider extends cola.AjaxService
+		if @_beforeSend then @_beforeSend(options)
+
+		$.ajax(options).done( (result) =>
+			if ajaxService.getListeners("response")
+				arg = {options: options, result: result}
+				ajaxService.fire("response", ajaxService, arg)
+				result = arg.result
+
+			result = ajaxService.translateResult(result, options)
+
+			@invokeCallback(true, result)
+
+			if @parentData
+				if @property
+					data = @parentData.get(@property)
+				else
+					data = @parentData
+
+			if ajaxService.getListeners("success")
+				ajaxService.fire("success", ajaxService, {options: options, result: result, data: data })
+			if ajaxService.getListeners("complete")
+				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
+			return
+		).fail( (xhr, status, message) =>
+			error =
+				xhr: xhr
+				status: status
+				message: message
+				data: xhr.responseJSON
+
+			ret = @invokeCallback(false, error)
+			retValue = ret if ret isnt undefined
+			return retValue if retValue is false
+
+			ret = ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
+			retValue = ret if ret isnt undefined
+			return retValue if retValue is false
+
+			ret = ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
+			retValue = ret if ret isnt undefined
+			return
+		)
+		return
+
+	invokeAsync: (callback) ->
+		@callbacks.push(callback)
+		if @invoking then return false
+
+		@invoking = true
+		@_internalInvoke()
+		return true
+
+	invokeSync: (callback) ->
+		if @invoking
+			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
+		@callbacks.push(callback)
+		return @_internalInvoke(false)
+
+class cola.Provider extends cola.Definition
 	@attributes:
+		url: null
+		method: null
+		sendJson: null
+		parameter: null
+		timeout: null
+		ajaxOptions: null
 		loadMode:	# lazy、manual
 			defaultValue: "lazy"
 		pageSize: null
 		detectEnd: null
 
+	@events:
+		beforeSend: null
+		response: null
+		complete: null
+		success: null
+		error: null
+
+	constructor: (config) ->
+		if typeof config is "string"
+			config = {
+				url: config
+			}
+		super(config)
+
 	getUrl: (context) ->
 		url = @_url
 		matches = url.match(/{{[^{{}}]+}}/g)
 		if matches
-			context.expressionScope ?= new _ExpressionScope(@_scope, context.data)
+			context.expressionScope ?= new _ExpressionScope(@_scope, context.expressionData)
 			for match in matches
 				url = url.replace(match, @_evalParamValue(match, context))
 		return url
-
-	getInvoker: (context) ->
-		provider = new cola.ProviderInvoker(@, @getInvokerOptions(context))
-		provider.pageSize = @_pageSize
-		provider.detectEnd = @_detectEnd
-		return provider
 
 	_evalParamValue: (expr, context) ->
 		if expr.charCodeAt(0) is 123	# `{`
@@ -250,11 +185,28 @@ class cola.Provider extends cola.AjaxService
 		return expr
 
 	getInvokerOptions: (context) ->
-		options = super(context)
-		parameter = options.data
+		options = {}
+		ajaxOptions = @_ajaxOptions
+		if ajaxOptions
+			for p, v of ajaxOptions
+				options[p] = v
+
+		options.url = @getUrl(context)
+		options.method = @_method if @_method
+		options.timeout = @_timeout if @_timeout
+
+		if @_sendJson
+			options.sendJson = true
+			options.method = "POST" if not options.method
+			options.contentType = "application/json" if not options.contentType
+
+		if @_parameter instanceof cola.Entity or @_parameter instanceof cola.EntityList
+			parameter = @_parameter.toJSON()
+		else
+			parameter = @_parameter
 
 		if parameter?
-			context.expressionScope ?= new _ExpressionScope(@_scope, context.data)
+			context.expressionScope ?= new _ExpressionScope(@_scope, context.expressionData)
 
 			if typeof parameter is "string"
 				parameter = @_evalParamValue(parameter, context)
@@ -278,7 +230,7 @@ class cola.Provider extends cola.AjaxService
 			}
 
 		options.data = parameter
-#		options.dataType ?= "json"
+		# options.dataType ?= "json"
 		return options
 
 	translateResult: (result, invokerOptions) ->
@@ -291,3 +243,34 @@ class cola.Provider extends cola.AjaxService
 					$data: result
 				}
 		return result
+
+	getInvoker: (context) ->
+		invoker = new cola.ProviderInvoker(@, @getInvokerOptions(context))
+		invoker.parentData = context.parentData
+		invoker.property = context.property
+		invoker.pageSize = @_pageSize
+		invoker.detectEnd = @_detectEnd
+		return invoker
+
+_SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
+
+class _ExpressionDataModel extends cola.AbstractDataModel
+	constructor: (model, @entity) ->
+		super(model)
+
+	get: (path, loadMode, context) ->
+		if path.charCodeAt(0) is 64 # `@`
+			return @entity.get(path.substring(1))
+		else
+			return @model.parent?.data.get(path, loadMode, context)
+
+	set: cola._EMPTY_FUNC
+	processMessage: cola._EMPTY_FUNC
+	getDataType: cola._EMPTY_FUNC
+	getProperty: cola._EMPTY_FUNC
+	flush: cola._EMPTY_FUNC
+
+class _ExpressionScope extends cola.SubScope
+	constructor: (@parent, @entity) ->
+		@data = new _ExpressionDataModel(@, @entity)
+		@action = @parent.action

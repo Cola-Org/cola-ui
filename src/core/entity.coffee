@@ -158,7 +158,6 @@ _filterCollection = (collection, criteria, option = {}) ->
 	return filtered
 
 _filterEntity = (entity, criteria, option = {}, children) ->
-
 	_searchChildren = (value) ->
 		if option.mode is "entity"
 			if value instanceof cola.EntityList
@@ -333,10 +332,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-	#_parent
-	#_parentProperty
-	#_providerInvoker
-	#_disableWriteObservers
+#_parent
+#_parentProperty
+#_providerInvoker
+#_disableWriteObservers
 
 	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
@@ -390,7 +389,10 @@ class cola.Entity
 	_get: (prop, loadMode, callback, context) ->
 		loadData = (provider) ->
 			retValue = undefined
-			providerInvoker = provider.getInvoker(data: @)
+			providerInvoker = provider.getInvoker(
+				expressionData: @
+				parentData: @
+				property: prop)
 			if loadMode == "sync"
 				retValue = providerInvoker.invokeSync()
 				@_set(prop, retValue, true)
@@ -441,7 +443,7 @@ class cola.Entity
 		else if value instanceof cola.Provider
 			value = loadData.call(@, value)
 			callbackProcessed = true
-		else if value instanceof cola.AjaxServiceInvoker
+		else if value instanceof cola.ProviderInvoker
 			providerInvoker = value
 			if loadMode == "sync"
 				value = providerInvoker.invokeSync()
@@ -459,7 +461,7 @@ class cola.Entity
 				value = undefined
 				context?.unloaded = true
 
-		# TODO: delete this
+# TODO: delete this
 		else if typeof value is "function"
 			providerInvoker = {
 				_$providerInvoker: true
@@ -510,12 +512,15 @@ class cola.Entity
 	_jsonToEntity: (value, dataType, aggregated, provider) ->
 		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider?._pageSize)
 		if result and provider
-			result._providerInvoker = provider.getInvoker(data: @)
+			result._providerInvoker = provider.getInvoker(
+				expressionData: @
+				parentData: result
+			)
 		return result
 
 	_set: (prop, value, ignoreState) ->
 		oldValue = @_data[prop]
-		isSpecialProp = prop.charCodeAt(0) is 36	# `$`
+		isSpecialProp = prop.charCodeAt(0) is 36 # `$`
 
 		property = @dataType?.getProperty(prop)
 		if value?
@@ -560,7 +565,7 @@ class cola.Entity
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true, provider)
 					else if value instanceof Date
-						# do nothing
+# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 				changed = oldValue != value
@@ -686,7 +691,9 @@ class cola.Entity
 				provider = property._provider
 				if provider
 					entityList.pageSize = provider._pageSize
-					entityList._providerInvoker = provider.getInvoker(data: @)
+					entityList._providerInvoker = provider.getInvoker(
+						expressionData: @
+						parentData: entityList)
 
 				@_disableWriteObservers++
 				@_set(prop, entityList)
@@ -860,7 +867,7 @@ class cola.Entity
 			data = @_data
 			for p, value of data
 				if value and (value instanceof _Entity or value instanceof _EntityList) and
-				  p.charCodeAt(0) isnt 36	# `$`
+				  p.charCodeAt(0) isnt 36    # `$`
 					value._setDataModel(dataModel)
 		return
 
@@ -916,7 +923,7 @@ class cola.Entity
 		if property
 			if property._validators
 				data = @_data[prop]
-				if data and (data instanceof cola.Provider or data instanceof cola.AjaxServiceInvoker)
+				if data and (data instanceof cola.Provider or data instanceof cola.ProviderInvoker)
 					return
 
 				for validator in property._validators
@@ -1012,7 +1019,7 @@ class cola.Entity
 				continue
 
 			if value
-				if value instanceof cola.AjaxServiceInvoker
+				if value instanceof cola.ProviderInvoker
 					continue
 				else if (value instanceof _Entity or value instanceof _EntityList)
 					if simpleValue then continue
@@ -1821,7 +1828,7 @@ _Entity._setValue = _setValue = (entity, path, value, context) ->
 			throw new cola.Exception("Cannot set value to #{entity}.")
 
 		if not (entity instanceof _EntityList)
-			if entity instanceof cola.AjaxServiceInvoker
+			if entity instanceof cola.ProviderInvoker
 				entity = undefined
 			else if typeof entity._set == "function"
 				entity._set(part2, value)

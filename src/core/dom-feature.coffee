@@ -240,7 +240,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 	onItemsRefresh: (domBinding) ->
 		scope = domBinding.scope
-
 		items = scope.items
 		originItems = scope.originItems
 

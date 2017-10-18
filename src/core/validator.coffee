@@ -171,10 +171,6 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		ajaxOptions: null
 		data: null
 
-	constructor: (config) ->
-		super(config)
-		@_ajaxService = new cola.AjaxService()
-
 	_validate: (data, entity, callback) ->
 		sendData = @_data
 		if not sendData? or sendData is ":data"
@@ -191,12 +187,23 @@ class cola.AjaxValidator extends cola.AsyncValidator
 			url: @_url
 			data: sendData
 			method: @_method
-			ajaxOptions: @_ajaxOptions
-		invoker = new cola.AjaxServiceInvoker(@_ajaxService, options)
-		if callback
-			return invoker.invokeAsync(callback)
-		else
-			return invoker.invokeSync()
+
+		if @_ajaxOptions
+			for p, v of @_ajaxOptions
+				if not options.hasOwnProperty(p)
+					options[p] = v
+
+		$.ajax(options).done((result)=>
+			if callback
+				return cola.callback(callback, true, result)
+			else
+				return result
+		).fail((error)=>
+			if callback
+				return cola.callback(callback, false, error)
+			else
+				return error
+		)
 
 class cola.CustomValidator extends cola.AsyncValidator
 	@attributes:
