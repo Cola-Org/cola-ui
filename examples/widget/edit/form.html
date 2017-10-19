@@ -52,6 +52,9 @@
 				},
 				email: {
 					validators: "email"
+				},
+				birthday:{
+                    validators: "required"
 				}
 			});
 			model.action({
@@ -76,9 +79,15 @@
 	<div class="field">
 		<div c-widget="input; bind:email; placeholder:Email(电邮格式)"></div>
 	</div>
+
+	<div class="field">
+		<label></label>
+		<c-datepicker bind="birthday"></c-datepicker>
+	</div>
 	<div class="field">
 		<div c-widget="button; caption:校验; click:validate"></div>
 	</div>
+
 	<messages></messages>
 </div>
 
