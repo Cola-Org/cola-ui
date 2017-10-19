@@ -42,6 +42,18 @@
 	.close-btn.hidden, .actions.hidden {
 		display: none !important;
 	}
+
+
+	.actions.alert{
+		.approve.button,.deny.button{
+			display: none;
+		}
+	}
+	.actions:not(.alert){
+		.close.button{
+			display: none;
+		}
+	}
 	&.desktop {
 		text-align: left;
 		background: #ffffff;

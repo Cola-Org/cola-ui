@@ -6,6 +6,15 @@
 	border: 1px solid rgba(34, 36, 38, .15);
 	border-radius: 4px;
 	padding: 4px;
+	background: @inputBackground;
+	position: relative;
+	padding-right: 16px;
+
+	> i.dropdown.icon {
+		position: absolute;
+		right: 4px;
+		top: 8px;
+	}
 	.tag {
 		display: inline-block;
 		white-space: normal;
@@ -27,11 +36,11 @@
 			margin-top: -8px;
 			line-height: 1em;
 			margin-left: .58571429em;
+			content: "×";
 		}
 
 		box-shadow: 0 0 0 1px rgba(34, 36, 38, .15) inset;
 		background-color: #E8E8E8;
-
 		&:hover {
 			box-shadow: 0 0 0 1px rgba(34, 36, 38, .15) inset;
 			background-color: #E8E8E8;

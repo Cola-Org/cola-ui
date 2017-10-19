@@ -2,6 +2,23 @@
 
 .ui.input {
 	input:read-only {
-	background-color: @inputReadOnlyBackgroundColor;
+		background-color: @inputReadOnlyBackgroundColor;
+	}
+}
+
+.webkit {
+	.ui.toggle.checkbox {
+		label:before, .box:before, label:after, .box:after,
+		input:checked ~ label:before, input:checked ~ .box:before, input:checked ~ label:after, input:checked ~ .box:after {
+			-webkit-transform: none !important;
+			transform: none !important;
+		}
+
+		input:checked
+		input:focus ~ .box:before,
+		input:focus ~ label:before {
+			//-webkit-transition: background 0.3s ease, left 0.3s ease !important;
+			//transition: background 0.3s ease, left 0.3s ease !important;
+		}
 	}
 }

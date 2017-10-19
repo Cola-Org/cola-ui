@@ -96,7 +96,7 @@ do()->
 
 			doms = messageBox._doms
 			isAlert = options.mode is "alert"
-			$(doms.actions).toggleClass("hidden", isAlert)
+			$(doms.actions).toggleClass("alert", isAlert)
 			$(doms.close).toggleClass("hidden", !isAlert)
 			$(doms.description).html(options.content)
 			$(doms.title).text(options.title)
@@ -213,18 +213,31 @@ do()->
 					contextKey: "no"
 					content: cola.resource("cola.message.deny")
 					click: messageBox._doDeny
-					class: "ui button"
+					class: "ui deny button"
 				}
 				{
 					tagName: "div"
 					contextKey: "yes"
 					click: messageBox._doApprove
-					class: "ui positive button "
+					class: "ui positive approve button "
 					content: [
 						{
 							tagName: "span"
 							content: cola.resource("cola.message.approve")
 							contextKey: "yesCaption"
+						}
+					]
+				},
+				{
+					tagName: "div"
+					contextKey: "close-button"
+					click: messageBox._doHide
+					class: "ui positive close button "
+					content: [
+						{
+							tagName: "span"
+							content: cola.resource("cola.message.close")
+							contextKey: "closeCaption"
 						}
 					]
 				}
