@@ -25,7 +25,7 @@ class cola.NumberDataType extends cola.BaseDataType
 		isInteger: null
 
 	parse: (text) ->
-		if !text then return 0
+		if not text then return 0
 
 		if typeof text == "number"
 			if @_isInteger
@@ -41,14 +41,14 @@ class cola.NumberDataType extends cola.BaseDataType
 
 class cola.BooleanDataType extends cola.BaseDataType
 	parse: (text) ->
-		if !text then return false
+		if not text then return false
 		if typeof text == "boolean" then return text
 		if ["true", "on", "yes", "y", "1"].indexOf((text + "").toLowerCase()) > -1 then return true
 		return false
 
 class cola.DateDataType extends cola.BaseDataType
 	parse: (text) ->
-		if !text then return new Date(NaN)
+		if not text then return null
 		xDate = new XDate(text)
 		return xDate.toDate()
 

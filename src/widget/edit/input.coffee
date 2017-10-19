@@ -188,6 +188,51 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 		return dom
 
+	_initDom: (dom)->
+		super(dom)
+
+		$(@_doms.input).on("change", ()=>
+			@_postInput()
+			return
+		).on("focus", ()=>
+			@_inputFocused = true
+			@_refreshInputValue(@_value)
+			@addClass("focused") if not @_finalReadOnly
+			@fire("focus", @)
+			return
+		).on("blur", ()=>
+			@_inputFocused = false
+			@removeClass("focused")
+			@_refreshInputValue(@_value)
+			@fire("blur", @)
+
+			if not @_value? or @_value is "" and @_bindInfo?.writeable
+				propertyDef = @getBindingProperty()
+				if propertyDef?._required and propertyDef._validators
+					entity = @_scope.get(@_bindInfo.entityPath)
+					entity.validate(@_bindInfo.property) if entity
+			return
+		).on("keydown", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altKey: event.altKey
+				event: event
+			@fire("keyDown", @, arg)
+			if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
+		).on("keypress", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altKey: event.altKey
+				event: event
+			if @fire("keyPress", @, arg) == false then return
+			if event.keyCode is 13 and isIE11 then @_postInput()
+		)
+		return
+
 	_refreshCorner: ()->
 		corner = @get("corner")
 		return unless corner
@@ -302,6 +347,21 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_doms.input?.focus()
 		return
 
+	_postInput: () ->
+		readOnly = @_readOnly
+		if not readOnly
+			value = $(@_doms.input).val()
+			dataType = @_dataType
+			if dataType
+				if @_inputType == "text"
+					inputFormat = @_inputFormat
+					if dataType instanceof cola.DateDataType
+						inputFormat ?= cola.setting("defaultDateInputFormat")
+						value = inputFormat + "||" + value
+				value = dataType.parse(value)
+			@set("value", value)
+		return
+
 class cola.Input extends cola.AbstractInput
 	@tagName: "c-input"
 	@CLASS_NAME: "input"
@@ -337,66 +397,10 @@ class cola.Input extends cola.AbstractInput
 
 	_initDom: (dom)->
 		super(dom)
-		doPost = ()=>
-			readOnly = @_readOnly
-			if not readOnly
-				value = $(@_doms.input).val()
-				dataType = @_dataType
-				if dataType
-					if @_inputType == "text"
-						inputFormat = @_inputFormat
-						if dataType instanceof cola.DateDataType
-							inputFormat ?= cola.setting("defaultDateInputFormat")
-							value = inputFormat + "||" + value
-					value = dataType.parse(value)
-				@set("value", value)
+		$(@_doms.input).on("input", ()=>
+			if @_postOnInput then @_postInput()
 			return
-
-		$(@_doms.input).on("change", ()=>
-			doPost()
-			return
-		).on("focus", ()=>
-			@_inputFocused = true
-			@_refreshInputValue(@_value)
-			@addClass("focused") if not @_finalReadOnly
-			@fire("focus", @)
-			return
-		).on("blur", ()=>
-			@_inputFocused = false
-			@removeClass("focused")
-			@_refreshInputValue(@_value)
-			@fire("blur", @)
-
-			if not @_value? or @_value is "" and @_bindInfo?.writeable
-				propertyDef = @getBindingProperty()
-				if propertyDef?._required and propertyDef._validators
-					entity = @_scope.get(@_bindInfo.entityPath)
-					entity.validate(@_bindInfo.property) if entity
-			return
-		).on("input", ()=>
-			if @_postOnInput then doPost()
-			return
-		).on("keydown", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
-			@fire("keyDown", @, arg)
-			if event.altKey and event.keyCode is 18 and isIE11 then doPost()
-		).on("keypress", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
-			if @fire("keyPress", @, arg) == false then return
-
-			if event.keyCode is 13 && isIE11 then doPost()
 		)
-
 		return
 
 	_refreshInputValue: (value) ->

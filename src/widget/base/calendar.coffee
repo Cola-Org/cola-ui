@@ -80,8 +80,7 @@ do->
 			return dom
 
 		doFireRefreshEvent: (eventArg) ->
-			@fire("refreshCellDom", @, eventArg)
-			return @
+			return @fire("refreshCellDom", @, eventArg)
 
 		refreshGrid: ()->
 			picker = @
@@ -106,9 +105,8 @@ do->
 						row: i
 						column: j
 
-					@doFireRefreshEvent(eventArg)
-
-					@doRefreshCell(cell, i, j) if eventArg.processDefault != false
+					processDefault = @doFireRefreshEvent(eventArg)
+					@doRefreshCell(cell, i, j) if processDefault isnt false
 					j++
 				i++
 			return @

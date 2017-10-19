@@ -227,7 +227,6 @@ class cola.Tab extends cola.Widget
 
 		@refreshNavButtons()
 
-
 		return
 	_getTabContentDom: (tab)->
 		contents = @getContentsContainer()
@@ -591,15 +590,17 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 	@events:
 		beforeClose: null
 		close: null
+
 	constructor: (config)->
 		config.name ?= cola.uniqueId()
 		super(config)
+
 	close: ()->
 		arg =
 			tab: @
 
-		@fire("beforeClose", @, arg)
-		return @ if arg.processDefault is false
+		processDefault = @fire("beforeClose", @, arg)
+		return @ if processDefault is false
 
 		tab = cola.findWidget(@_dom, cola.Tab)
 		tab.removeTab(@);
@@ -607,6 +608,7 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 		@destroy()
 		@fire("close", @, arg)
 		return @
+
 	getContentDom: ()->
 		return @_content
 

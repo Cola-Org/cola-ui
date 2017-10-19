@@ -177,14 +177,15 @@ class cola.DateGrid extends cola.RenderableElement
 		return dom
 
 	doFireRefreshEvent: (eventArg) ->
-		@fire("refreshCellDom", @, eventArg)
-		return @
+		return @fire("refreshCellDom", @, eventArg)
+
 	refreshHeader: ()->
 		if @_doms
 			monthLabel = @_doms.monthLabel
 			yearLabel = @_doms.yearLabel
 			$fly(yearLabel).text(@_year || "")
 			$fly(monthLabel).text(@_month + 1 || "")
+
 	refreshGrid: ()->
 		picker = @
 		dom = @_doms.body
@@ -208,17 +209,18 @@ class cola.DateGrid extends cola.RenderableElement
 					row: i
 					column: j
 
-				@doFireRefreshEvent(eventArg)
-
-				@doRefreshCell(cell, i, j) if eventArg.processDefault != false
+				processDefault = @doFireRefreshEvent(eventArg)
+				@doRefreshCell(cell, i, j) if processDefault isnt false
 				j++
 			i++
 		return @
+
 	_doRefreshDom: ()->
 		super()
 		return unless @_dom
 		@refreshGrid()
 		@refreshHeader()
+
 	setSelectionCell: (row, column)->
 		picker = this
 		lastSelectedCell = @_lastSelectedCell
@@ -236,6 +238,7 @@ class cola.DateGrid extends cola.RenderableElement
 		$fly(cell).addClass(@_selectedCellClassName || "selected")
 		@_lastSelectedCell = cell
 		return @
+
 	getYMForState: (cellState)->
 		month = @_month
 		year = @_year
@@ -302,7 +305,6 @@ class cola.DateGrid extends cola.RenderableElement
 		if +d < 10 then d = "0#{d}"
 		$fly(cell).attr("cell-date", "#{ym.year}-#{month}-#{d}")
 
-
 	setState: (year, month)->
 		oldYear = @_year
 		oldMonth = @_month
@@ -316,6 +318,7 @@ class cola.DateGrid extends cola.RenderableElement
 				@refreshGrid()
 				@refreshHeader()
 		@onCalDateChange()
+
 	prevMonth: ()->
 		year = @_year
 		month = @_month
@@ -378,67 +381,21 @@ class cola.DatePicker extends cola.CustomDropdown
 		keyDown: null
 		keyPress: null
 
-	_initDom: (dom)->
-		super(dom)
-		doPost = ()=>
-			readOnly = @_readOnly
-			if !readOnly
-				value = $(@_doms.input).val()
-				inputFormat = @_inputFormat or @_displayFormat
-				unless inputFormat
-					if @_inputType == "date"
-						inputFormat = cola.setting("defaultDateInputFormat")
-					else
-						inputFormat = cola.setting("defaultDateTimeInputFormat")
-				if inputFormat and value
-					value = inputFormat + "||" + value
-					xDate = new XDate(value)
-					value = xDate.toDate()
-				@set("value", value)
-			return
-
-		$(@_doms.input).on("change", ()=>
-			doPost()
-			return
-		).on("focus", ()=>
-			
-			@_inputFocused = true
-			@_refreshInputValue(@_value)
-			@addClass("focused") if not @_finalReadOnly
-			@fire("focus", @)
-			return
-		).on("blur", ()=>
-			@_inputFocused = false
-			@removeClass("focused")
-			@_refreshInputValue(@_value)
-			@fire("blur", @)
-
-			if !@_value? or @_value is "" and @_bindInfo?.writeable
-				propertyDef = @getBindingProperty()
-				if propertyDef?._required and propertyDef._validators
-					entity = @_scope.get(@_bindInfo.entityPath)
-					entity.validate(@_bindInfo.property) if entity
-			return
-		).on("keydown", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
-				event: event
-			@fire("keyDown", @, arg)
-			if arg.keyCode == 9 then @_closeDropdown()
-		).on("keypress", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
-				event: event
-			if @fire("keyPress", @, arg) == false then return
-
-			if event.keyCode == 13 && isIE11 then doPost()
-		)
+	_postInput: () ->
+		readOnly = @_readOnly
+		if not readOnly
+			value = $(@_doms.input).val()
+			inputFormat = @_inputFormat or @_displayFormat
+			unless inputFormat
+				if @_inputType == "date"
+					inputFormat = cola.setting("defaultDateInputFormat")
+				else
+					inputFormat = cola.setting("defaultDateTimeInputFormat")
+			if inputFormat and value
+				value = inputFormat + "||" + value
+				xDate = new XDate(value)
+				value = xDate.toDate()
+			@set("value", value)
 		return
 
 	_refreshInputValue: (value) ->
@@ -488,6 +445,7 @@ class cola.DatePicker extends cola.CustomDropdown
 
 	_getDropdownContent: () ->
 		if @_inputType == "date" then @_getDateDropdownContent() else @_getDateTimeDropdownContent()
+
 	_getDateTimeDropdownContent: () ->
 		datePicker = @
 		datePicker._selectedDate = null;
@@ -751,55 +709,12 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 		blur: null
 		keyDown: null
 		keyPress: null
-	_initDom: (dom)->
-		super(dom)
-		doPost = ()=>
-			readOnly = @_readOnly
-			if !readOnly
-				value = $(@_doms.input).val()
-				@set("value", value)
-			return
 
-		$(@_doms.input).on("change", ()=>
-			doPost()
-			return
-		).on("focus", ()=>
-			@_inputFocused = true
-			@_refreshInputValue(@_value)
-			@addClass("focused") if not @_finalReadOnly
-			@fire("focus", @)
-			return
-		).on("blur", ()=>
-			@_inputFocused = false
-			@removeClass("focused")
-			@_refreshInputValue(@_value)
-			@fire("blur", @)
-
-			if !@_value? or @_value is "" and @_bindInfo?.writeable
-				propertyDef = @getBindingProperty()
-				if propertyDef?._required and propertyDef._validators
-					entity = @_scope.get(@_bindInfo.entityPath)
-					entity.validate(@_bindInfo.property) if entity
-			return
-		).on("keydown", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
-				event: event
-			@fire("keyDown", @, arg)
-		).on("keypress", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altlKey: event.altlKey
-				event: event
-			if @fire("keyPress", @, arg) == false then return
-
-			if event.keyCode == 13 && isIE11 then doPost()
-		)
+	_postInput: () ->
+		readOnly = @_readOnly
+		if not readOnly
+			value = $(@_doms.input).val()
+			@set("value", value)
 		return
 
 	_refreshInput: ()->
@@ -812,6 +727,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 
 		@_refreshInputValue(@_value)
 		return
+
 	open: () ->
 		if super()
 			value = @get("value")
@@ -832,6 +748,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 			@_dropdownContent = dateGrid.getDom()
 
 		return @_dropdownContent
+
 class cola.YearMonthPicker extends cola.YearMonthDropDown
 	@tagName: "c-monthpicker"
 	@CLASS_NAME: "year-month input date drop"
@@ -850,6 +767,7 @@ class cola.TimeEditor extends cola.Widget
 			refreshDom: true
 	@events:
 		change: null
+
 	_initDom: (dom)->
 		@_doms ?= {}
 		childDom = $.xCreate({
@@ -925,7 +843,6 @@ class cola.TimeEditor extends cola.Widget
 		for v in ["hour", "minute", "second"]
 			$fly(@_doms[v]).val(@["_#{v}"])
 		return
-
 
 cola.registerWidget(cola.DatePicker)
 cola.registerWidget(cola.YearMonthDropDown)
