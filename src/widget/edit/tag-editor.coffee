@@ -162,7 +162,8 @@ cola.defineWidget({
 		mapping = {}
 		tagEditor = @
 		template = []
-		selectedItems.each((item)->
+
+		selectedItems && selectedItems.each((item)->
 			mapping[item.get(keyProperty)] = true;
 		)
 		selection.each((item)->
