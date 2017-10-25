@@ -387,19 +387,42 @@ class cola.Entity
 			}, context)
 
 	_get: (prop, loadMode, callback, context) ->
+		property = @dataType?.getProperty(prop)
+
 		loadData = (provider) ->
 			retValue = undefined
 			providerInvoker = provider.getInvoker(
 				expressionData: @
 				parentData: @
 				property: prop)
+
 			if loadMode == "sync"
+				if property and property.getListeners("beforeLoad")
+					if property.fire("beforeLoad", property, {
+						entity: @,
+						property: prop
+					}) is false
+						return
+
 				retValue = providerInvoker.invokeSync()
 				@_set(prop, retValue, true)
 				retValue = @_data[prop]
 				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
 					retValue._providerInvoker = providerInvoker
+
+				if property and property.getListeners("load")
+					property.fire("load", property, {
+						entity: @,
+						property: prop
+					})
 			else if loadMode == "async"
+				if property and property.getListeners("beforeLoad")
+					if property.fire("beforeLoad", property, {
+						entity: @,
+						property: prop
+					}) is false
+						return
+
 				if context
 					context.unloaded = true
 					context.providerInvokers ?= []
@@ -422,6 +445,13 @@ class cola.Entity
 								result._providerInvoker = providerInvoker
 						else
 							@_set(prop, null, true)
+
+						if property and property.getListeners("load")
+							  property.fire("load", property, {
+								  entity: @,
+								  property: prop
+							  })
+
 						if callback
 							cola.callback(callback, success, result)
 						return
@@ -429,8 +459,6 @@ class cola.Entity
 			else
 				cola.callback(callback, true, undefined)
 			return retValue
-
-		property = @dataType?.getProperty(prop)
 
 		value = @_data[prop]
 		if value == undefined
@@ -573,6 +601,15 @@ class cola.Entity
 			changed = oldValue != value
 
 		if changed
+			if property and property.getListeners("beforeWrite")
+				if property.fire("beforeWrite", property, {
+					entity: @,
+					property: prop,
+					oldValue: oldValue
+					value: value
+				}) is false
+					return
+
 			if @dataType and @dataType.getListeners("beforeDataChange")
 				if @dataType.fire("beforeDataChange", @dataType, {
 					entity: @,
@@ -645,6 +682,14 @@ class cola.Entity
 								)
 				else
 					@validate(prop)
+
+			if property and property.getListeners("write")
+				property.fire("write", property, {
+					entity: @,
+					property: prop,
+					oldValue: oldValue
+					value: value
+				})
 
 			if @dataType and @dataType.getListeners("dataChange")
 				@dataType.fire("dataChange", @dataType, {
