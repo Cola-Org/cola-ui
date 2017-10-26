@@ -152,6 +152,7 @@ class cola.Provider extends cola.Definition
 		detectEnd: null
 
 	@events:
+		beforeExecute: null
 		beforeSend: null
 		response: null
 		complete: null
@@ -245,6 +246,10 @@ class cola.Provider extends cola.Definition
 		return result
 
 	getInvoker: (context) ->
+		@fire("beforeExecute", @, {
+			context: context
+		})
+
 		invoker = new cola.ProviderInvoker(@, @getInvokerOptions(context))
 		invoker.parentData = context.parentData
 		invoker.property = context.property

@@ -140,7 +140,13 @@ cola.util.update = (url, data, options = {}) ->
 					message: cola.resource("cola.data.noDataSubmit")
 					showDuration: 5000
 				)
-			else if error.messages
+			else if error.responseJSON
+				cola.NotifyTipManager.error(
+					message: cola.resource("cola.data.validateErrorTitle")
+					description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
+					showDuration: 5000
+				)
+			else if error.messages?.error
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
 					description: cola.resource("cola.data.validateErrorMessage", error.messages.error.length)
