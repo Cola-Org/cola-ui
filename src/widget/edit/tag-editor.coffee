@@ -36,22 +36,22 @@ cola.defineWidget({
 		}]
 	},
 	_refreshDom: ()->
-		readOnly = !!@_readOnly;
-		@_dom && $(@_dom).toggleClass("read-only", readOnly);
+		readOnly = !!@_readOnly
+		@_dom && $(@_dom).toggleClass("read-only", readOnly)
 		input = $(@_dom).find("input")[0]
 		input.readOnly = readOnly
 
 	initDom: (dom)->
 		tagEditor = @
 		$(dom).on("click", ()->
-			$(@).find("input").focus();
-		);
+			$(@).find("input").focus()
+		)
 		$input = $(dom).find("input")
 		@_doms ?= {}
 		@_doms.input = dom
 
 		$input.on("focus", ()->
-			tagEditor._showDropBox();
+			tagEditor._showDropBox()
 		).on("input", (evt)->
 			inputValue = $(@).val()
 			tagEditor.fire("input", tagEditor, {
@@ -59,47 +59,47 @@ cola.defineWidget({
 				input: @
 			})
 		).on("keydown", (evt)->
-			selectedItems = tagEditor._scope.get(tagEditor._bind);
+			selectedItems = tagEditor._scope.get(tagEditor._bind)
 			inputValue = $(this).val()
 			if evt.keyCode == 8
 				if !inputValue && selectedItems
-					last = selectedItems.last();
+					last = selectedItems.last()
 					last && tagEditor.removeItem(last)
 
 			if evt.keyCode == 46 && selectedItems
 				selectedItems.empty()
 
 			if tagEditor.isOpended()
-				$tagsDom = $(tagEditor._dropBox._dom).find(".tag-items");
-				$current = $tagsDom.find(">li.current");
+				$tagsDom = $(tagEditor._dropBox._dom).find(".tag-items")
+				$current = $tagsDom.find(">li.current")
 				if evt.keyCode == 40
 					if $current.length
-						$next = $current.next();
+						$next = $current.next()
 						if $next.length
 							$next.addClass("current")
 						else
 							$tagsDom.find(">li").first().addClass("current")
 
-						$current.removeClass("current");
+						$current.removeClass("current")
 					else
 						$tagsDom.find(">li").first().addClass("current")
 
 				else if evt.keyCode == 38
 					if $current.length
-						$prev = $current.prev();
+						$prev = $current.prev()
 						if $prev.length
 							$prev.addClass("current")
 						else
 							$tagsDom.find(">li").last().addClass("current")
 
-						$current.removeClass("current");
+						$current.removeClass("current")
 					else
 						$tagsDom.find(">li").last().addClass("current")
 
 
 				else if evt.keyCode == 13
 					$current.length && $current.trigger("click")
-					return;
+					return
 
 			tagEditor.fire("keyDown", tagEditor, {
 				keyCode: evt.keyCode,
@@ -129,31 +129,31 @@ cola.defineWidget({
 
 	_showDropBox: ()->
 		if !!@_readOnly then return
-		dropBox = @_getDropBox();
-		content = @_getDropContent();
-		dropBox.get$Dom().empty().append(content);
-		dropBox.show();
+		dropBox = @_getDropBox()
+		content = @_getDropContent()
+		dropBox.get$Dom().empty().append(content)
+		dropBox.show()
 
 	resetData: ()->
-		dropBox = @_getDropBox();
-		content = @_getDropContent();
-		dropBox.get$Dom().empty().append(content);
+		dropBox = @_getDropBox()
+		content = @_getDropContent()
+		dropBox.get$Dom().empty().append(content)
+
 	_getDropBox: ()->
 		tagEditor = @
 
 		unless @_dropBox
 			@_dropBox = new cola.DropBox({
 				beforeHide: (self, arg)->
-					tagEditor.get$Dom().removeClass("opened");
+					tagEditor.get$Dom().removeClass("opened")
 				hide: (self, arg)->
-					tagEditor._opened = false;
+					tagEditor._opened = false
 			})
 			@_dropBox._context = @
 			@_dropBox._dropdown = @
-			document.body.appendChild(@_dropBox.getDom());
-
-
+			document.body.appendChild(@_dropBox.getDom())
 		return @_dropBox
+
 	_getDropContent: ()->
 		valueProperty = @_valueProperty || "value"
 		keyProperty = @_keyProperty || "key"
@@ -164,10 +164,10 @@ cola.defineWidget({
 		template = []
 
 		selectedItems && selectedItems.each((item)->
-			mapping[item.get(keyProperty)] = true;
+			mapping[item.get(keyProperty)] = true
 		)
 		selection.each((item)->
-			key = item.get(keyProperty);
+			key = item.get(keyProperty)
 			if mapping[key]
 				return
 
@@ -187,7 +187,7 @@ cola.defineWidget({
 		})
 
 	initItemDom: (dom, scope)->
-		text = scope.get("item").get(@_valueProperty || "value");
+		text = scope.get("item").get(@_valueProperty || "value")
 		$(dom).find("span").empty().text(text)
 
 	close: (item)->

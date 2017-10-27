@@ -240,13 +240,21 @@ class cola.Tree extends cola.AbstractList
 		return
 
 	_getItemType: (node) ->
+		type = @fire("getItemTemplate", @, {node: node})
+		return type if type
+
 		if node?.isDataWrapper
 			itemType = node._data?._itemType
 		else
 			itemType = node._itemType
 
-		if not itemType and node._bind._checkedProperty
-			itemType = "checkable"
+		if not itemType
+			if node._bind._template
+				return node._bind._template
+
+			if node._bind._checkedProperty
+				return "checkable"
+
 		return itemType or "default"
 
 	_createNewItem: (itemType, node) ->

@@ -110,7 +110,7 @@ class cola.Menu extends cola.Widget
 			if $item.hasClass("c-dropdown") then return
 			$item.addClass("c-dropdown")
 			$item.find(".dropdown.item").addClass("c-dropdown")
-			$item.dropdown({
+			$item.dropdown?({
 				on: "hover"
 			})
 		)

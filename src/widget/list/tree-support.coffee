@@ -32,6 +32,8 @@ class cola.CascadeBind extends cola.Element
 		hasChild: null
 		hasChildProperty: null
 
+		template: null
+
 	constructor: (widget, config) ->
 		@_widget = widget
 		super(config)
