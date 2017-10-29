@@ -432,12 +432,11 @@ class cola.ItemsView extends cola.Widget
 		return unless itemDom
 
 		item = cola.util.userData(itemDom, "item")
-		if itemDom._itemType == "default"
-			if item
-				if @_changeCurrentItem and item.parent instanceof cola.EntityList
-					item.parent.setCurrent(item)
-				else
-					@_setCurrentItemDom(itemDom)
+		if item
+			if @_changeCurrentItem and item.parent instanceof cola.EntityList
+				item.parent.setCurrent(item)
+			else
+				@_setCurrentItemDom(itemDom)
 
 		@fire("itemClick", @, {
 			event: evt

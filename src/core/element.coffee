@@ -471,12 +471,11 @@ class cola.Element
 class cola.Definition extends cola.Element
 	@attributes:
 		name:
-			readOnlyAfterCreate: true
+			readOnly: true
 
 	constructor: (config) ->
 		if config?.name
 			@_name = config.name
-			delete config.name
 			scope = config?.scope or cola.currentScope
 			if scope
 				scope.data.regDefinition(@)

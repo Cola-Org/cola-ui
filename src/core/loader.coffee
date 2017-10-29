@@ -14,6 +14,32 @@ cola.loadSubView = (targetDom, context) ->
 						hasIgnoreDirective = true
 						targetDom.removeAttribute(cola.constants.IGNORE_DIRECTIVE)
 
+					for scriptHolder in context.scriptHolders
+						scriptElement = $.xCreate(
+							tagName: "script"
+							language: "javascript"
+							type: "text/javascript"
+							charset: cola.setting("defaultCharset")
+						)
+						scriptElement.text = scriptHolder.script
+						cola._suspendedInitFuncs = context.suspendedInitFuncs
+						try
+							if not context.suspendedInitFuncs
+								oldLen = 0
+							else
+								oldLen = context.suspendedInitFuncs.length
+
+							try
+								head = document.querySelector("head") or document.documentElement
+								head.appendChild(scriptElement)
+							finally
+								delete cola._suspendedInitFuncs
+
+								if context.suspendedInitFuncs?.length > oldLen
+									_jsCache[url] = context.suspendedInitFuncs.slice(oldLen)
+						catch e
+							# do nothing
+
 					if context.suspendedInitFuncs.length
 						model = context.model
 						for initFunc in context.suspendedInitFuncs
@@ -75,6 +101,7 @@ cola.loadSubView = (targetDom, context) ->
 				cssUrls.push(cssUrl)
 
 	# load
+	context.scriptHolders = []
 	context.suspendedInitFuncs = []
 
 	if htmlUrl
@@ -152,38 +179,19 @@ _loadJs = (context, url, callback) ->
 		Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
 		cola.callback(callback, true)
 	else
+		context.scriptHolders.push({
+			url: url
+		});
 		$.ajax(url, {
 			dataType: "text"
 			cache: true
-			async: false	# TODO
 			timeout: context.timeout
 		}).done((script) ->
-			scriptElement = $.xCreate(
-				tagName: "script"
-				language: "javascript"
-				type: "text/javascript"
-				charset: cola.setting("defaultCharset")
-			)
-			scriptElement.text = script
-			cola._suspendedInitFuncs = context.suspendedInitFuncs
-			try
-				if not context.suspendedInitFuncs
-					oldLen = 0
-				else
-					oldLen = context.suspendedInitFuncs.length
-
-				try
-					head = document.querySelector("head") or document.documentElement
-					head.appendChild(scriptElement)
-				finally
-					delete cola._suspendedInitFuncs
-
-					if context.suspendedInitFuncs?.length > oldLen
-						_jsCache[url] = context.suspendedInitFuncs.slice(oldLen)
-
-				cola.callback(callback, true)
-			catch e
-				cola.callback(callback, false, e)
+			for scriptHolder in context.scriptHolders
+				if scriptHolder.url is url
+					scriptHolder.script = script
+					break
+			cola.callback(callback, true)
 			return
 		).fail((xhr, status, message) ->
 			cola.callback(callback, false, {

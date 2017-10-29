@@ -86,7 +86,7 @@ class cola.Tree extends cola.AbstractList
 		currentNodeChange: null
 
 	@TEMPLATES:
-		"default":
+		"row-default":
 			tagName: "ul"
 			content:
 				tagName: "div"
@@ -97,7 +97,7 @@ class cola.Tree extends cola.AbstractList
 						class: "expand-button"
 					}
 				]
-		"checkable":
+		"row-checkable":
 			tagName: "ul"
 			content:
 				tagName: "div"
@@ -258,14 +258,14 @@ class cola.Tree extends cola.AbstractList
 		return itemType or "default"
 
 	_createNewItem: (itemType, node) ->
-		template = @getTemplate(itemType)
+		template = @getTemplate("row-" + itemType, "row-default")
 		itemDom = @_cloneTemplate(template)
 		$fly(itemDom).addClass("tree item " + itemType)
 		itemDom._itemType = itemType
 
 		nodeDom = itemDom.firstElementChild
 		if nodeDom and cola.util.hasClass(nodeDom, "node")
-			template = @getTemplate("node-" + itemType, "node")
+			template = @getTemplate(itemType, "node")
 			if template
 				contentDom = @_cloneTemplate(template, true)
 				$fly(contentDom).addClass("node-content")
