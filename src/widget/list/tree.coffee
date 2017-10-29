@@ -340,6 +340,9 @@ class cola.Tree extends cola.AbstractList
 		return nodeScope
 
 	_refreshChildNodes: (parentItemDom, parentNode, hidden) ->
+		return if parentNode._duringRefreshChildNodes
+		parentNode._duringRefreshChildNodes = true
+
 		nodesWrapper = parentItemDom.lastChild
 		if not $fly(nodesWrapper).hasClass("child-nodes")
 			nodesWrapper = $.xCreate(
@@ -397,6 +400,8 @@ class cola.Tree extends cola.AbstractList
 		if @_currentNode
 			if not @_nodeMap[@_currentNode._id]
 				@_setCurrentNode(parentNode)
+
+		delete parentNode._duringRefreshChildNodes
 		return
 
 	_onItemClick: (evt) ->

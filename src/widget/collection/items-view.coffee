@@ -235,7 +235,12 @@ class cola.ItemsView extends cola.Widget
 		if not @_dom
 			@_refreshItemsScheduled = true
 			return
+
+		return if @_duringRefreshItems
+		@_duringRefreshItems = true
 		@_doRefreshItems(@_doms.itemsWrapper)
+		delete @_duringRefreshItems
+		return
 
 	_doRefreshItems: (itemsWrapper) ->
 		@_itemDomMap ?= {}
