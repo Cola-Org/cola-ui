@@ -39,86 +39,10 @@
 </head>
 <body style="padding:20px">
 
-<!--<p>-->
-<!--<input c-bind="strProp">-->
-<!--<label c-bind="upperCase(strProp)"></label>-->
-<!--</p>-->
-
-<!--<p>-->
-<!--<input c-bind="numberProp">-->
-<!--<label c-bind="double(numberProp)"></label>-->
-<!--</p>-->
-
-<!--<p>-->
-<!--<input c-bind="dateProp" type="date">-->
-<!--<label c-bind="formatDate(dateProp,'yy-MM-dd')"></label>-->
-<!--</p>-->
-
-<!--<li c-repeat="direction in directions">-->
-<!--&lt;!&ndash;<span c-bind="direction"></span>&ndash;&gt;-->
-<!--<input c-bind="?direction">-->
-<!--</li>-->
-
-<!--<p>-->
-<!--<input c-bind="east">-->
-<!--</p>-->
-<!--<p>-->
-<!--<input c-bind="west">-->
-<!--</p>-->
-
-<!--<div c-alias="?path+' as path'">-->
-<!--<input c-bind="dyna.str">-->
-<!--<input c-bind="dyna.str">-->
-<!--<br>-->
-<!--<input c-bind="path.str">-->
-<!--<label c-bind="path.str"></label>-->
-<!--</div>-->
-
-<!--<input c-bind="dyna.str">-->
-<!--<input c-bind="?path+'.str'">-->
-
-<input c-bind="dyna.str">
-
-<hr>
-
-<div c-repeat="[1]">
-	<div c-alias="dyna as p">
-
-		<c-form bind="p">
-			<field property="str"></field>
-		</c-form>
-
-		<div c-repeat="[1]">
-			<div c-alias="?'p as q';?'dyna as p'">
-
-				<!--<input c-bind="dyna.str">-->
-				<input c-bind="p.str">
-				<input c-bind="q.str">
-				<!--<input c-bind="s">-->
-				<!--<br c-watch="watch on p.str">-->
-				<!--<input c-bind="?'p.str'">-->
-				<!--<input c-bind="?'q.str'">-->
-
-			</div>
-			<hr>
-		</div>
-	</div>
-</div>
-
-<c-button click="test">Test</c-button>
-
-<!--<p>-->
-<!--<input c-bind="size" type="number">-->
-<!--<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>-->
-<!--</p>-->
-
-<!--<li c-repeat="direction in directions">-->
-<!--<label c-alias="direction as d" c-bind="d"></label>-->
-<!--</li>-->
-
-<!--<li c-repeat="direction in directions">-->
-<!--<input c-alias="direction as d" c-bind="d"></input>-->
-<!--</li>-->
+<p>
+<input c-bind="size" type="number">
+<div c-style="width:size*2; height:size" c-display="size>50" style="background:green"></div>
+</p>
 
 </body>
 </html>

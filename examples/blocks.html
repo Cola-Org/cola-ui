@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<script src="./include-all.js"></script>
+
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("blocks", [
+				{
+					"label": "Block 0",
+					"children": [
+						{
+							"label": "Block 1",
+							"children": [
+								{
+									"label": "Block 11"
+								},
+								{
+									"label": "Block 12"
+								},
+								{
+									"label": "Block 13"
+								}
+							]
+						},
+						{
+							"label": "Block 2"
+						},
+						{
+							"label": "Block 3"
+						}
+					]
+				}
+			]);
+
+			model.action({
+				renderBlock: function (dom, blockModel) {
+					var children = blockModel.get("block.children");
+					var config = [
+						{
+							"c-bind": "block.label"
+						}
+					];
+					if (children && children.entityCount) {
+						config.push({
+							tagName: "c-label",
+							"c-repeat": "block in block.children",
+							"c-bind": "block.label",
+							refreshDom: "refreshDom"
+						});
+					}
+					var fragment = cola.xRender(config, blockModel);
+					$(dom).empty().append(fragment);
+
+
+					console.log("renderBlock: " + blockModel.get("block.label"));
+				},
+				swap: function () {
+					var blocks = model.get("blocks.children");
+					blocks.first();
+					var first = blocks.current;
+					first.remove();
+					blocks.insert(first, "after");
+				},
+				refreshDom: function (self, arg) {
+					console.log("refreshDom: " + self.get(arg.attribute));
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding: 20px;">
+
+<c-button click="swap">Swap</c-button>
+
+<div c-repeat="block in blocks">
+	<label c-bind="block.label"></label>
+	<div c-repeat="block in block.children" c-watch="renderBlock on block"></div>
+</div>
+
+</body>
+</html>

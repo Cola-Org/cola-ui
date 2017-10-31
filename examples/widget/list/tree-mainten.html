@@ -35,7 +35,7 @@
 				<div class="content">
 					<div id="tree">
 						<template name="node-default">
-							<div><span c-bind="node.name"></span>
+							<div><span c-bind="node.name.label"></span>
 								<div class="node-operation">
 									<i c-onclick="add()" class="link icon plus"></i>
 									<i c-onclick="remove(node)" class="link icon trash outline"></i>
@@ -54,8 +54,11 @@
 					<div class="ui form">
 						<div class="inline field">
 							<label>行政区域名称</label>
-
-							<div c-widget="input; bind:currentEditItem.name; postOnInput:true"></div>
+							<div c-widget="input; bind:currentEditItem.name.label; postOnInput:true"></div>
+						</div>
+						<div class="inline field">
+							<label>行政区域名称</label>
+							<div c-widget="input; bind:currentEditItem.name.label; postOnInput:true"></div>
 						</div>
 					</div>
 				</div>
@@ -71,42 +74,17 @@
 			model.set("node", {
 				nodes: [
 					{
-						name: "中国",
+						name: {label: "中国"},
 						nodes: [
 							{
-								name: "上海",
+								name: {label: "上海"},
 								nodes: [
 									{
-										name: "浦东新区"
-									},
-									{
-										name: "杨浦"
-									},
-									{
-										name: "松江"
-									}, {
-										name: "徐汇区"
-									}
-								]
-							}, {
-								name: "内蒙古",
-								nodes: [
-									{
-										name: "兴安盟"
-									}, {
-										name: "通辽"
-									}, {
-										name: "锡林郭勒"
-									}, {
-										name: "呼伦贝尔"
-									}, {
-										name: "赤峰"
+										name: {label: "浦东新区"}
 									}
 								]
 							}
 						]
-					},{
-						name: "11"
 					}
 				]
 			});
@@ -136,43 +114,17 @@
 				model.set("node", {
 					nodes: [
 						{
-							name: "中国222",
+							name: {label:"中国222"},
 							nodes: [
 								{
-									name: "上海222",
+									name: {label:"上海222"},
 									nodes: [
 										{
-											name: "浦东新区222"
-										},
-										{
-											name: "杨浦222"
-										},
-										{
-											name: "松江222"
-										}, {
-											name: "徐汇区"
-										}
-									]
-								}, {
-									name: "内蒙古222",
-									nodes: [
-										{
-											name: "兴安盟222"
-										}, {
-											name: "通辽222"
-										}, {
-											name: "锡林郭勒222"
-										}, {
-											name: "呼伦贝尔222"
-										}, {
-											name: "赤峰222"
+											name: {label:"浦东新区222"}
 										}
 									]
 								}
 							]
-						},
-						{
-							name: "中国111"
 						}
 					]
 				});
@@ -190,7 +142,7 @@
 				bind: {
 					recursive: true,
 					expandedProperty: "expanded",
-					textProperty: "name",
+					textProperty: "name.label",
 					expression: "node in node.nodes"
 				},
 

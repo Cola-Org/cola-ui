@@ -5,7 +5,7 @@
 	<script src="../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			model.set("addresses", [
+			var addresses = [
 				{
 					city: "shanghai",
 					postCode: 201101
@@ -18,7 +18,15 @@
 					city: "shenzhen",
 					postCode: 300021
 				}
-			]);
+			];
+
+			for (var i = 0; i < 997; i++) {
+				addresses.push({
+					city: "aaa",
+					postCode: 124124
+				});
+			}
+			model.set("addresses", addresses);
 
 			model.action({
 				prev: function () {
@@ -28,9 +36,15 @@
 					model.get("addresses").next();
 				},
 				each: function () {
+					var start = new Date();
+					model.disableObservers();
 					model.get("addresses").each(function (address) {
-						alert(address.get("city"));
+						address.set("postCode", Math.random() + "");
 					});
+					model.enableObservers();
+					console.log(new Date() - start);
+					model.notifyObservers();
+					console.log(new Date() - start);
 				}
 			});
 		});

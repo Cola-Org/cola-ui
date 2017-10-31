@@ -20,25 +20,15 @@
                 ]
             },
             flushData: function () {
-                var data=[];
-                if(size===4){
-                    size--
-                }else{
-                    size++
-                }
-                for(var i=0;i<size;i++){
-                    data.push({
-                        name: new Date().getTime()
-                    })
-                }
-                model.set("items",data);
+				model.set("items", [
+					{name: "01"}
+				]);
             }
         });
 
-        model.set("items", [
-            {name: "01"},
-            {name: "01"}
-        ]);
+//        model.set("items", [
+//            {name: "01"}
+//        ]);
 
 
     })

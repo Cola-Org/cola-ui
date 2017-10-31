@@ -50,6 +50,7 @@
 <ul>
 	<li c-repeat="todo in sort(filter(todos,filterParam),sortParam)">
 	<!--<li c-repeat="todo in chain(todos).filter(filterParam).sort(sortParam)">-->
+		<span c-bind="$index"></span>
 		<input type="checkbox" c-bind="todo.done">
 		<span c-bind="todo.title"></span>
 		<button c-onclick="delete(todo)">Delete</button>

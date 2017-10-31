@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../../include-all.js"></script>
+</head>
+
+<body style="padding:0px;margin:8px;" class="v-box">
+<div class="box" style="padding:2px">
+	<c-button click="validate">Validate</c-button>
+</div>
+<div class="flex-box">
+	<c-table bind="item in items">
+		<select-column></select-column>
+		<state-column></state-column>
+		<column property="prop1" template="input-column"></column>
+		<column property="prop1"></column>
+		<column property="prop2" template="input-column"></column>
+		<column property="prop2"></column>
+		<column property="prop3" template="input-column"></column>
+		<column property="prop3"></column>
+	</c-table>
+</div>
+<script type="text/javascript">
+	cola(function (model) {
+		model.dataType({
+			name: "Item",
+			properties: {
+				"prop1": {
+					dataType: "string",
+					validators: ["required"]
+				},
+				"prop2": {
+					dataType: "int",
+					validators: ["required"]
+				}
+			}
+		});
+		model.describe("items", "Item");
+		model.set("items", [{}]);
+
+		model.action({
+			validate: function() {
+				model.get("items#").validate();
+			}
+		});
+	});
+</script>
+</body>
+
+</body>
+</html>

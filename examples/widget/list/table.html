@@ -114,7 +114,6 @@
                 return sum;
             },
 			columnIndex: function(dom, itemModel) {
-            	debugger;
             	itemModel.get("$index");
             }
         });
@@ -126,7 +125,9 @@
                 showHeader: true,
                 showFooter: true,
                 sortable: true,
-//                changeCurrentItem:true,
+//                allowNoCurrent: true,
+//                changeCurrentItem:false,
+//                highlightCurrentItem: false,
                 sortMode: "local",
                 columns: [
                     {

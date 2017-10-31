@@ -26,7 +26,7 @@
 		/*}*/
 
 		/*.flex-unsupported body {*/
-			/*background-color: #0000ed !important;*/
+		/*background-color: #0000ed !important;*/
 
 		/*}*/
 
@@ -34,32 +34,37 @@
 	</style>
 	<script type="text/javascript">
 
-
-		cola(function(model) {
-			model.describe({
-				name: {
-					validators: "required"
-				},
-				age: {
-					dataType: "int",
-					validators: [
-						"required", {
-							$type: "number",
-							min: 16,
-							max: 60
-						}
-					]
-				},
-				email: {
-					validators: "email"
-				},
-				birthday:{
-                    validators: "required"
+		cola(function (model) {
+			model.dataType({
+				name: "Form",
+				properties: {
+					name: {
+						validators: ["required"]
+					},
+					age: {
+						dataType: "int",
+						validators: [
+							"required", {
+								$type: "number",
+								min: 16,
+								max: 60
+							}
+						]
+					},
+					email: {
+						validators: ["required", "email"]
+					},
+					birthday: {
+						dataType: "date",
+						validators: "required"
+					}
 				}
 			});
+			model.describe("form", "Form");
+			model.set("form", {});
 			model.action({
-				validate: function() {
-					model.get().validate();
+				validate: function () {
+					model.get("form").validate();
 				}
 			});
 		});
@@ -68,29 +73,23 @@
 	</script>
 </head>
 <body style="padding:20px;">
-<div c-widget="form" style="max-width:400px">
-	<!--<div class="ui message error"></div>-->
-	<div class="field">
-		<div c-widget="input; bind:name; placeholder:Name(非空)"></div>
-	</div>
-	<div class="field">
-		<div c-widget="input; bind:age; placeholder:Age(非空且16到60之间)"></div>
-	</div>
-	<div class="field">
-		<div c-widget="input; bind:email; placeholder:Email(电邮格式)"></div>
-	</div>
 
-	<div class="field">
-		<label></label>
-		<c-datepicker bind="birthday"></c-datepicker>
-	</div>
-	<div class="field">
-		<div c-widget="button; caption:校验; click:validate"></div>
-	</div>
+<field bind="form.birthday">
+	<message></message>
+	<c-input></c-input>
+</field>
 
-	<messages></messages>
-</div>
-
+<c-form bind="form">
+	<field property="name"></field>
+	<field property="age"></field>
+	<field property="email"></field>
+	<field property="birthday">
+		<message></message>
+	</field>
+	<field>
+		<c-button click="validate">校验</c-button>
+	</field>
+</c-form>
 
 </body>
 </html>

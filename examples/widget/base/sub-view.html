@@ -26,11 +26,7 @@
 					caption: "Load",
 					click: function () {
 						var subView = cola.widget("subView");
-						subView.load({
-							url: "sub-view-1.html",
-							jsUrl: "sub-view-1.js",
-							cssUrl: "sub-view-1.css"
-						});
+						subView.load();
 					}
 				},
 				btnUnload: {
@@ -53,9 +49,7 @@
 
 <p></p>
 
-<div>
-	<c-subview c-alias="languages as languages2" id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="$" style="height:480px"></c-subview>
-</div>
+<c-subview id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="$" c-param="param" style="height:480px"></c-subview>
 
 </body>
 </html>

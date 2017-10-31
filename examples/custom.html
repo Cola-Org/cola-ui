@@ -8,59 +8,31 @@
 </head>
 <body style="padding: 20px;">
 
-<c-buttons bind="menus" itemClick="menuItemClick" renderItem="menuRenderItem"></c-buttons>
+<c-tree-dropdown></c-tree-dropdown>
+
 <script type="text/javascript">
-    cola.defineWidget({
-        tagName: "c-buttons",
-        attributes: {
-            bind: null
-        },
-        events: {
-            itemClick: null, renderItem: null
-        },
-        template: {
-            class: "ui buttons",
-            content: {
-                tagName: "div", class: "ui button",
-                "c-repeat": "item in @bind",
-                "c-onclick": "itemClick(item)",
-                "c-watch": "renderItem on item.*",
-                content: {
-                    tagName: "div", "c-bind": "item.label"
-                }
-            }
-        },
-        itemClick: function (entity) {
-        	alert(1);
-            this.fire("itemClick", this, {item: entity});
-        },
-        renderItem: function ($dom, scope) {
-            var item = scope.get("item");
-            var result = this.fire("renderItem", this, {
-                dom: $dom,
-                item: item
-            });
-            if (result === false)return;
+	cola.defineWidget(cola.CustomDropdown, {
+		tagName: "c-tree-dropdown",
+
+		attributes: {
+            rootProvider: null,
+            childProvider: null,
+            parentIdProperty: null,
+            textProperty: null
+		},
+
+        create: function() {
+			this._content =  {
+				tagName: "c-subview",
+                url: "hr/core/structure-view.jade",
+                jsUrl: "$",
+                cssUrl: "$.less"
+			};
         }
-    });
+	});
 
     cola(function (model) {
-        model.action({
-            menuItemClick: function (self, arg) {
-               alert(arg.item.get("label"))
-            },
-            menuRenderItem: function (self, arg) {
-                return;
-            }
-        });
 
-        model.set("menus", [
-            {"label": "门诊备药", "path": "http://baidu.com"},
-            {"label": "发药", "path": "http://baidu.com"},
-            {"label": "入库", "path": "http://baidu.com"},
-            {"label": "申领", "path": "http://baidu.com"},
-            {"label": "盘点", "path": "http://baidu.com"}
-        ]);
     });
 </script>
 </body>
