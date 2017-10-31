@@ -2,6 +2,7 @@ cola.registerTypeResolver "table.column", (config) ->
 	return unless config and config.$type
 	type = config.$type.toLowerCase()
 	if type == "select" then return cola.TableSelectColumn
+	else if type == "state" then return cola.TableStateColumn
 	return
 
 cola.registerTypeResolver "table.column", (config) ->
@@ -204,6 +205,30 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			, 100)
 		return
 
+class cola.TableStateColumn extends cola.TableContentColumn
+	@attributes:
+		width:
+			defaultValue: "36px"
+		align:
+			defaultValue: "center"
+
+	renderCell: (dom, item) ->
+		if item instanceof cola.Entity
+			message = item.getKeyMessage()
+			if message
+				if typeof message is "string"
+					message =
+						type: "error"
+						text: message
+				state = message.type
+			else
+				if item.state is cola.Entity.STATE_NEW
+					state = "new"
+				if item.state is cola.Entity.STATE_MODIFIED
+					state = "modified"
+			dom.className = "state " + (state or "")
+		return
+
 _columnsSetter = (table, columnConfigs) ->
 	if table?._columns
 		for column in table._columns
@@ -291,14 +316,10 @@ class cola.AbstractTable extends cola.AbstractList
 			tagName: "c-input"
 			class: "in-cell"
 			bind: "$default"
-			style:
-				width: "100%"
 		"date-column":
 			tagName: "c-datepicker"
 			class: "in-cell"
 			bind: "$default"
-			style:
-				width: "100%"
 		"group-header":
 			tagName: "tr"
 			content:
@@ -456,11 +477,13 @@ class cola.AbstractTable extends cola.AbstractList
 			else
 				if nodeName is "COLUMN"
 					column = @_parseColumnDom(child)
-					if column then columns.push(column)
 				else if nodeName is "SELECT-COLUMN"
 					column = @_parseColumnDom(child)
 					column.$type = "select"
-					if column then columns.push(column)
+				else if nodeName is "STATE-COLUMN"
+					column = @_parseColumnDom(child)
+					column.$type = "state"
+				if column then columns.push(column)
 				dom.removeChild(child)
 			child = next
 

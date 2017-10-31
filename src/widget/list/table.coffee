@@ -319,7 +319,7 @@ class cola.Table extends cola.AbstractTable
 				row.removeChild(cell)
 				cell = row.cells[i]
 
-			if !cell
+			if not cell
 				isNew = true
 				cell = $.xCreate({
 					tagName: "td"
@@ -382,7 +382,7 @@ class cola.Table extends cola.AbstractTable
 					itemDom.removeChild(cell)
 					cell = itemDom.cells[i]
 
-				if !cell
+				if not cell
 					isNew = true
 					cell = $.xCreate({
 						tagName: "td"
@@ -413,7 +413,7 @@ class cola.Table extends cola.AbstractTable
 
 		if @getListeners("renderCell")
 			if @fire("renderCell", @,
-				{item: item, column: column, dom: dom, scope: itemScope}) == false
+			  {item: item, column: column, dom: dom, scope: itemScope}) == false
 				return
 
 		if isNew
@@ -432,9 +432,24 @@ class cola.Table extends cola.AbstractTable
 						}
 				cola.xRender(dom, itemScope, context)
 
+		if item instanceof cola.Entity and column._property
+			$cell = $fly(dom.parentNode)
+			message = item.getKeyMessage(column._property)
+			if message
+				if typeof message is "string"
+					message =
+						type: "error"
+						text: message
+				$cell.removeClass("info warn error").addClass(message.type)
+				$cell.attr("data-content", message.text).popup({
+					position: "bottom center"
+				})
+			else
+				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+
 		return if column._real_template
 
-		$dom = $fly(dom)
+		$dom = $fly(dom).addClass("default-content")
 		if columnInfo.expression
 			$dom.attr("c-bind", columnInfo.expression.raw)
 		else if column._property

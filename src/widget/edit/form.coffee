@@ -12,7 +12,87 @@ class cola.Form extends cola.Widget
 		defaultCols:
 			defaultValue: 3
 		fields:
-			readOnlyAfterCreate: true
+			setter: (fields) ->
+				@_fields = fields
+
+				return unless @_rendered
+				@_$dom.empty()
+
+				if fields
+					dataType = @_getDataType()
+					childDoms = []
+					maxCols = @_defaultCols
+					defaultFieldCols = 1
+					usedCols = maxCols
+
+					for field in fields
+						if dataType
+							propertyDef = dataType.getProperty(field.property)
+						if propertyDef
+							caption = field.caption or propertyDef.get("caption") or field.property
+							propertyType = propertyDef.get("dataType")
+							labelUserData = { captionSetted: true }
+						else
+							caption = field.caption or field.property
+							propertyType = null
+
+						if usedCols + (field.cols or defaultFieldCols) > maxCols
+							usedCols = 0
+							fieldsDom =
+								tagName: "fields"
+								class: "cols-" + maxCols
+								content: []
+							childDoms.push(fieldsDom)
+
+						if field.editContent
+							if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
+								field.editContent.readOnly = field.readOnly or @_readOnly
+
+							fieldContent = [
+								{ tagName: "label", content: caption, data: labelUserData }
+								field.editContent
+							]
+						else if propertyType instanceof cola.BooleanDataType
+							if field.type is "checkbox"
+								fieldContent = [
+									{ tagName: "label", content: caption, data: labelUserData }
+									{ tagName: "c-checkbox", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+								]
+							else
+								fieldContent = [
+									{ tagName: "label", content: caption, data: labelUserData }
+									{ tagName: "c-toggle", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+								]
+						else if field.type is "date" or propertyType instanceof cola.DateDataType
+							fieldContent = [
+								{ tagName: "label", content: caption, data: labelUserData }
+								{ tagName: "c-datepicker", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+							]
+						else if field.type is "textarea"
+							fieldContent = [
+								{ tagName: "label", content: caption, data: labelUserData }
+								{ tagName: "c-textarea", bind: @_bind  + "." + field.property, readOnly: field.readOnly, height: field.height or "4em" }
+							]
+						else
+							fieldContent = [
+								{ tagName: "label", content: caption, data: labelUserData }
+								{ tagName: "c-input", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+							]
+
+						usedCols += field.cols or defaultFieldCols
+						fieldsDom.content.push(
+							tagName: "field"
+							class: "cols-" + (field.cols or defaultFieldCols)
+							property: field.property
+							content: fieldContent
+						)
+
+					childDoms = cola.xCreate(childDoms)
+					for childDom in childDoms
+						@_$dom.append(childDom)
+						cola.xRender(childDom, @_scope)
+						childDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+				return
 
 	constructor: (config) ->
 		@_messageHolder = new cola.Entity.MessageHolder()
@@ -24,81 +104,7 @@ class cola.Form extends cola.Widget
 	_initDom: (dom) ->
 		super(dom)
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
-
-		if @_fields
-			dataType = @_getDataType()
-			childDoms = []
-			maxCols = @_defaultCols
-			defaultFieldCols = 1
-			usedCols = maxCols
-
-			for field in @_fields
-				if dataType
-					propertyDef = dataType.getProperty(field.property)
-				if propertyDef
-					caption = field.caption or propertyDef.get("caption") or field.property
-					propertyType = propertyDef.get("dataType")
-					labelUserData = { captionSetted: true }
-				else
-					caption = field.caption or field.property
-					propertyType = null
-
-				if usedCols + (field.cols or defaultFieldCols) > maxCols
-					usedCols = 0
-					fieldsDom =
-						tagName: "fields"
-						class: "cols-" + maxCols
-						content: []
-					childDoms.push(fieldsDom)
-
-				if field.editContent
-					if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
-						field.editContent.readOnly = field.readOnly or @_readOnly
-
-					fieldContent = [
-						{ tagName: "label", content: caption, data: labelUserData }
-						field.editContent
-					]
-				else if propertyType instanceof cola.BooleanDataType
-					if field.type is "checkbox"
-						fieldContent = [
-							{ tagName: "label", content: caption, data: labelUserData }
-							{ tagName: "c-checkbox", bind: @_bind + "." + field.property, readOnly: field.readOnly }
-						]
-					else
-						fieldContent = [
-							{ tagName: "label", content: caption, data: labelUserData }
-							{ tagName: "c-toggle", bind: @_bind + "." + field.property, readOnly: field.readOnly }
-						]
-				else if field.type is "date" or propertyType instanceof cola.DateDataType
-					fieldContent = [
-						{ tagName: "label", content: caption, data: labelUserData }
-						{ tagName: "c-datepicker", bind: @_bind + "." + field.property, readOnly: field.readOnly }
-					]
-				else if field.type is "textarea"
-					fieldContent = [
-						{ tagName: "label", content: caption, data: labelUserData }
-						{ tagName: "c-textarea", bind: @_bind  + "." + field.property, readOnly: field.readOnly, height: field.height or "4em" }
-					]
-				else
-					fieldContent = [
-						{ tagName: "label", content: caption, data: labelUserData }
-						{ tagName: "c-input", bind: @_bind + "." + field.property, readOnly: field.readOnly }
-					]
-
-				usedCols += field.cols or defaultFieldCols
-				fieldsDom.content.push(
-					tagName: "field"
-					class: "cols-" + (field.cols or defaultFieldCols)
-					property: field.property
-					content: fieldContent
-				)
-
-			childDoms = cola.xCreate(childDoms)
-			for childDom in childDoms
-				$(dom).append(childDom)
-				cola.xRender(childDom, @_scope)
-				childDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+		if @_fields then @set("fields", @_fields)
 		return
 
 	setMessages: (messages) ->

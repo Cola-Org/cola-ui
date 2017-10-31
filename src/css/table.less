@@ -46,7 +46,7 @@
 					padding: @tableHeadCellPadding;
 				}
 
-				&.sortable > div{
+				&.sortable > div {
 					padding-right: 1.25em;
 					&:after {
 						content: "\f0dc";
@@ -58,20 +58,88 @@
 					}
 				}
 
-				&.sortable.asc > div:after{
+				&.sortable.asc > div:after {
 					content: "\f0de";
-					color: @darkTextColor ;
+					color: @darkTextColor;
 				}
-				&.sortable.desc > div:after{
+				&.sortable.desc > div:after {
 					content: "\f0dd";
-					color: @darkTextColor ;
+					color: @darkTextColor;
 				}
 			}
 		}
 		tbody td {
+			position: relative;
+
 			> div {
 				overflow: hidden;
-				padding: @tableCellPadding;
+				min-height: 1em;
+				&.default-content {
+					padding: @tableCellPadding;
+				}
+			}
+
+			&.info {
+			}
+			&.warn {
+				content: "";
+				position: absolute;
+				right: 0;
+				top: 0;
+				width: 0;
+				height: 0;
+				border-left: 0.4em solid transparent;
+				border-top: 0.4em solid @warningTextColor;
+				border-right: 0.4em solid @warningTextColor;
+				border-bottom: 0.4em solid transparent;
+				cursor: pointer;
+			}
+			&.error:after {
+				content: "";
+				position: absolute;
+				right: 0;
+				top: 0;
+				width: 0;
+				height: 0;
+				border-left: 0.4em solid transparent;
+				border-top: 0.4em solid @errorTextColor;
+				border-right: 0.4em solid @errorTextColor;
+				border-bottom: 0.4em solid transparent;
+				cursor: pointer;
+			}
+
+			.state {
+				font-family: "Icons";
+				&.new {
+					.opacity(50);
+					&:before {
+						content: "\f067";
+					}
+				}
+				&.modified {
+					.opacity(50);
+					&:before {
+						content: "\f040";
+					}
+				}
+				&.info {
+					color: @infoTextColor;
+					&:before {
+						content: "\f05a";
+					}
+				}
+				&.warn {
+					color: @warningTextColor;
+					&:before {
+						content: "\f06a";
+					}
+				}
+				&.error {
+					color: @errorTextColor;
+					&:before {
+						content: "\f071";
+					}
+				}
 			}
 		}
 		thead tr:first-child th {
@@ -80,7 +148,7 @@
 		tbody tr:last-child td {
 			border-bottom: 2px solid @tableFootLineColor;
 		}
-		tfoot{
+		tfoot {
 			td {
 				background: @tableFootBackground;
 				border-color: @tableFootLineColor @tableColLineColor;
@@ -88,6 +156,12 @@
 					overflow: hidden;
 					padding: @tableFootCellPadding;
 				}
+			}
+		}
+
+		c-input, c-datepicker, c-tag-editor {
+			&.in-cell {
+				width: 100%;
 			}
 		}
 

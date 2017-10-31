@@ -5,6 +5,10 @@
 @align-fields-to-grid: false;
 @spacing: @fields-default-spacing;
 
+.ui.input > input {
+	box-sizing: border-box;
+}
+
 .base-fields() {
 	display: block;
 	padding: 0;
@@ -135,6 +139,11 @@
 
 		> .ui.textarea {
 			width: auto;
+		}
+
+		> message {
+			.box-shadow(none) !important;
+			background: transparent !important;
 		}
 	}
 }
