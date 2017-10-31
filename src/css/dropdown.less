@@ -15,14 +15,13 @@
 	}
 	> .value-content {
 		display: none;
-
+		background: @inputBackground;
 		position: absolute;
-		left: 0;
-		top: 0;
-		right: 0;
-		bottom: 0;
+		left: 1.16667em;
+		top: 0.809567em;
+		right: 2.9333333em;
+		bottom: 0.809567em;
 		line-height: 1.2142em;
-		padding: 0.67861429em 1em;
 		pointer-events: none;
 		list-style: none;
 
@@ -38,6 +37,20 @@
 			> .value-content {
 				.opacity(50%);
 			}
+		}
+	}
+	> i.icon {
+		width: 2.8em;
+		cursor: pointer;
+	}
+	> i.icon.remove {
+		display: none;
+		width: 1em;
+		right: 2.4em;
+	}
+	&:hover {
+		> i.icon.remove {
+			display: block;
 		}
 	}
 }

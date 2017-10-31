@@ -196,14 +196,14 @@ class cola.AbstractInput extends cola.AbstractEditor
 			return
 		).on("focus", ()=>
 			@_inputFocused = true
-			@_refreshInputValue(@_value)
+			@_refreshInput()
 			@addClass("focused") if not @_finalReadOnly
 			@fire("focus", @)
 			return
 		).on("blur", ()=>
 			@_inputFocused = false
 			@removeClass("focused")
-			@_refreshInputValue(@_value)
+			@_refreshInput()
 			@fire("blur", @)
 
 			if not @_value? or @_value is "" and @_bindInfo?.writeable

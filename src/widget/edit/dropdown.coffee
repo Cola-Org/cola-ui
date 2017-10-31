@@ -45,8 +45,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 		valueProperty: null
 		textProperty: null
+		assignment: null
 
 		editable:
+			type: "boolean"
+			defaultValue: true
+		showClearButton:
 			type: "boolean"
 			defaultValue: true
 
@@ -77,6 +81,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_initDom: (dom) ->
 		super(dom)
+
+		if @getTemplate("value-content")
+			@_useValueContent = true
 
 		if @_useValueContent
 			$fly(@_doms.input).xInsertAfter({
@@ -122,6 +129,19 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					event: evt
 					inputValue: @_doms.input.value
 				if @fire("keyPress", @, arg) == false then return
+			).on("mouseenter", (evt)=>
+				if @_showClearButton
+					clearButton = dom.querySelector("i.icon.remove")
+					if not clearButton
+						clearButton = $.xCreate({
+							tagName: "i"
+							class: "icon remove"
+							click: ()=>
+								@_selectData(null)
+								return false
+						})
+						dom.appendChild(clearButton)
+				return
 			)
 
 		$(@_doms.input)
@@ -141,13 +161,17 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @_items and @_valueProperty then @_setValue(@_value)
 		return
 
-	_doBlur: ()->
-		@fire("blur", @, {})
-		return
-
 	_doFocus: ()->
 		@_inputEdited = false
 		@fire("focus", @, {})
+		if @_useValueContent and @_editable
+			$fly(@_doms.valueContent).hide()
+		return
+
+	_doBlur: ()->
+		if @_useValueContent
+			$fly(@_doms.valueContent).show()
+		@fire("blur", @, {})
 		return
 
 	_parseDom: (dom)->
@@ -403,6 +427,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 			@_opened = true
 			$fly(@_dom).addClass("opened")
+
+			if @_useValueContent
+				@_refreshInputValue(null)
 			return true
 
 		return
@@ -434,11 +461,25 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_selectData: (item) ->
 		@_inputEdited = false
 
-		value = @_getItemValue(item)
 		@_skipFindCurrentItem = true
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
-			@set("value", value)
+			if @_assignment and @_bindInfo?.writeable
+				bindEntity = @_scope.get(@_bindInfo.entityPath)
+				@_assignment.split(/[,;]/).forEach((part) =>
+					pair = part.split("=")
+					targetProp = pair[0]
+					sourceProp = pair[1] or targetProp
+					if item instanceof cola.Entity
+						value = item.get(sourceProp)
+					else
+						value = item[sourceProp]
+					bindEntity.set(targetProp, value)
+					return
+				)
+			else
+				value = @_getItemValue(item)
+				@set("value", value)
 
 		@_skipFindCurrentItem = false
 		@refresh()
@@ -699,9 +740,11 @@ class cola.Dropdown extends cola.AbstractDropdown
 			@_list = list = cola.widget(@_doms.list)
 			if @_templates
 				for name, templ of @_templates
-					if ["list", "filterable-list", "value-content"].indexOf(name) < 0
-						if name is "default" then hasDefaultTemplate = true
-						list.regTemplate(name, templ)
+					if "item-content" is name
+						list.regTemplate("default", templ)
+						hasDefaultTemplate = true
+						break
+
 			if not hasDefaultTemplate
 				list.regTemplate("default", {
 					tagName: "li"
