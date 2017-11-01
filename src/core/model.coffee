@@ -1036,6 +1036,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				dataType = @_rootDataType.getProperty(path1)?.get("dataType")
 			else
 				dataType = @_rootDataType
+
 			if dataType instanceof cola.EntityDataType
 				return dataType.getProperty(path2)
 			else
@@ -1316,9 +1317,10 @@ class cola.ItemDataModel extends cola.SubDataModel
 			if path.substring(0, i) is @alias
 				dataType = if @_itemData instanceof cola.Entity or @_itemData instanceof cola.EntityList then @_itemData.dataType else null
 				dataType ?= @dataType
-				if dataType
-					property = dataType.getProperty(path.substring(i + 1))
-				return property
+				if dataType instanceof cola.EntityDataType
+					return dataType.getProperty(path.substring(i + 1))
+				else
+					return null
 			else
 				return @parent.getProperty(path)
 		else if path is @alias
