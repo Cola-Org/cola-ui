@@ -208,7 +208,7 @@ exceptionStack = []
 
 class cola.Exception
 	constructor: (@message, @error)->
-		if @error then console?.trace?(@error)
+		if @error then console?.error?(@error)
 
 		exceptionStack.push(@)
 		setTimeout(() =>

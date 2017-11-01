@@ -104,6 +104,8 @@ class cola.ProviderInvoker
 				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
 			return
 		).fail( (xhr, status, message) =>
+			console.error(xhr.responseJSON)
+
 			error =
 				xhr: xhr
 				status: status
