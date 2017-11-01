@@ -599,9 +599,9 @@ class cola.Entity
 						setTimeout(() =>
 							if @getPath() and value.getPath()
 								path = value.getPath().join(".")
-								cola.Entity._warnedPaths ?= {}
-								if not cola.Entity._warnedPaths[path]
-									cola.Entity._warnedPaths[path] = true
+								cola.Entity._warnedDataPaths ?= {}
+								if not cola.Entity._warnedDataPaths[path]
+									cola.Entity._warnedDataPaths[path] = true
 									console.warn("No 'DataType' found for path: " + path)
 							return
 						, 0)

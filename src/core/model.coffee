@@ -868,6 +868,16 @@ class cola.AbstractDataModel
 						__processorMap: {}
 				node = subNode
 
+			if path.length > 1 and cola.consoleOpened and cola.debugLevel > 9
+				if path[path.length - 1].indexOf("*") >= 0
+					path = path.slice(0, path.length - 1)
+				if path.length > 1
+					joinedPath = path.join(".")
+					cola.Entity._warnedBindPaths ?= {}
+					if not cola.Entity._warnedBindPaths[joinedPath] and not @getProperty(joinedPath)
+						cola.Entity._warnedBindPaths[joinedPath] = true
+						console.warn("Binding path may be illegal: " + joinedPath)
+
 			processor.id ?= cola.uniqueId()
 			node.__processorMap[processor.id] = processor
 		return
@@ -1008,15 +1018,28 @@ class cola.DataModel extends cola.AbstractDataModel
 			if i > 0
 				path1 = path.substring(0, i)
 				path2 = path.substring(i + 1)
+				if path1.charCodeAt(path1.length - 1) is 35 # `#`
+					path1 = path1.substring(0, path1.length - 1)
+				holder = @_shortcutMap?[path1]
+				if holder
+					return @getProperty(holder.path + "." + path2)
 			else
 				path1 = null
 				path2 = path
+				if path2.charCodeAt(path2.length - 1) is 35 # `#`
+					path2 = path1.substring(0, path2.length - 1)
+				holder = @_shortcutMap?[path2]
+				if holder
+					return @getProperty(holder.path)
 
 			if path1
 				dataType = @_rootDataType.getProperty(path1)?.get("dataType")
 			else
 				dataType = @_rootDataType
-			return dataType?.getProperty(path2)
+			if dataType instanceof cola.EntityDataType
+				return dataType.getProperty(path2)
+			else
+				return null
 		else
 			return @parent?.getProperty(path)
 
@@ -1157,26 +1180,19 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	getProperty: (path) ->
 		i = path.indexOf(".")
 		if i > 0
-			holder = @_aliasMap[path.substring(0, i)]
+			path1 = path.substring(0, i)
+			if path1.charCodeAt(path1.length - 1) is 35 # `#`
+				path1 = path1.substring(0, path1.length - 1)
+			holder = @_aliasMap[path1]
 			if holder?.path
 				path = holder.path + path.substring(i)
 		else
+			if path.charCodeAt(path.length - 1) is 35 # `#`
+				path = path1.substring(0, path.length - 1)
 			holder = @_aliasMap[path]
 			if holder?.path
 				path = holder.path
 		return @parent.getProperty(path)
-
-	getDataType: (path) ->
-		i = path.indexOf(".")
-		if i > 0
-			holder = @_aliasMap[path.substring(0, i)]
-			if holder?.path
-				path = holder.path + path.substring(i)
-		else
-			holder = @_aliasMap[path]
-			if holder?.path
-				path = holder.path
-		return @parent.getDataType(path)
 
 	_isExBindingPath: (path) ->
 		return not @_aliasMap[path[0]]
@@ -1312,19 +1328,10 @@ class cola.ItemDataModel extends cola.SubDataModel
 			return @parent.getProperty(path)
 
 	getDataType: (path) ->
-		i = path.indexOf(".")
-		if i > 0
-			if path.substring(0, i) is @alias
-				if @dataType
-					property = @dataType?.getProperty(path.substring(i + 1))
-					dataType = property?.get("dataType")
-				return dataType
-			else
-				return @parent.getDataType(path)
-		else if path is @alias
+		if path is @alias
 			return @dataType
 		else
-			return @parent.getDataType(path)
+			return super(path)
 
 	_isExBindingPath: (path) ->
 		firstPart = path[0]

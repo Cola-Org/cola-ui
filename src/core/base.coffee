@@ -57,6 +57,10 @@ if window?
 			else
 				cola.device.pad = window.screen.width >= theshold or window.screen.height >= theshold
 			cola.device.phone = !cola.device.pad
+
+		if window.outerWidth - window.innerWidth > 40 or
+		  window.outerHeight - window.innerHeight > 100
+			cola.consoleOpened = true
 		return
 
 ###
@@ -177,15 +181,15 @@ setting = {
 cola.setting = (key, value) ->
 	if typeof key == "string"
 		if value != undefined
-			# setting(string, any)
+# setting(string, any)
 			setting[key] = value
 			if cola.getListeners("settingChange")
 				cola.fire("settingChange", cola, {key: key})
 		else
-			# setting(string)
+# setting(string)
 			return setting[key]
 	else if typeof key == "object"
-		# setting(object)
+# setting(object)
 		for k, v of key
 			setting[k] = v
 			if cola.getListeners("settingChange")
@@ -281,8 +285,8 @@ sprintf = (templ, params...) ->
 
 cola.resource = (key, params...) ->
 	if typeof key == "string"
-		# resource(key, params...)
-		# read resource resource
+# resource(key, params...)
+# read resource resource
 		templ = resourceStore[key]
 		if templ?
 			if params.length
@@ -292,8 +296,8 @@ cola.resource = (key, params...) ->
 		else
 			return params?[0] or key
 	else
-		# resource(bundle)
-		# load resource resources from bundle(json format)
+# resource(bundle)
+# load resource resources from bundle(json format)
 		bundle = key
 		resourceStore[key] = str for key, str of bundle
 		return

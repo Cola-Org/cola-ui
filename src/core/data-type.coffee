@@ -146,6 +146,8 @@ class cola.EntityDataType extends cola.DataType
 			return @_getProperty(path)
 
 	_getProperty: (property) ->
+		if property.charCodeAt(property.length - 1) is 35 # `#`
+			property = property.substring(0, property.length - 1)
 		return @_properties.get(property)
 
 	getProperties: () ->

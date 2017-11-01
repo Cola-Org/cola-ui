@@ -136,23 +136,27 @@ cola.util.update = (url, data, options = {}) ->
 			return if @errorProcessed
 
 			if error is "NO_DATA"
+				console.warn(cola.resource("cola.data.noDataSubmit"))
 				cola.NotifyTipManager.warning(
 					message: cola.resource("cola.data.noDataSubmit")
 					showDuration: 5000
 				)
 			else if error.responseJSON
+				console.error(error.responseJSON)
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
 #					description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
 					showDuration: 5000
 				)
 			else if error.messages?.error
+				console.error(error.messages.error)
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
 					description: cola.resource("cola.data.validateErrorMessage", error.messages.error.length)
 					showDuration: 5000
 				)
 			else
+				console.error(error)
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
 					showDuration: 5000
