@@ -447,10 +447,10 @@ class cola.Entity
 							@_set(prop, null, true)
 
 						if property and property.getListeners("load")
-							  property.fire("load", property, {
-								  entity: @,
-								  property: prop
-							  })
+							property.fire("load", property, {
+								entity: @,
+								property: prop
+							})
 
 						if callback
 							cola.callback(callback, success, result)
@@ -592,10 +592,20 @@ class cola.Entity
 						value = @_jsonToEntity(value, null, true, provider) if convert
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true, provider)
-					else if value instanceof Date
-# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
+
+					if cola.consoleOpened and cola.debugLevel > 9
+						setTimeout(() =>
+							if @getPath() and value.getPath()
+								path = value.getPath().join(".")
+								cola.Entity._warnedPaths ?= {}
+								if not cola.Entity._warnedPaths[path]
+									cola.Entity._warnedPaths[path] = true
+									console.warn("No 'DataType' found for path: " + path)
+							return
+						, 0)
+
 				changed = oldValue != value
 		else
 			changed = oldValue != value

@@ -15,7 +15,7 @@ class cola.Form extends cola.Widget
 			setter: (fields) ->
 				@_fields = fields
 
-				return unless @_rendered
+				return unless @_dom
 				@_$dom.empty()
 
 				if fields
