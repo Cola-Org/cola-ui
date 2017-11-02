@@ -351,6 +351,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		readOnly = @_readOnly
 		if not readOnly
 			value = $(@_doms.input).val()
+			if value is "" then value = null
 			dataType = @_dataType
 			if dataType
 				if @_inputType == "text"

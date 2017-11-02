@@ -1,4 +1,4 @@
-cola.defineWidget({
+cola.TagEditor = cola.defineWidget({
 	tagName: "c-tag-editor",
 	attributes: {
 		bind: null,
@@ -106,7 +106,6 @@ cola.defineWidget({
 				input: this
 			})
 		)
-
 
 	removeItem: (item)->
 		if item

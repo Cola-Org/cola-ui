@@ -170,11 +170,11 @@ setting = {
 	defaultCharset: "utf-8"
 	defaultNumberFormat: "#,##0.##"
 	defaultDateFormat: "yyyy-MM-dd"
-	defaultDateInputFormat: "yyyyMMdd"
+	defaultDateInputFormat: "yyyy-MM-dd"
 	defaultTimeFormat: "HH:mm:ss"
-	defaultTimeInputFormat: "HHmmss"
+	defaultTimeInputFormat: "HH:m:mss"
 	defaultDateTimeFormat: "yyyy-MM-dd HH:mm:ss"
-	defaultDateTimeInputFormat: "yyyyMMddHHmmss"
+	defaultDateTimeInputFormat: "yyyy-MM-dd HH:mm:ss"
 	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"
 }
 

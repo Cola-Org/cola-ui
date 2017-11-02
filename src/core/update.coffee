@@ -25,7 +25,7 @@ _processEntity = (entity, context, options) ->
 		state: true
 		oldData: options.oldData
 
-	if not options.ignoreValidation
+	if not options.ignoreValidation and entity.state isnt cola.Entity.STATE_DELETED
 		entity.validate()
 
 	if entity.state isnt cola.Entity.STATE_NONE

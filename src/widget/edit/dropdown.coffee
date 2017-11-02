@@ -781,9 +781,6 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 		"default":
 			tagName: "div"
 			content: "<Undefined>"
-		"value-content":
-			tagName: "div"
-			"c-bind": "$default"
 
 	_isEditorReadOnly: () ->
 		return false

@@ -1333,7 +1333,8 @@ class cola.ItemDataModel extends cola.SubDataModel
 		if path is @alias
 			return @dataType
 		else
-			return super(path)
+			property = @getProperty(path)
+			return property?.get("dataType")
 
 	_isExBindingPath: (path) ->
 		firstPart = path[0]

@@ -996,27 +996,37 @@ class cola.Entity
 							if message
 								message.entity = @
 								message.property = prop
-								@addMessage(prop, message)
-								messageChanged = true
+								messageChanged = @_addMessage(prop, message) or messageChanged
 		return messageChanged
 
 	validate: (prop) ->
 		if @_messageHolder
 			oldKeyMessage = @_messageHolder.getKeyMessage()
-			@_messageHolder.clear(prop)
 
 		if @dataType
+			messageChanged = @_messageHolder?.clear(prop)
 			if prop
-				@_validate(prop)
-				@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+				if @_validate(prop) or messageChanged
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
 			else
 				for property in @dataType.getProperties().elements
-					@_validate(property._property)
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._property})
+					if @_validate(property._property) or messageChanged
+						@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._property})
+
+		else if @_messageHolder
+			if prop
+				if @_messageHolder.clear(prop)
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+			else
+				messages = @_messageHolder.getMessages()
+				@_messageHolder.clear()
+				for p in messages
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: p})
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+
 		return not (keyMessage?.type is "error")
 
 	_addMessage: (prop, message) ->
@@ -1025,10 +1035,12 @@ class cola.Entity
 			@_messageHolder = messageHolder = new _Entity.MessageHolder()
 		if message instanceof Array
 			for m in message
-				if messageHolder.add(prop, m) then topKeyChanged = true
+				messageHolder.add(prop, m)
+				changed = true
 		else
-			if messageHolder.add(prop, message) then topKeyChanged = true
-		return topKeyChanged
+			messageHolder.add(prop, message)
+			changed = true
+		return changed
 
 	addMessage: (prop, message) ->
 		if arguments.length is 1
@@ -1947,26 +1959,14 @@ class cola.Entity.MessageHolder
 
 	clear: (prop) ->
 		if prop
+			changed = !!@propertyMessages[prop]
 			delete @propertyMessages[prop]
 			delete @keyMessage[prop]
-
-			for p, messages of @propertyMessages
-				for message in messages
-					if not keyMessage
-						keyMessage = message
-					else if @compare(message, keyMessage) > 0
-						keyMessage = message
-					else
-						continue
-					if keyMessage.type is "error"
-						break
-			topKeyChanged = @keyMessage["$"] != keyMessage
-			if topKeyChanged then @keyMessage["$"] = keyMessage
 		else
-			topKeyChanged = true
+			changed = !!@keyMessage["$"]
 			@keyMessage = {}
 			@propertyMessages = {}
-		return topKeyChanged
+		return changed
 
 	getMessages: (prop = "$") ->
 		return @propertyMessages[prop]
