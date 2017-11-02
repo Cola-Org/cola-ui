@@ -330,11 +330,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				]
 		}, @_scope, {})
 
-	_getContainer: () ->
+	_getContainer: (dontCreate) ->
 		if @_container
 			@_refreshDropdownContent?()
 			return @_container
-		else
+		else if not dontCreate
 			@_finalOpenMode = openMode = @_getFinalOpenMode()
 
 			config =
@@ -380,6 +380,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 			container.appendTo(document.body)
 			return container
+		return
 
 	open: (callback) ->
 		if @_finalReadOnly and @_disabled then return
@@ -440,12 +441,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		else if @_inputEdited
 			@refresh()
 
-		container = @_getContainer()
+		container = @_getContainer(true)
 		container?.hide?(callback)
 		return
 
 	_closeDropdown:()->
-		container = @_getContainer()
+		container = @_getContainer(true)
 		container?.hide?()
 
 	_getItemValue: (item) ->
