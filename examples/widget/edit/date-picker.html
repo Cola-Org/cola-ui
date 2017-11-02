@@ -32,8 +32,8 @@
                 datePicker: {
                     $type: "datePicker",
                     openMode: "drop",
-                    readOnly: true,
-                    disabled: true,
+//                    readOnly: true,
+//                    disabled: true,
                     bind: "editItem.birthDate"
                 },
                 yearMonthDropDown: {
@@ -52,7 +52,7 @@
 </head>
 <body style="padding:20px;">
 
-<c-datepicker></c-datepicker>
+<c-datepicker bind="editItem.birthDate"></c-datepicker>
 <!--<c-datepicker></c-datepicker>-->
 <!--<c-mepicker></c-mepicker>-->
 

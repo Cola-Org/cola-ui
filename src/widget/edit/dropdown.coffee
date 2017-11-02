@@ -739,11 +739,10 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 			@_list = list = cola.widget(@_doms.list)
 			if @_templates
-				for name, templ of @_templates
-					if "item-content" is name
-						list.regTemplate("default", templ)
-						hasDefaultTemplate = true
-						break
+				templ = @_templates["item-content"] or @_templates["value-content"]
+				if templ
+					list.regTemplate("default", templ)
+					hasDefaultTemplate = true
 
 			if not hasDefaultTemplate
 				list.regTemplate("default", {
