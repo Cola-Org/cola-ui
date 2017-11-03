@@ -20,8 +20,8 @@
 			]);
 
 			model.set("items", [
-				{k: "1", v: "A"},
-				{k: "2", v: "B"}
+				{key: "1", value: "A"},
+				{key: "2", value: "B"}
 			]);
 
 			model.action({
@@ -107,8 +107,8 @@
 				mappingDropDown2: {
 					$type: "dropdown",
 					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
+					valueProperty: "key",
+					textProperty: "value",
 					openOnActive: false,
 					bind: "prop1",
 					assignment: "prop1=k;prop2=v"
@@ -156,11 +156,14 @@
 
 <div id="dropdown5"></div>
 <div id="mappingDropDown"></div>
-<div id="mappingDropDown2">
+
+
+<c-dropdown>
 	<template name="value-content">
-		<li c-bind="item.v+' ('+item.k+')'"></li>
+		<li c-bind="item.key?(item.value+' ('+item.key+')'):''"></li>
 	</template>
-</div>
+</c-dropdown>
+
 
 <div c-bind="prop1"></div>
 <div c-bind="prop2"></div>
