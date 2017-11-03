@@ -529,7 +529,7 @@ class DropBox extends cola.Layer
 		if direction == "down"
 			top = rect.top + dropdownDom.clientHeight
 		else
-			top = rect.top - (height or boxHeight)
+			top = rect.top - (height or boxHeight) + 1
 
 		left = rect.left
 		if boxWidth > dropdownDom.offsetWidth
@@ -538,8 +538,8 @@ class DropBox extends cola.Layer
 				if left < 0 then left = 0
 
 		if height then $dom.css("height", height)
-		$dom
-		.removeClass(if direction == "down" then "direction-up" else "direction-down").addClass("direction-" + direction)
+		$dom.removeClass(if direction == "down" then "direction-up" else "direction-down")
+		.addClass("direction-" + direction)
 		.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
 		.css("left", left).css("top", top)
 		.css("min-width", dropdownDom.offsetWidth)
