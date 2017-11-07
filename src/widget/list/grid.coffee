@@ -1,4 +1,4 @@
-class cola.Grid extends cola.RenderableElement
+class cola.Grid extends cola.Widget
 	@tagName: "c-grid"
 	@CLASS_NAME: "items-view widget-grid h-box"
 
@@ -123,7 +123,8 @@ class cola.Grid extends cola.RenderableElement
 		return @_columnMap[name]
 
 	_collectionColumnsInfo: () ->
-		collectColumnInfo = (column, context, deepth) ->
+
+		collectColumnInfo = (column, context, deepth, rootIndex) ->
 			info =
 				level: deepth
 				column: column
@@ -134,7 +135,7 @@ class cola.Grid extends cola.RenderableElement
 						continue unless col._visible
 						if context.rows.length == deepth
 							context.rows[deepth] = []
-						cols.push(collectColumnInfo(col, context, deepth + 1))
+						cols.push(collectColumnInfo(col, context, deepth + 1, rootIndex))
 					if cols.length
 						if context.rows.length == deepth then context.rows[deepth] = []
 						context.rows[deepth].push(info)
@@ -161,6 +162,7 @@ class cola.Grid extends cola.RenderableElement
 						context.totalWidth += info.width
 
 				info.index = context.dataColumns.length
+				info.rootIndex = rootIndex
 				context.dataColumns.push(info)
 
 				if column instanceof cola.TableSelectColumn
@@ -183,29 +185,66 @@ class cola.Grid extends cola.RenderableElement
 			if expression
 				columnsInfo.alias = expression.alias
 
-			for col in @_columns
+			for col, i in @_columns
 				continue unless col._visible
-				collectColumnInfo(col, columnsInfo, 0)
+				collectColumnInfo(col, columnsInfo, 0, i)
 
-		if @_leftFixedCols > 0 or @_rightFixedCols > 0
-			overflow = @_leftFixedCols + @_rightFixedCols - @_columns.length
-			if overflow >= 0
-				if @_rightFixedCols > overflow
-					@_rightFixedCols -= (overflow + 1)
-					overflow = -1
-				else
-					@_rightFixedCols = 0
-					overflow -= @_rightFixedCols
-
+			if @_leftFixedCols > 0 or @_rightFixedCols > 0
+				overflow = @_leftFixedCols + @_rightFixedCols - @_columns.length
 				if overflow >= 0
-					@_leftFixedCols -= (overflow + 1)
+					if @_rightFixedCols > overflow
+						@_rightFixedCols -= (overflow + 1)
+						overflow = -1
+					else
+						@_rightFixedCols = 0
+						overflow -= @_rightFixedCols
 
-		if @_leftFixedCols < 0 then @_leftFixedCols = 0
-		if @_rightFixedCols < 0 then @_rightFixedCols = 0
+					if overflow >= 0
+						@_leftFixedCols -= (overflow + 1)
 
-		columnsInfo.leftColumns = @_columns.slice(0, @_leftFixedCols)
-		columnsInfo.rightColumns = @_columns.slice(@_columns.length - @_rightFixedCols, @_rightFixedCols)
-		columnsInfo.centerColumns = @_columns.slice(@_leftFixedCols, @_columns.length - @_leftFixedCols - @_rightFixedCols)
+			if @_leftFixedCols < 0 then @_leftFixedCols = 0
+			if @_rightFixedCols < 0 then @_rightFixedCols = 0
+
+			if @_leftFixedCols > 0 or @_rightFixedCols > 0
+				if @_leftFixedCols > 0
+					columnsInfo.left =
+						start: 0
+						rows: columnsInfo.rows
+						columns: @_columns.slice(0, @_leftFixedCols)
+						dataColumns: []
+				else
+					delete columnsInfo.left
+
+				if @_rightFixedCols > 0
+					columnsInfo.right =
+						start: @_columns.length - @_rightFixedCols
+						rows: columnsInfo.rows
+						columns: @_columns.slice(@_columns.length - @_rightFixedCols, @_rightFixedCols)
+						dataColumns: []
+				else
+					delete columnsInfo.right
+
+				columnsInfo.center =
+					start: @_leftFixedCols
+					rows: columnsInfo.rows
+					columns: @_columns.slice(@_leftFixedCols, @_columns.length - @_leftFixedCols - @_rightFixedCols)
+					dataColumns: []
+
+				for col in columnsInfo.dataColumns
+					if col < @_leftFixedCols
+						columnsInfo.left.dataColumns.push(col)
+					else if col >= @_columns.length - @_rightFixedCols
+						columnsInfo.right.dataColumns.push(col)
+					else
+						columnsInfo.center.dataColumns.push(col)
+			else
+				delete columnsInfo.left
+				delete columnsInfo.right
+				columnsInfo.center =
+					start: 0
+					rows: columnsInfo.rows
+					columns: @_columns
+					dataColumns: columnsInfo.dataColumns
 		return
 
 	_createDom: ()->
@@ -215,8 +254,16 @@ class cola.Grid extends cola.RenderableElement
 		return dom
 
 	_createInnerDom: (dom) ->
-		@_centerTable = new cola.Table.InnerTable(table: @)
+		@_centerTable = new cola.Table.InnerTable(
+			table: @
+			class: "flex-box"
+		)
 		@_centerTable.appendTo(dom)
+		return
+
+	_initDom: (dom) ->
+		@_regDefaultTemplates()
+		@_templateContext ?= {}
 		return
 
 	_parseDom: (dom) ->
@@ -284,33 +331,167 @@ class cola.Grid extends cola.RenderableElement
 			child = next
 		return column
 
-	_doRefreshDom: (dom) ->
-		super(dom)
+	_doSet: (attr, attrConfig, value) ->
+		if attrConfig?.refreshItems
+			attrConfig.refreshDom = true
+			@_refreshItemsScheduled = true
+		return super(attr, attrConfig, value)
 
+	buildStyleSheet: () ->
+		return
+
+	_doRefreshDom: (dom)->
 		if @_columnsTimestamp isnt @_columnsInfo.timestamp
 			@_columnsTimestamp = @_columnsInfo.timestamp
 
-			if @_columnsInfo.leftColumns.length and not @_leftTable
-				@_leftTable = new cola.Table.InnerTable(table: @ )
+			if @_columnsInfo.left and not @_leftTable
+				@_leftTable = new cola.Table.InnerTable(
+					table: @
+					class: "box"
+				)
 				@_centerTable.get$Dom().before(@_leftTable.getDom())
-			if @_columnsInfo.rightColumns.length and not @_leftTable
-				@_rightTable = new cola.Table.InnerTable(table: @ )
+			if @_columnsInfo.right and not @_leftTable
+				@_rightTable = new cola.Table.InnerTablee(
+					table: @
+					class: "box"
+				)
 				@_centerTable.get$Dom().after(@_rightTable.getDom())
 
-			@_leftTable?.set("columns", @_columnsInfo.leftColumns)
-			@_rightTable?.set("columns", @_columnsInfo.rightColumns)
-			@_centerTable.set("columns", @_columnsInfo.centerColumns)
+			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
+			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
+			@_centerTable.set("columnsInfo", @_columnsInfo.center)
+
+		super(dom)
+
+		if @_refreshItemsScheduled
+			delete @_refreshItemsScheduled
+			@_refreshItems()
 		return
 
+	_onItemsRefresh: () ->
+		return @_refreshItems()
+
+	_refreshItems: () ->
+		@_leftTable?._refreshItems()
+		@_rightTable?._refreshItems()
+		@_centerTable._refreshItems()
+		return
+
+cola.Element.mixin(cola.Grid, cola.TemplateSupport)
+cola.Element.mixin(cola.Grid, cola.DataItemsWidgetMixin)
+
+class cola.Table.InnerTable extends cola.AbstractList
+	@CLASS_NAME: "inner-table"
+
+	@attributes:
+		table: null
+		columnsInfo: null
+
+	_getItems: () -> @_table._getItems()
+
 	_createNewItem: (itemType, item) ->
-		template = @getTemplate(itemType)
-		itemDom = @_cloneTemplate(template)
+		template = @_table.getTemplate(itemType + "-row")
+		itemDom = @_table._cloneTemplate(template)
 		$fly(itemDom).addClass("table item " + itemType)
 		itemDom._itemType = itemType
 		return itemDom
 
-class cola.Table.InnerTable extends cola.AbstractList
+	_doRefreshItemDom: (itemDom, item, itemScope) ->
+		itemType = itemDom._itemType
 
-	@attributes:
-		table: null,
-		columns: null
+		if @getListeners("renderRow")
+			if @fire("renderRow", @, {item: item, dom: itemDom, scope: itemScope}) == false
+				return
+
+		if itemType == "default"
+			colInfos = @_columnsInfo.dataColumns
+			for colInfo, i in colInfos
+				column = colInfo.column
+				cell = itemDom.childNodes[i]
+				while cell and cell._name != column._name
+					itemDom.removeChild(cell)
+					cell = itemDom.childNodes[i]
+
+				if not cell
+					isNew = true
+					cell = $.xCreate({
+						tagName: "div"
+						content:
+							tagName: "div"
+					})
+					cell._name = column._name
+					itemDom.appendChild(cell)
+				cell.className = "cell col-" + (colInfo.index + 1)
+				contentWrapper = cell.firstElementChild
+
+				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
+
+			while itemDom.lastChild and itemDom.lastChild != cell
+				itemDom.removeChild(itemDom.lastChild)
+		return
+
+	_refreshCell: (dom, item, columnInfo, itemScope, isNew) ->
+		column = columnInfo.column
+		dom.style.textAlign = column._align or ""
+
+		if column.renderCell
+			if column.renderCell(dom, item, itemScope) != true
+				return
+
+		if column.getListeners("renderCell")
+			if column.fire("renderCell", column, {item: item, dom: dom, scope: itemScope}) == false
+				return
+
+		if @getListeners("renderCell")
+			if @fire("renderCell", @,
+			  {item: item, column: column, dom: dom, scope: itemScope}) == false
+				return
+
+		if isNew
+			template = column.getTemplate("template")
+			if template
+				template = @_cloneTemplate(template)
+				dom.appendChild(template)
+				if column._property
+					if column._format
+						context = {
+							defaultPath: "format(#{@_alias}.#{column._property},#{column._format})"
+						}
+					else
+						context = {
+							defaultPath: "#{@_alias}.#{column._property}"
+						}
+				cola.xRender(dom, itemScope, context)
+
+		if item instanceof cola.Entity and column._property
+			$cell = $fly(dom.parentNode)
+			message = item.getKeyMessage(column._property)
+			if message
+				if typeof message is "string"
+					message =
+						type: "error"
+						text: message
+				$cell.removeClass("info warn error").addClass(message.type)
+				$cell.attr("data-content", message.text).popup({
+					position: "bottom center"
+				})
+			else
+				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+
+		return if column._real_template
+
+		$dom = $fly(dom).addClass("default-content")
+		if columnInfo.expression
+			$dom.attr("c-bind", columnInfo.expression.raw)
+		else if column._property
+			value = item.get(column._property)
+			if column._format
+				value = cola.defaultAction.format(value, column._format)
+			else
+				if value instanceof Date
+					defaultDateFormat = cola.setting("defaultDateFormat")
+					if defaultDateFormat
+						value = cola.defaultAction.formatDate(value, defaultDateFormat)
+			value = "" if value is undefined or value is null
+			$dom.text(value)
+		return

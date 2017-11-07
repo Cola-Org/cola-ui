@@ -20,6 +20,23 @@
 @tableInvertedRowLineColor: transparent;
 @tableInvertedColLineColor: transparent;
 
+.ui.widget-grid {
+	.inner-table {
+
+	}
+
+	.table.item {
+		position: relative;
+		white-space: nowrap;
+		min-height: 2.7em;
+
+		> .cell {
+			display: inline-block;
+			overflow: hidden;
+		}
+	}
+}
+
 .ui.widget-table {
 	> .table-wrapper {
 		height: 100%;
