@@ -440,12 +440,20 @@ class cola.Table extends cola.AbstractTable
 					message =
 						type: "error"
 						text: message
+
 				$cell.removeClass("info warn error").addClass(message.type)
-				$cell.attr("data-content", message.text).popup({
-					position: "bottom center"
-				})
-			else
+
+				$cell.attr("data-content", message.text)
+				if not dom._popupSetted
+					$cell.popup({
+						position: "bottom center"
+					})
+					dom._popupSetted = true
+				dom._hasState = true
+			else if dom._hasState
 				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+				dom._hasState = false
+				dom._popupSetted = false
 
 		return if column._real_template
 

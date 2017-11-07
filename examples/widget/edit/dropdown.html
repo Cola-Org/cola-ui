@@ -86,6 +86,7 @@
 					openMode: "drop",
 					valueProperty: "name",
 					openOnActive: false,
+					readOnly: true,
 					content: {
 						$type: "table",
 						bind: "language in languages",
@@ -99,8 +100,8 @@
 				mappingDropDown: {
 					$type: "dropdown",
 					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
+					valueProperty: "key",
+					textProperty: "value",
 					openOnActive: false,
 					bind: "currentSelected"
 				},

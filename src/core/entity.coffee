@@ -599,7 +599,7 @@ class cola.Entity
 
 					if cola.consoleOpened and cola.debugLevel > 9
 						setTimeout(() =>
-							if @getPath() and value.getPath()
+							if @getPath() and value.getPath?()
 								path = value.getPath().join(".")
 								cola.Entity._warnedDataPaths ?= {}
 								if not cola.Entity._warnedDataPaths[path]

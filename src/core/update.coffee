@@ -6,17 +6,8 @@ cola.util.dirtyTree = (data, options) ->
 	return undefined unless data
 	context = options?.context or {}
 	context.entityMap = {}
+	context.messages = {}
 	return _extractDirtyTree(data, context, options or {})
-
-cola.util.collectValidateMessages = (entityMap) ->
-	context = {}
-	for entityId, entity of entityMap
-		messages = entity.findMessages()
-		if messages
-			for message in messages
-				context[message.type] ?= []
-				context[message.type].push(message)
-	return context
 
 _processEntity = (entity, context, options) ->
 	toJSONOptions =
@@ -27,6 +18,11 @@ _processEntity = (entity, context, options) ->
 
 	if not options.ignoreValidation and entity.state isnt cola.Entity.STATE_DELETED
 		entity.validate()
+		messages = entity.findMessages()
+		if messages
+			for message in messages
+				context.messages[message.type] ?= []
+				context.messages[message.type].push(message)
 
 	if entity.state isnt cola.Entity.STATE_NONE
 		json = entity.toJSON(toJSONOptions)
@@ -74,9 +70,8 @@ cola.util.update = (url, data, options = {}) ->
 		data = cola.util.dirtyTree(data, options)
 
 	if not options.ignoreValidation
-		messages = cola.util.collectValidateMessages(context.entityMap)
-		if messages.error
-			deferred = $.Deferred().reject(messages: messages)
+		if context.messages.error
+			deferred = $.Deferred().reject(messages: context.messages)
 
 	if not deferred
 		if options.preProcessor

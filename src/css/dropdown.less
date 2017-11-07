@@ -47,8 +47,11 @@
 		display: none;
 		width: 1em;
 		right: 2.4em;
+		&.disabled {
+			display: none !important;
+		}
 	}
-	&:hover {
+	&:hover:not(.readonly):not(.disabled) {
 		> i.icon.remove {
 			display: block;
 		}

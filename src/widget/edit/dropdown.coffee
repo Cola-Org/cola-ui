@@ -131,9 +131,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				if @fire("keyPress", @, arg) == false then return
 			).on("mouseenter", (evt)=>
 				if @_showClearButton
-					clearButton = dom.querySelector("i.icon.remove")
+					clearButton = @_doms.clearButton
 					if not clearButton
-						clearButton = $.xCreate({
+						@_doms.clearButton = clearButton = $.xCreate({
 							tagName: "i"
 							class: "icon remove"
 							click: ()=>
@@ -141,16 +141,17 @@ class cola.AbstractDropdown extends cola.AbstractInput
 								return false
 						})
 						dom.appendChild(clearButton)
-				return
+					$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
 			)
 
 		$(@_doms.input)
 			.on("focus", () => @_doFocus())
 			.on("blur", () => @_doBlur())
 			.on("input", (evt) =>
+				value = @_doms.input.value
 				arg =
 					event: evt
-					inputValue: @_doms.input.value
+					inputValue: value
 				@fire("input", @, arg)
 			)
 			.on("keypress", () => @_inputEdited = true)
@@ -200,7 +201,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 						if input.readOnly then @close()
 					else
 						@open()
-				this.focus();
+				this.focus()
 
 			input: (evt) =>
 				if @_useValueContent
