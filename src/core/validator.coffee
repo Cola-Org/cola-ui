@@ -173,12 +173,12 @@ class cola.AjaxValidator extends cola.AsyncValidator
 
 	_validate: (data, entity, callback) ->
 		sendData = @_data
-		if not sendData? or sendData is ":data"
+		if not sendData? or sendData is "{{data}}"
 			sendData = data
 		else if typeof sendData is "object"
 			realSendData = {}
 			for p, v of sendData
-				if v is ":data" then v = data
+				if v is "{{data}}" then v = data
 				realSendData[p] = v
 			sendData = realSendData
 

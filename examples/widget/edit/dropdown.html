@@ -99,8 +99,8 @@
 				mappingDropDown: {
 					$type: "dropdown",
 					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
+					valueProperty: "key",
+					textProperty: "value",
 					openOnActive: false,
 					bind: "currentSelected"
 				},
@@ -111,7 +111,7 @@
 					textProperty: "value",
 					openOnActive: false,
 					bind: "prop1",
-					assignment: "prop1=k;prop2=v"
+					assignment: "prop1=key;prop2=value"
 				}
 			});
 		});
@@ -158,7 +158,7 @@
 <div id="mappingDropDown"></div>
 
 
-<c-dropdown>
+<c-dropdown id="mappingDropDown2">
 	<template name="value-content">
 		<li c-bind="item.key?(item.value+' ('+item.key+')'):''"></li>
 	</template>
