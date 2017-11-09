@@ -141,15 +141,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					})
 					dom.appendChild(clearButton)
 
-				$fly(clearButton).toggleClass("disabled", !@_value)
-		).on("click", (evt)=>
+				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
+		).on("click", () =>
 			if @_disabled then return;
 			if @_openOnActive
 				if @_opened
-					input = evt.target
-					if input.readOnly then @close()
+					if @_finalReadOnly then @close()
 				else
 					@open()
+			return
 		)
 
 		$(@_doms.input).on("input", (evt) =>
@@ -189,7 +189,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: () => this.focus()
+			click: (evt) =>
+				this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -263,11 +264,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			else
 				text = item
 
-			if not @_useValueContent then input.value = text or ""
+			if not @_useValueContent
+				input.value = text or ""
+
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
 		else
-			if not @_useValueContent then input.value = ""
+			if not @_useValueContent
+				input.value = ""
+
 			input.placeholder = @_placeholder or ""
 			@get$Dom().addClass("placeholder")
 
@@ -426,7 +431,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container?.hide?(callback)
 		return
 
-	_closeDropdown:()->
+	_closeDropdown: ()->
 		container = @_getContainer(true)
 		container?.hide?()
 
@@ -462,18 +467,19 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					bindEntity.set(targetProp, value)
 					return
 				)
-			else
-				value = @_getItemValue(item)
-				@set("value", value)
+
+			value = @_getItemValue(item)
+			@set("value", value)
 
 		@_skipFindCurrentItem = false
 		@refresh()
 		return
 
-	_doRefreshDom:() ->
+	_doRefreshDom: () ->
 		super()
 		if not @_dom then return
 		$(@_dom).toggleClass("disabled", @_disabled);
+		return
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
@@ -523,11 +529,11 @@ class DropBox extends cola.Layer
 
 		if height then $dom.css("height", height)
 		$dom.removeClass(if direction == "down" then "direction-up" else "direction-down")
-		.addClass("direction-" + direction)
-		.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
-		.css("left", left).css("top", top)
-		.css("min-width", dropdownDom.offsetWidth)
-		.css("max-width", document.body.clientWidth)
+			.addClass("direction-" + direction)
+			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
+			.css("left", left).css("top", top)
+			.css("min-width", dropdownDom.offsetWidth)
+			.css("max-width", document.body.clientWidth)
 
 		@_animation = "fade"
 
@@ -630,13 +636,37 @@ class cola.Dropdown extends cola.AbstractDropdown
 				return true
 
 	_initDom: (dom)->
-		if @_filterable then $fly(dom).addClass("filterable")
 		@_regDefaultTemplates()
 
 		inputDom = @_doms.input
 		$fly(inputDom).on("input", () => @_onInput(inputDom.value))
 
 		super(dom)
+
+		if @_filterable and @_useValueContent
+			$fly(dom).addClass("filterable").xAppend(
+				contextKey: "filterInput"
+				tagName: "input"
+				text: "input"
+				class: "filter-input"
+				focus: () => @_doFocus()
+				blur: () => @_doBlur()
+				input: (evt) =>
+					if @_useValueContent
+						$valueContent = $fly(@_doms.valueContent)
+						if evt.target.value
+							$valueContent.hide()
+						else
+							$valueContent.show()
+
+					@_onInput(@_doms.filterInput.value)
+					return
+			, @_doms)
+		return
+
+	_refreshInputValue: (value) ->
+		if not @_useValueContent then super(value)
+		return
 
 	open: () ->
 		if super()
@@ -711,6 +741,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 	_doBlur: ()->
 		if @_inputDirty
 			@close(@_list?.get("currentItem") or null)
+		@_doms.filterInput?.value = ""
 		return super()
 
 	_getDropdownContent: () ->
