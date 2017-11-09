@@ -1,3 +1,303 @@
+_columnsSetter = (table, columnConfigs) ->
+	if table?._columns
+		for column in table._columns
+			column._setTable(null)
+
+	columns = []
+	if columnConfigs
+		for columnConfig in columnConfigs
+			continue unless columnConfig
+			if columnConfig instanceof cola.TableColumn
+				column = columnConfig
+			else
+				column = cola.create("table.column", columnConfig, cola.TableColumn)
+			column._setTable(table)
+			columns.push(column)
+	@_columns = columns
+	return
+
+class cola.AbstractTable extends cola.AbstractList
+	@attributes:
+		items:
+			refreshItems: true
+			setter: (items) ->
+				return if @_items is items
+				@_set("bind", undefined)
+				@_items = items
+				return
+		bind:
+			setter: (bindStr) ->
+				return if @_bindStr is bindStr
+				@_set("items", undefined)
+				@_bindSetter(bindStr)
+				return
+
+		columns:
+			setter: (columnConfigs) ->
+				_columnsSetter.call(@, @, columnConfigs)
+				@_collectionColumnsInfo()
+				return
+		dataType:
+			setter: cola.DataType.dataTypeSetter
+
+		showHeader:
+			type: "boolean"
+			defaultValue: true
+		showFooter:
+			type: "boolean"
+
+		columnStretchable:
+			type: "boolean"
+			defaultValue: true
+		selectedProperty:
+			defaultValue: "selected"
+
+		sortMode:
+			defaultValue: "remote" # local/remote
+
+	@events:
+		renderRow: null
+		renderCell: null
+		renderHeaderCell: null
+		renderFooterCell: null
+		cellClick: null
+		headerClick: null
+		footerClick: null
+		sortDirectionChange: null
+
+	@TEMPLATES:
+		"default":
+			tagName: "tr"
+		"boolean-column":
+			"c-display": "$default"
+			content:
+				tagName: "i"
+				class: "green checkmark icon"
+		"checkbox-column":
+			tagName: "c-checkbox"
+			class: "in-cell"
+			bind: "$default"
+		"toggle-column":
+			tagName: "c-toggle"
+			class: "in-cell"
+			bind: "$default"
+		"input-column":
+			tagName: "c-input"
+			class: "in-cell"
+			bind: "$default"
+		"date-column":
+			tagName: "c-datepicker"
+			class: "in-cell"
+			bind: "$default"
+		"group-header":
+			tagName: "tr"
+			content:
+				tagName: "td"
+				colSpan: 100
+
+	constructor: (config) ->
+		@_columnMap = {}
+		super(config)
+
+	_getItems: () ->
+		if @_items
+			return {items: @_items}
+		else
+			return super()
+
+	_regColumn: (column) ->
+		if column._name
+			@_columnMap[column._name] = column
+		return
+
+	_unregColumn: (column) ->
+		if column._name
+			delete @_columnMap[column._name]
+		return
+
+	getColumn: (name) ->
+		return @_columnMap[name]
+
+	_collectionColumnsInfo: () ->
+		collectColumnInfo = (column, context, deepth) ->
+			info =
+				level: deepth
+				column: column
+			if column instanceof cola.TableGroupColumn
+				if column._columns
+					info.columns = cols = []
+					for col in column._columns
+						continue unless col._visible
+						if context.rows.length == deepth
+							context.rows[deepth] = []
+						cols.push(collectColumnInfo(col, context, deepth + 1))
+					if cols.length
+						if context.rows.length == deepth then context.rows[deepth] = []
+						context.rows[deepth].push(info)
+			else
+				if column._bind
+					bind = column._bind
+					if bind.charCodeAt(0) == 46 # `.`
+						if not column._property
+							column._property = bind.substring(1)
+					else
+						info.expression = cola._compileExpression(@_scope, bind)
+
+				if column._width
+					width = column._width
+					if typeof width == "string"
+						if width.indexOf("px") > 0
+							widthType = "px"
+						else if width.indexOf("%") > 0
+							widthType = "percent"
+					info.widthType = widthType
+					info.width = parseFloat(width)
+
+					if not widthType and info.width
+						context.totalWidth += info.width
+
+				info.index = context.dataColumns.length
+				context.dataColumns.push(info)
+
+				if column instanceof cola.TableSelectColumn
+					context.selectColumns ?= []
+					context.selectColumns.push(info)
+
+				if context.rows.length == deepth then context.rows[deepth] = []
+				context.rows[deepth].push(info)
+			return info
+
+		@_columnsInfo = columnsInfo = {
+			totalWidth: 0
+			rows: [[]]
+			dataColumns: []
+			alias: "item"
+		}
+		if @_columns
+			expression = @_itemsScope.expression
+			if expression
+				columnsInfo.alias = expression.alias
+
+			for col in @_columns
+				continue unless col._visible
+				collectColumnInfo(col, columnsInfo, 0)
+		return
+
+	_getBindDataType: () ->
+		return @_dataType if @_dataType
+		return @_dataType = super()
+
+	_createDom: ()->
+		dom = document.createElement("div")
+		@_doms ?= {}
+		@_createInnerDom(dom)
+		return dom
+
+	_createInnerDom: (dom) ->
+		$fly(dom).xAppend({
+			tagName: "div"
+			class: "table-wrapper"
+			contextKey: "itemsWrapper"
+			content:
+				tagName: "table"
+				contextKey: "table"
+				content: [
+					{
+						tagName: "colgroup"
+						contextKey: "colgroup"
+						span: 100
+					},
+					{
+						tagName: "tbody"
+						class: "items"
+						contextKey: "tbody"
+					}
+				]
+		}, @_doms)
+
+		$fly(@_doms.tbody).delegate(">tr >td", "click", (evt) =>
+			columnName = evt.currentTarget._name
+			column = @getColumn(columnName)
+			eventArg =
+				column: column
+			if column.fire("cellClick", @, eventArg) isnt false
+				@fire("cellClick", @, eventArg)
+			return
+		)
+		return
+
+	_parseDom: (dom) ->
+		return unless dom
+		@_doms ?= {}
+
+		child = dom.firstElementChild
+		while child
+			cola.xRender(child)
+			child.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+			child = child.nextElementSibling
+
+		columns = []
+		child = dom.firstElementChild
+		while child
+			next = child.nextElementSibling
+			nodeName = child.nodeName
+			if nodeName is "TEMPLATE"
+				@regTemplate(child)
+			else
+				if nodeName is "COLUMN"
+					column = @_parseColumnDom(child)
+				else if nodeName is "SELECT-COLUMN"
+					column = @_parseColumnDom(child)
+					column.$type = "select"
+				else if nodeName is "STATE-COLUMN"
+					column = @_parseColumnDom(child)
+					column.$type = "state"
+				if column then columns.push(column)
+				dom.removeChild(child)
+			child = next
+
+		@set("columns", columns) if columns.length
+
+		@_createInnerDom(dom)
+		return
+
+	_parseColumnDom: (dom) ->
+		column = {}
+		for attr in dom.attributes
+			attrName = attr.name
+			if attrName.substring(0, 2) is "c-"
+				expression = cola._compileExpression(@_scope, attr.value)
+				column[attrName.substring(2)] = expression
+			else
+				column[attrName] = attr.value
+
+		child = dom.firstElementChild
+		while child
+			next = child.nextElementSibling
+			nodeName = child.nodeName
+			if nodeName is "TEMPLATE"
+				templateName = child.getAttribute("name")
+				if templateName and templateName.indexOf("header") is 0
+					templateName = "headerTemplate"
+				else if templateName and templateName.indexOf("footer") is 0
+					templateName = "footerTemplate"
+				else
+					templateName = "template"
+				column[templateName] = @trimTemplate(child)
+			else if child.nodeType is 1
+				subColumn = @_parseColumnDom(child)
+				column.columns ?= []
+				column.columns.push(subColumn)
+			child = next
+		return column
+
+	_createNewItem: (itemType, item) ->
+		template = @getTemplate(itemType)
+		itemDom = @_cloneTemplate(template)
+		$fly(itemDom).addClass("table item " + itemType)
+		itemDom._itemType = itemType
+		return itemDom
+
 class cola.Table extends cola.AbstractTable
 	@tagName: "c-table"
 	@CLASS_NAME: "items-view widget-table"
@@ -97,14 +397,14 @@ class cola.Table extends cola.AbstractTable
 				if collection instanceof cola.EntityList
 					invoker = collection._providerInvoker
 					if invoker
-						parameter = invoker.invokerOptions.data
+						parameter = invoker.ajaxService.get("parameter")
 						if not parameter
 							invoker.invokerOptions.data = parameter = {}
 						else if typeof parameter isnt "object" or parameter instanceof cola.EntityList or parameter instanceof Date
 							throw new cola.Exception("Can not set sort parameter automatically.")
 						else if parameter instanceof cola.Entity
 							parameter = parameter.toJSON()
-						parameter.sort = criteria
+						parameter[cola.setting("defaultSortParameter") or sort] = criteria
 
 						cola.util.flush(collection)
 			else
@@ -440,12 +740,20 @@ class cola.Table extends cola.AbstractTable
 					message =
 						type: "error"
 						text: message
+
 				$cell.removeClass("info warn error").addClass(message.type)
-				$cell.attr("data-content", message.text).popup({
-					position: "bottom center"
-				})
-			else
+
+				$cell.attr("data-content", message.text)
+				if not dom._popupSetted
+					$cell.popup({
+						position: "bottom center"
+					})
+					dom._popupSetted = true
+				dom._hasState = true
+			else if dom._hasState
 				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+				dom._hasState = false
+				dom._popupSetted = false
 
 		return if column._real_template
 

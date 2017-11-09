@@ -24,6 +24,10 @@
 				{key: "2", value: "B"}
 			]);
 
+			model.set({
+				selected: "C++"
+			});
+
 			model.action({
 				pickValue: function (self) {
 					dropdown = cola.findDropDown(self);
@@ -75,6 +79,8 @@
 					class: "error",
 					openMode: "drop",
 					items: "{{language in languages}}",
+					bind: "selected",
+					valueProperty: "name",
 					textProperty: "name"
 				},
 				dropdown4: {
@@ -86,6 +92,7 @@
 					openMode: "drop",
 					valueProperty: "name",
 					openOnActive: false,
+					readOnly: true,
 					content: {
 						$type: "table",
 						bind: "language in languages",
@@ -99,8 +106,8 @@
 				mappingDropDown: {
 					$type: "dropdown",
 					items: "{{item in items}}",
-					valueProperty: "k",
-					textProperty: "v",
+					valueProperty: "key",
+					textProperty: "value",
 					openOnActive: false,
 					bind: "currentSelected"
 				},
@@ -109,9 +116,8 @@
 					items: "{{item in items}}",
 					valueProperty: "key",
 					textProperty: "value",
-					openOnActive: false,
 					bind: "prop1",
-					assignment: "prop1=k;prop2=v"
+					assignment: "prop1=key;prop2=value"
 				}
 			});
 		});
@@ -158,7 +164,7 @@
 <div id="mappingDropDown"></div>
 
 
-<c-dropdown>
+<c-dropdown id="mappingDropDown2">
 	<template name="value-content">
 		<li c-bind="item.key?(item.value+' ('+item.key+')'):''"></li>
 	</template>

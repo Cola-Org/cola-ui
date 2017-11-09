@@ -77,7 +77,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		blur: null
 		keyDown: null
 		keyPress: null
-		input:null
+		input: null
 
 	_initDom: (dom) ->
 		super(dom)
@@ -92,68 +92,73 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom)
-			.attr("tabIndex", 1)
-			.delegate(">.icon", "click", () =>
-				if  @_finalReadOnly and not @_disabled and not @_opened
-					@open()
-					return
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
+			if  @_finalReadOnly and not @_disabled and not @_opened
+				@open()
+				return
+			if @_opened
+				@close()
+
+			else
+				if @_disabled then return
+				@open()
+			return
+		).on("keydown", (evt)=>
+			arg =
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
+				inputValue: @_doms.input.value
+
+			@fire("keyDown", @, arg)
+			if evt.keyCode is 9 then @_closeDropdown()
+
+			if @_onKeyDown?(evt) isnt false and @_dropdownContent
+				$(@_dropdownContent).trigger(evt)
+			return
+		).on("keypress", (evt)=>
+			arg =
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
+				inputValue: @_doms.input.value
+			if @fire("keyPress", @, arg) is false
+				return false
+		).on("mouseenter", (evt)=>
+			if @_showClearButton
+				clearButton = @_doms.clearButton
+				if not clearButton
+					@_doms.clearButton = clearButton = $.xCreate({
+						tagName: "i"
+						class: "icon remove"
+						click: ()=>
+							@_selectData(null)
+							return false
+					})
+					dom.appendChild(clearButton)
+
+				$fly(clearButton).toggleClass("disabled", !@_value)
+		).on("click", (evt)=>
+			if @_disabled then return;
+			if @_openOnActive
 				if @_opened
-					@close()
-
+					input = evt.target
+					if input.readOnly then @close()
 				else
-					if @_disabled then return
 					@open()
-				return
-			).on("keydown", (evt)=>
-				arg =
-					keyCode: evt.keyCode
-					shiftKey: evt.shiftKey
-					ctrlKey: evt.ctrlKey
-					altKey: evt.altKey
-					event: evt
-					inputValue: @_doms.input.value
+		)
 
-				@fire("keyDown", @, arg)
-				if evt.keyCode is 9 then @_closeDropdown()
-
-				if @?_onKeyDown(evt) isnt false and @_dropdownContent
-					$(@_dropdownContent).trigger(evt)
-				return
-			).on("keypress", (evt)=>
-				arg =
-					keyCode: evt.keyCode
-					shiftKey: evt.shiftKey
-					ctrlKey: evt.ctrlKey
-					altKey: evt.altKey
-					event: evt
-					inputValue: @_doms.input.value
-				if @fire("keyPress", @, arg) == false then return
-			).on("mouseenter", (evt)=>
-				if @_showClearButton
-					clearButton = dom.querySelector("i.icon.remove")
-					if not clearButton
-						clearButton = $.xCreate({
-							tagName: "i"
-							class: "icon remove"
-							click: ()=>
-								@_selectData(null)
-								return false
-						})
-						dom.appendChild(clearButton)
-				return
-			)
-
-		$(@_doms.input)
-			.on("focus", () => @_doFocus())
-			.on("blur", () => @_doBlur())
-			.on("input", (evt) =>
-				arg =
-					event: evt
-					inputValue: @_doms.input.value
-				@fire("input", @, arg)
-			)
-			.on("keypress", () => @_inputEdited = true)
+		$(@_doms.input).on("input", (evt) =>
+			value = @_doms.input.value
+			arg =
+				event: evt
+				inputValue: value
+			@fire("input", @, arg)
+		).on("focus", () => @_doFocus()).on("blur", () => @_doBlur()).on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -163,15 +168,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_doFocus: ()->
 		@_inputEdited = false
-		@fire("focus", @, {})
-		if @_useValueContent and @_editable
-			$fly(@_doms.valueContent).hide()
-		return
-
-	_doBlur: ()->
-		if @_useValueContent
-			$fly(@_doms.valueContent).show()
-		@fire("blur", @, {})
+		super()
 		return
 
 	_parseDom: (dom)->
@@ -192,24 +189,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: (evt) =>
-				if @_disabled then return;
-				if @_openOnActive
-					if @_opened
-						input = evt.target
-						if input.readOnly then @close()
-					else
-						@open()
-				this.focus();
-
-			input: (evt) =>
-				if @_useValueContent
-					$valueContent = $fly(@_doms.valueContent)
-					if evt.target.value
-						$valueContent.hide()
-					else
-						$valueContent.show()
-				return
+			click: () => this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -224,6 +204,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly() or @_disabled)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
+		@_refreshInputValue(@_value)
 		return
 
 	_setValue: (value) ->

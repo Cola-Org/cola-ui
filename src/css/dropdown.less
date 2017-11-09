@@ -13,9 +13,21 @@
 	> .icon {
 		pointer-events: inherit !important;
 	}
+
+	> .filter-input {
+		.opacity(0%);
+		position: absolute;
+		padding: 0 !important;
+		left: 1.16667em;
+		top: 0.809567em;
+		right: 2.9333333em;
+		bottom: 0.809567em;
+		line-height: 1.2142em;
+		border-style: none;
+		z-index: 3;
+	}
 	> .value-content {
 		display: none;
-		background: @inputBackground;
 		position: absolute;
 		left: 1.16667em;
 		top: 0.809567em;
@@ -24,6 +36,8 @@
 		line-height: 1.2142em;
 		pointer-events: none;
 		list-style: none;
+		white-space: nowrap;
+		z-index: 4;
 
 		&.placeholder {
 			.opacity(30%) !important;
@@ -33,9 +47,6 @@
 		&.opened {
 			input {
 				border-color: @downBorderColor;
-			}
-			> .value-content {
-				.opacity(50%);
 			}
 		}
 	}
@@ -47,10 +58,19 @@
 		display: none;
 		width: 1em;
 		right: 2.4em;
+		z-index: 5;
 	}
 	&:hover {
-		> i.icon.remove {
+		> i.icon.remove:not(.disabled) {
 			display: block;
+		}
+	}
+	&.focused {
+		> .filter-input {
+			.opacity(100%);
+		}
+		> .value-content {
+			.opacity(50%);
 		}
 	}
 }
