@@ -86,6 +86,7 @@ class cola.Layer extends cola.AbstractLayer
 	_transitionStart: (type)->
 	_doTransition: (options, callback)->
 		layer = @
+		$(layer._dom).parent().toggleClass("hide-overflow", options.target is "show")
 		onComplete = ->
 			if typeof callback == "function"
 				callback.call(layer)

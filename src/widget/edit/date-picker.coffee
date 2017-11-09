@@ -812,7 +812,7 @@ class cola.TimeEditor extends cola.Widget
 				hour: @_hour, minute: @_minute, second: @_second
 			})
 
-		$(childDom).find("input").keyup(()->
+		$(childDom).find("input").keyup((event)->
 			val = this.value.replace(/[^\d]/g, '')
 			if event.keyCode == 37 or event.keyCode == 39
 				return

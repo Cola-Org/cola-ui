@@ -19,10 +19,8 @@
             });
 
             model.action({
-                getData: function () {
-                    var data = model.get("companies");
-
-                    var result = cola.util.filter(data,
+                getData: function (data) {
+                    return cola.util.filter(data,
                         {
                             url: {
                                 value: ".org",
@@ -36,7 +34,6 @@
                             }
                         }
                     );
-                    console.log(result)
                 }
             })
         });
@@ -44,9 +41,9 @@
 </head>
 <body>
 <c-button click="getData" caption="过滤"></c-button>
-<li c-repeat="company in companies">
+<li c-repeat="company in getData(companies)">
     <span c-bind="$index"></span>
-    <span c-bind="company.name" c-href="company.url" c-onclick="setCurrent(company)"></span>
+    <a c-bind="company.name" c-href="company.url" c-onclick="setCurrent(company)"></a>
 </li>
 </body>
 </html>

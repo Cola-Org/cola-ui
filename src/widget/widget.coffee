@@ -213,10 +213,7 @@ class cola.Widget extends cola.RenderableElement
 	@SEMANTIC_CLASS: ["left floated", "right floated"]
 
 	@attributes:
-		display:
-			defaultValue: true
-			refreshDom: true
-			type: "boolean"
+
 
 		float:
 			refreshDom: true
@@ -360,8 +357,6 @@ class cola.Widget extends cola.RenderableElement
 		super()
 
 		@_classNamePool.add("#{@_float} floated") if @_float
-		@_classNamePool.toggle("display-none", !!!@_display)
-
 		if not @_rendered and @_class
 			@_classNamePool.add(name) for name in @_class.split(" ")
 

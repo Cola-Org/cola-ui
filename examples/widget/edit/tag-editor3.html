@@ -6,8 +6,21 @@
     <script src="../../include-all.js"></script>
 </head>
 <body style="padding:20px;">
-<c-multiselect id="dropdown5"></c-multiselect>
-<c-input bind="selectedItems"></c-input>
+
+<c-form>
+    <field>
+        <label>机构列表</label>
+        <c-input bind="selectedItems"></c-input>
+    </field>
+    <field>
+        <label>机构列表</label>
+
+        <c-multiselect id="multiselect" renderItem="renderItem"></c-multiselect>
+    </field>
+
+</c-form>
+
+
 <script type="text/javascript">
     cola(function (model) {
         model.set("selectedItems", "1,2");
@@ -20,14 +33,11 @@
             {key: "6", value: "盗汗"}
         ]);
         model.widgetConfig({
-            dropdown5: {
-                openMode: "drop",
-                valueProperty: "key",
-                bind: "selectedItems",
-                openOnActive: true,
-                dropdownWidth:200,
+            multiselect: {
+                valueProperty: "key", bind: "selectedItems",
+                openOnActive: true, dropdownWidth: 200,
                 content: {
-                    $type: "table",
+                    $type: "table", showHeader: false,
                     bind: "language in items",
                     columns: [{bind: ".value"}],
                     itemClick: function (self, arg) {
@@ -36,11 +46,15 @@
                     }
                 },
                 renderItem: function (self, arg) {
+                    var itemDom = arg.itemDom;
+                    model.get("items").each(function (item) {
+                        if (item.get("key") === arg.item) {
+                            $(itemDom).find(">span").text(item.get("value"));
+                        }
+                    })
                 }
             }
         });
-
-
     });
 </script>
 </body>
