@@ -204,7 +204,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly() or @_disabled)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
-		@_refreshInputValue(@_value)
 		return
 
 	_setValue: (value) ->
@@ -263,11 +262,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
 			else
 				text = item
-			input.value = text or ""
+
+			if not @_useValueContent then input.value = text or ""
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
 		else
-			input.value = ""
+			if not @_useValueContent then input.value = ""
 			input.placeholder = @_placeholder or ""
 			@get$Dom().addClass("placeholder")
 
@@ -452,10 +452,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					pair = part.split("=")
 					targetProp = pair[0]
 					sourceProp = pair[1] or targetProp
-					if item instanceof cola.Entity
-						value = item.get(sourceProp)
+					if item
+						if item instanceof cola.Entity
+							value = item.get(sourceProp)
+						else
+							value = item[sourceProp]
 					else
-						value = item[sourceProp]
+						value = null
 					bindEntity.set(targetProp, value)
 					return
 				)
