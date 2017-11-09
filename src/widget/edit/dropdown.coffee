@@ -92,71 +92,65 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom)
-			.attr("tabIndex", 1)
-			.delegate(">.icon", "click", () =>
-				if  @_finalReadOnly and not @_disabled and not @_opened
-					@open()
-					return
-				if @_opened
-					@close()
-
-				else
-					if @_disabled then return
-					@open()
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
+			if  @_finalReadOnly and not @_disabled and not @_opened
+				@open()
 				return
-			).on("keydown", (evt)=>
-				arg =
-					keyCode: evt.keyCode
-					shiftKey: evt.shiftKey
-					ctrlKey: evt.ctrlKey
-					altKey: evt.altKey
-					event: evt
-					inputValue: @_doms.input.value
+			if @_opened
+				@close()
 
-				@fire("keyDown", @, arg)
-				if evt.keyCode is 9 then @_closeDropdown()
+			else
+				if @_disabled then return
+				@open()
+			return
+		).on("keydown", (evt)=>
+			arg =
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
+				inputValue: @_doms.input.value
 
-				if @_onKeyDown?(evt) isnt false and @_dropdownContent
-					$(@_dropdownContent).trigger(evt)
-				return
-			).on("keypress", (evt)=>
-				arg =
-					keyCode: evt.keyCode
-					shiftKey: evt.shiftKey
-					ctrlKey: evt.ctrlKey
-					altKey: evt.altKey
-					event: evt
-					inputValue: @_doms.input.value
-				if @fire("keyPress", @, arg) is false
-					return false
-			).on("mouseenter", (evt)=>
-				if @_showClearButton
-					clearButton = @_doms.clearButton
-					if not clearButton
-						@_doms.clearButton = clearButton = $.xCreate({
-							tagName: "i"
-							class: "icon remove"
-							click: ()=>
-								@_selectData(null)
-								return false
-						})
-						dom.appendChild(clearButton)
+			@fire("keyDown", @, arg)
+			if evt.keyCode is 9 then @_closeDropdown()
 
-					$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
-			)
+			if @_onKeyDown?(evt) isnt false and @_dropdownContent
+				$(@_dropdownContent).trigger(evt)
+			return
+		).on("keypress", (evt)=>
+			arg =
+				keyCode: evt.keyCode
+				shiftKey: evt.shiftKey
+				ctrlKey: evt.ctrlKey
+				altKey: evt.altKey
+				event: evt
+				inputValue: @_doms.input.value
+			if @fire("keyPress", @, arg) is false
+				return false
+		).on("mouseenter", (evt)=>
+			if @_showClearButton
+				clearButton = @_doms.clearButton
+				if not clearButton
+					@_doms.clearButton = clearButton = $.xCreate({
+						tagName: "i"
+						class: "icon remove"
+						click: ()=>
+							@_selectData(null)
+							return false
+					})
+					dom.appendChild(clearButton)
 
-		$(@_doms.input)
-			.on("focus", () => @_doFocus())
-			.on("blur", () => @_doBlur())
-			.on("input", (evt) =>
-				value = @_doms.input.value
-				arg =
-					event: evt
-					inputValue: value
-				@fire("input", @, arg)
-			)
-			.on("keypress", () => @_inputEdited = true)
+				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
+		)
+
+		$(@_doms.input).on("input", (evt) =>
+			value = @_doms.input.value
+			arg =
+				event: evt
+				inputValue: value
+			@fire("input", @, arg)
+		).on("focus", () => @_doFocus()).on("blur", () => @_doBlur()).on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -268,11 +262,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
 			else
 				text = item
-			input.value = text or ""
+
+			if not @_useValueContent
+				input.value = text or ""
+
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
 		else
-			input.value = ""
+			if not @_useValueContent
+				input.value = ""
+
 			input.placeholder = @_placeholder or ""
 			@get$Dom().addClass("placeholder")
 
@@ -479,6 +478,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		super()
 		if not @_dom then return
 		$(@_dom).toggleClass("disabled", @_disabled);
+		return
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
@@ -661,6 +661,10 @@ class cola.Dropdown extends cola.AbstractDropdown
 					@_onInput(@_doms.filterInput.value)
 					return
 			, @_doms)
+		return
+
+	_refreshInputValue: (value) ->
+		if not @_useValueContent then super(value)
 		return
 
 	open: () ->

@@ -353,7 +353,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	_postInput: () ->
 		readOnly = @_readOnly
-		if not readOnly
+		if not readOnly and not @_doms.input.readOnly
 			value = @_doms.input.value
 			if value is "" then value = null
 			dataType = @_dataType
