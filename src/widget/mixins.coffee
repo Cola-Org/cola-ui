@@ -27,14 +27,14 @@ cola.TemplateSupport =
 		child = dom.firstChild
 		while child
 			next = child.nextSibling
-			if child.nodeType == 3	# TEXT
+			if child.nodeType is 3	# TEXT
 				if $.trim(child.nodeValue) == ""
 					dom.removeChild(child)
 			child = next
 		return
 
 	regTemplate: (name, template) ->
-		if arguments.length == 1
+		if arguments.length is 1
 			template = name
 			if template.nodeType
 				name = template.getAttribute("name")
@@ -220,7 +220,7 @@ cola.DataItemsWidgetMixin =
 	_alias: "item"
 
 	_bindSetter: (bindStr) ->
-		return if @_bind == bindStr
+		return if @_bind is bindStr
 
 		@_bind = bindStr
 		@_itemsRetrieved = false

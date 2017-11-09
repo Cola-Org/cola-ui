@@ -158,8 +158,6 @@ class cola.ListView extends cola.AbstractList
 		return items
 
 	_doRefreshDom: (dom) ->
-		return unless @_dom
-
 		if @_columnsChanged
 			delete @_columnsChanged
 

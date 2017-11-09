@@ -194,24 +194,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$(@_doms.input).on("change", ()=>
 			@_postInput()
 			return
-		).on("focus", ()=>
-			@_inputFocused = true
-			@_refreshInput()
-			@addClass("focused") if not @_finalReadOnly
-			@fire("focus", @)
-			return
-		).on("blur", ()=>
-			@_inputFocused = false
-			@removeClass("focused")
-			@_refreshInput()
-			@fire("blur", @)
-
-			if not @_value? or @_value is "" and @_bindInfo?.writeable
-				propertyDef = @getBindingProperty()
-				if propertyDef?._required and propertyDef._validators
-					entity = @_scope.get(@_bindInfo.entityPath)
-					entity.validate(@_bindInfo.property) if entity
-			return
+		).on("focus", ()=> @_doFocus()
+		).on("blur",  ()=> @_doBlur()
 		).on("keydown", (event)=>
 			arg =
 				keyCode: event.keyCode
@@ -231,6 +215,26 @@ class cola.AbstractInput extends cola.AbstractEditor
 			if @fire("keyPress", @, arg) == false then return
 			if event.keyCode is 13 and isIE11 then @_postInput()
 		)
+		return
+
+	_doFocus: ()->
+		@_inputFocused = true
+		@_refreshInput()
+		@addClass("focused") if not @_finalReadOnly
+		@fire("focus", @)
+		return
+
+	_doBlur: ()->
+		@_inputFocused = false
+		@removeClass("focused")
+		@_refreshInput()
+		@fire("blur", @)
+
+		if not @_value? or @_value is "" and @_bindInfo?.writeable
+			propertyDef = @getBindingProperty()
+			if propertyDef?._required and propertyDef._validators
+				entity = @_scope.get(@_bindInfo.entityPath)
+				entity.validate(@_bindInfo.property) if entity
 		return
 
 	_refreshCorner: ()->
@@ -324,7 +328,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_refreshInputValue: (value) ->
-		$fly(@_doms.input).val(if value? then value + "" or "")
+		@_doms.input.value = if value? then value + "" else ""
 		return
 
 	_doRefreshDom: () ->
@@ -349,8 +353,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	_postInput: () ->
 		readOnly = @_readOnly
-		if not readOnly
-			value = $(@_doms.input).val()
+		if not readOnly and not @_doms.input.readOnly
+			value = @_doms.input.value
 			if value is "" then value = null
 			dataType = @_dataType
 			if dataType
