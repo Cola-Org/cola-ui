@@ -141,7 +141,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					})
 					dom.appendChild(clearButton)
 
-				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
+				$fly(clearButton).toggleClass("disabled", !@_value)
+		).on("click", (evt)=>
+			if @_disabled then return;
+			if @_openOnActive
+				if @_opened
+					input = evt.target
+					if input.readOnly then @close()
+				else
+					@open()
 		)
 
 		$(@_doms.input).on("input", (evt) =>
@@ -181,15 +189,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: (evt) =>
-				if @_disabled then return;
-				if @_openOnActive
-					if @_opened
-						input = evt.target
-						if input.readOnly then @close()
-					else
-						@open()
-				this.focus()
+			click: () => this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -204,6 +204,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly() or @_disabled)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
+		@_refreshInputValue(@_value)
 		return
 
 	_setValue: (value) ->
@@ -263,15 +264,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			else
 				text = item
 
-			if not @_useValueContent
-				input.value = text or ""
-
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
 		else
-			if not @_useValueContent
-				input.value = ""
-
 			input.placeholder = @_placeholder or ""
 			@get$Dom().addClass("placeholder")
 
@@ -435,11 +430,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container?.hide?()
 
 	_getItemValue: (item) ->
-		if @_valueProperty and item
+		if (@_valueProperty or @_textProperty) and item
 			if item instanceof cola.Entity
-				value = item.get(@_valueProperty)
+				value = item.get(@_valueProperty or @_textProperty)
 			else
-				value = item[@_valueProperty]
+				value = item[@_valueProperty or @_textProperty]
 		else
 			value = item
 		return value
