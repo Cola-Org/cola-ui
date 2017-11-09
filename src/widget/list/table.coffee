@@ -364,12 +364,6 @@ class cola.Table extends cola.AbstractTable
 			else sortDirection = "asc"
 			column.set("sortDirection", sortDirection)
 
-			if @fire("sortDirectionChange", @, {
-				column: column
-				sortDirection: sortDirection
-			}) is false
-				return
-
 			collection = @_realOriginItems or @_realItems
 			if not collection then return
 
@@ -396,18 +390,32 @@ class cola.Table extends cola.AbstractTable
 			if @_sortMode is "remote"
 				if collection instanceof cola.EntityList
 					invoker = collection._providerInvoker
-					if invoker
-						parameter = invoker.ajaxService.get("parameter")
-						if not parameter
-							invoker.invokerOptions.data = parameter = {}
-						else if typeof parameter isnt "object" or parameter instanceof cola.EntityList or parameter instanceof Date
-							throw new cola.Exception("Can not set sort parameter automatically.")
-						else if parameter instanceof cola.Entity
-							parameter = parameter.toJSON()
-						parameter[cola.setting("defaultSortParameter") or sort] = criteria
 
-						cola.util.flush(collection)
+				if @fire("sortDirectionChange", @, {
+					column: column
+					invoker: invoker
+					sortDirection: sortDirection
+				}) is false
+					return
+
+				if collection instanceof cola.EntityList and invoker
+					parameter = invoker.ajaxService.get("parameter")
+					if not parameter
+						invoker.invokerOptions.data = parameter = {}
+					else if typeof parameter isnt "object" or parameter instanceof cola.EntityList or parameter instanceof Date
+						throw new cola.Exception("Can not set sort parameter automatically.")
+					else if parameter instanceof cola.Entity
+						parameter = parameter.toJSON()
+					parameter[cola.setting("defaultSortParameter") or sort] = criteria
+
+					cola.util.flush(collection)
 			else
+				if @fire("sortDirectionChange", @, {
+					column: column
+					sortDirection: sortDirection
+				}) is false
+					return
+
 				@_sortCriteria = criteria
 				@_refreshItems()
 		return
