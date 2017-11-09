@@ -215,6 +215,11 @@ cola.DataWidgetMixin =
 		return unless @_bindInfo
 		return @_bindInfo.bindingDataType = @_scope.data.getDataType(@_bindInfo.writeablePath) or null
 
+	getAbsoluteBindingPath: () ->
+		if @_bindInfo?.writeable
+			return @_scope.getAbsolutePath(@_bind)
+		return @_bind
+
 cola.DataItemsWidgetMixin =
 	_dataItemsWidget: true
 	_alias: "item"

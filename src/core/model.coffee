@@ -975,6 +975,20 @@ class cola.AbstractDataModel
 					@processDataMessage(subNode, path, type, arg, true)
 		return
 
+	getAbsolutePath: (path) ->
+		return path unless path
+		i = path.lastIndexOf(".")
+		if i > 0
+			entityPath = path.substring(0, i)
+			property = path.substring(i + 1)
+			entity = @get(entityPath, "never")
+			if entity
+				entityPath = entity.getPath?()
+				if entityPath
+					entityPath.push(property)
+					path = entityPath.join(".")
+		return path
+
 class cola.DataModel extends cola.AbstractDataModel
 
 	_createRootData: (rootDataType) ->
