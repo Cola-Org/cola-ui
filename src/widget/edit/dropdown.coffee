@@ -452,6 +452,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
 			if @_assignment and @_bindInfo?.writeable
+				if @fire("beforePost", @) is false
+					@refreshValue()
+					return
+
 				bindEntity = @_scope.get(@_bindInfo.entityPath)
 				@_assignment.split(/[,;]/).forEach((part) =>
 					pair = part.split("=")
@@ -468,8 +472,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					return
 				)
 
-			value = @_getItemValue(item)
-			@set("value", value)
+				@fire("post", @)
+				@fire("change", @)
+			else
+				value = @_getItemValue(item)
+				@set("value", value)
 
 		@_skipFindCurrentItem = false
 		@refresh()
