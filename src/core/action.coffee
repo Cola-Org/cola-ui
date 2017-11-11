@@ -106,7 +106,7 @@ cola.defaultAction.caption = (path) ->
 	if i > 0
 		dataType = path.substring(0, i)
 		property = path.substring(i + 1)
-		dataType = @.definition(dataType)
+		dataType = @definition(dataType)
 		if dataType
 			property = dataType.getProperty(property)
 			if property
