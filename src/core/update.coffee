@@ -15,7 +15,7 @@ _processEntity = (entity, context, options) ->
 		entityId: options.entityId or true
 		state: true
 		oldData: options.oldData
-
+	context.messages ?= {}
 	if not options.ignoreValidation and entity.state isnt cola.Entity.STATE_DELETED
 		entity.validate()
 		messages = entity.findMessages()
@@ -68,7 +68,7 @@ cola.util.update = (url, data, options = {}) ->
 	context = options.context = options.context or {}
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
-
+	context.messages ?= {}
 	if not options.ignoreValidation
 		if context.messages.error
 			deferred = $.Deferred().reject(messages: context.messages)
@@ -101,12 +101,11 @@ cola.util.update = (url, data, options = {}) ->
 								state = entityDiff.state
 
 							if state
-								if state is cola.Entity.STATE_DELETED or
-									(state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
-										if entity._page
-											entity._page._removeElement(entity)
-										else if entity.parent
-											entity.parent._set(entity._parentProperty, null, true)
+								if state is cola.Entity.STATE_DELETED or (state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
+									if entity._page
+										entity._page._removeElement(entity)
+									else if entity.parent
+										entity.parent._set(entity._parentProperty, null, true)
 								else
 									entity.setState(state)
 							else
@@ -220,9 +219,7 @@ cola.util.autoUpdate = (url, model, path, options = {}) ->
 			return @
 
 	model.watch path + ".**", (messagePath, type) ->
-		if type is cola.constants.MESSAGE_PROPERTY_CHANGE or
-		  type is cola.constants.MESSAGE_INSERT or
-		  type is cola.constants.MESSAGE_REMOVE
+		if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 			autoUpdateHanlder.schedule()
 		return
 
