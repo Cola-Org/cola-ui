@@ -58,7 +58,8 @@ class cola.AbstractEditor extends cola.Widget
 		arg = {oldValue: @_value, value: value}
 		return if @fire("beforeChange", @, arg) is false
 		@_value = value
-		@post() if value isnt @_modelValue
+		if value isnt @_modelValue and @_rendered
+			@post()
 		@onSetValue?(value)
 		@fire("change", @, arg)
 		return true
@@ -89,7 +90,7 @@ class cola.AbstractEditor extends cola.Widget
 					keyMessage = entity.getKeyMessage?(@_bindInfo.property)
 					@set("state", keyMessage?.type)
 
-		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE and type < cola.constants.MESSAGE_LOADING_START
 			if @refreshValue()
 				cola.util.delay(@, "refreshDom", 0, @_refreshDom)
 		return

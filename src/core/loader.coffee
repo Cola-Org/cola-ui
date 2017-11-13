@@ -1,3 +1,5 @@
+cola._jsCache = {}
+
 cola.loadSubView = (targetDom, context) ->
 	loadingUrls = []
 	failed = false
@@ -7,7 +9,7 @@ cola.loadSubView = (targetDom, context) ->
 			if not failed
 				i = loadingUrls.indexOf(url)
 				if i > -1 then loadingUrls.splice(i, 1)
-				if loadingUrls.length == 0
+				if loadingUrls.length is 0
 					$fly(targetDom).removeClass("loading")
 
 					if targetDom.hasAttribute(cola.constants.IGNORE_DIRECTIVE)
@@ -36,7 +38,8 @@ cola.loadSubView = (targetDom, context) ->
 								delete cola._suspendedInitFuncs
 
 								if context.suspendedInitFuncs?.length > oldLen
-									_jsCache[url] = context.suspendedInitFuncs.slice(oldLen)
+									console.log("CACHE: " + scriptHolder.url)
+									cola._jsCache[scriptHolder.url] = context.suspendedInitFuncs.slice(oldLen)
 						catch e
 							# do nothing
 
@@ -171,17 +174,15 @@ _loadHtml = (targetDom, url, context, callback) ->
 	)
 	return
 
-_jsCache = {}
-
 _loadJs = (context, url, callback) ->
-	initFuncs = _jsCache[url]
+	initFuncs = cola._jsCache[url]
 	if initFuncs
 		Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
 		cola.callback(callback, true)
 	else
 		context.scriptHolders.push({
 			url: url
-		});
+		})
 		$.ajax(url, {
 			dataType: "text"
 			cache: true
@@ -225,31 +226,26 @@ _loadCss = (context, url, callback) ->
 				return
 			, context.timeout)
 
-		if not (cola.os.android and cola.os.version < 4.4)
-			$(linkElement).one("load", () ->
+		$(linkElement).one("load", () ->
+			clearTimeout(timeoutTimerId) if timeoutTimerId
+			cola.callback(callback, true)
+			return
+		).on("readystatechange", (evt) ->
+			if evt.target?.readyState is "complete"
 				clearTimeout(timeoutTimerId) if timeoutTimerId
+				$fly(this).off("readystatechange")
 				cola.callback(callback, true)
-				return
-			).on("readystatechange", (evt) ->
-				if evt.target?.readyState is "complete"
-					clearTimeout(timeoutTimerId) if timeoutTimerId
-					$fly(this).off("readystatechange")
-					cola.callback(callback, true)
-				return
-			).one("error", (evt) ->
-				clearTimeout(timeoutTimerId) if timeoutTimerId
-				cola.callback(callback, false, evt)
-				return
-			)
+			return
+		).one("error", (evt) ->
+			clearTimeout(timeoutTimerId) if timeoutTimerId
+			cola.callback(callback, false, evt)
+			return
+		)
 
 		head = document.querySelector("head") or document.documentElement
 		linkElement.setAttribute("_refNum", "1");
 		head.appendChild(linkElement)
 		_cssCache[url] = linkElement
-
-		if cola.os.android and cola.os.version < 4.4
-			clearTimeout(timeoutTimerId) if timeoutTimerId
-			cola.callback(callback, true)
 		return true
 	else
 		refNum = +linkElement.getAttribute("_refNum") or 1
