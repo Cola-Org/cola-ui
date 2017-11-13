@@ -56,12 +56,17 @@ class cola.AbstractEditor extends cola.Widget
 	_setValue: (value) ->
 		return false if @_value is value
 		arg = {oldValue: @_value, value: value}
-		return if @fire("beforeChange", @, arg) is false
-		@_value = value
+
+		if not @_modelSetValue
+			return if @fire("beforeChange", @, arg) is false
+			@_value = value
+			@fire("change", @, arg)
+
 		if value isnt @_modelValue and @_rendered
 			@post()
+
 		@onSetValue?(value)
-		@fire("change", @, arg)
+
 		return true
 
 	post: ()->
@@ -91,8 +96,14 @@ class cola.AbstractEditor extends cola.Widget
 					@set("state", keyMessage?.type)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE and type < cola.constants.MESSAGE_LOADING_START
+
+			@_modelSetValue = true
+
 			if @refreshValue()
 				cola.util.delay(@, "refreshDom", 0, @_refreshDom)
+
+			@_modelSetValue = false
+
 		return
 
 	refreshValue: () ->
