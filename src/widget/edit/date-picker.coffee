@@ -515,8 +515,8 @@ class cola.DatePicker extends cola.CustomDropdown
 			@_dataGrid = dateGrid = new cola.DateGrid({
 				cellClick: (self, arg)=>
 					value = $fly(arg.element).attr("cell-date")
-					d = Date.parse(value)
-					datePicker.close(new Date(d))
+					d = new Date(value + " 00:00:00")
+					datePicker.close(d)
 			})
 			dateGrid.setCurrentDate(new Date())
 			@_dropdownContent = dateGrid.getDom()
