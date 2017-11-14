@@ -271,7 +271,7 @@ class cola.DateGrid extends cola.RenderableElement
 		return
 
 	getDateCellDom: (date)->
-		value = new XDate(date).toString(cola.setting("defaultDateFormat"))
+		value = new XDate(date).toString("yyyy-MM-dd")
 		return $(@_dom).find("td[cell-date='#{value}']")[0]
 
 	setCurrentDate: (date)->
