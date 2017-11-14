@@ -259,12 +259,15 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					cola.xRender(valueContent, currentItemScope, ctx)
 				$fly(valueContent).show()
 
-			if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
-				text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
-			else
-				text = item
+			else if @_textProperty or @_valueProperty
+				if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
+					text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
+				else
+					text = item
+				input.value = text or ""
 
-			if not @_useValueContent
+			else
+				text = @readBindingValue()
 				input.value = text or ""
 
 			input.placeholder = ""
@@ -452,7 +455,23 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @fire("selectData", @, {data: item}) isnt false
 			@_currentItem = item
 			if @_assignment and @_bindInfo?.writeable
-				if @fire("beforePost", @) is false
+
+				if @_valueProperty or @_textProperty
+					prop = @_valueProperty or @_textProperty
+					if item
+						if item instanceof cola.Entity
+							value = item.get(prop)
+						else
+							value = item[prop]
+					else
+						value = null
+				arg = {oldValue: @_value, value: value}
+
+				if @fire("beforeChange", @, arg) is false
+					@refreshValue()
+					return
+
+				if @fire("beforePost", @, arg) is false
 					@refreshValue()
 					return
 
@@ -472,8 +491,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					return
 				)
 
+				@fire("change", @, arg)
 				@fire("post", @)
-				@fire("change", @)
 			else
 				value = @_getItemValue(item)
 				@set("value", value)
@@ -646,7 +665,11 @@ class cola.Dropdown extends cola.AbstractDropdown
 		@_regDefaultTemplates()
 
 		inputDom = @_doms.input
-		$fly(inputDom).on("input", () => @_onInput(inputDom.value))
+		$fly(inputDom).on("input", () =>
+			@_inputDirty = true
+			@_onInput(inputDom.value)
+			return
+		)
 
 		super(dom)
 
@@ -688,7 +711,6 @@ class cola.Dropdown extends cola.AbstractDropdown
 		return
 
 	_onInput: (value) ->
-		@_inputDirty = true
 		cola.util.delay(@, "filterItems", 150, () ->
 			return unless @_list
 
