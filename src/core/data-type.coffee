@@ -71,7 +71,7 @@ class cola.EntityDataType extends cola.DataType
 		validatorsDisabled:
 			setter: (disabled) ->
 				for propertyDef in @_properties.elements
-					propertyDef.set("disabled", disabled)
+					propertyDef.set("validatorsDisabled", disabled)
 				return
 
 		properties:

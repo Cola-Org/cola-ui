@@ -95,14 +95,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
 			if  @_finalReadOnly and not @_disabled and not @_opened
 				@open()
-				return
+				return false
+
 			if @_opened
 				@close()
-
-			else
-				if @_disabled then return
+			else if not @_disabled
 				@open()
-			return
+			return false
 		).on("keydown", (evt)=>
 			arg =
 				keyCode: evt.keyCode

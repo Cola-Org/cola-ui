@@ -61,6 +61,8 @@ class cola.AbstractEditor extends cola.Widget
 			return if @fire("beforeChange", @, arg) is false
 			@_value = value
 			@fire("change", @, arg)
+		else
+			@_value = value
 
 		if value isnt @_modelValue and @_rendered
 			@post()

@@ -38,7 +38,6 @@ cola.loadSubView = (targetDom, context) ->
 								delete cola._suspendedInitFuncs
 
 								if context.suspendedInitFuncs?.length > oldLen
-									console.log("CACHE: " + scriptHolder.url)
 									cola._jsCache[scriptHolder.url] = context.suspendedInitFuncs.slice(oldLen)
 						catch e
 							# do nothing
@@ -107,21 +106,22 @@ cola.loadSubView = (targetDom, context) ->
 	context.scriptHolders = []
 	context.suspendedInitFuncs = []
 
+	index = 0;
 	if htmlUrl
 		_loadHtml(targetDom, htmlUrl, context, {
 			complete: (success, result) ->
 				resourceLoadCallback(success, result, htmlUrl)
-		})
+		}, index++)
 
 	jsUrls?.forEach (jsUrl) ->
 		_loadJs(context, jsUrl, {
 			complete: (success, result) -> resourceLoadCallback(success, result, jsUrl)
-		})
+		}, index++)
 
 	cssUrls?.forEach (cssUrl) ->
 		_loadCss(context, cssUrl, {
 			complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
-		})
+		}, index++)
 	return
 
 cola.unloadSubView = (targetDom, context) ->
@@ -174,7 +174,7 @@ _loadHtml = (targetDom, url, context, callback) ->
 	)
 	return
 
-_loadJs = (context, url, callback) ->
+_loadJs = (context, url, callback, index) ->
 	initFuncs = cola._jsCache[url]
 	if initFuncs
 		Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
@@ -186,6 +186,7 @@ _loadJs = (context, url, callback) ->
 		$.ajax(url, {
 			dataType: "text"
 			cache: true
+			async: false	# TODO DELETE ME
 			timeout: context.timeout
 		}).done((script) ->
 			for scriptHolder in context.scriptHolders
@@ -206,7 +207,7 @@ _loadJs = (context, url, callback) ->
 
 _cssCache = {}
 
-_loadCss = (context, url, callback) ->
+_loadCss = (context, url, callback, index) ->
 	linkElement = _cssCache[url]
 	if not linkElement
 		linkElement = $.xCreate(
