@@ -128,7 +128,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
-				post: (self, arg) =>
+				change: (self, arg) =>
 					if typeof arg.value != "boolean"
 						@fire("change", this, {checkbox: self, oldValue: arg.oldValue, value: arg.value})
 				click: (self) =>
