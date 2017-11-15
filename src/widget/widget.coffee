@@ -214,7 +214,6 @@ class cola.Widget extends cola.RenderableElement
 
 	@attributes:
 
-
 		float:
 			refreshDom: true
 			enum: ["left", "right", ""]

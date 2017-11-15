@@ -226,7 +226,7 @@ class cola.Property extends cola.Definition
 		beforeWrite: null
 		write: null
 		beforeLoad: null
-		loaded: null
+		load: null
 
 cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 	if aggregated == undefined

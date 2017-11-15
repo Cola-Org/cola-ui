@@ -729,7 +729,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 			if @_filterable
 				if value isnt null
 					exactlyMatch
-					firstItem = items[0]
+					firstItem = items?[0]
 					if firstItem
 						if filterProperty
 							exactlyMatch = cola.Entity._evalDataPath(firstItem, filterProperty) is value
@@ -740,7 +740,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 				@_list._setCurrentItemDom(currentItemDom)
 			else
-				item = cola.util.find(items, criteria)
+				item = items and cola.util.find(items, criteria)
 				if item
 					entityId = cola.Entity._getEntityId(item)
 					if entityId
