@@ -310,10 +310,11 @@ class cola.Table extends cola.AbstractTable
 			if not @_columnsInfo.dataColumns.length
 				columnConfigs = []
 				for propertyDef in dataType.getProperties().elements
-					columnConfigs.push(
+					columnConfig =
 						caption: propertyDef._caption
-						bind: propertyDef._property
-					)
+						property: propertyDef._property
+					@_applyPropertyDefProperties(columnConfig, propertyDef)
+					columnConfigs.push(columnConfig)
 				@set("columns", columnConfigs)
 			else
 				for columnInfo in @_columnsInfo.dataColumns
@@ -338,6 +339,7 @@ class cola.Table extends cola.AbstractTable
 							else
 								template = "input-column"
 							column.set("template", template)
+						@_applyPropertyDefProperties(column, propertyDef)
 
 		$fly(window).resize () =>
 			if @_fixedHeaderVisible
