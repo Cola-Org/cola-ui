@@ -175,7 +175,8 @@ _loadHtml = (targetDom, url, context, callback) ->
 	return
 
 _loadJs = (context, url, callback, index) ->
-	initFuncs = cola._jsCache[url]
+	# initFuncs = cola._jsCache[url]
+	initFuncs = null #TODO DELETE ME
 	if initFuncs
 		Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
 		cola.callback(callback, true)
