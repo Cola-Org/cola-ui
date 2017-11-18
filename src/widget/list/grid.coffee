@@ -123,7 +123,6 @@ class cola.Grid extends cola.Widget
 		return @_columnMap[name]
 
 	_collectionColumnsInfo: () ->
-
 		collectColumnInfo = (column, context, deepth, rootIndex) ->
 			info =
 				level: deepth
@@ -337,7 +336,35 @@ class cola.Grid extends cola.Widget
 			@_refreshItemsScheduled = true
 		return super(attr, attrConfig, value)
 
-	buildStyleSheet: () ->
+	_buildStyleSheet: ()->
+		head = document.querySelector("head") or document.documentElement
+		if @_styleSheetDom
+			head.removeChild(@_styleSheetDom)
+			delete @_styleSheetDom
+
+		columnCssDefs = []
+		for colInfo in @_columnsInfo.dataColumns
+			def = "." + colInfo.column._id + "{"
+
+			if colInfo.widthType == "percent"
+				width = colInfo.width + "%"
+			else if colInfo.widthType
+				width = colInfo.width + colInfo.widthType
+			else if colInfo.width
+				width = (colInfo.width * 100 / @_columnsInfo.totalWidth) + "%"
+			def += "width:" + (width or "80px") + ";"
+			if colInfo.column._align
+				def += "align:" + colInfo.column._align + ";"
+
+			def += "}"
+			columnCssDefs.push(def)
+
+		linkElement = $.xCreate(
+			tagName: "style"
+			type: "text/css"
+		)
+		linkElement.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
+		head.appendChild(@_styleSheetDom = linkElement)
 		return
 
 	_doRefreshDom: (dom)->
@@ -356,6 +383,8 @@ class cola.Grid extends cola.Widget
 					class: "box"
 				)
 				@_centerTable.get$Dom().after(@_rightTable.getDom())
+
+			@_buildStyleSheet()
 
 			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
@@ -421,7 +450,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					})
 					cell._name = column._name
 					itemDom.appendChild(cell)
-				cell.className = "cell col-" + (colInfo.index + 1)
+				cell.className = "cell " + column._id
 				contentWrapper = cell.firstElementChild
 
 				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
@@ -462,21 +491,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 							defaultPath: "#{@_alias}.#{column._property}"
 						}
 				cola.xRender(dom, itemScope, context)
-
-		if item instanceof cola.Entity and column._property
-			$cell = $fly(dom.parentNode)
-			message = item.getKeyMessage(column._property)
-			if message
-				if typeof message is "string"
-					message =
-						type: "error"
-						text: message
-				$cell.removeClass("info warn error").addClass(message.type)
-				$cell.attr("data-content", message.text).popup({
-					position: "bottom center"
-				})
-			else
-				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
 
 		return if column._real_template
 

@@ -28,7 +28,8 @@ class cola.TableColumn extends cola.Element
 
 	constructor: (config) ->
 		super(config)
-		if not @_name then @_name = cola.uniqueId()
+		@_id = cola.uniqueId()
+		@_name ?= @_id
 
 		@on("attributeChange", (self, arg) =>
 			return unless @_table
@@ -91,7 +92,7 @@ class cola.TableGroupColumn extends cola.TableColumn
 class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
-			defaultValue: 80
+			defaultValue: "80px"
 		valign:
 			enum: ["top", "center", "bottom"]
 		footerTemplate: null
