@@ -22,7 +22,15 @@
 
 .ui.widget-grid {
 	.inner-table {
-
+		c-input, c-datepicker, c-tag-editor {
+			&.in-cell {
+				width: 100%;
+			}
+		}
+		.ui.checkbox.in-cell {
+			margin-top: 0.25em;
+			margin-left: 0.5em;
+		}
 	}
 
 	.table.item {
@@ -32,7 +40,9 @@
 
 		> .cell {
 			display: inline-block;
-			overflow: hidden;
+			overflow-x: hidden;
+			overflow-y: visible;
+
 		}
 	}
 }

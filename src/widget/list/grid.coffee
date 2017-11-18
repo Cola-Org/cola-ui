@@ -88,15 +88,19 @@ class cola.Grid extends cola.Widget
 				class: "green checkmark icon"
 		"checkbox-column":
 			tagName: "c-checkbox"
+			class: "in-cell"
 			bind: "$default"
 		"toggle-column":
 			tagName: "c-toggle"
+			class: "in-cell"
 			bind: "$default"
 		"input-column":
 			tagName: "c-input"
+			class: "in-cell"
 			bind: "$default"
 		"date-column":
 			tagName: "c-datepicker"
+			class: "in-cell"
 			bind: "$default"
 
 	constructor: (config) ->
@@ -337,11 +341,6 @@ class cola.Grid extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-		head = document.querySelector("head") or document.documentElement
-		if @_styleSheetDom
-			head.removeChild(@_styleSheetDom)
-			delete @_styleSheetDom
-
 		columnCssDefs = []
 		for colInfo in @_columnsInfo.dataColumns
 			def = "." + colInfo.column._id + "{"
@@ -359,12 +358,14 @@ class cola.Grid extends cola.Widget
 			def += "}"
 			columnCssDefs.push(def)
 
-		linkElement = $.xCreate(
-			tagName: "style"
-			type: "text/css"
-		)
-		linkElement.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
-		head.appendChild(@_styleSheetDom = linkElement)
+		head = document.querySelector("head") or document.documentElement
+		if not @_styleSheetDom
+			@_styleSheetDom = $.xCreate(
+				tagName: "style"
+				type: "text/css"
+			)
+		@_styleSheetDom.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
+		head.appendChild(@_styleSheetDom)
 		return
 
 	_doRefreshDom: (dom)->
