@@ -31,6 +31,7 @@
             model.widgetConfig({
                 datePicker: {
                     $type: "datePicker",
+                    inputType: "datetime",
                     openMode: "drop",
 //                    readOnly: true,
 //                    disabled: true,
@@ -52,7 +53,7 @@
 </head>
 <body style="padding:20px;">
 
-<c-datepicker bind="editItem.birthDate"></c-datepicker>
+<c-datepicker bind="editItem.birthDate" displayFormat="yyyy/MM/dd HH:mm:ss" style="width:200px"></c-datepicker>
 <!--<c-datepicker></c-datepicker>-->
 <!--<c-mepicker></c-mepicker>-->
 

@@ -1,5 +1,5 @@
 cola(function (model, param) {
-	debugger;
+	console.log("1");
 	model.dataType({
 		name: "TestDataType",
 		properties: {
