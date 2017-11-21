@@ -46,14 +46,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		valueProperty: null
 		textProperty: null
 		assignment: null
-
 		editable:
 			type: "boolean"
 			defaultValue: true
 		showClearButton:
 			type: "boolean"
 			defaultValue: true
-
 		openOnActive:
 			type: "boolean"
 			defaultValue: true
@@ -141,6 +139,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					dom.appendChild(clearButton)
 
 				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
+
+			if @_disabled || @_readOnly
+				$fly(clearButton).addClass("disabled");
+
+
+
 		).on("click", () =>
 			if @_disabled then return;
 			if @_openOnActive
@@ -372,7 +376,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	open: (callback) ->
 		if @_finalReadOnly and @_disabled then return
-
+		if @_readOnly then return
 		if @fire("beforeOpen", @) is false then return
 
 		doCallback = () =>
@@ -688,6 +692,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				contextKey: "filterInput"
 				tagName: "input"
 				text: "input"
+				type:"text",
 				class: "filter-input"
 				focus: () => @_doFocus()
 				blur: () => @_doBlur()
