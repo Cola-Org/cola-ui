@@ -23,6 +23,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 		placeholder:
 			refreshDom: true
+		selectOnFocus:
+			defaultValue: true
 
 		icon:
 			refreshDom: true
@@ -191,30 +193,31 @@ class cola.AbstractInput extends cola.AbstractEditor
 	_initDom: (dom)->
 		super(dom)
 
-		$(@_doms.input).on("change", ()=>
-			@_postInput()
-			return
-		).on("focus", ()=> @_doFocus()
-		).on("blur",  ()=> @_doBlur()
-		).on("keydown", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
-			@fire("keyDown", @, arg)
-			if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
-		).on("keypress", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
-			if @fire("keyPress", @, arg) == false then return
-			if event.keyCode is 13 and isIE11 then @_postInput()
-		)
+		if @_doms.input
+			$(@_doms.input).on("change", ()=>
+				@_postInput()
+				return
+			).on("focus", ()=> @_doFocus()
+			).on("blur",  ()=> @_doBlur()
+			).on("keydown", (event)=>
+				arg =
+					keyCode: event.keyCode
+					shiftKey: event.shiftKey
+					ctrlKey: event.ctrlKey
+					altKey: event.altKey
+					event: event
+				@fire("keyDown", @, arg)
+				if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
+			).on("keypress", (event)=>
+				arg =
+					keyCode: event.keyCode
+					shiftKey: event.shiftKey
+					ctrlKey: event.ctrlKey
+					altKey: event.altKey
+					event: event
+				if @fire("keyPress", @, arg) == false then return
+				if event.keyCode is 13 and isIE11 then @_postInput()
+			)
 		return
 
 	_doFocus: ()->
@@ -222,6 +225,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_refreshInput()
 		@addClass("focused") if not @_finalReadOnly
 		@fire("focus", @)
+
+		if @_selectOnFocus
+			@_doms.input?.select()
 		return
 
 	_doBlur: ()->

@@ -58,7 +58,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			type: "boolean"
 			defaultValue: true
 		openMode:
-			enum: ["auto", "drop", "dialog", "layer", "sidebar"]
+			enum: [ "auto", "drop", "dialog", "layer", "sidebar" ]
 			defaultValue: "auto"
 		opened:
 			readOnly: true
@@ -404,7 +404,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				else
 					$containerDom.addClass("hidden")
 
-			@fire("initDropdownBox", @, {dropdownBox: container})
+			@fire("initDropdownBox", @, { dropdownBox: container })
 
 			if container.constructor.events.$has("hide")
 				container.on("hide:dropdown", () =>
@@ -451,7 +451,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_inputEdited = false
 
 		@_skipFindCurrentItem = true
-		if @fire("selectData", @, {data: item}) isnt false
+		if @fire("selectData", @, { data: item }) isnt false
 			@_currentItem = item
 			if @_assignment and @_bindInfo?.writeable
 
@@ -464,7 +464,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 							value = item[prop]
 					else
 						value = null
-				arg = {oldValue: @_value, value: value}
+				arg = { oldValue: @_value, value: value }
 
 				if @fire("beforeChange", @, arg) is false
 					@refreshValue()
@@ -513,7 +513,7 @@ class DropBox extends cola.Layer
 	@attributes:
 		dropdown: null
 
-	show: (options, callback) ->
+	resize: () ->
 		$dom = @get$Dom()
 		dropdownDom = @_dropdown._doms.input
 		unless @_height
@@ -528,12 +528,12 @@ class DropBox extends cola.Layer
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
 		scrollTop = document.body.scrollTop
-		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight - scrollTop)
+		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight - scrollTop) - 6
 
 		if bottomSpace >= boxHeight
 			direction = "down"
 		else
-			topSpace = rect.top - scrollTop
+			topSpace = rect.top - scrollTop - 6
 			if topSpace > bottomSpace
 				direction = "up"
 				if boxHeight > topSpace then height = topSpace
@@ -553,17 +553,24 @@ class DropBox extends cola.Layer
 				if left < 0 then left = 0
 
 		if height then $dom.css("height", height)
-		$dom.removeClass(if direction == "down" then "direction-up" else "direction-down")
+		$dom.removeClass(if direction is "down" then "direction-up" else "direction-down")
 			.addClass("direction-" + direction)
 			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
 			.css("left", left).css("top", top)
-			.css("min-width", dropdownDom.offsetWidth)
+			.css("min-width", dropdownDom.offsetWidth || 80)
 			.css("max-width", document.body.clientWidth)
+		return
 
+	show: (options, callback) ->
+		@resize()
 		@_animation = "fade"
 
 		super(options, callback)
 
+		@_resizeTimer = setInterval(()=>
+			@resize()
+			return
+		, 300)
 		return
 
 	_onShow: () ->
@@ -586,6 +593,10 @@ class DropBox extends cola.Layer
 		return
 
 	hide: (options, callback) ->
+		if @_resizeTimer
+			clearInterval(@_resizeTimer)
+			delete @_resizeTimer
+
 		$fly(document.body).off("click", @_bodyListener)
 		super(options, callback)
 		return

@@ -101,7 +101,8 @@
 							var dropdown = cola.findDropDown(self);
 							if (dropdown) dropdown.close(arg.item);
 						}
-					}
+					},
+					dropDownHeight: 200
 				},
 				mappingDropDown: {
 					$type: "dropdown",
@@ -124,6 +125,8 @@
 	</script>
 </head>
 <body style="padding:20px;">
+
+<div style="width:400px; height:300px; overflow:auto; border:1px solid red">
 
 <div id="dropdown1"></div>
 <div c-bind="selected"></div>
@@ -174,6 +177,8 @@
 
 <div c-bind="prop1"></div>
 <div c-bind="prop2"></div>
+
+</div>
 
 </body>
 </html>

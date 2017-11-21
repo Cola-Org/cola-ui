@@ -23,7 +23,7 @@
 		right: 0.1em;
 		bottom: 0.809567em;
 		line-height: 1.2142em;
-		border-style: none;
+		border-style: none !important;
 		z-index: 3;
 	}
 	> .value-content {
@@ -64,6 +64,16 @@
 	&:hover:not(.readonly):not(.disabled) {
 		> i.icon.remove {
 			display: block;
+		}
+	}
+	&.readonly, &.disabled {
+		> .filter-input {
+			display: none;
+		}
+	}
+	&.opened {
+		> input {
+			border: 1px solid @downBorderColor;
 		}
 	}
 	&.focused {
