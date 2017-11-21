@@ -1,6 +1,6 @@
 class cola.Grid extends cola.Widget
 	@tagName: "c-grid"
-	@CLASS_NAME: "items-view widget-grid h-box"
+	@CLASS_NAME: "items-view widget-grid"
 
 	@attributes:
 		items:
@@ -58,14 +58,14 @@ class cola.Grid extends cola.Widget
 			defaultValue: 0
 			setter: (value) ->
 				@_leftFixedCols = value
-				@_collectionColumnsInfo()
+				if @_rendered then @_collectionColumnsInfo()
 				return
 
 		rightFixedCols:
 			defaultValue: 0
 			setter: (value) ->
 				@_rightFixedCols = value
-				@_collectionColumnsInfo()
+				if @_rendered then @_collectionColumnsInfo()
 				return
 
 	@events:
@@ -109,7 +109,7 @@ class cola.Grid extends cola.Widget
 
 	_getItems: () ->
 		if @_items
-			return {items: @_items}
+			return { items: @_items }
 		else
 			return super()
 
@@ -161,8 +161,7 @@ class cola.Grid extends cola.Widget
 					info.widthType = widthType
 					info.width = parseFloat(width)
 
-					if not widthType and info.width
-						context.totalWidth += info.width
+					context.totalWidth += info.width
 
 				info.index = context.dataColumns.length
 				info.rootIndex = rootIndex
@@ -179,7 +178,7 @@ class cola.Grid extends cola.Widget
 		@_columnsInfo = columnsInfo = {
 			timestamp: cola.sequenceNo()
 			totalWidth: 0
-			rows: [[]]
+			rows: [ [] ]
 			dataColumns: []
 			alias: "item"
 		}
@@ -211,6 +210,7 @@ class cola.Grid extends cola.Widget
 			if @_leftFixedCols > 0 or @_rightFixedCols > 0
 				if @_leftFixedCols > 0
 					columnsInfo.left =
+						timestamp: columnsInfo.timestamp
 						start: 0
 						rows: columnsInfo.rows
 						columns: @_columns.slice(0, @_leftFixedCols)
@@ -220,6 +220,7 @@ class cola.Grid extends cola.Widget
 
 				if @_rightFixedCols > 0
 					columnsInfo.right =
+						timestamp: columnsInfo.timestamp
 						start: @_columns.length - @_rightFixedCols
 						rows: columnsInfo.rows
 						columns: @_columns.slice(@_columns.length - @_rightFixedCols, @_rightFixedCols)
@@ -228,6 +229,7 @@ class cola.Grid extends cola.Widget
 					delete columnsInfo.right
 
 				columnsInfo.center =
+					timestamp: columnsInfo.timestamp
 					start: @_leftFixedCols
 					rows: columnsInfo.rows
 					columns: @_columns.slice(@_leftFixedCols, @_columns.length - @_leftFixedCols - @_rightFixedCols)
@@ -244,6 +246,7 @@ class cola.Grid extends cola.Widget
 				delete columnsInfo.left
 				delete columnsInfo.right
 				columnsInfo.center =
+					timestamp: columnsInfo.timestamp
 					start: 0
 					rows: columnsInfo.rows
 					columns: @_columns
@@ -258,8 +261,8 @@ class cola.Grid extends cola.Widget
 
 	_createInnerDom: (dom) ->
 		@_centerTable = new cola.Table.InnerTable(
+			scope: @_scope
 			table: @
-			class: "flex-box"
 		)
 		@_centerTable.appendTo(dom)
 		return
@@ -341,22 +344,28 @@ class cola.Grid extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
+
+		getGroupWidth = (colInfo) ->
+			width = 0
+			for subColInfo in colInfo.columns
+				if subColInfo.columns
+					width += getGroupWidth(subColInfo)
+				else
+					width += subColInfo.width
+			return width
+
 		columnCssDefs = []
-		for colInfo in @_columnsInfo.dataColumns
-			def = "." + colInfo.column._id + "{"
+		for rowInfo in @_columnsInfo.rows
+			for colInfo in rowInfo
+				if colInfo.columns
+					colInfo.realWidth = getGroupWidth(colInfo)
 
-			if colInfo.widthType == "percent"
-				width = colInfo.width + "%"
-			else if colInfo.widthType
-				width = colInfo.width + colInfo.widthType
-			else if colInfo.width
-				width = (colInfo.width * 100 / @_columnsInfo.totalWidth) + "%"
-			def += "width:" + (width or "80px") + ";"
-			if colInfo.column._align
-				def += "align:" + colInfo.column._align + ";"
+				def = "." + colInfo.column._id + "{"
+				def += "width:" + (colInfo.realWidth or colInfo.width or 80) + "px;"
+				def += "background:yellow;"
 
-			def += "}"
-			columnCssDefs.push(def)
+				def += "}"
+				columnCssDefs.push(def)
 
 		head = document.querySelector("head") or document.documentElement
 		if not @_styleSheetDom
@@ -375,13 +384,11 @@ class cola.Grid extends cola.Widget
 			if @_columnsInfo.left and not @_leftTable
 				@_leftTable = new cola.Table.InnerTable(
 					table: @
-					class: "box"
 				)
 				@_centerTable.get$Dom().before(@_leftTable.getDom())
 			if @_columnsInfo.right and not @_leftTable
 				@_rightTable = new cola.Table.InnerTablee(
 					table: @
-					class: "box"
 				)
 				@_centerTable.get$Dom().after(@_rightTable.getDom())
 
@@ -398,6 +405,18 @@ class cola.Grid extends cola.Widget
 			@_refreshItems()
 		return
 
+	refreshItem: (item) ->
+		@_leftTable?.refreshItem(item)
+		@_rightTable?.refreshItem(item)
+		@_centerTable.refreshItem(item)
+		return
+
+	_onItemRefresh: (arg) ->
+		item = arg.entity
+		if typeof item is "object"
+			@refreshItem(item)
+		return
+
 	_onItemsRefresh: () ->
 		return @_refreshItems()
 
@@ -405,6 +424,32 @@ class cola.Grid extends cola.Widget
 		@_leftTable?._refreshItems()
 		@_rightTable?._refreshItems()
 		@_centerTable._refreshItems()
+		return
+
+	_onItemInsert: (arg) ->
+		@_leftTable?._onItemInsert(arg)
+		@_rightTable?._onItemInsert(arg)
+		@_centerTable._onItemInsert(arg)
+
+		if @_columnsInfo.selectColumns
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+				for colInfo in @_columnsInfo.selectColumns
+					colInfo.column.refreshHeaderCheckbox()
+				return
+			)
+		return
+
+	_onItemRemove: (arg) ->
+		@_leftTable?._onItemRemove(arg)
+		@_rightTable?._onItemRemove(arg)
+		@_centerTable._onItemRemove(arg)
+
+		if @_columnsInfo.selectColumns
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+				for colInfo in @_columnsInfo.selectColumns
+					colInfo.column.refreshHeaderCheckbox()
+				return
+			)
 		return
 
 cola.Element.mixin(cola.Grid, cola.TemplateSupport)
@@ -417,6 +462,12 @@ class cola.Table.InnerTable extends cola.AbstractList
 		table: null
 		columnsInfo: null
 
+	constructor: (config) ->
+		@_itemsScope = config.table._itemsScope
+		super(config)
+
+	_createItemsScope: () -> @_itemsScope
+
 	_getItems: () -> @_table._getItems()
 
 	_createNewItem: (itemType, item) ->
@@ -426,11 +477,145 @@ class cola.Table.InnerTable extends cola.AbstractList
 		itemDom._itemType = itemType
 		return itemDom
 
+	_doRefreshItems: (itemsWrapper) ->
+		return unless @_columnsInfo
+
+		if @_table._showHeader
+			header = @_doms.header
+			if not header
+				$fly(itemsWrapper).xInsertBefore({
+					tagName: "table"
+					class: "header"
+					cellSpacing: 0
+					cellPadding: 0
+					content:
+						tagName: "tbody"
+						contextKey: "header"
+				}, @_doms)
+				header = @_doms.header
+
+				$fly(header).delegate("td", "click", (evt) =>
+					columnName = evt.currentTarget._name
+					column = @getColumn(columnName)
+					eventArg =
+						column: column
+					if column.fire("headerClick", @, eventArg) isnt false
+						if @fire("headerClick", @, eventArg) isnt false
+							@_sysHeaderClick(column)
+					return
+				)
+
+			@_refreshHeader(header)
+
+		super(itemsWrapper)
+
+		if @_table._showFooter
+			footer = @_doms.footer
+			if not footer
+				$fly(itemsWrapper).xInsertAfter({
+					contextKey: "footer"
+				}, @_doms)
+
+				footer = @_doms.footer
+				$fly(footer).delegate("td", "click", (evt) =>
+					columnName = evt.currentTarget._name
+					column = @getColumn(columnName)
+					eventArg =
+						column: column
+					if column.fire("footerClick", @, eventArg) isnt false
+						@fire("footerClick", @, eventArg)
+					return
+				)
+			@_refreshFooter(footer)
+		return
+
+	_refreshHeader: (header) ->
+		return if @_headerTimestamp is @_columnsInfo.timestamp
+		@_headerTimestamp = @_columnsInfo.timestamp
+
+		$fly(header).empty().css("width", )
+
+		fragment = null
+		rowInfos = @_columnsInfo.rows
+		i = 0
+		len = rowInfos.length
+		while i < len
+			row = header.childNodes[i]
+			if not row
+				row = $.xCreate(
+					tagName: "tr"
+					class: "header-row"
+				)
+				fragment ?= document.createDocumentFragment()
+				fragment.appendChild(row)
+
+			rowInfo = rowInfos[i]
+			for colInfo, j in rowInfo
+				column = colInfo.column
+
+				cell = $.xCreate({
+					tagName: "td"
+					class: "header-cell " + column._id
+					content:
+						tagName: "div"
+				})
+				cell._name = column._name
+				row.appendChild(cell)
+
+				if colInfo.columns
+					cell.rowSpan = 1
+					cell.colSpan = colInfo.columns.length
+				else
+					cell.rowSpan = len - i
+					cell.colSpan = 1
+				contentWrapper = cell.firstElementChild
+
+				@_refreshHeaderCell(contentWrapper, colInfo)
+
+			cola.xRender(row, @_scope)
+			i++
+
+		if fragment then header.appendChild(fragment)
+		return
+
+	_refreshHeaderCell: (dom, columnInfo) ->
+		column = columnInfo.column
+
+		$cell = $fly(dom.parentNode)
+		$cell.toggleClass("sortable", !!column._sortable).removeClass("asc desc")
+		if column._sortDirection then $cell.addClass(column._sortDirection)
+
+		if column.renderHeader
+			if column.renderHeader(dom) != true
+				return
+
+		if column.getListeners("renderHeader")
+			if column.fire("renderHeader", column, { dom: dom }) == false
+				return
+
+		if @getListeners("renderHeaderCell")
+			if @fire("renderHeaderCell", @, { column: column, dom: dom }) == false
+				return
+
+		template = column.getTemplate("headerTemplate")
+		if template
+			template = @_cloneTemplate(template)
+			dom.appendChild(template)
+		return if column._real_headerTemplate
+
+		caption = column._caption or column._name
+		if caption?.charCodeAt(0) == 95 # `_`
+			caption = column._bind
+		dom.innerText = caption or ""
+		return
+
+	_refreshFooter: (footer) ->
+
 	_doRefreshItemDom: (itemDom, item, itemScope) ->
 		itemType = itemDom._itemType
 
 		if @getListeners("renderRow")
-			if @fire("renderRow", @, {item: item, dom: itemDom, scope: itemScope}) == false
+			if @fire("renderRow", @, { item: item, dom: itemDom, scope: itemScope }) == false
 				return
 
 		if itemType == "default"
@@ -462,19 +647,18 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 	_refreshCell: (dom, item, columnInfo, itemScope, isNew) ->
 		column = columnInfo.column
-		dom.style.textAlign = column._align or ""
 
 		if column.renderCell
 			if column.renderCell(dom, item, itemScope) != true
 				return
 
 		if column.getListeners("renderCell")
-			if column.fire("renderCell", column, {item: item, dom: dom, scope: itemScope}) == false
+			if column.fire("renderCell", column, { item: item, dom: dom, scope: itemScope }) == false
 				return
 
 		if @getListeners("renderCell")
 			if @fire("renderCell", @,
-			  {item: item, column: column, dom: dom, scope: itemScope}) == false
+			  { item: item, column: column, dom: dom, scope: itemScope }) == false
 				return
 
 		if isNew
@@ -509,4 +693,19 @@ class cola.Table.InnerTable extends cola.AbstractList
 						value = cola.defaultAction.formatDate(value, defaultDateFormat)
 			value = "" if value is undefined or value is null
 			$dom.text(value)
+		return
+
+	refreshItem: (item) ->
+		itemId = _getEntityId(item)
+		itemDom = @_itemDomMap[itemId]
+		if itemDom
+			@_refreshItemDom(itemDom, item, @_itemsScope)
+		return
+
+	_onItemInsert: (arg) ->
+		console.log("INSERT")
+		return
+
+	_onItemRemove: (arg) ->
+		console.log("REMOVE")
 		return

@@ -22,6 +22,24 @@
 
 .ui.widget-grid {
 	.inner-table {
+		>.header {
+			table-layout: fixed;
+			width: 0;
+		}
+		>.footer {
+
+		}
+
+		>.items {
+			padding: 0;
+		}
+
+		.cell, .header-cell, .footer-cell {
+			box-sizing: border-box;
+			overflow-x: hidden;
+			overflow-y: visible;
+		}
+
 		c-input, c-datepicker, c-tag-editor {
 			&.in-cell {
 				width: 100%;

@@ -31,11 +31,11 @@
 			</span>
 		</template>
 
-		<column>
-			<template>
-				<label c-watch="columnIndex on item"></label>
-			</template>
-		</column>
+		<!--<column>-->
+			<!--<template>-->
+				<!--<label c-watch="columnIndex on item"></label>-->
+			<!--</template>-->
+		<!--</column>-->
 		<column property="int" template="input-column" footerTemplate="sum"></column>
 		<column property="int" template="input-column" footerTemplate="sum"></column>
 		<column bind=".col1" template="upper-template"></column>
@@ -128,7 +128,9 @@
 //                allowNoCurrent: true,
 //                changeCurrentItem:false,
 //                highlightCurrentItem: false,
-				sortMode: "local"
+				sortMode: "local",
+//				leftFixedCols: 2,
+//				rightFixedCols: 2
 			}
 		});
 	});

@@ -399,7 +399,7 @@ class cola.ItemsView extends cola.Widget
 
 	_onItemRefresh: (arg) ->
 		item = arg.entity
-		if typeof item == "object"
+		if typeof item is "object"
 			@refreshItem(item)
 		return
 
