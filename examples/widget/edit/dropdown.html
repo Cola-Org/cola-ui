@@ -116,7 +116,7 @@
 					items: "{{item in items}}",
 					valueProperty: "key",
 					textProperty: "value",
-					bind: "prop1",
+					bind: "currentSelected",
 					assignment: "prop1=key;prop2=value"
 				}
 			});
@@ -127,6 +127,7 @@
 
 <div id="dropdown1"></div>
 <div c-bind="selected"></div>
+<c-input c-bind="selected"></c-input>
 
 <p></p>
 
@@ -163,13 +164,13 @@
 <div id="dropdown5"></div>
 <div id="mappingDropDown"></div>
 
-
 <c-dropdown id="mappingDropDown2">
 	<template name="value-content">
 		<li c-bind="item.key?(item.value+' ('+item.key+')'):''"></li>
 	</template>
 </c-dropdown>
 
+<c-input c-bind="currentSelected"></c-input>
 
 <div c-bind="prop1"></div>
 <div c-bind="prop2"></div>

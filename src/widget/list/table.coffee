@@ -313,7 +313,7 @@ class cola.Table extends cola.AbstractTable
 					columnConfig =
 						caption: propertyDef._caption
 						property: propertyDef._property
-					@_applyPropertyDefProperties(columnConfig, propertyDef)
+					@_applyPropertyDefProperties?(columnConfig, propertyDef)
 					columnConfigs.push(columnConfig)
 				@set("columns", columnConfigs)
 			else
@@ -339,7 +339,7 @@ class cola.Table extends cola.AbstractTable
 							else
 								template = "input-column"
 							column.set("template", template)
-						@_applyPropertyDefProperties(column, propertyDef)
+						@_applyPropertyDefProperties?(column, propertyDef)
 
 		$fly(window).resize () =>
 			if @_fixedHeaderVisible
