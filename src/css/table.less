@@ -29,42 +29,24 @@
 			border-left-width: 0;
 		}
 
-		>.header {
-			table-layout: fixed;
-			width: 0;
+		> .header {
+			> table {
+				table-layout: fixed;
+				width: 0;
+			}
+			border-bottom: 1px solid @tableHeadLineColor;
 		}
-		>.footer {
+		> .footer {
+			> table {
+				table-layout: fixed;
+				width: 0;
+			}
+			border-top: 1px solid @tableFootLineColor;
 		}
 
-		>.items {
+		> .items {
 			padding: 0;
 			margin: 0;
-		}
-
-		.cell, .header-cell, .footer-cell {
-			box-sizing: border-box;
-			overflow-x: hidden;
-			overflow-y: visible;
-			border-width: 1px;
-			border-style: solid;
-			min-height: 2.7em;
-			height: 100%;
-		}
-		.header-cell {
-			text-align: center;
-			border-width: 0 1px 1px 0;
-			border-style: solid;
-			border-color: @tableHeadLineColor @tableColLineColor;
-		}
-		.cell {
-			border-width: 0 1px 1px 0;
-			border-style: solid;
-			border-color: @tableHeadLineColor;
-		}
-		.footer-cell {
-			border-width: 1px 1px 0 0;
-			border-style: solid;
-			border-color: @tableFootLineColor;
 		}
 
 		c-input, c-datepicker, c-tag-editor {
@@ -78,16 +60,65 @@
 		}
 	}
 
+	.cell, .header-cell, .footer-cell {
+		box-sizing: border-box;
+		height: 2.4em;
+		overflow-x: hidden;
+		overflow-y: visible;
+		font-size: 1rem;
+		> div {
+			display: flex;
+			height: 100%;
+			overflow: hidden;
+			align-items: center;
+			&.default-content, >.cell-content {
+				padding: 0 0.4em;
+			}
+		}
+
+		&.h-left > div {
+			justify-content: flex-start;
+		}
+		&.h-center > div {
+			justify-content: center;
+		}
+		&.h-right > div {
+			justify-content: flex-end;
+		}
+
+		&.v-top > div {
+			align-items: flex-start;
+		}
+		&.v-bottom > div {
+			align-items: flex-end;
+		}
+	}
+	.header-row {
+		.header-cell {
+			border-width: 1px 1px 0 0;
+			border-style: solid;
+			border-color: @tableHeadLineColor @tableColLineColor;
+		}
+		&:first-child .header-cell {
+			border-top-width: 0;
+		}
+	}
+	.footer-cell {
+		display: inline-block;
+		border-right: 1px solid @tableColLineColor;
+	}
+
 	.table.item {
 		position: relative;
 		white-space: nowrap;
 		line-height: 1;
+		font-size: 0;
+		border-bottom: 1px solid @tableRowLineColor;
+		overflow: visible;
 
 		> .cell {
-			float: left;
-			overflow-x: hidden;
-			overflow-y: visible;
-
+			display: inline-block;
+			border-right: 1px solid @tableColLineColor;
 		}
 	}
 }

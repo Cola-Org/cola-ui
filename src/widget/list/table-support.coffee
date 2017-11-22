@@ -92,7 +92,7 @@ class cola.TableGroupColumn extends cola.TableColumn
 class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
-			defaultValue: "80px"
+			defaultValue: "100px"
 		valign:
 			enum: ["top", "center", "bottom"]
 		footerTemplate: null

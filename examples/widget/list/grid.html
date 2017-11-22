@@ -20,7 +20,7 @@
 <div class="flex-box">
 	<div id="table1">
 		<template name="upper-template">
-			<span c-bind="upper($default)"></span>
+			<div class="cell-content" c-bind="upper($default)"></div>
 		</template>
 		<template name="sum">
 			<span c-bind="sum()"></span>
@@ -36,7 +36,7 @@
 				<!--<label c-watch="columnIndex on item"></label>-->
 			<!--</template>-->
 		<!--</column>-->
-		<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
+		<column property="int" template="input-column" footerTemplate="sum"></column>
 		<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
 		<column bind=".col1" template="upper-template"></column>
 		<column caption="Group">
@@ -46,11 +46,11 @@
 		</column>
 		<column bind=".col4"></column>
 		<column bind=".col5"></column>
-		<!--<column caption="Operator" align="center">-->
-			<!--<template>-->
-				<!--<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>-->
-			<!--</template>-->
-		<!--</column>-->
+		<column caption="Operator" align="center">
+			<template>
+				<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>
+			</template>
+		</column>
 	</div>
 </div>
 <script type="text/javascript">

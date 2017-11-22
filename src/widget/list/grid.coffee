@@ -361,7 +361,7 @@ class cola.Grid extends cola.Widget
 					colInfo.realWidth = getGroupWidth(colInfo)
 
 				def = "." + colInfo.column._id + "{"
-				def += "width:" + (colInfo.realWidth or colInfo.width or 80) + "px;"
+				def += "width:" + (colInfo.realWidth or colInfo.width or 100) + "px;"
 
 				def += "}"
 				columnCssDefs.push(def)
@@ -483,13 +483,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 			header = @_doms.header
 			if not header
 				$fly(itemsWrapper).xInsertBefore({
-					tagName: "table"
 					class: "header"
-					cellSpacing: 0
-					cellPadding: 0
 					content:
-						tagName: "tbody"
-						contextKey: "header"
+						tagName: "table"
+						cellSpacing: 0
+						cellPadding: 0
+						content:
+							tagName: "tbody"
+							contextKey: "header"
 				}, @_doms)
 				header = @_doms.header
 
@@ -554,7 +555,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 				cell = $.xCreate({
 					tagName: "td"
-					class: "header-cell " + column._id
+					class: "header-cell " + column._id + " h-center"
 					content:
 						tagName: "div"
 				})
@@ -635,7 +636,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 					})
 					cell._name = column._name
 					itemDom.appendChild(cell)
-				cell.className = "cell " + column._id
+
+				exClass = ""
+				if column._align
+					exClass = " h-" + column._align
+				if column._valign
+					exClass += " v-" + column._valign
+
+				cell.className = "cell " + column._id + (exClass or "")
 				contentWrapper = cell.firstElementChild
 
 				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
