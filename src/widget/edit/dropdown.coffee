@@ -91,7 +91,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			}, @_doms)
 
 		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", () =>
-			if  @_finalReadOnly and not @_disabled and not @_opened
+			if  @_finalReadOnly and not @_disabled and not @_finalReadOnly and not @_opened
 				@open()
 				return false
 
