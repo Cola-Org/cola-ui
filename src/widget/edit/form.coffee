@@ -285,17 +285,17 @@ class cola.Field extends cola.Widget
 		return
 
 	_filterDataMessage: (path, type, arg) ->
-		return type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
+		return cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or
+		  type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or @_watchingMoreMessage
 
 	_processDataMessage: (path, type, arg) ->
-		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH
-			if @_bindInfo?.writeable
-				entity = @_scope.get(@_bindInfo.entityPath)
-				if entity instanceof cola.EntityList
-					entity = entity.current
-				if entity
-					keyMessage = entity.getKeyMessage(@_bindInfo.property)
-					@setMessage(keyMessage)
+		if @_bindInfo?.writeable
+			entity = @_scope.get(@_bindInfo.entityPath)
+			if entity instanceof cola.EntityList
+				entity = entity.current
+			if entity
+				keyMessage = entity.getKeyMessage(@_bindInfo.property)
+				@setMessage(keyMessage)
 		return
 
 	setMessage: (message) ->
