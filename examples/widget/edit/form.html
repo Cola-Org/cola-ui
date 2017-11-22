@@ -6,31 +6,6 @@
 	<script src="../../include-all.js"></script>
 	<style>
 
-
-		/*.ui.form .ui.input {*/
-		/*border: 1px solid #fcb059;*/
-		/*display: -webkit-box !important;*/
-		/*display: -moz-box !important;*/
-		/*}*/
-
-		/*.ui.form .ui.input > input {*/
-		/*-webkit-box-flex: 1 !important;*/
-		/*-moz-box-flex: 1 !important;*/
-		/*display: block !important;*/
-		/*}*/
-
-		/*.ui.form .ui.input > :not(input) {*/
-		/*-webkit-box-flex: 0 !important;*/
-		/*-moz-box-flex: 0 !important;*/
-		/*display: block !important;*/
-		/*}*/
-
-		/*.flex-unsupported body {*/
-		/*background-color: #0000ed !important;*/
-
-		/*}*/
-
-
 	</style>
 	<script type="text/javascript">
 
@@ -57,12 +32,41 @@
 					birthday: {
 						dataType: "date",
 						validators: "required"
+					},
+					subObject1: {
+						dataType: {
+							properties: {
+								subObject2: {
+									dataType: {
+										properties: {
+											num: {
+												validators: [{
+													$type: "number",
+													min: 10,
+													max: 100
+												}]
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			});
 			model.describe("form", "Form");
-			model.set("form", {});
+			model.set("form", {
+				subObject1: {
+					subObject2: {
+					}
+				}
+			});
+
 			model.action({
+				onAgeChange: function(entity) {
+					entity.set("subObject1.subObject2", {});
+					entity.set("subObject1.subObject2.num", entity.get("age") * (-1));
+				},
 				validate: function () {
 					model.get("form").validate();
 				}
@@ -74,20 +78,25 @@
 </head>
 <body style="padding:20px;">
 
-<field bind="form.birthday">
-	<message></message>
-	<c-input></c-input>
-</field>
+<c-input bind="form.age" c-post="onAgeChange(form)"></c-input>
 
 <c-form bind="form">
 	<field property="name"></field>
-	<field property="age"></field>
+	<!--<field property="age">-->
+		<!--<label></label>-->
+		<!--<c-input c-post="onAgeChange(form)"></c-input>-->
+	<!--</field>-->
 	<field property="email"></field>
 	<field property="birthday">
 		<message></message>
 	</field>
 	<field>
 		<c-button click="validate">校验</c-button>
+	</field>
+	<field property="subObject1.subObject2.num"></field>
+	<field>
+		<label></label>
+		<c-input bind="form.subObject1.subObject2.num"></c-input>
 	</field>
 </c-form>
 
