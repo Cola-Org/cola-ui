@@ -21,23 +21,50 @@
 @tableInvertedColLineColor: transparent;
 
 .ui.widget-grid {
+	border: 1px solid @borderColor;
+
 	.inner-table {
+		border-left: 1px solid @tableColLineColor;
+		&:first-of-type {
+			border-left-width: 0;
+		}
+
 		>.header {
 			table-layout: fixed;
 			width: 0;
 		}
 		>.footer {
-
 		}
 
 		>.items {
 			padding: 0;
+			margin: 0;
 		}
 
 		.cell, .header-cell, .footer-cell {
 			box-sizing: border-box;
 			overflow-x: hidden;
 			overflow-y: visible;
+			border-width: 1px;
+			border-style: solid;
+			min-height: 2.7em;
+			height: 100%;
+		}
+		.header-cell {
+			text-align: center;
+			border-width: 0 1px 1px 0;
+			border-style: solid;
+			border-color: @tableHeadLineColor @tableColLineColor;
+		}
+		.cell {
+			border-width: 0 1px 1px 0;
+			border-style: solid;
+			border-color: @tableHeadLineColor;
+		}
+		.footer-cell {
+			border-width: 1px 1px 0 0;
+			border-style: solid;
+			border-color: @tableFootLineColor;
 		}
 
 		c-input, c-datepicker, c-tag-editor {
@@ -54,10 +81,10 @@
 	.table.item {
 		position: relative;
 		white-space: nowrap;
-		min-height: 2.7em;
+		line-height: 1;
 
 		> .cell {
-			display: inline-block;
+			float: left;
 			overflow-x: hidden;
 			overflow-y: visible;
 

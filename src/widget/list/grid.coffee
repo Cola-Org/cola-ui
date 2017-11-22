@@ -362,7 +362,6 @@ class cola.Grid extends cola.Widget
 
 				def = "." + colInfo.column._id + "{"
 				def += "width:" + (colInfo.realWidth or colInfo.width or 80) + "px;"
-				def += "background:yellow;"
 
 				def += "}"
 				columnCssDefs.push(def)
