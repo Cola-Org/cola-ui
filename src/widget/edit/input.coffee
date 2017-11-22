@@ -23,8 +23,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 		placeholder:
 			refreshDom: true
-		selectOnFocus:
-			defaultValue: true
 
 		icon:
 			refreshDom: true
@@ -221,17 +219,16 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_doFocus: ()->
-		@_inputFocused = true
+		return if @_focused
+		@_focused = true
 		@_refreshInput()
 		@addClass("focused") if not @_finalReadOnly
 		@fire("focus", @)
-
-		if @_selectOnFocus
-			@_doms.input?.select()
 		return
 
 	_doBlur: ()->
-		@_inputFocused = false
+		return if not @_focused
+		@_focused = false
 		@removeClass("focused")
 		@_refreshInput()
 		@fire("blur", @)
@@ -387,7 +384,9 @@ class cola.Input extends cola.AbstractInput
 			type: "number"
 		postOnInput:
 			type: "boolean"
-			defaultValue: false
+		selectOnFocus:
+			type: "boolean"
+			defaultValue: true
 	@events:
 		focus: null
 		blur: null
@@ -414,16 +413,22 @@ class cola.Input extends cola.AbstractInput
 		)
 		return
 
+	_doFocus: ()->
+		super()
+		if @_selectOnFocus
+			@_doms.input?.select()
+		return
+
 	_refreshInputValue: (value) ->
 		inputType = @_inputType
 		if inputType == "text"
-			format = if @_inputFocused then @_inputFormat else @_displayFormat
+			format = if @_focused then @_inputFormat else @_displayFormat
 			if typeof value == "number"
 				if format
 					value = formatNumber(format, value)
 			else if value instanceof Date
 				if not format
-					format = if @_inputFocused then cola.setting("defaultDateTimeFormat") else cola.setting("defaultDateFormat")
+					format = if @_focused then cola.setting("defaultDateTimeFormat") else cola.setting("defaultDateFormat")
 				value = (new XDate(value)).toString(format)
 		else
 			if value instanceof Date

@@ -142,9 +142,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 			if @_disabled || @_readOnly
 				$fly(clearButton).addClass("disabled");
-
-
-
 		).on("click", () =>
 			if @_disabled then return;
 			if @_openOnActive
@@ -161,7 +158,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				event: evt
 				inputValue: value
 			@fire("input", @, arg)
-		).on("focus", () => @_doFocus()).on("blur", () => @_doBlur()).on("keypress", () => @_inputEdited = true)
+		).on("focus", () => @_doFocus()
+		).on("blur", () => @_doBlur()
+		).on("keypress", () => @_inputEdited = true
+		)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -200,7 +200,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return not @_editable
+		return true
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
@@ -692,7 +692,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				contextKey: "filterInput"
 				tagName: "input"
 				text: "input"
-				type:"text",
+				type: "text",
 				class: "filter-input"
 				focus: () => @_doFocus()
 				blur: () => @_doBlur()

@@ -62,13 +62,13 @@ class cola.Textarea extends cola.AbstractEditor
             doPost()
             return
         ).on("focus", ()=>
-            @_inputFocused = true
+            @_focused = true
             @_refreshInputValue(@_value)
             @addClass("focused") if not @_finalReadOnly
             @fire("focus", @)
             return
         ).on("blur", ()=>
-            @_inputFocused = false
+            @_focused = false
             @removeClass("focused")
             @_refreshInputValue(@_value)
             @fire("blur", @)
