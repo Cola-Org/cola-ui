@@ -53,6 +53,9 @@ class cola.Grid extends cola.Widget
 
 		sortMode:
 			defaultValue: "remote" # local/remote
+		readOnly:
+			type: "boolean"
+			defaultValue: true
 
 		leftFixedCols:
 			defaultValue: 0
@@ -81,6 +84,7 @@ class cola.Grid extends cola.Widget
 	@TEMPLATES:
 		"default-row":
 			tagName: "div"
+
 		"boolean-column":
 			"c-display": "$default"
 			content:
@@ -88,19 +92,28 @@ class cola.Grid extends cola.Widget
 				class: "green checkmark icon"
 		"checkbox-column":
 			tagName: "c-checkbox"
-			class: "in-cell"
 			bind: "$default"
 		"toggle-column":
 			tagName: "c-toggle"
-			class: "in-cell"
 			bind: "$default"
 		"input-column":
 			tagName: "c-input"
-			class: "in-cell"
 			bind: "$default"
-		"date-column":
+		"date-picker-column":
 			tagName: "c-datepicker"
-			class: "in-cell"
+			bind: "$default"
+
+		"input":
+			tagName: "c-input"
+			bind: "$default"
+		"checkbox":
+			tagName: "c-checkbox"
+			bind: "$default"
+		"toggle":
+			tagName: "c-toggle"
+			bind: "$default"
+		"date-picker":
+			tagName: "c-date-picker"
 			bind: "$default"
 
 	constructor: (config) ->
@@ -270,6 +283,26 @@ class cola.Grid extends cola.Widget
 	_initDom: (dom) ->
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
+
+		dataType = @_getBindDataType()
+		if dataType and dataType instanceof cola.EntityDataType
+			if not @_columns
+				columnConfigs = []
+				for propertyDef in dataType.getProperties().elements
+					columnConfigs.push(
+						caption: propertyDef._caption
+						bind: propertyDef._property
+					)
+				@set("columns", columnConfigs)
+
+			if @_columns
+				for column in @_columns
+					if not column._property then continue
+
+					propertyDef = dataType.getProperty(column._property)
+					column._propertyDef = propertyDef
+					if propertyDef and not column._caption
+						column._caption = propertyDef._caption or propertyDef._property
 		return
 
 	_parseDom: (dom) ->
@@ -344,7 +377,6 @@ class cola.Grid extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-
 		getGroupWidth = (colInfo) ->
 			width = 0
 			for subColInfo in colInfo.columns
@@ -494,7 +526,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				}, @_doms)
 				header = @_doms.header
 
-				$fly(header).delegate("td", "click", (evt) =>
+				$fly(header).delegate(".header-cell", "click", (evt) =>
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =
@@ -509,6 +541,23 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		super(itemsWrapper)
 
+		$fly(itemsWrapper).delegate(".cell", "mousedown", (evt) =>
+			return if @_readOnly
+
+			cell = evt.currentTarget
+			columnName = cell._name
+			column = @getColumn(columnName)
+			item = @getItemByItemDom(cell.parentNode)
+			@showCellEditor(item, column)
+
+#			eventArg =
+#				column: column
+#			if column.fire("headerClick", @, eventArg) isnt false
+#				if @fire("headerClick", @, eventArg) isnt false
+#					@_sysHeaderClick(column)
+			return
+		)
+
 		if @_table._showFooter
 			footer = @_doms.footer
 			if not footer
@@ -517,7 +566,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				}, @_doms)
 
 				footer = @_doms.footer
-				$fly(footer).delegate("td", "click", (evt) =>
+				$fly(footer).delegate(".footer-cell", "click", (evt) =>
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =
@@ -533,7 +582,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return if @_headerTimestamp is @_columnsInfo.timestamp
 		@_headerTimestamp = @_columnsInfo.timestamp
 
-		$fly(header).empty().css("width", )
+		$fly(header).empty().css("width",)
 
 		fragment = null
 		rowInfos = @_columnsInfo.rows
@@ -715,4 +764,22 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 	_onItemRemove: (arg) ->
 		super(arg)
+		return
+
+	showCellEditor: (item, column) ->
+		return unless item
+		return unless column._readOnly or not column.property
+
+		template = column.getTemplate("edit")
+		if not template
+			propertyType = column._propertyDef?._dataType
+			if propertyType instanceof cola.BooleanDataType
+				template = "checkbox"
+			else if propertyType instanceof cola.DateDataType
+				template = "date-picker"
+			else
+				template = "input"
+
+		if template
+			console.log(template)
 		return

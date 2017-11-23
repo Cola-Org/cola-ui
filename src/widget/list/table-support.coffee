@@ -47,11 +47,11 @@ class cola.TableColumn extends cola.Element
 		table._regColumn(@) if table
 		return
 
-	getTemplate: (property) ->
-		template = @["_real_" + property]
+	getTemplate: (type) ->
+		template = @["_real_" + type]
 		return template if template isnt undefined
 
-		templateDef = @get(property)
+		templateDef = @get(type)
 		return null unless templateDef
 
 		if typeof templateDef is "string"
@@ -72,7 +72,7 @@ class cola.TableColumn extends cola.Element
 		if not template
 			template = @_table.getTemplate(templateDef)
 
-		@["_real_" + property] = template or null
+		@["_real_" + type] = template or null
 		return template
 
 class cola.TableGroupColumn extends cola.TableColumn
@@ -113,6 +113,9 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		template: null
 		sortable: null
 		sortDirection: null
+
+		readOnly: null
+		editTemplate: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@events:
