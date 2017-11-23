@@ -710,9 +710,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return
 
 	_onItemInsert: (arg) ->
-		console.log("INSERT")
+		super(arg)
 		return
 
 	_onItemRemove: (arg) ->
-		console.log("REMOVE")
+		super(arg)
 		return

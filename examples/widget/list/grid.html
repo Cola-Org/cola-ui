@@ -6,51 +6,53 @@
 	<script src="../../include-all.js"></script>
 </head>
 
-<body style="padding:0px;margin:8px;" class="v-box">
-<div class="box" style="padding:2px">
-	<div c-widget="input; bind:items.col1"></div>
-	<div c-widget="input; bind:items.col2">
-		<div c-widget="button; caption:Add; click:{{add()}}"></div>
-	</div>
-	<div c-widget="checkbox; bind:items.bool"></div>
+<body>
+<div class="v-box" style="padding:16px;">
+	<div class="box" style="padding:2px">
+		<div c-widget="input; bind:items.col1"></div>
+		<div c-widget="input; bind:items.col2">
+			<div c-widget="button; caption:Add; click:{{add()}}"></div>
+		</div>
+		<div c-widget="checkbox; bind:items.bool"></div>
 
-	<label c-bind="items.col2"></label>
-	<label c-widget="label; text:{{items.col2}}"></label>
-</div>
-<div class="flex-box">
-	<div id="table1">
-		<template name="upper-template">
-			<div class="cell-content" c-bind="upper($default)"></div>
-		</template>
-		<template name="sum">
-			<span c-bind="sum()"></span>
-		</template>
-		<template name="checkMark">
+		<label c-bind="items.col2"></label>
+		<label c-widget="label; text:{{items.col2}}"></label>
+	</div>
+	<div class="flex-box">
+		<div id="table1">
+			<template name="upper-template">
+				<div class="cell-content" c-bind="upper($default)"></div>
+			</template>
+			<template name="sum">
+				<span c-bind="sum()"></span>
+			</template>
+			<template name="checkMark">
 			<span c-style="display:$default?'':'none'">
 				<i class="large green checkmark icon"></i>
 			</span>
-		</template>
-
-		<!--<column>-->
-			<!--<template>-->
-				<!--<label c-watch="columnIndex on item"></label>-->
-			<!--</template>-->
-		<!--</column>-->
-		<column property="int" template="input-column" footerTemplate="sum"></column>
-		<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
-		<column bind=".col1" template="upper-template"></column>
-		<column caption="Group">
-			<column property="bool" align="center" template="checkMark"></column>
-			<column bind="upper(item.col2)"></column>
-			<column bind=".col3"></column>
-		</column>
-		<column bind=".col4"></column>
-		<column bind=".col5"></column>
-		<column caption="Operator" align="center">
-			<template>
-				<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>
 			</template>
-		</column>
+
+			<!--<column>-->
+			<!--<template>-->
+			<!--<label c-watch="columnIndex on item"></label>-->
+			<!--</template>-->
+			<!--</column>-->
+			<column property="int" template="input-column" footerTemplate="sum"></column>
+			<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
+			<column bind=".col1" template="upper-template"></column>
+			<column caption="Group">
+				<column property="bool" align="center" template="checkMark"></column>
+				<column bind="upper(item.col2)"></column>
+				<column bind=".col3"></column>
+			</column>
+			<column bind=".col4"></column>
+			<column bind=".col5"></column>
+			<column caption="Operator" align="center">
+				<template>
+					<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>
+				</template>
+			</column>
+		</div>
 	</div>
 </div>
 <script type="text/javascript">

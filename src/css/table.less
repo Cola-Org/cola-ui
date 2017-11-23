@@ -24,6 +24,19 @@
 	border: 1px solid @borderColor;
 
 	.inner-table {
+		display: -webkit-box;
+		display: -moz-box;
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+
+		-webkit-flex-direction: column;
+		-ms-flex-direction: column;
+		flex-direction: column;
+
+		-webkit-box-orient: vertical;
+		-moz-box-orient: vertical;
+
 		overflow: auto;
 		height: 100%;
 		border-left: 1px solid @tableColLineColor;
@@ -32,24 +45,38 @@
 			border-left-width: 0;
 		}
 
-		> .header {
+		>.header, >.footer {
+			-webkit-flex: 0 1 auto;
+			-ms-flex: 0 1 auto;
+			flex: 0 1 auto;
 			> table {
 				table-layout: fixed;
 				width: 0;
 			}
+		}
+		> .header {
 			border-bottom: 1px solid @tableHeadLineColor;
 		}
 		> .footer {
-			> table {
-				table-layout: fixed;
-				width: 0;
-			}
 			border-top: 1px solid @tableFootLineColor;
 		}
 
 		> .items {
+			display: -webkit-box;
+			display: -moz-box;
+
+			-webkit-box-flex: 1;
+			-moz-box-flex: 1;
+			-webkit-flex: 1 1 auto;
+			-ms-flex: 1 1 auto;
+			flex: 1 1 auto;
+
 			padding: 0;
 			margin: 0;
+			overflow: hidden;
+			&:hover {
+				overflow: auto;
+			}
 		}
 
 		c-input, c-datepicker, c-tag-editor {
@@ -70,29 +97,47 @@
 		overflow-y: visible;
 		font-size: 1rem;
 		> div {
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
 			display: flex;
+
 			height: 100%;
 			overflow: hidden;
+
+			-webkit-align-items: center;
+			-ms-flex-align: center;
 			align-items: center;
-			&.default-content, >.cell-content {
+
+			&.default-content, > .cell-content {
 				padding: 0 0.4em;
 			}
 		}
 
 		&.h-left > div {
+			-webkit-justify-content: flex-start;
+			-ms-flex-pack: start;
 			justify-content: flex-start;
 		}
 		&.h-center > div {
+			-webkit-justify-content: center;
+			-ms-flex-pack: center;
 			justify-content: center;
 		}
 		&.h-right > div {
+			-webkit-justify-content: flex-end;
+			-ms-flex-pack: end;
 			justify-content: flex-end;
 		}
 
 		&.v-top > div {
+			-webkit-align-items: flex-start;
+			-ms-flex-align: start;
 			align-items: flex-start;
 		}
 		&.v-bottom > div {
+			-webkit-align-items: flex-end;
+			-ms-flex-align: end;
 			align-items: flex-end;
 		}
 	}
@@ -118,13 +163,26 @@
 		font-size: 0;
 		border-bottom: 1px solid @tableRowLineColor;
 		overflow: visible;
-
+		&:last-of-type {
+			border-bottom-width: 0;
+			.box-shadow(0 1px 0 @tableRowLineColor);
+		}
 		> .cell {
 			display: inline-block;
 			border-right: 1px solid @tableColLineColor;
 		}
 	}
 }
+
+.desktop {
+	.ui.widget-grid .inner-table {
+		.header, .items, .footer {
+			display: block;
+		}
+	}
+}
+
+// ---------------------------
 
 .ui.widget-table {
 	> .table-wrapper {
