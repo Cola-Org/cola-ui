@@ -200,7 +200,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return node.nodeName is "INPUT"
 
 	_isEditorReadOnly: () ->
-		return true
+		return not @_editable or (@_filterable and @_useValueContent)
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
@@ -517,26 +517,32 @@ class DropBox extends cola.Layer
 	@attributes:
 		dropdown: null
 
-	resize: () ->
+	resize: (opened) ->
+		dom = @getDom()
 		$dom = @get$Dom()
 		dropdownDom = @_dropdown._doms.input
-		unless @_height
-			$dom.css("height", "")
 
-		$dom.removeClass("hidden")
-		boxWidth = $dom.width()
-		boxHeight = $dom.height()
-		$dom.addClass("hidden")
+		# 防止因改变高度导致滚动条自动还原到初始位置
+		if opened
+			boxWidth = dom.scrollWidth
+			boxHeight = dom.scrollHeight
+		else
+			unless @_height
+				$dom.css("height", "")
+			$dom.removeClass("hidden")
+			boxWidth = $dom.width()
+			boxHeight = $dom.height()
+			$dom.addClass("hidden")
 
 		rect = $fly(dropdownDom).offset()
 		clientWidth = document.body.offsetWidth
 		clientHeight = document.body.clientHeight
-		scrollTop = document.body.scrollTop
-		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight - scrollTop) - 6
+		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight) - 6
 
 		if bottomSpace >= boxHeight
 			direction = "down"
 		else
+			scrollTop = document.documentElement.scrollTop
 			topSpace = rect.top - scrollTop - 6
 			if topSpace > bottomSpace
 				direction = "up"
@@ -556,7 +562,7 @@ class DropBox extends cola.Layer
 				left = clientWidth - boxWidth
 				if left < 0 then left = 0
 
-		if height then $dom.css("height", height)
+		$dom.css("height", height or "auto")
 		$dom.removeClass(if direction is "down" then "direction-up" else "direction-down")
 			.addClass("direction-" + direction)
 			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
@@ -572,7 +578,7 @@ class DropBox extends cola.Layer
 		super(options, callback)
 
 		@_resizeTimer = setInterval(()=>
-			@resize()
+			@resize(true)
 			return
 		, 300)
 		return

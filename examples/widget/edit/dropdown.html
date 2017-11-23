@@ -16,7 +16,9 @@
 				{name: "Ruby"},
 				{name: "R"},
 				{name: "Python"},
-				{name: "Pascal"}
+				{name: "PHP"},
+				{name: "Basic"},
+				{name: "Kotlin"}
 			]);
 
 			model.set("items", [
@@ -81,7 +83,8 @@
 					items: "{{language in languages}}",
 					bind: "selected",
 					valueProperty: "name",
-					textProperty: "name"
+					textProperty: "name",
+//					dropDownHeight: 200
 				},
 				dropdown4: {
 					$type: "customDropdown",
@@ -126,7 +129,7 @@
 </head>
 <body style="padding:20px;">
 
-<div style="width:400px; height:500px; overflow:auto; border:1px solid red">
+<div style="width:400px; height:300px; overflow:auto; border:1px solid red">
 
 <div id="dropdown1"></div>
 <div c-bind="selected"></div>
