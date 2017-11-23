@@ -57,6 +57,8 @@ cola.defaultAction.isEmpty = (value) ->
 
 cola.defaultAction.isNotEmpty = (value) -> not cola.defaultAction.isEmpty(value)
 
+cola.defaultAction.state = (entity) -> entity?.state
+
 cola.defaultAction.len = (value) ->
 	if not value
 		return 0
