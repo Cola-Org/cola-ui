@@ -50,7 +50,6 @@ class cola.AbstractEditor extends cola.Widget
 						if arg.attribute is "readOnly"
 							@set("readOnly", field._readOnly)
 						return
-
 		return
 
 	_setValue: (value) ->
@@ -99,12 +98,9 @@ class cola.AbstractEditor extends cola.Widget
 					@set("state", keyMessage?.type)
 
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE and type < cola.constants.MESSAGE_LOADING_START
-
 			@_modelSetValue = true
-
 			if @refreshValue()
 				cola.util.delay(@, "refreshDom", 0, @_refreshDom)
-
 			@_modelSetValue = false
 
 		return

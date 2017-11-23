@@ -53,7 +53,7 @@ cola.defaultAction.isEmpty = (value) ->
 	else if typeof value is "string"
 		return value is ""
 	else
-		return !value
+		return not value
 
 cola.defaultAction.isNotEmpty = (value) -> not cola.defaultAction.isEmpty(value)
 

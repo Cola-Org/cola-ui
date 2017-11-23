@@ -10,7 +10,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
 
 	@attributes:
-		disabled:
+		disabled:    # TO BE DELETE
 			type: "boolean"
 			refreshDom: true
 			defaultValue: false
@@ -562,7 +562,11 @@ class DropBox extends cola.Layer
 				left = clientWidth - boxWidth
 				if left < 0 then left = 0
 
-		$dom.css("height", height or "auto")
+		if height
+			$dom.css("height", height)
+		else if not @_height and not (dom.scrollHeight > dom.clientHeight)
+			$dom.css("height", "auto")
+
 		$dom.removeClass(if direction is "down" then "direction-up" else "direction-down")
 			.addClass("direction-" + direction)
 			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)

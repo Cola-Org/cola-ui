@@ -312,7 +312,7 @@ class cola.Element
 				throw new cola.Exception("The value \"#{value}\" of attribute \"#{attr}\" is out of range.")
 
 			if attrConfig.setter
-				attrConfig.setter.call(@, value, attr )
+				attrConfig.setter.call(@, value, attr)
 				return
 
 		@["_" + (attrConfig?.name or attr)] = value
@@ -499,8 +499,8 @@ cola.Element.createGroup = (elements, model) ->
 	else
 		elements = if elements then elements.slice(0) else []
 
-	elements.set = (attr, value) ->
-		element.set(attr, value) for element in elements
+	elements.set = (attr, value, ignoreError) ->
+		element.set(attr, value, ignoreError) for element in elements
 		return @
 	elements.on = (eventName, listener, once) ->
 		element.on(eventName, listener, once) for element in elements
