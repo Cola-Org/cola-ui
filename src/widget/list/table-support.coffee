@@ -47,11 +47,11 @@ class cola.TableColumn extends cola.Element
 		table._regColumn(@) if table
 		return
 
-	getTemplate: (type) ->
+	getTemplate: (type, defaultTemplate) ->
 		template = @["_real_" + type]
 		return template if template isnt undefined
 
-		templateDef = @get(type)
+		templateDef = @get(type) or defaultTemplate
 		return null unless templateDef
 
 		if typeof templateDef is "string"

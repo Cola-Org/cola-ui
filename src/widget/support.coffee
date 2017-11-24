@@ -273,7 +273,6 @@ cola.findWidget = (dom, typeName) ->
         type = typeName
     else
         type = getType(window, typeName)
-    return null unless type
 
     if dom instanceof cola.Widget
         dom = dom.getDom()

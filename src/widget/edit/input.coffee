@@ -194,8 +194,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$(@_doms.input).on("change", ()=>
 			@_postInput()
 			return
-		).on("focus", ()=> @_doFocus()
-		).on("blur",  ()=> @_doBlur()
+		).on("focus", (evt)=> @onFocus(evt)
+		).on("blur",  (evt)=> @onBlur(evt)
 		).on("keydown", (event)=>
 			arg =
 				keyCode: event.keyCode
@@ -217,18 +217,14 @@ class cola.AbstractInput extends cola.AbstractEditor
 		)
 		return
 
-	_doFocus: ()->
+	_onFocus: (evt)->
 		@_inputFocused = true
 		@_refreshInput()
-		@addClass("focused") if not @_finalReadOnly
-		@fire("focus", @)
 		return
 
-	_doBlur: ()->
+	_onBlur: (evt)->
 		@_inputFocused = false
-		@removeClass("focused")
 		@_refreshInput()
-		@fire("blur", @)
 
 		if not @_value? or @_value is "" and @_bindInfo?.writeable
 			propertyDef = @getBindingProperty()
@@ -353,7 +349,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	_postInput: () ->
 		readOnly = @_readOnly
-		if not readOnly and not @_doms.input.readOnly
+		if not readOnly and @_doms.input and not @_doms.input.readOnly
 			value = @_doms.input.value
 			if value is "" then value = null
 			dataType = @_dataType

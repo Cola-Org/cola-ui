@@ -412,14 +412,36 @@ class cola.Widget extends cola.RenderableElement
 		width = @get("width")
 		width = "#{parseInt(width)}#{unit}" if isFinite(width)
 		$dom.css("width", width) if width
+		return
 
+	onFocus: (evt) ->
+		return if @_focused
+		@_focused = true
+		@get$Dom().addClass("focused")
+		@_onFocus?(evt)
+		@fire("focus", @)
+
+		focusParent = @_focusParent
+		focusParent ?= cola.findWidget(@)
+		focusParent?.onFocus(evt)
+		return
+
+	onBlur: (evt) ->
+		return if not @_focused
+		@_focused = false
+		@get$Dom().removeClass("focused")
+		@_onBlur?(evt)
+
+		focusParent = @_focusParent
+		focusParent ?= cola.findWidget(@)
+		focusParent?.onBlur(evt)
 		return
 
 	showDimmer: (options = {})->
 		return @ unless @_dom
 
 		content = options.content
-		content = @_dimmer.content if !content and @_dimmer
+		content = @_dimmer.content if not content and @_dimmer
 
 		if content
 			if typeof content is "string"

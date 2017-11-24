@@ -45,6 +45,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			if entity
 				super()
 		return @
+
 	_parseDom: (dom)->
 		@_doms ?= {}
 		@_$dom ?= $(dom)
@@ -111,6 +112,13 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 				}
 			]
 		}, @_doms)
+
+	_initDom: (dom)->
+		super(dom)
+		$(@_doms.input)
+			.on("focus", (evt)=> @onFocus(evt))
+			.on("blur", (evt)=> @onBlur(evt))
+		return
 
 	_bindToSemantic: ()->
 		@get$Dom().checkbox({

@@ -37,7 +37,7 @@
 		-webkit-box-orient: vertical;
 		-moz-box-orient: vertical;
 
-		overflow: auto;
+		overflow: hidden;
 		height: 100%;
 		border-left: 1px solid @tableColLineColor;
 
@@ -45,25 +45,24 @@
 			border-left-width: 0;
 		}
 
-		>.header, >.footer {
+		> .table-header, > .table-footer {
 			-webkit-flex: 0 1 auto;
 			-ms-flex: 0 1 auto;
 			flex: 0 1 auto;
+			width: 100%;
+			overflow: hidden;
 			> table {
 				table-layout: fixed;
 				width: 0;
 			}
 		}
-		> .header {
+		> .table-header {
 			border-bottom: 1px solid @tableHeadLineColor;
 		}
-		> .footer {
-			border-top: 1px solid @tableFootLineColor;
-		}
-
-		> .items {
+		> .table-body {
 			display: -webkit-box;
 			display: -moz-box;
+			position: relative;
 
 			-webkit-box-flex: 1;
 			-moz-box-flex: 1;
@@ -71,11 +70,51 @@
 			-ms-flex: 1 1 auto;
 			flex: 1 1 auto;
 
+			width: 100%;;
+
+			overflow: auto;
+			//overflow: hidden;
+			//&:hover {
+			//	overflow: auto;
+			//}
+		}
+		> .table-footer {
+			border-top: 1px solid @tableFootLineColor;
+		}
+
+		.items {
 			padding: 0;
 			margin: 0;
-			overflow: hidden;
-			&:hover {
-				overflow: auto;
+			overflow: visible;
+
+			.cell-editor-pane {
+				position: absolute;
+				overflow: hidden;
+				background: #fff;
+
+				&.hidden {
+					display: none;
+				}
+
+				> * {
+					width: 100%;
+					height: 100%;
+				}
+				> .editor-container {
+					display: -webkit-box;
+					display: -moz-box;
+					display: -ms-flexbox;
+					display: -webkit-flex;
+					display: flex;
+
+					-webkit-justify-content: center;
+					-ms-flex-pack: center;
+					justify-content: center;
+
+					-webkit-align-items: center;
+					-ms-flex-align: center;
+					align-items: center;
+				}
 			}
 		}
 
@@ -161,6 +200,7 @@
 		white-space: nowrap;
 		line-height: 1;
 		font-size: 0;
+		box-sizing: border-box;
 		border-bottom: 1px solid @tableRowLineColor;
 		overflow: visible;
 		&:last-of-type {

@@ -33,6 +33,7 @@ cola.util.cacheDom = (ele) ->
 		)
 		doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 		document.body.appendChild(doms.hiddenDiv)
+
 	doms.hiddenDiv.appendChild(ele)
 	cola._ignoreNodeRemoved = false
 	return
@@ -199,6 +200,9 @@ _doNodeInserted = (node) ->
 	return
 
 _doNodeRemoved = (node) ->
+	if node.parentNode is doms.hiddenDiv
+		return
+
 	id = cola.util._getNodeDataId(node)
 	if id
 		cola.util._nodesToBeRemove[id] = node

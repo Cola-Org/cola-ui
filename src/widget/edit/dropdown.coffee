@@ -159,7 +159,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				event: evt
 				inputValue: value
 			@fire("input", @, arg)
-		).on("focus", () => @_doFocus()).on("blur", () => @_doBlur()).on("keypress", () => @_inputEdited = true)
+		).on("focus", (evt) => @onFocus(evt)
+		).on("blur", (evt) => @onBlur(evt)
+		).on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -167,9 +169,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @_items and @_valueProperty then @_setValue(@_value)
 		return
 
-	_doFocus: ()->
+	_onFocus: (evt)->
 		@_inputEdited = false
-		super()
+		super(evt)
 		return
 
 	_parseDom: (dom)->
@@ -190,8 +192,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: (evt) =>
-				this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -487,7 +487,10 @@ cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 class DropBox extends cola.Layer
 	@CLASS_NAME: "drop-box transition"
 	@attributes:
-		dropdown: null
+		dropdown:
+			setter: (drpdown) ->
+				@_dropDown = @_focusParent = dropdown
+				return;
 
 	show: (options, callback) ->
 		$dom = @get$Dom()

@@ -14,6 +14,7 @@
 			<div c-widget="button; caption:Add; click:{{add()}}"></div>
 		</div>
 		<div c-widget="checkbox; bind:items.bool"></div>
+		<div c-widget="toggle; bind:items.bool"></div>
 
 		<label c-bind="items.col2"></label>
 		<label c-widget="label; text:{{items.col2}}"></label>
@@ -41,7 +42,7 @@
 			<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
 			<column bind=".col1" template="upper-template"></column>
 			<column caption="Group">
-				<column property="bool" align="center" template="checkMark"></column>
+				<column property="bool" align="center" template="checkMark" editTemplate="toggle"></column>
 				<column bind="upper(item.col2)"></column>
 				<column bind=".col3"></column>
 			</column>
@@ -125,7 +126,7 @@
 				$type: "grid",
 				bind: "item in items",
 				showHeader: true,
-				showFooter: true,
+//				showFooter: true,
 				sortable: true,
 //                allowNoCurrent: true,
 //                changeCurrentItem:false,

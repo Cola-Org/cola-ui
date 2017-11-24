@@ -107,11 +107,15 @@ class cola.Grid extends cola.Widget
 			tagName: "c-input"
 			bind: "$default"
 		"checkbox":
-			tagName: "c-checkbox"
-			bind: "$default"
+			class: "editor-container"
+			content:
+				tagName: "c-checkbox"
+				bind: "$default"
 		"toggle":
-			tagName: "c-toggle"
-			bind: "$default"
+			class: "editor-container"
+			content:
+				tagName: "c-toggle"
+				bind: "$default"
 		"date-picker":
 			tagName: "c-date-picker"
 			bind: "$default"
@@ -267,7 +271,9 @@ class cola.Grid extends cola.Widget
 		return
 
 	_createDom: ()->
-		dom = document.createElement("div")
+		dom = cola.xCreate(
+			keydown: (evt) => @_keyDown(evt)
+		)
 		@_doms ?= {}
 		@_createInnerDom(dom)
 		return dom
@@ -399,11 +405,10 @@ class cola.Grid extends cola.Widget
 				columnCssDefs.push(def)
 
 		head = document.querySelector("head") or document.documentElement
-		if not @_styleSheetDom
-			@_styleSheetDom = $.xCreate(
-				tagName: "style"
-				type: "text/css"
-			)
+		@_styleSheetDom ?= $.xCreate(
+			tagName: "style"
+			type: "text/css"
+		)
 		@_styleSheetDom.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
 		head.appendChild(@_styleSheetDom)
 		return
@@ -483,6 +488,33 @@ class cola.Grid extends cola.Widget
 			)
 		return
 
+	_keyDown: (evt) ->
+		console.log evt.keyCode
+		return false
+
+		findNextColumn = (column) =>
+			dataColumns = @_columnsInfo.dataColumns
+			i = dataColumns.indexOf(column)
+			if i < 0 or i >= dataColumns.length - 1
+				i = 0
+			else
+				i++
+			return dataColumns[i]
+
+		if evt.keyCode is 9 # Tab
+			return unless @_currentItem
+
+			nextColumn = findNextColumn(@_currentColumn)
+			if @_columnsInfo.center.dataColumns.indexOf(nextColumn) >= 0
+				innerTable = @_centerTable
+			else if @_columnsInfo.left?.dataColumns.indexOf(nextColumn) >= 0
+				innerTable = @_leftTable
+			else if @_columnsInfo.right?.dataColumns.indexOf(nextColumn) >= 0
+				innerTable = @_rightTable
+
+			innerTable.setCurrentCell(@_currentItem, nextColumn)
+		return
+
 cola.Element.mixin(cola.Grid, cola.TemplateSupport)
 cola.Element.mixin(cola.Grid, cola.DataItemsWidgetMixin)
 
@@ -501,6 +533,56 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 	_getItems: () -> @_table._getItems()
 
+	_createDom: () ->
+		@_doms ?= {}
+		dom = $.xCreate({
+			tagName: "div"
+			content:
+				class: "table-body"
+				contextKey: "body"
+				content:
+					tagName: "ul"
+					contextKey: "itemsWrapper"
+				scroll: (evt) =>
+					scrollLeft = evt.target.scrollLeft
+					header = @_doms.tableHeader
+					footer = @_doms.tableFooter
+
+					if header
+						if header.clientWidth + scrollLeft > header.scrollWidth
+							cancel = true
+							scrollLeft = header.scrollWidth - header.clientWidth
+
+					if footer
+						footer = @_doms.tableFooter
+						if footer.clientWidth + scrollLeft > footer.scrollWidth
+							cancel = true
+							scrollLeft = footer.scrollWidth - footer.clientWidth
+
+					if cancel then evt.target.scrollLeft = scrollLeft
+					header?.scrollLeft = scrollLeft
+					footer?.scrollLeft = scrollLeft
+					return
+		}, @_doms)
+
+		$fly(@_doms.itemsWrapper).delegate(".cell", "mousedown", (evt) =>
+			return if @_readOnly
+
+			cell = evt.currentTarget
+			columnName = cell._name
+			column = @_table.getColumn(columnName)
+			item = @getItemByItemDom(cell.parentNode)
+			@setCurrentCell(item, column)
+
+			#			eventArg =
+			#				column: column
+			#			if column.fire("headerClick", @, eventArg) isnt false
+			#				if @fire("headerClick", @, eventArg) isnt false
+			#					@_sysHeaderClick(column)
+			return
+		)
+		return dom
+
 	_createNewItem: (itemType, item) ->
 		template = @_table.getTemplate(itemType + "-row")
 		itemDom = @_table._cloneTemplate(template)
@@ -514,8 +596,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if @_table._showHeader
 			header = @_doms.header
 			if not header
-				$fly(itemsWrapper).xInsertBefore({
-					class: "header"
+				$fly(@_doms.body).xInsertBefore({
+					class: "table-header"
+					contextKey: "tableHeader"
 					content:
 						tagName: "table"
 						cellSpacing: 0
@@ -528,11 +611,11 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 				$fly(header).delegate(".header-cell", "click", (evt) =>
 					columnName = evt.currentTarget._name
-					column = @getColumn(columnName)
+					column = @_table.getColumn(columnName)
 					eventArg =
 						column: column
 					if column.fire("headerClick", @, eventArg) isnt false
-						if @fire("headerClick", @, eventArg) isnt false
+						if @_table.fire("headerClick", @, eventArg) isnt false
 							@_sysHeaderClick(column)
 					return
 				)
@@ -540,35 +623,25 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshHeader(header)
 
 		super(itemsWrapper)
-
-		$fly(itemsWrapper).delegate(".cell", "mousedown", (evt) =>
-			return if @_readOnly
-
-			cell = evt.currentTarget
-			columnName = cell._name
-			column = @getColumn(columnName)
-			item = @getItemByItemDom(cell.parentNode)
-			@showCellEditor(item, column)
-
-#			eventArg =
-#				column: column
-#			if column.fire("headerClick", @, eventArg) isnt false
-#				if @fire("headerClick", @, eventArg) isnt false
-#					@_sysHeaderClick(column)
-			return
-		)
+		if itemsWrapper.scrollWidth > @_doms.body.clientWidth
+			$fly(@_doms.body).width(itemsWrapper.scrollWidth)
+		else
+			$fly(@_doms.body).width("100%")
 
 		if @_table._showFooter
 			footer = @_doms.footer
 			if not footer
-				$fly(itemsWrapper).xInsertAfter({
-					contextKey: "footer"
+				$fly(@_doms.body).xInsertAfter({
+					class: "table-footer"
+					contextKey: "tableFooter"
+					content:
+						contextKey: "footer"
 				}, @_doms)
 
 				footer = @_doms.footer
 				$fly(footer).delegate(".footer-cell", "click", (evt) =>
 					columnName = evt.currentTarget._name
-					column = @getColumn(columnName)
+					column = @_table.getColumn(columnName)
 					eventArg =
 						column: column
 					if column.fire("footerClick", @, eventArg) isnt false
@@ -582,7 +655,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return if @_headerTimestamp is @_columnsInfo.timestamp
 		@_headerTimestamp = @_columnsInfo.timestamp
 
-		$fly(header).empty().css("width",)
+		$fly(header).empty()
 
 		fragment = null
 		rowInfos = @_columnsInfo.rows
@@ -625,6 +698,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			i++
 
 		if fragment then header.appendChild(fragment)
+		$fly(header).height(header.firstElementChild.offsetHeight)
 		return
 
 	_refreshHeaderCell: (dom, columnInfo) ->
@@ -766,12 +840,44 @@ class cola.Table.InnerTable extends cola.AbstractList
 		super(arg)
 		return
 
+	setCurrentCell: (item, column) ->
+		@_table._currentInnerTable = @
+		@_table._currentColumn = column
+		@showCellEditor(item, column)
+		return
+
+	_getCellEditorPane: (create) ->
+		if not @_cellEditorPane and create
+			@_cellEditorPane = cola.xCreate(
+				class: "cell-editor-pane"
+			)
+			@_doms.itemsWrapper.appendChild(@_cellEditorPane)
+		return @_cellEditorPane
+
+	_resize: (editorPane, item, column) ->
+		itemId = _getEntityId(item)
+		itemDom = @_itemDomMap[itemId]
+		if itemDom
+			child = itemDom.firstElementChild
+			while child
+				if child._name is column._name
+					cell = child
+					break
+				child = child.nextElementSibling
+
+			if cell
+				$fly(@_cellEditorPane)
+					.css("left", cell.offsetLeft)
+					.css("top", itemDom.offsetTop)
+					.width(cell.clientWidth)
+					.height(cell.clientHeight)
+		return
+
 	showCellEditor: (item, column) ->
 		return unless item
-		return unless column._readOnly or not column.property
+		return if column._readOnly or not column._property
 
-		template = column.getTemplate("edit")
-		if not template
+		if not column._editTemplate
 			propertyType = column._propertyDef?._dataType
 			if propertyType instanceof cola.BooleanDataType
 				template = "checkbox"
@@ -779,7 +885,47 @@ class cola.Table.InnerTable extends cola.AbstractList
 				template = "date-picker"
 			else
 				template = "input"
+		template = column.getTemplate("editTemplate", template)
 
 		if template
-			console.log(template)
+			editorPane = @_getCellEditorPane(true)
+			$fly(editorPane).addClass("hidden")
+
+			setTimeout(() =>
+				templateDom = column._editTemplateDom
+				if not templateDom
+					scope = new cola.ItemScope(@_scope, @_table._alias)
+					scope.data.setItemData(item, true)
+
+					oldScope = cola.currentScope
+					try
+						cola.currentScope = scope
+						column._editTemplateDom = templateDom = @_cloneTemplate(template)
+						cola.util.userData(templateDom, "scope", scope)
+						context = {
+							defaultPath: "#{@_table._alias}.#{column._property}"
+						}
+						cola.xRender(templateDom, scope, context)
+					finally
+						cola.currentScope = oldScope
+				else
+					scope = cola.util.userData(templateDom, "scope")
+					scope.data.setItemData(item)
+
+				$fly(editorPane).removeClass("hidden")
+
+				if templateDom.parentNode isnt editorPane
+					if editorPane.firstElementChild
+						cola.util.cacheDom(editorPane.firstElementChild)
+					editorPane.appendChild(templateDom)
+
+				@_resize(editorPane, item, column)
+				return
+			, 0)
+		return
+
+	hideCellEditor: () ->
+		editorPane = @_getCellEditorPane()
+		if editorPane
+			$fly(editorPane).addClass("hidden")
 		return
