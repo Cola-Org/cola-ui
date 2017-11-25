@@ -439,7 +439,6 @@ class cola.Widget extends cola.RenderableElement
 	onKeyDown: (evt) ->
 		if @_onKeyDown?(evt) is false
 			return false
-
 		arg =
 			keyCode: evt.keyCode
 			shiftKey: evt.shiftKey
@@ -447,6 +446,10 @@ class cola.Widget extends cola.RenderableElement
 			altKey: evt.altKey
 			event: evt
 		return @fire("keyDown", @, arg)
+
+	focus: () ->
+		cola._setFocusWidget(@)
+		return
 
 	showDimmer: (options = {})->
 		return @ unless @_dom

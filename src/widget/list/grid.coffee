@@ -279,6 +279,7 @@ class cola.Grid extends cola.Widget
 	_createInnerDom: (dom) ->
 		@_centerTable = new cola.Table.InnerTable(
 			scope: @_scope
+			type: "center"
 			table: @
 		)
 		@_centerTable.appendTo(dom)
@@ -417,11 +418,13 @@ class cola.Grid extends cola.Widget
 
 			if @_columnsInfo.left and not @_leftTable
 				@_leftTable = new cola.Table.InnerTable(
+					type: "left"
 					table: @
 				)
 				@_centerTable.get$Dom().before(@_leftTable.getDom())
 			if @_columnsInfo.right and not @_leftTable
-				@_rightTable = new cola.Table.InnerTablee(
+				@_rightTable = new cola.Table.InnerTable(
+					type: "right"
 					table: @
 				)
 				@_centerTable.get$Dom().after(@_rightTable.getDom())
@@ -492,33 +495,56 @@ class cola.Grid extends cola.Widget
 			)
 		return
 
-	_onBlur: (evt) ->
+	_getCurrentItem: () ->
+		return @_centerTable._getCurrentItem()
+
+	_onBlur: () ->
 		@_currentInnerTable?.hideCellEditor()
 		return
 
 	_onKeyDown: (evt) ->
 
-		findNextColumn = (column) =>
+		findNextColumnInfo = (column, reverse) =>
 			dataColumns = @_columnsInfo.dataColumns
-			i = dataColumns.indexOf(column)
-			if i < 0 or i >= dataColumns.length - 1
-				i = 0
-			else
-				i++
-			return dataColumns[i]
+			index = -1
+			for columnInfo, i in dataColumns
+				if columnInfo.column is column
+					index = i
+					break
+
+			while not nextColumnInfo
+				if reverse
+					if index < 0 or index >= dataColumns.length - 1
+						index = dataColumns.length - 1
+					else
+						index--
+				else
+					if index < 0 or index >= dataColumns.length - 1
+						index = 0
+					else
+						index++
+
+				columnInfo = dataColumns[index]
+				if not columnInfo.column._readOnly and columnInfo.column._property
+					nextColumnInfo = columnInfo
+
+			return nextColumnInfo
 
 		if evt.keyCode is 9 # Tab
-			return unless @_currentItem
+			currentItem = @_getCurrentItem();
+			return unless currentItem
 
-			nextColumn = findNextColumn(@_currentColumn)
-			if @_columnsInfo.center.dataColumns.indexOf(nextColumn) >= 0
-				innerTable = @_centerTable
-			else if @_columnsInfo.left?.dataColumns.indexOf(nextColumn) >= 0
-				innerTable = @_leftTable
-			else if @_columnsInfo.right?.dataColumns.indexOf(nextColumn) >= 0
-				innerTable = @_rightTable
+			nextColumnInfo = findNextColumnInfo(@_currentColumn, evt.shiftKey)
+			if nextColumnInfo
+				if @_columnsInfo.center.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = @_centerTable
+				else if @_columnsInfo.left?.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = @_leftTable
+				else if @_columnsInfo.right?.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = @_rightTable
 
-			innerTable.setCurrentCell(@_currentItem, nextColumn)
+				innerTable.setCurrentCell(currentItem, nextColumnInfo.column)
+				return false
 		return
 
 cola.Element.mixin(cola.Grid, cola.TemplateSupport)
@@ -528,6 +554,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 	@CLASS_NAME: "inner-table"
 
 	@attributes:
+		type: null
 		table: null
 		columnsInfo: null
 
@@ -557,7 +584,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					return
 		}, @_doms)
 
-		$fly(@_doms.itemsWrapper).delegate(".cell", "mousedown", (evt) =>
+		$fly(@_doms.itemsWrapper).delegate(".cell", "click", (evt) =>
 			return if @_readOnly
 
 			cell = evt.currentTarget
@@ -565,12 +592,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 			column = @_table.getColumn(columnName)
 			item = @getItemByItemDom(cell.parentNode)
 			@setCurrentCell(item, column)
-
-			#			eventArg =
-			#				column: column
-			#			if column.fire("headerClick", @, eventArg) isnt false
-			#				if @fire("headerClick", @, eventArg) isnt false
-			#					@_sysHeaderClick(column)
 			return
 		)
 		return dom
@@ -826,6 +847,12 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshItemDom(itemDom, item, @_itemsScope)
 		return
 
+	_getCurrentItem: () ->
+		if @_currentItemDom
+			return cola.util.userData(@_currentItemDom, "item")
+		else
+			return null
+
 	setCurrentCell: (item, column) ->
 		@_table._currentInnerTable = @
 		@_table._currentColumn = column
@@ -840,23 +867,13 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_doms.itemsWrapper.appendChild(@_cellEditorPane)
 		return @_cellEditorPane
 
-	_resize: (editorPane, item, column) ->
-		itemId = _getEntityId(item)
-		itemDom = @_itemDomMap[itemId]
-		if itemDom
-			child = itemDom.firstElementChild
-			while child
-				if child._name is column._name
-					cell = child
-					break
-				child = child.nextElementSibling
-
-			if cell
-				$fly(@_cellEditorPane)
-					.css("left", cell.offsetLeft)
-					.css("top", itemDom.offsetTop)
-					.width(cell.clientWidth)
-					.height(cell.clientHeight)
+	_resize: (editorPane, cell) ->
+		itemDom = cell.parentNode
+		$fly(@_cellEditorPane)
+			.css("left", cell.offsetLeft)
+			.css("top", itemDom.offsetTop)
+			.width(cell.clientWidth)
+			.height(cell.clientHeight)
 		return
 
 	showCellEditor: (item, column) ->
@@ -900,15 +917,33 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 				$fly(editorPane).removeClass("hidden")
 
-				if templateDom.parentNode isnt editorPane
-					if editorPane.firstElementChild
-						cola.util.cacheDom(editorPane.firstElementChild)
-					editorPane.appendChild(templateDom)
+				itemId = _getEntityId(item)
+				itemDom = @_itemDomMap[itemId]
+				if itemDom
+					child = itemDom.firstElementChild
+					while child
+						if child._name is column._name
+							cell = child
+							break
+						child = child.nextElementSibling
 
-				@_resize(editorPane, item, column)
+					cellWidget = cola.widget(cell.firstElementChild?.firstElementChild)
+					if cellWidget instanceof cola.AbstractEditor
+						cellWidget.focus()
+					else
+						if templateDom.parentNode isnt editorPane
+							if editorPane.firstElementChild
+								cola.util.cacheDom(editorPane.firstElementChild)
+							editorPane.appendChild(templateDom)
 
-				cellEditorWidget = cola.widget(templateDom)
-				cellEditorWidget?.focus?()
+						@_resize(editorPane, cell)
+
+						if templateDom?.className is "editor-container"
+							editContent = templateDom.firstElementChild
+						else
+							editContent = templateDom
+						cellEditorWidget = cola.widget(editContent)
+						cellEditorWidget?.focus()
 				return
 			, 0)
 		return
