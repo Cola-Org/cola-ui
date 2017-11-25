@@ -436,6 +436,18 @@ class cola.Widget extends cola.RenderableElement
 		console.log("blur: " + @_dom.className)
 		return
 
+	onKeyDown: (evt) ->
+		if @_onKeyDown?(evt) is false
+			return false
+
+		arg =
+			keyCode: evt.keyCode
+			shiftKey: evt.shiftKey
+			ctrlKey: evt.ctrlKey
+			altKey: evt.altKey
+			event: evt
+		return @fire("keyDown", @, arg)
+
 	showDimmer: (options = {})->
 		return @ unless @_dom
 
@@ -516,6 +528,14 @@ cola._setFocusWidget = (widget) ->
 	for focusedWidget in focusedWidgets
 		focusedWidget.onFocus()
 	return
+
+$fly(document.body).on("keydown", (evt)->
+	if cola.focusedWidgets
+		for widget in cola.focusedWidgets
+			if widget.onKeyDown(evt) is false
+				return false
+	return
+)
 
 cola.floatWidget =
 	_zIndex: 1100

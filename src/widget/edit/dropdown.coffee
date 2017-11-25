@@ -103,21 +103,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				if @_disabled then return
 				@open()
 			return
-		).on("keydown", (evt)=>
-			arg =
-				keyCode: evt.keyCode
-				shiftKey: evt.shiftKey
-				ctrlKey: evt.ctrlKey
-				altKey: evt.altKey
-				event: evt
-				inputValue: @_doms.input.value
-
-			@fire("keyDown", @, arg)
-			if evt.keyCode is 9 then @_closeDropdown()
-
-			if @_onKeyDown?(evt) isnt false and @_dropdownContent
-				$(@_dropdownContent).trigger(evt)
-			return
 		).on("keypress", (evt)=>
 			arg =
 				keyCode: evt.keyCode
@@ -167,6 +152,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			unless @_icon then @set("icon", "dropdown")
 
 		if @_items and @_valueProperty then @_setValue(@_value)
+		return
+
+	_onKeyDown: (evt)->
+		if evt.keyCode is 9 then @_closeDropdown()
+
+		if @_dropdownContent
+			$(@_dropdownContent).onKeyDown(evt)
 		return
 
 	_onFocus: (evt)->

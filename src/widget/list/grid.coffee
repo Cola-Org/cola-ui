@@ -271,9 +271,7 @@ class cola.Grid extends cola.Widget
 		return
 
 	_createDom: ()->
-		dom = cola.xCreate(
-			keydown: (evt) => @_keyDown(evt)
-		)
+		dom = cola.xCreate({})
 		@_doms ?= {}
 		@_createInnerDom(dom)
 		return dom
@@ -462,6 +460,12 @@ class cola.Grid extends cola.Widget
 		@_centerTable._refreshItems()
 		return
 
+	_onCurrentItemChange: (arg) ->
+		@_leftTable?._onCurrentItemChange(arg)
+		@_rightTable?._onCurrentItemChange(arg)
+		@_centerTable._onCurrentItemChange(arg)
+		return
+
 	_onItemInsert: (arg) ->
 		@_leftTable?._onItemInsert(arg)
 		@_rightTable?._onItemInsert(arg)
@@ -492,9 +496,7 @@ class cola.Grid extends cola.Widget
 		@_currentInnerTable?.hideCellEditor()
 		return
 
-	_keyDown: (evt) ->
-		console.log evt.keyCode
-		return false
+	_onKeyDown: (evt) ->
 
 		findNextColumn = (column) =>
 			dataColumns = @_columnsInfo.dataColumns
@@ -822,14 +824,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
 			@_refreshItemDom(itemDom, item, @_itemsScope)
-		return
-
-	_onItemInsert: (arg) ->
-		super(arg)
-		return
-
-	_onItemRemove: (arg) ->
-		super(arg)
 		return
 
 	setCurrentCell: (item, column) ->

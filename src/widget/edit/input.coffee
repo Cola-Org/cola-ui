@@ -196,15 +196,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 			return
 		).on("focus", ()=> cola._setFocusWidget(@)
 		).on("blur",  ()=> cola._setFocusWidget(null)
-		).on("keydown", (event)=>
-			arg =
-				keyCode: event.keyCode
-				shiftKey: event.shiftKey
-				ctrlKey: event.ctrlKey
-				altKey: event.altKey
-				event: event
-			@fire("keyDown", @, arg)
-			if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
 		).on("keypress", (event)=>
 			arg =
 				keyCode: event.keyCode
@@ -217,12 +208,16 @@ class cola.AbstractInput extends cola.AbstractEditor
 		)
 		return
 
-	_onFocus: (evt)->
+	_onKeyDown: (evt) ->
+		if evt.altKey and evt.keyCode is 18 and isIE11 then @_postInput()
+		return
+
+	_onFocus: ()->
 		@_inputFocused = true
 		@_refreshInput()
 		return
 
-	_onBlur: (evt)->
+	_onBlur: ()->
 		@_inputFocused = false
 		@_refreshInput()
 

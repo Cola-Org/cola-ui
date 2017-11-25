@@ -58,53 +58,6 @@ cola.TagEditor = cola.defineWidget({
 				inputValue: inputValue,
 				input: @
 			})
-		).on("keydown", (evt)->
-			selectedItems = tagEditor._scope.get(tagEditor._bind)
-			inputValue = $(this).val()
-			if evt.keyCode == 8
-				if !inputValue && selectedItems
-					last = selectedItems.last()
-					last && tagEditor.removeItem(last)
-
-			if evt.keyCode == 46 && selectedItems
-				selectedItems.empty()
-
-			if tagEditor.isOpended()
-				$tagsDom = $(tagEditor._dropBox._dom).find(".tag-items")
-				$current = $tagsDom.find(">li.current")
-				if evt.keyCode == 40
-					if $current.length
-						$next = $current.next()
-						if $next.length
-							$next.addClass("current")
-						else
-							$tagsDom.find(">li").first().addClass("current")
-
-						$current.removeClass("current")
-					else
-						$tagsDom.find(">li").first().addClass("current")
-
-				else if evt.keyCode == 38
-					if $current.length
-						$prev = $current.prev()
-						if $prev.length
-							$prev.addClass("current")
-						else
-							$tagsDom.find(">li").last().addClass("current")
-
-						$current.removeClass("current")
-					else
-						$tagsDom.find(">li").last().addClass("current")
-
-
-				else if evt.keyCode == 13
-					$current.length && $current.trigger("click")
-					return
-
-			tagEditor.fire("keyDown", tagEditor, {
-				keyCode: evt.keyCode,
-				input: this
-			})
 		)
 
 	removeItem: (item)->
@@ -116,6 +69,53 @@ cola.TagEditor = cola.defineWidget({
 			if result is false then return
 
 			item.remove()
+		return
+
+	_onKeyDown: (evt) ->
+		tagEditor = @
+		selectedItems = tagEditor._scope.get(tagEditor._bind)
+		inputValue = $(this).val()
+		if evt.keyCode == 8
+			if !inputValue && selectedItems
+				last = selectedItems.last()
+				last && tagEditor.removeItem(last)
+
+		if evt.keyCode == 46 && selectedItems
+			selectedItems.empty()
+
+		if tagEditor.isOpended()
+			$tagsDom = $(tagEditor._dropBox._dom).find(".tag-items")
+			$current = $tagsDom.find(">li.current")
+			if evt.keyCode == 40
+				if $current.length
+					$next = $current.next()
+					if $next.length
+						$next.addClass("current")
+					else
+						$tagsDom.find(">li").first().addClass("current")
+
+					$current.removeClass("current")
+				else
+					$tagsDom.find(">li").first().addClass("current")
+
+			else if evt.keyCode == 38
+				if $current.length
+					$prev = $current.prev()
+					if $prev.length
+						$prev.addClass("current")
+					else
+						$tagsDom.find(">li").last().addClass("current")
+
+					$current.removeClass("current")
+				else
+					$tagsDom.find(">li").last().addClass("current")
+
+
+			else if evt.keyCode == 13
+				$current.length && $current.trigger("click")
+				return
+
+		return
 
 	open: ()->
 		@_showDropBox()
