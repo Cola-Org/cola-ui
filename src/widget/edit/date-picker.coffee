@@ -1,5 +1,5 @@
 class cola.DateGrid extends cola.RenderableElement
-	@CLASS_NAME: "calendar mild"
+	@CLASS_NAME: "calendar"
 	@attributes:
 		columnCount:
 			type: "number"
@@ -37,57 +37,76 @@ class cola.DateGrid extends cola.RenderableElement
 					content: [
 						{
 							tagName: "div"
-							class: "month"
+							class: "nav-wrapper"
 							content: [
 								{
 									tagName: "span"
-									class: "button prev"
-									contextKey: "prevMonthButton"
-									click: ()->
-										picker.prevMonth()
-								}
-								{
-									tagName: "span"
-									class: "button next"
-									contextKey: "nextMonthButton"
-									click: ()->
-										picker.nextMonth()
-								}
-								{
-									tagName: "div"
-									class: "label"
-									contextKey: "monthLabel"
-
-								}
-							]
-						}
-						{
-							tagName: "div"
-							class: "year"
-							content: [
-								{
-									tagName: "span"
-									class: "button prev"
+									class: "button year prev"
 									contextKey: "prevYearButton"
 									click: ()->
 										picker.prevYear()
 								}
 								{
 									tagName: "span"
-									class: "button next"
+									class: "button month prev"
+									contextKey: "prevMonthButton"
+									click: ()->
+										picker.prevMonth()
+								}
+							]
+						}
+						{
+							tagName: "div"
+							class: "content"
+							content: [
+								{
+									tagName: "span"
+									class: "label"
+									contextKey: "monthLabel"
+									click: ()->
+										picker.toggleMonthPicker()
+
+								}
+								{
+									tagName: "span"
+									class: "label"
+									contextKey: "yearLabel",
+									click: ()->
+										picker.toggleYearPicker()
+								}
+
+							]
+						}
+						{
+							tagName: "div"
+							class: "nav-wrapper"
+							content: [
+								{
+									tagName: "span"
+									class: "button month next"
+									contextKey: "nextMonthButton"
+									click: ()->
+										picker.nextMonth()
+								}
+								{
+									tagName: "span"
+									class: "button year next"
 									contextKey: "nextYearButton"
 									click: ()->
 										picker.nextYear()
-								}
-								{
-									tagName: "div"
-									class: "label"
-									contextKey: "yearLabel"
 								}
 							]
 						}
 					]
 				}
+
+			]
+		}, @_doms)
+
+		table = $.xCreate({
+			tagName: "div",
+			class: "date-grid",
+			content: [
 				{
 					tagName: "table"
 					cellPadding: 0
@@ -130,17 +149,15 @@ class cola.DateGrid extends cola.RenderableElement
 							]
 						}
 					]
-				}
-			]
-		}, @_doms)
-		table = $.xCreate({
-			tagName: "table"
-			cellSpacing: 0
-			class: "#{picker._className || ""} #{picker._tableClassName || ""}"
-			content: {
-				tagName: "tbody",
-				contextKey: "body"
-			}
+				}, {
+					tagName: "table"
+					cellSpacing: 0
+					class: "#{picker._className || ""} #{picker._tableClassName || ""}"
+					content: {
+						tagName: "tbody",
+						contextKey: "body"
+					}
+				}]
 		}, @_doms)
 
 		i = 0
@@ -172,13 +189,57 @@ class cola.DateGrid extends cola.RenderableElement
 			tagName: "div"
 			class: "date-table-wrapper"
 		})
+		$(table).addClass("active")
+
 		@_doms.tableWrapper.appendChild(table)
+
+		yearMonthGrid = new cola.YearMonthGrid({
+			cellClick: (self, arg)->
+				month = self._value.split("-")[1];
+
+				picker.setState(picker._year, parseInt(month) - 1);
+				picker.toggleMonthPicker()
+				return
+
+		})
+		@_yearMonthGrid = yearMonthGrid;
+		@_doms.tableWrapper.appendChild(yearMonthGrid.getDom())
+		yearGrid = new cola.YearGrid({
+			cellClick: (self, arg)->
+				year = self._year;
+				picker.setYear(year);
+				picker.toggleYearPicker()
+				return
+		})
+		@_yearGrid = yearGrid;
+		@_doms.tableWrapper.appendChild(yearGrid.getDom())
+
 		dom.appendChild(@_doms.tableWrapper)
+
 		return dom
 
 	doFireRefreshEvent: (eventArg) ->
 		return @fire("refreshCellDom", @, eventArg)
-
+	toggleMonthPicker: ()->
+		$wrapper = $(@_doms.tableWrapper)
+		$monthPicker = $wrapper.find(">.year-month-grid");
+		if $monthPicker.hasClass("active")
+			$wrapper.find(".active").removeClass("active");
+			$wrapper.find(">.date-grid").addClass("active")
+		else
+			@_yearMonthGrid.setState(parseInt(@_year), (@_month))
+			$wrapper.find(".active").removeClass("active");
+			$wrapper.find(">.year-month-grid").addClass("active")
+	toggleYearPicker: ()->
+		$wrapper = $(@_doms.tableWrapper)
+		$yearPicker = $wrapper.find(">.year-grid");
+		if $yearPicker.hasClass("active")
+			$wrapper.find(".active").removeClass("active");
+			$wrapper.find(">.date-grid").addClass("active")
+		else
+			@_yearGrid.setState(parseInt(@_year))
+			$wrapper.find(".active").removeClass("active");
+			$wrapper.find(">.year-grid").addClass("active")
 	refreshHeader: ()->
 		if @_doms
 			monthLabel = @_doms.monthLabel
@@ -317,6 +378,7 @@ class cola.DateGrid extends cola.RenderableElement
 			if @_dom
 				@refreshGrid()
 				@refreshHeader()
+
 		@onCalDateChange()
 
 	prevMonth: ()->
@@ -380,6 +442,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		blur: null
 		keyDown: null
 		keyPress: null
+		inputInvalidDate: null
 
 	_postInput: () ->
 		readOnly = @_readOnly
@@ -391,10 +454,16 @@ class cola.DatePicker extends cola.CustomDropdown
 					inputFormat = cola.setting("defaultDateInputFormat")
 				else
 					inputFormat = cola.setting("defaultDateTimeInputFormat")
-			if inputFormat and value
-				value = inputFormat + "||" + value
-				xDate = new XDate(value)
-				value = xDate.toDate()
+
+			inputValue = value
+			xDate = new XDate(value)
+			value = xDate.toDate()
+
+			if value.toDateString() is "Invalid Date"
+				@fire("inputInvalidDate", @, {
+					inputValue: inputValue
+				})
+				value = null
 			@set("value", value)
 		return
 
@@ -475,13 +544,14 @@ class cola.DatePicker extends cola.CustomDropdown
 								{
 									class: "flex-box"
 									content: {
+										class: "time-editor-box",
 										contextKey: "timeEditorBox"
 									}
 								},
 								{
 									class: "box actions"
 									content: {
-										class: "ui button primary", content: cola.resource("cola.message.approve")
+										class: "button primary", content: cola.resource("cola.message.approve")
 										contextKey: "approveBtn"
 									}
 								}
@@ -519,9 +589,140 @@ class cola.DatePicker extends cola.CustomDropdown
 					datePicker.close(d)
 			})
 			dateGrid.setCurrentDate(new Date())
-			@_dropdownContent = dateGrid.getDom()
-		return @_dropdownContent
+			content = $.xCreate({
+				tagName: "div"
+				class: "date-picker"
+			})
+			content.appendChild(dateGrid.getDom())
+			@_dropdownContent = content
 
+		return @_dropdownContent
+class cola.YearGrid extends cola.RenderableElement
+	@CLASS_NAME: "year-grid"
+	@tagName: "c-year-grid"
+	@attributes:
+		value:
+			refreshDom: true
+		autoSelect:
+			defaultValue: true
+	@events:
+		cellClick: null
+		refreshCellDom: null
+
+	_initDom: (dom)->
+		picker = @
+		@_doms ?= {}
+		table = $.xCreate({
+			tagName: "table"
+			cellSpacing: 0
+			content: {
+				tagName: "tbody",
+				contextKey: "body"
+			}
+		}, @_doms)
+		$fly(table).on("click", (event)->
+			position = cola.calendar.getCellPosition(event)
+			if position and position.element
+				return if position.row >= picker._rowCount
+				if picker._autoSelect
+					cell = picker._doms.body.rows[position.row].cells[position.column]
+					picker.selectCell(cell)
+				picker.fire("cellClick", picker, position)
+		)
+		@_doms.tableWrapper = $.xCreate({
+			tagName: "div"
+			class: "table-wrapper"
+		})
+		@_doms.tableWrapper.appendChild(table)
+		@_doms.table = table
+
+		@_doms.tableWrapper.appendChild($.xCreate({
+			tagName: "div"
+			class: "prev nav-btn"
+			click: ()->
+				picker.prevYears()
+		}));
+		@_doms.tableWrapper.appendChild($.xCreate({
+			tagName: "div"
+			class: "next nav-btn"
+			click: ()->
+				picker.nextYears()
+		}));
+		dom.appendChild(@_doms.tableWrapper)
+		return dom
+
+	doFireRefreshEvent: (eventArg) ->
+		@fire("refreshCellDom", @, eventArg)
+		return @
+	_doRefreshDom: ()->
+		date = new Date()
+		if @_value
+			@_year = +@_value
+		else
+			@_year ?= date.getFullYear()
+			@_value = @_year
+		super()
+		return unless @_dom
+
+		@refreshGrid()
+
+	doRenderCell: (cell, row, column)->
+		content = column + 1 + row * 3
+		year = @_year;
+		content = year + (content - 5)
+		$(cell).attr("year", content)
+		cell.appendChild($.xCreate({
+			tagName: "div"
+			content: content
+		}))
+		return
+
+	selectCell: (cell)->
+		year = $(cell).attr("year")
+		@_year = year
+		@set("value", year)
+
+
+	setState: (year)->
+		oldYear = @_year
+		if oldYear != year
+			@_year = year
+			if @_dom
+				@refreshGrid()
+	refreshGrid: ()->
+		$dom = $(@_dom)
+		$(@_doms.body).empty();
+		i = 0
+		year = @_year
+		while i < 4
+			tr = document.createElement("tr")
+			j = 0
+			while j < 3
+				td = document.createElement("td")
+				@doRenderCell(td, i, j)
+				tr.appendChild(td)
+				j++
+			@_doms.body.appendChild(tr)
+			i++
+		$dom.find(".selected").removeClass("selected")
+		$($dom.find("td[year='#{year}']")[0]).addClass("selected");
+
+	prevYears: ()->
+		year = @_year
+		@setState(year - 12) if year != undefined
+		return @
+
+	setYear: (newYear)->
+		year = @_year
+		@setState(newYear) if year != undefined
+
+	nextYears: ()->
+		year = @_year
+		@setState(year + 12) if year != undefined
+		return @
+	onCalDateChange: () ->
+		return @ unless @_dom
+		return @
 class cola.YearMonthGrid extends cola.RenderableElement
 	@CLASS_NAME: "year-month-grid"
 	@tagName: "c-yearMonthGrid"
@@ -583,10 +784,10 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		}, @_doms)
 
 		i = 0
-		while i < 3
+		while i < 4
 			tr = document.createElement("tr")
 			j = 0
-			while j < 4
+			while j < 3
 				td = document.createElement("td")
 				@doRenderCell(td, i, j)
 				tr.appendChild(td)
@@ -640,7 +841,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		@refreshGrid()
 
 	doRenderCell: (cell, row, column)->
-		content = column + 1 + row * 4
+		content = column + 1 + row * 3
 		monthNames = cola.resource("cola.date.monthNames")
 		$(cell).attr("month", content)
 		cell.appendChild($.xCreate({
@@ -778,7 +979,10 @@ class cola.TimeEditor extends cola.Widget
 					content: {
 						tagName: "input",
 						class: "hour",
-						contextKey: "hour"
+						type: "number",
+						contextKey: "hour",
+						max: 23,
+						min: 0
 					}
 				}
 				{
@@ -789,7 +993,10 @@ class cola.TimeEditor extends cola.Widget
 					content: {
 						tagName: "input",
 						class: "minute",
-						contextKey: "minute"
+						type: "number",
+						contextKey: "minute",
+						max: 59,
+						min: 0
 					}
 				}
 				{
@@ -800,7 +1007,10 @@ class cola.TimeEditor extends cola.Widget
 					content: {
 						tagName: "input",
 						class: "second",
-						contextKey: "second"
+						type: "number",
+						contextKey: "second",
+						max: 59,
+						min: 0
 					}
 				}
 			]
@@ -812,27 +1022,7 @@ class cola.TimeEditor extends cola.Widget
 				hour: @_hour, minute: @_minute, second: @_second
 			})
 
-		$(childDom).find("input").keyup((event)->
-			val = this.value.replace(/[^\d]/g, '')
-			if event.keyCode == 37 or event.keyCode == 39
-				return
-
-			if event.keyCode != 8 and val
-				intVal = +this.value
-				if event.keyCode == 38
-					intVal++
-				else if event.keyCode == 40
-					intVal--
-				max = if this.className == "hour" then 24 else 60
-				if intVal >= max
-					this.value = max - 1
-				else if intVal <= 0
-					this.value = if val.length >= 2 then "00" else "0"
-				else if intVal > 0 and intVal < 10
-					this.value = if val.length >= 2 then  "0#{intVal}" else intVal
-				else
-					this.value = intVal
-
+		$(childDom).find("input").change((event)->
 			doPost(this)
 		)
 

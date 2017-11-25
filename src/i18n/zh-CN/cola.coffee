@@ -1,6 +1,6 @@
 cola.resource(
-	"cola.date.monthNames": "一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月"
-	"cola.date.monthNamesShort": "一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月"
+	"cola.date.monthNames": "01月,02月,03月,04月,05月,06月,07月,08月,09月,10月,11月,12月"
+	"cola.date.monthNamesShort": "1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月"
 	"cola.date.dayNames": "星期日,星期一,星期二,星期三,星期四,星期五,星期六"
 	"cola.date.dayNamesShort": "日,一,二,三,四,五,六"
 	"cola.date.amDesignator": "上午"

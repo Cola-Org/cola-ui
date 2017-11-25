@@ -1,54 +1,98 @@
 @import (reference) "global";
 
-.ui.calendar.mild {
-	.header {
-		height: 1.75em;
-		padding: 0.25em 0.5em;
+.date-picker {
+	padding-bottom: 12px;
+	min-width: 220px;
 
-		.button {
-			width: 1.5em;
-			height: 1.5em;
-			line-height: 1.5em;
-			font-size: 1em;
+}
+
+.date-time-picker, .date-picker {
+	.ui.calendar {
+		.date-header {
+			border-bottom: none;
 		}
-		.label {
-			margin: 0 1.5em;
-			line-height: 1.5em;
-			font-size: 1em;
-		}
-	}
-	.date-header td {
-		.transform(scale(0.8));
-		color: rgba(0, 0, 0, 0.5);
-	}
-	.date-table-wrapper {
-		position: relative;
-		min-height: 100px;
-		min-width: 100px;
-		.date-table {
-			> tbody {
-				> tr > td {
-					&:last-child, &:first-child {
-						background: fadeout(@default-calender-color, 90%);
+		.caption-panel {
+			padding: 8px 2em;
+			.header {
+				width: 100%;
+				padding: 4px 0;
+				height: 1.75em;
+				> .nav-wrapper {
+					width: 3em;
+					> span.button {
+						float: none;
+						color: @fontColor;
+						&:hover {
+							color: @primaryColor;
+						}
 					}
+				}
+
+				> .content {
+					width: ~'calc(100% - 6em)';
+					.label {
+						margin: 0 4px;
+					}
+				}
+
+				> .content, > .nav-wrapper {
+					display: inline-block;
+					height: 1.5em;
+					text-align: center;
+					> span {
+						&:before {
+							line-height: 1em;
+						}
+
+						&.button.year.next:before {
+							content: "\f101";
+						}
+
+						&.button.year.prev:before {
+							content: "\f100";
+						}
+					}
+				}
+				.button {
+					display: inline-block;
+					width: 1.5em;
+					height: 1.5em;
+					line-height: 1.5em;
+					font-size: 1em;
+				}
+				.label {
+					margin: 0 1.5em;
+					line-height: 1.5em;
+					font-size: 1em;
 				}
 			}
-			height: auto;
-			td {
-				text-align: center;
-				padding: 0.2em 0;
-				div.label {
-					border-radius: 1px;
-				}
-				&.selected {
+		}
+		.date-header td {
+			color: @fontColor;
+		}
+		.date-table-wrapper {
+			padding: 0 12px;
+			position: relative;
+			min-height: 100px;
+			min-width: 130px;
+			.date-table {
+				height: auto;
+				td {
+					text-align: center;
+					padding: 0.2em 0;
 					div.label {
-						background: @primaryColor;
+						border-radius: 1px;
 					}
-				}
-				&:hover:not(.selected) {
-					div.label {
-						color: #fff;
-						background: fadeout(@default-calender-color, 50%);
+					&.selected {
+						div.label {
+							background: @primaryColor;
+						}
+					}
+					&:hover:not(.selected) {
+						div.label {
+							color: #fff;
+							background: fadeout(@default-calender-color, 50%);
+						}
 					}
 				}
 			}
@@ -65,8 +109,42 @@
 	}
 }
 
-.ui.year-month-grid {
+.ui.year-month-grid, .ui.year-grid {
 	//font-size: 0.9em;
+
+	> .table-wrapper {
+		position: relative;
+		padding: 0 1em;
+		> .nav-btn {
+			position: absolute;
+			top: 50%;
+			width: 1em;
+			margin-top: -1em;
+			opacity: 0.5;
+			color: @primaryColor;
+			cursor: pointer;
+			&:before {
+				font-family: Icons;
+			}
+
+			&.next {
+				right: 2px;
+				&:before {
+					content: "\f101";
+				}
+			}
+
+			&:hover {
+				opacity: 1.0;
+			}
+			&.prev {
+				left: 6px;
+				&:before {
+					content: "\f100";
+				}
+			}
+		}
+	}
 	.header {
 		padding: 0.5em 1em;
 		border-bottom: 1px solid @primaryColor;
@@ -125,7 +203,7 @@
 				border: 1px solid transparent;
 				cursor: pointer;
 				&:hover {
-					background-color: #f4f4f4;
+					color: @primaryColor;
 				}
 				> div {
 					padding: 0.4em 0.8em;
@@ -147,7 +225,7 @@
 .ui.time-editor {
 	display: inline-block;
 	.ui.input {
-		width: 2em;
+		width: 3em;
 		input {
 			padding: 2px;
 			text-align: center;
@@ -161,30 +239,62 @@
 	}
 }
 
+.date-time-picker, .date-picker {
+	.year-month-grid, .year-grid {
+		> .header {
+			display: none;
+		}
+		.table-wrapper table td > div {
+			width: 3em;
+			font-size: 0.75rem;
+			padding: 4px;
+		}
+	}
+	.date-grid {
+		padding: 0 8px;
+	}
+	.date-grid, .year-month-grid, .year-grid {
+		display: none !important;
+		min-height: 160px;
+		min-width: 180px;
+		&.active {
+			display: block !important;
+		}
+	}
+}
+
 .v-box.date-time-picker {
 	min-height: 260px;
+	min-width: 260px;
 	overflow: hidden;
 	> .flex-box {
 		border-bottom: 1px solid @borderColor;
 	}
 	> .box {
 		height: 32px;
-		padding-top: 5px;
+		padding-top: 9px;
 		.label {
 			display: inline-block;
 			padding: 2px 4px 0;
 			font-size: 12px;
 		}
-		.ui.button {
+		.button.primary {
 			padding: 5px;
 			font-size: 12px;
 			line-height: 1em;
+			background-color: @primaryColor;
+			color: @invertedTextColor;
+			border-radius: 4px;
 		}
 		> .h-box {
 			height: 100%;
 			overflow: hidden;
+			padding: 0 12px;
 			> .flex-box {
 				overflow: hidden;
+				> .time-editor-box {
+				}
+
 			}
 			.actions {
 				padding: 0 4px 0 0;
@@ -192,4 +302,3 @@
 		}
 	}
 }
-
