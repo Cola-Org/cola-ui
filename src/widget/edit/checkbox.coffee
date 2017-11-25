@@ -116,8 +116,8 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	_initDom: (dom)->
 		super(dom)
 		$(@_doms.input)
-			.on("focus", (evt)=> @onFocus(evt))
-			.on("blur", (evt)=> @onBlur(evt))
+			.on("focus", ()=> cola._setFocusWidget(@))
+			.on("blur", ()=> cola._setFocusWidget(null))
 		return
 
 	_bindToSemantic: ()->

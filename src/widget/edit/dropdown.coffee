@@ -159,8 +159,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				event: evt
 				inputValue: value
 			@fire("input", @, arg)
-		).on("focus", (evt) => @onFocus(evt)
-		).on("blur", (evt) => @onBlur(evt)
+		).on("focus", ()=> cola._setFocusWidget(@)
+		).on("blur", ()=> cola._setFocusWidget(null)
 		).on("keypress", () => @_inputEdited = true)
 
 		unless @_skipSetIcon

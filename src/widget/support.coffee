@@ -263,7 +263,7 @@ cola.widget = (config, namespace, model) ->
                 config.scope = model
             return new constr(config)
 
-cola.findWidget = (dom, typeName) ->
+cola.findWidget = (dom, typeName, thisWindow) ->
 
     getType = (win, typeName) ->
         type = win.cola.resolveType("widget", {$type: typeName}) unless type
@@ -287,7 +287,7 @@ cola.findWidget = (dom, typeName) ->
                     return widget
             parentDom = dom.parentNode
 
-        if win.parent
+        if thisWindow and win.parent
             try
                 parentFrames = win.parent.$("iframe,frame")
             catch

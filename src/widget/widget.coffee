@@ -1,7 +1,7 @@
 ACTIVE_PINCH_REG = /^pinch/i
 ACTIVE_ROTATE_REG = /^rotate/i
-PAN_VERTICAL_events = ["panUp", "panDown"]
-SWIPE_VERTICAL_events = ["swipeUp", "swipeDown"]
+PAN_VERTICAL_events = [ "panUp", "panDown" ]
+SWIPE_VERTICAL_events = [ "swipeUp", "swipeDown" ]
 if typeof document.documentElement.style.flex != "string"
 	$(document.documentElement).addClass("flex-unsupported")
 ###
@@ -101,8 +101,8 @@ class cola.RenderableElement extends cola.Element
 	_createDom: ()->
 		dom = document.createElement(@constructor.tagName or "div")
 		className = @constructor.CLASS_NAME or ""
-		if (className)
-			$fly(dom).addClass("ui #{className}")
+		if className
+			dom.className = "ui #{className}"
 		return dom
 
 	_doSet: (attr, attrConfig, value) ->
@@ -112,24 +112,25 @@ class cola.RenderableElement extends cola.Element
 
 	_doRefreshDom: ()->
 		cola.util.cancelDelay(@, "_refreshDom")
-
-		className = @constructor.CLASS_NAME
-		if className
-			@_classNamePool.add("ui")
-			names = $.trim(className).split(" ")
-			@_classNamePool.add(name) for name in names
-
 		@_resetDimension()
 		return
 
 	_refreshDom: ()->
 		return if not @_dom or @_destroyed or @_freezed
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
+		className = @constructor.CLASS_NAME
+		if className
+			@_classNamePool.add("ui")
+			names = $.trim(className).split(" ")
+			@_classNamePool.add(name) for name in names
+
+		className = @_classNamePool.join()
+		@_dom.className = className
 
 		@_doRefreshDom()
 
-		newClassName = $.trim(@_classNamePool.join())
-		@_dom.className = newClassName
+		className = @_classNamePool.join()
+		@_dom.className = className
 		@_classNamePool.destroy()
 		delete @["_classNamePool"]
 
@@ -145,7 +146,7 @@ class cola.RenderableElement extends cola.Element
 			@_setDom(dom)
 		return @_dom
 
-	get$Dom: ()->	# 将获得jQuery或zepto 实例
+	get$Dom: ()->    # 将获得jQuery或zepto 实例
 		return null if @_destroyed
 		@_$dom ?= $(@getDom())
 		return @_$dom
@@ -210,7 +211,7 @@ class cola.RenderableElement extends cola.Element
 Cola 基础组件
 ###
 class cola.Widget extends cola.RenderableElement
-	@SEMANTIC_CLASS: ["left floated", "right floated"]
+	@SEMANTIC_CLASS: [ "left floated", "right floated" ]
 
 	@attributes:
 		display:
@@ -220,12 +221,12 @@ class cola.Widget extends cola.RenderableElement
 
 		float:
 			refreshDom: true
-			enum: ["left", "right", ""]
+			enum: [ "left", "right", "" ]
 			defaultValue: ""
 			setter: (value)->
 				oldValue = @["_float"]
 				cola.util.removeClass(@_dom, "#{oldValue} floated",
-					true) if @_dom and oldValue and oldValue isnt value
+				  true) if @_dom and oldValue and oldValue isnt value
 				@["_float"] = value
 				return
 
@@ -254,6 +255,10 @@ class cola.Widget extends cola.RenderableElement
 			defaultValue: false
 
 	@events:
+		focus: null
+		blur: null
+		keyDown: null
+
 		click:
 			$event: "click"
 		dblClick:
@@ -386,10 +391,10 @@ class cola.Widget extends cola.RenderableElement
 
 		if eventConfig?.hammerEvent
 			@_hammer ?= new Hammer(@_dom, {})
-			@_hammer.get("pinch").set({enable: true}) if ACTIVE_PINCH_REG.test(eventName)
-			@_hammer.get("rotate").set({enable: true}) if ACTIVE_ROTATE_REG.test(eventName)
-			@_hammer.get("pan").set({direction: Hammer.DIRECTION_ALL}) if PAN_VERTICAL_events.indexOf(eventName) >= 0
-			@_hammer.get("swipe").set({direction: Hammer.DIRECTION_ALL}) if SWIPE_VERTICAL_events.indexOf(eventName) >= 0
+			@_hammer.get("pinch").set({ enable: true }) if ACTIVE_PINCH_REG.test(eventName)
+			@_hammer.get("rotate").set({ enable: true }) if ACTIVE_ROTATE_REG.test(eventName)
+			@_hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL }) if PAN_VERTICAL_events.indexOf(eventName) >= 0
+			@_hammer.get("swipe").set({ direction: Hammer.DIRECTION_ALL }) if SWIPE_VERTICAL_events.indexOf(eventName) >= 0
 			@_hammer.on(eventConfig.hammerEvent, (evt)=>
 				arg =
 					dom: @_dom, event: evt, eventName: eventName
@@ -414,27 +419,21 @@ class cola.Widget extends cola.RenderableElement
 		$dom.css("width", width) if width
 		return
 
-	onFocus: (evt) ->
+	onFocus: () ->
 		return if @_focused
 		@_focused = true
 		@get$Dom().addClass("focused")
-		@_onFocus?(evt)
+		@_onFocus?()
 		@fire("focus", @)
-
-		focusParent = @_focusParent
-		focusParent ?= cola.findWidget(@)
-		focusParent?.onFocus(evt)
+		console.log("focus: " + @_dom.className)
 		return
 
-	onBlur: (evt) ->
+	onBlur: () ->
 		return if not @_focused
 		@_focused = false
 		@get$Dom().removeClass("focused")
-		@_onBlur?(evt)
-
-		focusParent = @_focusParent
-		focusParent ?= cola.findWidget(@)
-		focusParent?.onBlur(evt)
+		@_onBlur?()
+		console.log("blur: " + @_dom.className)
 		return
 
 	showDimmer: (options = {})->
@@ -491,6 +490,32 @@ class cola.Widget extends cola.RenderableElement
 		@_destroyed = true
 
 		return
+
+cola._setFocusWidget = (widget) ->
+	if widget is cola.focusedWidgets?[0]
+		return
+
+	focusedWidgets = []
+	while widget
+		focusedWidgets.push(widget)
+		widget = widget._focusParent or cola.findWidget(widget, null, true)
+
+	if cola.focusedWidgets
+		for oldFocusedWidget, i in cola.focusedWidgets
+			if focusedWidgets.indexOf(oldFocusedWidget) < 0
+				if i is 0
+					oldFocusedWidget.onBlur()
+				else
+					setTimeout(do (oldFocusedWidget)->
+						if focusedWidgets is cola.focusedWidgets
+							oldFocusedWidget.onBlur()
+						return
+					, 0)
+
+	cola.focusedWidgets = focusedWidgets
+	for focusedWidget in focusedWidgets
+		focusedWidget.onFocus()
+	return
 
 cola.floatWidget =
 	_zIndex: 1100

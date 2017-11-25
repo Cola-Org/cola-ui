@@ -24,20 +24,9 @@
 	border: 1px solid @borderColor;
 
 	.inner-table {
-		display: -webkit-box;
-		display: -moz-box;
-		display: -ms-flexbox;
-		display: -webkit-flex;
-		display: flex;
-
-		-webkit-flex-direction: column;
-		-ms-flex-direction: column;
-		flex-direction: column;
-
-		-webkit-box-orient: vertical;
-		-moz-box-orient: vertical;
-
-		overflow: hidden;
+		position: relative;
+		overflow-x: visible;
+		overflow-y: hidden;
 		height: 100%;
 		border-left: 1px solid @tableColLineColor;
 
@@ -46,40 +35,32 @@
 		}
 
 		> .table-header, > .table-footer {
-			-webkit-flex: 0 1 auto;
-			-ms-flex: 0 1 auto;
-			flex: 0 1 auto;
-			width: 100%;
-			overflow: hidden;
+			position: absolute;
+			left: 0;
+			overflow-x: hidden;
+			overflow-y: visible;
+			z-index: 1;
 			> table {
 				table-layout: fixed;
 				width: 0;
 			}
 		}
 		> .table-header {
+			top: 0;
 			border-bottom: 1px solid @tableHeadLineColor;
-		}
-		> .table-body {
-			display: -webkit-box;
-			display: -moz-box;
-			position: relative;
-
-			-webkit-box-flex: 1;
-			-moz-box-flex: 1;
-			-webkit-flex: 1 1 auto;
-			-ms-flex: 1 1 auto;
-			flex: 1 1 auto;
-
-			width: 100%;;
-
-			overflow: auto;
-			//overflow: hidden;
-			//&:hover {
-			//	overflow: auto;
-			//}
+			background: @tableHeadBackground;
 		}
 		> .table-footer {
+			bottom: 0;
 			border-top: 1px solid @tableFootLineColor;
+			background: @tableFootBackground;
+		}
+		> .table-body {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			box-sizing: border-box;
 		}
 
 		.items {

@@ -488,6 +488,10 @@ class cola.Grid extends cola.Widget
 			)
 		return
 
+	_onBlur: (evt) ->
+		@_currentInnerTable?.hideCellEditor()
+		return
+
 	_keyDown: (evt) ->
 		console.log evt.keyCode
 		return false
@@ -528,6 +532,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 	constructor: (config) ->
 		@_itemsScope = config.table._itemsScope
 		super(config)
+		@_focusParent = @_table
 
 	_createItemsScope: () -> @_itemsScope
 
@@ -539,29 +544,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 			tagName: "div"
 			content:
 				class: "table-body"
-				contextKey: "body"
+				contextKey: "tableBody"
 				content:
 					tagName: "ul"
 					contextKey: "itemsWrapper"
 				scroll: (evt) =>
 					scrollLeft = evt.target.scrollLeft
-					header = @_doms.tableHeader
-					footer = @_doms.tableFooter
-
-					if header
-						if header.clientWidth + scrollLeft > header.scrollWidth
-							cancel = true
-							scrollLeft = header.scrollWidth - header.clientWidth
-
-					if footer
-						footer = @_doms.tableFooter
-						if footer.clientWidth + scrollLeft > footer.scrollWidth
-							cancel = true
-							scrollLeft = footer.scrollWidth - footer.clientWidth
-
-					if cancel then evt.target.scrollLeft = scrollLeft
-					header?.scrollLeft = scrollLeft
-					footer?.scrollLeft = scrollLeft
+					@_doms.tableHeader?.scrollLeft = scrollLeft
+					@_doms.tableFooter?.scrollLeft = scrollLeft
 					return
 		}, @_doms)
 
@@ -596,7 +586,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if @_table._showHeader
 			header = @_doms.header
 			if not header
-				$fly(@_doms.body).xInsertBefore({
+				$fly(@_doms.tableBody).xInsertBefore({
 					class: "table-header"
 					contextKey: "tableHeader"
 					content:
@@ -621,17 +611,12 @@ class cola.Table.InnerTable extends cola.AbstractList
 				)
 
 			@_refreshHeader(header)
-
-		super(itemsWrapper)
-		if itemsWrapper.scrollWidth > @_doms.body.clientWidth
-			$fly(@_doms.body).width(itemsWrapper.scrollWidth)
-		else
-			$fly(@_doms.body).width("100%")
+			@_doms.tableBody.style.paddingTop = @_doms.tableHeader.offsetHeight + "px"
 
 		if @_table._showFooter
 			footer = @_doms.footer
 			if not footer
-				$fly(@_doms.body).xInsertAfter({
+				$fly(@_doms.tableBody).xInsertAfter({
 					class: "table-footer"
 					contextKey: "tableFooter"
 					content:
@@ -649,6 +634,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 					return
 				)
 			@_refreshFooter(footer)
+			@_doms.tableBody.style.paddingBottom = @_doms.tableFooter.offsetHeight + "px"
+
+		super(itemsWrapper)
+
+		rightMargin = (@_doms.tableBody.offsetWidth - @_doms.tableBody.clientWidth) + "px";
+		@_doms.tableHeader?.style.right = rightMargin
+		@_doms.tableFooter?.style.right = rightMargin
+
 		return
 
 	_refreshHeader: (header) ->
@@ -698,7 +691,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 			i++
 
 		if fragment then header.appendChild(fragment)
-		$fly(header).height(header.firstElementChild.offsetHeight)
 		return
 
 	_refreshHeaderCell: (dom, columnInfo) ->
@@ -920,6 +912,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 					editorPane.appendChild(templateDom)
 
 				@_resize(editorPane, item, column)
+
+				cellEditorWidget = cola.widget(templateDom)
+				cellEditorWidget?.focus?()
 				return
 			, 0)
 		return

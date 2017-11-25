@@ -194,8 +194,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$(@_doms.input).on("change", ()=>
 			@_postInput()
 			return
-		).on("focus", (evt)=> @onFocus(evt)
-		).on("blur",  (evt)=> @onBlur(evt)
+		).on("focus", ()=> cola._setFocusWidget(@)
+		).on("blur",  ()=> cola._setFocusWidget(null)
 		).on("keydown", (event)=>
 			arg =
 				keyCode: event.keyCode
@@ -379,9 +379,6 @@ class cola.Input extends cola.AbstractInput
 			type: "boolean"
 			defaultValue: false
 	@events:
-		focus: null
-		blur: null
-		keyDown: null
 		keyPress: null
 
 	_createEditorDom: ()->
