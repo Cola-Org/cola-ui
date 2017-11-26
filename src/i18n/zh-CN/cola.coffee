@@ -27,5 +27,7 @@ cola.resource(
 	"cola.message.deny": "取消"
 	"cola.message.close": "关闭"
 	"cola.pager.info": "第{0}页\/共{1}页({2}笔)"
+	"cola.pager.entityCount": "共{0}笔"
+	"cola.pager.goto": "至"
 	"cola.pager.pageSize": "每页记录数:"
 )
