@@ -193,9 +193,9 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		selectedProperty = table._selectedProperty
 		if table._realItems
 			@_ignoreCheckedChange = true
-			cola.each @_table._realItems, (item) ->
+			cola.each table._realItems, (item) =>
 				itemType = table._getItemType(item)
-				if itemType == "default"
+				if itemType is "default"
 					if item instanceof cola.Entity
 						item.set(selectedProperty, selected)
 					else

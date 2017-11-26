@@ -11,6 +11,7 @@
 
 @tableHeadBackground: @white;
 @tableFootBackground: @tableHeadBackground;
+@tableCurrentCellBackground: fade(@primaryColor, 15%);
 
 @tableInvertedStripedBackground: darken(@itemsViewInvertedBackground, 4%);
 @tableInvertedHeadBackground: lighten(@itemsViewInvertedBackground, 6%);
@@ -20,7 +21,7 @@
 @tableInvertedRowLineColor: transparent;
 @tableInvertedColLineColor: transparent;
 
-.ui.widget-grid {
+.ui.widget-table {
 	border: 1px solid @borderColor;
 
 	.inner-table {
@@ -187,314 +188,28 @@
 		> .cell {
 			display: inline-block;
 			border-right: 1px solid @tableColLineColor;
-		}
-	}
-}
-
-.desktop {
-	.ui.widget-grid .inner-table {
-		.header, .items, .footer {
-			display: block;
-		}
-	}
-}
-
-// ---------------------------
-
-.ui.widget-table {
-	> .table-wrapper {
-		height: 100%;
-		overflow: auto;
-	}
-
-	table {
-		table-layout: fixed;
-		width: 100%;
-		border-collapse: collapse;
-		th, td {
-			border-width: 1px;
-			border-style: solid;
-			border-color: @tableRowLineColor @tableColLineColor;
-		}
-		thead {
-			th {
-				font-weight: normal;
-				background: @tableHeadBackground;
-				border-color: @tableHeadLineColor @tableColLineColor;
-				> div {
-					position: relative;
-					overflow: hidden;
-					padding: @tableHeadCellPadding;
-				}
-
-				&.sortable > div {
-					padding-right: 1.25em;
-					&:after {
-						content: "\f0dc";
-						font-family: Icons;
-						position: absolute;
-						right: 0.25em;
-						top: 0.4em;
-						color: @disabledTextColor;
-					}
-				}
-
-				&.sortable.asc > div:after {
-					content: "\f0de";
-					color: @darkTextColor;
-				}
-				&.sortable.desc > div:after {
-					content: "\f0dd";
-					color: @darkTextColor;
-				}
-			}
-		}
-		tbody td {
-			position: relative;
-
-			> div {
-				overflow: hidden;
-				min-height: 1em;
-				&.default-content {
-					padding: @tableCellPadding;
-				}
-			}
-
-			&.info {
-			}
-			&.warn {
-				content: "";
-				position: absolute;
-				right: 0;
-				top: 0;
-				width: 0;
-				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @warningTextColor;
-				border-right: 0.4em solid @warningTextColor;
-				border-bottom: 0.4em solid transparent;
-				cursor: pointer;
-			}
-			&.error:after {
-				content: "";
-				position: absolute;
-				right: 0;
-				top: 0;
-				width: 0;
-				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @errorTextColor;
-				border-right: 0.4em solid @errorTextColor;
-				border-bottom: 0.4em solid transparent;
-				cursor: pointer;
-			}
-
-			.state {
-				font-family: "Icons";
-				&.new {
-					.opacity(50);
-					&:before {
-						content: "\f067";
-					}
-				}
-				&.modified {
-					.opacity(50);
-					&:before {
-						content: "\f040";
-					}
-				}
-				&.info {
-					color: @infoTextColor;
-					&:before {
-						content: "\f05a";
-					}
-				}
-				&.warn {
-					color: @warningTextColor;
-					&:before {
-						content: "\f06a";
-					}
-				}
-				&.error {
-					color: @errorTextColor;
-					&:before {
-						content: "\f071";
-					}
-				}
-			}
-		}
-		thead tr:first-child th {
-			border-bottom: 2px solid @tableHeadLineColor;
-		}
-		tbody tr:last-child td {
-			border-bottom: 2px solid @tableFootLineColor;
-		}
-		tfoot {
-			td {
-				background: @tableFootBackground;
-				border-color: @tableFootLineColor @tableColLineColor;
-				> div {
-					overflow: hidden;
-					padding: @tableFootCellPadding;
-				}
-			}
-		}
-
-		c-input, c-datepicker, c-tag-editor {
-			&.in-cell {
-				width: 100%;
-			}
-		}
-
-		.ui.checkbox.in-cell {
-			margin-top: 0.25em;
-			margin-left: 0.5em;
-		}
-	}
-
-	> .fixed-header, > .fixed-footer {
-		overflow: hidden;
-		height: auto !important;
-		position: absolute;
-		display: none;
-	}
-
-	> .fixed-header {
-		top: 0;
-	}
-
-	> .fixed-footer {
-		bottom: 0;
-	}
-}
-
-.ui.widget-table.impact {
-	table {
-		th, td {
-			> div {
-				padding: 0.25em !important;
+			&.current {
+				background: @tableCurrentCellBackground;
 			}
 		}
 	}
 }
 
 .ui.widget-table.striped {
-	.table.item:nth-child(2n):not(.current) {
-		background: @itemsViewItemStripedBackground;
+	.inner-table {
+		.table.item:nth-child(2n):not(.current) {
+			background: @itemsViewItemStripedBackground;
+		}
 	}
 }
 
 .ui.widget-table {
-	.table.item:hover:not(.current) {
-		background: @itemsViewHoverBackground;
-	}
-	.table.item.current {
-		background: @itemsViewCurrentBackground;
-	}
-}
-
-.ui.widget-table.striped.inverted {
-	.table.item:nth-child(2n):not(.current) {
-		background: @tableInvertedStripedBackground;
-	}
-}
-
-.ui.widget-table.inverted {
-	background: @itemsViewInvertedBackground;
-	.table.item {
-		color: @itemsViewInvertedTextColor;
-		background: @itemsViewInvertedBackground;
-		&:hover:not(.current) {
-			background: @itemsViewInvertedHoverBackground;
-		}
-		&.current {
-			background: @itemsViewInvertedCurrentBackground;
-		}
-	}
-	table {
-		color: @itemsViewInvertedTextColor;
-		th, td {
-			border-color: @tableInvertedRowLineColor @tableInvertedColLineColor;
-		}
-		thead th {
-			background: @tableInvertedHeadBackground;
-			border-color: @tableInvertedHeadLineColor;
-		}
-		thead tr:last-child th {
-			border-bottom-color: @tableInvertedFootLineColor;
-		}
-		tbody tr:last-child td {
-			border-bottom-color: @tableInvertedFootLineColor;
-		}
-		tfoot td {
-			background: @tableInvertedFootBackground;
-			border-color: @tableInvertedFootLineColor;
-		}
-	}
-}
-
-.ui.widget-table.basic {
-	background: none;
-	.table.item {
-		color: inherit;
-		background: none;
-		&:hover:not(.current) {
-			background: none;
-		}
-		&.current {
-			background: none;
-			color: inherit;
-		}
-	}
-}
-
-.table-light-color(@color) {
-	.ui.widget-table.light-@{color} {
+	.inner-table {
 		.table.item:hover:not(.current) {
-			background: fade(@@color, 10%);
+			background: @itemsViewHoverBackground;
 		}
 		.table.item.current {
-			background: fade(@@color, 20%);
+			background: @itemsViewCurrentBackground;
 		}
 	}
 }
-
-//.table-light-color(red);
-//.table-light-color(orange);
-//.table-light-color(yellow);
-//.table-light-color(olive);
-//.table-light-color(green);
-//.table-light-color(teal);
-//.table-light-color(blue);
-//.table-light-color(violet);
-//.table-light-color(purple);
-//.table-light-color(pink);
-//.table-light-color(brown);
-//.table-light-color(grey);
-//.table-light-color(black);
-
-.table-color(@color) {
-	.ui.widget-table.@{color} {
-		.table.item:hover:not(.current) {
-			background: fade(@@color, 12%);
-		}
-		.table.item.current {
-			background: @@color;
-			color: @invertedSelectedTextColor;
-		}
-	}
-}
-
-//.table-color(red);
-//.table-color(orange);
-//.table-color(yellow);
-//.table-color(olive);
-//.table-color(green);
-//.table-color(teal);
-//.table-color(blue);
-//.table-color(violet);
-//.table-color(purple);
-//.table-color(pink);
-//.table-color(brown);
-//.table-color(grey);
-//.table-color(black);

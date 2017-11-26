@@ -1,6 +1,6 @@
 class cola.Grid extends cola.Widget
 	@tagName: "c-grid"
-	@CLASS_NAME: "items-view widget-grid"
+	@CLASS_NAME: "items-view widget-table"
 
 	@attributes:
 		items:
@@ -129,6 +129,9 @@ class cola.Grid extends cola.Widget
 			return { items: @_items }
 		else
 			return super()
+
+	_getItemType: (type) ->
+		return @_centerTable._getItemType(type)
 
 	_regColumn: (column) ->
 		if column._name
@@ -503,41 +506,46 @@ class cola.Grid extends cola.Widget
 		return
 
 	_onKeyDown: (evt) ->
+		centerTable = @_centerTable
 
-		findNextColumnInfo = (column, reverse) =>
+		if evt.keyCode is 9 # Tab
+			currentItem = @_getCurrentItem()
+			return unless currentItem
+
 			dataColumns = @_columnsInfo.dataColumns
 			index = -1
 			for columnInfo, i in dataColumns
-				if columnInfo.column is column
+				if columnInfo.column is @_currentColumn
 					index = i
 					break
 
 			while not nextColumnInfo
-				if reverse
-					if index < 0 or index >= dataColumns.length - 1
+				if evt.shiftKey
+					if index <= 0 or index > dataColumns.length - 1
 						index = dataColumns.length - 1
+						itemDom = centerTable._getPreviousItemDom(centerTable._currentItemDom)
+						if itemDom
+							centerTable._setCurrentItemDom(itemDom)
+							currentItem = centerTable._getCurrentItem()
 					else
 						index--
 				else
 					if index < 0 or index >= dataColumns.length - 1
 						index = 0
+						itemDom = centerTable._getNextItemDom(centerTable._currentItemDom)
+						if itemDom
+							centerTable._setCurrentItemDom(itemDom)
+							currentItem = centerTable._getCurrentItem()
 					else
 						index++
 
 				columnInfo = dataColumns[index]
-				if not columnInfo.column._readOnly and columnInfo.column._property
-					nextColumnInfo = columnInfo
+#				if not columnInfo.column._readOnly and columnInfo.column._property
+				nextColumnInfo = columnInfo
 
-			return nextColumnInfo
-
-		if evt.keyCode is 9 # Tab
-			currentItem = @_getCurrentItem();
-			return unless currentItem
-
-			nextColumnInfo = findNextColumnInfo(@_currentColumn, evt.shiftKey)
-			if nextColumnInfo
+			if nextColumnInfo and currentItem
 				if @_columnsInfo.center.dataColumns.indexOf(nextColumnInfo) >= 0
-					innerTable = @_centerTable
+					innerTable = centerTable
 				else if @_columnsInfo.left?.dataColumns.indexOf(nextColumnInfo) >= 0
 					innerTable = @_leftTable
 				else if @_columnsInfo.right?.dataColumns.indexOf(nextColumnInfo) >= 0
@@ -545,6 +553,88 @@ class cola.Grid extends cola.Widget
 
 				innerTable.setCurrentCell(currentItem, nextColumnInfo.column)
 				return false
+
+		else if evt.keyCode is 38 # up
+			currentItem = @_getCurrentItem()
+			if currentItem
+				itemDom = centerTable._getPreviousItemDom(centerTable._currentItemDom)
+			else
+				itemDom = @_getNextItemDom()
+
+			if itemDom
+				centerTable._setCurrentItemDom(itemDom)
+				currentItem = centerTable._getCurrentItem()
+				if currentItem and @_currentInnerTable
+					@_currentInnerTable.setCurrentCell(currentItem, @_currentColumn)
+
+		else if evt.keyCode is 40 # down
+			currentItem = @_getCurrentItem()
+			if currentItem
+				itemDom = centerTable._getNextItemDom(centerTable._currentItemDom)
+			else
+				itemDom = @_getFirstItemDom()
+
+			if itemDom
+				centerTable._setCurrentItemDom(itemDom)
+				currentItem = centerTable._getCurrentItem()
+				if currentItem and @_currentInnerTable
+					@_currentInnerTable.setCurrentCell(currentItem, @_currentColumn)
+		return
+
+	_sysHeaderClick: (column) ->
+		if column instanceof cola.TableDataColumn and column.get("sortable")
+			sortDirection = column.get("sortDirection")
+			if sortDirection is "asc" then sortDirection = "desc"
+			else if sortDirection is "desc" then sortDirection = null
+			else sortDirection = "asc"
+			column.set("sortDirection", sortDirection)
+
+			if @fire("sortDirectionChange", @, {
+				column: column
+				sortDirection: sortDirection
+			}) is false
+				return
+
+			collection = @_realOriginItems or @_realItems
+			if not collection then return
+
+			if not sortDirection
+				criteria = null
+			else
+				criteria = if sortDirection is "asc" then "+" else "-"
+				property = column._bind
+				if not property or property.match(/\(/)
+					property = column._property
+				if not property then return
+
+				if property.charCodeAt(0) is 46 # `.`
+					property = property.slice(1)
+				else if @_alias and property.indexOf("." + @_alias) is 0
+					property = property.slice(@_alias.length + 1)
+				criteria += property
+
+			colInfos = @_columnsInfo.dataColumns
+			for colInfo in colInfos
+				col = colInfo.column
+				if col isnt column then col.set("sortDirection", null)
+
+			if @_sortMode is "remote"
+				if collection instanceof cola.EntityList
+					invoker = collection._providerInvoker
+					if invoker
+						parameter = invoker.invokerOptions.data
+						if not parameter
+							invoker.invokerOptions.data = parameter = {}
+						else if typeof parameter isnt "object" or parameter instanceof cola.EntityList or parameter instanceof Date
+							throw new cola.Exception("Can not set sort parameter automatically.")
+						else if parameter instanceof cola.Entity
+							parameter = parameter.toJSON()
+						parameter.sort = criteria
+
+						cola.util.flush(collection)
+			else
+				@_sortCriteria = criteria
+				@_refreshItems()
 		return
 
 cola.Element.mixin(cola.Grid, cola.TemplateSupport)
@@ -629,7 +719,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 						column: column
 					if column.fire("headerClick", @, eventArg) isnt false
 						if @_table.fire("headerClick", @, eventArg) isnt false
-							@_sysHeaderClick(column)
+							@_table._sysHeaderClick(column)
 					return
 				)
 
@@ -660,6 +750,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_doms.tableBody.style.paddingBottom = @_doms.tableFooter.offsetHeight + "px"
 
 		super(itemsWrapper)
+		if @_type is "center"
+			@_table._realItems = @_realItems
+			@_table._realOriginItems = @_realOriginItems
 
 		rightMargin = (@_doms.tableBody.offsetWidth - @_doms.tableBody.clientWidth) + "px";
 		@_doms.tableHeader?.style.right = rightMargin
@@ -856,7 +949,25 @@ class cola.Table.InnerTable extends cola.AbstractList
 	setCurrentCell: (item, column) ->
 		@_table._currentInnerTable = @
 		@_table._currentColumn = column
-		@showCellEditor(item, column)
+		if @_table._currentCell
+			$fly(@_table._currentCell).removeClass("current")
+
+		if item
+			itemId = _getEntityId(item)
+			itemDom = @_itemDomMap[itemId]
+			if itemDom
+				child = itemDom.firstElementChild
+				while child
+					if child._name is column._name
+						cell = child
+						break
+					child = child.nextElementSibling
+
+			@_table._currentCell = cell
+			if cell
+				$fly(cell).addClass("current")
+				if not column._readOnly and column._property
+					@showCellEditor(cell, item, column)
 		return
 
 	_getCellEditorPane: (create) ->
@@ -876,10 +987,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			.height(cell.clientHeight)
 		return
 
-	showCellEditor: (item, column) ->
-		return unless item
-		return if column._readOnly or not column._property
-
+	showCellEditor: (cell, item, column) ->
 		if not column._editTemplate
 			propertyType = column._propertyDef?._dataType
 			if propertyType instanceof cola.BooleanDataType
@@ -917,33 +1025,23 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 				$fly(editorPane).removeClass("hidden")
 
-				itemId = _getEntityId(item)
-				itemDom = @_itemDomMap[itemId]
-				if itemDom
-					child = itemDom.firstElementChild
-					while child
-						if child._name is column._name
-							cell = child
-							break
-						child = child.nextElementSibling
+				cellWidget = cola.widget(cell.firstElementChild?.firstElementChild)
+				if cellWidget instanceof cola.AbstractEditor
+					cellWidget.focus()
+				else
+					if templateDom.parentNode isnt editorPane
+						if editorPane.firstElementChild
+							cola.util.cacheDom(editorPane.firstElementChild)
+						editorPane.appendChild(templateDom)
 
-					cellWidget = cola.widget(cell.firstElementChild?.firstElementChild)
-					if cellWidget instanceof cola.AbstractEditor
-						cellWidget.focus()
+					@_resize(editorPane, cell)
+
+					if templateDom?.className is "editor-container"
+						editContent = templateDom.firstElementChild
 					else
-						if templateDom.parentNode isnt editorPane
-							if editorPane.firstElementChild
-								cola.util.cacheDom(editorPane.firstElementChild)
-							editorPane.appendChild(templateDom)
-
-						@_resize(editorPane, cell)
-
-						if templateDom?.className is "editor-container"
-							editContent = templateDom.firstElementChild
-						else
-							editContent = templateDom
-						cellEditorWidget = cola.widget(editContent)
-						cellEditorWidget?.focus()
+						editContent = templateDom
+					cellEditorWidget = cola.widget(editContent)
+					cellEditorWidget?.focus()
 				return
 			, 0)
 		return
@@ -953,3 +1051,5 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if editorPane
 			$fly(editorPane).addClass("hidden")
 		return
+
+	_onKeyDown: (evt) ->
