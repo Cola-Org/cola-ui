@@ -515,6 +515,10 @@ cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 class DropBox extends cola.Layer
 	@CLASS_NAME: "drop-box transition"
 	@attributes:
+		height:
+			setter: (height) ->
+				@_maxHeight = height
+				return
 		dropdown: null
 
 	resize: (opened) ->
@@ -527,8 +531,11 @@ class DropBox extends cola.Layer
 			boxWidth = dom.scrollWidth
 			boxHeight = dom.scrollHeight
 		else
-			unless @_height
+			if @_maxHeight
+				$dom.css("max-height", @_maxHeight)
+			else
 				$dom.css("height", "")
+
 			$dom.removeClass("hidden")
 			boxWidth = $dom.width()
 			boxHeight = $dom.height()
@@ -551,10 +558,16 @@ class DropBox extends cola.Layer
 				direction = "down"
 				if boxHeight > bottomSpace then height = bottomSpace
 
-		if direction == "down"
-			top = rect.top + dropdownDom.clientHeight
-		else
-			top = rect.top - (height or boxHeight) + 1
+		if opened
+			if height
+				$dom.css("height", height)
+			else if not (dom.scrollHeight > dom.clientHeight)
+				$dom.css("height", "auto")
+
+			if direction == "down"
+				top = rect.top + dropdownDom.clientHeight
+			else
+				top = rect.top - dom.offsetHeight + 2
 
 		left = rect.left
 		if boxWidth > dropdownDom.offsetWidth
@@ -562,16 +575,13 @@ class DropBox extends cola.Layer
 				left = clientWidth - boxWidth
 				if left < 0 then left = 0
 
-		if height
-			$dom.css("height", height)
-		else if not @_height and not (dom.scrollHeight > dom.clientHeight)
-			$dom.css("height", "auto")
+		if opened
+			$dom.removeClass(if direction is "down" then "direction-up" else "direction-down")
+				.addClass("direction-" + direction)
+				.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
+				.css("left", left).css("top", top)
 
-		$dom.removeClass(if direction is "down" then "direction-up" else "direction-down")
-			.addClass("direction-" + direction)
-			.toggleClass("x-over", boxWidth > dropdownDom.offsetWidth)
-			.css("left", left).css("top", top)
-			.css("min-width", dropdownDom.offsetWidth || 80)
+		$dom.css("min-width", dropdownDom.offsetWidth || 80)
 			.css("max-width", document.body.clientWidth)
 		return
 
@@ -580,6 +590,7 @@ class DropBox extends cola.Layer
 		@_animation = "fade"
 
 		super(options, callback)
+		@resize(true)
 
 		@_resizeTimer = setInterval(()=>
 			@resize(true)
