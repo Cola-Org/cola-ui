@@ -102,6 +102,7 @@ sources =
 			"src/widget/list/table.coffee"
 			"src/widget/list/pager.coffee"
 			"src/widget/list/time-line.coffee"
+			"src/widget/list/page.coffee"
 		]
 	i18n:
 		en: [
@@ -156,6 +157,7 @@ sources =
 			"src/css/breadcrumb.less"
 			"src/css/progress.less"
 			"src/css/tag-editor.less"
+			"src/css/page.less"
 		]
 
 	lib:
