@@ -88,8 +88,6 @@ class cola.Pager extends cola.Widget
 	pagerItemsRefresh: () ->
 		pager = @
 		data = pager._getBindItems()
-		hasPrev = false
-		hasNext = false
 		pageNo = 0
 		pageCount = 0
 		totalEntityCount = 0
@@ -97,8 +95,6 @@ class cola.Pager extends cola.Widget
 		if data
 			pageCount = Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			totalEntityCount = data.totalEntityCount || 0
-			hasPrev = data.pageNo > 1
-			hasNext = pageCount > data.pageNo
 			pageNo = data.pageNo || 0
 			pageCount = data.pageCount || 0
 			pageSize = data.pageSize || 0
@@ -106,9 +102,7 @@ class cola.Pager extends cola.Widget
 		@_pageNo = pageNo
 
 		wrapper = @_doms.pageNoWrapper
-		$(@_doms.pageNoWrapper).empty()
-
-
+		$(wrapper).empty()
 		if pageCount <= 5
 			i = 0
 			while i < pageCount
