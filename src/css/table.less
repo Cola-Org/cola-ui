@@ -113,7 +113,7 @@
 		overflow-x: hidden;
 		overflow-y: visible;
 		font-size: 1rem;
-		> div {
+		> .content {
 			display: -webkit-box;
 			display: -ms-flexbox;
 			display: -webkit-flex;
@@ -131,28 +131,28 @@
 			}
 		}
 
-		&.h-left > div {
+		&.h-left > .content {
 			-webkit-justify-content: flex-start;
 			-ms-flex-pack: start;
 			justify-content: flex-start;
 		}
-		&.h-center > div {
+		&.h-center > .content {
 			-webkit-justify-content: center;
 			-ms-flex-pack: center;
 			justify-content: center;
 		}
-		&.h-right > div {
+		&.h-right > .content {
 			-webkit-justify-content: flex-end;
 			-ms-flex-pack: end;
 			justify-content: flex-end;
 		}
 
-		&.v-top > div {
+		&.v-top > .content {
 			-webkit-align-items: flex-start;
 			-ms-flex-align: start;
 			align-items: flex-start;
 		}
-		&.v-bottom > div {
+		&.v-bottom > .content {
 			-webkit-align-items: flex-end;
 			-ms-flex-align: end;
 			align-items: flex-end;
@@ -160,9 +160,22 @@
 	}
 	.header-row {
 		.header-cell {
+			position: relative;
 			border-width: 1px 1px 0 0;
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
+			cursor: pointer;
+
+			>.left-handler {
+				content: "";
+				position: absolute;
+				right: -4px;
+				top: 0;
+				bottom: 0;
+				width: 8px;
+				z-index: 10;
+				cursor: col-resize;
+			}
 		}
 		&:first-child .header-cell {
 			border-top-width: 0;

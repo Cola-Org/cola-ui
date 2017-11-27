@@ -292,6 +292,13 @@ class cola.Grid extends cola.Widget
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
+		$(dom).delegate(">.inner-table >.table-header", "mouseenter", (evt) =>
+			for cell in headerRow.childNodes
+				console.log([evt.currentTarget.className, cell.offsetWidth, cell.offsetLeft, evt.offsetX])
+#				if Math.abs(cell.offsetLeft + cell.offsetWidth - evt.offsetX) < 8
+#					console.log(cell.className)
+		)
+
 		dataType = @_getBindDataType()
 		if dataType and dataType instanceof cola.EntityDataType
 			if not @_columns
@@ -787,8 +794,17 @@ class cola.Table.InnerTable extends cola.AbstractList
 				cell = $.xCreate({
 					tagName: "td"
 					class: "header-cell " + column._id + " h-center"
-					content:
-						tagName: "div"
+					content: [
+						{
+							className: "content"
+						}
+						{
+							className: "handler left"
+						}
+						{
+							className: "handler right"
+						}
+					]
 				})
 				cell._name = column._name
 				row.appendChild(cell)
@@ -863,7 +879,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					cell = $.xCreate({
 						tagName: "div"
 						content:
-							tagName: "div"
+							className: "content"
 					})
 					cell._name = column._name
 					itemDom.appendChild(cell)
