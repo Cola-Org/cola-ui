@@ -37,7 +37,7 @@ cola.TagEditor = cola.defineWidget({
 	},
 	_refreshDom: ()->
 		readOnly = !!@_readOnly
-		@_dom && $(@_dom).toggleClass("read-only", readOnly)
+		@_dom && $(@_dom).toggleClass("readonly", readOnly)
 		input = $(@_dom).find("input")[0]
 		input.readOnly = readOnly
 

@@ -349,7 +349,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				config.duration = 200
 				config.dropdown = @
 				config.ui = config.ui + " " + @_ui
-				container = new DropBox(config)
+				container = new cola.DropBox(config)
 			else if openMode is "layer"
 				if openMode is "Sidebar"
 					config.animation = "slide up"
@@ -512,7 +512,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
-class DropBox extends cola.Layer
+class cola.DropBox extends cola.Layer
 	@CLASS_NAME: "drop-box transition"
 	@attributes:
 		height:
@@ -875,4 +875,3 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 		return @_dropdownContent
 
 cola.registerWidget(cola.CustomDropdown)
-cola.DropBox = DropBox

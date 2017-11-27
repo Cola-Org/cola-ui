@@ -1,184 +1,184 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-    <meta charset="utf-8"/>
-    <script src="../../include-all.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<meta charset="utf-8"/>
+	<script src="../../include-all.js"></script>
 </head>
 
-<body style="padding:0px;margin:8px;" class="v-box">
+<body style="padding:8px;margin:0px;" class="v-box">
 <div class="box" style="padding:2px">
-    <div c-widget="input; bind:items.col1"></div>
-    <div c-widget="input; bind:items.col2">
-        <div c-widget="button; caption:Add; click:{{add()}}"></div>
-    </div>
-    <div c-widget="checkbox; bind:items.bool"></div>
+	<div c-widget="input; bind:items.col1"></div>
+	<div c-widget="input; bind:items.col2">
+		<div c-widget="button; caption:Add; click:{{add()}}"></div>
+	</div>
+	<div c-widget="checkbox; bind:items.bool"></div>
 
-    <label c-bind="items.col2"></label>
-    <label c-widget="label; text:{{items.col2}}"></label>
+	<label c-bind="items.col2"></label>
+	<label c-widget="label; text:{{items.col2}}"></label>
 </div>
 <div class="flex-box">
-    <div id="table1">
-        <template name="upper-template">
-            <span c-bind="upper($default)"></span>
-        </template>
-        <template name="sum">
-            <span c-bind="sum()"></span>
-        </template>
-        <template name="checkMark">
+	<div id="table1">
+		<template name="upper-template">
+			<span c-bind="upper($default)"></span>
+		</template>
+		<template name="sum">
+			<span c-bind="sum()"></span>
+		</template>
+		<template name="checkMark">
 			<span c-style="display:$default?'':'none'">
 				<i class="large green checkmark icon"></i>
 			</span>
-        </template>
+		</template>
 
-        <column>
-            <template>
-                <label c-watch="columnIndex on item"></label>
-            </template>
-        </column>
-        <column property="int" template="input-column" footerTemplate="sum"></column>
-        <column property="int" template="input-column" footerTemplate="sum"></column>
-        <column bind=".col1" template="upper-template"></column>
-        <column caption="Group">
-            <column property="bool" align="center" template="checkMark"></column>
-            <column bind="upper(item.col2)"></column>
-            <column bind=".col3"></column>
-        </column>
-        <column bind=".col4"></column>
-        <column bind=".col5"></column>
-        <column caption="Operator" align="center">
-            <template>
-                <div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>
-            </template>
-        </column>
-    </div>
+		<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
+		<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
+		<!--<column bind=".col1" template="upper-template"></column>-->
+		<!--<column caption="Group">-->
+			<!--<column property="bool" align="center" template="checkMark"></column>-->
+			<!--<column bind="upper(item.col2)"></column>-->
+			<!--<column bind=".col3"></column>-->
+		<!--</column>-->
+		<!--<column bind=".col4" width="160px"></column>-->
+		<!--<column bind=".col5"></column>-->
+		<!--<column caption="Operator" align="center">-->
+			<!--<template>-->
+				<!--<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>-->
+			<!--</template>-->
+		<!--</column>-->
+	</div>
 </div>
 <script type="text/javascript">
-    cola(function (model) {
-        var items = [];
-        for (var row = 1; row <= 40; row++) {
-            var item = {
-                selected: Math.random() > 0.5,
-                bool: Math.random() > 0.5,
-                int: Math.round(Math.random() * 1000)
-            };
-            items.push(item);
-            for (var col = 1; col <= 6; col++) {
-                item["col" + col] = "item " + row + "," + col
-            }
-        }
+	cola(function (model) {
+		var items = [];
+		for (var row = 1; row <= 40; row++) {
+			var item = {
+				selected: Math.random() > 0.5,
+				bool: Math.random() > 0.5,
+				int: Math.round(Math.random() * 1000)
+			};
+			items.push(item);
+			for (var col = 1; col <= 6; col++) {
+				item["col" + col] = "item " + row + "," + col
+			}
+		}
 
-        model.dataType({
-            name: "Item",
-            properties: {
-                "int": {
-                    caption: "数字",
-                    dataType: "int"
-                },
-                "col1": {
-                    caption: "Col 1"
-                },
-                "col2": {
-                    caption: "Col 2"
-                },
-                "col3": {
-                    caption: "Col 3"
-                },
-                "col4": {
-                    caption: "Col 4"
-                },
-                "col5": {
-                    caption: "Col 5"
-                }
-            }
-        });
+		model.dataType({
+			name: "Item",
+			properties: {
+				"int": {
+					caption: "数字",
+					dataType: "int"
+				},
+				"col1": {
+					caption: "Col 1"
+				},
+				"col2": {
+					caption: "Col 2"
+				},
+				"col3": {
+					caption: "Col 3"
+				},
+				"col4": {
+					caption: "Col 4"
+				},
+				"col5": {
+					caption: "Col 5"
+				}
+			}
+		});
 
-        model.describe("items", "Item");
-        model.set("items", items);
+		model.describe("items", "Item");
+		model.set("items", items);
 
-        model.action({
-            add: function () {
-                model.get("items").insert();
-            },
-            del: function (item) {
-                item.remove();
-            },
-            upper: function (s) {
-                return (s) ? s.toUpperCase() : "";
-            },
-            sum: function () {
-                sum = 0;
-                model.get("items").each(function (item) {
-                    sum += parseInt(item.get("int"));
-                });
-                return sum;
-            },
-			columnIndex: function(dom, itemModel) {
-            	itemModel.get("$index");
-            }
-        });
+		model.action({
+			add: function () {
+				model.get("items").insert();
+			},
+			del: function (item) {
+				item.remove();
+			},
+			upper: function (s) {
+				return (s) ? s.toUpperCase() : "";
+			},
+			sum: function () {
+				sum = 0;
+				model.get("items").each(function (item) {
+					sum += parseInt(item.get("int"));
+				});
+				return sum;
+			},
+			columnIndex: function (dom, itemModel) {
+				itemModel.get("$index");
+			}
 
-        model.widgetConfig({
-            table1: {
-                $type: "table",
-                bind: "item in items",
-                showHeader: true,
-                showFooter: true,
-                sortable: true,
+		model.widgetConfig({
+			table1: {
+				$type: "table",
+				bind: "item in items",
+				showHeader: true,
+//                showFooter: true,
+				sortable: true,
 //                allowNoCurrent: true,
 //                changeCurrentItem:false,
 //                highlightCurrentItem: false,
-                sortMode: "local",
-                columns: [
-                    {
-                        $type: "select"
-                    },
-                    {
-                        caption: "Group",
-                        columns: [
-                            {
-                                bind: ".col1",
-                                template: "upper-template"
-                            },
-                            {
-                                bind: "upper(item.col2)"
-                            },
-                            {
-                                align: "center",
-                                bind: "bool",
-                                template: "checkMark"
-                            }
-                        ]
-                    },
-                    {
-                        bind: ".int",
-                        align: "right",
-                        template: "input-column",
-                        footerTemplate: "sum"
-                    },
-                    {
-                        bind: ".col3",
-                        template: "input-column"
-                    },
-                    {
-                        bind: ".col4",
-                        template: "input-column"
-                    },
-                    {
-                        caption: "操作",
-                        align: "center",
-                        template: "operations"
-                    },
-                    {
-                        property: "col6"
-                    }
-                ],
-                headerClick: function (self, arg) {
-                    cola.widget("table1").focus()
-                }
-            }
-        });
-    });
+				sortMode: "local",
+				columns: [
+					{
+						$type: "select",
+						itemChange: function () {
+							console.log("Item Change");
+						}
+					},
+					{
+						property: "selected"
+					},
+					{
+						caption: "Group",
+						columns: [
+							{
+								bind: ".col1",
+								template: "input-column"
+							},
+							{
+								bind: "upper(item.col2)"
+							},
+							{
+								align: "center",
+								bind: "bool",
+								template: "checkMark"
+							}
+						]
+					},
+					{
+						bind: ".int",
+						align: "right",
+						template: "input-column",
+						footerTemplate: "sum"
+					},
+					{
+						bind: ".col3",
+						template: "input-column"
+					},
+					{
+						bind: ".col4",
+						template: "input-column"
+					},
+					{
+						caption: "操作",
+						align: "center",
+						template: "operations"
+					},
+					{
+						property: "col6"
+					}
+				],
+				headerClick: function (self, arg) {
+					cola.widget("table1").focus()
+				}
+			}
+		});
+	});
 
 
 </script>

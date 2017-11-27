@@ -15,7 +15,7 @@ class cola.TableColumn extends cola.Element
 			readOnlyAfterCreate: true
 		caption: null
 		align:
-			enum: ["left", "center", "right"]
+			enum: [ "left", "center", "right" ]
 		visible:
 			type: "boolean"
 			defaultValue: true
@@ -93,7 +93,7 @@ class cola.TableContentColumn extends cola.TableColumn
 		width:
 			defaultValue: 80
 		valign:
-			enum: ["top", "center", "bottom"]
+			enum: [ "top", "center", "bottom" ]
 		footerTemplate: null
 
 	@events:
@@ -116,7 +116,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@events:
 		change: null
-		itemChange:null
+		itemChange: null
 	@attributes:
 		width:
 			defaultValue: "42px"
@@ -128,13 +128,10 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
-				change: (self, arg) =>
-					if typeof arg.value != "boolean"
-						@fire("change", this, {checkbox: self, oldValue: arg.oldValue, value: arg.value})
 				click: (self) =>
 					checked = self.get("checked")
 					@selectAll(checked)
-					@fire("change", this, {checkbox: self, oldValue: not checked, value: checked})
+					@fire("change", @, { checkbox: self, oldValue: not checked, value: checked })
 					return
 			)
 			checkbox.appendTo(dom)
@@ -145,13 +142,25 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox = new cola.Checkbox(
 				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
-				post: (self,arg) =>
+				click: (self, arg) =>
 					if !@_ignoreCheckedChange
 						@refreshHeaderCheckbox()
-					arg.item=item;
-					@fire("itemChange",this,arg);
+					arg.item = item
+					@fire("itemChange", @, arg)
 					return
 			)
+			oldRefreshValue = checkbox.refreshValue
+			checkbox.refreshValue = () =>
+				oldValue = checkbox._value
+				result = oldRefreshValue.call(checkbox)
+				if checkbox._value != oldValue
+					arg =
+						model: checkbox.get("model")
+						dom: checkbox._dom
+						item: item
+					@fire("itemChange", @, arg)
+				return result
+
 			checkbox.appendTo(dom)
 		return
 

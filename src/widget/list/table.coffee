@@ -213,6 +213,9 @@ class cola.AbstractTable extends cola.AbstractList
 						contextKey: "tbody"
 					}
 				]
+			scroll: (evt) =>
+				if @_doms.fixedHeaderWrapper
+					@_doms.fixedHeaderWrapper.scrollLeft = evt.currentTarget.scrollLeft
 		}, @_doms)
 
 		$fly(@_doms.tbody).delegate(">tr >td", "click", (evt) =>
@@ -427,6 +430,7 @@ class cola.Table extends cola.AbstractTable
 	_doRefreshItems: () ->
 		return unless @_columnsInfo
 
+		totalWidth = @_doms.itemsWrapper.clientWidth
 		colgroup = @_doms.colgroup
 		nextCol = colgroup.firstElementChild
 		for colInfo, i in @_columnsInfo.dataColumns
@@ -438,11 +442,15 @@ class cola.Table extends cola.AbstractTable
 				nextCol = col.nextElementSibling
 
 			if colInfo.widthType == "percent"
-				col.width = colInfo.width + "%"
+				width = Math.round(colInfo.width * totalWidth / 100)
+				if width < 80 then width = 80
+				col.width = width + "px"
 			else if colInfo.widthType
 				col.width = colInfo.width + colInfo.widthType
 			else if colInfo.width
-				col.width = (colInfo.width * 100 / @_columnsInfo.totalWidth) + "%"
+				width = Math.round(colInfo.width * totalWidth / @_columnsInfo.totalWidth)
+				if width < 80 then width = 80
+				col.width = width + "px"
 			else
 				col.width = ""
 
@@ -456,7 +464,6 @@ class cola.Table extends cola.AbstractTable
 			col = nextCol
 
 		tbody = @_doms.tbody
-
 		if @_showHeader
 			thead = @_doms.thead
 			if not thead
@@ -584,6 +591,13 @@ class cola.Table extends cola.AbstractTable
 		if fragment then thead.appendChild(fragment)
 		while thead.lastChild and thead.lastChild != row
 			thead.removeChild(thead.lastChild)
+
+		if @_columnsInfo.selectColumns
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+				for colInfo in @_columnsInfo.selectColumns
+					colInfo.column.refreshHeaderCheckbox()
+				return
+			)
 		return
 
 	_refreshHeaderCell: (dom, columnInfo, isNew) ->
@@ -895,6 +909,7 @@ class cola.Table extends cola.AbstractTable
 		showFixedHeader = scrollTop > 0 and not (cola.browser.ie is 11)
 		return if showFixedHeader == @_fixedHeaderVisible
 
+		cola._ignoreNodeRemoved = true
 		@_fixedHeaderVisible = showFixedHeader
 		if showFixedHeader
 			fixedHeader = @_getFixedHeader(true)
@@ -911,6 +926,7 @@ class cola.Table extends cola.AbstractTable
 				@_doms.fixedHeaderTable.removeChild(@_doms.thead)
 				@_doms.fixedHeaderTable.appendChild(@_doms.fakeThead)
 				$fly(@_doms.tbody).before(@_doms.thead)
+		cola._ignoreNodeRemoved = false
 		return
 
 	_refreshFixedFooter: (duration) ->
@@ -924,6 +940,7 @@ class cola.Table extends cola.AbstractTable
 		showFixedFooter = scrollTop < maxScrollTop and not (cola.browser.ie is 11)
 		return if showFixedFooter == @_fixedFooterVisible
 
+		cola._ignoreNodeRemoved = true
 		@_fixedFooterVisible = showFixedFooter
 		if showFixedFooter
 			fixedFooter = @_getFixedFooter(true)
@@ -944,6 +961,7 @@ class cola.Table extends cola.AbstractTable
 				@_doms.fixedFooterTable.removeChild(@_doms.tfoot)
 				@_doms.fixedFooterTable.appendChild(@_doms.fakeTfoot)
 				$fly(@_doms.tbody).after(@_doms.tfoot)
+		cola._ignoreNodeRemoved = false
 		return
 
 	_onItemsWrapperScroll: () ->

@@ -6,7 +6,8 @@
     <script src="../../include-all.js"></script>
 </head>
 <body style="padding:20px;">
-<c-tag-editor bind="selectedItems" items="items" keyDown="keyDown" input="inputFire" width="240px"></c-tag-editor>
+<c-tag-editor readOnly="true"  bind="selectedItems" items="items" keyDown="keyDown" input="inputFire"
+              width="240px"></c-tag-editor>
 <c-button caption="添加" click="add"></c-button>
 <li c-repeat="item in selectedItems">
     <span c-bind="item.value" c-onclick="removeItem(item)"></span>
