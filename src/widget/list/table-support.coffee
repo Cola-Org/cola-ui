@@ -15,7 +15,7 @@ class cola.TableColumn extends cola.Element
 			readOnlyAfterCreate: true
 		caption: null
 		align:
-			enum: ["left", "center", "right"]
+			enum: [ "left", "center", "right" ]
 		visible:
 			type: "boolean"
 			defaultValue: true
@@ -94,7 +94,7 @@ class cola.TableContentColumn extends cola.TableColumn
 		width:
 			defaultValue: "100px"
 		valign:
-			enum: ["top", "center", "bottom"]
+			enum: [ "top", "center", "bottom" ]
 		footerTemplate: null
 
 	@events:
@@ -120,7 +120,7 @@ class cola.TableDataColumn extends cola.TableContentColumn
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@events:
 		change: null
-		itemChange:null
+		itemChange: null
 	@attributes:
 		width:
 			defaultValue: "42px"
@@ -134,11 +134,11 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 				triState: true
 				change: (self, arg) =>
 					if typeof arg.value != "boolean"
-						@fire("change", this, {checkbox: self, oldValue: arg.oldValue, value: arg.value})
+						@fire("change", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
 				click: (self) =>
 					checked = self.get("checked")
 					@selectAll(checked)
-					@fire("change", this, {checkbox: self, oldValue: not checked, value: checked})
+					@fire("change", @, { checkbox: self, oldValue: not checked, value: checked })
 					return
 			)
 			checkbox.appendTo(dom)
@@ -149,11 +149,11 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox = new cola.Checkbox(
 				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
-				change: (self,arg) =>
+				change: (self, arg) =>
 					if !@_ignoreCheckedChange
 						@refreshHeaderCheckbox()
-					arg.item=item;
-					@fire("itemChange",this,arg);
+					arg.item = item
+					@fire("itemChange", @, arg)
 					return
 			)
 			checkbox.appendTo(dom)
