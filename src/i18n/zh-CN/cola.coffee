@@ -32,3 +32,12 @@ cola.resource(
 	"cola.pager.goto.suffix": "页"
 	"cola.pager.pageSize": "每页记录数:"
 )
+
+
+cola.util.dictionary("cola.pageSize", [
+	{key: 5, value: "5条/页"}
+	{key: 10, value: "10条/页"}
+	{key: 20, value: "20条/页"}
+	{key: 50, value: "50条/页"}
+	{key: 100, value: "100条/页"}
+])

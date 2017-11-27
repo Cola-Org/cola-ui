@@ -31,3 +31,11 @@ cola.resource(
 	"cola.pager.goto.suffix": ""
 	"cola.pager.pageSize": "Page Size:"
 )
+
+cola.util.dictionary("cola.pageSize", [
+	{key: 5, value: "Page Size:5"}
+	{key: 10, value: "Page Size:10"}
+	{key: 20, value: "Page Size:20"}
+	{key: 50, value: "Page Size:50"}
+	{key: 100, value: "Page Size:100"}
+]);

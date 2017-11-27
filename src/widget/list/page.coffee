@@ -11,6 +11,7 @@ class cola.Pager extends cola.Widget
 			tagName: "div",
 			class: "page-no-wrapper"
 		})
+
 		pager = @
 		$(@_doms.pageNoWrapper).delegate("span:not(.nav-btn)", "click", ()->
 			pageNo = $(@).attr("no");
@@ -43,28 +44,6 @@ class cola.Pager extends cola.Widget
 			]
 		}, @_doms)
 
-		@_doms.pageSize = $.xCreate({
-			tagName: "div",
-			class: "page-size",
-			content: [
-				{
-					tagName: "span"
-					contextKey: "pageSizeLabel"
-					content: cola.resource("cola.pager.pageSize")
-				}
-				{
-					tagName: "input",
-					type: "number",
-					step: "10",
-					contextKey: "pageSizeInput",
-					change: ()->
-						pageSize = parseInt($(this).val())
-						pager.pageSize(pageSize)
-
-				}
-			]
-		}, @_doms)
-
 
 		@_doms.count = $.xCreate({
 			tagName: "div",
@@ -72,9 +51,22 @@ class cola.Pager extends cola.Widget
 		})
 		dom.appendChild(@_doms.count)
 		dom.appendChild(@_doms.pageNoWrapper)
-		dom.appendChild(@_doms.goTo)
-#dom.appendChild(@_doms.pageSize)
+		@_doms._pageSizeInput = cola.xRender({
+			tagName: "c-dropdown",
+			class: "page-size",
+			showClearButton: false,
+			editable: false,
+			valueProperty: "key",
+			textProperty: "value",
+			"c-items": "dictionary('cola.pageSize')"
+		}, @scope)
 
+		pageSizeDrop = cola.widget(@_doms._pageSizeInput)
+		pageSizeDrop.on("post", (self, arg)->
+			pager.pageSize(self.get("value"))
+		)
+		dom.appendChild(@_doms._pageSizeInput)
+		dom.appendChild(@_doms.goTo)
 
 	goTo: (pageNo)->
 		@_pageTimmer && clearTimeout(@_pageTimmer)
@@ -82,16 +74,21 @@ class cola.Pager extends cola.Widget
 		@_pageTimmer = setTimeout(()->
 			data?.gotoPage(parseInt(pageNo))
 		, 100)
+
 	pageSize: (pageSize)->
 		@_pageTimmer && clearTimeout(@_pageTimmer)
 		data = @_getBindItems()
+
+		if data?._providerInvoker?.pageSize is pageSize
+			return
 		@_pageTimmer = setTimeout(()->
 			data?._providerInvoker?.pageSize = pageSize
 			data?._providerInvoker?.pageNo = 1
-			data.pageSize = pageSize
-			data.pageNo = 1
-			cola.util.flush(data)
+			data?.pageSize = pageSize
+			data?.pageNo = 1
+			data && cola.util.flush(data)
 		, 100)
+
 	pagerItemsRefresh: () ->
 		pager = @
 		data = pager._getBindItems()
@@ -210,7 +207,8 @@ class cola.Pager extends cola.Widget
 
 		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
 		$(@_doms.gotoInput).val(pageNo);
-		#$(@_doms.pageSizeInput).val(pageSize);
+		cola.widget(@_doms._pageSizeInput).set("value",pageSize);
+
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
 		$(@_dom).find(".nav-btn.prev").toggleClass("disabled", !hasPrev);
 		$(@_dom).find(".nav-btn.next").toggleClass("disabled", !hasNext);
