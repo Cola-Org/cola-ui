@@ -14,6 +14,7 @@ class cola.Pager extends cola.Widget
 
 		pager = @
 		$(@_doms.pageNoWrapper).delegate("span:not(.nav-btn)", "click", ()->
+			if $(@).hasClass("separator") then return
 			pageNo = $(@).attr("no");
 			pager.goTo(pageNo)
 		)
@@ -69,11 +70,11 @@ class cola.Pager extends cola.Widget
 		dom.appendChild(@_doms.goTo)
 
 	goTo: (pageNo)->
-		@_pageTimmer && clearTimeout(@_pageTimmer)
+#@_pageTimmer && clearTimeout(@_pageTimmer)
 		data = @_getBindItems()
-		@_pageTimmer = setTimeout(()->
-			data?.gotoPage(parseInt(pageNo))
-		, 100)
+		#@_pageTimmer = setTimeout(()->
+		data?.gotoPage(parseInt(pageNo))
+#, 100)
 
 	pageSize: (pageSize)->
 		@_pageTimmer && clearTimeout(@_pageTimmer)
@@ -207,7 +208,7 @@ class cola.Pager extends cola.Widget
 
 		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
 		$(@_doms.gotoInput).val(pageNo);
-		cola.widget(@_doms._pageSizeInput).set("value",pageSize);
+		cola.widget(@_doms._pageSizeInput).set("value", pageSize);
 
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
 		$(@_dom).find(".nav-btn.prev").toggleClass("disabled", !hasPrev);

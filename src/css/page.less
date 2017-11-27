@@ -1,21 +1,22 @@
 @import (reference) "global";
 
 .ui.pager {
-	line-height: 2em;
+	padding: 4px 0px;
 	> div {
 		display: inline-block;
 		margin: 0 4px;
 	}
-	.separator:before {
-		content: '...';
-	}
+
 	> .page-no-wrapper {
 		span {
 			margin: 0 2px;
 			border: 1px solid @borderColor;
 			border-radius: 4px;
 			padding: 4px 6px;
-
+			display: inline-block;
+			text-align: center;
+			min-width: 18px;
+			line-height: 16px;
 			&.current, &.current:hover {
 				border-color: @primaryColor;
 				background-color: @primaryColor;
@@ -27,11 +28,18 @@
 					color: @primaryColor;
 				}
 			}
+
+			&.separator {
+				&:before {
+					content: '...';
+				}
+				color: @fontColor !important;;
+				border-color: transparent !important;
+			}
 			cursor: pointer;
 
 			&.nav-btn {
 				font-family: Icons;
-				padding: 5px 8px;
 				&.prev {
 					&:before {
 						content: "\f0d9";
@@ -59,13 +67,15 @@
 			&:focus, &:hover {
 				border-color: @primaryColor;
 			}
-			line-height: 20px;
+			padding: 4px 6px;
+			line-height: 16px;
 			margin: 0 4px;
 		}
 	}
 	.ui.input.drop.page-size {
 		margin: 0 8px;
 		input {
+			line-height: 16px;
 			padding: 4px 6px;
 			background-color: #FFFFFF;
 			width: 7em;
