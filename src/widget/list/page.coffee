@@ -1,11 +1,10 @@
-class cola.Page extends cola.Widget
-	@tagName: "c-page"
-	@CLASS_NAME: "ui page"
+class cola.Pager extends cola.Widget
+	@tagName: "c-pager"
+	@CLASS_NAME: "ui pager"
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
 	_getBindItems: ()-> @_getItems()?.items
-
 	_initDom: (dom)->
 		@_doms ?= {}
 		@_doms.pageNoWrapper = $.xCreate({
@@ -186,7 +185,6 @@ class cola.Page extends cola.Widget
 		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
 		$(@_doms.gotoInput).val(pageNo);
 		#$(@_doms.pageSizeInput).val(pageSize);
-
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
 
 	_onItemsRefresh: ()-> @pagerItemsRefresh()
@@ -199,5 +197,6 @@ class cola.Page extends cola.Widget
 		if @_pageNo isnt arg.entityList.pageNo
 			@pagerItemsRefresh()
 
-cola.Element.mixin(cola.Page, cola.DataItemsWidgetMixin)
-cola.registerWidget(cola.Page)
+
+cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)
+cola.registerWidget(cola.Pager)

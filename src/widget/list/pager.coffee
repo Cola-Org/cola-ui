@@ -7,9 +7,9 @@ _pageCodeMap =
 	">": "nextPage"
 	">|": "lastPage"
 
-class cola.Pager extends cola.Menu
-	@tagName: "c-pager"
-	@CLASS_NAME: "ui menu pager secondary"
+class cola.PageBar extends cola.Menu
+	@tagName: "c-page-bar"
+	@CLASS_NAME: "ui menu page-bar secondary"
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
@@ -330,6 +330,6 @@ class cola.Pager extends cola.Menu
 		if @_pageNo isnt arg.entityList.pageNo
 			@pagerItemsRefresh()
 
-cola.Element.mixin(cola.Pager, cola.DataItemsWidgetMixin)
+cola.Element.mixin(cola.PageBar, cola.DataItemsWidgetMixin)
 
-cola.registerWidget(cola.Pager)
+cola.registerWidget(cola.PageBar)
