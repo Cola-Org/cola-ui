@@ -14,27 +14,53 @@
 			margin: 0 2px;
 			border: 1px solid @borderColor;
 			border-radius: 4px;
-			padding: 4px;
-			&.current {
-				color: @primaryColor;
+			padding: 4px 6px;
+
+			&.current, &.current:hover {
 				border-color: @primaryColor;
+				background-color: @primaryColor;
+				color: @invertedTextColor !important;;
 			}
-			&:hover {
-				color: @primaryColor;
+			&:not(.disabled) {
+				&:hover {
+					border-color: @primaryColor;
+					color: @primaryColor;
+				}
 			}
 			cursor: pointer;
+
+			&.nav-btn {
+				font-family: Icons;
+				padding: 5px 8px;
+				&.prev {
+					&:before {
+						content: "\f0d9";
+					}
+				}
+				&.next {
+					&:before {
+						content: "\f0da";
+					}
+				}
+				&.disabled {
+					opacity: 0.5;
+					color: #818181;
+				}
+			}
 		}
 	}
+
 	> .goto, > .page-size {
 		input {
 			width: 3em;
 			text-align: right;
-			border-radius: 2px;
+			border-radius: 4px;
 			border: 1px solid @borderColor;
 			&:focus, &:hover {
 				border-color: @primaryColor;
 			}
-			margin-left: 4px;
+			line-height: 20px;
+			margin: 0 4px;
 		}
 	}
 }

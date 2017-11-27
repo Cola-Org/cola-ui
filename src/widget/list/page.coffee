@@ -12,10 +12,11 @@ class cola.Pager extends cola.Widget
 			class: "page-no-wrapper"
 		})
 		pager = @
-		$(@_doms.pageNoWrapper).delegate("span", "click", ()->
+		$(@_doms.pageNoWrapper).delegate("span:not(.nav-btn)", "click", ()->
 			pageNo = $(@).attr("no");
 			pager.goTo(pageNo)
 		)
+
 		@_doms.goTo = $.xCreate({
 			tagName: "div",
 			class: "goto",
@@ -23,7 +24,7 @@ class cola.Pager extends cola.Widget
 				{
 					tagName: "span"
 					contextKey: "gotoLabel"
-					content: cola.resource("cola.pager.goto")
+					content: cola.resource("cola.pager.goto.prefix")
 				}
 				{
 					tagName: "input",
@@ -33,6 +34,11 @@ class cola.Pager extends cola.Widget
 						pageNo = parseInt($(this).val())
 						pager.goTo(pageNo)
 
+				}
+				{
+					tagName: "span"
+					contextKey: "gotoLabel"
+					content: cola.resource("cola.pager.goto.suffix")
 				}
 			]
 		}, @_doms)
@@ -64,10 +70,11 @@ class cola.Pager extends cola.Widget
 			tagName: "div",
 			class: "count"
 		})
+		dom.appendChild(@_doms.count)
 		dom.appendChild(@_doms.pageNoWrapper)
 		dom.appendChild(@_doms.goTo)
-		#dom.appendChild(@_doms.pageSize)
-		dom.appendChild(@_doms.count)
+#dom.appendChild(@_doms.pageSize)
+
 
 	goTo: (pageNo)->
 		@_pageTimmer && clearTimeout(@_pageTimmer)
@@ -92,17 +99,32 @@ class cola.Pager extends cola.Widget
 		pageCount = 0
 		totalEntityCount = 0
 		pageSize = 0
+		hasPrev = false
+		hasNext = false
 		if data
 			pageCount = Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			totalEntityCount = data.totalEntityCount || 0
 			pageNo = data.pageNo || 0
 			pageCount = data.pageCount || 0
 			pageSize = data.pageSize || 0
-
+			hasPrev = data.pageNo > 1
+			hasNext = pageCount > data.pageNo
 		@_pageNo = pageNo
 
 		wrapper = @_doms.pageNoWrapper
 		$(wrapper).empty()
+
+
+		wrapper.appendChild($.xCreate({
+			tagName: "span",
+			class: "nav-btn prev",
+			click: ()->
+				if $(this).hasClass("disabled")
+					return
+				pager.prevPage()
+				return
+		}))
+
 		if pageCount <= 5
 			i = 0
 			while i < pageCount
@@ -176,11 +198,28 @@ class cola.Pager extends cola.Widget
 				content: pageCount
 				no: pageCount
 			}))
+		wrapper.appendChild($.xCreate({
+			tagName: "span",
+			class: "nav-btn next",
+			click: ()->
+				if $(this).hasClass("disabled")
+					return
+				pager.nextPage()
+				return
+		}))
+
 		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
 		$(@_doms.gotoInput).val(pageNo);
 		#$(@_doms.pageSizeInput).val(pageSize);
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
-
+		$(@_dom).find(".nav-btn.prev").toggleClass("disabled", !hasPrev);
+		$(@_dom).find(".nav-btn.next").toggleClass("disabled", !hasNext);
+	prevPage: ()->
+		data = @_getBindItems()
+		data?.previousPage()
+	nextPage: ()->
+		data = @_getBindItems()
+		data?.nextPage()
 	_onItemsRefresh: ()-> @pagerItemsRefresh()
 	_onItemRefresh: (arg)->
 	_onItemInsert: (arg) ->

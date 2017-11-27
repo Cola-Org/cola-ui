@@ -26,5 +26,8 @@ cola.resource(
 	"cola.message.close": "Close"
 
 	"cola.pager.info": "Page:{0}\/{1}({2})"
+	"cola.pager.entityCount": "count:{0}"
+	"cola.pager.goto.prefix": "go"
+	"cola.pager.goto.suffix": ""
 	"cola.pager.pageSize": "Page Size:"
 )
