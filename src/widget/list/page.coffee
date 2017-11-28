@@ -98,7 +98,7 @@ class cola.Pager extends cola.Widget
 		hasPrev = false
 		hasNext = false
 		if data
-			pageCount = Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			pageCount = Math.floor((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			totalEntityCount = data.totalEntityCount || 0
 			pageNo = data.pageNo || 0
 			pageCount = data.pageCount || 0
