@@ -21,7 +21,7 @@ class cola.PageBar extends cola.Menu
 		#暂使用此方法获得总页数
 		_getPageCount = ()->
 			data = pager._getBindItems()
-			return Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			return Math.floor((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 		@_pagerItemConfig =
 			firstPage:
 				icon: "angle double left"
@@ -280,7 +280,7 @@ class cola.PageBar extends cola.Menu
 		totalEntityCount = 0
 		pageSize = 0
 		if data
-			pageCount = Math.trunc((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
+			pageCount = Math.floor((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
 			totalEntityCount = data.totalEntityCount || 0
 			hasPrev = data.pageNo > 1
 			hasNext = pageCount > data.pageNo
