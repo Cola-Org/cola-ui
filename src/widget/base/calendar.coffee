@@ -171,7 +171,11 @@ do->
 			cellState = state[row * 7 + column]
 			$fly(cell).removeClass("prev-month next-month").addClass(cellState.type).find(".label").html(cellState.text)
 			ym = @getYMForState(cellState)
-			$fly(cell).attr("cell-date", "#{ym.year}-#{ym.month + 1}-#{cellState.text}")
+			day = parseInt(cellState.text)
+			cellText = cellState.text
+			if day < 10
+				cellText = "0" + cellText
+			$fly(cell).attr("cell-date", "#{ym.year}-#{ym.month + 1}-#{cellText}")
 			if cellState.type == "normal"
 				if @_year == @_calendar._year && @_month == @_calendar._month && cellState.text == @_calendar._monthDate
 					$fly(cell).addClass("selected")

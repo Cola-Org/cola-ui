@@ -571,11 +571,13 @@ class cola.DatePicker extends cola.CustomDropdown
 			context.timeEditorBox.appendChild(@_timeEditor.getDom())
 			$(context.approveBtn).on("click", ()->
 				date = datePicker._dataGrid._currentDate
-				date.setHours(datePicker._timeEditor.get("hour"))
-				date.setMinutes(datePicker._timeEditor.get("minute"))
-				date.setSeconds(datePicker._timeEditor.get("second"))
-				datePicker.close(date)
+				xdate = new Date(date.getTime())
+				xdate.setHours(datePicker._timeEditor.get("hour"))
+				xdate.setMinutes(datePicker._timeEditor.get("minute"))
+				xdate.setSeconds(datePicker._timeEditor.get("second"))
+				datePicker.close(xdate)
 			)
+
 			@_dropdownContent = container
 		return @_dropdownContent
 

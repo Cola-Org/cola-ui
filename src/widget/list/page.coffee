@@ -32,6 +32,8 @@ class cola.Pager extends cola.Widget
 					tagName: "input",
 					type: "number",
 					contextKey: "gotoInput",
+					min: 1,
+					step: 1,
 					change: ()->
 						pageNo = parseInt($(this).val())
 						pager.goTo(pageNo)

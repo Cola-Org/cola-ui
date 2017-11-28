@@ -3,7 +3,8 @@ class cola.MultiSelect extends cola.CustomDropdown
 	@tagName: "c-multiSelect"
 	@events:
 		renderItem: null
-
+		beforeRemoveItem: null
+		removeItem: null
 	_setValueContent: ()->
 		value = @_value
 		values = []
@@ -43,7 +44,9 @@ class cola.MultiSelect extends cola.CustomDropdown
 				if val == data then continue;
 				newValues.push(val)
 			newValue = newValues.join(",")
-			@_set("value", newValue)
+			if @fire("beforeRemoveItem", @, {item: data, oldValue: value, value: newValue}) isnt false
+				@_set("value", newValue)
+			@fire("removeItem", @, {item: data, oldValue: value, value: newValue})
 
 	_selectData: (item) ->
 		@_inputEdited = false
