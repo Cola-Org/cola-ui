@@ -72,11 +72,9 @@ class cola.Pager extends cola.Widget
 		dom.appendChild(@_doms.goTo)
 
 	goTo: (pageNo)->
-#@_pageTimmer && clearTimeout(@_pageTimmer)
 		data = @_getBindItems()
-		#@_pageTimmer = setTimeout(()->
 		data?.gotoPage(parseInt(pageNo))
-#, 100)
+
 
 	pageSize: (pageSize)->
 		@_pageTimmer && clearTimeout(@_pageTimmer)
@@ -85,10 +83,8 @@ class cola.Pager extends cola.Widget
 		if data?._providerInvoker?.pageSize is pageSize
 			return
 		@_pageTimmer = setTimeout(()->
-			data?._providerInvoker?.pageSize = pageSize
+			data?._providerInvoker?.ajaxService?.set("pageSize", pageSize)
 			data?._providerInvoker?.pageNo = 1
-			data?.pageSize = pageSize
-			data?.pageNo = 1
 			data && cola.util.flush(data)
 		, 100)
 
