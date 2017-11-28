@@ -220,7 +220,7 @@ class cola.CustomValidator extends cola.AsyncValidator
 			super()
 			@set(
 				func: config
-				async: cola.util.parseFunctionArgs(config).length > 1
+				async: cola.util.parseFunctionArgs(config).length > 2
 			)
 		else
 			super(config)
