@@ -20,48 +20,51 @@ $.xCreate = xCreate = (template, context) ->
 			element = templateProcessor(template, context)
 			return element if element?
 
-	if typeof template == "string"
-		if template.charAt(0) == '^'
-			template = tagName: template.substring(1)
-		else
-			return document.createTextNode(template)
-
-	tagName = template.tagName or "DIV"
-	tagName = tagName.toUpperCase();
-
-	if oldIE and tagName.toUpperCase() == "INPUT" and template.type
-		el = document.createElement("<" + tagName + " type=\"" + template.type + "\"/>")
+	if typeof template is "object" and template.nodeType
+		el = template
 	else
-		el = document.createElement(tagName)
-
-	$el = $(el)
-	setAttrs(el, $el, template, context);
-
-	content = template.content
-	if content?
-		if isSimpleValue(content)
-			if typeof content == "string" and content.charAt(0) == '^'
-				appendChild(el, document.createElement(content.substring(1)))
+		if typeof template is "string"
+			if template.charAt(0) is '^'
+				template = tagName: template.substring(1)
 			else
-				$el.text(content)
+				return document.createTextNode(template)
+
+		tagName = template.tagName or "DIV"
+		tagName = tagName.toUpperCase();
+
+		if oldIE and tagName is "INPUT" and template.type
+			el = document.createElement("<" + tagName + " type=\"" + template.type + "\"/>")
 		else
-			if content instanceof Array
-				for part in content
-					if isSimpleValue(part)
-						if typeof part == "string" and part.charAt(0) == '^'
-							appendChild(el, document.createElement(part.substring(1)))
-						else
-							appendChild(el, document.createTextNode(part))
-					else
-						child = xCreate(part, context)
-						appendChild(el, child) if child?
-			else if content.nodeType
-				appendChild(el, content)
+			el = document.createElement(tagName)
+
+		$el = $(el)
+		setAttrs(el, $el, template, context);
+
+		content = template.content
+		if content?
+			if isSimpleValue(content)
+				if typeof content == "string" and content.charAt(0) == '^'
+					appendChild(el, document.createElement(content.substring(1)))
+				else
+					$el.text(content)
 			else
-				child = xCreate(content, context)
-				appendChild(el, child) if child?
-	else if template.html
-		$el.html( template.html)
+				if content instanceof Array
+					for part in content
+						if isSimpleValue(part)
+							if typeof part == "string" and part.charAt(0) == '^'
+								appendChild(el, document.createElement(part.substring(1)))
+							else
+								appendChild(el, document.createTextNode(part))
+						else
+							child = xCreate(part, context)
+							appendChild(el, child) if child?
+				else if content.nodeType
+					appendChild(el, content)
+				else
+					child = xCreate(content, context)
+					appendChild(el, child) if child?
+		else if template.html
+			$el.html( template.html)
 	return el
 
 xCreate.templateProcessors = []

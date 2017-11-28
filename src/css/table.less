@@ -172,15 +172,37 @@
 		}
 	}
 	.header-row {
+		white-space: nowrap;
+		line-height: 1;
+		font-size: 0;
+
+		.header-cell, .header-group {
+			display: inline-block;
+			cursor: pointer;
+		}
 		.header-cell {
 			position: relative;
 			border-width: 1px 1px 0 0;
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
-			cursor: pointer;
+			&.rows-2 {
+				height: 4.8em;
+			}
+			&.rows-3 {
+				height: 7.2em;
+			}
+			&.rows-4 {
+				height: 9.6em;
+			}
 		}
-		&:first-child .header-cell {
-			border-top-width: 0;
+		> .header-group > .header-cell {
+			width: 100%;
+		}
+		&.first-row {
+			position: relative;
+			> .header-cell, > .header-group > .header-cell {
+				border-top-width: 0;
+			}
 		}
 	}
 	.footer-cell {

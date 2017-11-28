@@ -146,6 +146,15 @@ class cola.Grid extends cola.Widget
 	getColumn: (name) ->
 		return @_columnMap[name]
 
+	_onColumnChange: () ->
+		if @_rendered
+			cola.util.delay(@, "onColumnChange", 100, () =>
+				@_collectionColumnsInfo()
+				@_refreshDom()
+				return
+			)
+		return
+
 	_collectionColumnsInfo: () ->
 		collectColumnInfo = (column, context, deepth, rootIndex) ->
 			info =
@@ -156,16 +165,16 @@ class cola.Grid extends cola.Widget
 					info.columns = cols = []
 					for col in column._columns
 						continue unless col._visible
-						if context.rows.length == deepth
+						if context.rows.length is deepth
 							context.rows[deepth] = []
 						cols.push(collectColumnInfo(col, context, deepth + 1, rootIndex))
 					if cols.length
-						if context.rows.length == deepth then context.rows[deepth] = []
+						if context.rows.length is deepth then context.rows[deepth] = []
 						context.rows[deepth].push(info)
 			else
 				if column._bind
 					bind = column._bind
-					if bind.charCodeAt(0) == 46 # `.`
+					if bind.charCodeAt(0) is 46 # `.`
 						if not column._property
 							column._property = bind.substring(1)
 					else
@@ -173,7 +182,7 @@ class cola.Grid extends cola.Widget
 
 				if column._width
 					width = column._width
-					if typeof width == "string"
+					if typeof width is "string"
 						if width.indexOf("px") > 0
 							widthType = "px"
 						else if width.indexOf("%") > 0
@@ -297,7 +306,7 @@ class cola.Grid extends cola.Widget
 			return unless cell
 
 			if evt.offsetX <= 4
-				privouseColumn = true
+				resizePrevColumn = true
 				nextColumn = @getColumn(cell._name)
 				for nextColumnInfo in @_columnsInfo.dataColumns
 					if nextColumnInfo.column is nextColumn
@@ -311,7 +320,7 @@ class cola.Grid extends cola.Widget
 			handler = @_getHeaderCellResizeHandler(tableHeader)
 			if column
 				$fly(handler).css(
-					left: if privouseColumn then cell.offsetLeft else cell.offsetLeft + cell.offsetWidth
+					left: if resizePrevColumn then cell.offsetLeft else cell.offsetLeft + cell.offsetWidth
 					top: cell.offsetTop
 					height: cell.offsetHeight
 				).removeClass("hidden")
@@ -464,23 +473,11 @@ class cola.Grid extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-		getGroupWidth = (colInfo) ->
-			width = 0
-			for subColInfo in colInfo.columns
-				if subColInfo.columns
-					width += getGroupWidth(subColInfo)
-				else
-					width += subColInfo.width
-			return width
-
 		columnCssDefs = []
 		for rowInfo in @_columnsInfo.rows
 			for colInfo in rowInfo
-				if colInfo.columns
-					colInfo.realWidth = getGroupWidth(colInfo)
-
 				def = "." + colInfo.column._id + "{"
-				def += "width:" + (colInfo.realWidth or colInfo.width or 100) + "px;"
+				def += "width:" + (colInfo.width or 100) + "px;"
 
 				def += "}"
 				columnCssDefs.push(def)
@@ -782,12 +779,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					class: "table-header"
 					contextKey: "tableHeader"
 					content:
-						tagName: "table"
-						cellSpacing: 0
-						cellPadding: 0
-						content:
-							tagName: "tbody"
-							contextKey: "header"
+						contextKey: "header"
 					scroll: (evt) =>
 						return unless @_table._innerDragging
 						@_doms.tableBody?.scrollLeft = evt.target.scrollLeft
@@ -843,53 +835,46 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		return
 
+	_refreshHeaderRow: (rowDom, cols, rowHeight) ->
+		for colInfo in cols
+			column = colInfo.column
+			cell = cola.xCreate(
+				class: "header-cell " + column._id + " h-center"
+				content:
+					class: "content"
+			)
+			cell._name = column._name
+
+			if column instanceof cola.TableGroupColumn
+				cell.className += " rows-1"
+				subRowDom = cola.xCreate(
+					class: "header-row"
+				)
+				groupColumnCell = cola.xCreate(
+					class: "header-group"
+					content: [ cell, subRowDom ]
+				)
+				@_refreshHeaderRow(subRowDom, colInfo.columns, rowHeight - 1)
+				rowDom.appendChild(groupColumnCell)
+			else
+				cell.className += " rows-" + rowHeight
+				rowDom.appendChild(cell)
+
+			@_refreshHeaderCell(cell.firstElementChild, colInfo)
+		return
+
 	_refreshHeader: (header) ->
 		return if @_headerTimestamp is @_columnsInfo.timestamp
 		@_headerTimestamp = @_columnsInfo.timestamp
 
 		$fly(header).empty()
 
-		fragment = null
-		rowInfos = @_columnsInfo.rows
-		i = 0
-		len = rowInfos.length
-		while i < len
-			row = header.childNodes[i]
-			if not row
-				row = $.xCreate(
-					tagName: "tr"
-					class: "header-row"
-				)
-				fragment ?= document.createDocumentFragment()
-				fragment.appendChild(row)
-
-			rowInfo = rowInfos[i]
-			for colInfo, j in rowInfo
-				column = colInfo.column
-
-				cell = $.xCreate({
-					tagName: "td"
-					class: "header-cell " + column._id + " h-center"
-					content:
-						class: "content"
-				})
-				cell._name = column._name
-				row.appendChild(cell)
-
-				if colInfo.columns
-					cell.rowSpan = 1
-					cell.colSpan = colInfo.columns.length
-				else
-					cell.rowSpan = len - i
-					cell.colSpan = 1
-				contentWrapper = cell.firstElementChild
-
-				@_refreshHeaderCell(contentWrapper, colInfo)
-
-			cola.xRender(row, @_scope)
-			i++
-
-		if fragment then header.appendChild(fragment)
+		rowDom = $.xCreate(
+			class: "header-row first-row"
+		)
+		@_refreshHeaderRow(rowDom, @_columnsInfo.rows[0], @_columnsInfo.rows.length)
+		cola.xRender(rowDom, @_scope)
+		header.appendChild(rowDom)
 		return
 
 	_refreshHeaderCell: (dom, columnInfo) ->

@@ -13,14 +13,18 @@ class cola.TableColumn extends cola.Element
 	@attributes:
 		name:
 			readOnlyAfterCreate: true
-		caption: null
+		caption:
+			refreshColumns: true
 		align:
+			refreshColumns: true
 			enum: [ "left", "center", "right" ]
 		visible:
+			refreshColumns: true
 			type: "boolean"
 			defaultValue: true
 			refreshStructure: true
-		headerTemplate: null
+		headerTemplate:
+			refreshColumns: true
 
 	@events:
 		renderHeader: null
@@ -40,6 +44,11 @@ class cola.TableColumn extends cola.Element
 
 			return
 		)
+
+	_doSet: (attr, attrConfig, value) ->
+		if attrConfig?.refreshColumns
+			@_table?._onColumnChange()
+		return super(attr, attrConfig, value)
 
 	_setTable: (table) ->
 		@_table._unregColumn(@) if @_table
@@ -92,10 +101,13 @@ class cola.TableGroupColumn extends cola.TableColumn
 class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
+			refreshColumns: true
 			defaultValue: "100px"
 		valign:
+			refreshColumns: true
 			enum: [ "top", "center", "bottom" ]
-		footerTemplate: null
+		footerTemplate:
+			refreshColumns: true
 
 	@events:
 		renderCell: null
@@ -110,7 +122,8 @@ class cola.TableDataColumn extends cola.TableContentColumn
 			setter: cola.DataType.dataTypeSetter
 		property: null
 		bind: null
-		template: null
+		template:
+			refreshColumns: true
 		sortable: null
 		sortDirection: null
 
@@ -118,14 +131,14 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		editTemplate: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
-	@events:
-		change: null
-		itemChange: null
 	@attributes:
 		width:
 			defaultValue: "42px"
 		align:
 			defaultValue: "center"
+	@events:
+		change: null
+		itemChange: null
 
 	renderHeader: (dom, item) ->
 		if not dom.firstElementChild

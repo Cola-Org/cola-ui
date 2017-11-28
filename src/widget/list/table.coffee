@@ -524,7 +524,7 @@ class cola.Table extends cola.AbstractTable
 
 	_refreshHeader: (thead) ->
 		fragment = null
-		rowInfos = @_columnsInfo.rows
+		rowInfos = @_columnsInfo.cols
 		i = 0
 		len = rowInfos.length
 		while i < len
