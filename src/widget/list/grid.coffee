@@ -292,11 +292,35 @@ class cola.Grid extends cola.Widget
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
-		$(dom).delegate(">.inner-table >.table-header", "mouseenter", (evt) =>
-			for cell in headerRow.childNodes
-				console.log([evt.currentTarget.className, cell.offsetWidth, cell.offsetLeft, evt.offsetX])
-#				if Math.abs(cell.offsetLeft + cell.offsetWidth - evt.offsetX) < 8
-#					console.log(cell.className)
+		$(dom).delegate(">.inner-table >.table-header", "mousemove", (evt) =>
+			cell = $fly(evt.target).closest(".header-cell")[0]
+			return unless cell
+
+			if evt.offsetX <= 4
+				privouseColumn = true
+				nextColumn = @getColumn(cell._name)
+				for nextColumnInfo in @_columnsInfo.dataColumns
+					if nextColumnInfo.column is nextColumn
+						column = columnInfo?.column
+						break
+					columnInfo = nextColumnInfo
+			else if cell.offsetWidth - evt.offsetX <= 4
+				column = @getColumn(cell._name)
+
+			tableHeader = evt.currentTarget
+			handler = @_getHeaderCellResizeHandler(tableHeader)
+			if column
+				$fly(handler).css(
+					left: if privouseColumn then cell.offsetLeft else cell.offsetLeft + cell.offsetWidth
+					top: cell.offsetTop
+					height: cell.offsetHeight
+				).removeClass("hidden")
+				cola.util.userData(handler, "column", column)
+
+				cell = @_getHeaderCellByColumn(column)
+				cola.util.userData(handler, "cell", cell)
+			else
+				$fly(handler).addClass("hidden")
 		)
 
 		dataType = @_getBindDataType()
@@ -319,6 +343,54 @@ class cola.Grid extends cola.Widget
 					if propertyDef and not column._caption
 						column._caption = propertyDef._caption or propertyDef._property
 		return
+
+	_getHeaderCellByColumn: (column) ->
+		headerCell = null
+		@get$Dom().find(">.inner-table >.table-header .header-cell").each (i, cell) ->
+			if cell._name is column._name
+				headerCell = cell
+				return false
+			return
+		return headerCell
+
+	_getHeaderCellResizeHandler: (tableHeader) ->
+		table = @
+		handler = tableHeader.querySelector(".resize-handler")
+		innerTable = $fly(tableHeader).closest(".inner-table")[0]
+		if not handler
+			handler = cola.xCreate(
+				class: "resize-handler"
+			)
+			$(handler).draggable(
+				axis: "x"
+				start: (evt, ui) ->
+					cell = cola.util.userData(@, "cell")
+					helper = cola.xCreate(
+						class: "resize-helper"
+						style:
+							left: cell.offsetLeft
+							width: cell.offsetWidth
+					)
+					cola.util.userData(helper, "originalWidth", cell.offsetWidth)
+					innerTable.appendChild(helper)
+					cola.util.userData(@, "helper", helper)
+					table._innerDragging = true
+					return
+				stop: (evt, ui) ->
+					helper = cola.util.userData(@, "helper")
+					column = cola.util.userData(@, "column")
+					column.set("width", helper.offsetWidth)
+					$fly(helper).remove()
+					table._innerDragging = false
+					return
+				drag: (evt, ui) ->
+					helper = cola.util.userData(@, "helper")
+					originalWidth = cola.util.userData(helper, "originalWidth")
+					$fly(helper).width(originalWidth + ui.position.left - ui.originalPosition.left)
+					return
+			)
+			tableHeader.appendChild(handler)
+		return handler
 
 	_parseDom: (dom) ->
 		return unless dom
@@ -547,7 +619,7 @@ class cola.Grid extends cola.Widget
 						index++
 
 				columnInfo = dataColumns[index]
-#				if not columnInfo.column._readOnly and columnInfo.column._property
+				#				if not columnInfo.column._readOnly and columnInfo.column._property
 				nextColumnInfo = columnInfo
 
 			if nextColumnInfo and currentItem
@@ -716,6 +788,10 @@ class cola.Table.InnerTable extends cola.AbstractList
 						content:
 							tagName: "tbody"
 							contextKey: "header"
+					scroll: (evt) =>
+						return unless @_table._innerDragging
+						@_doms.tableBody?.scrollLeft = evt.target.scrollLeft
+						return
 				}, @_doms)
 				header = @_doms.header
 
@@ -794,17 +870,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 				cell = $.xCreate({
 					tagName: "td"
 					class: "header-cell " + column._id + " h-center"
-					content: [
-						{
-							className: "content"
-						}
-						{
-							className: "handler left"
-						}
-						{
-							className: "handler right"
-						}
-					]
+					content:
+						class: "content"
 				})
 				cell._name = column._name
 				row.appendChild(cell)
@@ -879,7 +946,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					cell = $.xCreate({
 						tagName: "div"
 						content:
-							className: "content"
+							class: "content"
 					})
 					cell._name = column._name
 					itemDom.appendChild(cell)

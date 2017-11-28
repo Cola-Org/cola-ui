@@ -50,6 +50,19 @@
 			top: 0;
 			border-bottom: 1px solid @tableHeadLineColor;
 			background: @tableHeadBackground;
+			> .resize-handler {
+				content: "";
+				position: absolute !important;
+				top: 0;
+				bottom: 0;
+				width: 8px;
+				margin-left: -4px;
+				z-index: 10;
+				cursor: col-resize;
+				&.hidden {
+					display: none
+				}
+			}
 		}
 		> .table-footer {
 			bottom: 0;
@@ -165,17 +178,6 @@
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
 			cursor: pointer;
-
-			>.left-handler {
-				content: "";
-				position: absolute;
-				right: -4px;
-				top: 0;
-				bottom: 0;
-				width: 8px;
-				z-index: 10;
-				cursor: col-resize;
-			}
 		}
 		&:first-child .header-cell {
 			border-top-width: 0;
@@ -205,6 +207,19 @@
 				background: @tableCurrentCellBackground;
 			}
 		}
+	}
+
+	.resize-helper {
+		box-sizing: border-box;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		border-width: 0 1px;
+		border-style: solid;
+		border-color: @borderColor;
+		background: rgba(0, 0, 0, 0.05);
+		min-width: 20px;
+		z-index: 20;
 	}
 }
 
