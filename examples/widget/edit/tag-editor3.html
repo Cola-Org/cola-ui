@@ -8,16 +8,30 @@
 <body style="padding:20px;">
 
 <c-form>
-    <field>
-        <label>机构列表</label>
-        <c-input bind="selectedItems"></c-input>
-    </field>
-    <field>
-        <label>机构列表</label>
-
-        <c-multiselect id="multiselect" renderItem="renderItem"></c-multiselect>
-    </field>
-
+    <fields class="cols-2">
+        <field>
+            <label>机构列表</label>
+            <c-input bind="selectedItems"></c-input>
+        </field>
+        <field>
+            <label>机构列表</label>
+            <c-multiselect id="multiselect" renderItem="renderItem">
+                <template>
+                    <c-table showHeader="false" bind="item in items" itemClick="itemClick">
+                        <column width="40px" renderCell="renderCell">
+                            <template>
+                                <div>
+                                    <c-checkbox bind="item.selected" style="float: left"
+                                                c-post="itemStateChange(item)"></c-checkbox>
+                                    <span c-bind="item.value"></span>
+                                </div>
+                            </template>
+                        </column>
+                    </c-table>
+                </template>
+            </c-multiselect>
+        </field>
+    </fields>
 </c-form>
 
 
@@ -36,25 +50,34 @@
             multiselect: {
                 valueProperty: "key", bind: "selectedItems",
                 openOnActive: true, dropdownWidth: 200,
-                content: {
-                    $type: "table", showHeader: false,
-                    bind: "language in items",
-                    columns: [{bind: ".value"}],
-                    itemClick: function (self, arg) {
-                        var dropdown = cola.findDropDown(self);
-                        if (dropdown) dropdown.close(arg.item.get("key"));
-                    }
-                },
                 renderItem: function (self, arg) {
                     var itemDom = arg.itemDom;
                     model.get("items").each(function (item) {
                         if (item.get("key") === arg.item) {
                             $(itemDom).find(">span").text(item.get("value"));
                         }
-                    })
+                    });
+                },
+                beforeOpen: function (self, arg) {
+                    var value = self.get("value");
+                    if (value) {
+                        value = "," + value + ",";
+                        model.get("items").each(function (entity) {
+                            var key = "," + entity.get("key") + ",";
+                            entity.set("selected", value.indexOf(key) >= 0);
+                        });
+                    }
                 }
             }
         });
+
+
+        model.action({
+            itemStateChange: function (item) {
+                var picker = cola.widget("multiselect");
+                picker._selectData(item.get("key"))
+            }
+        })
     });
 </script>
 </body>

@@ -1,37 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<script src="../../include-all.js"></script>
-	<script type="text/javascript">
-		cola(function (model) {
-			model.set("languages", cola.data({
-				url: "languages.json"
-			}));
-
-			model.widgetConfig({
-				list1: {
-					$type: "listView",
-					bind: "language in languages",
-					indexBar: true,
-					height: "100%",
-                    currentPageOnly:false,
-					columns: "1 2 4",
-					autoLoadPage: true
-				}
-			});
-		});
-	</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta name="theme-color" content="#FF0000">
+    <meta charset="utf-8"/>
+    <script src="../../include-all.js"></script>
+    <script type="text/javascript">
+        cola(function (model) {
+            model.describe("items", {
+                provider: {
+                    url: "http://open-data.cola-ui.com/service/employee/find",
+                    pageSize: 5
+                }
+            });
+        });
+    </script>
+    <style>
+    </style>
 </head>
-<body>
+<body style="padding:0px; margin:0;" class="v-box">
+<c-pager bind="item in items">
+</c-pager>
+<c-menu>
+    <item>
+        <c-pager bind="item in items">
+        </c-pager>
+    </item>
+    <item>
+        <c-button caption="编辑"></c-button>
+    </item>
+    <a caption="添加"></a>
+</c-menu>
 
-<div id="list1">
-	<template name="default">
-		<li>
-			<span c-bind="language.name"></span>
-		</li>
-	</template>
-</div>
+<c-table bind="item in items"></c-table>
+
+
+
+
+<br>
+
+<!--<c-page c-bind="item in items">-->
+<!--</c-page>-->
+
 
 </body>
 </html>

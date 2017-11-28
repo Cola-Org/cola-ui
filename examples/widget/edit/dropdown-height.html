@@ -139,14 +139,13 @@
                     bind: "currentSelected",
                     textProperty: "name",
                     dropDownHeight: "200px",
-                    disabled:true
+//                    disabled:true
                 }
             });
         });
     </script>
 </head>
 <body style="padding:20px;">
-<div id="dropdown2"></div>
-<div c-bind="currentSelected"></div>
+<c-dropdown c-items="languages" textProperty= "name" dropdownHeight="200"></c-dropdown>
 </body>
 </html>

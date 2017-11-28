@@ -8,12 +8,35 @@
     </style>
     <script type="text/javascript">
         cola(function (model) {
+            var d1=Date.parse("2017-09-17");
+            console.log(new XDate(Date.parse("2017-09-17")).toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate(Date.parse("2017-09-17 09:12")).toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate(Date.parse("2017-09-17 08:00")).toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate(Date.parse("2017-09-17 8")).toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate("2017-09-17").toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate("2017-09-17 09:12").toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate("2017-09-17 08:00").toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate("2017-09-17 8").toString("yyyy-MM-dd hh:mm:ss"));
+            console.log(new XDate("yyyyMMdd||20170917").toString("yyyy-MM-dd hh:mm:ss"));
+
+            model.action({
+                timePost:function (self, arg) {
+                    debugger;
+                }
+            })
         });
     </script>
 </head>
 <body style="padding:20px;">
 
-<c-datepicker bind="birthDate" inputType="dateTime"></c-datepicker>
 
+<c-datepicker bind="startDate" inputType="dateTime" post="timePost" change></c-datepicker>
+
+<c-datepicker bind="birthDate"></c-datepicker>
+<c-monthpicker></c-monthpicker>
+
+
+<span c-bind="startDate"></span>
+<span c-bind="birthDate"></span>
 </body>
 </html>

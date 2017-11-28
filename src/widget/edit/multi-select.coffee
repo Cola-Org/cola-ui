@@ -35,18 +35,23 @@ class cola.MultiSelect extends cola.CustomDropdown
 			$input.before(itemDom)
 
 	removeItem: (item)->
+		if !item then return
 		if item.nodeType
 			data = $(item).data().item
-			value = @_value
-			values = value.split(",")
-			newValues = [];
-			for val in values
-				if val == data then continue;
-				newValues.push(val)
-			newValue = newValues.join(",")
-			if @fire("beforeRemoveItem", @, {item: data, oldValue: value, value: newValue}) isnt false
-				@_set("value", newValue)
-			@fire("removeItem", @, {item: data, oldValue: value, value: newValue})
+		else
+			data = item
+
+		value = @_value
+		values = value.split(",")
+		newValues = [];
+		for val in values
+			if val == data then continue;
+			newValues.push(val)
+		newValue = newValues.join(",")
+		if @fire("beforeRemoveItem", @, {item: data, oldValue: value, value: newValue}) isnt false
+			@_set("value", newValue)
+		@fire("removeItem", @, {item: data, oldValue: value, value: newValue})
+
 
 	_selectData: (item) ->
 		@_inputEdited = false

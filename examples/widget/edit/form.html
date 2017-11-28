@@ -1,103 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-	<meta charset="UTF-8"/>
-	<script src="../../include-all.js"></script>
-	<style>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <meta charset="UTF-8"/>
+    <script src="../../include-all.js"></script>
+    <style>
 
-	</style>
-	<script type="text/javascript">
+    </style>
+    <script type="text/javascript">
 
-		cola(function (model) {
-			model.dataType({
-				name: "Form",
-				properties: {
-					name: {
-						validators: ["required"]
-					},
-					age: {
-						dataType: "int",
-						validators: [
-							"required", {
-								$type: "number",
-								min: 16,
-								max: 60
-							}
-						]
-					},
-					email: {
-						validators: ["required", "email"]
-					},
-					birthday: {
-						dataType: "date",
-						validators: "required"
-					},
-					subObject1: {
-						dataType: {
-							properties: {
-								subObject2: {
-									dataType: {
-										properties: {
-											num: {
-												validators: [{
-													$type: "number",
-													min: 10,
-													max: 100
-												}]
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			});
-			model.describe("form", "Form");
-			model.set("form", {
-				subObject1: {
-					subObject2: {
-					}
-				}
-			});
+        cola(function (model) {
+            model.dataType({
+                name: "Form",
+                properties: {
+                    name: {
+                        validators: ["required"],
+                        caption:"中国人寿新一代核心系统"
+                    },
+                    age: {
+                        dataType: "int",
+                        validators: [
+                            "required", {
+                                $type: "number",
+                                min: 16,
+                                max: 60
+                            }
+                        ]
+                    },
+                    email: {
+                        validators: ["required", "email"]
+                    },
+                    birthday: {
+                        dataType: "date",
+                        validators: "required"
+                    },
+                    subObject1: {
+                        dataType: {
+                            properties: {
+                                subObject2: {
+                                    dataType: {
+                                        properties: {
+                                            num: {
+                                                validators: [{
+                                                    $type: "number",
+                                                    min: 10,
+                                                    max: 100
+                                                }]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            model.describe("form", "Form");
+            model.set("form", {
+                subObject1: {
+                    subObject2: {}
+                }
+            });
 
-			model.action({
-				onAgeChange: function(entity) {
-					entity.set("subObject1.subObject2", {});
-					entity.set("subObject1.subObject2.num", entity.get("age") * (-1));
-				},
-				validate: function () {
-					model.get("form").validate();
-				}
-			});
-		});
+            model.action({
+                onAgeChange: function (entity) {
+                    entity.set("subObject1.subObject2", {});
+                    entity.set("subObject1.subObject2.num", entity.get("age") * (-1));
+                },
+                validate: function () {
+                    model.get("form").validate();
+                }
+            });
+        });
 
 
-	</script>
+    </script>
 </head>
 <body style="padding:20px;">
 
-<c-input bind="form.age" c-post="onAgeChange(form)"></c-input>
-
 <c-form bind="form">
-	<field property="name"></field>
-	<!--<field property="age">-->
-		<!--<label></label>-->
-		<!--<c-input c-post="onAgeChange(form)"></c-input>-->
-	<!--</field>-->
-	<field property="email"></field>
-	<field property="birthday">
-		<message></message>
-	</field>
-	<field>
-		<c-button click="validate">校验</c-button>
-	</field>
-	<field property="subObject1.subObject2.num"></field>
-	<field>
-		<label></label>
-		<c-input bind="form.subObject1.subObject2.num"></c-input>
-	</field>
+    <fields class="cols-3">
+        <field property="name"></field>
+        <field property="age">
+            <label></label>
+            <c-input c-post="onAgeChange(form)"></c-input>
+        </field>
+        <field property="email"></field>
+        <field property="subObject1.subObject2.num"></field>
+        <field>
+            <label></label>
+            <c-input bind="form.subObject1.subObject2.num"></c-input>
+        </field>
+    </fields>
 </c-form>
 
 </body>

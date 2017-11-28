@@ -8,13 +8,13 @@
         cola(function (model) {
             model.action({
                 add: function (self, arg) {
-                  cola.widget("tab").addTab({
-                      caption:new Date().getTime().toString(),
-                      closeable:true,
-                      content:{
-                          tagName:"c-segment"
-                      }
-                  })
+                    cola.widget("tab").addTab({
+                        caption: new Date().getTime().toString(),
+                        closeable: true,
+                        content: {
+                            tagName: "c-segment"
+                        }
+                    })
                 }
             });
         });
@@ -22,10 +22,10 @@
 </head>
 <body style="padding:20px;">
 
-    <c-button caption="add" click="add"></c-button>
+<c-button caption="add" click="add"></c-button>
 
 <c-segment width="400px" height="400px">
-    <c-tab id="tab" height="100%"></c-tab>
+    <c-tab id="tab" height="100%" direction="left"></c-tab>
 </c-segment>
 
 </body>

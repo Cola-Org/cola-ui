@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+    <script src="../../include-all.js"></script>
+</head>
+<body style="padding:20px;">
+
+<c-form>
+    <fields class="cols-2">
+        <field>
+            <label>机构列表</label>
+            <c-input bind="selectedItems"></c-input>
+        </field>
+        <field>
+            <label>机构列表</label>
+            <c-multiselect id="multiselect" renderItem="renderItem">
+            </c-multiselect>
+        </field>
+    </fields>
+</c-form>
+
+
+<script type="text/javascript">
+    cola(function (model) {
+        model.set("selectedItems", "1,2");
+        model.set("items", [
+            {key: "1", value: "发热"},
+            {key: "2", value: "头疼"},
+            {key: "3", value: "偏头疼"},
+            {key: "4", value: "咳嗽"},
+            {key: "5", value: "关节疼痛"},
+            {key: "6", value: "盗汗"}
+        ]);
+        model.widgetConfig({
+            multiselect: {
+                valueProperty: "key", bind: "selectedItems",
+                openOnActive: true, dropdownWidth: 200,
+                renderItem: function (self, arg) {
+                    var itemDom = arg.itemDom;
+                    model.get("items").each(function (item) {
+                        if (item.get("key") === arg.item) {
+                            $(itemDom).find(">span").text(item.get("value"));
+                        }
+                    })
+                },
+                beforeOpen: function (self, arg) {
+                    var value = self.get("value");
+                    if (value) {
+                        value = "," + value + ",";
+                        model.get("items").each(function (entity) {
+                            var key = "," + entity.get("key") + ",";
+                            entity.set("selected", value.indexOf(key) >= 0);
+                        });
+                    }
+                }
+            }
+        });
+        model.action({
+            itemStateChange: function (item) {
+                var picker = cola.widget("multiselect");
+                picker._selectData(item.get("key"))
+            }
+        })
+    });
+</script>
+</body>
+</html>
