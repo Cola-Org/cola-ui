@@ -262,16 +262,22 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					cola.xRender(valueContent, currentItemScope, ctx)
 				$fly(valueContent).show()
 
-			else if @_textProperty or @_valueProperty
-				if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
-					text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
-				else
-					text = item
-				input.value = text or ""
-
 			else
-				text = @readBindingValue()
-				input.value = text or ""
+				property = @_textProperty or @_valueProperty
+				if property
+					if item instanceof cola.Entity
+						text = cola.Entity._evalDataPath(item, property or "value")
+					else if typeof item is "object" and not (item instanceof Date)
+						if item.hasOwnProperty(property)
+							text = item[property]
+						else
+							text = cola.Entity._evalDataPath(item, property or "value")
+					else
+						text = item
+					input.value = text or ""
+				else
+					text = @readBindingValue()
+					input.value = text or ""
 
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
