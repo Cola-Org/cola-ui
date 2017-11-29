@@ -11,16 +11,21 @@ cola.registerTypeResolver "table.column", (config) ->
 
 class cola.TableColumn extends cola.Element
 	@attributes:
+		parent: null
 		name:
 			readOnlyAfterCreate: true
-		caption: null
+		caption:
+			refreshColumns: true
 		align:
+			refreshColumns: true
 			enum: [ "left", "center", "right" ]
 		visible:
+			refreshColumns: true
 			type: "boolean"
 			defaultValue: true
 			refreshStructure: true
-		headerTemplate: null
+		headerTemplate:
+			refreshColumns: true
 
 	@events:
 		renderHeader: null
@@ -28,7 +33,8 @@ class cola.TableColumn extends cola.Element
 
 	constructor: (config) ->
 		super(config)
-		if not @_name then @_name = cola.uniqueId()
+		@_id = cola.uniqueId()
+		@_name ?= @_id
 
 		@on("attributeChange", (self, arg) =>
 			return unless @_table
@@ -36,9 +42,13 @@ class cola.TableColumn extends cola.Element
 			return unless attrConfig
 			if attrConfig.refreshStructure
 				@_table._collectionColumnsInfo()
-
 			return
 		)
+
+	_doSet: (attr, attrConfig, value) ->
+		if attrConfig?.refreshColumns
+			@_table?._onColumnChange(attrConfig?.refreshItems)
+		return super(attr, attrConfig, value)
 
 	_setTable: (table) ->
 		@_table._unregColumn(@) if @_table
@@ -46,11 +56,11 @@ class cola.TableColumn extends cola.Element
 		table._regColumn(@) if table
 		return
 
-	getTemplate: (property) ->
-		template = @["_real_" + property]
+	getTemplate: (type, defaultTemplate) ->
+		template = @["_real_" + type]
 		return template if template isnt undefined
 
-		templateDef = @get(property)
+		templateDef = @get(type) or defaultTemplate
 		return null unless templateDef
 
 		if typeof templateDef is "string"
@@ -71,12 +81,14 @@ class cola.TableColumn extends cola.Element
 		if not template
 			template = @_table.getTemplate(templateDef)
 
-		@["_real_" + property] = template or null
+		@["_real_" + type] = template or null
 		return template
 
 class cola.TableGroupColumn extends cola.TableColumn
 	@attributes:
 		columns:
+			refreshColumns: true
+			refreshItems: true
 			setter: (columnConfigs) ->
 				_columnsSetter.call(@, @_table, columnConfigs)
 				return
@@ -91,10 +103,13 @@ class cola.TableGroupColumn extends cola.TableColumn
 class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
+			refreshColumns: true
 			defaultValue: 80
 		valign:
+			refreshColumns: true
 			enum: [ "top", "center", "bottom" ]
-		footerTemplate: null
+		footerTemplate:
+			refreshColumns: true
 
 	@events:
 		renderCell: null
@@ -109,29 +124,40 @@ class cola.TableDataColumn extends cola.TableContentColumn
 			setter: cola.DataType.dataTypeSetter
 		property: null
 		bind: null
-		template: null
-		sortable: null
-		sortDirection: null
+		template:
+			refreshColumns: true
+		sortable:
+			refreshColumns: true
+		sortDirection:
+			refreshColumns: true
+		resizeable:
+			defaultValue: true
+
+		readOnly: null
+		editTemplate: null
 
 class cola.TableSelectColumn extends cola.TableContentColumn
-	@events:
-		change: null
-		itemChange: null
 	@attributes:
 		width:
 			defaultValue: "42px"
 		align:
 			defaultValue: "center"
+	@events:
+		change: null
+		itemChange: null
 
 	renderHeader: (dom, item) ->
 		if not dom.firstElementChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
+				change: (self, arg) =>
+					if typeof arg.value != "boolean"
+						@fire("change", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
 				click: (self) =>
 					checked = self.get("checked")
 					@selectAll(checked)
-					@fire("change", @, { checkbox: self, oldValue: not checked, value: checked })
+					@fire("change", this, {checkbox: self, oldValue: not checked, value: checked})
 					return
 			)
 			checkbox.appendTo(dom)
@@ -140,10 +166,9 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 	renderCell: (dom, item) ->
 		if not dom.firstElementChild
 			checkbox = new cola.Checkbox(
-				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
-				click: (self, arg) =>
-					if !@_ignoreCheckedChange
+				change: (self, arg) =>
+					if not @_ignoreCheckedChange
 						@refreshHeaderCheckbox()
 					arg.item = item
 					@fire("itemChange", @, arg)
@@ -198,9 +223,9 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		selectedProperty = table._selectedProperty
 		if table._realItems
 			@_ignoreCheckedChange = true
-			cola.each @_table._realItems, (item) ->
+			cola.each table._realItems, (item) =>
 				itemType = table._getItemType(item)
-				if itemType == "default"
+				if itemType is "default"
 					if item instanceof cola.Entity
 						item.set(selectedProperty, selected)
 					else

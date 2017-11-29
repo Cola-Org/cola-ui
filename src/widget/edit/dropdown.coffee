@@ -99,21 +99,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				@close()
 			else if not @_disabled
 				@open()
-			return false
-		).on("keydown", (evt)=>
-			arg =
-				keyCode: evt.keyCode
-				shiftKey: evt.shiftKey
-				ctrlKey: evt.ctrlKey
-				altKey: evt.altKey
-				event: evt
-				inputValue: @_doms.input.value
-
-			@fire("keyDown", @, arg)
-			if evt.keyCode is 9 then @_closeDropdown()
-
-			if @_onKeyDown?(evt) isnt false and @_dropdownContent
-				$(@_dropdownContent).trigger(evt)
 			return
 		).on("keypress", (evt)=>
 			arg =
@@ -171,7 +156,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_doFocus: ()->
 		@_inputEdited = false
-		super()
+		super(evt)
 		return
 
 	_parseDom: (dom)->
@@ -192,8 +177,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: (evt) =>
-				this.focus()
+			click: () => this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -382,7 +366,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	open: (callback) ->
 		if @_finalReadOnly and @_disabled then return
-		if @_readOnly then return
+
 		if @fire("beforeOpen", @) is false then return
 
 		doCallback = () =>

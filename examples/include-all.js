@@ -16,7 +16,8 @@ function includeAll(root) {
 	writeScriptlet("lib/number-formatter.js");
 	writeScriptlet("lib/xdate.js");
 	writeScriptlet("lib/swipe.lite.js");
-	writeScriptlet("lib/jquery-1.11.0.js");
+	writeScriptlet("lib/jquery-2.1.3.js");
+	writeScriptlet("lib/jquery-ui-1.12.1.custom.js");
 	writeScriptlet("lib/jquery.transit.js");
 
 	writeScriptlet("lib/jsep.js");

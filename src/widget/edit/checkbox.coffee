@@ -45,6 +45,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			if entity
 				super()
 		return @
+
 	_parseDom: (dom)->
 		@_doms ?= {}
 		@_$dom ?= $(dom)
@@ -112,6 +113,13 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			]
 		}, @_doms)
 
+	_initDom: (dom)->
+		super(dom)
+		$(@_doms.input)
+			.on("focus", ()=> cola._setFocusWidget(@))
+			.on("blur", ()=> cola._setFocusWidget(null))
+		return
+
 	_bindToSemantic: ()->
 		@get$Dom().checkbox({
 			onChange: ()=> @_setValue(@_getValue())
@@ -121,8 +129,10 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		@_dom = dom
 		unless parseChild
 			@_bindToSemantic()
-		super(dom, parseChild)
+		return super(dom, parseChild)
 
+	focus: () ->
+		@_doms.input?.focus()
 		return
 
 	_refreshEditorDom: ()->
@@ -143,6 +153,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		$dom.checkbox(if !!@_disabled then "disable" else "enable")
 
 		@_refreshEditorDom()
+		return
 
 	_getValue: ()->
 		return if @get$Dom().checkbox("is checked") then @get("onValue") else @get("offValue")

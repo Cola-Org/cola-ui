@@ -86,7 +86,7 @@ class cola.ItemsView extends cola.Widget
 				return true
 			)
 
-		if @_focusable then @get$Dom().attr("tabIndex", 1).on("keydown", (evt) => @_onKeyDown(evt))
+		if @_focusable then @get$Dom().attr("tabIndex", 1)
 		return
 
 	getItems: () ->
@@ -399,7 +399,7 @@ class cola.ItemsView extends cola.Widget
 
 	_onItemRefresh: (arg) ->
 		item = arg.entity
-		if typeof item == "object"
+		if typeof item is "object"
 			@refreshItem(item)
 		return
 

@@ -243,8 +243,10 @@ cola.DataItemsWidgetMixin =
 		return
 
 	constructor: () ->
-		@_itemsScope = itemsScope = new cola.ItemsScope(@_scope)
+		@_itemsScope = @_createItemsScope()
 
+	_createItemsScope: () ->
+		itemsScope = new cola.ItemsScope(@_scope)
 		itemsScope.onItemsRefresh = (arg) => @_onItemsRefresh(arg)
 		itemsScope.onItemRefresh = (arg) => @_onItemRefresh(arg)
 		itemsScope.onItemInsert = (arg) => @_onItemInsert(arg)
@@ -253,6 +255,7 @@ cola.DataItemsWidgetMixin =
 		itemsScope.onItemsLoadingEnd = (arg) => @_onItemsLoadingEnd?(arg)
 		if @_onCurrentItemChange
 			itemsScope.onCurrentItemChange = (arg) => @_onCurrentItemChange(arg)
+		return itemsScope
 
 	_getItems: () ->
 		if not @_itemsRetrieved

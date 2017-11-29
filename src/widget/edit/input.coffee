@@ -198,17 +198,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 				return
 			).on("focus", ()=> @_doFocus()
 			).on("blur", ()=> @_doBlur()
-			).on("keydown", (event)=>
-				arg =
-					keyCode: event.keyCode
-					shiftKey: event.shiftKey
-					ctrlKey: event.ctrlKey
-					altKey: event.altKey
-					event: event
-					inputValue: $(input).val()
-
-				@fire("keyDown", @, arg)
-				if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
 			).on("keypress", (event)=>
 				arg =
 					keyCode: event.keyCode
@@ -223,20 +212,18 @@ class cola.AbstractInput extends cola.AbstractEditor
 			)
 		return
 
-	_doFocus: ()->
-		return if @_focused
-		@_focused = true
-		@_refreshInput()
-		@addClass("focused") if not @_finalReadOnly
-		@fire("focus", @)
+	_onKeyDown: (evt) ->
+		if evt.altKey and evt.keyCode is 18 and isIE11 then @_postInput()
 		return
 
-	_doBlur: ()->
-		return if not @_focused
-		@_focused = false
-		@removeClass("focused")
+	_onFocus: ()->
+		@_inputFocused = true
 		@_refreshInput()
-		@fire("blur", @)
+		return
+
+	_onBlur: ()->
+		@_inputFocused = false
+		@_refreshInput()
 
 		if not @_value? or @_value is "" and @_bindInfo?.writeable
 			propertyDef = @getBindingProperty()
@@ -393,9 +380,6 @@ class cola.Input extends cola.AbstractInput
 			type: "boolean"
 			defaultValue: true
 	@events:
-		focus: null
-		blur: null
-		keyDown: null
 		keyPress: null
 
 	_createEditorDom: ()->

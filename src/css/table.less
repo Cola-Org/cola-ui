@@ -9,8 +9,10 @@
 @tableFootCellPadding: 0.4em 0.4em;
 @tableCellPadding: 0.6em 0.4em;
 
-@tableHeadBackground: @white;
+@tableHeadBackground: white;
 @tableFootBackground: @tableHeadBackground;
+@tableCurrentCellBackground: fade(@primaryColor, 15%);
+@tableColumnDraggingHelperBackground: @tableHeadBackground;
 
 @tableInvertedStripedBackground: darken(@itemsViewInvertedBackground, 4%);
 @tableInvertedHeadBackground: lighten(@itemsViewInvertedBackground, 6%);
@@ -20,317 +22,301 @@
 @tableInvertedRowLineColor: transparent;
 @tableInvertedColLineColor: transparent;
 
-.ui.widget-grid {
-	.inner-table {
+.ui.widget-table {
+	border: 1px solid @borderColor;
 
+	.inner-table {
+		position: relative;
+		overflow-x: visible;
+		overflow-y: hidden;
+		height: 100%;
+		border-left: 1px solid @tableColLineColor;
+
+		&:first-of-type {
+			border-left-width: 0;
+		}
+
+		> .table-header, > .table-footer {
+			position: absolute;
+			left: 0;
+			overflow: hidden;
+			z-index: 1;
+			> table {
+				table-layout: fixed;
+				width: 0;
+			}
+		}
+		> .table-header {
+			top: 0;
+			border-bottom: 1px solid @tableHeadLineColor;
+			background: @tableHeadBackground;
+			> .resize-handler {
+				content: "";
+				position: absolute !important;
+				top: 0;
+				bottom: 0;
+				width: 8px;
+				margin-left: -4px;
+				z-index: 10;
+				cursor: col-resize;
+				&.hidden {
+					display: none
+				}
+			}
+			> .insert-indicator {
+				background: rgba(0, 0, 0, 0.5);
+				content: "";
+				position: absolute !important;
+				top: 0;
+				bottom: 0;
+				width: 2px;
+				margin-left: -1px;
+				z-index: 10;
+				&.hidden {
+					display: none
+				}
+			}
+		}
+		> .table-footer {
+			bottom: 0;
+			border-top: 1px solid @tableFootLineColor;
+			background: @tableFootBackground;
+		}
+		> .table-body {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			box-sizing: border-box;
+		}
+
+		.items {
+			padding: 0;
+			margin: 0;
+			overflow: visible;
+
+			.cell-editor-pane {
+				position: absolute;
+				overflow: hidden;
+				background: #fff;
+
+				&.hidden {
+					display: none;
+				}
+
+				> * {
+					width: 100%;
+					height: 100%;
+				}
+				> .editor-container {
+					display: flex;
+
+					-webkit-justify-content: center;
+					-ms-flex-pack: center;
+					justify-content: center;
+
+					-webkit-align-items: center;
+					-ms-flex-align: center;
+					align-items: center;
+				}
+			}
+		}
+	}
+
+	.cell, .header-cell, .footer-cell {
+		box-sizing: border-box;
+		height: 2.6em;
+		overflow-x: hidden;
+		overflow-y: visible;
+		font-size: 1rem;
+		> .content {
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+
+			height: 100%;
+			overflow: hidden;
+
+			-webkit-align-items: center;
+			-ms-flex-align: center;
+			align-items: center;
+
+			&.default-content, > .cell-content {
+				padding: 0 0.4em;
+			}
+
+			> .ui.input {
+				width: 100%;
+			}
+			> .ui.checkbox.in-cell {
+				margin-left: 0.5em;
+			}
+		}
+		&.sortable {
+			> .content {
+				&:after {
+					content: "\f0dc";
+					font-family: Icons;
+					margin-left: 0.5em;
+					color: @disabledTextColor;
+				}
+			}
+			&.asc > .content:after {
+				content: "\f0de";
+				color: @darkTextColor;
+			}
+			&.desc > .content:after {
+				content: "\f0dd";
+				color: @darkTextColor;
+			}
+		}
+
+		&.h-left > .content {
+			-webkit-justify-content: flex-start;
+			-ms-flex-pack: start;
+			justify-content: flex-start;
+		}
+		&.h-center > .content {
+			-webkit-justify-content: center;
+			-ms-flex-pack: center;
+			justify-content: center;
+		}
+		&.h-right > .content {
+			-webkit-justify-content: flex-end;
+			-ms-flex-pack: end;
+			justify-content: flex-end;
+		}
+
+		&.v-top > .content {
+			-webkit-align-items: flex-start;
+			-ms-flex-align: start;
+			align-items: flex-start;
+		}
+		&.v-bottom > .content {
+			-webkit-align-items: flex-end;
+			-ms-flex-align: end;
+			align-items: flex-end;
+		}
+	}
+	.header-row {
+		white-space: nowrap;
+		line-height: 1;
+		font-size: 0;
+
+		.header-cell, .header-group {
+			display: inline-block;
+			cursor: pointer;
+		}
+		.header-cell {
+			position: relative;
+			border-width: 1px 1px 0 0;
+			border-style: solid;
+			border-color: @tableHeadLineColor @tableColLineColor;
+			&.rows-2 {
+				height: 2.6em * 2;
+			}
+			&.rows-3 {
+				height: 2.6em * 3;
+			}
+			&.rows-4 {
+				height: 2.6em * 4;
+			}
+		}
+		> .header-group > .header-cell {
+			width: 100%;
+		}
+		&.first-row {
+			position: relative;
+			> .header-cell, > .header-group > .header-cell {
+				border-top-width: 0;
+			}
+		}
+	}
+	.footer-cell {
+		display: inline-block;
+		border-right: 1px solid @tableColLineColor;
 	}
 
 	.table.item {
 		position: relative;
 		white-space: nowrap;
-		min-height: 2.7em;
-
+		line-height: 1;
+		font-size: 0;
+		box-sizing: border-box;
+		border-bottom: 1px solid @tableRowLineColor;
+		overflow: visible;
+		&:last-of-type {
+			border-bottom-width: 0;
+			.box-shadow(0 1px 0 @tableRowLineColor);
+		}
 		> .cell {
 			display: inline-block;
-			overflow: hidden;
-		}
-	}
-}
-
-.ui.widget-table {
-	> .table-wrapper {
-		height: 100%;
-		overflow: auto;
-	}
-
-	table {
-		table-layout: fixed;
-		width: 100%;
-		border-collapse: collapse;
-		th, td {
-			border-width: 1px;
-			border-style: solid;
-			border-color: @tableRowLineColor @tableColLineColor;
-		}
-		thead {
-			th {
-				font-weight: normal;
-				background: @tableHeadBackground;
-				border-color: @tableHeadLineColor @tableColLineColor;
-				> div {
-					position: relative;
-					overflow: hidden;
-					padding: @tableHeadCellPadding;
-				}
-
-				&.sortable > div {
-					padding-right: 1.25em;
-					&:after {
-						content: "\f0dc";
-						font-family: Icons;
-						position: absolute;
-						right: 0.25em;
-						top: 0.4em;
-						color: @disabledTextColor;
-					}
-				}
-
-				&.sortable.asc > div:after {
-					content: "\f0de";
-					color: @darkTextColor;
-				}
-				&.sortable.desc > div:after {
-					content: "\f0dd";
-					color: @darkTextColor;
-				}
+			border-right: 1px solid @tableColLineColor;
+			&.current {
+				background: @tableCurrentCellBackground;
 			}
-		}
-		tbody td {
-			position: relative;
-
-			> div {
-				overflow: hidden;
-				min-height: 1em;
-				&.default-content {
-					padding: @tableCellPadding;
-				}
-			}
-
-			&.info {
-			}
-			&.warn {
-				content: "";
-				position: absolute;
-				right: 0;
-				top: 0;
-				width: 0;
-				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @warningTextColor;
-				border-right: 0.4em solid @warningTextColor;
-				border-bottom: 0.4em solid transparent;
-				cursor: pointer;
-			}
-			&.error:after {
-				content: "";
-				position: absolute;
-				right: 0;
-				top: 0;
-				width: 0;
-				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @errorTextColor;
-				border-right: 0.4em solid @errorTextColor;
-				border-bottom: 0.4em solid transparent;
-				cursor: pointer;
-			}
-
-			.state {
-				font-family: "Icons";
-				&.new {
-					.opacity(50);
-					&:before {
-						content: "\f067";
-					}
-				}
-				&.modified {
-					.opacity(50);
-					&:before {
-						content: "\f040";
-					}
-				}
-				&.info {
-					color: @infoTextColor;
-					&:before {
-						content: "\f05a";
-					}
-				}
-				&.warn {
-					color: @warningTextColor;
-					&:before {
-						content: "\f06a";
-					}
-				}
-				&.error {
-					color: @errorTextColor;
-					&:before {
-						content: "\f071";
-					}
-				}
-			}
-		}
-		thead tr:first-child th {
-			border-bottom: 2px solid @tableHeadLineColor;
-		}
-		tbody tr:last-child td {
-			border-bottom: 2px solid @tableFootLineColor;
-		}
-		tfoot {
-			td {
-				background: @tableFootBackground;
-				border-color: @tableFootLineColor @tableColLineColor;
-				> div {
-					overflow: hidden;
-					padding: @tableFootCellPadding;
-				}
-			}
-		}
-
-		c-input, c-datepicker, c-tag-editor {
-			&.in-cell {
-				width: 100%;
-			}
-		}
-
-		.ui.checkbox.in-cell {
-			margin-top: 0.25em;
-			margin-left: 0.5em;
 		}
 	}
 
-	> .fixed-header, > .fixed-footer {
-		overflow: hidden;
-		height: auto !important;
+	.resize-helper {
+		box-sizing: border-box;
 		position: absolute;
-		display: none;
-	}
-
-	> .fixed-header {
 		top: 0;
-	}
-
-	> .fixed-footer {
 		bottom: 0;
+		border-width: 0 1px;
+		border-style: solid;
+		border-color: @borderColor;
+		background: rgba(0, 0, 0, 0.05);
+		min-width: 20px;
+		z-index: 20;
 	}
 }
 
-.ui.widget-table.impact {
-	table {
-		th, td {
-			> div {
-				padding: 0.25em !important;
-			}
+.table-column-dragging-helper {
+	box-sizing: border-box;
+	overflow: hidden;
+	z-index: 9999;
+	background: fade(@tableColumnDraggingHelperBackground, 80%);
+	.box-shadow(0.0625em 0.0625em 0.125em 0.125em rgba(0, 0, 0, 0.1));
+
+	> .content {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+
+		height: 100%;
+		overflow: hidden;
+
+		-webkit-align-items: center;
+		-ms-flex-align: center;
+		align-items: center;
+		-webkit-justify-content: center;
+		-ms-flex-pack: center;
+		justify-content: center;
+
+		&.default-content {
+			padding: 0 0.4em;
 		}
 	}
 }
 
 .ui.widget-table.striped {
-	.table.item:nth-child(2n):not(.current) {
-		background: @itemsViewItemStripedBackground;
+	.inner-table {
+		.table.item:nth-child(2n):not(.current) {
+			background: @itemsViewItemStripedBackground;
+		}
 	}
 }
 
 .ui.widget-table {
-	.table.item:hover:not(.current) {
-		background: @itemsViewHoverBackground;
-	}
-	.table.item.current {
-		background: @itemsViewCurrentBackground;
-	}
-}
-
-.ui.widget-table.striped.inverted {
-	.table.item:nth-child(2n):not(.current) {
-		background: @tableInvertedStripedBackground;
-	}
-}
-
-.ui.widget-table.inverted {
-	background: @itemsViewInvertedBackground;
-	.table.item {
-		color: @itemsViewInvertedTextColor;
-		background: @itemsViewInvertedBackground;
-		&:hover:not(.current) {
-			background: @itemsViewInvertedHoverBackground;
-		}
-		&.current {
-			background: @itemsViewInvertedCurrentBackground;
-		}
-	}
-	table {
-		color: @itemsViewInvertedTextColor;
-		th, td {
-			border-color: @tableInvertedRowLineColor @tableInvertedColLineColor;
-		}
-		thead th {
-			background: @tableInvertedHeadBackground;
-			border-color: @tableInvertedHeadLineColor;
-		}
-		thead tr:last-child th {
-			border-bottom-color: @tableInvertedFootLineColor;
-		}
-		tbody tr:last-child td {
-			border-bottom-color: @tableInvertedFootLineColor;
-		}
-		tfoot td {
-			background: @tableInvertedFootBackground;
-			border-color: @tableInvertedFootLineColor;
-		}
-	}
-}
-
-.ui.widget-table.basic {
-	background: none;
-	.table.item {
-		color: inherit;
-		background: none;
-		&:hover:not(.current) {
-			background: none;
-		}
-		&.current {
-			background: none;
-			color: inherit;
-		}
-	}
-}
-
-.table-light-color(@color) {
-	.ui.widget-table.light-@{color} {
+	.inner-table {
 		.table.item:hover:not(.current) {
-			background: fade(@@color, 10%);
+			background: @itemsViewHoverBackground;
 		}
 		.table.item.current {
-			background: fade(@@color, 20%);
+			background: @itemsViewCurrentBackground;
 		}
 	}
 }
-
-//.table-light-color(red);
-//.table-light-color(orange);
-//.table-light-color(yellow);
-//.table-light-color(olive);
-//.table-light-color(green);
-//.table-light-color(teal);
-//.table-light-color(blue);
-//.table-light-color(violet);
-//.table-light-color(purple);
-//.table-light-color(pink);
-//.table-light-color(brown);
-//.table-light-color(grey);
-//.table-light-color(black);
-
-.table-color(@color) {
-	.ui.widget-table.@{color} {
-		.table.item:hover:not(.current) {
-			background: fade(@@color, 12%);
-		}
-		.table.item.current {
-			background: @@color;
-			color: @invertedSelectedTextColor;
-		}
-	}
-}
-
-//.table-color(red);
-//.table-color(orange);
-//.table-color(yellow);
-//.table-color(olive);
-//.table-color(green);
-//.table-color(teal);
-//.table-color(blue);
-//.table-color(violet);
-//.table-color(purple);
-//.table-color(pink);
-//.table-color(brown);
-//.table-color(grey);
-//.table-color(black);
