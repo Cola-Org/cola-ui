@@ -42,7 +42,7 @@
 				<column bind="upper(item.col2)"></column>
 				<column bind=".col3"></column>
 			</column>
-			<column bind=".col4"></column>
+			<column bind=".col4" sortable="true"></column>
 			<column bind=".col5"></column>
 			<column caption="Operator" align="center">
 				<template>
@@ -121,6 +121,7 @@
 			table1: {
 				$type: "table",
 				bind: "item in items",
+				readOnly: false,
 				showHeader: true,
 //				showFooter: true,
 				sortable: true,

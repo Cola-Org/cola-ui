@@ -104,7 +104,7 @@ class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
 			refreshColumns: true
-			defaultValue: "100px"
+			defaultValue: 80
 		valign:
 			refreshColumns: true
 			enum: [ "top", "center", "bottom" ]
@@ -126,8 +126,10 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		bind: null
 		template:
 			refreshColumns: true
-		sortable: null
-		sortDirection: null
+		sortable:
+			refreshColumns: true
+		sortDirection:
+			refreshColumns: true
 		resizeable:
 			defaultValue: true
 

@@ -425,7 +425,6 @@ class cola.Widget extends cola.RenderableElement
 		@get$Dom().addClass("focused")
 		@_onFocus?()
 		@fire("focus", @)
-		console.log("focus: " + @_dom.className)
 		return
 
 	onBlur: () ->
@@ -433,7 +432,6 @@ class cola.Widget extends cola.RenderableElement
 		@_focused = false
 		@get$Dom().removeClass("focused")
 		@_onBlur?()
-		console.log("blur: " + @_dom.className)
 		return
 
 	onKeyDown: (evt) ->
@@ -521,11 +519,13 @@ cola._setFocusWidget = (widget) ->
 				if i is 0
 					oldFocusedWidget.onBlur()
 				else
-					setTimeout(do (oldFocusedWidget)->
-						if focusedWidgets is cola.focusedWidgets
-							oldFocusedWidget.onBlur()
+					do (oldFocusedWidget)->
+						setTimeout(()->
+							if focusedWidgets is cola.focusedWidgets
+								oldFocusedWidget.onBlur()
+							return
+						, 0)
 						return
-					, 0)
 
 	cola.focusedWidgets = focusedWidgets
 	for focusedWidget in focusedWidgets

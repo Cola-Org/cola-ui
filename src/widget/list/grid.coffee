@@ -199,15 +199,17 @@ class cola.Table extends cola.Widget
 
 				if column._width
 					width = column._width
+					widthType = null
 					if typeof width is "string"
 						if width.indexOf("px") > 0
 							widthType = "px"
 						else if width.indexOf("%") > 0
 							widthType = "percent"
+					widthType ?= "weight"
 					info.widthType = widthType
 					info.width = parseFloat(width)
-
-					context.totalWidth += info.width
+					if widthType is "weight"
+						context.totalWidthWeight += info.width
 
 				info.index = context.dataColumns.length
 				info.rootIndex = rootIndex
@@ -223,7 +225,7 @@ class cola.Table extends cola.Widget
 
 		@_columnsInfo = columnsInfo = {
 			timestamp: cola.sequenceNo()
-			totalWidth: 0
+			totalWidthWeight: 0
 			rows: [ [] ]
 			dataColumns: []
 			alias: "item"
@@ -572,14 +574,50 @@ class cola.Table extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-		columnCssDefs = []
-		for rowInfo in @_columnsInfo.rows
-			for colInfo in rowInfo
-				def = "." + colInfo.column._id + "{"
-				def += "width:" + (colInfo.width or 100) + "px;"
+		clientWidth = @_centerTable._doms.tableBody.clientWidth
+		if @_leftTable then clientWidth += @_leftTable._doms.tableBody.clientWidth
+		if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
 
-				def += "}"
-				columnCssDefs.push(def)
+		realTotalWidth = 0
+		weightColumns = []
+
+		columnCssDefs = []
+		for colInfo in @_columnsInfo.dataColumns
+			if colInfo.widthType is "weight"
+				weightColumns.push(colInfo)
+				continue
+
+			def = ".#{colInfo.column._id}{"
+
+			if colInfo.widthType is "percent"
+				width = Math.round(colInfo.width * clientWidth / 100)
+			else if colInfo.widthType
+				width = Math.round(colInfo.width) or 80
+			realTotalWidth += width
+
+			def += "width:#{width}px;"
+			def += "}"
+			columnCssDefs.push(def)
+
+		clientWidthForWeight = clientWidth - realTotalWidth
+		totalWidthWeight = @_columnsInfo.totalWidthWeight
+		adjust = 0
+		for colInfo, i in weightColumns
+			if colInfo.widthType isnt "weight"
+				continue
+
+			def = ".#{colInfo.column._id}{"
+
+			minWidth = colInfo.width
+			rawWidth = colInfo.width * clientWidthForWeight / totalWidthWeight + adjust
+			width = Math.floor(rawWidth)
+			if width < minWidth then width = minWidth
+			realTotalWidth += width
+			adjust = rawWidth - width
+
+			def += "width:#{width}px;"
+			def += "}"
+			columnCssDefs.push(def)
 
 		head = document.querySelector("head") or document.documentElement
 		@_styleSheetDom ?= $.xCreate(
@@ -588,9 +626,13 @@ class cola.Table extends cola.Widget
 		)
 		@_styleSheetDom.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
 		head.appendChild(@_styleSheetDom)
-		return
+		return {
+			clientWidth: clientWidth
+			totalWidth: realTotalWidth
+			hasWeightColumn: weightColumns.length > 0
+		}
 
-	_doRefreshDom: (dom)->
+	_doRefreshDom: ()->
 		if @_columnsTimestamp isnt @_columnsInfo.timestamp
 			@_columnsTimestamp = @_columnsInfo.timestamp
 
@@ -607,17 +649,32 @@ class cola.Table extends cola.Widget
 				)
 				@_centerTable.get$Dom().after(@_rightTable.getDom())
 
-			@_buildStyleSheet()
+			info = @_buildStyleSheet()
 
 			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
 			@_centerTable.set("columnsInfo", @_columnsInfo.center)
 
-		super(dom)
+		super()
 
 		if @_refreshItemsScheduled
 			delete @_refreshItemsScheduled
-			@_refreshItems()
+			if @_leftTable
+				@_leftTable._refreshItemsScheduled = true
+			if @_rightTable
+				@_rightTable._refreshItemsScheduled = true
+			@_centerTable._refreshItemsScheduled = true
+
+		@_leftTable?._refreshDom()
+		@_rightTable?._refreshDom()
+		@_centerTable._refreshDom()
+
+		if info and info.totalWidth > info.clientWidth and info.hasWeightColumn
+			clientWidth = @_centerTable._doms.tableBody.clientWidth
+			if @_leftTable then clientWidth += @_leftTable._doms.tableBody.clientWidth
+			if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
+			if clientWidth isnt info.clientWidth
+				@_buildStyleSheet()
 		return
 
 	refreshItem: (item) ->
@@ -868,8 +925,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 		itemDom._itemType = itemType
 		return itemDom
 
-	_doRefreshItems: (itemsWrapper) ->
-		return unless @_columnsInfo
+	_doRefreshDom: () ->
+		return unless @_dom and @_columnsInfo
 
 		if @_table._showHeader
 			header = @_doms.header
@@ -923,7 +980,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshFooter(footer)
 			@_doms.tableBody.style.paddingBottom = @_doms.tableFooter.offsetHeight + "px"
 
-		super(itemsWrapper)
+		super()
+
 		if @_type is "center"
 			@_table._realItems = @_realItems
 			@_table._realOriginItems = @_realOriginItems
@@ -1133,7 +1191,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_table._currentCell = cell
 			if cell
 				$fly(cell).addClass("current")
-				if not column._readOnly and column._property
+				if column._property
 					@showCellEditor(cell, item, column)
 		return
 
@@ -1155,6 +1213,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return
 
 	showCellEditor: (cell, item, column) ->
+		if @_table._readOnly or column._readOnly
+			return
+
 		if not column._editTemplate
 			propertyType = column._propertyDef?._dataType
 			if propertyType instanceof cola.BooleanDataType

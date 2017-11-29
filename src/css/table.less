@@ -146,11 +146,29 @@
 				padding: 0 0.4em;
 			}
 
-			> c-input, > c-datepicker, > c-tag-editor {
+			> .ui.input {
 				width: 100%;
 			}
 			> .ui.checkbox.in-cell {
 				margin-left: 0.5em;
+			}
+		}
+		&.sortable {
+			> .content {
+				&:after {
+					content: "\f0dc";
+					font-family: Icons;
+					margin-left: 0.5em;
+					color: @disabledTextColor;
+				}
+			}
+			&.asc > .content:after {
+				content: "\f0de";
+				color: @darkTextColor;
+			}
+			&.desc > .content:after {
+				content: "\f0dd";
+				color: @darkTextColor;
 			}
 		}
 
