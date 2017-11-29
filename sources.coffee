@@ -99,7 +99,6 @@ sources =
 			"src/widget/list/nested-list.coffee"
 			"src/widget/list/tree.coffee"
 			"src/widget/list/table-support.coffee"
-			"src/widget/list/table.coffee"
 			"src/widget/list/grid.coffee"
 			"src/widget/list/pager.coffee"
 			"src/widget/list/time-line.coffee"

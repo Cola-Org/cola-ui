@@ -1,5 +1,33 @@
-class cola.Grid extends cola.Widget
-	@tagName: "c-grid"
+_columnsSetter = (table, columnConfigs) ->
+	if @_columns
+		for column in @_columns
+			delete column._parent
+			column._setTable(null)
+
+	columns = []
+	if columnConfigs
+		for columnConfig in columnConfigs
+			continue unless columnConfig
+			if columnConfig instanceof cola.TableColumn
+				column = columnConfig
+				if column._parent and column._parent isnt @
+					parentColumns = column._parent._columns
+					if parentColumns
+						i = parentColumns.indexOf(column)
+						if i >= 0
+							parentColumns.splice(i, 1)
+						column._parent.set("columns", parentColumns)
+			else
+				column = cola.create("table.column", columnConfig, cola.TableColumn)
+
+			column._parent = @
+			column._setTable(table)
+			columns.push(column)
+	@_columns = columns
+	return
+
+class cola.Table extends cola.Widget
+	@tagName: "c-table"
 	@CLASS_NAME: "items-view widget-table"
 
 	@attributes:
@@ -18,22 +46,9 @@ class cola.Grid extends cola.Widget
 				return
 
 		columns:
+			refreshItems: true
 			setter: (columnConfigs) ->
-				if @_columns
-					for column in @_columns
-						column._setTable(null)
-
-				columns = []
-				if columnConfigs
-					for columnConfig in columnConfigs
-						continue unless columnConfig
-						if columnConfig instanceof cola.TableColumn
-							column = columnConfig
-						else
-							column = cola.create("table.column", columnConfig, cola.TableColumn)
-						column._setTable(@)
-						columns.push(column)
-				@_columns = columns
+				_columnsSetter.call(@, @, columnConfigs)
 				@_collectionColumnsInfo()
 				return
 		dataType:
@@ -146,10 +161,12 @@ class cola.Grid extends cola.Widget
 	getColumn: (name) ->
 		return @_columnMap[name]
 
-	_onColumnChange: () ->
+	_onColumnChange: (refreshItems) ->
 		if @_rendered
 			cola.util.delay(@, "onColumnChange", 100, () =>
 				@_collectionColumnsInfo()
+				if refreshItems
+					@_refreshItemsScheduled = true
 				@_refreshDom()
 				return
 			)
@@ -301,7 +318,8 @@ class cola.Grid extends cola.Widget
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
-		$(dom).delegate(">.inner-table >.table-header", "mousemove", (evt) =>
+		$fly(dom).delegate(">.inner-table >.table-header", "mousemove", (evt) =>
+			return if @_innerDragging
 			cell = $fly(evt.target).closest(".header-cell")[0]
 			return unless cell
 
@@ -318,7 +336,7 @@ class cola.Grid extends cola.Widget
 
 			tableHeader = evt.currentTarget
 			handler = @_getHeaderCellResizeHandler(tableHeader)
-			if column
+			if column?._resizeable
 				$fly(handler).css(
 					left: if resizePrevColumn then cell.offsetLeft else cell.offsetLeft + cell.offsetWidth
 					top: cell.offsetTop
@@ -330,6 +348,78 @@ class cola.Grid extends cola.Widget
 				cola.util.userData(handler, "cell", cell)
 			else
 				$fly(handler).addClass("hidden")
+		).delegate(">.inner-table >.table-header", "mouseenter", () =>
+			$fly(@_dom).find(">.inner-table >.table-header .header-cell").each (i, cell) =>
+				if cell.className.indexOf("ui-draggable") < 0
+					$fly(cell).draggable(
+						appendTo: "body"
+						helper: () ->
+							helper = cell.cloneNode(true)
+							$fly(helper).addClass("table-column-dragging-helper").width(cell.offsetWidth).height(cell.offsetHeight)
+							return helper
+						start: (evt, ui) =>
+							ui.helper.draggingColumn = @getColumn(cell._name)
+							return
+						drag: (evt, ui) =>
+							dragOverCell = ui.helper.dragOverCell
+							if dragOverCell
+								tableHeader = $fly(dragOverCell).closest(".table-header")[0]
+								dragOverColumn = @getColumn(dragOverCell._name)
+								if dragOverColumn
+									ui.helper.dragOverColumn = dragOverColumn
+									centerPosition = dragOverCell.offsetLeft + (dragOverCell.offsetWidth / 2)
+									$indicator = $fly(@_getColumnInsertIndicator(tableHeader)).removeClass("hidden")
+									$indicator.css("top", dragOverCell.offsetTop)
+									if ui.position.left < centerPosition
+										$indicator.css("left", dragOverCell.offsetLeft)
+										ui.helper.dragOverMode = "before"
+									else
+										$indicator.css("left", dragOverCell.offsetLeft + dragOverCell.offsetWidth)
+										ui.helper.dragOverMode = "after"
+							return
+					)
+
+				if cell.className.indexOf("ui-droppable") < 0
+					$fly(cell).droppable(
+						accept: ".header-cell"
+						over: (evt, ui) ->
+							ui.helper.dragOverCell = @
+							return
+						out: (evt, ui) =>
+							if cell is ui.helper.dragOverCell
+								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
+								ui.helper.dragOverCell = null
+								ui.helper.dragOverColumn = null
+								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
+						drop: (evt, ui) =>
+							draggingColumn = ui.helper.draggingColumn
+							dragOverColumn = ui.helper.dragOverColumn
+							columns = dragOverColumn._parent?._columns
+							if columns
+								sourceColumns = draggingColumn._parent?._columns
+								if sourceColumns
+									i = sourceColumns.indexOf(draggingColumn)
+									if i >= 0 then sourceColumns.splice(i, 1)
+									if draggingColumn._parent isnt dragOverColumn._parent
+										draggingColumn._parent.set("columns", sourceColumns)
+
+								i = columns.indexOf(dragOverColumn)
+								if ui.helper.dragOverMode is "after" then i++
+								if i > columns.length - 1
+									columns.push(ui.helper.draggingColumn)
+								else
+									columns.splice(i, 0, draggingColumn)
+								dragOverColumn._parent.set("columns", columns)
+
+							if ui.helper.dragOverCell
+								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
+								ui.helper.dragOverCell = null
+								ui.helper.dragOverColumn = null
+								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
+							return
+					)
+				return
+			return
 		)
 
 		dataType = @_getBindDataType()
@@ -372,12 +462,12 @@ class cola.Grid extends cola.Widget
 			)
 			$(handler).draggable(
 				axis: "x"
-				start: (evt, ui) ->
+				start: () ->
 					cell = cola.util.userData(@, "cell")
 					helper = cola.xCreate(
 						class: "resize-helper"
 						style:
-							left: cell.offsetLeft
+							left: cell.offsetLeft - 1
 							width: cell.offsetWidth
 					)
 					cola.util.userData(helper, "originalWidth", cell.offsetWidth)
@@ -385,7 +475,7 @@ class cola.Grid extends cola.Widget
 					cola.util.userData(@, "helper", helper)
 					table._innerDragging = true
 					return
-				stop: (evt, ui) ->
+				stop: () ->
 					helper = cola.util.userData(@, "helper")
 					column = cola.util.userData(@, "column")
 					column.set("width", helper.offsetWidth)
@@ -400,6 +490,15 @@ class cola.Grid extends cola.Widget
 			)
 			tableHeader.appendChild(handler)
 		return handler
+
+	_getColumnInsertIndicator: (tableHeader) ->
+		indicator = tableHeader.querySelector(".insert-indicator")
+		if not indicator
+			indicator = cola.xCreate(
+				class: "insert-indicator"
+			)
+			tableHeader.appendChild(indicator)
+		return indicator
 
 	_parseDom: (dom) ->
 		return unless dom
@@ -713,8 +812,8 @@ class cola.Grid extends cola.Widget
 				@_refreshItems()
 		return
 
-cola.Element.mixin(cola.Grid, cola.TemplateSupport)
-cola.Element.mixin(cola.Grid, cola.DataItemsWidgetMixin)
+cola.Element.mixin(cola.Table, cola.TemplateSupport)
+cola.Element.mixin(cola.Table, cola.DataItemsWidgetMixin)
 
 class cola.Table.InnerTable extends cola.AbstractList
 	@CLASS_NAME: "inner-table"

@@ -11,6 +11,7 @@ cola.registerTypeResolver "table.column", (config) ->
 
 class cola.TableColumn extends cola.Element
 	@attributes:
+		parent: null
 		name:
 			readOnlyAfterCreate: true
 		caption:
@@ -41,13 +42,12 @@ class cola.TableColumn extends cola.Element
 			return unless attrConfig
 			if attrConfig.refreshStructure
 				@_table._collectionColumnsInfo()
-
 			return
 		)
 
 	_doSet: (attr, attrConfig, value) ->
 		if attrConfig?.refreshColumns
-			@_table?._onColumnChange()
+			@_table?._onColumnChange(attrConfig?.refreshItems)
 		return super(attr, attrConfig, value)
 
 	_setTable: (table) ->
@@ -87,6 +87,8 @@ class cola.TableColumn extends cola.Element
 class cola.TableGroupColumn extends cola.TableColumn
 	@attributes:
 		columns:
+			refreshColumns: true
+			refreshItems: true
 			setter: (columnConfigs) ->
 				_columnsSetter.call(@, @_table, columnConfigs)
 				return
@@ -126,6 +128,8 @@ class cola.TableDataColumn extends cola.TableContentColumn
 			refreshColumns: true
 		sortable: null
 		sortDirection: null
+		resizeable:
+			defaultValue: true
 
 		readOnly: null
 		editTemplate: null
