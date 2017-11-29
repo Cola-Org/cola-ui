@@ -149,7 +149,6 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 	renderHeader: (dom, item) ->
 		if not dom.firstElementChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
-				class: "in-cell"
 				triState: true
 				change: (self, arg) =>
 					if typeof arg.value != "boolean"

@@ -196,8 +196,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 			$(@_doms.input).on("change", ()=>
 				@_postInput()
 				return
-			).on("focus", ()=> @_doFocus()
-			).on("blur", ()=> @_doBlur()
+			).on("focus", ()=> cola._setFocusWidget(@)
+			).on("blur",  ()=> cola._setFocusWidget(null)
 			).on("keypress", (event)=>
 				arg =
 					keyCode: event.keyCode
@@ -402,7 +402,7 @@ class cola.Input extends cola.AbstractInput
 		)
 		return
 
-	_doFocus: ()->
+	_onFocus: ()->
 		super()
 		if @_selectOnFocus
 			@_doms.input?.select()

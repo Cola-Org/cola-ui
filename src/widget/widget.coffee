@@ -515,7 +515,7 @@ cola._setFocusWidget = (widget) ->
 				else
 					do (oldFocusedWidget)->
 						setTimeout(()->
-							if focusedWidgets is cola.focusedWidgets
+							if focusedWidgets is cola.focusedWidgets or cola.focusedWidgets.indexOf(oldFocusedWidget) < 0
 								oldFocusedWidget.onBlur()
 							return
 						, 0)
