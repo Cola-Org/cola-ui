@@ -192,11 +192,12 @@ class cola.AbstractInput extends cola.AbstractEditor
 		super(dom)
 
 		if @_doms.input
+			input = @_doms.input
 			$(@_doms.input).on("change", ()=>
 				@_postInput()
 				return
 			).on("focus", ()=> @_doFocus()
-			).on("blur",  ()=> @_doBlur()
+			).on("blur", ()=> @_doBlur()
 			).on("keydown", (event)=>
 				arg =
 					keyCode: event.keyCode
@@ -204,6 +205,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 					ctrlKey: event.ctrlKey
 					altKey: event.altKey
 					event: event
+					inputValue: $(input).val()
+
 				@fire("keyDown", @, arg)
 				if event.altKey and event.keyCode is 18 and isIE11 then @_postInput()
 			).on("keypress", (event)=>
@@ -213,6 +216,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 					ctrlKey: event.ctrlKey
 					altKey: event.altKey
 					event: event
+					inputValue: $(input).val()
+
 				if @fire("keyPress", @, arg) == false then return
 				if event.keyCode is 13 and isIE11 then @_postInput()
 			)
