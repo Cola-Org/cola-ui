@@ -1,7 +1,7 @@
 SAFE_PULL_EFFECT = cola.os.android and !cola.browser.chrome
 
 class cola.PullAction
-	constructor: (@content, options) ->
+	constructor: (@content, options)->
 		@contentWrapper = @content.parentNode
 		@options =
 			resistance: 2.5
@@ -32,17 +32,17 @@ class cola.PullAction
 			@pullUpDistance = pullUpPane.offsetHeight
 
 		$(@content)
-		.on("touchstart", (evt) => @_onTouchStart(evt))
-		.on("touchmove", (evt) => @_onTouchMove(evt))
-		.on("touchend", (evt) => @_onTouchEnd(evt))
+		.on("touchstart", (evt)=> @_onTouchStart(evt))
+		.on("touchmove", (evt)=> @_onTouchMove(evt))
+		.on("touchend", (evt)=> @_onTouchEnd(evt))
 
-	_getTouchPoint: (evt) ->
+	_getTouchPoint: (evt)->
 		touches = evt.originalEvent.touches
 		if !touches.length
 			touches = evt.originalEvent.changedTouches
 		return touches[0]
 
-	_onTouchStart: (evt) ->
+	_onTouchStart: (evt)->
 		if @_disabled
 			@pullState = null
 			@_watchingTouchMove = false
@@ -71,7 +71,7 @@ class cola.PullAction
 					return false
 		return
 
-	_onTouchMove: (evt) ->
+	_onTouchMove: (evt)->
 		return if !@_watchingTouchMove
 
 		touchPoint = @_getTouchPoint(evt)
@@ -105,7 +105,7 @@ class cola.PullAction
 		else
 			return
 
-	_onPanMove: (evt, distance) ->
+	_onPanMove: (evt, distance)->
 		distance = distance / @options.resistance
 		@_distance = distance
 
@@ -130,7 +130,7 @@ class cola.PullAction
 			@options.pullStep?(evt, pullPane, @pullState, distance, pullTheshold)
 		return
 
-	_onTouchEnd: (evt) ->
+	_onTouchEnd: (evt)->
 		return if !@_panStarted
 
 		pullState = @pullState
@@ -160,7 +160,7 @@ class cola.PullAction
 
 			$fly(pullPane).addClass("executing")
 			pullAction = @
-			@_executePullAction(evt, pullState, () ->
+			@_executePullAction(evt, pullState, ()->
 				pullAction._hidePullPane(pullState)
 				return
 			)
@@ -169,7 +169,7 @@ class cola.PullAction
 			@_hidePullPane(pullState)
 		return
 
-	_executePullAction: (evt, pullState, done) ->
+	_executePullAction: (evt, pullState, done)->
 		if @options.pullComplete
 			pullPane = if @pullState == "down" then @options.pullDownPane else @options.pullUpPane
 			@options.pullComplete(evt, pullPane, pullState, done)
@@ -177,7 +177,7 @@ class cola.PullAction
 			done()
 		return
 
-	_hidePullPane: (pullState) ->
+	_hidePullPane: (pullState)->
 		if pullState == "down"
 			pullPane = @options.pullDownPane
 		else if pullState == "up"
@@ -193,7 +193,7 @@ class cola.PullAction
 				scrollTop: @pullDownDistance
 			}, {
 				duration: 200
-				complete: () ->
+				complete: ()->
 					pullAction._disabled = false
 					$fly(pullPane).removeClass("executing")
 					return

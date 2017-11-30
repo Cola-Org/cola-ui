@@ -62,17 +62,17 @@ class cola.IFrame extends cola.Widget
 
 		return contentWindow
 
-	open: (path, callback) ->
-		if callback then @one("load", () -> cola.callback(callback, true))
+	open: (path, callback)->
+		if callback then @one("load", ()-> cola.callback(callback, true))
 		@set("path", path)
 		return
 
 	reload: (callback)->
-		if callback then @one("load", () -> cola.callback(callback, true))
+		if callback then @one("load", ()-> cola.callback(callback, true))
 		@_replaceUrl(@_path)
 		return @
 
-	_replaceUrl: (url) ->
+	_replaceUrl: (url)->
 		if @_doms and @_doms.dimmer
 			$fly(@_doms.dimmer).addClass("active")
 		contentWindow = @getContentWindow()

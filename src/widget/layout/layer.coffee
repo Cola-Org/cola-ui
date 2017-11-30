@@ -12,7 +12,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		visible:
 			type: "boolean"
 			readOnly: true
-			getter: () ->
+			getter: ()->
 				return @isVisible()
 
 		lazyRender:

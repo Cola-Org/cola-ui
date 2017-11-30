@@ -1,11 +1,11 @@
-cola.registerTypeResolver "table.column", (config) ->
+cola.registerTypeResolver "table.column", (config)->
 	return unless config and config.$type
 	type = config.$type.toLowerCase()
 	if type == "select" then return cola.TableSelectColumn
 	else if type == "state" then return cola.TableStateColumn
 	return
 
-cola.registerTypeResolver "table.column", (config) ->
+cola.registerTypeResolver "table.column", (config)->
 	if config.columns?.length then return cola.TableGroupColumn
 	return cola.TableDataColumn
 
@@ -31,12 +31,12 @@ class cola.TableColumn extends cola.Element
 		renderHeader: null
 		headerClick: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		super(config)
 		@_id = cola.uniqueId()
 		@_name ?= @_id
 
-		@on("attributeChange", (self, arg) =>
+		@on("attributeChange", (self, arg)=>
 			return unless @_table
 			attrConfig = @constructor.attributes[arg.attribute]
 			return unless attrConfig
@@ -45,18 +45,18 @@ class cola.TableColumn extends cola.Element
 			return
 		)
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if attrConfig?.refreshColumns
 			@_table?._onColumnChange(attrConfig?.refreshItems)
 		return super(attr, attrConfig, value)
 
-	_setTable: (table) ->
+	_setTable: (table)->
 		@_table._unregColumn(@) if @_table
 		@_table = table
 		table._regColumn(@) if table
 		return
 
-	getTemplate: (type, defaultTemplate) ->
+	getTemplate: (type, defaultTemplate)->
 		template = @["_real_" + type]
 		return template if template isnt undefined
 
@@ -89,11 +89,11 @@ class cola.TableGroupColumn extends cola.TableColumn
 		columns:
 			refreshColumns: true
 			refreshItems: true
-			setter: (columnConfigs) ->
+			setter: (columnConfigs)->
 				_columnsSetter.call(@, @_table, columnConfigs)
 				return
 
-	_setTable: (table) ->
+	_setTable: (table)->
 		super(table)
 		if @_columns
 			for column in @_columns
@@ -146,14 +146,14 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		change: null
 		itemChange: null
 
-	renderHeader: (dom, item) ->
+	renderHeader: (dom, item)->
 		if not dom.firstElementChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				triState: true
-				change: (self, arg) =>
+				change: (self, arg)=>
 					if typeof arg.value != "boolean"
 						@fire("change", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
-				click: (self) =>
+				click: (self)=>
 					checked = self.get("checked")
 					@selectAll(checked)
 					@fire("change", this, {checkbox: self, oldValue: not checked, value: checked})
@@ -162,11 +162,11 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox.appendTo(dom)
 		return
 
-	renderCell: (dom, item) ->
+	renderCell: (dom, item)->
 		if not dom.firstElementChild
 			checkbox = new cola.Checkbox(
 				bind: @_table._alias + "." + @_table._selectedProperty
-				change: (self, arg) =>
+				change: (self, arg)=>
 					if not @_ignoreCheckedChange
 						@refreshHeaderCheckbox()
 					arg.item = item
@@ -174,7 +174,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 					return
 			)
 			oldRefreshValue = checkbox.refreshValue
-			checkbox.refreshValue = () =>
+			checkbox.refreshValue = ()=>
 				oldValue = checkbox._value
 				result = oldRefreshValue.call(checkbox)
 				if checkbox._value != oldValue
@@ -188,15 +188,15 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox.appendTo(dom)
 		return
 
-	refreshHeaderCheckbox: () ->
+	refreshHeaderCheckbox: ()->
 		return unless @_headerCheckbox
-		cola.util.delay(@, "refreshHeaderCheckbox", 50, () ->
+		cola.util.delay(@, "refreshHeaderCheckbox", 50, ()->
 			table = @_table
 			selectedProperty = table._selectedProperty
 			if table._realItems
 				i = 0
 				selected = undefined
-				cola.each @_table._realItems, (item) ->
+				cola.each @_table._realItems, (item)->
 					itemType = table._getItemType(item)
 					if itemType == "default"
 						i++
@@ -217,12 +217,12 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		)
 		return
 
-	selectAll: (selected) ->
+	selectAll: (selected)->
 		table = @_table
 		selectedProperty = table._selectedProperty
 		if table._realItems
 			@_ignoreCheckedChange = true
-			cola.each table._realItems, (item) =>
+			cola.each table._realItems, (item)=>
 				itemType = table._getItemType(item)
 				if itemType is "default"
 					if item instanceof cola.Entity
@@ -232,7 +232,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 						table.refreshItem(item)
 				return
 
-			setTimeout(() =>
+			setTimeout(()=>
 				@_ignoreCheckedChange = false
 				return
 			, 100)
@@ -245,7 +245,7 @@ class cola.TableStateColumn extends cola.TableContentColumn
 		align:
 			defaultValue: "center"
 
-	renderCell: (dom, item) ->
+	renderCell: (dom, item)->
 		if item instanceof cola.Entity
 			message = item.getKeyMessage()
 			if message

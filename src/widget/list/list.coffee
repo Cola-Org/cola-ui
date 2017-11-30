@@ -2,7 +2,7 @@ SAFE_SLIDE_EFFECT = cola.os.android and not cola.browser.chrome
 SLIDE_ANIMATION_SPEED = 200
 LIST_SIZE_PREFIXS = ["small", "medium", "large", "xlarge", "xxlarge"]
 
-_createGroupArray = () ->
+_createGroupArray = ()->
 	groups = []
 	groups._grouped = true
 	return groups
@@ -17,17 +17,17 @@ class cola.ListView extends cola.AbstractList
 		items:
 			expressionType: "repeat"
 			refreshItems: true
-			setter: (items) ->
+			setter: (items)->
 				return if @_items is items
 				@_set("bind", undefined)
 				@_items = items
 				return
-			getter: () ->
+			getter: ()->
 				return @_realItems or @_items
 
 		bind:
 			refreshItems: true
-			setter: (bindStr) ->
+			setter: (bindStr)->
 				return if @_bindStr is bindStr
 				@_set("items", undefined)
 				return @_bindSetter(bindStr)
@@ -38,7 +38,7 @@ class cola.ListView extends cola.AbstractList
 		columns:
 			refreshItems: true
 			defaultValue: "row"
-			setter: (columns) ->
+			setter: (columns)->
 				@_columns = columns
 				@_columnsChanged = true
 				return
@@ -56,7 +56,7 @@ class cola.ListView extends cola.AbstractList
 		itemSlide:
 			enum: ["none", "left", "right", "both"]
 			defaultValue: "none"
-			setter: (value) ->
+			setter: (value)->
 				@_itemSlide = value
 				if value
 					if value is "left"
@@ -91,7 +91,7 @@ class cola.ListView extends cola.AbstractList
 			tagName: "li"
 			"c-bind": "group.name"
 
-	destroy: () ->
+	destroy: ()->
 		super()
 		delete @_topGroupDom
 		clearInterval(@_indexBarRelocateTimer) if @_indexBarRelocateTimer
@@ -99,25 +99,25 @@ class cola.ListView extends cola.AbstractList
 		delete @_slideItemDom
 		return
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		super(dom)
-		$fly(@_doms.itemsWrapper).delegate(".group-header", "click", (evt) => @_onGroupHeaderClick(evt))
+		$fly(@_doms.itemsWrapper).delegate(".group-header", "click", (evt)=> @_onGroupHeaderClick(evt))
 		cola.util.delay(@, "initItemSlide", 200, @_initItemSlide)
 		return
 
-	_getItems: () ->
+	_getItems: ()->
 		if @_items
 			return {items: @_items}
 		else
 			return super()
 
-	_groupItems: (items) ->
+	_groupItems: (items)->
 		groups = _createGroupArray()
 		currentGroup = null
 
 		hasGetGroupStringEvent = @getListeners("getGroupString")
 		list = @
-		cola.each items, (item) ->
+		cola.each items, (item)->
 			if hasGetGroupStringEvent
 				eventArg =
 					item: item
@@ -151,13 +151,13 @@ class cola.ListView extends cola.AbstractList
 			groups.push(currentGroup)
 		return groups
 
-	_convertItems: (items) ->
+	_convertItems: (items)->
 		items = super(items)
 		if @_group and items
 			items = @_groupItems(items)
 		return items
 
-	_doRefreshDom: (dom) ->
+	_doRefreshDom: (dom)->
 		if @_columnsChanged
 			delete @_columnsChanged
 
@@ -186,7 +186,7 @@ class cola.ListView extends cola.AbstractList
 		@_classNamePool.toggle("has-index-bar", !!@_indexBar)
 		return
 
-	_refreshItems: () ->
+	_refreshItems: ()->
 		super()
 
 		if @_dom
@@ -201,17 +201,17 @@ class cola.ListView extends cola.AbstractList
 			if not cola.os.mobile and not @_indexBarRelocateTimer
 				itemsWrapper = @_doms.itemsWrapper
 				dom = @_dom
-				@_indexBarRelocateTimer = setInterval(() ->
+				@_indexBarRelocateTimer = setInterval(()->
 					$fly(dom).toggleClass("v-scroll", itemsWrapper.scrollHeight > itemsWrapper.clientHeight)
 					return
 				, 500)
 		return
 
-	_getDefaultBindPath: (item) ->
+	_getDefaultBindPath: (item)->
 		if @_textProperty
 			return (item._alias or @_alias) + "." + @_textProperty
 
-	_createNewItem: (itemType, item) ->
+	_createNewItem: (itemType, item)->
 		template = @getTemplate(itemType)
 		if template
 			itemDom = @_cloneTemplate(template)
@@ -236,13 +236,13 @@ class cola.ListView extends cola.AbstractList
 		if @_itemHeight then $itemDom.height(@_itemHeight)
 		return itemDom
 
-	_refreshItemDom: (itemDom, item, parentScope) ->
+	_refreshItemDom: (itemDom, item, parentScope)->
 		if itemDom._itemType is "group"
 			return @_refreshGroupDom(itemDom, item, parentScope)
 		else
 			return super(itemDom, item, parentScope)
 
-	_refreshGroupDom: (groupDom, group, parentScope = @_itemsScope) ->
+	_refreshGroupDom: (groupDom, group, parentScope = @_itemsScope)->
 		groupId = cola.Entity._getEntityId(group)
 
 		groupScope = cola.util.userData(groupDom, "scope")
@@ -319,21 +319,21 @@ class cola.ListView extends cola.AbstractList
 			itemsWrapper.appendChild(documentFragment)
 		return
 
-	_onItemInsert: (arg) ->
+	_onItemInsert: (arg)->
 		if @_group
 			@_refreshItems()
 		else
 			super(arg)
 		return
 
-	_onItemRemove: (arg) ->
+	_onItemRemove: (arg)->
 		if @_group
 			@_refreshItems()
 		else
 			super(arg)
 		return
 
-	_onItemsWrapperScroll: () ->
+	_onItemsWrapperScroll: ()->
 		super()
 
 		return unless @_group
@@ -363,7 +363,7 @@ class cola.ListView extends cola.AbstractList
 				delete @_floatGroupHeaderMoved
 		return
 
-	_getFloatGroupHeader: (group) ->
+	_getFloatGroupHeader: (group)->
 		floatGroupHeaderWrapper = @_doms.floatGroupHeaderWrapper
 		if not floatGroupHeaderWrapper
 			groupScope = new cola.ItemScope(@_itemsScope, group._alias)
@@ -392,7 +392,7 @@ class cola.ListView extends cola.AbstractList
 				floatGroupHeaderWrapper.style.display = ""
 		return floatGroupHeaderWrapper
 
-	_findTopGroupDom: (scrollTop) ->
+	_findTopGroupDom: (scrollTop)->
 		groups = @_realItems
 		return unless groups?.length
 
@@ -417,7 +417,7 @@ class cola.ListView extends cola.AbstractList
 				groupDom = groupDom.previousSibling
 		return groupDom
 
-	_onGroupHeaderClick: (evt) ->
+	_onGroupHeaderClick: (evt)->
 		itemDom = evt.currentTarget
 		item = cola.util.userData(itemDom, "item")
 		groupDom = itemDom.parentNode
@@ -438,14 +438,14 @@ class cola.ListView extends cola.AbstractList
 			}, {
 				duration: 150
 				easing: "swing"
-				complete: () ->
+				complete: ()->
 					groupDom.style.height = ""
 					groupDom.style.overflow = ""
 					return
 			})
 		return false
 
-	_createPullAction: () ->
+	_createPullAction: ()->
 		super()
 		if @_doms.indexBar
 			indexBar = @_doms.indexBar
@@ -454,12 +454,12 @@ class cola.ListView extends cola.AbstractList
 				indexBar.style.marginBottom = -@_pullAction.pullDownDistance + "px"
 		return
 
-	_refreshIndexBar: () ->
+	_refreshIndexBar: ()->
 		list = @
 		indexBar = @_doms.indexBar
 
 		if not indexBar
-			goIndex = (target, animate) ->
+			goIndex = (target, animate)->
 				indexDom = target
 				while indexDom and indexDom isnt indexBar
 					if indexDom._groupIndex >= 0
@@ -494,8 +494,8 @@ class cola.ListView extends cola.AbstractList
 									itemsWrapper.scrollTop = groupDom.offsetTop
 				return
 
-			clearCurrent = () ->
-				setTimeout(() ->
+			clearCurrent = ()->
+				setTimeout(()->
 					currentIndexDom = indexBar.querySelector(".current")
 					$fly(currentIndexDom).removeClass("current") if currentIndexDom
 					return
@@ -505,10 +505,10 @@ class cola.ListView extends cola.AbstractList
 			@_doms.indexBar = indexBar = $.xCreate({
 				tagName: "div"
 				class: "index-bar"
-				mousedown: (evt) -> goIndex(evt.target, true)
+				mousedown: (evt)-> goIndex(evt.target, true)
 				mouseup: clearCurrent
-				touchstart: (evt) -> goIndex(evt.target, true)
-				touchmove: (evt) ->
+				touchstart: (evt)-> goIndex(evt.target, true)
+				touchmove: (evt)->
 					touch = evt.originalEvent.touches[0]
 					target = document.elementFromPoint(touch.pageX, touch.pageY);
 					goIndex(target, true)
@@ -546,7 +546,7 @@ class cola.ListView extends cola.AbstractList
 				currentItemDom = nextDom
 		return
 
-	_initItemSlide: () ->
+	_initItemSlide: ()->
 		leftSlidePaneTemplate = @getTemplate("slide-left-pane")
 		rightSlidePaneTemplate = @getTemplate("slide-right-pane")
 		return unless leftSlidePaneTemplate or rightSlidePaneTemplate
@@ -554,9 +554,9 @@ class cola.ListView extends cola.AbstractList
 		itemsWrapper = @_doms.itemsWrapper
 		if @_itemSlide and @_itemSlide isnt "none"
 			$fly(itemsWrapper)
-			.on("touchstart", (evt) => @_onItemsWrapperTouchStart(evt))
-			.on("touchmove", (evt) => @_onItemsWrapperTouchMove(evt))
-			.on("touchend", (evt) => @_onItemsWrapperTouchEnd(evt))
+			.on("touchstart", (evt)=> @_onItemsWrapperTouchStart(evt))
+			.on("touchmove", (evt)=> @_onItemsWrapperTouchMove(evt))
+			.on("touchend", (evt)=> @_onItemsWrapperTouchEnd(evt))
 
 		itemScope = new cola.ItemScope(@_itemsScope, @_alias)
 		@_templateContext.defaultPath = @_alias
@@ -582,13 +582,13 @@ class cola.ListView extends cola.AbstractList
 			itemsWrapper.appendChild(rightSlidePaneTemplate)
 		return
 
-	_getTouchPoint: (evt) ->
+	_getTouchPoint: (evt)->
 		touches = evt.originalEvent.touches
 		if not touches.length
 			touches = evt.originalEvent.changedTouches
 		return touches[0]
 
-	_onItemsWrapperTouchStart: (evt) ->
+	_onItemsWrapperTouchStart: (evt)->
 		@_start = new Date
 
 		return unless @_itemSlide and (not @_itemSlideState or @_itemSlideState is "closed" or @_itemSlideState is "ignore")
@@ -618,7 +618,7 @@ class cola.ListView extends cola.AbstractList
 		@_touchTimestamp = new Date()
 		return
 
-	_initItemSlidePane: (itemDom, direction) ->
+	_initItemSlidePane: (itemDom, direction)->
 		item = cola.util.userData(itemDom, "item")
 		if direction isnt @_itemSlideDirection
 			oldSlidePane = @_itemSlidePane
@@ -663,7 +663,7 @@ class cola.ListView extends cola.AbstractList
 			slidePane = @_itemSlidePane
 		return slidePane
 
-	_onItemsWrapperTouchMove: (evt) ->
+	_onItemsWrapperTouchMove: (evt)->
 		return unless @_itemSlide
 		if @_itemSlideState is "prevent"
 			evt.stopImmediatePropagation()
@@ -730,7 +730,7 @@ class cola.ListView extends cola.AbstractList
 		evt.stopImmediatePropagation()
 		return false
 
-	_onItemsWrapperTouchEnd: (evt) ->
+	_onItemsWrapperTouchEnd: (evt)->
 		return unless @_itemSlideState is "slide"
 
 		currentDistance = @_currentSlideDistance
@@ -796,12 +796,12 @@ class cola.ListView extends cola.AbstractList
 			@_hideItemSlidePane(false)
 		return
 
-	_showItemSlidePane: (itemDom, direction, slidePane, openAnimate) ->
+	_showItemSlidePane: (itemDom, direction, slidePane, openAnimate)->
 		$fly(@_doms.itemsWrapper).dimmer({
 			opacity: 0.0001
 			duration: 0
 			closable: false
-		}).dimmer("show").find(">.ui.dimmer").on("touchstart.hide", () =>
+		}).dimmer("show").find(">.ui.dimmer").on("touchstart.hide", ()=>
 			if @_itemSlideState is "waiting"
 				@hideItemSlidePane()
 			return
@@ -813,7 +813,7 @@ class cola.ListView extends cola.AbstractList
 			$slidePane.show().transit({
 				x: @_maxSlideDistance * factor
 				duration: SLIDE_ANIMATION_SPEED
-				complete: () =>
+				complete: ()=>
 					$slidePane.css("pointer-events", "")
 					@_onItemSlidePaneShow(direction, slidePane, itemDom)
 					return
@@ -823,7 +823,7 @@ class cola.ListView extends cola.AbstractList
 			@_onItemSlidePaneShow(direction, slidePane, itemDom)
 		return
 
-	_hideItemSlidePane: (opened, animation) ->
+	_hideItemSlidePane: (opened, animation)->
 		@_itemSlideState = "closing"
 
 		itemDom = @_slideItemDom
@@ -846,7 +846,7 @@ class cola.ListView extends cola.AbstractList
 			$(slidePane).transit({
 				x: 0
 				duration: if animation then SLIDE_ANIMATION_SPEED else 0
-				complete: () =>
+				complete: ()=>
 					$fly(slidePane).hide()
 					delete @_itemSlidePane
 					@_onItemSlidePaneHide(opened, direction, slidePane, itemDom)
@@ -856,7 +856,7 @@ class cola.ListView extends cola.AbstractList
 			@_onItemSlidePaneHide(opened, direction, slidePane, itemDom)
 		return
 
-	_onItemSlidePaneShow: (direction, slidePane, itemDom) ->
+	_onItemSlidePaneShow: (direction, slidePane, itemDom)->
 		@_itemSlideState = "waiting"
 
 		@fire("itemSlidePaneShow", @, {
@@ -866,7 +866,7 @@ class cola.ListView extends cola.AbstractList
 		})
 		return
 
-	_onItemSlidePaneHide: (opened, direction, slidePane, itemDom) ->
+	_onItemSlidePaneHide: (opened, direction, slidePane, itemDom)->
 		@_itemSlideDirection = null
 		@_itemSlideState = "closed"
 		@_slideItemDom = null
@@ -879,7 +879,7 @@ class cola.ListView extends cola.AbstractList
 			})
 		return
 
-	showItemSlidePane: (item, direction) ->
+	showItemSlidePane: (item, direction)->
 		entityId = cola.Entity._getEntityId(item)
 		itemDom = @_itemDomMap[entityId]
 		slidePane = @_initItemSlidePane(itemDom, direction)
@@ -888,7 +888,7 @@ class cola.ListView extends cola.AbstractList
 			@_showItemSlidePane(itemDom, direction, slidePane, true)
 		return
 
-	hideItemSlidePane: (animation) ->
+	hideItemSlidePane: (animation)->
 		@_hideItemSlidePane(true, animation)
 		return
 

@@ -1,4 +1,4 @@
-do() ->
+do()->
 	docStyle = window.document.documentElement.style
 	translate3d = false
 

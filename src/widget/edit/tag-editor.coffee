@@ -71,7 +71,7 @@ cola.TagEditor = cola.defineWidget({
 			item.remove()
 		return
 
-	_onKeyDown: (evt) ->
+	_onKeyDown: (evt)->
 		tagEditor = @
 		selectedItems = tagEditor._scope.get(tagEditor._bind)
 		inputValue = $(this).val()

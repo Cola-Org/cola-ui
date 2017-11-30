@@ -3,11 +3,11 @@ BindingFeature
 ###
 
 class cola._BindingFeature
-	init: () ->
+	init: ()->
 		@prepared = true
 		return
 
-	clone: () ->
+	clone: ()->
 		cloned = new @constructor()
 		for p, v of @
 			cloned[p] = v
@@ -15,15 +15,15 @@ class cola._BindingFeature
 		return cloned
 
 class cola._ExpressionFeature extends cola._BindingFeature
-	constructor: (@expressionStr) ->
+	constructor: (@expressionStr)->
 
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		if force or @expressionStr.charCodeAt(0) isnt 63 # `?`
 			@prepared = true
 			@compile(domBinding.scope)
 		return
 
-	compile: (scope) ->
+	compile: (scope)->
 		@prepared = true
 		expression = @expression = cola._compileExpression(scope, @expressionStr, @expressionType)
 		@isStatic = expression.isStatic
@@ -34,16 +34,16 @@ class cola._ExpressionFeature extends cola._BindingFeature
 			@watchingMoreMessage = not expression.hasDefinedPath
 		return
 
-	evaluate: (domBinding, dataCtx = {}, loadMode = "async") ->
+	evaluate: (domBinding, dataCtx = {}, loadMode = "async")->
 		scope = domBinding.scope
 		dataCtx.vars ?= {}
 		dataCtx.vars.$dom = domBinding.dom
 		return @expression.evaluate(scope, loadMode, dataCtx)
 
-	refresh: (domBinding, force, dataCtx = {}) ->
+	refresh: (domBinding, force, dataCtx = {})->
 		return unless @prepared and @_refresh
 		if @delay and not force
-			cola.util.delay(domBinding, "refresh", 100, () =>
+			cola.util.delay(domBinding, "refresh", 100, ()=>
 				@_refresh(domBinding, dataCtx)
 				if @isStatic and not dataCtx.unloaded
 					@disabled = true
@@ -59,11 +59,11 @@ class cola._AliasFeature extends cola._BindingFeature
 	expressionType: "alias"
 	ignoreBind: true
 
-	constructor: (expressionText) ->
+	constructor: (expressionText)->
 		@expressions = {}
 		@expressionStrs = expressionText?.split(/;/)
 
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		if not force
 			for expressionStr in @expressionStrs
 				if expressionStr.charCodeAt(0) is 63 # `?`
@@ -90,7 +90,7 @@ class cola._AliasFeature extends cola._BindingFeature
 			@_refresh(domBinding)
 		return
 
-	compile: (scope, expressionStr) ->
+	compile: (scope, expressionStr)->
 		expression = cola._compileExpression(scope, expressionStr, @expressionType)
 		@expressions[expression.alias] =
 			expression: expression
@@ -103,7 +103,7 @@ class cola._AliasFeature extends cola._BindingFeature
 			@watchingMoreMessage = not expression.hasDefinedPath
 		return expression
 
-	evaluate: (domBinding, alias, dataCtx = {}, loadMode = "async") ->
+	evaluate: (domBinding, alias, dataCtx = {}, loadMode = "async")->
 		expressionHolder = @expressions[alias]
 		return unless expressionHolder
 		scope = domBinding.scope
@@ -111,10 +111,10 @@ class cola._AliasFeature extends cola._BindingFeature
 		dataCtx.vars.$dom = domBinding.dom
 		return expressionHolder.expression.evaluate(scope, loadMode, dataCtx)
 
-	refresh: (domBinding, force, dataCtx = {}) ->
+	refresh: (domBinding, force, dataCtx = {})->
 		return unless @prepared and @_refresh
 		if @delay and not force
-			cola.util.delay(domBinding, "refresh", 100, () =>
+			cola.util.delay(domBinding, "refresh", 100, ()=>
 				@_refresh(domBinding, dataCtx)
 				if @isStatic and not dataCtx.unloaded
 					@disabled = true
@@ -126,7 +126,7 @@ class cola._AliasFeature extends cola._BindingFeature
 				@disabled = true
 		return
 
-	_refresh: (domBinding, dataCtx) ->
+	_refresh: (domBinding, dataCtx)->
 		for alias of @expressions
 			data = @evaluate(domBinding, alias, dataCtx)
 			domBinding.scope.data.setAliasTargetData(alias, data)
@@ -136,22 +136,22 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 	expressionType: "repeat"
 	ignoreBind: true
 
-	compile: (scope) ->
+	compile: (scope)->
 		super(scope)
 		@alias = @expression.alias
 
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
 		domBinding.scope = scope = new cola.ItemsScope(domBinding.scope, @expression)
 		domBinding.itemDomBindingMap = {}
 
-		scope.onItemsRefresh = () =>
+		scope.onItemsRefresh = ()=>
 			@onItemsRefresh(domBinding)
 			return
 
-		scope.onCurrentItemChange = (arg) ->
+		scope.onCurrentItemChange = (arg)->
 			$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
 			if arg.current and domBinding.itemDomBindingMap
 				itemId = cola.Entity._getEntityId(arg.current)
@@ -166,7 +166,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			domBinding.currentItemDom = currentItemDom
 			return
 
-		scope.onItemInsert = (arg) =>
+		scope.onItemInsert = (arg)=>
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
 			templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY)
@@ -208,7 +208,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						iScope.data.setIndex(i + 1)
 			return
 
-		scope.onItemRemove = (arg) ->
+		scope.onItemRemove = (arg)->
 			entity = arg.entity
 			itemsScope = arg.itemsScope
 
@@ -233,12 +233,12 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.subScopeCreated = true
 		return
 
-	_refresh: (domBinding, dataCtx) ->
+	_refresh: (domBinding, dataCtx)->
 		domBinding.scope.retrieveData()
 		domBinding.scope.refreshItems()
 		return
 
-	onItemsRefresh: (domBinding) ->
+	onItemsRefresh: (domBinding)->
 		scope = domBinding.scope
 		items = scope.items
 		originItems = scope.originItems
@@ -265,7 +265,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				scope.resetItemScopeMap()
 
 				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
-				cola.each items, (item, i) =>
+				cola.each items, (item, i)=>
 					if not item? then return
 
 					itemDom = currentDom.nextSibling
@@ -304,7 +304,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				$fly(tailDom).before(documentFragment)
 		return
 
-	createNewItem: (repeatDomBinding, templateDom, scope, item, index) ->
+	createNewItem: (repeatDomBinding, templateDom, scope, item, index)->
 		itemScope = new cola.ItemScope(scope, @alias)
 		itemScope.data.setItemData(item, true)
 		itemScope.data.setIndex(index, true)
@@ -323,7 +323,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		repeatDomBinding.itemDomBindingMap[itemId] = domBinding
 		return itemDom
 
-	deepCloneNodeData: (node, scope) ->
+	deepCloneNodeData: (node, scope)->
 		store = cola.util.userData(node)
 		if store
 			clonedStore = {}
@@ -343,7 +343,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			child = child.nextSibling
 		return
 
-	refreshItemDomBinding: (dom, itemScope) ->
+	refreshItemDomBinding: (dom, itemScope)->
 		domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
 		if domBinding
 			domBinding.refresh()
@@ -364,15 +364,15 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return currentDom or dom
 
 class cola._WatchFeature extends cola._BindingFeature
-	constructor: (@action, @paths) ->
+	constructor: (@action, @paths)->
 		@watchingMoreMessage = true
 		@prepared = true
 
-	processMessage: (domBinding, bindingPath, path, type, arg) ->
+	processMessage: (domBinding, bindingPath, path, type, arg)->
 		@refresh(domBinding, type, arg)
 		return
 
-	refresh: (domBinding, type, arg) ->
+	refresh: (domBinding, type, arg)->
 		action = domBinding.scope.action(@action)
 		if not action
 			throw new cola.Exception("No action named \"#{@action}\" found.")
@@ -386,13 +386,13 @@ class cola._WatchFeature extends cola._BindingFeature
 class cola._EventFeature extends cola._ExpressionFeature
 	ignoreBind: true
 
-	constructor: (@expressionStr, @event) ->
+	constructor: (@expressionStr, @event)->
 
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
-		domBinding.$dom.on(@event, (evt) =>
+		domBinding.$dom.on(@event, (evt)=>
 			oldScope = cola.currentScope
 			cola.currentScope = domBinding.scope
 			try
@@ -406,7 +406,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 		return
 
 class cola._DomFeature extends cola._ExpressionFeature
-	writeBack: (domBinding, value) ->
+	writeBack: (domBinding, value)->
 		return unless @prepared and @expression?.writeable
 		@ignoreMessage = true
 		domBinding.scope.set(@expression.writeablePath, value)
@@ -425,9 +425,9 @@ class cola._DomFeature extends cola._ExpressionFeature
 		return
 
 class cola._DomAttrFeature extends cola._DomFeature
-	constructor: (@expressionStr, @attr) ->
+	constructor: (@expressionStr, @attr)->
 
-	_doRender: (domBinding, value) ->
+	_doRender: (domBinding, value)->
 		if value instanceof Date
 			defaultDateFormat = cola.setting("defaultDateFormat")
 			if defaultDateFormat
@@ -448,14 +448,14 @@ class cola._DomAttrFeature extends cola._DomFeature
 		return
 
 class cola._DomStylePropFeature extends cola._DomFeature
-	constructor: (@expressionStr, @prop) ->
+	constructor: (@expressionStr, @prop)->
 
-	_doRender: (domBinding, value) ->
+	_doRender: (domBinding, value)->
 		domBinding.$dom.css(@prop, value)
 		return
 
 class cola._DomClassFeature extends cola._DomFeature
-	_doRender: (domBinding, value) ->
+	_doRender: (domBinding, value)->
 		if @_lastClassName
 			domBinding.$dom.removeClass(@_lastClassName)
 		if value
@@ -464,19 +464,19 @@ class cola._DomClassFeature extends cola._DomFeature
 		return
 
 class cola._DomToggleClassFeature extends cola._DomFeature
-	constructor: (@expressionStr, @className) ->
+	constructor: (@expressionStr, @className)->
 
-	_doRender: (domBinding, value) ->
+	_doRender: (domBinding, value)->
 		domBinding.$dom[if value then "addClass" else "removeClass"](@className)
 		return
 
 class cola._TextBoxFeature extends cola._DomFeature
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
 		feature = @
-		domBinding.$dom.on "input", () ->
+		domBinding.$dom.on "input", ()->
 			feature.writeBack(domBinding, @value)
 			return
 		return
@@ -486,12 +486,12 @@ class cola._TextBoxFeature extends cola._DomFeature
 		return
 
 class cola._CheckboxFeature extends cola._DomFeature
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
 		feature = @
-		domBinding.$dom.on("click", () ->
+		domBinding.$dom.on("click", ()->
 			feature.writeBack(domBinding, @checked)
 			return
 		)
@@ -503,11 +503,11 @@ class cola._CheckboxFeature extends cola._DomFeature
 		return
 
 class cola._RadioFeature extends cola._DomFeature
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
-		domBinding.$dom.on("click", () ->
+		domBinding.$dom.on("click", ()->
 			checked = this.checked
 			if checked then @writeBack(domBinding, checked)
 			return
@@ -519,12 +519,12 @@ class cola._RadioFeature extends cola._DomFeature
 		return
 
 class cola._SelectFeature extends cola._DomFeature
-	init: (domBinding, force) ->
+	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
 		feature = @
-		domBinding.$dom.on("change", () ->
+		domBinding.$dom.on("change", ()->
 			value = @options[@selectedIndex]
 			feature.writeBack(domBinding, value?.value)
 			return
@@ -550,7 +550,7 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 		else
 			options.length = optionValues.length
 
-		cola.each optionValues, (optionValue, i) ->
+		cola.each optionValues, (optionValue, i)->
 			option = options[i]
 			if cola.util.isSimpleValue(optionValue)
 				option.removeAttribute("value");

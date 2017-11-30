@@ -4,7 +4,7 @@ class cola.RadioGroup extends cola.AbstractEditor
 	@attributes:
 		items:
 			expressionType: "repeat"
-			setter: (items) ->
+			setter: (items)->
 				if not @_valueProperty and not @_textProperty
 					result = cola.util.decideValueProperty(items)
 					if result

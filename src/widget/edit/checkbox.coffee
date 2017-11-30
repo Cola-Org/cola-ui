@@ -52,7 +52,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 
 		child = dom.firstElementChild
 		while child
-			if child.nodeType == 1
+			if child.nodeType is 1
 				if child.nodeName is "LABEL"
 					@_doms.label = child
 					@_label ?= cola.util.getTextChildData(child)
@@ -62,7 +62,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 					@_doms.input = child
 			child = child.nextElementSibling
 
-		if !@_doms.label and !@_doms.input
+		if not @_doms.label and not @_doms.input
 			@_$dom.append($.xCreate([
 				{
 					tagName: "input"
@@ -121,9 +121,10 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		return
 
 	_bindToSemantic: ()->
-		@get$Dom().checkbox({
+		@get$Dom().checkbox(
 			onChange: ()=> @_setValue(@_getValue())
-		})
+		)
+		return
 
 	_setDom: (dom, parseChild)->
 		@_dom = dom
@@ -131,7 +132,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			@_bindToSemantic()
 		return super(dom, parseChild)
 
-	focus: () ->
+	focus: ()->
 		@_doms.input?.focus()
 		return
 
@@ -172,7 +173,7 @@ class cola.Checkbox extends cola.AbstractCheckbox
 			defaultValue: false
 
 	_getValue: ()->
-		if @_triState and !@get$Dom().checkbox("is determinate")
+		if @_triState and not @get$Dom().checkbox("is determinate")
 			return @get("indeterminateValue")
 		return super()
 
@@ -186,6 +187,18 @@ cola.registerWidget(cola.Checkbox)
 
 class cola.Toggle extends cola.AbstractCheckbox
 	@tagName: "c-toggle"
+	@CLASS_NAME: "checkbox no-transmit"
+
+	_setValue: (value)->
+		if @_focused
+			$dom.removeClass("no-transmit")
+			cola.util.delay(@, "transmit", 500, ()=>
+				if not @_destroyed
+					$dom.addClass("no-transmit")
+				return
+			)
+		return super(value)
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()

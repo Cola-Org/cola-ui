@@ -1,10 +1,10 @@
 cola._jsCache = {}
 
-cola.loadSubView = (targetDom, context) ->
+cola.loadSubView = (targetDom, context)->
 	loadingUrls = []
 	failed = false
 
-	resourceLoadCallback = (success, result, url) ->
+	resourceLoadCallback = (success, result, url)->
 		if success
 			if not failed
 				i = loadingUrls.indexOf(url)
@@ -109,22 +109,22 @@ cola.loadSubView = (targetDom, context) ->
 	index = 0;
 	if htmlUrl
 		_loadHtml(targetDom, htmlUrl, context, {
-			complete: (success, result) ->
+			complete: (success, result)->
 				resourceLoadCallback(success, result, htmlUrl)
 		}, index++)
 
-	jsUrls?.forEach (jsUrl) ->
+	jsUrls?.forEach (jsUrl)->
 		_loadJs(context, jsUrl, {
-			complete: (success, result) -> resourceLoadCallback(success, result, jsUrl)
+			complete: (success, result)-> resourceLoadCallback(success, result, jsUrl)
 		}, index++)
 
-	cssUrls?.forEach (cssUrl) ->
+	cssUrls?.forEach (cssUrl)->
 		_loadCss(context, cssUrl, {
-			complete: (success, result) -> resourceLoadCallback(success, result, cssUrl)
+			complete: (success, result)-> resourceLoadCallback(success, result, cssUrl)
 		}, index++)
 	return
 
-cola.unloadSubView = (targetDom, context) ->
+cola.unloadSubView = (targetDom, context)->
 	$fly(targetDom).empty()
 
 	htmlUrl = context.htmlUrl
@@ -140,7 +140,7 @@ cola.unloadSubView = (targetDom, context) ->
 			if cssUrl then _unloadCss(cssUrl)
 	return
 
-_compileResourceUrl = (resUrl, htmlUrl, suffix) ->
+_compileResourceUrl = (resUrl, htmlUrl, suffix)->
 	if resUrl is "$"
 		defaultRes = true
 	else if resUrl.indexOf("$.") == 0
@@ -157,14 +157,14 @@ _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
 			resUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
 	return resUrl
 
-_loadHtml = (targetDom, url, context, callback) ->
+_loadHtml = (targetDom, url, context, callback)->
 	$.ajax(url, {
 		timeout: context.timeout
-	}).done((html) ->
+	}).done((html)->
 		$(targetDom).html(html)
 		cola.callback(callback, true)
 		return
-	).fail((xhr, status, message) ->
+	).fail((xhr, status, message)->
 		cola.callback(callback, false, {
 			xhr: xhr
 			status: status
@@ -174,7 +174,7 @@ _loadHtml = (targetDom, url, context, callback) ->
 	)
 	return
 
-_loadJs = (context, url, callback, index) ->
+_loadJs = (context, url, callback, index)->
 	# initFuncs = cola._jsCache[url]
 	initFuncs = null #TODO DELETE ME
 	if initFuncs
@@ -189,14 +189,14 @@ _loadJs = (context, url, callback, index) ->
 			cache: true
 			async: false	# TODO DELETE ME
 			timeout: context.timeout
-		}).done((script) ->
+		}).done((script)->
 			for scriptHolder in context.scriptHolders
 				if scriptHolder.url is url
 					scriptHolder.script = script
 					break
 			cola.callback(callback, true)
 			return
-		).fail((xhr, status, message) ->
+		).fail((xhr, status, message)->
 			cola.callback(callback, false, {
 				xhr: xhr
 				status: status
@@ -208,7 +208,7 @@ _loadJs = (context, url, callback, index) ->
 
 _cssCache = {}
 
-_loadCss = (context, url, callback, index) ->
+_loadCss = (context, url, callback, index)->
 	linkElement = _cssCache[url]
 	if not linkElement
 		linkElement = $.xCreate(
@@ -220,7 +220,7 @@ _loadCss = (context, url, callback, index) ->
 		)
 
 		if context.timeout
-			timeoutTimerId = setTimeout(() ->
+			timeoutTimerId = setTimeout(()->
 				$fly(linkElement).remove()
 				cola.callback(callback, false, {
 					status: "timeout"
@@ -228,17 +228,17 @@ _loadCss = (context, url, callback, index) ->
 				return
 			, context.timeout)
 
-		$(linkElement).one("load", () ->
+		$(linkElement).one("load", ()->
 			clearTimeout(timeoutTimerId) if timeoutTimerId
 			cola.callback(callback, true)
 			return
-		).on("readystatechange", (evt) ->
+		).on("readystatechange", (evt)->
 			if evt.target?.readyState is "complete"
 				clearTimeout(timeoutTimerId) if timeoutTimerId
 				$fly(this).off("readystatechange")
 				cola.callback(callback, true)
 			return
-		).one("error", (evt) ->
+		).one("error", (evt)->
 			clearTimeout(timeoutTimerId) if timeoutTimerId
 			cola.callback(callback, false, evt)
 			return
@@ -255,7 +255,7 @@ _loadCss = (context, url, callback, index) ->
 		cola.callback(callback, true)
 		return false
 
-_unloadCss = (url) ->
+_unloadCss = (url)->
 	linkElement = _cssCache[url]
 	if linkElement
 		refNum = +linkElement.getAttribute("_refNum") or 1

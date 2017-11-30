@@ -5,7 +5,7 @@ class cola.TimeLine extends cola.AbstractList
 	@attributes:
 		bind:
 			refreshItems: true
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 
 #	@events:
 #		itemContentClick: null
@@ -25,7 +25,7 @@ class cola.TimeLine extends cola.AbstractList
 			tagName: "div"
 			"c-bind": "$default.label"
 
-	_createNewItem: (itemType, item) ->
+	_createNewItem: (itemType, item)->
 		template = @getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
 		$fly(itemDom).addClass("item #{itemType}")

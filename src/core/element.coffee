@@ -8,7 +8,7 @@ else
 
 tagSplitter = " "
 
-doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
+doMergeDefinitions = (definitions, mergeDefinitions, overwrite)->
 	return if definitions is mergeDefinitions
 	for name, mergeDefinition of mergeDefinitions
 		if definitions.$has(name)
@@ -22,10 +22,10 @@ doMergeDefinitions = (definitions, mergeDefinitions, overwrite) ->
 			definitions[name] = mergeDefinition
 	return
 
-hasDefinition = (name) -> @hasOwnProperty(name.toLowerCase())
-getDefinition = (name) -> @[name.toLowerCase()]
+hasDefinition = (name)-> @hasOwnProperty(name.toLowerCase())
+getDefinition = (name)-> @[name.toLowerCase()]
 
-cola.preprocessClass = (classType) ->
+cola.preprocessClass = (classType)->
 	return unless not classType.attributes._inited or not classType.events._inited
 
 	superType = classType.__super__?.constructor
@@ -70,7 +70,7 @@ cola.preprocessClass = (classType) ->
 	return
 
 class cola.Element
-	@mixin: (classType, mixin) ->
+	@mixin: (classType, mixin)->
 		for name, member of mixin
 			if name is "attributes"
 				mixinAttributes = member
@@ -99,12 +99,12 @@ class cola.Element
 	@attributes:
 		model:
 			readOnly: true
-			getter: () -> @_scope
+			getter: ()-> @_scope
 
 		tag:
 			getter: ->
 				return if @_tag then @_tag.join(tagSplitter) else null
-			setter: (tag) ->
+			setter: (tag)->
 				cola.tagManager.unreg(t, @) for t in @_tag if @_tag
 				if tag
 					@_tag = ts = tag.split(tagSplitter)
@@ -114,8 +114,8 @@ class cola.Element
 				return
 
 		userdata:
-			getter: () -> @_userData
-			setter: (data) ->
+			getter: ()-> @_userData
+			setter: (data)->
 				@_userData = data
 				return
 
@@ -124,7 +124,7 @@ class cola.Element
 		attributeChange: null
 		destroy: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		classType = @constructor
 		if not classType.attributes._inited or not classType.events._inited
 			cola.preprocessClass(classType)
@@ -162,7 +162,7 @@ class cola.Element
 		@_set("tag", null) if @_tag
 		return
 
-	get: (attr, ignoreError) ->
+	get: (attr, ignoreError)->
 		if attr.indexOf(".") > -1
 			paths = attr.split(".")
 			obj = @
@@ -178,7 +178,7 @@ class cola.Element
 		else
 			return @_get(attr, ignoreError)
 
-	_get: (attr, ignoreError) ->
+	_get: (attr, ignoreError)->
 		if not @constructor.attributes.$has(attr)
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
@@ -189,7 +189,7 @@ class cola.Element
 		else
 			return @["_" + attr]
 
-	set: (attr, value, ignoreError) ->
+	set: (attr, value, ignoreError)->
 		if typeof attr is "string"
 # set(string, any)
 			if attr.indexOf(".") > -1
@@ -222,7 +222,7 @@ class cola.Element
 				@set(attr, config[attr], ignoreError)
 		return @
 
-	_set: (attr, value, ignoreError) ->
+	_set: (attr, value, ignoreError)->
 		if typeof value is "string" and @_scope
 			if value.charCodeAt(0) is 123 # `{`
 				parts = cola._compileText(@_scope, value)
@@ -249,7 +249,7 @@ class cola.Element
 				if value instanceof cola.Expression
 					expression = value
 					scope = @_scope
-					@on(attr, (self, arg) ->
+					@on(attr, (self, arg)->
 						expression.evaluate(scope, "never", {
 							vars:
 								$self: self
@@ -279,7 +279,7 @@ class cola.Element
 				@fire("attributeChange", @, { attribute: attr })
 		return
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if not @_duringBindingRefresh and @_elementAttrBindings
 			elementAttrBinding = @_elementAttrBindings[attr]
 			if elementAttrBinding
@@ -318,7 +318,7 @@ class cola.Element
 		@["_" + (attrConfig?.name or attr)] = value
 		return
 
-	_on: (eventName, listener, alias, once) ->
+	_on: (eventName, listener, alias, once)->
 		eventName = eventName.toLowerCase()
 		eventConfig = @constructor.events[eventName]
 
@@ -353,7 +353,7 @@ class cola.Element
 			aliasMap[alias] = i
 		return
 
-	on: (eventName, listener, once) ->
+	on: (eventName, listener, once)->
 		i = eventName.indexOf(":")
 		if i > 0
 			alias = eventName.substring(i + 1)
@@ -368,10 +368,10 @@ class cola.Element
 		@_on(eventName, listener, alias, once)
 		return @
 
-	one: (eventName, listener) ->
+	one: (eventName, listener)->
 		@on(eventName, listener, true)
 
-	_off: (eventName, listener, alias) ->
+	_off: (eventName, listener, alias)->
 		eventName = eventName.toLowerCase()
 		listenerRegistry = @_eventRegistry[eventName]
 		return @ unless listenerRegistry
@@ -413,7 +413,7 @@ class cola.Element
 			delete listenerRegistry.aliasMap
 		return
 
-	off: (eventName, listener) ->
+	off: (eventName, listener)->
 		return @ unless @_eventRegistry
 
 		i = eventName.indexOf(":")
@@ -424,10 +424,10 @@ class cola.Element
 		@_off(eventName, listener, alias)
 		return @
 
-	getListeners: (eventName) ->
+	getListeners: (eventName)->
 		return @_eventRegistry?[eventName.toLowerCase()]?.listeners
 
-	fire: (eventName, self, arg) ->
+	fire: (eventName, self, arg)->
 		return unless @_eventRegistry
 
 		eventName = eventName.toLowerCase()
@@ -454,7 +454,7 @@ class cola.Element
 							else
 								retValue = listener.call(self, arg, self)
 						else if typeof listener is "string"
-							retValue = do() => eval(listener)
+							retValue = do()=> eval(listener)
 
 						if retValue isnt undefined then result = retValue
 						if retValue is false then break
@@ -473,7 +473,7 @@ class cola.Definition extends cola.Element
 		name:
 			readOnly: true
 
-	constructor: (config) ->
+	constructor: (config)->
 		if config?.name
 			@_name = config.name
 			scope = config?.scope or cola.currentScope
@@ -484,7 +484,7 @@ class cola.Definition extends cola.Element
 ###
     Element Group
 ###
-cola.Element.createGroup = (elements, model) ->
+cola.Element.createGroup = (elements, model)->
 	if model
 		elements = []
 		for ele in elements
@@ -499,13 +499,13 @@ cola.Element.createGroup = (elements, model) ->
 	else
 		elements = if elements then elements.slice(0) else []
 
-	elements.set = (attr, value, ignoreError) ->
+	elements.set = (attr, value, ignoreError)->
 		element.set(attr, value, ignoreError) for element in elements
 		return @
-	elements.on = (eventName, listener, once) ->
+	elements.on = (eventName, listener, once)->
 		element.on(eventName, listener, once) for element in elements
 		return @
-	elements.off = (eventName) ->
+	elements.off = (eventName)->
 		element.off(eventName) for element in elements
 		return @
 	return elements
@@ -517,7 +517,7 @@ cola.Element.createGroup = (elements, model) ->
 cola.tagManager =
 	registry: {}
 
-	reg: (tag, element) ->
+	reg: (tag, element)->
 		elements = @registry[tag]
 		if elements
 			elements.push(element)
@@ -525,7 +525,7 @@ cola.tagManager =
 			@registry[tag] = [ element ]
 		return
 
-	unreg: (tag, element) ->
+	unreg: (tag, element)->
 		if element
 			elements = @registry[tag]
 			if elements
@@ -539,10 +539,10 @@ cola.tagManager =
 			delete @registry[tag]
 		return
 
-	find: (tag) ->
+	find: (tag)->
 		return @registry[tag]
 
-cola.tag = (tag) ->
+cola.tag = (tag)->
 	elements = cola.tagManager.find(tag)
 	return cola.Element.createGroup(elements)
 
@@ -552,18 +552,18 @@ cola.tag = (tag) ->
 
 typeRegistry = {}
 
-cola.registerType = (namespace, typeName, constructor) ->
+cola.registerType = (namespace, typeName, constructor)->
 	holder = typeRegistry[namespace] or typeRegistry[namespace] = {}
 	holder[typeName] = constructor
 	return
 
-cola.registerTypeResolver = (namespace, typeResolver) ->
+cola.registerTypeResolver = (namespace, typeResolver)->
 	holder = typeRegistry[namespace] or typeRegistry[namespace] = {}
 	holder._resolvers ?= []
 	holder._resolvers.push(typeResolver)
 	return
 
-cola.resolveType = (namespace, config, baseType) ->
+cola.resolveType = (namespace, config, baseType)->
 	constructor = null
 	holder = typeRegistry[namespace]
 	if holder
@@ -578,7 +578,7 @@ cola.resolveType = (namespace, config, baseType) ->
 		return constructor
 	return
 
-cola.create = (namespace, config, baseType) ->
+cola.create = (namespace, config, baseType)->
 	if typeof config is "string"
 		config = {
 			$type: config

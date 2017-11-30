@@ -22,7 +22,7 @@ class cola.SubView extends cola.Widget
 		modelName: null
 		contentModel:
 			readOnly: true
-			getter: () ->
+			getter: ()->
 				return if @_dom then cola.util.userData(@_dom, "_model") else null
 
 		param: null
@@ -49,7 +49,7 @@ class cola.SubView extends cola.Widget
 			)
 		return
 
-	load: (options, callback) ->
+	load: (options, callback)->
 		if typeof options is "function"
 			callback = options
 			options = null
@@ -105,7 +105,7 @@ class cola.SubView extends cola.Widget
 				timeout: @_timeout
 				param: @_param
 				callback: {
-					complete:(success, result) =>
+					complete:(success, result)=>
 						@_currentUrl = @_url
 						@_currentJsUrl = @_jsUrl
 						@_currentCssUrl = @_cssUrl
@@ -129,7 +129,7 @@ class cola.SubView extends cola.Widget
 			})
 		return
 
-	loadIfNecessary: (options, callback) ->
+	loadIfNecessary: (options, callback)->
 		if typeof options is "function"
 			callback = options
 			options = null
@@ -141,7 +141,7 @@ class cola.SubView extends cola.Widget
 			@load(options, callback)
 		return
 
-	unload: () ->
+	unload: ()->
 		return unless @_dom or @_currentUrl
 
 		cola.unloadSubView($fly(@_dom).find(">.content")[0], {
@@ -160,7 +160,7 @@ class cola.SubView extends cola.Widget
 		@fire("unload", @)
 		return
 
-	reload: (callback) -> @load(callback)
+	reload: (callback)-> @load(callback)
 
 cola.registerWidget(cola.SubView)
 

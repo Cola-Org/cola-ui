@@ -9,10 +9,10 @@ else
 
 class cola.ProviderInvoker
 
-	constructor: (@ajaxService, @invokerOptions) ->
+	constructor: (@ajaxService, @invokerOptions)->
 		@callbacks = []
 
-	invokeCallback: (success, result) ->
+	invokeCallback: (success, result)->
 		@invoking = false
 		callbacks = @callbacks
 		@callbacks = []
@@ -20,7 +20,7 @@ class cola.ProviderInvoker
 			cola.callback(callback, success, result)
 		return
 
-	_replaceSysParams: (options) ->
+	_replaceSysParams: (options)->
 		url = options.originUrl or options.url
 		matches = url.match(/{{\$[\w-]+}}/g)
 		if matches
@@ -42,7 +42,7 @@ class cola.ProviderInvoker
 						changed = true
 		return changed
 
-	applyPagingParameters: (options) ->
+	applyPagingParameters: (options)->
 		if not @_replaceSysParams(options)
 			if not options.data? then options.data = {}
 			if cola.setting("pagingParamStyle") is "from"
@@ -53,7 +53,7 @@ class cola.ProviderInvoker
 				options.data.pageNo = @pageNo
 		return
 
-	_beforeSend: (options) ->
+	_beforeSend: (options)->
 		if not @pageNo >= 1 then @pageNo = 1
 		@from = @pageSize * (@pageNo - 1)
 		@limit = @pageSize
@@ -63,7 +63,7 @@ class cola.ProviderInvoker
 			@_replaceSysParams(options)
 		return
 
-	_internalInvoke: (async = true) ->
+	_internalInvoke: (async = true)->
 		ajaxService = @ajaxService
 
 		invokerOptions = @invokerOptions
@@ -82,7 +82,7 @@ class cola.ProviderInvoker
 
 		if @_beforeSend then @_beforeSend(options)
 
-		$.ajax(options).done( (result) =>
+		$.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
@@ -103,7 +103,7 @@ class cola.ProviderInvoker
 			if ajaxService.getListeners("complete")
 				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
 			return
-		).fail( (xhr, status, message) =>
+		).fail( (xhr, status, message)=>
 			console.error(xhr.responseJSON)
 
 			error =
@@ -126,7 +126,7 @@ class cola.ProviderInvoker
 		)
 		return
 
-	invokeAsync: (callback) ->
+	invokeAsync: (callback)->
 		@callbacks.push(callback)
 		if @invoking then return false
 
@@ -134,7 +134,7 @@ class cola.ProviderInvoker
 		@_internalInvoke()
 		return true
 
-	invokeSync: (callback) ->
+	invokeSync: (callback)->
 		if @invoking
 			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
 		@callbacks.push(callback)
@@ -161,14 +161,14 @@ class cola.Provider extends cola.Definition
 		success: null
 		error: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		if typeof config is "string"
 			config = {
 				url: config
 			}
 		super(config)
 
-	getUrl: (context) ->
+	getUrl: (context)->
 		url = @_url
 		matches = url.match(/{{[^{{}}]+}}/g)
 		if matches
@@ -177,7 +177,7 @@ class cola.Provider extends cola.Definition
 				url = url.replace(match, @_evalParamValue(match, context))
 		return url
 
-	_evalParamValue: (expr, context) ->
+	_evalParamValue: (expr, context)->
 		if expr.charCodeAt(0) is 123	# `{`
 			if expr.match(/^{{[^{{}}]+}}$/)
 				expression = expr.substring(2, expr.length - 2)
@@ -187,7 +187,7 @@ class cola.Provider extends cola.Definition
 						return expression.evaluate(context.expressionScope, "never")
 		return expr
 
-	getInvokerOptions: (context) ->
+	getInvokerOptions: (context)->
 		options = {}
 		ajaxOptions = @_ajaxOptions
 		if ajaxOptions
@@ -236,7 +236,7 @@ class cola.Provider extends cola.Definition
 		# options.dataType ?= "json"
 		return options
 
-	translateResult: (result, invokerOptions) ->
+	translateResult: (result, invokerOptions)->
 		if @_detectEnd and result instanceof Array
 			if result.length >= @_pageSize
 				result = result.slice(0, @_pageSize)
@@ -247,7 +247,7 @@ class cola.Provider extends cola.Definition
 				}
 		return result
 
-	getInvoker: (context) ->
+	getInvoker: (context)->
 		@fire("beforeExecute", @, {
 			context: context
 		})
@@ -262,10 +262,10 @@ class cola.Provider extends cola.Definition
 _SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
 
 class _ExpressionDataModel extends cola.AbstractDataModel
-	constructor: (model, @entity) ->
+	constructor: (model, @entity)->
 		super(model)
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		if path.charCodeAt(0) is 64 # `@`
 			return @entity.get(path.substring(1))
 		else
@@ -278,6 +278,6 @@ class _ExpressionDataModel extends cola.AbstractDataModel
 	flush: cola._EMPTY_FUNC
 
 class _ExpressionScope extends cola.SubScope
-	constructor: (@parent, @entity) ->
+	constructor: (@parent, @entity)->
 		@data = new _ExpressionDataModel(@, @entity)
 		@action = @parent.action

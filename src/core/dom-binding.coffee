@@ -1,20 +1,20 @@
-_freezeDomBinding = (node, data) ->
+_freezeDomBinding = (node, data)->
 	domBinding = data[cola.constants.DOM_BINDING_KEY]
 	domBinding?.freezed = true
 	return
 
-_unfreezeDomBinding = (node, data) ->
+_unfreezeDomBinding = (node, data)->
 	domBinding = data[cola.constants.DOM_BINDING_KEY]
 	delete domBinding?.freezed
 	return
 
-_destroyDomBinding = (node, data) ->
+_destroyDomBinding = (node, data)->
 	domBinding = data[cola.constants.DOM_BINDING_KEY]
 	domBinding?.destroy()
 	return
 
 class cola._DomBinding
-	constructor: (dom, @scope, features, @forceInit, clone) ->
+	constructor: (dom, @scope, features, @forceInit, clone)->
 		@id = cola.uniqueId()
 		@dom = dom
 		@$dom = $(dom)
@@ -30,7 +30,7 @@ class cola._DomBinding
 		cola.util.onNodeInsert(dom, _unfreezeDomBinding)
 		cola.util.onNodeDispose(dom, _destroyDomBinding)
 
-	destroy: () ->
+	destroy: ()->
 		_features = @features
 		if _features
 			i = _features.length - 1
@@ -43,7 +43,7 @@ class cola._DomBinding
 		delete @$dom
 		return
 
-	addFeature: (feature, forceInit) ->
+	addFeature: (feature, forceInit)->
 		feature.id ?= cola.uniqueId()
 		feature.init(@, forceInit or @forceInit)
 
@@ -55,7 +55,7 @@ class cola._DomBinding
 		@bindFeature(feature) if not feature.ignoreBind
 		return
 
-	removeFeature: (feature) ->
+	removeFeature: (feature)->
 		features = @features
 		if features
 			i = features.indexOf(feature)
@@ -64,23 +64,23 @@ class cola._DomBinding
 			@unbindFeature(feature) if not feature.ignoreBind
 		return
 
-	bindFeature: (feature) ->
+	bindFeature: (feature)->
 		return unless feature.processMessage
 		paths = feature.paths
 		if paths
 			@bind(path, feature) for path in paths
 		return
 
-	unbindFeature: (feature) ->
+	unbindFeature: (feature)->
 		paths = feature.paths
 		if paths
 			@unbind(path, feature) for path in paths
 		return
 
-	bind: (path, feature) ->
+	bind: (path, feature)->
 		pipe = {
 			path: path
-			processMessage: (bindingPath, path, type, arg) =>
+			processMessage: (bindingPath, path, type, arg)=>
 				return if @freezed
 
 				if not feature.disabled
@@ -102,7 +102,7 @@ class cola._DomBinding
 			holder.push(pipe)
 		return
 
-	unbind: (path, feature) ->
+	unbind: (path, feature)->
 		holder = @[feature.id]
 		return unless holder
 		for p, i in holder
@@ -113,13 +113,13 @@ class cola._DomBinding
 		if not holder.length then delete @[feature.id]
 		return
 
-	refresh: (force) ->
+	refresh: (force)->
 		if @features
 			for f in @features
 				f.refresh(@, force)
 		return
 
-	clone: (dom, scope) ->
+	clone: (dom, scope)->
 		features = []
 		if @features
 			for feature in @features
@@ -128,7 +128,7 @@ class cola._DomBinding
 		return new @constructor(dom, scope, features, true, true)
 
 class cola._RepeatDomBinding extends cola._DomBinding
-	constructor: (dom, scope, feature, forceInit, clone) ->
+	constructor: (dom, scope, feature, forceInit, clone)->
 		if clone
 			super(dom, scope, feature, forceInit, clone)
 		else
@@ -148,7 +148,7 @@ class cola._RepeatDomBinding extends cola._DomBinding
 
 			cola.util.onNodeRemove(headerNode, _freezeDomBinding)
 			cola.util.onNodeInsert(headerNode, _unfreezeDomBinding)
-			cola.util.onNodeDispose(headerNode, (node, data) ->
+			cola.util.onNodeDispose(headerNode, (node, data)->
 				_destroyDomBinding(headerNode, data)
 				$fly(dom).remove()
 				return
@@ -171,41 +171,41 @@ class cola._RepeatDomBinding extends cola._DomBinding
 					else
 						repeatItemDomBinding.addFeature(feature)
 
-	destroy: () ->
+	destroy: ()->
 		super()
 		delete @currentItemDom
 		return
 
 class cola._RepeatItemDomBinding extends cola._DomBinding
-	destroy: () ->
+	destroy: ()->
 		super()
 		if not @isTemplate
 			delete @repeatDomBinding.itemDomBindingMap?[@itemId]
 		return
 
-	clone: (dom, scope) ->
+	clone: (dom, scope)->
 		cloned = super(dom, scope)
 		cloned.repeatDomBinding = @repeatDomBinding
 		return cloned
 
-	bind: (path, feature) ->
+	bind: (path, feature)->
 		return if @isTemplate
 		return super(path, feature)
 
-	bindFeature: (feature) ->
+	bindFeature: (feature)->
 		return if @isTemplate
 		return super(feature)
 
-	processDataMessage: (path, type, arg) ->
+	processDataMessage: (path, type, arg)->
 		if not @isTemplate
 			@scope.data.processMessage("**", path, type, arg)
 		return
 
-	refresh: () ->
+	refresh: ()->
 		return if @isTemplate
 		return super()
 
-	remove: () ->
+	remove: ()->
 		if !@isTemplate
 			@$dom.remove()
 		return

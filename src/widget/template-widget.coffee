@@ -1,8 +1,8 @@
 class cola.WidgetDataModel extends cola.AbstractDataModel
-	constructor: (model, @widget) ->
+	constructor: (model, @widget)->
 		super(model)
 
-	_getRealPath: (dynaPath) ->
+	_getRealPath: (dynaPath)->
 		index = dynaPath.indexOf(".")
 		if index > 1
 			realPath = @_transferDynaProperty(dynaPath.substring(1, index)) + dynaPath.substring(index)
@@ -10,14 +10,14 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 			realPath = @_transferDynaProperty(dynaPath.substring(1))
 		return realPath
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		cc = path.charCodeAt(0);
 		if cc is 64 # `@`
 			return @model.parent?.data.get(@_getRealPath(path), loadMode, context)
 		else
 			return @widget.get(path, true)
 
-	set: (path, value) ->
+	set: (path, value)->
 		if path.charCodeAt(0) is 64 # `@`
 			@model.parent?.data.set(@_getRealPath(path), value)
 		else
@@ -25,7 +25,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		return
 
-	_bind: (path, processor) ->
+	_bind: (path, processor)->
 		if path[0].charCodeAt(0) is 64 # `@`
 			property = path[0].substring(1)
 			if not @dynaPropertyMap
@@ -39,7 +39,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 
 		return super(path, processor)
 
-	_unbind: (path, processor) ->
+	_unbind: (path, processor)->
 		if @dynaPropertyMap and path[0].charCodeAt(0) is 64 # `@`
 			property = path[0].substring(1)
 			if @dynaPropertyMap[property] > 1
@@ -49,7 +49,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 				delete @dynaPropertyPathMap[property]
 		return super(path, processor)
 
-	_transferDynaProperty: (property) ->
+	_transferDynaProperty: (property)->
 		oldPath = @dynaPropertyPathMap[property]
 		path = @widget.get(property)
 
@@ -63,9 +63,9 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 				@model.watchPath(path)
 		return path
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 
-		isParentPath = (targetPath, parentPath) ->
+		isParentPath = (targetPath, parentPath)->
 			isParent = true
 			for part, i in parentPath
 				targetPart = targetPath[i]
@@ -90,53 +90,53 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 					@onDataMessage(["@" + property].concat(relativePath), type, arg)
 		return
 
-	getDataType: (path) ->
+	getDataType: (path)->
 		if path.charCodeAt(0) is 64 # `@`
 			return @model.parent?.data.getDataType(path.substring(1))
 		else
 			return null
 
-	getProperty: (path) ->
+	getProperty: (path)->
 		if path.charCodeAt(0) is 64 # `@`
 			return @model.parent?.data.getProperty(path.substring(1))
 		else
 			return null
 
-	flush: (name, loadMode) ->
+	flush: (name, loadMode)->
 		if path.charCodeAt(0) is 64 # `@`
 			@model.parent?.data.getDataType(name.substring(1), loadMode)
 		return @
 
-	dataType: (name) ->
+	dataType: (name)->
 		if typeof name is "string"
 			return @model.parent?.data.dataType(name)
 		else
 			throw  new cola.Exception("Unsupported operation.")
 
-	definition: (name) ->
+	definition: (name)->
 		return @model.parent?.data.definition(name)
 
 class cola.WidgetModel extends cola.SubScope
 	repeatNotification: true
 
-	constructor: (@widget, @parent) ->
+	constructor: (@widget, @parent)->
 		widget = @widget
 		@data = new cola.WidgetDataModel(@, widget)
 
-		@action = (name) ->
+		@action = (name)->
 			method = widget[name]
 			if method instanceof Function
-				return () -> method.apply(widget, arguments)
+				return ()-> method.apply(widget, arguments)
 			return widget._scope.action(name)
 
-	_getAction: (name) ->
+	_getAction: (name)->
 		method = @widget[name]
 		if method instanceof Function
-			fn = () -> method.apply(@widget, arguments)
+			fn = ()-> method.apply(@widget, arguments)
 		fn ?= @parent?._getAction(name)
 		return @action(name)
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 		if @messageTimestamp >= arg.timestamp then return
 		return @data.processMessage(bindingPath, path, type, arg)
 
