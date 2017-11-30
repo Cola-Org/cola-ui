@@ -107,6 +107,7 @@ class cola.Table extends cola.Widget
 				class: "green checkmark icon"
 		"checkbox-column":
 			tagName: "c-checkbox"
+			tagName: "c-checkbox"
 			bind: "$default"
 		"toggle-column":
 			tagName: "c-toggle"
