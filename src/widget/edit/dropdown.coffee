@@ -10,7 +10,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
 
 	@attributes:
-		disabled:    # TO BE DELETE
+		disabled: # TO BE DELETE
 			type: "boolean"
 			refreshDom: true
 			defaultValue: false
@@ -518,8 +518,8 @@ class cola.DropBox extends cola.Layer
 
 		# 防止因改变高度导致滚动条自动还原到初始位置
 		if opened
-			boxWidth = dom.scrollWidth
-			boxHeight = dom.scrollHeight
+			boxWidth = dom.offsetWidth
+			boxHeight = dom.offsetHeight
 		else
 			if @_maxHeight
 				$dom.css("max-height", @_maxHeight)
@@ -532,9 +532,9 @@ class cola.DropBox extends cola.Layer
 			$dom.addClass("hidden")
 
 		rect = $fly(dropdownDom).offset()
-		clientWidth = document.body.offsetWidth
-		clientHeight = document.body.clientHeight
-		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight) - 6
+		clientWidth = document.body.clientWidth - 11
+		clientHeight = document.body.clientHeight - 11
+		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight)
 
 		if bottomSpace >= boxHeight
 			direction = "down"
@@ -551,8 +551,10 @@ class cola.DropBox extends cola.Layer
 		if opened
 			if height
 				$dom.css("height", height)
-			else if not (dom.scrollHeight > dom.clientHeight)
-				$dom.css("height", "auto")
+			else
+				if dom.firstElementChild is dom.lastElementChild
+					if dom.firstElementChild.offsetHeight < dom.clientHeight
+						$dom.css("height", "auto")
 
 			if direction == "down"
 				top = rect.top + dropdownDom.clientHeight

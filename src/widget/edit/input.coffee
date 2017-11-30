@@ -410,9 +410,9 @@ class cola.Input extends cola.AbstractInput
 
 	_refreshInputValue: (value) ->
 		inputType = @_inputType
-		if inputType == "text"
+		if inputType is "text"
 			format = if @_focused then @_inputFormat else @_displayFormat
-			if typeof value == "number"
+			if isFinite(value)
 				if format
 					value = formatNumber(format, value)
 			else if value instanceof Date
