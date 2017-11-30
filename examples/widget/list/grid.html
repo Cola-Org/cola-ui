@@ -135,6 +135,19 @@
 		});
 	});
 
+	var callback = function (records) {
+		records.map(function (record) {
+//			debugger
+			console.log('Previous attribute value: ' + record.oldValue);
+		});
+	};
+	var mo = new MutationObserver(callback);
+	var element = document.getElementById('table1');
+	var option = {
+		'attribute': true,
+		'attributeOldValue': true
+	};
+	mo.observe(element, option);
 
 </script>
 </body>

@@ -14,6 +14,8 @@
 @tableCurrentCellBackground: fade(@primaryColor, 15%);
 @tableColumnDraggingHelperBackground: @tableHeadBackground;
 
+@rowHeight: 31px;
+
 @tableInvertedStripedBackground: darken(@itemsViewInvertedBackground, 4%);
 @tableInvertedHeadBackground: lighten(@itemsViewInvertedBackground, 6%);
 @tableInvertedFootBackground: @tableInvertedHeadBackground;
@@ -48,8 +50,7 @@
 		}
 		> .table-header {
 			top: 0;
-			border-bottom: 1px solid @tableHeadLineColor;
-			background: @tableHeadBackground;
+			padding-bottom: 1px;
 			> .resize-handler {
 				content: "";
 				position: absolute !important;
@@ -88,6 +89,18 @@
 			height: 100%;
 			overflow: auto;
 			box-sizing: border-box;
+			&.header-1 {
+				padding-top: @rowHeight * 1;
+			}
+			&.header-2 {
+				padding-top: @rowHeight * 2;
+			}
+			&.header-3 {
+				padding-top: @rowHeight * 3;
+			}
+			&.header-4 {
+				padding-top: @rowHeight * 4;
+			}
 		}
 
 		.items {
@@ -127,7 +140,7 @@
 
 	.cell, .header-cell, .footer-cell {
 		box-sizing: border-box;
-		height: 2.6em;
+		height: @rowHeight;
 		overflow-x: hidden;
 		overflow-y: visible;
 		font-size: 1rem;
@@ -207,22 +220,23 @@
 		font-size: 0;
 
 		.header-cell, .header-group {
+			background: @tableHeadBackground;
 			display: inline-block;
 			cursor: pointer;
 		}
 		.header-cell {
 			position: relative;
-			border-width: 1px 1px 0 0;
+			border-width: 0 1px 1px 0;
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
 			&.rows-2 {
-				height: 2.6em * 2;
+				height: @rowHeight * 2;
 			}
 			&.rows-3 {
-				height: 2.6em * 3;
+				height: @rowHeight * 3;
 			}
 			&.rows-4 {
-				height: 2.6em * 4;
+				height: @rowHeight * 4;
 			}
 		}
 		> .header-group > .header-cell {
@@ -230,9 +244,6 @@
 		}
 		&.first-row {
 			position: relative;
-			> .header-cell, > .header-group > .header-cell {
-				border-top-width: 0;
-			}
 		}
 	}
 	.footer-cell {
@@ -246,15 +257,12 @@
 		line-height: 1;
 		font-size: 0;
 		box-sizing: border-box;
-		border-bottom: 1px solid @tableRowLineColor;
 		overflow: visible;
-		&:last-of-type {
-			border-bottom-width: 0;
-			.box-shadow(0 1px 0 @tableRowLineColor);
-		}
 		> .cell {
 			display: inline-block;
-			border-right: 1px solid @tableColLineColor;
+			border-width: 0 1px 1px 0;
+			border-style: solid;
+			border-color: @tableColLineColor;
 			&.current {
 				background: @tableCurrentCellBackground;
 			}
@@ -306,7 +314,7 @@
 
 .ui.widget-table.striped {
 	.inner-table {
-		.table.item:nth-child(2n):not(.current) {
+		.table.item:nth-child(2n):not(.current) .cell {
 			background: @itemsViewItemStripedBackground;
 		}
 	}
@@ -314,10 +322,10 @@
 
 .ui.widget-table {
 	.inner-table {
-		.table.item:hover:not(.current) {
+		.table.item:hover:not(.current) .cell {
 			background: @itemsViewHoverBackground;
 		}
-		.table.item.current {
+		.table.item.current .cell {
 			background: @itemsViewCurrentBackground;
 		}
 	}

@@ -165,6 +165,7 @@ class cola.Table extends cola.Widget
 		if @_rendered
 			cola.util.delay(@, "onColumnChange", 100, () =>
 				@_collectionColumnsInfo()
+				@_buildStyleSheet()
 				if refreshItems
 					@_refreshItemsScheduled = true
 				@_refreshDom()
@@ -204,7 +205,7 @@ class cola.Table extends cola.Widget
 						if width.indexOf("px") > 0
 							widthType = "px"
 						else if width.indexOf("%") > 0
-							widthType = "percent"
+							widthType = "%"
 					widthType ?= "weight"
 					info.widthType = widthType
 					info.width = parseFloat(width)
@@ -352,6 +353,8 @@ class cola.Table extends cola.Widget
 				if cell.className.indexOf("ui-draggable") < 0
 					$fly(cell).draggable(
 						appendTo: "body"
+						revert: "invalid"
+						refreshPositions: true
 						helper: () ->
 							helper = cell.cloneNode(true)
 							$fly(helper).addClass("table-column-dragging-helper").width(cell.offsetWidth).height(cell.offsetHeight)
@@ -462,8 +465,10 @@ class cola.Table extends cola.Widget
 	_getHeaderCellResizeHandler: (tableHeader) ->
 		table = @
 		handler = tableHeader.querySelector(".resize-handler")
-		innerTable = $fly(tableHeader).closest(".inner-table")[0]
 		if not handler
+			innerTable = $fly(tableHeader).closest(".inner-table")[0]
+			tableBody = $fly(innerTable).find(">.table-body")[0]
+
 			handler = cola.xCreate(
 				class: "resize-handler"
 			)
@@ -474,7 +479,7 @@ class cola.Table extends cola.Widget
 					helper = cola.xCreate(
 						class: "resize-helper"
 						style:
-							left: cell.offsetLeft - 1
+							left: cell.offsetLeft - tableBody.scrollLeft - 1
 							width: cell.offsetWidth
 					)
 					cola.util.userData(helper, "originalWidth", cell.offsetWidth)
@@ -594,13 +599,20 @@ class cola.Table extends cola.Widget
 
 			def = ".#{colInfo.column._id}{"
 
-			if colInfo.widthType is "percent"
-				width = Math.round(colInfo.width * clientWidth / 100)
-			else if colInfo.widthType
+			if colInfo.widthType is "%"
+				if clientWidth > 0
+					width = Math.round(colInfo.width * clientWidth / 100)
+					widthType = "px"
+					realTotalWidth += width
+				else
+					width = colInfo.width
+					widthType = "%"
+			else
 				width = Math.round(colInfo.width) or 80
-			realTotalWidth += width
+				widthType = colInfo.widthType or "px"
+				realTotalWidth += width
 
-			def += "width:#{width}px;"
+			def += "width:#{width}#{widthType};"
 			def += "}"
 			columnCssDefs.push(def)
 
@@ -614,13 +626,17 @@ class cola.Table extends cola.Widget
 			def = ".#{colInfo.column._id}{"
 
 			minWidth = colInfo.width
-			rawWidth = colInfo.width * clientWidthForWeight / totalWidthWeight + adjust
-			width = Math.floor(rawWidth)
-			if width < minWidth then width = minWidth
-			realTotalWidth += width
-			adjust = rawWidth - width
+			if clientWidth > 0
+				rawWidth = colInfo.width * clientWidthForWeight / totalWidthWeight + adjust
+				width = Math.floor(rawWidth)
+				if width < minWidth then width = minWidth
+				realTotalWidth += width
+				adjust = rawWidth - width
+				def += "width:#{width}px;"
+			else
+				width = Math.round(colInfo.width * 100 / totalWidthWeight)
+				def += "width:#{width}%; min-width:#{colInfo.width}px"
 
-			def += "width:#{width}px;"
 			def += "}"
 			columnCssDefs.push(def)
 
@@ -638,8 +654,43 @@ class cola.Table extends cola.Widget
 		}
 
 	_doRefreshDom: ()->
-		if @_columnsTimestamp isnt @_columnsInfo.timestamp
+		return unless @_dom
+		super()
+
+		if @_refreshItemsScheduled
+			delete @_refreshItemsScheduled
+			if @_leftTable
+				@_leftTable._refreshItemsScheduled = true
+			if @_rightTable
+				@_rightTable._refreshItemsScheduled = true
+			@_centerTable._refreshItemsScheduled = true
+
+			@_refreshItems()
+		return
+
+	refreshItem: (item) ->
+		@_leftTable?.refreshItem(item)
+		@_rightTable?.refreshItem(item)
+		@_centerTable.refreshItem(item)
+		return
+
+	_onItemRefresh: (arg) ->
+		item = arg.entity
+		if typeof item is "object"
+			@refreshItem(item)
+		return
+
+	_onItemsRefresh: () ->
+		return @_refreshItems()
+
+	_refreshItems: () ->
+		if not @_dom
+			@_refreshItemsScheduled = true
+			return
+
+		if @_columnsTimestamp isnt @_columnsInfo.timestamp or @_oldClientWidth = @_dom.clientWidth
 			@_columnsTimestamp = @_columnsInfo.timestamp
+			@_oldClientWidth = @_dom.clientWidth
 
 			if @_columnsInfo.left and not @_leftTable
 				@_leftTable = new cola.Table.InnerTable(
@@ -660,19 +711,9 @@ class cola.Table extends cola.Widget
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
 			@_centerTable.set("columnsInfo", @_columnsInfo.center)
 
-		super()
-
-		if @_refreshItemsScheduled
-			delete @_refreshItemsScheduled
-			if @_leftTable
-				@_leftTable._refreshItemsScheduled = true
-			if @_rightTable
-				@_rightTable._refreshItemsScheduled = true
-			@_centerTable._refreshItemsScheduled = true
-
-		@_leftTable?._refreshDom()
-		@_rightTable?._refreshDom()
-		@_centerTable._refreshDom()
+		@_leftTable?._refreshItems()
+		@_rightTable?._refreshItems()
+		@_centerTable._refreshItems()
 
 		if info and info.totalWidth > info.clientWidth and info.hasWeightColumn
 			clientWidth = @_centerTable._doms.tableBody.clientWidth
@@ -680,29 +721,6 @@ class cola.Table extends cola.Widget
 			if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
 			if clientWidth isnt info.clientWidth
 				@_buildStyleSheet()
-		return
-
-	refreshItem: (item) ->
-		@_leftTable?.refreshItem(item)
-		@_rightTable?.refreshItem(item)
-		@_centerTable.refreshItem(item)
-
-
-		return
-
-	_onItemRefresh: (arg) ->
-		item = arg.entity
-		if typeof item is "object"
-			@refreshItem(item)
-		return
-
-	_onItemsRefresh: () ->
-		return @_refreshItems()
-
-	_refreshItems: () ->
-		@_leftTable?._refreshItems()
-		@_rightTable?._refreshItems()
-		@_centerTable._refreshItems()
 
 		if @_columnsInfo.selectColumns
 			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
@@ -719,15 +737,11 @@ class cola.Table extends cola.Widget
 		return
 
 	_onItemInsert: (arg) ->
-		@_leftTable?._onItemInsert(arg)
-		@_rightTable?._onItemInsert(arg)
-		@_centerTable._onItemInsert(arg)
+		@_refreshItems()
 		return
 
 	_onItemRemove: (arg) ->
-		@_leftTable?._onItemRemove(arg)
-		@_rightTable?._onItemRemove(arg)
-		@_centerTable._onItemRemove(arg)
+		@_refreshItems()
 
 		if @_columnsInfo.selectColumns
 			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
@@ -876,6 +890,7 @@ class cola.Table extends cola.Widget
 				@_refreshItems()
 		return
 
+cola.registerWidget(cola.Table)
 cola.Element.mixin(cola.Table, cola.TemplateSupport)
 cola.Element.mixin(cola.Table, cola.DataItemsWidgetMixin)
 
@@ -932,7 +947,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		itemDom._itemType = itemType
 		return itemDom
 
-	_doRefreshDom: () ->
+	_doRefreshItems: (itemsWrapper) ->
 		return unless @_dom and @_columnsInfo
 
 		if @_table._showHeader
@@ -962,7 +977,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				)
 
 			@_refreshHeader(header)
-			@_doms.tableBody.style.paddingTop = @_doms.tableHeader.offsetHeight + "px"
+			@_doms.tableBody.className = "table-body header-" + @_columnsInfo.rows.length
 
 		if @_table._showFooter
 			footer = @_doms.footer
@@ -987,7 +1002,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshFooter(footer)
 			@_doms.tableBody.style.paddingBottom = @_doms.tableFooter.offsetHeight + "px"
 
-		super()
+		super(itemsWrapper)
 
 		if @_type is "center"
 			@_table._realItems = @_realItems
