@@ -28,6 +28,18 @@
             model.action({
                 inputChange: function () {
                     console.log("change")
+                },
+                keyDown: function (self, arg) {
+                    if (arg.keyCode === 13) {
+                        var search = model.action("search");
+                        if (!self.get("value")) {
+                            return
+                        }
+                        search && search();
+                    }
+                },
+                search: function () {
+                    debugger;
                 }
             });
 
@@ -35,10 +47,6 @@
     </script>
 </head>
 <body style="padding:20px;">
-
-<c-input class="action" bind="person.name"></c-input>
-<c-input c-readOnly="person.name?'false':'true'">
-</c-input>
+<c-input bind="person.name" keyDown="keyDown" displayFormat=""></c-input>
 </body>
-
 </html>
