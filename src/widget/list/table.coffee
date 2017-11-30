@@ -567,6 +567,8 @@ class cola.Table extends cola.Widget
 					templateName = "headerTemplate"
 				else if templateName and templateName.indexOf("footer") is 0
 					templateName = "footerTemplate"
+				else if templateName and templateName.indexOf("edit") is 0
+					templateName = "editTemplate"
 				else
 					templateName = "template"
 				column[templateName] = @trimTemplate(child)
@@ -1271,7 +1273,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 						cola.currentScope = oldScope
 				else
 					scope = cola.util.userData(templateDom, "scope")
-					scope.data.setItemData(item)
+					scope?.data.setItemData(item)
 
 				$fly(editorPane).removeClass("hidden")
 
