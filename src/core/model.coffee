@@ -1146,18 +1146,6 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	dataType: (name) ->
 		return @parent.dataType(name)
 
-	disableObservers: () ->
-		@parent.disableObservers()
-		return @
-
-	enableObservers: () ->
-		@parent.enableObservers()
-		return @
-
-	notifyObservers: (path) ->
-		@parent.notifyObservers(path)
-		return @
-
 	addAlias: (alias, path) ->
 		@_aliasMap[alias] =
 			data: undefined

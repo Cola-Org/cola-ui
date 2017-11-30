@@ -6,18 +6,19 @@
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
 		cola(function (model) {
-			function generateNodes(node, deepth) {
+
+			function generateNodes(id, node, deepth) {
 				deepth = deepth || 0;
 				var children = [];
-				var prefix = node ? node.name + "." : "";
+				var prefix = id + "-" + (node ? node.name + "." : "");
 				var len = Math.random() * 3 + 3;
 				for (var i = 0; i < len; i++) {
 					var child = {
 						name: prefix + i,
 						checked: Math.random() > 0.5,
-						expanded: Math.random() > 0.7
+						expanded: false && Math.random() > 0.7
 					};
-					if (deepth < 2) generateNodes(child, deepth + 1);
+					if (deepth < 2) generateNodes(id, child, deepth + 1);
 					children.push(child);
 				}
 				if (node) {
@@ -26,7 +27,7 @@
 				return children;
 			}
 
-			var nodes = generateNodes();
+			var nodes = generateNodes('A');
 			model.set("node", {
 				nodes: nodes
 			});
@@ -48,6 +49,12 @@
 					var currentNode = tree.findNode(model.get("currentNode"));
 
 					tree.expand(currentNode);
+				},
+				reset: function (node) {
+					var nodes = generateNodes('B', null, 1);
+					model.set("node", {
+						nodes: nodes
+					});
 				}
 			});
 
@@ -82,6 +89,7 @@
 	<div c-widget="input; bind:currentNode.name"></div>
 	<div c-widget="button; caption:Add; click:add"></div>
 	<div c-widget="checkbox; bind:currentNode.checked"></div>
+	<div c-widget="button; caption:Reset; click:reset"></div>
 </div>
 <div class="flex-box">
 	<div id="tree" style="height:100%">
