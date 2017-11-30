@@ -109,7 +109,7 @@ class cola.Pager extends cola.Widget
 
 		wrapper = @_doms.pageNoWrapper
 		$(wrapper).empty()
-
+		$(@_dom).toggleClass("empty", totalEntityCount <= 0);
 
 		wrapper.appendChild($.xCreate({
 			tagName: "span",
@@ -211,6 +211,12 @@ class cola.Pager extends cola.Widget
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
 		$(@_dom).find(".nav-btn.prev").toggleClass("disabled", !hasPrev);
 		$(@_dom).find(".nav-btn.next").toggleClass("disabled", !hasNext);
+
+
+
+
+
+
 	prevPage: ()->
 		data = @_getBindItems()
 		data?.previousPage()
