@@ -1,6 +1,6 @@
 class cola.Pager extends cola.Widget
 	@tagName: "c-pager"
-	@CLASS_NAME: "ui pager"
+	@CLASS_NAME: "ui pager empty"
 	@attributes:
 		bind:
 			setter: (bindStr) -> @_bindSetter(bindStr)
@@ -109,7 +109,7 @@ class cola.Pager extends cola.Widget
 
 		wrapper = @_doms.pageNoWrapper
 		$(wrapper).empty()
-
+		$(@_dom).toggleClass("empty", totalEntityCount <= 0);
 
 		wrapper.appendChild($.xCreate({
 			tagName: "span",
