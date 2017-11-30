@@ -217,19 +217,40 @@ class cola.Model extends cola.Scope
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
-	constructor: (@parent, expressions) ->
-		@action = @parent.action
-		@parent.registerChild(@)
+	constructor: (parent, expressions) ->
+		@setParent(parent)
 		if expressions
 			@setExpressions(expressions)
 
 	destroy: () ->
 		if @parent then @unwatchPath()
-		@data?.destroy?()
+		if @data and @data.model is @
+			@data.destroy?()
+		return
+
+	setParent: (parent) ->
+		if @parent
+			@unwatchPath()
+			@parent.unregisterChild(@)
+			if @data is @parent.data
+				@data = null
+			@parent = null
+
+		@parent = parent
+		@data = parent.data if not @data
+		@action = parent.action
+		@parent.registerChild(@)
+
+		if @_watchAllMessages
+			@watchAllMessages()
+		else if @_watchPath
+			@watchPath(@_watchPath)
 		return
 
 	setExpressions: (expressions) ->
+		throw new cola.Exception("Expressions can not be changed.") if @_expressionSetted
 		return unless expressions
+		@_expressionSetted = true
 
 		@data = new cola.SubDataModel(@)
 		@aliasExpressions = {}
@@ -362,7 +383,6 @@ class cola.ItemScope extends cola.SubScope
 	constructor: (parent, @alias) ->
 		super(parent)
 		@data = new cola.ItemDataModel(@, @alias, @parent?.dataType)
-		@action = @parent.action
 
 	watchPath: () ->
 
@@ -373,7 +393,7 @@ class cola.ItemsScope extends cola.SubScope
 
 	constructor: (parent, expression) ->
 		@itemScopeMap = {}
-		@setParent(parent)
+		super(parent)
 		@setExpression(expression)
 
 	setExpression: (expression) ->
@@ -422,19 +442,6 @@ class cola.ItemsScope extends cola.SubScope
 		for key, childScope of @itemScopeMap
 			childScope.notifyObservers(path)
 		return @
-
-	setParent: (parent) ->
-		if @parent then @unwatchPath()
-
-		@parent = parent
-		@data = parent.data
-		@action = parent.action
-
-		if @_watchAllMessages
-			@watchAllMessages()
-		else if @_watchPath
-			@watchPath(@_watchPath)
-		return
 
 	setItems: (items) ->
 		@_setItems(items)
@@ -1316,7 +1323,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 		if data instanceof cola.Entity or data instanceof cola.EntityList
 			@dataType = data.dataType
 
-		if not silence
+		if not silence and @alias
 			@onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias

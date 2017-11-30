@@ -20,9 +20,6 @@ class cola.Textarea extends cola.AbstractEditor
                 return @_setValue(value)
 
     @events:
-        focus: null
-        blur: null
-        keyDown: null
         keyPress: null
 
     destroy: ()->
@@ -82,14 +79,6 @@ class cola.Textarea extends cola.AbstractEditor
         ).on("input", ()=>
             if @_postOnInput then doPost()
             return
-        ).on("keydown", (event)=>
-            arg =
-                keyCode: event.keyCode
-                shiftKey: event.shiftKey
-                ctrlKey: event.ctrlKey
-                altlKey: event.altlKey
-                event: event
-            @fire("keyDown", @, arg)
         ).on("keypress", (event)=>
             arg =
                 keyCode: event.keyCode

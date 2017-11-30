@@ -99,21 +99,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				@close()
 			else if not @_disabled
 				@open()
-			return false
-		).on("keydown", (evt)=>
-			arg =
-				keyCode: evt.keyCode
-				shiftKey: evt.shiftKey
-				ctrlKey: evt.ctrlKey
-				altKey: evt.altKey
-				event: evt
-				inputValue: @_doms.input.value
-
-			@fire("keyDown", @, arg)
-			if evt.keyCode is 9 then @_closeDropdown()
-
-			if @_onKeyDown?(evt) isnt false and @_dropdownContent
-				$(@_dropdownContent).trigger(evt)
 			return
 		).on("keypress", (evt)=>
 			arg =
@@ -171,7 +156,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_doFocus: ()->
 		@_inputEdited = false
-		super()
+		super(evt)
 		return
 
 	_parseDom: (dom)->
@@ -192,8 +177,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return $.xCreate(
 			tagName: "input"
 			type: "text"
-			click: (evt) =>
-				this.focus()
+			click: () => this.focus()
 		)
 
 	_isEditorDom: (node) ->
@@ -262,16 +246,22 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					cola.xRender(valueContent, currentItemScope, ctx)
 				$fly(valueContent).show()
 
-			else if @_textProperty or @_valueProperty
-				if item instanceof cola.Entity or (typeof item is "object" and not (item instanceof Date))
-					text = cola.Entity._evalDataPath(item, @_textProperty or @_valueProperty or "value")
-				else
-					text = item
-				input.value = text or ""
-
 			else
-				text = @readBindingValue()
-				input.value = text or ""
+				property = @_textProperty or @_valueProperty
+				if property
+					if item instanceof cola.Entity
+						text = cola.Entity._evalDataPath(item, property or "value")
+					else if typeof item is "object" and not (item instanceof Date)
+						if item.hasOwnProperty(property)
+							text = item[property]
+						else
+							text = cola.Entity._evalDataPath(item, property or "value")
+					else
+						text = item
+					input.value = text or ""
+				else
+					text = @readBindingValue()
+					input.value = text or ""
 
 			input.placeholder = ""
 			@get$Dom().removeClass("placeholder")
@@ -376,7 +366,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	open: (callback) ->
 		if @_finalReadOnly and @_disabled then return
-		if @_readOnly then return
+
 		if @fire("beforeOpen", @) is false then return
 
 		doCallback = () =>

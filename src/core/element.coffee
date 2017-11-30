@@ -84,12 +84,12 @@ class cola.Element
 					doMergeDefinitions(events, mixInEvents, true)
 			else if name is "constructor"
 				if not classType._constructors
-					classType._constructors = [member]
+					classType._constructors = [ member ]
 				else
 					classType._constructors.push(member)
 			else if name is "destroy"
 				if not classType._destructors
-					classType._destructors = [member]
+					classType._destructors = [ member ]
 				else
 					classType._destructors.push(member)
 			else
@@ -191,7 +191,7 @@ class cola.Element
 
 	set: (attr, value, ignoreError) ->
 		if typeof attr is "string"
-			# set(string, any)
+# set(string, any)
 			if attr.indexOf(".") > -1
 				paths = attr.split(".")
 				obj = @
@@ -215,7 +215,7 @@ class cola.Element
 			else
 				@_set(attr, value, ignoreError)
 		else
-			# set(object, ignoreError)
+# set(object, ignoreError)
 			config = attr
 			ignoreError = value
 			for attr of config
@@ -276,7 +276,7 @@ class cola.Element
 
 		if @_eventRegistry
 			if @getListeners("attributeChange")
-				@fire("attributeChange", @, {attribute: attr})
+				@fire("attributeChange", @, { attribute: attr })
 		return
 
 	_doSet: (attr, attrConfig, value) ->
@@ -344,7 +344,7 @@ class cola.Element
 			listeners.push(listener)
 			i = listeners.length - 1
 		else
-			listenerRegistry.listeners = listeners = [listener]
+			listenerRegistry.listeners = listeners = [ listener ]
 			i = 0
 
 		if alias
@@ -439,7 +439,7 @@ class cola.Element
 				if arg
 					arg.model = @_scope
 				else
-					arg = {model: @_scope}
+					arg = { model: @_scope }
 
 				oldScope = cola.currentScope
 				cola.currentScope = @_scope
@@ -522,7 +522,7 @@ cola.tagManager =
 		if elements
 			elements.push(element)
 		else
-			@registry[tag] = [element]
+			@registry[tag] = [ element ]
 		return
 
 	unreg: (tag, element) ->
