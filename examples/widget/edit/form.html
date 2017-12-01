@@ -93,23 +93,23 @@
 <c-button click="setEntity">Set Entity</c-button>
 <c-button click="setReadOnly">Set ReadOnly</c-button>
 
-<c-form bind="form" id="form1">
-	<fields class="cols-3">
-		<field property="name"></field>
-		<field property="age">
-			<label></label>
-			<c-input c-post="onAgeChange(form)"></c-input>
-		</field>
-		<field property="email"></field>
-		<field property="subObject1.subObject2.num"></field>
-		<field>
-			<label></label>
-			<c-textarea bind="form.subObject1.subObject2.num"></c-textarea>
-		</field>
-	</fields>
-</c-form>
+<!--<c-form bind="form" id="form1">-->
+	<!--<fields class="cols-3">-->
+		<!--<field property="name"></field>-->
+		<!--<field property="age">-->
+			<!--<label></label>-->
+			<!--<c-input c-post="onAgeChange(form)"></c-input>-->
+		<!--</field>-->
+		<!--<field property="email"></field>-->
+		<!--<field property="subObject1.subObject2.num"></field>-->
+		<!--<field>-->
+			<!--<label></label>-->
+			<!--<c-textarea bind="form.subObject1.subObject2.num"></c-textarea>-->
+		<!--</field>-->
+	<!--</fields>-->
+<!--</c-form>-->
 
-<c-textarea bind="form.subObject1.subObject2.num"></c-textarea>
+<c-textarea bind="aaa"></c-textarea>
 
 </body>
 </html>
