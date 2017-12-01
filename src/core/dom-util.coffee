@@ -8,11 +8,11 @@ else
 
 _$ = $()
 _$.length = 1
-this.$fly = (dom) ->
+this.$fly = (dom)->
 	_$[0] = dom
 	return _$
 
-cola.util.setText = (dom, text = "") ->
+cola.util.setText = (dom, text = "")->
 	if cola.browser.mozilla
 		if typeof text is "string"
 			text = text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/\n/g, "<br>")
@@ -22,7 +22,7 @@ cola.util.setText = (dom, text = "") ->
 	return
 
 doms = {}
-cola.util.cacheDom = (ele) ->
+cola.util.cacheDom = (ele)->
 	cola._ignoreNodeRemoved = true
 	if not doms.hiddenDiv
 		doms.hiddenDiv = $.xCreate(
@@ -44,7 +44,7 @@ cola.util.userDataStore = {
 	size: 0
 }
 
-cola.util.userData = (node, key, data) ->
+cola.util.userData = (node, key, data)->
 	return if node.nodeType is 3
 	userData = cola.util.userDataStore
 	if node.nodeType is 8
@@ -103,7 +103,7 @@ cola.util.userData = (node, key, data) ->
 			return userData[id]
 	return
 
-cola.util.removeUserData = (node, key) ->
+cola.util.removeUserData = (node, key)->
 	if node.nodeType is 8
 		text = node.nodeValue
 		i = text.indexOf("|")
@@ -127,14 +127,14 @@ ON_NODE_DISPOSE_KEY = "__onNodeDispose"
 ON_NODE_REMOVE_KEY = "__onNodeRemove"
 ON_NODE_INSERT_KEY = "__onNodeInsert"
 
-cola.detachNode = (node) ->
+cola.detachNode = (node)->
 	return unless node.parentNode
 	cola._ignoreNodeRemoved = true
 	node.parentNode.removeChild(node)
 	cola._ignoreNodeRemoved = false
 	return
 
-cola.util.onNodeRemove = (node, listener) ->
+cola.util.onNodeRemove = (node, listener)->
 	oldListener = cola.util.userData(node, ON_NODE_REMOVE_KEY)
 	if oldListener
 		if oldListener instanceof Array
@@ -145,7 +145,7 @@ cola.util.onNodeRemove = (node, listener) ->
 		cola.util.userData(node, ON_NODE_REMOVE_KEY, listener)
 	return
 
-cola.util.onNodeDispose = (node, listener) ->
+cola.util.onNodeDispose = (node, listener)->
 	oldListener = cola.util.userData(node, ON_NODE_DISPOSE_KEY)
 	if oldListener
 		if oldListener instanceof Array
@@ -156,7 +156,7 @@ cola.util.onNodeDispose = (node, listener) ->
 		cola.util.userData(node, ON_NODE_DISPOSE_KEY, listener)
 	return
 
-cola.util.onNodeInsert = (node, listener) ->
+cola.util.onNodeInsert = (node, listener)->
 	oldListener = cola.util.userData(node, ON_NODE_INSERT_KEY)
 	if oldListener
 		if oldListener instanceof Array
@@ -169,7 +169,7 @@ cola.util.onNodeInsert = (node, listener) ->
 
 cola.util._nodesToBeRemove = {}
 
-cola.util._getNodeDataId = (node) ->
+cola.util._getNodeDataId = (node)->
 	return if node.nodeType is 3
 
 	if node.nodeType is 8
@@ -180,7 +180,7 @@ cola.util._getNodeDataId = (node) ->
 		id = node.getAttribute(USER_DATA_KEY)
 	return id
 
-_doNodeInserted = (node) ->
+_doNodeInserted = (node)->
 	id = cola.util._getNodeDataId(node)
 	if id
 		store = cola.util.userDataStore[id]
@@ -199,7 +199,7 @@ _doNodeInserted = (node) ->
 		child = child.nextSibling
 	return
 
-_doNodeRemoved = (node) ->
+_doNodeRemoved = (node)->
 	if node.parentNode is doms.hiddenDiv
 		return
 
@@ -222,12 +222,12 @@ _doNodeRemoved = (node) ->
 		child = child.nextSibling
 	return
 
-_DOMNodeInsertedListener = (evt) ->
+_DOMNodeInsertedListener = (evt)->
 	node = evt.target
 	node and _doNodeInserted(node)
 	return
 
-_DOMNodeRemovedListener = (evt) ->
+_DOMNodeRemovedListener = (evt)->
 	return if cola._ignoreNodeRemoved or window.closed
 
 	node = evt.target
@@ -239,13 +239,13 @@ cleanStamp = 1
 document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 
-$fly(window).on("unload", () ->
+$fly(window).on("unload", ()->
 	document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 	document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 	return
 )
 
-setInterval(() ->
+setInterval(()->
 	userDataStore = cola.util.userDataStore
 	nodesToBeRemove = cola.util._nodesToBeRemove
 	for id, node of nodesToBeRemove
@@ -266,7 +266,7 @@ setInterval(() ->
 	return
 , 5000)
 
-cola.util.getGlobalTemplate = (name) ->
+cola.util.getGlobalTemplate = (name)->
 	template = document.getElementById(name)
 	if template
 		html = template.innerHTML
@@ -274,7 +274,7 @@ cola.util.getGlobalTemplate = (name) ->
 	return html
 
 #if cola.device.mobile
-#	$fly(window).on("load", () ->
+#	$fly(window).on("load", ()->
 #		FastClick.attach(document.body)
 #		return
 #	)

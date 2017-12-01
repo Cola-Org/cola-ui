@@ -4,7 +4,7 @@ class cola.Form extends cola.Widget
 
 	@attributes:
 		bind:
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 		dataType:
 			setter: cola.DataType.dataTypeSetter
 
@@ -12,7 +12,7 @@ class cola.Form extends cola.Widget
 		defaultCols:
 			defaultValue: 3
 		fields:
-			setter: (fields) ->
+			setter: (fields)->
 				@_fields = fields
 
 				return unless @_dom
@@ -94,20 +94,20 @@ class cola.Form extends cola.Widget
 						childDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 				return
 
-	constructor: (config) ->
+	constructor: (config)->
 		@_messageHolder = new cola.Entity.MessageHolder()
 		super(config)
 
-	_getDataType: () ->
+	_getDataType: ()->
 		return @_dataType or @getBindingDataType()
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		super(dom)
 		@_$messages = @get$Dom().find("messages, .ui.message").addClass("messages")
 		if @_fields then @set("fields", @_fields)
 		return
 
-	setMessages: (messages) ->
+	setMessages: (messages)->
 		if (messages)
 			@_messages = []
 
@@ -128,7 +128,7 @@ class cola.Form extends cola.Widget
 		@refreshMessages()
 		return
 
-	refreshMessages: () ->
+	refreshMessages: ()->
 		return unless @_$messages.length
 
 		messageHolder = @_messageHolder
@@ -178,7 +178,7 @@ class cola.Field extends cola.Widget
 
 	@attributes:
 		bind:
-			setter: (bindStr) ->
+			setter: (bindStr)->
 				if @_domParsed
 					@_bindSetter(bindStr)
 				else
@@ -193,13 +193,13 @@ class cola.Field extends cola.Widget
 
 		message:
 			readOnly: true
-			getter: () ->
+			getter: ()->
 				if @_messageDom
 					return @_message
 				else
 					return null
 
-	_getPropertyDef: () ->
+	_getPropertyDef: ()->
 		return @_propertyDef if @_propertyDef isnt undefined
 
 		if @_form
@@ -210,7 +210,7 @@ class cola.Field extends cola.Widget
 			propertyDef = @getBindingProperty()
 		return @_propertyDef = propertyDef or null
 
-	_parseDom: (dom) ->
+	_parseDom: (dom)->
 		@_domParsed = true
 
 		bind = @_bindStr
@@ -284,11 +284,11 @@ class cola.Field extends cola.Widget
 				$label.text(caption or @_caption)
 		return
 
-	_filterDataMessage: (path, type, arg) ->
+	_filterDataMessage: (path, type, arg)->
 		return cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or
 		  type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or @_watchingMoreMessage
 
-	_processDataMessage: (path, type, arg) ->
+	_processDataMessage: (path, type, arg)->
 		if @_bindInfo?.writeable
 			entity = @_scope.get(@_bindInfo.entityPath)
 			if entity instanceof cola.EntityList
@@ -298,7 +298,7 @@ class cola.Field extends cola.Widget
 				@setMessage(keyMessage)
 		return
 
-	setMessage: (message) ->
+	setMessage: (message)->
 		if typeof message is "string"
 			message =
 				type: "error"

@@ -5,7 +5,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 	@attributes:
 		bind:
 			readonlyAfterCreate: true
-			setter: (bindStr) ->
+			setter: (bindStr)->
 				if bindStr then delete @_item
 				@_bindSetter(bindStr)
 				return
@@ -145,7 +145,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 			}))
 		return
 
-	_getDataItems: () ->
+	_getDataItems: ()->
 		if @_bind
 			return @_getItems()
 		else
@@ -225,10 +225,10 @@ class cola.Carousel extends cola.AbstractItemGroup
 		@refreshIndicators()
 		return
 
-	_onItemsRefresh: (arg) -> @_itemDomsChanged()
-	_onItemInsert: (arg) -> @_itemDomsChanged()
-	_onItemRemove: (arg) -> @_itemDomsChanged()
-	_itemDomsChanged: () ->
+	_onItemsRefresh: (arg)-> @_itemDomsChanged()
+	_onItemInsert: (arg)-> @_itemDomsChanged()
+	_onItemRemove: (arg)-> @_itemDomsChanged()
+	_itemDomsChanged: ()->
 
 	play: (pause)->
 		if @_interval then clearInterval(@_interval)

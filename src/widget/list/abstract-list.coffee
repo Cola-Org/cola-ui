@@ -26,12 +26,12 @@ class cola.AbstractList extends cola.ItemsView
 		filterItem:
 			singleListener: true
 
-	destroy: () ->
+	destroy: ()->
 		super()
 		delete @_emptyItemDom
 		return
 
-	_appendTailDom: (itemsWrapper) ->
+	_appendTailDom: (itemsWrapper)->
 		$fly(itemsWrapper).xAppend(
 			class: "tail-padding"
 			content:
@@ -39,7 +39,7 @@ class cola.AbstractList extends cola.ItemsView
 		)
 		return
 
-	_onItemsWrapperScroll: () ->
+	_onItemsWrapperScroll: ()->
 		realItems = @_realItems
 		if not @_currentPageOnly and @_autoLoadPage and not @_loadingNextPage and (realItems == @_realOriginItems or not @_realOriginItems)
 			if realItems instanceof cola.EntityList and realItems.pageSize > 0 and (realItems.pageNo < realItems.pageCount or not realItems.pageCountDetermined)
@@ -47,19 +47,19 @@ class cola.AbstractList extends cola.ItemsView
 				if Math.abs((itemsWrapper.scrollTop + itemsWrapper.clientHeight) - itemsWrapper.scrollHeight) < 6
 					@_loadingNextPage = true
 					$fly(itemsWrapper).find(">.tail-padding >.ui.loader").addClass("active")
-					realItems.loadPage(realItems.pageNo + 1, () =>
+					realItems.loadPage(realItems.pageNo + 1, ()=>
 						@_loadingNextPage = false
 						$fly(itemsWrapper).find(">.tail-padding >.ui.loader").removeClass("active")
 						return
 					)
 		return
 
-	_convertItems: (items) ->
+	_convertItems: (items)->
 		if @getListeners("filterItem")
 			arg = {
 				filterCriteria: @_filterCriteria
 			}
-			items = cola.util.filter(items, (item) =>
+			items = cola.util.filter(items, (item)=>
 				arg.item = item
 				return @fire("filterItem", @, arg)
 			)
@@ -67,7 +67,7 @@ class cola.AbstractList extends cola.ItemsView
 			items = cola.util.filter(items, @_filterCriteria)
 		return items
 
-	_refreshEmptyItemDom: () ->
+	_refreshEmptyItemDom: ()->
 		emptyItemDom = @_emptyItemDom
 		if not emptyItemDom
 			emptyItemDom = @_emptyItemDom = @getTemplate("empty-item")
@@ -85,7 +85,7 @@ class cola.AbstractList extends cola.ItemsView
 				$fly(emptyItemDom).hide()
 		return
 
-	_doRefreshItems: (itemsWrapper) ->
+	_doRefreshItems: (itemsWrapper)->
 		super(itemsWrapper)
 
 		if @_pullAction is undefined
@@ -106,11 +106,11 @@ class cola.AbstractList extends cola.ItemsView
 				cola.util.delay(@, "createPullAction", 200, @_createPullAction)
 		return
 
-	_createPullAction: () ->
+	_createPullAction: ()->
 		@_pullAction = new cola.PullAction(@_doms.itemsWrapper, {
 			pullDownPane: @_doms.pullDownPane
 			pullUpPane: @_doms.pullUpPane
-			pullStart: (evt, pullPane, pullState) =>
+			pullStart: (evt, pullPane, pullState)=>
 				if @getListeners("pullStart")
 					@fire("pullStart", @, {
 						event: evt
@@ -121,7 +121,7 @@ class cola.AbstractList extends cola.ItemsView
 					collection = @_realItems
 					if collection instanceof cola.EntityList
 						return collection.pageNo < collection.pageCount
-			pullStep: (evt, pullPane, pullState, distance, theshold) =>
+			pullStep: (evt, pullPane, pullState, distance, theshold)=>
 				@fire("pullStep", @, {
 					event: evt
 					pullPane: pullPane
@@ -129,7 +129,7 @@ class cola.AbstractList extends cola.ItemsView
 					distance: distance
 					theshold: theshold
 				})
-			pullComplete: (evt, pullPane, pullState, done) =>
+			pullComplete: (evt, pullPane, pullState, done)=>
 				if @fire("pullComplete", @, {
 					event: evt
 					pullPane: pullPane
@@ -151,7 +151,7 @@ class cola.AbstractList extends cola.ItemsView
 					else
 						done()
 				return
-			pullCancel: (evt, pullPane, pullState) =>
+			pullCancel: (evt, pullPane, pullState)=>
 				@fire("pullCancel", @, {
 					event: evt
 					pullPane: pullPane

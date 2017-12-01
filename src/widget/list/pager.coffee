@@ -12,10 +12,10 @@ class cola.PageBar extends cola.Menu
 	@CLASS_NAME: "ui menu page-bar secondary"
 	@attributes:
 		bind:
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 
 	_getBindItems: ()-> @_getItems()?.items
-	constructor: (config) ->
+	constructor: (config)->
 		@_pagerItemMap = {}
 		pager = @
 		#暂使用此方法获得总页数
@@ -270,7 +270,7 @@ class cola.PageBar extends cola.Menu
 		super(dom)
 		@pagerItemsRefresh()
 
-	pagerItemsRefresh: () ->
+	pagerItemsRefresh: ()->
 		pager = @
 		data = pager._getBindItems()
 		hasPrev = false
@@ -322,8 +322,8 @@ class cola.PageBar extends cola.Menu
 	_onItemsRefresh: ()-> @pagerItemsRefresh()
 
 	_onItemRefresh: (arg)->
-	_onItemInsert: (arg) ->
-	_onItemRemove: (arg) ->
+	_onItemInsert: (arg)->
+	_onItemRemove: (arg)->
 	_onItemsLoadingStart: (arg)->
 	_onItemsLoadingEnd: (arg)->
 	_onCurrentItemChange: (arg)->

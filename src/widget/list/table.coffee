@@ -1,4 +1,4 @@
-_columnsSetter = (table, columnConfigs) ->
+_columnsSetter = (table, columnConfigs)->
 	if @_columns
 		for column in @_columns
 			delete column._parent
@@ -33,13 +33,13 @@ class cola.Table extends cola.Widget
 	@attributes:
 		items:
 			refreshItems: true
-			setter: (items) ->
+			setter: (items)->
 				return if @_items is items
 				@_set("bind", undefined)
 				@_items = items
 				return
 		bind:
-			setter: (bindStr) ->
+			setter: (bindStr)->
 				return if @_bindStr is bindStr
 				@_set("items", undefined)
 				@_bindSetter(bindStr)
@@ -47,7 +47,7 @@ class cola.Table extends cola.Widget
 
 		columns:
 			refreshItems: true
-			setter: (columnConfigs) ->
+			setter: (columnConfigs)->
 				_columnsSetter.call(@, @, columnConfigs)
 				@_collectionColumnsInfo()
 				return
@@ -74,14 +74,14 @@ class cola.Table extends cola.Widget
 
 		leftFixedCols:
 			defaultValue: 0
-			setter: (value) ->
+			setter: (value)->
 				@_leftFixedCols = value
 				if @_rendered then @_collectionColumnsInfo()
 				return
 
 		rightFixedCols:
 			defaultValue: 0
-			setter: (value) ->
+			setter: (value)->
 				@_rightFixedCols = value
 				if @_rendered then @_collectionColumnsInfo()
 				return
@@ -106,6 +106,7 @@ class cola.Table extends cola.Widget
 				tagName: "i"
 				class: "green checkmark icon"
 		"checkbox-column":
+			tagName: "c-checkbox"
 			tagName: "c-checkbox"
 			bind: "$default"
 		"toggle-column":
@@ -135,35 +136,35 @@ class cola.Table extends cola.Widget
 			tagName: "c-date-picker"
 			bind: "$default"
 
-	constructor: (config) ->
+	constructor: (config)->
 		@_columnMap = {}
 		super(config)
 
-	_getItems: () ->
+	_getItems: ()->
 		if @_items
 			return { items: @_items }
 		else
 			return super()
 
-	_getItemType: (type) ->
+	_getItemType: (type)->
 		return @_centerTable._getItemType(type)
 
-	_regColumn: (column) ->
+	_regColumn: (column)->
 		if column._name
 			@_columnMap[column._name] = column
 		return
 
-	_unregColumn: (column) ->
+	_unregColumn: (column)->
 		if column._name
 			delete @_columnMap[column._name]
 		return
 
-	getColumn: (name) ->
+	getColumn: (name)->
 		return @_columnMap[name]
 
-	_onColumnChange: (refreshItems) ->
+	_onColumnChange: (refreshItems)->
 		if @_rendered
-			cola.util.delay(@, "onColumnChange", 100, () =>
+			cola.util.delay(@, "onColumnChange", 100, ()=>
 				@_collectionColumnsInfo()
 				@_buildStyleSheet()
 				if refreshItems
@@ -173,8 +174,8 @@ class cola.Table extends cola.Widget
 			)
 		return
 
-	_collectionColumnsInfo: () ->
-		collectColumnInfo = (column, context, deepth, rootIndex) ->
+	_collectionColumnsInfo: ()->
+		collectColumnInfo = (column, context, deepth, rootIndex)->
 			info =
 				level: deepth
 				column: column
@@ -308,7 +309,7 @@ class cola.Table extends cola.Widget
 		@_createInnerDom(dom)
 		return dom
 
-	_createInnerDom: (dom) ->
+	_createInnerDom: (dom)->
 		@_centerTable = new cola.Table.InnerTable(
 			scope: @_scope
 			type: "center"
@@ -317,8 +318,8 @@ class cola.Table extends cola.Widget
 		@_centerTable.appendTo(dom)
 		return
 
-	_initDragDrop: (dom) ->
-		$fly(dom).delegate(">.inner-table >.table-header", "mousemove", (evt) =>
+	_initDragDrop: (dom)->
+		$fly(dom).delegate(">.inner-table >.table-header", "mousemove", (evt)=>
 			return if @_innerDragging
 			cell = $fly(evt.target).closest(".header-cell")[0]
 			return unless cell
@@ -348,21 +349,21 @@ class cola.Table extends cola.Widget
 				cola.util.userData(handler, "cell", cell)
 			else
 				$fly(handler).addClass("hidden")
-		).delegate(">.inner-table >.table-header", "mouseenter", () =>
-			$fly(@_dom).find(">.inner-table >.table-header .header-cell").each (i, cell) =>
+		).delegate(">.inner-table >.table-header", "mouseenter", ()=>
+			$fly(@_dom).find(">.inner-table >.table-header .header-cell").each (i, cell)=>
 				if cell.className.indexOf("ui-draggable") < 0
 					$fly(cell).draggable(
 						appendTo: "body"
 						revert: "invalid"
 						refreshPositions: true
-						helper: () ->
+						helper: ()->
 							helper = cell.cloneNode(true)
 							$fly(helper).addClass("table-column-dragging-helper").width(cell.offsetWidth).height(cell.offsetHeight)
 							return helper
-						start: (evt, ui) =>
+						start: (evt, ui)=>
 							ui.helper.draggingColumn = @getColumn(cell._name)
 							return
-						drag: (evt, ui) =>
+						drag: (evt, ui)=>
 							dragOverCell = ui.helper.dragOverCell
 							if dragOverCell
 								tableHeader = $fly(dragOverCell).closest(".table-header")[0]
@@ -384,16 +385,16 @@ class cola.Table extends cola.Widget
 				if cell.className.indexOf("ui-droppable") < 0
 					$fly(cell).droppable(
 						accept: ".header-cell"
-						over: (evt, ui) ->
+						over: (evt, ui)->
 							ui.helper.dragOverCell = @
 							return
-						out: (evt, ui) =>
+						out: (evt, ui)=>
 							if cell is ui.helper.dragOverCell
 								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
 								ui.helper.dragOverCell = null
 								ui.helper.dragOverColumn = null
 								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
-						drop: (evt, ui) =>
+						drop: (evt, ui)=>
 							draggingColumn = ui.helper.draggingColumn
 							dragOverColumn = ui.helper.dragOverColumn
 							columns = dragOverColumn._parent?._columns
@@ -425,7 +426,7 @@ class cola.Table extends cola.Widget
 		)
 		return
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
@@ -453,16 +454,16 @@ class cola.Table extends cola.Widget
 						column._caption = propertyDef._caption or propertyDef._property
 		return
 
-	_getHeaderCellByColumn: (column) ->
+	_getHeaderCellByColumn: (column)->
 		headerCell = null
-		@get$Dom().find(">.inner-table >.table-header .header-cell").each (i, cell) ->
+		@get$Dom().find(">.inner-table >.table-header .header-cell").each (i, cell)->
 			if cell._name is column._name
 				headerCell = cell
 				return false
 			return
 		return headerCell
 
-	_getHeaderCellResizeHandler: (tableHeader) ->
+	_getHeaderCellResizeHandler: (tableHeader)->
 		table = @
 		handler = tableHeader.querySelector(".resize-handler")
 		if not handler
@@ -474,7 +475,7 @@ class cola.Table extends cola.Widget
 			)
 			$(handler).draggable(
 				axis: "x"
-				start: () ->
+				start: ()->
 					cell = cola.util.userData(@, "cell")
 					helper = cola.xCreate(
 						class: "resize-helper"
@@ -487,14 +488,14 @@ class cola.Table extends cola.Widget
 					cola.util.userData(@, "helper", helper)
 					table._innerDragging = true
 					return
-				stop: () ->
+				stop: ()->
 					helper = cola.util.userData(@, "helper")
 					column = cola.util.userData(@, "column")
 					column.set("width", helper.offsetWidth + "px")
 					$fly(helper).remove()
 					table._innerDragging = false
 					return
-				drag: (evt, ui) ->
+				drag: (evt, ui)->
 					helper = cola.util.userData(@, "helper")
 					originalWidth = cola.util.userData(helper, "originalWidth")
 					$fly(helper).width(originalWidth + ui.position.left - ui.originalPosition.left)
@@ -503,7 +504,7 @@ class cola.Table extends cola.Widget
 			tableHeader.appendChild(handler)
 		return handler
 
-	_getColumnInsertIndicator: (tableHeader) ->
+	_getColumnInsertIndicator: (tableHeader)->
 		indicator = tableHeader.querySelector(".insert-indicator")
 		if not indicator
 			indicator = cola.xCreate(
@@ -512,7 +513,7 @@ class cola.Table extends cola.Widget
 			tableHeader.appendChild(indicator)
 		return indicator
 
-	_parseDom: (dom) ->
+	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
 
@@ -547,7 +548,7 @@ class cola.Table extends cola.Widget
 		@_createInnerDom(dom)
 		return
 
-	_parseColumnDom: (dom) ->
+	_parseColumnDom: (dom)->
 		column = {}
 		for attr in dom.attributes
 			attrName = attr.name
@@ -579,7 +580,7 @@ class cola.Table extends cola.Widget
 			child = next
 		return column
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if attrConfig?.refreshItems
 			attrConfig.refreshDom = true
 			@_refreshItemsScheduled = true
@@ -670,22 +671,22 @@ class cola.Table extends cola.Widget
 			@_refreshItems()
 		return
 
-	refreshItem: (item) ->
+	refreshItem: (item)->
 		@_leftTable?.refreshItem(item)
 		@_rightTable?.refreshItem(item)
 		@_centerTable.refreshItem(item)
 		return
 
-	_onItemRefresh: (arg) ->
+	_onItemRefresh: (arg)->
 		item = arg.entity
 		if typeof item is "object"
 			@refreshItem(item)
 		return
 
-	_onItemsRefresh: () ->
+	_onItemsRefresh: ()->
 		return @_refreshItems()
 
-	_refreshItems: () ->
+	_refreshItems: ()->
 		if not @_dom
 			@_refreshItemsScheduled = true
 			return
@@ -725,42 +726,42 @@ class cola.Table extends cola.Widget
 				@_buildStyleSheet()
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
 		return
 
-	_onCurrentItemChange: (arg) ->
+	_onCurrentItemChange: (arg)->
 		@_leftTable?._onCurrentItemChange(arg)
 		@_rightTable?._onCurrentItemChange(arg)
 		@_centerTable._onCurrentItemChange(arg)
 		return
 
-	_onItemInsert: (arg) ->
+	_onItemInsert: (arg)->
 		@_refreshItems()
 		return
 
-	_onItemRemove: (arg) ->
+	_onItemRemove: (arg)->
 		@_refreshItems()
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
 		return
 
-	_getCurrentItem: () ->
+	_getCurrentItem: ()->
 		return @_centerTable._getCurrentItem()
 
-	_onBlur: () ->
+	_onBlur: ()->
 		@_currentInnerTable?.hideCellEditor()
 		return
 
-	_onKeyDown: (evt) ->
+	_onKeyDown: (evt)->
 		centerTable = @_centerTable
 
 		if evt.keyCode is 9 # Tab
@@ -836,7 +837,7 @@ class cola.Table extends cola.Widget
 					@_currentInnerTable.setCurrentCell(currentItem, @_currentColumn)
 		return
 
-	_sysHeaderClick: (column) ->
+	_sysHeaderClick: (column)->
 		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
 			if sortDirection is "asc" then sortDirection = "desc"
@@ -904,16 +905,16 @@ class cola.Table.InnerTable extends cola.AbstractList
 		table: null
 		columnsInfo: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		@_itemsScope = config.table._itemsScope
 		super(config)
 		@_focusParent = @_table
 
-	_createItemsScope: () -> @_itemsScope
+	_createItemsScope: ()-> @_itemsScope
 
-	_getItems: () -> @_table._getItems()
+	_getItems: ()-> @_table._getItems()
 
-	_createDom: () ->
+	_createDom: ()->
 		@_doms ?= {}
 		dom = $.xCreate({
 			tagName: "div"
@@ -923,14 +924,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 				content:
 					tagName: "ul"
 					contextKey: "itemsWrapper"
-				scroll: (evt) =>
+				scroll: (evt)=>
 					scrollLeft = evt.target.scrollLeft
 					@_doms.tableHeader?.scrollLeft = scrollLeft
 					@_doms.tableFooter?.scrollLeft = scrollLeft
 					return
 		}, @_doms)
 
-		$fly(@_doms.itemsWrapper).delegate(".cell", "click", (evt) =>
+		$fly(@_doms.itemsWrapper).delegate(".cell", "click", (evt)=>
 			return if @_readOnly
 
 			cell = evt.currentTarget
@@ -942,15 +943,17 @@ class cola.Table.InnerTable extends cola.AbstractList
 		)
 		return dom
 
-	_createNewItem: (itemType, item) ->
+	_createNewItem: (itemType, item)->
 		template = @_table.getTemplate(itemType + "-row")
 		itemDom = @_table._cloneTemplate(template)
 		$fly(itemDom).addClass("table item " + itemType)
 		itemDom._itemType = itemType
 		return itemDom
 
-	_doRefreshItems: (itemsWrapper) ->
+	_doRefreshItems: (itemsWrapper)->
 		return unless @_dom and @_columnsInfo
+
+		@hideCellEditor()
 
 		if @_table._showHeader
 			header = @_doms.header
@@ -960,14 +963,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 					contextKey: "tableHeader"
 					content:
 						contextKey: "header"
-					scroll: (evt) =>
+					scroll: (evt)=>
 						return unless @_table._innerDragging
 						@_doms.tableBody?.scrollLeft = evt.target.scrollLeft
 						return
 				}, @_doms)
 				header = @_doms.header
 
-				$fly(header).delegate(".header-cell", "click", (evt) =>
+				$fly(header).delegate(".header-cell", "click", (evt)=>
 					columnName = evt.currentTarget._name
 					column = @_table.getColumn(columnName)
 					eventArg =
@@ -992,7 +995,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				}, @_doms)
 
 				footer = @_doms.footer
-				$fly(footer).delegate(".footer-cell", "click", (evt) =>
+				$fly(footer).delegate(".footer-cell", "click", (evt)=>
 					columnName = evt.currentTarget._name
 					column = @_table.getColumn(columnName)
 					eventArg =
@@ -1016,7 +1019,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		return
 
-	_refreshHeaderRow: (rowDom, cols, rowHeight) ->
+	_refreshHeaderRow: (rowDom, cols, rowHeight)->
 		for colInfo in cols
 			column = colInfo.column
 			cell = cola.xCreate(
@@ -1044,7 +1047,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshHeaderCell(cell.firstElementChild, colInfo)
 		return
 
-	_refreshHeader: (header) ->
+	_refreshHeader: (header)->
 		return if @_headerTimestamp is @_columnsInfo.timestamp
 		@_headerTimestamp = @_columnsInfo.timestamp
 
@@ -1058,7 +1061,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		header.appendChild(rowDom)
 		return
 
-	_refreshHeaderCell: (dom, columnInfo) ->
+	_refreshHeaderCell: (dom, columnInfo)->
 		column = columnInfo.column
 
 		$cell = $fly(dom.parentNode)
@@ -1089,9 +1092,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		dom.innerText = caption or ""
 		return
 
-	_refreshFooter: (footer) ->
+	_refreshFooter: (footer)->
 
-	_doRefreshItemDom: (itemDom, item, itemScope) ->
+	_doRefreshItemDom: (itemDom, item, itemScope)->
 		itemType = itemDom._itemType
 
 		if @getListeners("renderRow")
@@ -1132,7 +1135,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				itemDom.removeChild(itemDom.lastChild)
 		return
 
-	_refreshCell: (dom, item, columnInfo, itemScope, isNew) ->
+	_refreshCell: (dom, item, columnInfo, itemScope, isNew)->
 		column = columnInfo.column
 
 		if column.renderCell
@@ -1182,20 +1185,20 @@ class cola.Table.InnerTable extends cola.AbstractList
 			$dom.text(value)
 		return
 
-	refreshItem: (item) ->
+	refreshItem: (item)->
 		itemId = _getEntityId(item)
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
 			@_refreshItemDom(itemDom, item, @_itemsScope)
 		return
 
-	_getCurrentItem: () ->
+	_getCurrentItem: ()->
 		if @_currentItemDom
 			return cola.util.userData(@_currentItemDom, "item")
 		else
 			return null
 
-	setCurrentCell: (item, column) ->
+	setCurrentCell: (item, column)->
 		@_table._currentInnerTable = @
 		@_table._currentColumn = column
 		if @_table._currentCell
@@ -1219,24 +1222,24 @@ class cola.Table.InnerTable extends cola.AbstractList
 					@showCellEditor(cell, item, column)
 		return
 
-	_getCellEditorPane: (create) ->
+	_getCellEditorPane: (create)->
 		if not @_cellEditorPane and create
 			@_cellEditorPane = cola.xCreate(
-				class: "cell-editor-pane"
+				class: "cell-editor-pane protected"
 			)
 			@_doms.itemsWrapper.appendChild(@_cellEditorPane)
 		return @_cellEditorPane
 
-	_resize: (editorPane, cell) ->
+	_resize: (editorPane, cell)->
 		itemDom = cell.parentNode
-		$fly(@_cellEditorPane)
+		$fly(editorPane)
 			.css("left", cell.offsetLeft)
 			.css("top", itemDom.offsetTop)
 			.width(cell.clientWidth)
 			.height(cell.clientHeight)
 		return
 
-	showCellEditor: (cell, item, column) ->
+	showCellEditor: (cell, item, column)->
 		if @_table._readOnly or column._readOnly
 			return
 
@@ -1254,7 +1257,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			editorPane = @_getCellEditorPane(true)
 			$fly(editorPane).addClass("hidden")
 
-			setTimeout(() =>
+			setTimeout(()=>
 				templateDom = column._editTemplateDom
 				if not templateDom
 					scope = new cola.ItemScope(@_scope, @_table._alias)
@@ -1298,10 +1301,10 @@ class cola.Table.InnerTable extends cola.AbstractList
 			, 0)
 		return
 
-	hideCellEditor: () ->
+	hideCellEditor: ()->
 		editorPane = @_getCellEditorPane()
 		if editorPane
 			$fly(editorPane).addClass("hidden")
 		return
 
-	_onKeyDown: (evt) ->
+	_onKeyDown: (evt)->

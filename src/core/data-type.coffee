@@ -14,17 +14,17 @@ class cola.DataType extends cola.Definition
 class cola.BaseDataType extends cola.DataType
 
 class cola.StringDataType extends cola.BaseDataType
-	toText: (value) ->
+	toText: (value)->
 		return if value? then value + "" else ""
 
-	parse: (text) ->
+	parse: (text)->
 		return text
 
 class cola.NumberDataType extends cola.BaseDataType
 	@attributes:
 		isInteger: null
 
-	parse: (text) ->
+	parse: (text)->
 		if not text then return 0
 
 		if typeof text == "number"
@@ -40,23 +40,23 @@ class cola.NumberDataType extends cola.BaseDataType
 		return if isNaN(n) then 0 else n
 
 class cola.BooleanDataType extends cola.BaseDataType
-	parse: (text) ->
+	parse: (text)->
 		if not text then return false
 		if typeof text == "boolean" then return text
 		if ["true", "on", "yes", "y", "1"].indexOf((text + "").toLowerCase()) > -1 then return true
 		return false
 
 class cola.DateDataType extends cola.BaseDataType
-	parse: (text) ->
+	parse: (text)->
 		if not text then return null
 		xDate = new XDate(text)
 		return xDate.toDate()
 
 class cola.JSONDataType extends cola.DataType
-	toText: (value) ->
+	toText: (value)->
 		return JSON.stringify(value)
 
-	parse: (text) ->
+	parse: (text)->
 		if typeof text is "string"
 			return JSON.parse(text)
 		else
@@ -69,13 +69,13 @@ EntityDataType
 class cola.EntityDataType extends cola.DataType
 	@attributes:
 		validatorsDisabled:
-			setter: (disabled) ->
+			setter: (disabled)->
 				for propertyDef in @_properties.elements
 					propertyDef.set("validatorsDisabled", disabled)
 				return
 
 		properties:
-			setter: (properties) ->
+			setter: (properties)->
 				@_properties.clear()
 				if properties instanceof Array
 					for property in properties
@@ -105,11 +105,11 @@ class cola.EntityDataType extends cola.DataType
 		beforeEntityDelete: null
 		entityDelete: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		@_properties = new cola.util.KeyedArray()
 		super(config)
 
-	addProperty: (property) ->
+	addProperty: (property)->
 		if not (property instanceof cola.Property)
 			if typeof property == "string"
 				property = new cola.Property(property: property)
@@ -126,7 +126,7 @@ class cola.EntityDataType extends cola.DataType
 		property._owner = @
 		return property
 
-	removeProperty: (property) ->
+	removeProperty: (property)->
 		if property instanceof cola.Property
 			@_properties.remove(property._property)
 		else
@@ -134,7 +134,7 @@ class cola.EntityDataType extends cola.DataType
 		delete property._owner
 		return property
 
-	getProperty: (path) ->
+	getProperty: (path)->
 		i = path.indexOf(".")
 		if i > 0
 			part1 = path.substring(0, i)
@@ -145,15 +145,15 @@ class cola.EntityDataType extends cola.DataType
 		else
 			return @_getProperty(path)
 
-	_getProperty: (property) ->
+	_getProperty: (property)->
 		if property.charCodeAt(property.length - 1) is 35 # `#`
 			property = property.substring(0, property.length - 1)
 		return @_properties.get(property)
 
-	getProperties: () ->
+	getProperties: ()->
 		return @_properties
 
-cola.DataType.dataTypeSetter = (dataType) ->
+cola.DataType.dataTypeSetter = (dataType)->
 	if typeof dataType is "string"
 		name = dataType
 		scope = @_scope
@@ -173,7 +173,7 @@ class cola.Property extends cola.Definition
 		property:
 			readOnlyAfterCreate: true
 		name:
-			setter: (name) ->
+			setter: (name)->
 				@_name = name
 				@_property ?= name
 				return
@@ -185,7 +185,7 @@ class cola.Property extends cola.Definition
 		description: null
 
 		provider:
-			setter: (provider) ->
+			setter: (provider)->
 				if provider? and not (provider instanceof cola.Provider)
 					provider = new cola.Provider(provider)
 				@_provider = provider
@@ -195,15 +195,15 @@ class cola.Property extends cola.Definition
 			readOnlyAfterCreate: true
 
 		validatorsDisabled:
-			setter: (disabled) ->
+			setter: (disabled)->
 				if @_validators
 					for validator in @_validators
 						validator.set("disabled", disabled)
 				return
 
 		validators:
-			setter: (validators) ->
-				addValidator = (validator) =>
+			setter: (validators)->
+				addValidator = (validator)=>
 					if not (validator instanceof cola.Validator)
 						validator = cola.create("validator", validator, cola.Validator)
 					@_validators.push(validator)
@@ -228,7 +228,7 @@ class cola.Property extends cola.Definition
 		beforeLoad: null
 		load: null
 
-cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
+cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize)->
 	if aggregated == undefined
 		if json instanceof Array
 			aggregated = true
@@ -249,7 +249,7 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize) ->
 			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 		return new cola.Entity(json, dataType)
 
-cola.DataType.jsonToData = (json, dataType, aggregated, pageSize) ->
+cola.DataType.jsonToData = (json, dataType, aggregated, pageSize)->
 	if dataType instanceof cola.StringDataType and typeof json isnt "string" or dataType instanceof cola.BooleanDataType and typeof json isnt "boolean" or dataType instanceof cola.NumberDataType and typeof json isnt "number" or dataType instanceof cola.DateDataType and not (json instanceof Date)
 		result = dataType.parse(json)
 	else if dataType instanceof cola.EntityDataType

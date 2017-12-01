@@ -2,7 +2,7 @@ routerRegistry = null
 currentRoutePath = null
 currentRouter = null
 
-trimPath = (path) ->
+trimPath = (path)->
 	if path
 		if path.charCodeAt(0) isnt 47 # `/`
 			path = "/" + path
@@ -11,7 +11,7 @@ trimPath = (path) ->
 	return path || ""
 
 ignoreRouterSettingChange = false
-cola.on("settingChange", (self, arg) ->
+cola.on("settingChange", (self, arg)->
 	return if ignoreRouterSettingChange
 
 	if arg.key is "routerContextPath" or arg.key is "defaultRouterPath"
@@ -35,7 +35,7 @@ cola.on("settingChange", (self, arg) ->
 # router.target
 # router.parentModel
 
-cola.route = (path, router) ->
+cola.route = (path, router)->
 	routerRegistry ?= new cola.util.KeyedArray()
 
 	if typeof router == "function"
@@ -77,13 +77,13 @@ cola.route = (path, router) ->
 	routerRegistry.add(router.path, router)
 	return router
 
-cola.getCurrentRoutePath = () ->
+cola.getCurrentRoutePath = ()->
 	return currentRoutePath
 
-cola.getCurrentRouter = () ->
+cola.getCurrentRouter = ()->
 	return currentRouter
 
-cola.setRoutePath = (path, replace, alwaysNotify) ->
+cola.setRoutePath = (path, replace, alwaysNotify)->
 	if path and path.charCodeAt(0) == 35 # `#`
 		routerMode = "hash"
 		path = path.substring(1)
@@ -137,7 +137,7 @@ cola.setRoutePath = (path, replace, alwaysNotify) ->
 			_onStateChange(pathname)
 	return
 
-_findRouter = (path) ->
+_findRouter = (path)->
 	return null unless routerRegistry
 
 	path ?= cola.setting("defaultRouterPath")
@@ -170,7 +170,7 @@ _findRouter = (path) ->
 	else
 		return null
 
-cola.createRouterModel = (router) ->
+cola.createRouterModel = (router)->
 	if router.parentModel instanceof cola.Scope
 		parentModel = router.parentModel
 	else
@@ -179,7 +179,7 @@ cola.createRouterModel = (router) ->
 	if !parentModel then throw new cola.Exception("Parent Model \"#{parentModelName}\" is undefined.")
 	return new cola.Model(router.name, parentModel)
 
-_switchRouter = (router, path) ->
+_switchRouter = (router, path)->
 	if router.redirectTo
 		cola.setRoutePath(router.redirectTo)
 		return
@@ -228,7 +228,7 @@ _switchRouter = (router, path) ->
 			cssUrl: router.cssUrl
 			data: router.data
 			param: router.param
-			callback: () ->
+			callback: ()->
 				router.enter?(router, model)
 				document.title = router.title if router.title
 				return
@@ -240,7 +240,7 @@ _switchRouter = (router, path) ->
 	cola.fire("routerSwitch", cola, eventArg)
 	return
 
-_getHashPath = () ->
+_getHashPath = ()->
 	path = location.hash
 	path = path.substring(1) if path
 
@@ -250,7 +250,7 @@ _getHashPath = () ->
 		path = path.substring(0, path.indexOf("?"))
 	return trimPath(path)
 
-_onHashChange = () ->
+_onHashChange = ()->
 	return if (cola.setting("routerMode") or "hash") isnt "hash"
 
 	path = _getHashPath()
@@ -261,7 +261,7 @@ _onHashChange = () ->
 	_switchRouter(router, path) if router
 	return
 
-_onStateChange = (path) ->
+_onStateChange = (path)->
 	return if cola.setting("routerMode") isnt "state"
 
 	path = trimPath(path)
@@ -285,15 +285,15 @@ _onStateChange = (path) ->
 	_switchRouter(router, path) if router
 	return
 
-$ () ->
-	setTimeout(() ->
-		$fly(window).on("hashchange", _onHashChange).on("popstate", () ->
+$ ()->
+	setTimeout(()->
+		$fly(window).on("hashchange", _onHashChange).on("popstate", ()->
 			if not location.hash
 				state = window.history.state
 				_onStateChange(state?.path or (location.pathname + location.search + location.hash))
 			return
 		)
-		$(document.body).delegate("a.state", "click", () ->
+		$(document.body).delegate("a.state", "click", ()->
 			href = @getAttribute("href")
 			if href
 				target = @getAttribute("target")

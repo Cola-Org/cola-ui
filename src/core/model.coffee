@@ -9,7 +9,7 @@ else
 Model and Scope
 ###
 
-cola.model = (name, model) ->
+cola.model = (name, model)->
 	if arguments.length is 2
 		if model
 			if cola.model.models[name]
@@ -26,35 +26,35 @@ cola.model = (name, model) ->
 
 cola.model.models = {}
 
-cola.removeModel = (name) ->
+cola.removeModel = (name)->
 	model = cola.model.models[name]
 	delete cola.model.models[name]
 	return model
 
 class cola.Scope
 
-	destroy: () ->
+	destroy: ()->
 		if @_childScopes
 			for child in @_childScopes
 				child.destroy()
 			delete @_childScopes
 		return
 
-	_getAction: (name) ->
+	_getAction: (name)->
 		fn = @action[name]
 		fn ?= @parent?._getAction(name)
 		return fn
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		if typeof path is "string" and path.substring(0, 8) is "$parent." and @parent
 			return @parent.get(path.substring(8), loadMode, context)
 		else
 			return @data.get(path, loadMode, context)
 
-	getAsync: (prop, callback, context) ->
-		return $.Deferred (dfd) =>
+	getAsync: (prop, callback, context)->
+		return $.Deferred (dfd)=>
 			@get(prop, {
-				complete: (success, value) ->
+				complete: (success, value)->
 					if not typeof callback is "string"
 						cola.callback(callback)
 
@@ -65,17 +65,17 @@ class cola.Scope
 					return
 			}, context)
 
-	set: (path, data, context) ->
+	set: (path, data, context)->
 		if typeof path is "string" and path.substring(0, 8) is "$parent." and @parent
 			@parent.set(path.substring(8), data, context)
 		else
 			@data.set(path, data, context)
 		return @
 
-	describe: (property, config) ->
+	describe: (property, config)->
 		return @data.describe(property, config)
 
-	dataType: (name) ->
+	dataType: (name)->
 		if typeof name is "string"
 			dataType = @data.definition(name)
 			return if dataType instanceof cola.DataType then dataType else null
@@ -97,34 +97,34 @@ class cola.Scope
 						return dataType
 			return
 
-	definition: (name) ->
+	definition: (name)->
 		return @data.definition(name)
 
-	flush: (name, loadMode) ->
+	flush: (name, loadMode)->
 		@data.flush(name, loadMode)
 		return @
 
-	disableObservers: () ->
+	disableObservers: ()->
 		@data.disableObservers()
 		if @_childScopes
 			for childScope in @_childScopes
 				childScope.disableObservers()
 		return @
 
-	enableObservers: () ->
+	enableObservers: ()->
 		@data.enableObservers()
 		if @_childScopes
 			for childScope in @_childScopes
 				childScope.enableObservers()
 		return @
 
-	notifyObservers: (path) ->
+	notifyObservers: (path)->
 		@data.notifyObservers(path)
 		return @
 
-	watch: (path, fn) ->
+	watch: (path, fn)->
 		processor =
-			processMessage: (bindingPath, path, type, arg) ->
+			processMessage: (bindingPath, path, type, arg)->
 				fn(path, type, arg)
 				return
 
@@ -135,22 +135,22 @@ class cola.Scope
 			@data.bind(path, processor)
 		return @
 
-	hasExBinding: () ->
+	hasExBinding: ()->
 		return @_hasExBinding
 
-	setHasExBinding: (hasExBinding) ->
+	setHasExBinding: (hasExBinding)->
 		return if @_hasExBinding is hasExBinding
 		@_hasExBinding = hasExBinding
 		@parent?.setHasExBinding(true) if hasExBinding
 		return
 
-	registerChild: (childScope) ->
+	registerChild: (childScope)->
 		@_childScopes ?= []
 		@_childScopes.push(childScope)
 		@data.bind("**", childScope)
 		return
 
-	unregisterChild: (childScope) ->
+	unregisterChild: (childScope)->
 		return unless @_childScopes
 
 		@data.unbind("**", childScope)
@@ -162,7 +162,7 @@ class cola.Scope
 class cola.Model extends cola.Scope
 	repeatNotification: true
 
-	constructor: (name, parent) ->
+	constructor: (name, parent)->
 		cola.currentScope ?= @
 
 		if name instanceof cola.Scope
@@ -184,7 +184,7 @@ class cola.Model extends cola.Scope
 
 		parent?.registerChild(@)
 
-		@action = (name, action) ->
+		@action = (name, action)->
 			store = @action
 			if arguments.length is 1
 				if typeof name is "string"
@@ -201,34 +201,34 @@ class cola.Model extends cola.Scope
 					delete store[name]
 				return @
 
-	destroy: () ->
+	destroy: ()->
 		@parent?.unregisterChild(@)
 		cola.removeModel(@name) if @name
 		@data.destroy?()
 		return
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 		return @data.onDataMessage(path, type, arg)
 
-	$: (selector) ->
+	$: (selector)->
 		@_$doms ?= $(@_doms)
 		return @_$doms.find(selector)
 
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
-	constructor: (parent, expressions) ->
+	constructor: (parent, expressions)->
 		@setParent(parent)
 		if expressions
 			@setExpressions(expressions)
 
-	destroy: () ->
+	destroy: ()->
 		if @parent then @unwatchPath()
 		if @data and @data.model is @
 			@data.destroy?()
 		return
 
-	setParent: (parent) ->
+	setParent: (parent)->
 		if @parent
 			@unwatchPath()
 			@parent.unregisterChild(@)
@@ -247,7 +247,7 @@ class cola.SubScope extends cola.Scope
 			@watchPath(@_watchPath)
 		return
 
-	setExpressions: (expressions) ->
+	setExpressions: (expressions)->
 		throw new cola.Exception("Expressions can not be changed.") if @_expressionSetted
 		return unless expressions
 		@_expressionSetted = true
@@ -277,7 +277,7 @@ class cola.SubScope extends cola.Scope
 			@watchAllMessages()
 		return
 
-	watchPath: (path) ->
+	watchPath: (path)->
 		return if @_watchAllMessages or @_watchPath is path
 
 		if path
@@ -296,7 +296,7 @@ class cola.SubScope extends cola.Scope
 			delete @_watchPath
 		return
 
-	unwatchPath: () ->
+	unwatchPath: ()->
 		return unless @_watchPath
 		path = @_watchPath
 		delete @_watchPath
@@ -309,7 +309,7 @@ class cola.SubScope extends cola.Scope
 				parent.data.unbind(path, @)
 		return
 
-	watchAllMessages: () ->
+	watchAllMessages: ()->
 		return if @_watchAllMessages
 		@_watchAllMessages = true
 		@unwatchPath()
@@ -320,21 +320,21 @@ class cola.SubScope extends cola.Scope
 			parent.watchAllMessages?()
 		return
 
-	evaluate: (expression, scope, loadMode = "async", dataCtx = {}) ->
+	evaluate: (expression, scope, loadMode = "async", dataCtx = {})->
 		return expression?.evaluate(scope, loadMode, dataCtx)
 
-	setAliasTargetData: (alias, data) ->
+	setAliasTargetData: (alias, data)->
 		@data.setAliasTargetData(alias, data)
 		return
 
-	retrieveAliasData: (alias) ->
+	retrieveAliasData: (alias)->
 		cola.util.cancelDelay(@, "retrieve")
 
 		data = @evaluate(@aliasExpressions[alias], @)
 		@setAliasTargetData(alias, data)
 		return
 
-	isParentOfTarget: (expressionPaths, changedPath) ->
+	isParentOfTarget: (expressionPaths, changedPath)->
 		if not expressionPaths?.length then return false
 		if not changedPath then return true
 
@@ -356,7 +356,7 @@ class cola.SubScope extends cola.Scope
 			if isParent then return true
 		return false
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 # 如果@aliasExpressions为空是不应该进入此方法的
 		if @messageTimestamp >= arg.timestamp then return
 		@_processMessage(bindingPath, path, type, arg)
@@ -364,12 +364,12 @@ class cola.SubScope extends cola.Scope
 		@data?.onDataMessage(path, type, arg)
 		return
 
-	_processMessage: (bindingPath, path, type, arg) ->
+	_processMessage: (bindingPath, path, type, arg)->
 # 如果@aliasExpressions为空是不应该进入此方法的
 		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
 			for alias, expression of @aliasExpressions
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
-					cola.util.delay(@, "retrieve", 100, () =>
+					cola.util.delay(@, "retrieve", 100, ()=>
 						@retrieveAliasData(alias)
 						return
 					)
@@ -380,23 +380,23 @@ class cola.SubScope extends cola.Scope
 		return
 
 class cola.ItemScope extends cola.SubScope
-	constructor: (parent, @alias) ->
+	constructor: (parent, @alias)->
 		super(parent)
 		@data = new cola.ItemDataModel(@, @alias, @parent?.dataType)
 
-	watchPath: () ->
+	watchPath: ()->
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 		return @data.onDataMessage(path, type, arg)
 
 class cola.ItemsScope extends cola.SubScope
 
-	constructor: (parent, expression) ->
+	constructor: (parent, expression)->
 		@itemScopeMap = {}
 		super(parent)
 		@setExpression(expression)
 
-	setExpression: (expression) ->
+	setExpression: (expression)->
 		@expression = expression
 		@alias = if expression then expression.alias else "item"
 		@expressionPaths = []
@@ -414,7 +414,7 @@ class cola.ItemsScope extends cola.SubScope
 			@unwatchPath()
 		return
 
-	addAuxExpression: (expression) ->
+	addAuxExpression: (expression)->
 		@expressionPaths ?= []
 		if expression.paths
 			for path in @expression.splittedPaths
@@ -426,28 +426,28 @@ class cola.ItemsScope extends cola.SubScope
 			@watchPath(expression.paths)
 		return
 
-	registerChild: () ->
+	registerChild: ()->
 
-	disableObservers: () ->
+	disableObservers: ()->
 		for key, childScope of @itemScopeMap
 			childScope.disableObservers()
 		return @
 
-	enableObservers: () ->
+	enableObservers: ()->
 		for key, childScope of @itemScopeMap
 			childScope.enableObservers()
 		return @
 
-	notifyObservers: (path) ->
+	notifyObservers: (path)->
 		for key, childScope of @itemScopeMap
 			childScope.notifyObservers(path)
 		return @
 
-	setItems: (items) ->
+	setItems: (items)->
 		@_setItems(items)
 		return
 
-	retrieveData: () ->
+	retrieveData: ()->
 		cola.util.cancelDelay(@, "retrieve")
 
 		if @_retrieveItems
@@ -457,60 +457,60 @@ class cola.ItemsScope extends cola.SubScope
 			@setItems(items)
 		return
 
-	_setItems: (items) ->
+	_setItems: (items)->
 		@items = items
 		@originItems = if items instanceof Array then items.$origin else null
 		return
 
-	refreshItems: () ->
+	refreshItems: ()->
 		@onItemsRefresh?()
 		return
 
-	refreshItem: (arg) ->
+	refreshItem: (arg)->
 		arg.itemsScope = @
 		@onItemRefresh?(arg)
 		return
 
-	insertItem: (arg) ->
+	insertItem: (arg)->
 		arg.itemsScope = @
 		@onItemInsert?(arg)
 		return
 
-	removeItem: (arg) ->
+	removeItem: (arg)->
 		arg.itemsScope = @
 		@onItemRemove?(arg)
 		return
 
-	itemsLoadingStart: (arg) ->
+	itemsLoadingStart: (arg)->
 		arg.itemsScope = @
 		@onItemsLoadingStart?(arg)
 
-	itemsLoadingEnd: (arg) ->
+	itemsLoadingEnd: (arg)->
 		arg.itemsScope = @
 		@onItemsLoadingEnd?(arg)
 
-	changeCurrentItem: (arg) ->
+	changeCurrentItem: (arg)->
 		arg.itemsScope = @
 		@onCurrentItemChange?(arg)
 		return
 
-	resetItemScopeMap: () ->
+	resetItemScopeMap: ()->
 		@itemScopeMap = {}
 		return
 
-	getItemScope: (item) ->
+	getItemScope: (item)->
 		itemId = cola.Entity._getEntityId(item)
 		return @itemScopeMap[itemId]
 
-	regItemScope: (itemId, itemScope) ->
+	regItemScope: (itemId, itemScope)->
 		@itemScopeMap[itemId] = itemScope
 		return
 
-	unregItemScope: (itemId) ->
+	unregItemScope: (itemId)->
 		delete @itemScopeMap[itemId]
 		return
 
-	findItemDomBinding: (item) ->
+	findItemDomBinding: (item)->
 		itemScopeMap = @itemScopeMap
 		items = @items
 		originItems = @originItems
@@ -533,7 +533,7 @@ class cola.ItemsScope extends cola.SubScope
 				item = (item.parent or item._parent)
 		return null
 
-	processMessage: (bindingPath, path, type, arg) ->
+	processMessage: (bindingPath, path, type, arg)->
 		if @messageTimestamp >= arg.timestamp then return
 		allProcessed = @_processMessage(bindingPath, path, type, arg)
 
@@ -549,7 +549,7 @@ class cola.ItemsScope extends cola.SubScope
 						itemScope.processMessage(bindingPath, path, type, arg)
 		return
 
-	isOriginItems: (items) ->
+	isOriginItems: (items)->
 		return false unless @originItems
 		return true if @originItems is items
 
@@ -559,7 +559,7 @@ class cola.ItemsScope extends cola.SubScope
 					return true
 		return false
 
-	isChildOfOriginItems: (items) ->
+	isChildOfOriginItems: (items)->
 		return false unless @originItems
 		return true if @originItems is items
 
@@ -569,7 +569,7 @@ class cola.ItemsScope extends cola.SubScope
 					return true
 		return false
 
-	isWatchPathPreciseMatch: (changedPath) ->
+	isWatchPathPreciseMatch: (changedPath)->
 		expressionPaths = @expressionPaths
 
 		if not expressionPaths.length then return false
@@ -592,7 +592,7 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
-	_processMessage: (bindingPath, path, type, arg) ->
+	_processMessage: (bindingPath, path, type, arg)->
 		if @onMessage?(path, type, arg) is false
 			return true
 
@@ -665,7 +665,7 @@ class cola.ItemsScope extends cola.SubScope
 
 		if processMoreMessage and @expression
 			if not @expressionPaths? and @expression.hasComplexStatement and not @expression.hasDefinedPath
-				cola.util.delay(@, "retrieve", 100, () =>
+				cola.util.delay(@, "retrieve", 100, ()=>
 					@retrieveData()
 					@refreshItems()
 					return
@@ -679,7 +679,7 @@ DataModel
 class cola.AbstractDataModel
 	disableObserverCount: 0
 
-	constructor: (model) ->
+	constructor: (model)->
 		return unless model
 		@model = model
 		parentModel = model.parent
@@ -689,7 +689,7 @@ class cola.AbstractDataModel
 				break
 			parentModel = parentModel.parent
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		if not path
 			return @_getRootData() or @parent?.get()
 
@@ -738,7 +738,7 @@ class cola.AbstractDataModel
 		else
 			return @parent?.get(path, loadMode, context)
 
-	set: (path, data, context) ->
+	set: (path, data, context)->
 		if path
 			rootData = @_getRootData()
 			if typeof path is "string"
@@ -774,7 +774,7 @@ class cola.AbstractDataModel
 					@set(p, data[p], context)
 		return @
 
-	_set: (prop, data, context) ->
+	_set: (prop, data, context)->
 		rootData = @_rootData
 		hasValue = rootData.hasValue(prop)
 
@@ -809,7 +809,7 @@ class cola.AbstractDataModel
 				rootData.set(prop, data, context)
 		return
 
-	addShortcut: (shortcut, data) ->
+	addShortcut: (shortcut, data)->
 		@_shortcutMap ?= {}
 		path = data.getPath("always")
 		oldShortcutData = @_shortcutMap?[shortcut]?.data
@@ -819,7 +819,7 @@ class cola.AbstractDataModel
 			data: data
 			path: path
 			bindingPath: path.slice(0).concat("**")
-			processMessage: (bindingPath, path, type, arg) ->
+			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@path.length)
 				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
 				return
@@ -833,22 +833,22 @@ class cola.AbstractDataModel
 		})
 		return
 
-	removeShortcut: (shortcut) ->
+	removeShortcut: (shortcut)->
 		if @_shortcutMap?[shortcut]
 			oldAliasHolder = @_shortcutMap[shortcut]
 			delete @_shortcutMap[shortcut]
 			@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
 		return
 
-	reset: (name) ->
+	reset: (name)->
 		@_rootData?.reset(name)
 		return @
 
-	flush: (name, loadMode) ->
+	flush: (name, loadMode)->
 		@_rootData?.flush(name, loadMode)
 		return @
 
-	bind: (path, processor) ->
+	bind: (path, processor)->
 		if not @bindingRegistry
 			@bindingRegistry =
 				__path: ""
@@ -860,7 +860,7 @@ class cola.AbstractDataModel
 		if path then @_bind(path, processor)
 		return @
 
-	_bind: (path, processor) ->
+	_bind: (path, processor)->
 		node = @bindingRegistry
 		if path
 			for part in path
@@ -889,7 +889,7 @@ class cola.AbstractDataModel
 			node.__processorMap[processor.id] = processor
 		return
 
-	unbind: (path, processor) ->
+	unbind: (path, processor)->
 		if not @bindingRegistry then return
 
 		if typeof path is "string"
@@ -898,7 +898,7 @@ class cola.AbstractDataModel
 		if path then @_unbind(path, processor)
 		return @
 
-	_unbind: (path, processor) ->
+	_unbind: (path, processor)->
 		node = @bindingRegistry
 		for part in path
 			if part.charCodeAt(part.length - 1) is 35 # `#`
@@ -909,15 +909,15 @@ class cola.AbstractDataModel
 
 		delete node.__processorMap[processor.id] if node?
 
-	disableObservers: () ->
+	disableObservers: ()->
 		if @disableObserverCount < 0 then @disableObserverCount = 1 else @disableObserverCount++
 		return @
 
-	enableObservers: () ->
+	enableObservers: ()->
 		if @disableObserverCount < 1 then @disableObserverCount = 0 else @disableObserverCount--
 		return @
 
-	notifyObservers: (path) ->
+	notifyObservers: (path)->
 		if path
 			data = @get(path, "never")
 		else
@@ -925,12 +925,12 @@ class cola.AbstractDataModel
 		data?.notifyObservers?()
 		return @
 
-	onDataMessage: (path, type, arg = {}) ->
+	onDataMessage: (path, type, arg = {})->
 		return unless @bindingRegistry
 		return if @disableObserverCount > 0
 		return @_onDataMessage(path, type, arg)
 
-	_onDataMessage: (path, type, arg = {}) ->
+	_onDataMessage: (path, type, arg = {})->
 		oldScope = cola.currentScope
 		cola.currentScope = @
 		try
@@ -961,7 +961,7 @@ class cola.AbstractDataModel
 			cola.currentScope = oldScope
 		return
 
-	processDataMessage: (node, path, type, arg, notifyChildren) ->
+	processDataMessage: (node, path, type, arg, notifyChildren)->
 		processorMap = node.__processorMap
 		for id, processor of processorMap
 			if not processor.disabled and (not (processor.timestamp >= arg.timestamp) or processor.repeatNotification)
@@ -982,7 +982,7 @@ class cola.AbstractDataModel
 					@processDataMessage(subNode, path, type, arg, true)
 		return
 
-	getAbsolutePath: (path) ->
+	getAbsolutePath: (path)->
 		return path unless path
 		i = path.lastIndexOf(".")
 		if i > 0
@@ -998,10 +998,10 @@ class cola.AbstractDataModel
 
 class cola.DataModel extends cola.AbstractDataModel
 
-	_createRootData: (rootDataType) ->
+	_createRootData: (rootDataType)->
 		return new cola.Entity(null, rootDataType)
 
-	_getRootData: () ->
+	_getRootData: ()->
 		if not @_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
 			@_rootData = rootData = @_createRootData(@_rootDataType)
@@ -1010,7 +1010,7 @@ class cola.DataModel extends cola.AbstractDataModel
 			rootData._setDataModel(dataModel)
 		return @_rootData
 
-	describe: (property, config) ->
+	describe: (property, config)->
 		@_getRootData()
 		if typeof property is "string"
 			propertyDef = @_rootDataType?.getProperty(property)
@@ -1033,7 +1033,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				@describe(propertyName, propertyConfig)
 		return
 
-	getProperty: (path) ->
+	getProperty: (path)->
 		if @_rootDataType
 			i = path.indexOf(".")
 			if i > 0
@@ -1065,12 +1065,12 @@ class cola.DataModel extends cola.AbstractDataModel
 		else
 			return @parent?.getProperty(path)
 
-	getDataType: (path) ->
+	getDataType: (path)->
 		property = @getProperty(path)
 		dataType = property?.get("dataType")
 		return dataType
 
-	definition: (name) ->
+	definition: (name)->
 		definition = @_definitionStore?[name]
 		if definition
 			if not (definition instanceof cola.Definition)
@@ -1084,7 +1084,7 @@ class cola.DataModel extends cola.AbstractDataModel
 			definition = cola.DataType.defaultDataTypes[name]
 		return definition
 
-	regDefinition: (name, definition) ->
+	regDefinition: (name, definition)->
 		if name instanceof cola.Definition
 			definition = name
 			name = name._name
@@ -1104,18 +1104,18 @@ class cola.DataModel extends cola.AbstractDataModel
 		store[name] = definition
 		return @
 
-	unregDefinition: (name) ->
+	unregDefinition: (name)->
 		if @_definitionStore
 			definition = @_definitionStore[name]
 			delete @_definitionStore[name]
 		return definition
 
-	addEntityListener: (listener) ->
+	addEntityListener: (listener)->
 		@_entityListeners ?= []
 		@_entityListeners.push(listener)
 		return
 
-	removeEntityListener: (listener) ->
+	removeEntityListener: (listener)->
 		return unless @_entityListeners
 		if listener
 			i = @_entityListeners.indexOf(listener)
@@ -1123,13 +1123,13 @@ class cola.DataModel extends cola.AbstractDataModel
 				@_entityListeners.splice(i, 1)
 		return
 
-	onEntityAttach: (entity) ->
+	onEntityAttach: (entity)->
 		if @_entityListeners
 			for listener in  @_entityListeners
 				listener.onEntityAttach(entity)
 		return
 
-	onEntityDetach: (entity) ->
+	onEntityDetach: (entity)->
 		if @_entityListeners
 			for listener in  @_entityListeners
 				listener.onEntityDetach(entity)
@@ -1137,35 +1137,35 @@ class cola.DataModel extends cola.AbstractDataModel
 
 class cola.SubDataModel extends cola.AbstractDataModel
 
-	constructor: (model) ->
+	constructor: (model)->
 		super(model)
 		@_aliasMap = {}
 
-	definition: (name) ->
+	definition: (name)->
 		return @parent.definition(name)
 
-	regDefinition: (definition) ->
+	regDefinition: (definition)->
 		return @parent.regDefinition(definition)
 
-	unregDefinition: (definition) ->
+	unregDefinition: (definition)->
 		return @parent.unregDefinition(definition)
 
-	dataType: (name) ->
+	dataType: (name)->
 		return @parent.dataType(name)
 
-	disableObservers: () ->
+	disableObservers: ()->
 		@parent.disableObservers()
 		return @
 
-	enableObservers: () ->
+	enableObservers: ()->
 		@parent.enableObservers()
 		return @
 
-	notifyObservers: (path) ->
+	notifyObservers: (path)->
 		@parent.notifyObservers(path)
 		return @
 
-	addAlias: (alias, path) ->
+	addAlias: (alias, path)->
 		@_aliasMap[alias] =
 			data: undefined
 			alias: alias
@@ -1173,10 +1173,10 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			splittedPath: path?.split(".") or []
 		return
 
-	getAliasTargetData: (alias) ->
+	getAliasTargetData: (alias)->
 		return @_aliasMap[alias].data
 
-	setAliasTargetData: (alias, data, silence) ->
+	setAliasTargetData: (alias, data, silence)->
 		holder = @_aliasMap[alias]
 		oldData = holder.data
 		holder.data = data
@@ -1193,13 +1193,13 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			})
 		return
 
-	describe: (property, config) ->
+	describe: (property, config)->
 		if @_aliasMap[property]
 			return super(property, config)
 		else
 			return @parent.describe(property, config)
 
-	getProperty: (path) ->
+	getProperty: (path)->
 		i = path.indexOf(".")
 		if i > 0
 			path1 = path.substring(0, i)
@@ -1216,10 +1216,10 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				path = holder.path
 		return @parent.getProperty(path)
 
-	_isExBindingPath: (path) ->
+	_isExBindingPath: (path)->
 		return not @_aliasMap[path[0]]
 
-	_bind: (path, processor) ->
+	_bind: (path, processor)->
 		super(path, processor)
 
 		if not @_exBindingProcessed and @_isExBindingPath(path)
@@ -1228,7 +1228,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			@model.watchAllMessages()
 		return
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		if path
 			i = path.indexOf(".")
 			if i > 0
@@ -1250,7 +1250,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		else
 			return @parent.get(path, loadMode, context)
 
-	set: (path, data, context) ->
+	set: (path, data, context)->
 		i = path.indexOf(".")
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
@@ -1266,7 +1266,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 				@parent.set(path, data, context)
 		return @
 
-	flush: (path, loadMode) ->
+	flush: (path, loadMode)->
 		i = path.indexOf(".")
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
@@ -1281,10 +1281,10 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			if path then @parent.flush(path, loadMode)
 		return @
 
-	onDataMessage: (path, type, arg) ->
+	onDataMessage: (path, type, arg)->
 		super(path, type, arg)
 
-		isChildData = (data, targetData) ->
+		isChildData = (data, targetData)->
 			isChild = false
 			while data
 				if data is targetData
@@ -1310,13 +1310,13 @@ class cola.SubDataModel extends cola.AbstractDataModel
 
 class cola.ItemDataModel extends cola.SubDataModel
 
-	constructor: (model, @alias, @dataType) ->
+	constructor: (model, @alias, @dataType)->
 		super(model)
 
-	getItemData: () ->
+	getItemData: ()->
 		return @_itemData
 
-	setItemData: (data, silence) ->
+	setItemData: (data, silence)->
 		oldData = @_itemData
 		@_itemData = data
 
@@ -1332,7 +1332,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			})
 		return
 
-	getProperty: (path) ->
+	getProperty: (path)->
 		i = path.indexOf(".")
 		if i > 0
 			if path.substring(0, i) is @alias
@@ -1350,19 +1350,19 @@ class cola.ItemDataModel extends cola.SubDataModel
 		else
 			return @parent.getProperty(path)
 
-	getDataType: (path) ->
+	getDataType: (path)->
 		if path is @alias
 			return @dataType
 		else
 			property = @getProperty(path)
 			return property?.get("dataType")
 
-	_isExBindingPath: (path) ->
+	_isExBindingPath: (path)->
 		firstPart = path[0]
 		return @alias isnt firstPart isnt @alias and firstPart isnt cola.constants.REPEAT_INDEX
 
-	getIndex: () -> @_index
-	setIndex: (index, silence) ->
+	getIndex: ()-> @_index
+	setIndex: (index, silence)->
 		@_index = index
 		if not silence
 			@onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
@@ -1372,7 +1372,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			})
 		return
 
-	get: (path, loadMode, context) ->
+	get: (path, loadMode, context)->
 		if path is cola.constants.REPEAT_INDEX
 			return @getIndex()
 		else
@@ -1391,7 +1391,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 					return @_itemData
 			return @parent.get(path, loadMode, context)
 
-	set: (path, data, context) ->
+	set: (path, data, context)->
 		if path is cola.constants.REPEAT_INDEX or path is @alias
 			throw new cola.Exception("Can not set \"#{path}\" of ItemScope.")
 
@@ -1409,7 +1409,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 		@parent.set(path, data, context)
 		return @
 
-	onDataMessage: (path, type, arg) ->
+	onDataMessage: (path, type, arg)->
 		super(path, type, arg)
 
 		if @_itemData
@@ -1435,7 +1435,7 @@ new cola.Model(cola.constants.DEFAULT_PATH)
 Function
 ###
 
-cola.data = (config) ->
+cola.data = (config)->
 	return config unless config
 	if config.provider
 		provider = config.provider
@@ -1465,7 +1465,7 @@ Element binding
 ###
 
 class cola.ElementAttrBinding
-	constructor: (@element, @attr, @expression, scope) ->
+	constructor: (@element, @attr, @expression, scope)->
 		@scope = scope
 		@paths = @expression.paths or []
 		@watchingMoreMessage = not @paths.length and @expression.hasComplexStatement and not @expression.hasDefinedPath
@@ -1473,7 +1473,7 @@ class cola.ElementAttrBinding
 		for path in @paths
 			scope.data.bind(path, @)
 
-	destroy: () ->
+	destroy: ()->
 		paths = @paths
 		if paths
 			for path in paths
@@ -1481,15 +1481,15 @@ class cola.ElementAttrBinding
 		return
 
 	processMessage: (bindingPath, path, type)->
-		return if @element._freezed
+		return if @element._freezed > 0
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
 			@refresh()
 		return
 
-	evaluate: (dataCtx) ->
+	evaluate: (dataCtx)->
 		return @expression.evaluate(@scope, "async", dataCtx)
 
-	_refresh: () ->
+	_refresh: ()->
 		value = @evaluate()
 		element = @element
 		element._duringBindingRefresh = true
@@ -1499,10 +1499,10 @@ class cola.ElementAttrBinding
 			element._duringBindingRefresh = false
 		return
 
-	refresh: () ->
+	refresh: ()->
 		return unless @_refresh
 		if @delay
-			cola.util.delay(@, "refresh", 100, () ->
+			cola.util.delay(@, "refresh", 100, ()->
 				@_refresh()
 				return
 			)

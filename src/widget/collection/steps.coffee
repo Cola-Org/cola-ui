@@ -333,5 +333,5 @@ cola.registerWidget(cola.steps.Step)
 
 cola.registerType("steps", "_default", cola.steps.Step)
 cola.registerType("steps", "Step", cola.steps.Step)
-cola.registerTypeResolver "steps", (config) ->
+cola.registerTypeResolver "steps", (config)->
 	return cola.resolveType("widget", config)

@@ -565,7 +565,7 @@ cola.registerType("menu", "_default", cola.menu.MenuItem)
 cola.registerType("menu", "item", cola.menu.MenuItem)
 cola.registerType("menu", "dropdownItem", cola.menu.DropdownMenuItem)
 
-cola.registerTypeResolver "menu", (config) ->
+cola.registerTypeResolver "menu", (config)->
 	return cola.resolveType("widget", config)
 
 

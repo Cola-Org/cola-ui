@@ -9,7 +9,7 @@ if typeof document.documentElement.style.flex != "string"
     用于刷新组件时频繁的编辑class name提高性能
 ###
 class cola.ClassNamePool
-	constructor: (domClass, semanticList = []) ->
+	constructor: (domClass, semanticList = [])->
 		@elements = []
 		domClass = if domClass then (" #{domClass} ").replace(cola.constants.CLASS_REG, " ") else " "
 
@@ -47,17 +47,18 @@ class cola.ClassNamePool
 		if !!status then @add(className) else @remove(className)
 		return
 
-_freezeRenderableElement = (node, data) ->
+_freezeRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
-	element?._freezed = true
+	if element
+		element._freezed = (element._freezed or 0) + 1
 	return
 
-_unfreezeRenderableElement = (node, data) ->
+_unfreezeRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
-	delete element?._freezed
+	element?._freezed--
 	return
 
-_destroyRenderableElement = (node, data) ->
+_destroyRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
 	if not element?._destroyed
 		element._domRemoved = true
@@ -105,7 +106,7 @@ class cola.RenderableElement extends cola.Element
 			dom.className = "ui #{className}"
 		return dom
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if attrConfig?.refreshDom and @_dom
 			cola.util.delay(@, "refreshDom", 50, @_refreshDom)
 		return super(attr, attrConfig, value)
@@ -116,7 +117,7 @@ class cola.RenderableElement extends cola.Element
 		return
 
 	_refreshDom: ()->
-		return if not @_dom or @_destroyed or @_freezed
+		return if not @_dom or @_destroyed or @_freezed > 0
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
 		className = @constructor.CLASS_NAME
 		if className
@@ -146,7 +147,7 @@ class cola.RenderableElement extends cola.Element
 			@_setDom(dom)
 		return @_dom
 
-	get$Dom: ()->    # 将获得jQuery或zepto 实例
+	get$Dom: ()->    # 将获得jQuery或zepto实例
 		return null if @_destroyed
 		@_$dom ?= $(@getDom())
 		return @_$dom
@@ -340,12 +341,12 @@ class cola.Widget extends cola.RenderableElement
 			@_bindEvent(eventName) if @getListeners(eventName)
 		return
 
-	_on: (eventName, listener, alias) ->
+	_on: (eventName, listener, alias)->
 		super(eventName, listener, alias)
 		@_bindEvent(eventName) if @_dom
 		return @
 
-	fire: (eventName, self, arg) ->
+	fire: (eventName, self, arg)->
 		return unless @_eventRegistry
 
 		eventConfig = @constructor.events.$get(eventName)
@@ -413,7 +414,7 @@ class cola.Widget extends cola.RenderableElement
 		$dom.css("width", width) if width
 		return
 
-	onFocus: () ->
+	onFocus: ()->
 		return if @_focused
 		@_focused = true
 		@get$Dom().addClass("focused")
@@ -421,14 +422,14 @@ class cola.Widget extends cola.RenderableElement
 		@fire("focus", @)
 		return
 
-	onBlur: () ->
-		return if not @_focused
+	onBlur: ()->
+		return if not @_focused or @_destroyed
 		@_focused = false
 		@get$Dom().removeClass("focused")
 		@_onBlur?()
 		return
 
-	onKeyDown: (evt) ->
+	onKeyDown: (evt)->
 		if @_onKeyDown?(evt) is false
 			return false
 		arg =
@@ -439,7 +440,7 @@ class cola.Widget extends cola.RenderableElement
 			event: evt
 		return @fire("keyDown", @, arg)
 
-	focus: () ->
+	focus: ()->
 		cola._setFocusWidget(@)
 		return
 
@@ -498,7 +499,7 @@ class cola.Widget extends cola.RenderableElement
 
 		return
 
-cola._setFocusWidget = (widget) ->
+cola._setFocusWidget = (widget)->
 	if widget is cola.focusedWidgets?[0]
 		return
 
@@ -511,12 +512,14 @@ cola._setFocusWidget = (widget) ->
 		for oldFocusedWidget, i in cola.focusedWidgets
 			if focusedWidgets.indexOf(oldFocusedWidget) < 0
 				if i is 0
-					oldFocusedWidget.onBlur()
+					if not oldFocusedWidget._destroyed
+						oldFocusedWidget.onBlur()
 				else
 					do (oldFocusedWidget)->
 						setTimeout(()->
 							if focusedWidgets is cola.focusedWidgets or cola.focusedWidgets.indexOf(oldFocusedWidget) < 0
-								oldFocusedWidget.onBlur()
+								if not oldFocusedWidget._destroyed
+									oldFocusedWidget.onBlur()
 							return
 						, 0)
 						return
@@ -538,7 +541,7 @@ cola.floatWidget =
 	_zIndex: 1100
 	zIndex: ()-> return ++cola.floatWidget._zIndex
 
-cola.Exception.showException = (ex) ->
+cola.Exception.showException = (ex)->
 	if ex instanceof cola.Exception or ex instanceof Error
 		msg = ex.message
 	else

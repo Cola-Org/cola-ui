@@ -1,4 +1,4 @@
-$.xCreate.templateProcessors.push (template, context) ->
+$.xCreate.templateProcessors.push (template, context)->
     if template instanceof cola.Widget
         widget = template
     else if template.$type
@@ -9,7 +9,7 @@ $.xCreate.templateProcessors.push (template, context) ->
         dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
     return dom
 
-cola.xCreate.attributeProcessor["c-widget"] = cola.xCreate.attributeProcessor.widgetConfig = ($dom, attrName, attrValue, context) ->
+cola.xCreate.attributeProcessor["c-widget"] = cola.xCreate.attributeProcessor.widgetConfig = ($dom, attrName, attrValue, context)->
     return unless attrValue
     if typeof attrValue == "string"
         $dom.attr(attrName, attrValue)
@@ -22,7 +22,7 @@ cola.xCreate.attributeProcessor["c-widget"] = cola.xCreate.attributeProcessor.wi
         widgetConfigs[configKey] = attrValue
     return
 
-cola.Model::widgetConfig = (id, config) ->
+cola.Model::widgetConfig = (id, config)->
     if arguments.length == 1
         if typeof id == "string"
             return @_widgetConfig?[id]
@@ -36,14 +36,14 @@ cola.Model::widgetConfig = (id, config) ->
 
 ALIAS_REGEXP = new RegExp("\\$default", "g")
 
-_findWidgetConfig = (scope, name) ->
+_findWidgetConfig = (scope, name)->
     while scope
         widgetConfig = scope._widgetConfig?[name]
         if widgetConfig then break
         scope = scope.parent
     return widgetConfig
 
-_compileWidgetDom = (scope, dom, widgetType, config = {}, context) ->
+_compileWidgetDom = (scope, dom, widgetType, config = {}, context)->
     if not widgetType.attributes._inited or not widgetType.events._inited
         cola.preprocessClass(widgetType)
 
@@ -102,7 +102,7 @@ _compileWidgetDom = (scope, dom, widgetType, config = {}, context) ->
         dom.removeAttribute(attr) for attr in removeAttrs
     return config
 
-_compileWidgetAttribute = (scope, dom, context) ->
+_compileWidgetAttribute = (scope, dom, context)->
     widgetConfigStr = dom.getAttribute("c-config")
     if widgetConfigStr
         importNames = widgetConfigStr.split(/[,;]/)
@@ -139,7 +139,7 @@ _compileWidgetAttribute = (scope, dom, context) ->
                             config[ip] = iv for ip, iv of importConfig
     return config
 
-cola._userDomCompiler.$.push((scope, dom, context) ->
+cola._userDomCompiler.$.push((scope, dom, context)->
     return null if cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
     return null unless dom.nodeType is 1
 
@@ -187,7 +187,7 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
     if cola.util.isCompatibleType(cola.AbstractLayer, constr) and config.lazyRender
         cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
 
-    return (scope, dom) ->
+    return (scope, dom)->
         config.dom = dom
         oldScope = cola.currentScope
         cola.currentScope = scope
@@ -198,13 +198,13 @@ cola._userDomCompiler.$.push((scope, dom, context) ->
             cola.currentScope = oldScope
 )
 
-cola._userDomCompiler.$startContent.push((scope, dom, context, childContext) ->
+cola._userDomCompiler.$startContent.push((scope, dom, context, childContext)->
     widget = cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY)
     if widget
         childContext.parentWidget = widget.constructor
 )
 
-cola.registerTypeResolver "widget", (config) ->
+cola.registerTypeResolver "widget", (config)->
     return unless config
     if config.$constructor and cola.util.isSuperClass(cola.Widget, config.$constructor)
         return config.$constructor
@@ -214,10 +214,10 @@ cola.registerTypeResolver "widget", (config) ->
 
 cola.registerType("widget", "_default", cola.Widget)
 
-cola.widget = (config, namespace, model) ->
+cola.widget = (config, namespace, model)->
     return null unless config
 
-    isSubWidget = (widget) ->
+    isSubWidget = (widget)->
         match = false
         widgetModel = widget._scope
         while widgetModel
@@ -263,9 +263,9 @@ cola.widget = (config, namespace, model) ->
                 config.scope = model
             return new constr(config)
 
-cola.findWidget = (dom, typeName, thisWindow) ->
+cola.findWidget = (dom, typeName, thisWindow)->
 
-    getType = (win, typeName) ->
+    getType = (win, typeName)->
         type = win.cola.resolveType("widget", {$type: typeName}) unless type
         return type
 
@@ -277,7 +277,7 @@ cola.findWidget = (dom, typeName, thisWindow) ->
     if dom instanceof cola.Widget
         dom = dom.getDom()
 
-    find = (win, dom, type) ->
+    find = (win, dom, type)->
         parentDom = dom.parentNode
         while parentDom
             dom = parentDom
@@ -295,7 +295,7 @@ cola.findWidget = (dom, typeName, thisWindow) ->
 
             if parentFrames
                 frame = null
-                parentFrames.each () ->
+                parentFrames.each ()->
                     if @contentWindow is win
                         frame = @
                         return false
@@ -308,7 +308,7 @@ cola.findWidget = (dom, typeName, thisWindow) ->
 
     return find(window, dom, type)
 
-cola.Model::widget = (config) -> cola.widget(config, null, @)
+cola.Model::widget = (config)-> cola.widget(config, null, @)
 
 ###
 User Widget
@@ -316,17 +316,17 @@ User Widget
 
 WIDGET_TAGS_REGISTRY = {}
 
-_extendWidget = (superCls, definition) ->
-    cls = (config) ->
+_extendWidget = (superCls, definition)->
+    cls = (config)->
         if not cls.attributes._inited or not cls.events._inited
             cola.preprocessClass(cls)
 
         if definition.create then @on("create", definition.create)
         if definition.destroy then @on("destroy", definition.destroy)
-        if definition.initDom then @on("initDom", (self, arg) => @initDom(arg.dom))
-        if definition.refreshDom then @on("refreshDom", (self, arg) => @refreshDom(arg.dom))
+        if definition.initDom then @on("initDom", (self, arg)=> @initDom(arg.dom))
+        if definition.refreshDom then @on("refreshDom", (self, arg)=> @refreshDom(arg.dom))
 
-        @on("attributeChange", (self, arg) =>
+        @on("attributeChange", (self, arg)=>
             attr = arg.attribute
             @_widgetModel.data.onDataMessage([attr], cola.constants.MESSAGE_PROPERTY_CHANGE, {})
             value = @_get(attr)
@@ -351,7 +351,7 @@ _extendWidget = (superCls, definition) ->
 
     cls.attributes.widgetModel =
         readOnly: true
-        getter: () -> @_widgetModel
+        getter: ()-> @_widgetModel
 
     cls.attributes.template =
         readOnlyAfterCreate: true
@@ -368,7 +368,7 @@ _extendWidget = (superCls, definition) ->
         cls.attributes.template =
             defaultValue: template
 
-    cls::_createDom = () ->
+    cls::_createDom = ()->
         if @_template
             dom = cola.xRender(@_template or {}, @_widgetModel)
             @_domCreated = true
@@ -376,7 +376,7 @@ _extendWidget = (superCls, definition) ->
         else
             return superCls::_createDom.apply(@)
 
-    cls::_initDom = (dom) ->
+    cls::_initDom = (dom)->
         superCls::_initDom.call(@, dom)
         template = @_template
         if template and not @_domCreated
@@ -400,7 +400,7 @@ _extendWidget = (superCls, definition) ->
                     dom.appendChild(templateDom.firstChild)
         return
 
-    cls::xRender = (template, context) -> cola.xRender(template, @_widgetModel, context)
+    cls::xRender = (template, context)-> cola.xRender(template, @_widgetModel, context)
 
     for prop, def of definition
         if definition.hasOwnProperty(prop) and typeof def is "function"
@@ -408,7 +408,7 @@ _extendWidget = (superCls, definition) ->
 
     return cls
 
-cola.defineWidget = (type, definition) ->
+cola.defineWidget = (type, definition)->
     if not cola.util.isSuperClass(cola.Widget, type)
         definition = type
         type = cola.TemplateWidget

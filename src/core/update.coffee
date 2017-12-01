@@ -2,14 +2,14 @@
 dirty tree
 ###
 
-cola.util.dirtyTree = (data, options) ->
+cola.util.dirtyTree = (data, options)->
 	return undefined unless data
 	context = options?.context or {}
 	context.entityMap = {}
 	context.messages = {}
 	return _extractDirtyTree(data, context, options or {})
 
-_processEntity = (entity, context, options) ->
+_processEntity = (entity, context, options)->
 	toJSONOptions =
 		simpleValue: true
 		entityId: options.entityId or true
@@ -43,7 +43,7 @@ _processEntity = (entity, context, options) ->
 
 	return json
 
-_processEntityList = (entityList, context, options) ->
+_processEntityList = (entityList, context, options)->
 	entities = []
 	page = entityList._first
 	if page
@@ -58,13 +58,13 @@ _processEntityList = (entityList, context, options) ->
 				next = page?._first
 	return if entities.length then entities else null
 
-_extractDirtyTree = (data, context, options) ->
+_extractDirtyTree = (data, context, options)->
 	if data instanceof cola.EntityList
 		return _processEntityList(data, context, options)
 	else
 		return _processEntity(data, context, options)
 
-cola.util.update = (url, data, options = {}) ->
+cola.util.update = (url, data, options = {})->
 	context = options.context = options.context or {}
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
@@ -85,7 +85,7 @@ cola.util.update = (url, data, options = {}) ->
 				dataType: "json"
 				data: JSON.stringify(data)
 				options: options
-			).done (responseData) ->
+			).done (responseData)->
 				if context
 					if options.postProcessor
 						return options.postProcessor(responseData, options)
@@ -124,9 +124,9 @@ cola.util.update = (url, data, options = {}) ->
 		else
 			deferred = $.Deferred().reject("NO_DATA")
 
-	deferred.fail (error) ->
+	deferred.fail (error)->
 		return if options.silence
-		setTimeout(() =>
+		setTimeout(()=>
 			return if @errorProcessed
 
 			if error is "NO_DATA"
@@ -161,7 +161,7 @@ cola.util.update = (url, data, options = {}) ->
 
 	return deferred
 
-cola.util.autoUpdate = (url, model, path, options = {}) ->
+cola.util.autoUpdate = (url, model, path, options = {})->
 	delay = options.delay or 5000
 
 	autoUpdateHanlder =
@@ -171,29 +171,29 @@ cola.util.autoUpdate = (url, model, path, options = {}) ->
 		_updateTimerId: 0,
 		dirty: false
 
-		schedule: () ->
+		schedule: ()->
 			if @_updateTimerId
 				clearTimeout(@_updateTimerId)
 				@_updateTimerId = 0
 
 			@dirty = true
-			@_updateTimerId = setTimeout(() =>
+			@_updateTimerId = setTimeout(()=>
 				@updateIfNecessary()
 				return
 			, delay)
 			return
 
-		updateIfNecessary: () ->
+		updateIfNecessary: ()->
 			if @dirty
 				@dirty = false
 				@_updateTimerId = 0
 				data = model.get(path, "never")
 				if data
 					self = @
-					cola.util.update(url, data, options).done((result) =>
+					cola.util.update(url, data, options).done((result)=>
 						retVal = @_notify("done", result)
 						return retVal
-					).fail((error) ->
+					).fail((error)->
 						if error is "NO_DATA"
 							@errorProcessed = true
 						else
@@ -203,22 +203,22 @@ cola.util.autoUpdate = (url, model, path, options = {}) ->
 				return true
 			return false
 
-		_notify: (type, result) ->
+		_notify: (type, result)->
 			for handler in @["_" + type + "Handlers"]
 				retVal = handler(result)
 				if retVal isnt undefined
 					result = retVal
 			return result
 
-		done: (fn) ->
+		done: (fn)->
 			@_doneHandlers.push(fn)
 			return @
 
-		fail: (fn) ->
+		fail: (fn)->
 			@_failHandlers.push(fn)
 			return @
 
-	model.watch path + ".**", (messagePath, type) ->
+	model.watch path + ".**", (messagePath, type)->
 		if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
 			autoUpdateHanlder.schedule()
 		return

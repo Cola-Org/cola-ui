@@ -1,9 +1,9 @@
 # detect IE
 oldIE = `!-[1,]`
 
-$.xCreate = xCreate = (template, context) ->
+$.xCreate = xCreate = (template, context)->
 
-	isSimpleValue = (value) ->
+	isSimpleValue = (value)->
 		if value == null or value == undefined then return true
 		type = typeof value
 		return type isnt "object" and type isnt "function" or value instanceof Date
@@ -70,11 +70,11 @@ $.xCreate = xCreate = (template, context) ->
 xCreate.templateProcessors = []
 
 xCreate.attributeProcessor =
-	data: ($el, attrName, attrValue, context) ->
+	data: ($el, attrName, attrValue, context)->
 		$el.data(attrValue)
 		return
 
-	style: ($el, attrName, attrValue, context) ->
+	style: ($el, attrName, attrValue, context)->
 		if typeof attrValue == "string"
 			$el.attr("style", attrValue)
 		else if attrValue != null
@@ -113,7 +113,7 @@ setAttrs = (el, $el, attrs, context)  ->
 						el.setAttribute(attrName, attrValue)
 	return
 
-appendChild = (parentEl, el) ->
+appendChild = (parentEl, el)->
 	if parentEl.nodeName == "TABLE" and el.nodeName == "TR"
 		tbody;
 		if parentEl and parentEl.tBodies[0]
@@ -123,7 +123,7 @@ appendChild = (parentEl, el) ->
 		parentEl = tbody
 	parentEl.appendChild(el)
 
-createNodeForAppend = (template, context) ->
+createNodeForAppend = (template, context)->
 	result = xCreate(template, context)
 	return null unless result
 
@@ -134,17 +134,17 @@ createNodeForAppend = (template, context) ->
 		result = fragment
 	return result
 
-$.fn.xAppend = (template, context) ->
+$.fn.xAppend = (template, context)->
 	result = createNodeForAppend(template, context)
 	if not result then return null
 	return @append(result)
 
-$.fn.xInsertBefore = (template, context) ->
+$.fn.xInsertBefore = (template, context)->
 	result = createNodeForAppend(template, context)
 	if not result then return null
 	return @before(result)
 
-$.fn.xInsertAfter = (template, context) ->
+$.fn.xInsertAfter = (template, context)->
 	result = createNodeForAppend(template, context)
 	if not result then return null
 	return @after(result)

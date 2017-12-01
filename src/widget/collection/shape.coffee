@@ -5,7 +5,7 @@ class cola.Shape extends cola.AbstractItemGroup
 	@attributes:
 		bind:
 			readonlyAfterCreate: true
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 
 	@events:
 		beforeChange: null

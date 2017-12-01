@@ -23,7 +23,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			refreshDom: true
 			type: "boolean"
 			defaultValue: false
-			getter: ()-> return @_value == @_onValue
+			getter: ()-> return @_value is @_onValue
 			setter: (state)->
 				checked = !!state
 				value = if checked then @get("onValue") else @get("offValue")
@@ -52,7 +52,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 
 		child = dom.firstElementChild
 		while child
-			if child.nodeType == 1
+			if child.nodeType is 1
 				if child.nodeName is "LABEL"
 					@_doms.label = child
 					@_label ?= cola.util.getTextChildData(child)
@@ -116,14 +116,20 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	_initDom: (dom)->
 		super(dom)
 		$(@_doms.input)
-			.on("focus", ()=> cola._setFocusWidget(@))
-			.on("blur", ()=> cola._setFocusWidget(null))
+			.attr("tabIndex", null)
+			.on("focus", (evt)=> @onFocus(evt))
+			.on("blur", (evt)=> @onBlur(evt))
+		return
+
+	focus: ()->
+		@_doms.input?.focus()
 		return
 
 	_bindToSemantic: ()->
-		@get$Dom().checkbox({
+		@get$Dom().checkbox(
 			onChange: ()=> @_setValue(@_getValue())
-		})
+		)
+		return
 
 	_setDom: (dom, parseChild)->
 		@_dom = dom
@@ -131,12 +137,9 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			@_bindToSemantic()
 		return super(dom, parseChild)
 
-	focus: () ->
-		@_doms.input?.focus()
-		return
-
 	_refreshEditorDom: ()->
-		@get$Dom().checkbox(if @_value == @_onValue then "check" else "uncheck")
+		@get$Dom().checkbox(if @_value is @_onValue then "check" else "uncheck")
+		return
 
 	_doRefreshDom: ()->
 		return unless @_dom
@@ -172,20 +175,33 @@ class cola.Checkbox extends cola.AbstractCheckbox
 			defaultValue: false
 
 	_getValue: ()->
-		if @_triState and !@get$Dom().checkbox("is determinate")
+		if @_triState and not @get$Dom().checkbox("is determinate")
 			return @get("indeterminateValue")
 		return super()
 
 	_refreshEditorDom: ()->
 		if @_triState and @_value isnt @_onValue and @_value isnt @_offValue
-			@get$Dom().checkbox("set indeterminate")
+			@get$Dom().checkbox('set indeterminate')
 			return
-		super()
+		return super()
 
 cola.registerWidget(cola.Checkbox)
 
 class cola.Toggle extends cola.AbstractCheckbox
 	@tagName: "c-toggle"
+
+	_initDom: (dom)->
+		$fly(dom).addClass("no-transmit").on("mousedown", ()=>
+			@get$Dom().removeClass("no-transmit")
+			cola.util.delay(@, "onColumnChange", 500, ()=>
+				if not @_destroyed
+					@get$Dom().addClass("no-transmit")
+				return
+			)
+			return
+		)
+		return super(dom)
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()

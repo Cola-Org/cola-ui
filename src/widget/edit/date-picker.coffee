@@ -218,7 +218,7 @@ class cola.DateGrid extends cola.RenderableElement
 
 		return dom
 
-	doFireRefreshEvent: (eventArg) ->
+	doFireRefreshEvent: (eventArg)->
 		return @fire("refreshCellDom", @, eventArg)
 	toggleMonthPicker: ()->
 		$wrapper = $(@_doms.tableWrapper)
@@ -353,7 +353,7 @@ class cola.DateGrid extends cola.RenderableElement
 		$fly(cell).addClass(@_selectedCellClassName || "selected")
 		@_lastSelectedCell = cell
 
-	doRefreshCell: (cell, row, column) ->
+	doRefreshCell: (cell, row, column)->
 		state = @_state
 		return unless state
 
@@ -421,7 +421,7 @@ class cola.DateGrid extends cola.RenderableElement
 
 		@setState(year + 1, month) if year != undefined && month != undefined
 		return @
-	onCalDateChange: () ->
+	onCalDateChange: ()->
 		return @ unless @_dom
 		return @
 
@@ -444,7 +444,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		keyPress: null
 		inputInvalidDate: null
 
-	_postInput: () ->
+	_postInput: ()->
 		readOnly = @_readOnly
 		if not readOnly
 			value = $(@_doms.input).val()
@@ -467,7 +467,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			@set("value", value)
 		return
 
-	_refreshInputValue: (value) ->
+	_refreshInputValue: (value)->
 		inputType = @_inputType
 		if value instanceof Date
 			if value.toDateString() is "Invalid Date"
@@ -492,7 +492,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		@_refreshInputValue(@_value)
 		return
 
-	open: () ->
+	open: ()->
 		if super()
 			value = @get("value")
 			unless value
@@ -512,10 +512,10 @@ class cola.DatePicker extends cola.CustomDropdown
 			return true
 		return
 
-	_getDropdownContent: () ->
+	_getDropdownContent: ()->
 		if @_inputType == "date" then @_getDateDropdownContent() else @_getDateTimeDropdownContent()
 
-	_getDateTimeDropdownContent: () ->
+	_getDateTimeDropdownContent: ()->
 		datePicker = @
 		datePicker._selectedDate = null;
 		if !@_dropdownContent
@@ -581,7 +581,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			@_dropdownContent = container
 		return @_dropdownContent
 
-	_getDateDropdownContent: () ->
+	_getDateDropdownContent: ()->
 		datePicker = @
 		if !@_dropdownContent
 			@_dataGrid = dateGrid = new cola.DateGrid({
@@ -653,7 +653,7 @@ class cola.YearGrid extends cola.RenderableElement
 		dom.appendChild(@_doms.tableWrapper)
 		return dom
 
-	doFireRefreshEvent: (eventArg) ->
+	doFireRefreshEvent: (eventArg)->
 		@fire("refreshCellDom", @, eventArg)
 		return @
 	_doRefreshDom: ()->
@@ -722,7 +722,7 @@ class cola.YearGrid extends cola.RenderableElement
 		year = @_year
 		@setState(year + 12) if year != undefined
 		return @
-	onCalDateChange: () ->
+	onCalDateChange: ()->
 		return @ unless @_dom
 		return @
 class cola.YearMonthGrid extends cola.RenderableElement
@@ -817,7 +817,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		dom.appendChild(@_doms.tableWrapper)
 		return dom
 
-	doFireRefreshEvent: (eventArg) ->
+	doFireRefreshEvent: (eventArg)->
 		@fire("refreshCellDom", @, eventArg)
 		return @
 
@@ -897,7 +897,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 
 		@setState(year + 1, month) if year != undefined && month != undefined
 		return @
-	onCalDateChange: () ->
+	onCalDateChange: ()->
 		return @ unless @_dom
 		return @
 
@@ -913,7 +913,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 		keyDown: null
 		keyPress: null
 
-	_postInput: () ->
+	_postInput: ()->
 		readOnly = @_readOnly
 		if not readOnly
 			value = $(@_doms.input).val()
@@ -931,7 +931,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 		@_refreshInputValue(@_value)
 		return
 
-	open: () ->
+	open: ()->
 		if super()
 			value = @get("value")
 			unless value
@@ -941,7 +941,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 			return true
 		return
 
-	_getDropdownContent: () ->
+	_getDropdownContent: ()->
 		datePicker = @
 		if !@_dropdownContent
 			@_dataGrid = dateGrid = new cola.YearMonthGrid({
