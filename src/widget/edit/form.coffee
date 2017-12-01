@@ -8,7 +8,16 @@ class cola.Form extends cola.Widget
 		dataType:
 			setter: cola.DataType.dataTypeSetter
 
-		readOnly: null
+		readOnly:
+			setter: (readOnly) ->
+				@_readOnly = readOnly
+				if @_rendered
+					@get$Dom().find("field, fields >field").each((i, fieldDom)->
+						field = cola.widget(fieldDom)
+						field?.refreshReadOnly()
+						return
+					)
+				return
 		defaultCols:
 			defaultValue: 3
 		fields:
@@ -45,9 +54,6 @@ class cola.Form extends cola.Widget
 							childDoms.push(fieldsDom)
 
 						if field.editContent
-							if typeof field.editContent is "object" and not field.editContent.readOnly is undefined and field.readOnly isnt undefined
-								field.editContent.readOnly = field.readOnly or @_readOnly
-
 							fieldContent = [
 								{ tagName: "label", content: caption, data: labelUserData }
 								field.editContent
@@ -56,27 +62,27 @@ class cola.Form extends cola.Widget
 							if field.type is "checkbox"
 								fieldContent = [
 									{ tagName: "label", content: caption, data: labelUserData }
-									{ tagName: "c-checkbox", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+									{ tagName: "c-checkbox", bind: @_bind + "." + field.property }
 								]
 							else
 								fieldContent = [
 									{ tagName: "label", content: caption, data: labelUserData }
-									{ tagName: "c-toggle", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+									{ tagName: "c-toggle", bind: @_bind + "." + field.property }
 								]
 						else if field.type is "date" or propertyType instanceof cola.DateDataType
 							fieldContent = [
 								{ tagName: "label", content: caption, data: labelUserData }
-								{ tagName: "c-datepicker", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+								{ tagName: "c-datepicker", bind: @_bind + "." + field.property }
 							]
 						else if field.type is "textarea"
 							fieldContent = [
 								{ tagName: "label", content: caption, data: labelUserData }
-								{ tagName: "c-textarea", bind: @_bind  + "." + field.property, readOnly: field.readOnly, height: field.height or "4em" }
+								{ tagName: "c-textarea", bind: @_bind  + "." + field.property, height: field.height or "4em" }
 							]
 						else
 							fieldContent = [
 								{ tagName: "label", content: caption, data: labelUserData }
-								{ tagName: "c-input", bind: @_bind + "." + field.property, readOnly: field.readOnly }
+								{ tagName: "c-input", bind: @_bind + "." + field.property }
 							]
 
 						usedCols += field.cols or defaultFieldCols
@@ -187,7 +193,11 @@ class cola.Field extends cola.Widget
 
 		caption: null
 		property: null
-		readOnly: null
+		readOnly:
+			setter: (readOnly)->
+				@_readOnly = readOnly
+				@refreshReadOnly()
+				return
 		type: null
 		cols: null
 
@@ -214,16 +224,15 @@ class cola.Field extends cola.Widget
 		@_domParsed = true
 
 		bind = @_bindStr
-		if not bind and @_property
-			if dom.parentNode
-				if dom.parentNode.nodeName is "C-FORM"
-					@_formDom = dom.parentNode
-				else if dom.parentNode.parentNode?.nodeName is "C-FORM"
-					@_formDom = dom.parentNode.parentNode
+		if dom.parentNode
+			if dom.parentNode.nodeName is "C-FORM"
+				@_formDom = dom.parentNode
+			else if dom.parentNode.parentNode?.nodeName is "C-FORM"
+				@_formDom = dom.parentNode.parentNode
 
-			if @_formDom
-				@_form = cola.widget(@_formDom)
-				formReadOnly = @_form?._readOnly
+		if @_formDom
+			@_form = cola.widget(@_formDom)
+			if not bind and @_property
 				formBind = @_form?._bind
 				if formBind
 					bind = formBind + "." + @_property
@@ -246,15 +255,15 @@ class cola.Field extends cola.Widget
 				propertyType = propertyDef.get("dataType")
 				if propertyType instanceof cola.BooleanDataType
 					if @_type is "checkbox"
-						editContent = { tagName: "c-checkbox", bind: bind, readOnly: @_readOnly or formReadOnly }
+						editContent = { tagName: "c-checkbox", bind: bind }
 					else
-						editContent = { tagName: "c-toggle", bind: bind, readOnly: @_readOnly or formReadOnly }
+						editContent = { tagName: "c-toggle", bind: bind }
 				else if @_type is "date" or propertyType instanceof cola.DateDataType
-					editContent = { tagName: "c-datepicker", bind: bind, readOnly: @_readOnly or formReadOnly }
+					editContent = { tagName: "c-datepicker", bind: bind }
 				else if @_type is "textarea"
-					editContent = { tagName: "c-textarea", bind: bind, readOnly: @_readOnly or formReadOnly }
+					editContent = { tagName: "c-textarea", bind: bind }
 
-			editContent ?= { tagName: "c-input", bind: bind, readOnly: @_readOnly or formReadOnly }
+			editContent ?= { tagName: "c-input", bind: bind }
 
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)
@@ -297,6 +306,25 @@ class cola.Field extends cola.Widget
 				keyMessage = entity.getKeyMessage(@_bindInfo.property)
 				@setMessage(keyMessage)
 		return
+
+	_doRefreshDom: () ->
+		@refreshReadOnly()
+		@_classNamePool.toggle("readonly", @_finalReadOnly)
+		return super()
+
+	refreshReadOnly: () ->
+		finalReadOnly = @_readOnly or @_form?._readOnly
+		if finalReadOnly != @_finalReadOnly
+			@_finalReadOnly = finalReadOnly
+
+		if @_rendered
+			@get$Dom().find("input").each((i, input)=>
+				editor = cola.widget(input.parentNode)
+				if editor and editor._readOnlyFactor != @_finalReadOnly
+					editor._readOnlyFactor.field = @_finalReadOnly
+					editor._refreshDom()
+				return
+			)
 
 	setMessage: (message)->
 		if typeof message is "string"

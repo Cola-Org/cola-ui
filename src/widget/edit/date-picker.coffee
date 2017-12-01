@@ -445,8 +445,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		inputInvalidDate: null
 
 	_postInput: ()->
-		readOnly = @_readOnly
-		if not readOnly
+		if not @_finalReadOnly
 			value = $(@_doms.input).val()
 			inputFormat = @_inputFormat or @_displayFormat
 			unless inputFormat
@@ -486,7 +485,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("name", @_name) if @_name
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readOnly", @_finalReadOnly or @_disabled)
+		$inputDom.prop("readOnly", @_finalReadOnly)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		$inputDom.prop("type", "text").css("text-align", "left")
 		@_refreshInputValue(@_value)
@@ -914,8 +913,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 		keyPress: null
 
 	_postInput: ()->
-		readOnly = @_readOnly
-		if not readOnly
+		if not @_finalReadOnly
 			value = $(@_doms.input).val()
 			@set("value", value)
 		return
@@ -924,7 +922,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("name", @_name) if @_name
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readOnly", @_finalReadOnly or @_disabled)
+		@_doms.input.readOnly = @_finalReadOnly
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		$inputDom.prop("type", "text").css("text-align", "left")
 

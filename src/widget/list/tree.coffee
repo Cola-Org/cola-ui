@@ -146,7 +146,7 @@ class cola.Tree extends cola.AbstractList
 		itemsScope.onMessage = (path, type, arg)=>
 			if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE
 				if itemsScope.isParentOfTarget(itemsScope.expressionPaths, path)
-					@_refreshItems()
+					@_bind.retrieveChildNodes(@_rootNode)
 					return true
 				else
 					node = @findNode(arg.data or arg.entityList or arg.entity)
@@ -156,7 +156,7 @@ class cola.Tree extends cola.AbstractList
 							@_prepareChildNode(node, true)
 					return true
 
-			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_EDITING_STATE_CHANGE
+			else if type is cola.constants.MESSAGE_PROPERTY_CHANGE
 				node = @findNode(arg.entity)
 				if node
 					@refreshNode(node)
@@ -166,8 +166,14 @@ class cola.Tree extends cola.AbstractList
 							@_prepareChildNode(node, true)
 					return true
 				else if itemsScope.isParentOfTarget(itemsScope.expressionPaths, path)
-					@_refreshItems()
+					@_bind.retrieveChildNodes(@_rootNode)
 					return true
+
+			else if type is cola.constants.MESSAGE_EDITING_STATE_CHANGE
+				node = @findNode(arg.entity)
+				if node
+					@refreshNode(node)
+				return true
 
 			else if type is cola.constants.MESSAGE_INSERT
 				parentNode = @findNode(arg.entityList.parent)
@@ -276,6 +282,16 @@ class cola.Tree extends cola.AbstractList
 		textProperty = node._bind._textProperty
 		if textProperty
 			return (node._alias) + "." + textProperty
+
+	_doRefreshItems: (itemsWrapper) ->
+		super(itemsWrapper)
+		if @_currentNode
+			if not @_nodeMap[@_currentNode._id]
+				newCurrent = @_currentNode._parent
+				if newCurrent is @_rootNode
+					newCurrent = null
+				@_setCurrentNode(newCurrent)
+		return
 
 	refreshNode: (node)->
 		nodeId = _getEntityId(node)
@@ -399,7 +415,10 @@ class cola.Tree extends cola.AbstractList
 
 		if @_currentNode
 			if not @_nodeMap[@_currentNode._id]
-				@_setCurrentNode(parentNode)
+				newCurrent = @_currentNode._parent
+				if newCurrent is @_rootNode
+					newCurrent = null
+				@_setCurrentNode(newCurrent)
 
 		delete parentNode._duringRefreshChildNodes
 		return

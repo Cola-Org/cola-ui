@@ -1,4 +1,3 @@
-
 ###
 Template
 ###
@@ -17,7 +16,7 @@ cola.TemplateSupport =
 		return unless @_dom
 		child = @_dom.firstElementChild
 		while child
-			if child.nodeName == "TEMPLATE"
+			if child.nodeName is "TEMPLATE"
 				@regTemplate(child)
 			child = child.nextElementSibling
 		@_regDefaultTemplates()
@@ -28,7 +27,7 @@ cola.TemplateSupport =
 		while child
 			next = child.nextSibling
 			if child.nodeType is 3	# TEXT
-				if $.trim(child.nodeValue) == ""
+				if $.trim(child.nodeValue) is ""
 					dom.removeChild(child)
 			child = next
 		return
@@ -53,7 +52,7 @@ cola.TemplateSupport =
 
 	trimTemplate: (template)->
 		if template.nodeType
-			if template.nodeName == "TEMPLATE"
+			if template.nodeName is "TEMPLATE"
 				if not template.firstChild
 					html = template.innerHTML
 					if html
@@ -193,7 +192,18 @@ cola.DataWidgetMixin =
 	readBindingValue: (dataCtx)->
 		return unless @_bindInfo?.expression
 		dataCtx ?= {}
-		return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
+		if @_bindInfo.entityPath
+			entity = @_scope.get(@_bindInfo.entityPath, "async")
+			if entity
+				if entity instanceof cola.Entity
+					return entity.get(@_bindInfo.property, "async")
+				else if typeof entity is "object"
+					return entity[@_bindInfo.property]
+			dataCtx.readOnly = true
+			return undefined
+		else
+			dataCtx.readOnly = true
+			return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
 
 	writeBindingValue: (value)->
 		return unless @_bindInfo?.expression

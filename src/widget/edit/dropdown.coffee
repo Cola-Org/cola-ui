@@ -10,10 +10,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	@CLASS_NAME: "input drop"
 
 	@attributes:
-		disabled: # TO BE DELETE
-			type: "boolean"
-			refreshDom: true
-			defaultValue: false
 		items:
 			expressionType: "repeat"
 			setter: (items)->
@@ -90,14 +86,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom).attr("tabIndex", 1).delegate(">.icon", "click", ()=>
-			if  @_finalReadOnly and not @_disabled and not @_finalReadOnly and not @_opened
-				@open()
-				return false
-
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon.dropdown", "click", () =>
 			if @_opened
 				@close()
-			else if not @_disabled
+			else if not @_finalReadOnly
 				@open()
 			return
 		).on("keypress", (evt)=>
@@ -128,11 +120,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			if @_disabled || @_readOnly
 				$fly(clearButton).addClass("disabled");
 		).on("click", ()=>
-			if @_disabled then return;
 			if @_openOnActive
 				if @_opened
-					if @_finalReadOnly then @close()
-				else
+					@close()
+				else if not @_finalReadOnly
 					@open()
 			return
 		)
@@ -189,7 +180,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly() or @_disabled)
+		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly())
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
@@ -364,9 +355,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return container
 		return
 
-	open: (callback)->
-		if @_finalReadOnly and @_disabled then return
-
+	open: (callback) ->
+		if @_finalReadOnly then return
 		if @fire("beforeOpen", @) is false then return
 
 		doCallback = ()=>
@@ -492,12 +482,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 		@_skipFindCurrentItem = false
 		@refresh()
-		return
-
-	_doRefreshDom: ()->
-		super()
-		if not @_dom then return
-		$(@_dom).toggleClass("disabled", @_disabled);
 		return
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
