@@ -157,7 +157,7 @@ class cola.DateGrid extends cola.RenderableElement
 						tagName: "tbody",
 						contextKey: "body"
 					}
-				}]
+				} ]
 		}, @_doms)
 
 		i = 0
@@ -287,7 +287,7 @@ class cola.DateGrid extends cola.RenderableElement
 		lastSelectedCell = @_lastSelectedCell
 
 		unless @_dom
-			@_selectionPosition = {row: row, column: column}
+			@_selectionPosition = { row: row, column: column }
 			return @
 		if lastSelectedCell
 			$fly(lastSelectedCell).removeClass(@_selectedCellClassName || "selected")
@@ -740,40 +740,40 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		picker = @
 		@_doms ?= {}
 		headerDom = $.xCreate(
-			{
-				tagName: "div"
-				class: "header"
-				contextKey: "header"
-				content: [
-					{
-						tagName: "div"
-						class: "year"
-						content: [
-							{
-								tagName: "div"
-								class: "button prev"
-								contextKey: "prevYearButton"
-								click: ()->
-									picker.prevYear()
-							}
-							{
-								tagName: "div"
-								class: "label"
-								contextKey: "yearLabel"
-							}
-							{
-								tagName: "div"
-								class: "button next"
-								contextKey: "nextYearButton"
-								click: ()->
-									picker.nextYear()
-							}
+		  {
+			  tagName: "div"
+			  class: "header"
+			  contextKey: "header"
+			  content: [
+				  {
+					  tagName: "div"
+					  class: "year"
+					  content: [
+						  {
+							  tagName: "div"
+							  class: "button prev"
+							  contextKey: "prevYearButton"
+							  click: ()->
+								  picker.prevYear()
+						  }
+						  {
+							  tagName: "div"
+							  class: "label"
+							  contextKey: "yearLabel"
+						  }
+						  {
+							  tagName: "div"
+							  class: "button next"
+							  contextKey: "nextYearButton"
+							  click: ()->
+								  picker.nextYear()
+						  }
 
-						]
-					}
-				]
+					  ]
+				  }
+			  ]
 
-			}, @_doms)
+		  }, @_doms)
 
 		table = $.xCreate({
 			tagName: "table"
@@ -1030,7 +1030,7 @@ class cola.TimeEditor extends cola.Widget
 
 	_doRefreshDom: ()->
 		super()
-		for v in ["hour", "minute", "second"]
+		for v in [ "hour", "minute", "second" ]
 			$fly(@_doms[v]).val(@["_#{v}"])
 		return
 

@@ -19,9 +19,8 @@ class cola.Textarea extends cola.AbstractEditor
 					value = @_dataType.parse(value)
 				return @_setValue(value)
 
-    @events:
-
-        keyPress: null
+	@events:
+		keyPress: null
 
 	destroy: ()->
 		unless @_destroyed
@@ -50,6 +49,7 @@ class cola.Textarea extends cola.AbstractEditor
 			dom.appendChild(input)
 		else
 			@_doms.input = dom
+
 		doPost = ()=>
 			if not @_finalReadOnly
 				value = $(@_doms.input).val()
@@ -71,26 +71,26 @@ class cola.Textarea extends cola.AbstractEditor
 			@_refreshInputValue(@_value)
 			@fire("blur", @)
 
-            if !@_value? or @_value is "" and @_bindInfo?.writeable
-                propertyDef = @getBindingProperty()
-                if propertyDef?._required and propertyDef._validators
-                    entity = @_scope.get(@_bindInfo.entityPath)
-                    entity.validate(@_bindInfo.property) if entity
-            return
-        ).on("input", ()=>
-            if @_postOnInput then doPost()
-            return
-        ).on("keypress", (event)=>
-            arg =
-                keyCode: event.keyCode
-                shiftKey: event.shiftKey
-                ctrlKey: event.ctrlKey
-                altlKey: event.altlKey
-                event: event
-            if @fire("keyPress", @, arg) == false then return
-            if event.keyCode == 13 && isIE11 then doPost()
-        )
-        return
+			if !@_value? or @_value is "" and @_bindInfo?.writeable
+				propertyDef = @getBindingProperty()
+				if propertyDef?._required and propertyDef._validators
+					entity = @_scope.get(@_bindInfo.entityPath)
+					entity.validate(@_bindInfo.property) if entity
+			return
+		).on("input", ()=>
+			if @_postOnInput then doPost()
+			return
+		).on("keypress", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altlKey: event.altlKey
+				event: event
+			if @fire("keyPress", @, arg) == false then return
+			if event.keyCode == 13 && isIE11 then doPost()
+		)
+		return
 
 	_refreshInputValue: (value)->
 		$fly(@_doms.input).val(if value? then value + "" or "")

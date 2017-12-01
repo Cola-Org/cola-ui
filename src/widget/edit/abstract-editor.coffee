@@ -45,14 +45,13 @@ class cola.AbstractEditor extends cola.Widget
 							bind = field._form._bind + "." + field._property
 						@set("bind", bind)
 						if field._finalReadOnly
-@_readOnlyFactor ?= {}
-					@_readOnlyFactor.field= field._finalReadOnly
-						return
+							@_readOnlyFactor ?= {}
+							@_readOnlyFactor.field = field._finalReadOnly
 		return
 
 	_setValue: (value)->
 		return false if @_value is value
-		arg = {oldValue: @_value, value: value}
+		arg = { oldValue: @_value, value: value }
 
 		if not @_modelSetValue
 			return if @fire("beforeChange", @, arg) is false

@@ -77,7 +77,11 @@ class cola.Form extends cola.Widget
 						else if field.type is "textarea"
 							fieldContent = [
 								{ tagName: "label", content: caption, data: labelUserData }
-								{ tagName: "c-textarea", bind: @_bind  + "." + field.property, height: field.height or "4em" }
+								{
+									tagName: "c-textarea"
+									bind: @_bind + "." + field.property
+									height: field.height or "4em"
+								}
 							]
 						else
 							fieldContent = [
@@ -118,7 +122,7 @@ class cola.Form extends cola.Widget
 			@_messages = []
 
 			if not (messages instanceof Array)
-				messages = [messages]
+				messages = [ messages ]
 
 			for message in messages
 				if typeof message is "string"
@@ -247,8 +251,8 @@ class cola.Field extends cola.Widget
 
 		if bind and dom.childElementCount is 0
 			dom.appendChild($.xCreate(
-			  tagName: "label"
-			  content: @_caption or ""
+				tagName: "label"
+				content: @_caption or ""
 			))
 
 			if propertyDef
