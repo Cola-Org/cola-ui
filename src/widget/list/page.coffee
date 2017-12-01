@@ -120,6 +120,7 @@ class cola.Pager extends cola.Widget
 				pager.prevPage()
 				return
 		}))
+		$(@_doms.gotoInput).attr("max", pageCount || 1);
 
 		if pageCount <= 5
 			i = 0
