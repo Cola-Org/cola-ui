@@ -45,13 +45,14 @@ class cola.Textarea extends cola.AbstractEditor
 		super(dom)
 		@_doms ?= {}
 		unless dom.nodeName is "TEXTAREA"
-			input = $.xCreate({
-				tagName: "textarea"
-			})
+			input = $.xCreate(
+				tagName: "TEXTAREA"
+			)
 			@_doms.input = input
 			dom.appendChild(input)
 		else
 			@_doms.input = dom
+
 		doPost = ()=>
 			if not @_finalReadOnly
 				value = $(@_doms.input).val()
@@ -110,8 +111,9 @@ class cola.Textarea extends cola.AbstractEditor
 		return unless @_dom
 		super()
 		@_refreshInputValue(@_value)
-		$fly(@_doms.input).attr("placeholder", @_placeholder).prop("readOnly", @_finalReadOnly)
+		$fly(@_doms.input).prop("readOnly", @_finalReadOnly).attr("placeholder", @_placeholder)
 		@_rows and $fly(@_doms.input).attr("rows", @_rows)
+		return
 
 	_resetDimension: ()->
 		$dom = @get$Dom()
