@@ -462,7 +462,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_bindEvent: (eventName)->
-		if eventName == "itemPress"
+		if eventName is "itemPress"
 			@_on("press", (self, arg)=>
 				itemDom = @_findItemDom(arg.event.target)
 				if itemDom

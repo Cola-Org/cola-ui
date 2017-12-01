@@ -87,10 +87,13 @@ class cola.Table extends cola.Widget
 				return
 
 	@events:
-		renderRow: null
+		renderItem: null
 		renderCell: null
 		renderHeaderCell: null
 		renderFooterCell: null
+		itemClick: null
+		itemDoubleClick: null
+		itemPress: null
 		cellClick: null
 		headerClick: null
 		footerClick: null
@@ -909,6 +912,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		@_itemsScope = config.table._itemsScope
 		super(config)
 		@_focusParent = @_table
+		@on("itemClick", (self, arg)=> @_table.fire("itemClick", @_table, arg))
+		@on("itemDoubleClick", (self, arg)=> @_table.fire("itemDoubleClick", @_table, arg))
+		@on("itemPress", (self, arg)=> @_table.fire("itemPress", @_table, arg))
 
 	_createItemsScope: ()-> @_itemsScope
 
@@ -1097,8 +1103,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 	_doRefreshItemDom: (itemDom, item, itemScope)->
 		itemType = itemDom._itemType
 
-		if @getListeners("renderRow")
-			if @fire("renderRow", @, { item: item, dom: itemDom, scope: itemScope }) == false
+		if @getListeners("renderItem")
+			if @fire("renderItem", @, { item: item, dom: itemDom, scope: itemScope }) == false
 				return
 
 		if itemType == "default"
