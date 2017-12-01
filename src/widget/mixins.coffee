@@ -1,4 +1,3 @@
-
 ###
 Template
 ###
@@ -17,7 +16,7 @@ cola.TemplateSupport =
 		return unless @_dom
 		child = @_dom.firstElementChild
 		while child
-			if child.nodeName == "TEMPLATE"
+			if child.nodeName is "TEMPLATE"
 				@regTemplate(child)
 			child = child.nextElementSibling
 		@_regDefaultTemplates()
@@ -28,7 +27,7 @@ cola.TemplateSupport =
 		while child
 			next = child.nextSibling
 			if child.nodeType is 3	# TEXT
-				if $.trim(child.nodeValue) == ""
+				if $.trim(child.nodeValue) is ""
 					dom.removeChild(child)
 			child = next
 		return
@@ -53,7 +52,7 @@ cola.TemplateSupport =
 
 	trimTemplate: (template) ->
 		if template.nodeType
-			if template.nodeName == "TEMPLATE"
+			if template.nodeName is "TEMPLATE"
 				if not template.firstChild
 					html = template.innerHTML
 					if html
