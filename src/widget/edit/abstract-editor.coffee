@@ -44,11 +44,9 @@ class cola.AbstractEditor extends cola.Widget
 						if not bind and field._form
 							bind = field._form._bind + "." + field._property
 						@set("bind", bind)
-						if field._readOnly then @set("readOnly", field._readOnly)
-
-					field.on "attributeChange", (self, arg) =>
-						if arg.attribute is "readOnly"
-							@set("readOnly", field._readOnly)
+						if field._finalReadOnly
+							@_readOnlyFactor ?= {}
+							@_readOnlyFactor.field = field._finalReadOnly
 						return
 		return
 
@@ -134,7 +132,6 @@ class cola.AbstractEditor extends cola.Widget
 					@_finalReadOnly = true
 					break
 
-		super()
-		return
+		return super()
 
 cola.Element.mixin(cola.AbstractEditor, cola.DataWidgetMixin)

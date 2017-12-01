@@ -76,6 +76,11 @@
 							}
 						});
 					}
+				},
+				setReadOnly: function() {
+					var form = cola.widget("form1");
+					var readOnly = !form.get("readOnly");
+					form.set("readOnly", readOnly);
 				}
 			});
 		});
@@ -86,8 +91,9 @@
 <body style="padding:20px;">
 
 <c-button click="setEntity">Set Entity</c-button>
+<c-button click="setReadOnly">Set ReadOnly</c-button>
 
-<c-form bind="form">
+<c-form bind="form" id="form1">
 	<fields class="cols-3">
 		<field property="name"></field>
 		<field property="age">

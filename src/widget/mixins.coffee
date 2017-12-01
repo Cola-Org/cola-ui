@@ -195,11 +195,13 @@ cola.DataWidgetMixin =
 		dataCtx ?= {}
 		if @_bindInfo.entityPath
 			entity = @_scope.get(@_bindInfo.entityPath, "async")
-			dataCtx.readOnly = not entity
 			if entity
-				return entity.get(@_bindInfo.property, "async")
-			else
-				return undefined
+				if entity instanceof cola.Entity
+					return entity.get(@_bindInfo.property, "async")
+				else if typeof entity is "object"
+					return entity[@_bindInfo.property]
+			dataCtx.readOnly = true
+			return undefined
 		else
 			dataCtx.readOnly = true
 			return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)

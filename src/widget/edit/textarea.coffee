@@ -36,6 +36,7 @@ class cola.Textarea extends cola.AbstractEditor
 		dataType = @getBindingDataType()
 		if dataType then cola.DataType.dataTypeSetter.call(@, dataType)
 		return
+
 	focus: () ->
 		@_doms.input?.focus();
 		return
@@ -109,8 +110,7 @@ class cola.Textarea extends cola.AbstractEditor
 		return unless @_dom
 		super()
 		@_refreshInputValue(@_value)
-		$fly(@_doms.input).attr("placeholder", @_placeholder)
-		@_doms.input.readOnly = @_finalReadOnly
+		$fly(@_doms.input).attr("placeholder", @_placeholder).prop("readOnly", @_finalReadOnly)
 		@_rows and $fly(@_doms.input).attr("rows", @_rows)
 
 	_resetDimension: ()->
