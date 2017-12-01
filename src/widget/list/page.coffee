@@ -111,6 +111,8 @@ class cola.Pager extends cola.Widget
 		$(wrapper).empty()
 		$(@_dom).toggleClass("empty", totalEntityCount <= 0);
 
+		$(@_doms.gotoInput).attr("max", pageCount || 1);
+
 		wrapper.appendChild($.xCreate({
 			tagName: "span",
 			class: "nav-btn prev",
