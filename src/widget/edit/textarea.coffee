@@ -42,7 +42,7 @@ class cola.Textarea extends cola.AbstractEditor
 		return
 
 	_initDom: (dom)->
-		super(dom)
+
 		@_doms ?= {}
 		unless dom.nodeName is "TEXTAREA"
 			input = $.xCreate(
@@ -101,6 +101,7 @@ class cola.Textarea extends cola.AbstractEditor
 			if @fire("keyPress", @, arg) == false then return
 			if event.keyCode == 13 && isIE11 then doPost()
 		)
+		super(dom)
 		return
 
 	_refreshInputValue: (value) ->
