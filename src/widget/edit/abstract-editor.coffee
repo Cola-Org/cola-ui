@@ -106,10 +106,35 @@ class cola.AbstractEditor extends cola.Widget
 		return
 
 	refreshValue: () ->
-		value = @readBindingValue()
+		ctx = {}
+		value = @readBindingValue(ctx)
+
+		@_readOnlyFactor ?= {}
+		if @_readOnlyFactor.model != ctx.readOnly
+			shouldRefresh = true
+			@_readOnlyFactor.model = ctx.readOnly
+
 		if value? and @_dataType
 			value = @_dataType.parse(value)
 		@_modelValue = value
-		return @_setValue(value)
+
+		changed = @_setValue(value)
+		if shouldRefresh
+			@_refreshDom()
+
+		return changed
+
+	_doRefreshDom: () ->
+		return unless @_dom
+
+		@_finalReadOnly = !!@get("readOnly")
+		if not @_finalReadOnly and @_readOnlyFactor
+			for factor, readOnly of @_readOnlyFactor
+				if readOnly
+					@_finalReadOnly = true
+					break
+
+		super()
+		return
 
 cola.Element.mixin(cola.AbstractEditor, cola.DataWidgetMixin)

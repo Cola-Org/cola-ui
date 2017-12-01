@@ -37,7 +37,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		iconPosition:
 			refreshDom: true
 			defaultValue: "right"
-			enum: ["left", "right"]
+			enum: [ "left", "right" ]
 			setter: (value)->
 				oldValue = @["_iconPosition"]
 				@["_iconPosition"] = value
@@ -76,7 +76,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		labelPosition:
 			refreshDom: true
 			defaultValue: "left"
-			enum: ["left", "right"]
+			enum: [ "left", "right" ]
 		actionButton:
 			refreshDom: true
 			getter: () ->
@@ -95,7 +95,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		buttonPosition:
 			refreshDom: true
 			defaultValue: "right"
-			enum: ["left", "right"]
+			enum: [ "left", "right" ]
 
 	destroy: ()->
 		unless @_destroyed
@@ -120,7 +120,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		buttonIndex = 0
 		labelIndex = 0
 		childConfig = {}
-		for child,index in dom.childNodes
+		for child, index in dom.childNodes
 			continue if child.nodeType isnt 1
 			childTagName = child.tagName
 			if childTagName is "C-CORNER"
@@ -320,7 +320,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("name", @_name) if @_name
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readOnly", @_finalReadOnly)
+		@_doms.input.readOnly = @_finalReadOnly
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 
 		dataType = @_dataType
@@ -343,9 +343,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return unless @_dom
 		super()
 
-		# 当需要根据绑定的数据模型确定readOnly状态时，此处的逻辑会变的更复杂
-		@_finalReadOnly = !!@get("readOnly")
-
 		@_refreshIcon()
 		#@_refreshButton()
 		#@_refreshCorner()
@@ -360,8 +357,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_postInput: () ->
-		readOnly = @_readOnly
-		if not readOnly and not @_doms.input.readOnly
+		if not @_finalReadOnly
 			value = @_doms.input.value
 			if value is "" then value = null
 			dataType = @_dataType
