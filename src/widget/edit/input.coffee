@@ -393,6 +393,7 @@ class cola.Input extends cola.AbstractInput
 		blur: null
 		keyDown: null
 		keyPress: null
+		input:null
 
 	_createEditorDom: ()->
 		config =
@@ -408,7 +409,14 @@ class cola.Input extends cola.AbstractInput
 
 	_initDom: (dom)->
 		super(dom)
-		$(@_doms.input).on("input", ()=>
+
+		input = @_doms.input
+		$(input).on("input", ()=>
+			arg = {
+				inputValue: $(input).val(),
+				value: this.get("value")
+			}
+			@fire("input", @, arg)
 			if @_postOnInput then @_postInput()
 			return
 		)
