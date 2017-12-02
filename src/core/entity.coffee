@@ -33,7 +33,7 @@ _watch = (path, watcher) ->
 	if not holder
 		@_watchers[path] =
 			path: path.split(".")
-			watchers: [watcher]
+			watchers: [ watcher ]
 	else
 		holder.watchers.push(watcher)
 	return
@@ -332,10 +332,10 @@ class cola.Entity
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
 
-#_parent
-#_parentProperty
-#_providerInvoker
-#_disableWriteObservers
+	#_parent
+	#_parentProperty
+	#_providerInvoker
+	#_disableWriteObservers
 
 	constructor: (data, dataType) ->
 		@id = cola.uniqueId()
@@ -357,7 +357,7 @@ class cola.Entity
 			@_disableWriteObservers--
 
 		if dataType
-			dataType.fire("entityCreate", dataType, {entity: @})
+			dataType.fire("entityCreate", dataType, { entity: @ })
 
 	hasValue: (prop) ->
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
@@ -489,13 +489,13 @@ class cola.Entity
 				value = undefined
 				context?.unloaded = true
 
-# TODO: delete this
+			# TODO: delete this
 		else if typeof value is "function"
 			providerInvoker = {
 				_$providerInvoker: true
 				entity: @
 				func: value
-				callbacks: [callback]
+				callbacks: [ callback ]
 				invokeAsync: () ->
 					@func.call(@entity, (result) =>
 						for callback in @callbacks
@@ -716,13 +716,13 @@ class cola.Entity
 		if @parent
 			if @parent instanceof _EntityList
 				if @dataType
-					if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
+					if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
 						return @
 
 				@parent.remove(@, detach)
 
 				if @dataType
-					@dataType.fire("entityRemove", @dataType, {entity: @})
+					@dataType.fire("entityRemove", @dataType, { entity: @ })
 			else
 				@setState(_Entity.STATE_DELETED)
 				@parent.set(@_parentProperty, null)
@@ -791,7 +791,7 @@ class cola.Entity
 		return @ if @state is state
 
 		if state is _Entity.STATE_DELETED and @dataType
-			if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
+			if @dataType.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
 				return @
 
 		if @state is _Entity.STATE_NONE and state is _Entity.STATE_MODIFIED
@@ -807,7 +807,7 @@ class cola.Entity
 		})
 
 		if state is _Entity.STATE_DELETED and @dataType
-			@dataType.fire("beforeEntityRemove", @dataType, {entity: @})
+			@dataType.fire("beforeEntityRemove", @dataType, { entity: @ })
 
 		return @
 
@@ -837,7 +837,7 @@ class cola.Entity
 					delete data[prop]
 			@resetState()
 			@enableObservers()
-			@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+			@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	cancel: (prop) ->
@@ -854,7 +854,7 @@ class cola.Entity
 						@_set(prop, @_oldData[prop])
 				@resetState()
 				@enableObservers()
-				@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+				@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 			else
 				@resetState()
 		return @
@@ -951,7 +951,7 @@ class cola.Entity
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
@@ -963,11 +963,11 @@ class cola.Entity
 				if path
 					path = path.concat(arg.property)
 				else
-					path = [arg.property]
+					path = [ arg.property ]
 			@_doNotify(path, type, arg)
 
 			if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REFRESH
-				@_triggerWatcher([arg.property or "*"], type, arg)
+				@_triggerWatcher([ arg.property or "*" ], type, arg)
 		return
 
 	_doNotify: (path, type, arg) ->
@@ -1009,25 +1009,31 @@ class cola.Entity
 			messageChanged = @_messageHolder?.clear(prop)
 			if prop
 				if @_validate(prop) or messageChanged
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {
+						entity: @
+						property: prop
+					})
 			else
 				for property in @dataType.getProperties().elements
 					if @_validate(property._property) or messageChanged
-						@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._property})
+						@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {
+							entity: @
+							property: property._property
+						})
 
 		else if @_messageHolder
 			if prop
 				if @_messageHolder.clear(prop)
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
 			else
 				messages = @_messageHolder.getMessages()
 				@_messageHolder.clear()
 				for p in messages
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: p})
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: p })
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 
 		return not (keyMessage?.type is "error")
 
@@ -1049,11 +1055,11 @@ class cola.Entity
 			message = prop
 			prop = "$"
 		if prop is "$"
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		else
 			topKeyChanged = @_addMessage(prop, message)
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
-			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
+			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
 
 	getKeyMessage: (prop) ->
@@ -1067,8 +1073,8 @@ class cola.Entity
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
 		topKeyChanged = @_messageHolder.clear(prop)
-		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
-		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
+		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
 
 	findMessages: (prop, type) ->
@@ -1265,10 +1271,10 @@ class cola.EntityList extends LinkedList
 
 	_disableObserverCount: 0
 
-# totalEntityCount
-# _parent
-# _parentProperty
-# _providerInvoker
+	# totalEntityCount
+	# _parent
+	# _parentProperty
+	# _providerInvoker
 
 	constructor: (array, dataType) ->
 		@id = cola.uniqueId()
@@ -1604,7 +1610,7 @@ class cola.EntityList extends LinkedList
 
 	empty: () ->
 		@_reset()
-		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return
 
 	setCurrent: (entity) ->
@@ -1709,7 +1715,7 @@ class cola.EntityList extends LinkedList
 		return @
 
 	notifyObservers: () ->
-		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg) ->
@@ -1719,7 +1725,7 @@ class cola.EntityList extends LinkedList
 			@_dataModel?.onDataMessage(path, type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
-				@_triggerWatcher(["*"], type, arg)
+				@_triggerWatcher([ "*" ], type, arg)
 		return
 
 	each: (fn, options) ->
@@ -1935,7 +1941,7 @@ class cola.Entity.MessageHolder
 	add: (prop, message) ->
 		messages = @propertyMessages[prop]
 		if not messages
-			@propertyMessages[prop] = [message]
+			@propertyMessages[prop] = [ message ]
 		else
 			messages.push(message)
 

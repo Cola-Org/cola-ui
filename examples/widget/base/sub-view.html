@@ -36,6 +36,50 @@
 						var subView = cola.widget("subView");
 						subView.unload();
 					}
+				},
+				btnTestPromise: {
+					$type: "button",
+					caption: "Test Promise",
+					click: function () {
+						var tasks = [];
+
+						tasks.push($.Deferred(function (dfd) {
+							setTimeout(function () {
+								var result = "A";
+								console.log(result);
+								dfd.resolve(result);
+							}, 100);
+						}));
+						tasks.push($.Deferred(function (dfd) {
+							setTimeout(function () {
+								var result = "B";
+								console.log(result);
+								dfd.resolve(result);
+							}, 500);
+						}));
+						tasks.push($.Deferred(function (dfd) {
+							setTimeout(function () {
+								var result = "C";
+								console.log(result);
+								dfd.resolve(result);
+							}, 200);
+						}));
+
+						var deferreds = []
+						deferreds.push($.when.apply($, tasks).done(function () {
+							console.log("1: " + Array.prototype.join.call(arguments, ","));
+							return arguments;
+						}));
+
+						deferreds.push($.when.apply($, tasks).done(function () {
+							console.log("2: " + Array.prototype.join.call(arguments, ","));
+							return arguments;
+						}));
+
+						$.when.apply($, deferreds).done(function () {
+							console.log("finished: " + Array.prototype.join.call(arguments, ","));
+						})
+					}
 				}
 			});
 		});
@@ -46,10 +90,12 @@
 
 <div id="btnLoad"></div>
 <div id="btnUnload"></div>
+<div id="btnTestPromise"></div>
 
 <p></p>
 
-<c-subview id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="sub-view-1-b.js|$" c-param="param" style="height:480px"></c-subview>
+<c-subview id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="sub-view-1-b.js|$" c-param="param"
+		   style="height:480px"></c-subview>
 
 </body>
 </html>
