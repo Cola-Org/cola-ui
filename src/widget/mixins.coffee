@@ -202,7 +202,6 @@ cola.DataWidgetMixin =
 			dataCtx.readOnly = true
 			return undefined
 		else
-			dataCtx.readOnly = true
 			return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
 
 	writeBindingValue: (value)->

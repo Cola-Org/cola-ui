@@ -322,7 +322,7 @@ class cola.Field extends cola.Widget
 			@_finalReadOnly = finalReadOnly
 
 		if @_rendered
-			@get$Dom().find("input").each((i, input)=>
+			@get$Dom().find("input, textarea").each((i, input)=>
 				editor = cola.widget(input.parentNode)
 				if editor and editor._readOnlyFactor != @_finalReadOnly
 					editor._readOnlyFactor.field = @_finalReadOnly

@@ -197,6 +197,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		super(dom)
 
 		if @_doms.input
+			input = @_doms.input
 			$(@_doms.input).on("change", ()=>
 				@_postInput()
 				return
@@ -209,6 +210,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 					ctrlKey: event.ctrlKey
 					altKey: event.altKey
 					event: event
+					inputValue: $(input).val()
 
 				if @fire("keyPress", @, arg) == false then return
 				if event.keyCode is 13 and isIE11 then @_postInput()
@@ -396,6 +398,7 @@ class cola.Input extends cola.AbstractInput
 
 	_initDom: (dom)->
 		super(dom)
+
 		input = @_doms.input
 		$(input).on("input", ()=>
 			arg = {
