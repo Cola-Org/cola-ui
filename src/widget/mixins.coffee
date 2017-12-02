@@ -7,12 +7,12 @@ TEMP_TEMPLATE = null
 cola.TemplateSupport =
 	_templateSupport: true
 
-	destroy: () ->
+	destroy: ()->
 		if @_templates
 			delete @_templates[name] for name of @_templates
 		return
 
-	_parseTemplates: () ->
+	_parseTemplates: ()->
 		return unless @_dom
 		child = @_dom.firstElementChild
 		while child
@@ -22,7 +22,7 @@ cola.TemplateSupport =
 		@_regDefaultTemplates()
 		return
 
-	_trimTemplate: (dom) ->
+	_trimTemplate: (dom)->
 		child = dom.firstChild
 		while child
 			next = child.nextSibling
@@ -32,7 +32,7 @@ cola.TemplateSupport =
 			child = next
 		return
 
-	regTemplate: (name, template) ->
+	regTemplate: (name, template)->
 		if arguments.length is 1
 			template = name
 			if template.nodeType
@@ -43,14 +43,14 @@ cola.TemplateSupport =
 		@_templates[name or "default"] = template
 		return
 
-	_regDefaultTemplates: () ->
+	_regDefaultTemplates: ()->
 		for name, template of @constructor.TEMPLATES
 			if @_templates?.hasOwnProperty(name) or !template
 				continue
 			@regTemplate(name, template)
 		return
 
-	trimTemplate: (template) ->
+	trimTemplate: (template)->
 		if template.nodeType
 			if template.nodeName is "TEMPLATE"
 				if not template.firstChild
@@ -83,7 +83,7 @@ cola.TemplateSupport =
 		template._trimed = true
 		return template
 
-	getTemplate: (name = "default", defaultName) ->
+	getTemplate: (name = "default", defaultName)->
 		return null unless @_templates
 		template = @_templates[name]
 		if not template and defaultName
@@ -98,7 +98,7 @@ cola.TemplateSupport =
 
 		return template
 
-	_cloneTemplate: (template, supportMultiNodes) ->
+	_cloneTemplate: (template, supportMultiNodes)->
 		if template instanceof Array
 			if supportMultiNodes and template.length > 1
 				fragment = document.createDocumentFragment()
@@ -112,7 +112,7 @@ cola.TemplateSupport =
 cola.DataWidgetMixin =
 	_dataWidget: true
 
-	_bindSetter: (bindStr) ->
+	_bindSetter: (bindStr)->
 		return if @_bind is bindStr
 
 		if @_bindInfo
@@ -144,7 +144,7 @@ cola.DataWidgetMixin =
 
 			if not @_bindProcessor
 				@_bindProcessor = {
-					processMessage: (bindingPath, path, type, arg) =>
+					processMessage: (bindingPath, path, type, arg)=>
 						if @_filterDataMessage
 							if not @_filterDataMessage(path, type, arg)
 								return
@@ -153,7 +153,7 @@ cola.DataWidgetMixin =
 								return
 
 						if @_bindInfo.watchingMoreMessage
-							cola.util.delay(@, "processMessage", 100, () ->
+							cola.util.delay(@, "processMessage", 100, ()->
 								if @_processDataMessage
 									@_processDataMessage(@_bindInfo.watchingPaths[0], cola.constants.MESSAGE_REFRESH, {})
 								else
@@ -183,13 +183,13 @@ cola.DataWidgetMixin =
 					@_refreshBindingValue()
 		return
 
-	destroy: () ->
+	destroy: ()->
 		if @_watchingPaths
 			for path in @_watchingPaths
 				@_scope.data.unbind(path.join("."), @_bindProcessor)
 		return
 
-	readBindingValue: (dataCtx) ->
+	readBindingValue: (dataCtx)->
 		return unless @_bindInfo?.expression
 		dataCtx ?= {}
 		if @_bindInfo.entityPath
@@ -204,27 +204,27 @@ cola.DataWidgetMixin =
 		else
 			return @_bindInfo.expression.evaluate(@_scope, "async", dataCtx)
 
-	writeBindingValue: (value) ->
+	writeBindingValue: (value)->
 		return unless @_bindInfo?.expression
 		if not @_bindInfo.writeable
 			throw new cola.Exception("Expression \"#{@_bind}\" is not writable.")
 		@_scope.set(@_bindInfo.writeablePath, value)
 		return
 
-	getBindingProperty: () ->
+	getBindingProperty: ()->
 		return unless @_bindInfo
 		return @_bindInfo.bindingProperty if @_bindInfo.bindingProperty isnt undefined
 		return unless @_bindInfo.expression and @_bindInfo.writeable
 		return @_bindInfo.bindingProperty = @_scope.data.getProperty(@_bindInfo.writeablePath) or null
 
-	getBindingDataType: () ->
+	getBindingDataType: ()->
 		return unless @_bindInfo
 		return @_bindInfo.bindingDataType if @_bindInfo.bindingDataType isnt undefined
 		return unless @_bindInfo.expression and @_bindInfo.writeable
 		return unless @_bindInfo
 		return @_bindInfo.bindingDataType = @_scope.data.getDataType(@_bindInfo.writeablePath) or null
 
-	getAbsoluteBindingPath: () ->
+	getAbsoluteBindingPath: ()->
 		if @_bindInfo?.writeable
 			return @_scope.getAbsolutePath(@_bind)
 		return @_bind
@@ -233,7 +233,7 @@ cola.DataItemsWidgetMixin =
 	_dataItemsWidget: true
 	_alias: "item"
 
-	_bindSetter: (bindStr) ->
+	_bindSetter: (bindStr)->
 		return if @_bind is bindStr
 
 		@_bind = bindStr
@@ -251,19 +251,19 @@ cola.DataItemsWidgetMixin =
 		@_itemsScope.setExpression(expression)
 		return
 
-	constructor: () ->
+	constructor: ()->
 		@_itemsScope = itemsScope = new cola.ItemsScope(@_scope)
 
-		itemsScope.onItemsRefresh = (arg) => @_onItemsRefresh(arg)
-		itemsScope.onItemRefresh = (arg) => @_onItemRefresh(arg)
-		itemsScope.onItemInsert = (arg) => @_onItemInsert(arg)
-		itemsScope.onItemRemove = (arg) => @_onItemRemove(arg)
-		itemsScope.onItemsLoadingStart = (arg) => @_onItemsLoadingStart?(arg)
-		itemsScope.onItemsLoadingEnd = (arg) => @_onItemsLoadingEnd?(arg)
+		itemsScope.onItemsRefresh = (arg)=> @_onItemsRefresh(arg)
+		itemsScope.onItemRefresh = (arg)=> @_onItemRefresh(arg)
+		itemsScope.onItemInsert = (arg)=> @_onItemInsert(arg)
+		itemsScope.onItemRemove = (arg)=> @_onItemRemove(arg)
+		itemsScope.onItemsLoadingStart = (arg)=> @_onItemsLoadingStart?(arg)
+		itemsScope.onItemsLoadingEnd = (arg)=> @_onItemsLoadingEnd?(arg)
 		if @_onCurrentItemChange
-			itemsScope.onCurrentItemChange = (arg) => @_onCurrentItemChange(arg)
+			itemsScope.onCurrentItemChange = (arg)=> @_onCurrentItemChange(arg)
 
-	_getItems: () ->
+	_getItems: ()->
 		if not @_itemsRetrieved
 			@_itemsRetrieved = true
 			@_itemsScope.retrieveData()
@@ -272,7 +272,7 @@ cola.DataItemsWidgetMixin =
 			originItems: @_itemsScope.originItems
 		}
 
-	_getBindDataType: () ->
+	_getBindDataType: ()->
 		items = @_getItems().originItems
 		if items
 			if items instanceof cola.EntityList

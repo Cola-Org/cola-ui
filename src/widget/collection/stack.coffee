@@ -76,25 +76,25 @@ class cola.Stack extends cola.Widget
 	_bindTouch: ()->
 		stack = @
 		if not @_touchable then return
-		$(@_dom).on("touchstart", (evt) ->
+		$(@_dom).on("touchstart", (evt)->
 			stack._onTouchStart(evt)
 			return
-		).on("touchmove", (evt) ->
+		).on("touchmove", (evt)->
 			stack._onTouchMove(evt)
 			return
 		)
-		$(window.document.body).on("touchend", (evt) ->
+		$(window.document.body).on("touchend", (evt)->
 			stack._onTouchEnd(evt)
 			return
 		)
 
-	_getTouchPoint: (evt) ->
+	_getTouchPoint: (evt)->
 		touches = evt.originalEvent.touches
 		if !touches.length
 			touches = evt.originalEvent.changedTouches
 		return touches[0]
 
-	_onTouchStart: (evt) ->
+	_onTouchStart: (evt)->
 		@_touchStart = true
 		touch = evt.originalEvent.touches[0]
 		@_touchStartX = touch.pageX
@@ -104,7 +104,7 @@ class cola.Stack extends cola.Widget
 		evt.stopImmediatePropagation()
 		return @
 
-	_onTouchMove: (evt) ->
+	_onTouchMove: (evt)->
 		return unless @_touchStart
 		touchPoint = @_getTouchPoint(evt)
 		@_touchLastX = touchPoint.pageX
@@ -144,7 +144,7 @@ class cola.Stack extends cola.Widget
 		evt.stopImmediatePropagation()
 		return false
 
-	_onTouchEnd: (evt) ->
+	_onTouchEnd: (evt)->
 		return unless @_touchStart
 		duration = @constructor.duration
 		width = @_currentItem.clientWidth

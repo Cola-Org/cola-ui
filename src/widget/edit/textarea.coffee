@@ -14,7 +14,7 @@ class cola.Textarea extends cola.AbstractEditor
 			refreshDom: true
 
 		value:
-			setter: (value) ->
+			setter: (value)->
 				if @_dataType
 					value = @_dataType.parse(value)
 				return @_setValue(value)
@@ -31,13 +31,13 @@ class cola.Textarea extends cola.AbstractEditor
 			delete @_doms
 		return
 
-	_bindSetter: (bindStr) ->
+	_bindSetter: (bindStr)->
 		super(bindStr)
 		dataType = @getBindingDataType()
 		if dataType then cola.DataType.dataTypeSetter.call(@, dataType)
 		return
 
-	focus: () ->
+	focus: ()->
 		@_doms.input?.focus();
 		return
 
@@ -104,7 +104,7 @@ class cola.Textarea extends cola.AbstractEditor
 		super(dom)
 		return
 
-	_refreshInputValue: (value) ->
+	_refreshInputValue: (value)->
 		$fly(@_doms.input).val(if value? then value + "" or "")
 		return
 

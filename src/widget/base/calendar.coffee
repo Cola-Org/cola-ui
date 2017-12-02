@@ -1,5 +1,5 @@
 do->
-	getCellPosition = (event) ->
+	getCellPosition = (event)->
 		element = event.srcElement || event.target
 		row = -1
 		column = -1
@@ -79,7 +79,7 @@ do->
 
 			return dom
 
-		doFireRefreshEvent: (eventArg) ->
+		doFireRefreshEvent: (eventArg)->
 			return @fire("refreshCellDom", @, eventArg)
 
 		refreshGrid: ()->
@@ -164,7 +164,7 @@ do->
 			value = new XDate(date).toString("yyyy-MM-dd")
 			return $(@_dom).find("td[cell-date='#{value}']")
 
-		doRefreshCell: (cell, row, column) ->
+		doRefreshCell: (cell, row, column)->
 			state = @_state
 			return unless state
 
@@ -194,7 +194,7 @@ do->
 				@refreshGrid()
 			@onCalDateChange()
 
-		onCalDateChange: () ->
+		onCalDateChange: ()->
 			return @ unless @_dom
 
 			date = @_calendar._date

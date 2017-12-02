@@ -53,7 +53,7 @@ class cola.MultiSelect extends cola.CustomDropdown
 		@fire("removeItem", @, {item: data, oldValue: value, value: newValue})
 
 
-	_selectData: (item) ->
+	_selectData: (item)->
 		@_inputEdited = false
 		cValue = @_value || ""
 

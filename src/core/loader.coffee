@@ -1,6 +1,6 @@
 cola._jsCache = {}
 
-cola.loadSubView = (targetDom, context) ->
+cola.loadSubView = (targetDom, context)->
 	$fly(targetDom).addClass("loading")
 
 	# collect urls
@@ -39,7 +39,7 @@ cola.loadSubView = (targetDom, context) ->
 
 	jsDeferreds = []
 	if jsUrls?.length
-		jsUrls.forEach (jsUrl) ->
+		jsUrls.forEach (jsUrl)->
 			jsDeferreds.push(_loadJs(context, jsUrl))
 
 		deferreds.push($.when.apply($, jsDeferreds).done(()->
@@ -78,7 +78,7 @@ cola.loadSubView = (targetDom, context) ->
 			return
 		))
 
-	cssUrls?.forEach (cssUrl) ->
+	cssUrls?.forEach (cssUrl)->
 		deferreds.push(_loadCss(context, cssUrl))
 
 	$.when.apply($, deferreds).done(()->
@@ -117,7 +117,7 @@ cola.loadSubView = (targetDom, context) ->
 	)
 	return
 
-cola.unloadSubView = (targetDom, context) ->
+cola.unloadSubView = (targetDom, context)->
 	$fly(targetDom).empty()
 
 	htmlUrl = context.htmlUrl
@@ -133,7 +133,7 @@ cola.unloadSubView = (targetDom, context) ->
 			if cssUrl then _unloadCss(cssUrl)
 	return
 
-_compileResourceUrl = (resUrl, htmlUrl, suffix) ->
+_compileResourceUrl = (resUrl, htmlUrl, suffix)->
 	if resUrl is "$"
 		defaultRes = true
 	else if resUrl.indexOf("$.") == 0
@@ -150,7 +150,7 @@ _compileResourceUrl = (resUrl, htmlUrl, suffix) ->
 			resUrl = (if i > 0 then htmlUrl.substring(0, i) else htmlUrl) + suffix
 	return resUrl
 
-_loadHtml = (targetDom, context, url) ->
+_loadHtml = (targetDom, context, url)->
 	return $.ajax(url, {
 		cache: true
 		timeout: context.timeout
@@ -162,7 +162,7 @@ _loadHtml = (targetDom, context, url) ->
 		return
 	)
 
-_loadJs = (context, url) ->
+_loadJs = (context, url)->
 	initFuncs = cola._jsCache[url]
 	if initFuncs
 		return $.Deferred((dfd)->
@@ -181,8 +181,8 @@ _loadJs = (context, url) ->
 
 _cssCache = {}
 
-_loadCss = (context, url) ->
-	return $.Deferred (dfd) ->
+_loadCss = (context, url)->
+	return $.Deferred (dfd)->
 		linkElement = _cssCache[url]
 		if linkElement
 			refNum = +linkElement.getAttribute("_refNum") or 1
@@ -198,7 +198,7 @@ _loadCss = (context, url) ->
 			)
 
 			if context.timeout
-				timeoutTimerId = setTimeout(() ->
+				timeoutTimerId = setTimeout(()->
 					$fly(linkElement).remove()
 					cola.callback(callback, false, {
 						status: "timeout"
@@ -206,17 +206,17 @@ _loadCss = (context, url) ->
 					return
 				, context.timeout)
 
-			$(linkElement).one("load", () ->
+			$(linkElement).one("load", ()->
 				clearTimeout(timeoutTimerId) if timeoutTimerId
 				dfd.resolve(linkElement)
 				return
-			).on("readystatechange", (evt) ->
+			).on("readystatechange", (evt)->
 				if evt.target?.readyState is "complete"
 					clearTimeout(timeoutTimerId) if timeoutTimerId
 					$fly(@).off("readystatechange")
 					dfd.resolve(linkElement)
 				return
-			).one("error", (evt) ->
+			).one("error", (evt)->
 				clearTimeout(timeoutTimerId) if timeoutTimerId
 				# 如果css装载失败不阻止SubView的继续渲染
 				dfd.resolve(linkElement)
@@ -229,7 +229,7 @@ _loadCss = (context, url) ->
 			_cssCache[url] = linkElement
 		return
 
-_unloadCss = (url) ->
+_unloadCss = (url)->
 	linkElement = _cssCache[url]
 	if linkElement
 		refNum = +linkElement.getAttribute("_refNum") or 1

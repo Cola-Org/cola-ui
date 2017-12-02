@@ -8,7 +8,7 @@ else
 	cola = @cola
 #IMPORT_END
 
-cola._compileText = (scope, text) ->
+cola._compileText = (scope, text)->
 	p = 0
 	s = 0
 	while (s = text.indexOf("{{", p)) > -1
@@ -31,7 +31,7 @@ cola._compileText = (scope, text) ->
 	else
 		return null
 
-digestExpression = (text, p) ->
+digestExpression = (text, p)->
 	s = p
 	len = text.length
 	endBracket = 0
@@ -51,7 +51,7 @@ digestExpression = (text, p) ->
 		p++
 	return
 
-cola._compileExpression = (scope, exprStr, specialType) ->
+cola._compileExpression = (scope, exprStr, specialType)->
 	return null unless exprStr
 
 	if exprStr.charCodeAt(0) is 63 # `?`
@@ -99,7 +99,7 @@ class cola.Expression
 	#hasComplexStatement
 	#hasDefinedPath
 
-	constructor: (exprStr) ->
+	constructor: (exprStr)->
 		@raw = exprStr
 
 		i = exprStr.indexOf(" on ")
@@ -137,9 +137,9 @@ class cola.Expression
 			for path in @paths
 				@splittedPaths.push(path.split("."))
 
-	compile: (exprStr) ->
+	compile: (exprStr)->
 
-		stringify = (node, parts, pathParts, close, context) ->
+		stringify = (node, parts, pathParts, close, context)->
 			type = node.type
 			switch type
 				when "MemberExpression", "Identifier", "ThisExpression"
@@ -241,7 +241,7 @@ class cola.Expression
 			retValue = retValue._data
 		return retValue
 
-	getParentPathInfo: () ->
+	getParentPathInfo: ()->
 		return @parentPath if @parentPath isnt undefined
 		if @writeable
 			path = @writeablePath
@@ -256,5 +256,5 @@ class cola.Expression
 					property: path.substring(i + 1)
 		return info
 
-	toString: () ->
+	toString: ()->
 		return @raw

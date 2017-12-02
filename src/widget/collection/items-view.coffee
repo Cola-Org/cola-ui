@@ -6,11 +6,11 @@ class cola.ItemsView extends cola.Widget
 			type: "boolean"
 			defaultValue: true
 		currentItem:
-			getter: () ->
+			getter: ()->
 				if @_currentItemDom
 					item = cola.util.userData(@_currentItemDom, "item")
 				return item
-			setter: (currentItem) ->
+			setter: (currentItem)->
 				if currentItem
 					currentItemDom = @_itemDomMap[_getEntityId(currentItem)]
 				@_setCurrentItemDom(currentItemDom)
@@ -34,13 +34,13 @@ class cola.ItemsView extends cola.Widget
 		itemDoubleClick: null
 		itemPress: null
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if attrConfig?.refreshItems
 			attrConfig.refreshDom = true
 			@_refreshItemsScheduled = true
 		return super(attr, attrConfig, value)
 
-	_createDom: () ->
+	_createDom: ()->
 		@_doms ?= {}
 		dom = $.xCreate({
 			tagName: "div"
@@ -50,7 +50,7 @@ class cola.ItemsView extends cola.Widget
 		}, @_doms)
 		return dom
 
-	_parseDom: (dom) ->
+	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
 		child = dom.firstElementChild
@@ -71,25 +71,25 @@ class cola.ItemsView extends cola.Widget
 		@_doms.itemsWrapper = itemsWrapper
 		return
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
 
 		$itemsWrapper = $fly(@_doms.itemsWrapper)
 		$itemsWrapper.addClass("items")
-			.delegate(".item", "click", (evt) => @_onItemClick(evt))
-			.delegate(".item", "dblclick", (evt) => @_onItemDoubleClick(evt))
+			.delegate(".item", "click", (evt)=> @_onItemClick(evt))
+			.delegate(".item", "dblclick", (evt)=> @_onItemDoubleClick(evt))
 
 		if @_onItemsWrapperScroll
-			$itemsWrapper.on("scroll", (evt) =>
+			$itemsWrapper.on("scroll", (evt)=>
 				@_onItemsWrapperScroll(evt)
 				return true
 			)
 
-		if @_focusable then @get$Dom().attr("tabIndex", 1).on("keydown", (evt) => @_onKeyDown(evt))
+		if @_focusable then @get$Dom().attr("tabIndex", 1).on("keydown", (evt)=> @_onKeyDown(evt))
 		return
 
-	getItems: () ->
+	getItems: ()->
 		return @_realItems
 
 	_doRefreshDom: ()->
@@ -100,7 +100,7 @@ class cola.ItemsView extends cola.Widget
 			@_refreshItems()
 		return
 
-	_getItemType: (item) ->
+	_getItemType: (item)->
 		type = @fire("getItemTemplate", @, {item: item})
 		return type if type
 
@@ -109,10 +109,10 @@ class cola.ItemsView extends cola.Widget
 		else
 			return item._itemType or "default"
 
-	_onItemsRefresh: () ->
+	_onItemsRefresh: ()->
 		return @_refreshItems()
 
-	_onItemInsert: (arg) ->
+	_onItemInsert: (arg)->
 		if @_realItems is @_realOriginItems
 			@_refreshEmptyItemDom()
 
@@ -143,7 +143,7 @@ class cola.ItemsView extends cola.Widget
 			@_refreshItems()
 		return
 
-	_onItemRemove: (arg) ->
+	_onItemRemove: (arg)->
 		itemId = _getEntityId(arg.entity)
 		if itemId
 			arg.itemsScope.unregItemScope(itemId)
@@ -157,7 +157,7 @@ class cola.ItemsView extends cola.Widget
 		@_refreshEmptyItemDom()
 		return
 
-	_showLoadingTip: () ->
+	_showLoadingTip: ()->
 		$loaderContainer = @_$loaderContainer
 		if not $loaderContainer
 			$itemsWrapper = $fly(@_doms.itemsWrapper)
@@ -174,19 +174,19 @@ class cola.ItemsView extends cola.Widget
 		$loaderContainer.addClass("active")
 		return
 
-	_hideLoadingTip: () ->
+	_hideLoadingTip: ()->
 		@_$loaderContainer?.removeClass("active")
 		return
 
-	_onItemsLoadingStart: (arg) ->
+	_onItemsLoadingStart: (arg)->
 		@_showLoadingTip()
 		return
 
-	_onItemsLoadingEnd: (arg) ->
+	_onItemsLoadingEnd: (arg)->
 		@_hideLoadingTip()
 		return
 
-	_setCurrentItemDom: (currentItemDom) ->
+	_setCurrentItemDom: (currentItemDom)->
 		if @_currentItemDom
 			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
 		@_currentItemDom = currentItemDom
@@ -194,33 +194,33 @@ class cola.ItemsView extends cola.Widget
 			$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 		return
 
-	_getFirstItemDom: () ->
+	_getFirstItemDom: ()->
 		itemDom = @_doms.itemsWrapper.firstElementChild
 		while itemDom
 			if itemDom._itemType then return itemDom
 			itemDom = itemDom.nextElementSibling
 		return
 
-	_getLastItemDom: () ->
+	_getLastItemDom: ()->
 		itemDom = @_doms.itemsWrapper.lastChild
 		while itemDom
 			if itemDom._itemType then return itemDom
 			itemDom = itemDom.previousSibling
 		return
 
-	_getPreviousItemDom: (itemDom) ->
+	_getPreviousItemDom: (itemDom)->
 		while itemDom
 			itemDom = itemDom.previousSibling
 			if itemDom?._itemType then return itemDom
 		return
 
-	_getNextItemDom: (itemDom) ->
+	_getNextItemDom: (itemDom)->
 		while itemDom
 			itemDom = itemDom.nextElementSibling
 			if itemDom?._itemType then return itemDom
 		return
 
-	_onCurrentItemChange: (arg) ->
+	_onCurrentItemChange: (arg)->
 		if arg.current and @_itemDomMap
 			itemId = _getEntityId(arg.current)
 			if itemId
@@ -231,7 +231,7 @@ class cola.ItemsView extends cola.Widget
 		@_setCurrentItemDom(currentItemDom)
 		return
 
-	_refreshItems: () ->
+	_refreshItems: ()->
 		if not @_dom
 			@_refreshItemsScheduled = true
 			return
@@ -242,7 +242,7 @@ class cola.ItemsView extends cola.Widget
 		delete @_duringRefreshItems
 		return
 
-	_doRefreshItems: (itemsWrapper) ->
+	_doRefreshItems: (itemsWrapper)->
 		@_itemDomMap ?= {}
 
 		ret = @_getItems()
@@ -270,7 +270,7 @@ class cola.ItemsView extends cola.Widget
 
 		lastItem = null
 		if items
-			cola.each(items, (item) =>
+			cola.each(items, (item)=>
 				lastItem = item
 				itemType = @_getItemType(item)
 
@@ -320,7 +320,7 @@ class cola.ItemsView extends cola.Widget
 			if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
 				if not @_loadingNextPage and itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
 					@_showLoadingTip()
-					items.loadPage(currentPageNo + 1, () =>
+					items.loadPage(currentPageNo + 1, ()=>
 						@_hideLoadingTip()
 						return
 					)
@@ -328,7 +328,7 @@ class cola.ItemsView extends cola.Widget
 					@_appendTailDom?(itemsWrapper)
 		return
 
-	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope) ->
+	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope)->
 		if item is @_currentItem
 			@_currentItemDom = itemDom
 		else if not @_currentItemDom and not @_allowNoCurrent
@@ -390,24 +390,24 @@ class cola.ItemsView extends cola.Widget
 			@_itemDomMap[itemId] = itemDom
 		return itemScope
 
-	refreshItem: (item) ->
+	refreshItem: (item)->
 		itemId = _getEntityId(item)
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
 			@_refreshItemDom(itemDom, item, @_itemsScope)
 		return
 
-	_onItemRefresh: (arg) ->
+	_onItemRefresh: (arg)->
 		item = arg.entity
 		if typeof item == "object"
 			@refreshItem(item)
 		return
 
-	getItemByItemDom: (itemDom) ->
+	getItemByItemDom: (itemDom)->
 		return null unless itemDom
 		return cola.util.userData(itemDom, "item")
 
-	_findItemDom: (target) ->
+	_findItemDom: (target)->
 		while target
 			if target._itemType
 				itemDom = target
@@ -415,7 +415,7 @@ class cola.ItemsView extends cola.Widget
 			target = target.parentNode
 		return itemDom
 
-	_onKeyDown: (evt) ->
+	_onKeyDown: (evt)->
 		switch evt.keyCode
 			when 38 # up
 				if @_currentItemDom
@@ -432,7 +432,7 @@ class cola.ItemsView extends cola.Widget
 				@_setCurrentItemDom(itemDom) if itemDom
 				return false
 
-	_onItemClick: (evt) ->
+	_onItemClick: (evt)->
 		itemDom = evt.currentTarget
 		return unless itemDom
 
@@ -450,7 +450,7 @@ class cola.ItemsView extends cola.Widget
 		})
 		return
 
-	_onItemDoubleClick: (evt) ->
+	_onItemDoubleClick: (evt)->
 		itemDom = evt.currentTarget
 		return unless itemDom
 		item = cola.util.userData(itemDom, "item")
@@ -461,9 +461,9 @@ class cola.ItemsView extends cola.Widget
 		})
 		return
 
-	_bindEvent: (eventName) ->
+	_bindEvent: (eventName)->
 		if eventName == "itemPress"
-			@_on("press", (self, arg) =>
+			@_on("press", (self, arg)=>
 				itemDom = @_findItemDom(arg.event.target)
 				if itemDom
 					arg.itemDom = itemDom

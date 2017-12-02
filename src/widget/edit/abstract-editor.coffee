@@ -5,13 +5,13 @@ class cola.AbstractEditor extends cola.Widget
 			setter: (value)-> @_setValue(value)
 		bind:
 			refreshDom: true
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 		readOnly:
 			refreshDom: true
 			type: "boolean"
 			defaultValue: false
 		state:
-			setter: (state) ->
+			setter: (state)->
 				oldState = @_state
 				if oldState != state
 					dom = @_dom
@@ -30,7 +30,7 @@ class cola.AbstractEditor extends cola.Widget
 		beforeChange: null
 		change: null
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		if @_state
 			cola.util.addClass(dom, @_state)
 
@@ -50,7 +50,7 @@ class cola.AbstractEditor extends cola.Widget
 						return
 		return
 
-	_setValue: (value) ->
+	_setValue: (value)->
 		return false if @_value is value
 		arg = {oldValue: @_value, value: value}
 
@@ -77,15 +77,15 @@ class cola.AbstractEditor extends cola.Widget
 		@fire("post", @)
 		return @
 
-	_post: () ->
+	_post: ()->
 		@writeBindingValue(@_value)
 		return
 
-	_filterDataMessage: (path, type, arg) ->
+	_filterDataMessage: (path, type, arg)->
 		return cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or
 		  type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or @_watchingMoreMessage
 
-	_processDataMessage: (path, type, arg) ->
+	_processDataMessage: (path, type, arg)->
 		if type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE
 			if @_bindInfo?.writeable
 				entity = @_scope.get(@_bindInfo.entityPath)
@@ -103,7 +103,7 @@ class cola.AbstractEditor extends cola.Widget
 
 		return
 
-	refreshValue: () ->
+	refreshValue: ()->
 		ctx = {}
 		value = @readBindingValue(ctx)
 
@@ -122,7 +122,7 @@ class cola.AbstractEditor extends cola.Widget
 
 		return changed
 
-	_doRefreshDom: () ->
+	_doRefreshDom: ()->
 		return unless @_dom
 
 		@_finalReadOnly = !!@get("readOnly")

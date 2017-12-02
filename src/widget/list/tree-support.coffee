@@ -3,7 +3,7 @@ _getEntityId = cola.Entity._getEntityId
 class cola.CascadeBind extends cola.Element
 	@attributes:
 		expression:
-			setter: (expression) ->
+			setter: (expression)->
 				if expression
 					expression = cola._compileExpression(@_scope, expression, "repeat")
 					if not expression?.repeat
@@ -13,7 +13,7 @@ class cola.CascadeBind extends cola.Element
 
 		recursive: null
 		recursiveExpression:
-			setter: (expression) ->
+			setter: (expression)->
 				if expression
 					@_recursive = true
 					expression = cola._compileExpression(@_scope, expression, "repeat")
@@ -23,7 +23,7 @@ class cola.CascadeBind extends cola.Element
 				return
 
 		child:
-			setter: (child) ->
+			setter: (child)->
 				if child and not (child instanceof cola.CascadeBind)
 					child = new @constructor(@_widget, child)
 				@_child = child
@@ -34,11 +34,11 @@ class cola.CascadeBind extends cola.Element
 
 		template: null
 
-	constructor: (widget, config) ->
+	constructor: (widget, config)->
 		@_widget = widget
 		super(config)
 
-	_wrapChildItems: (parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems) ->
+	_wrapChildItems: (parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems)->
 		nodes = []
 		nodeType = @constructor.NODE_TYPE
 
@@ -46,7 +46,7 @@ class cola.CascadeBind extends cola.Element
 		nodeMap = {}
 
 		if recursiveItems
-			cola.each recursiveItems, (item) =>
+			cola.each recursiveItems, (item)=>
 				if nodeCache
 					id = _getEntityId(item)
 					if id
@@ -63,7 +63,7 @@ class cola.CascadeBind extends cola.Element
 				return
 
 		if childItems
-			cola.each childItems, (item) =>
+			cola.each childItems, (item)=>
 				if nodeCache
 					id = _getEntityId(item)
 					if id
@@ -95,7 +95,7 @@ class cola.CascadeBind extends cola.Element
 			itemsScope._setItems.call(itemsScope, nodes)
 		return
 
-	retrieveChildNodes: (parentNode, callback, dataCtx) ->
+	retrieveChildNodes: (parentNode, callback, dataCtx)->
 		isRoot = not parentNode._parent
 		hasChild = false
 		funcs = []
@@ -109,7 +109,7 @@ class cola.CascadeBind extends cola.Element
 			if items == undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
 				if recursiveLoader
-					funcs.push((callback) -> recursiveLoader.invokeAsync(callback))
+					funcs.push((callback)-> recursiveLoader.invokeAsync(callback))
 			else
 				recursiveItems = items
 				originRecursiveItems = items.$origin if items instanceof Array
@@ -125,7 +125,7 @@ class cola.CascadeBind extends cola.Element
 			if items == undefined and dataCtx.unloaded
 				childLoader = dataCtx.providerInvokers?[0]
 				if childLoader
-					funcs.push((callback) -> childLoader.invokeAsync(callback))
+					funcs.push((callback)-> childLoader.invokeAsync(callback))
 			else
 				childItems = items
 				originChildItems = items.$origin if items instanceof Array
@@ -134,7 +134,7 @@ class cola.CascadeBind extends cola.Element
 		if funcs.length
 			cola.util.waitForAll(funcs, {
 				scope: @
-				complete: (success, result) ->
+				complete: (success, result)->
 					if success
 						hasChild = false
 						if @_recursive or isRoot
@@ -177,7 +177,7 @@ class cola.CascadeBind extends cola.Element
 			if callback then cola.callback(callback, true)
 		return
 
-	hasChildItems: (parentScope) ->
+	hasChildItems: (parentScope)->
 		if @_recursive
 			dataCtx = {}
 
@@ -221,7 +221,7 @@ class cola.Node extends cola.Element
 		alias: null
 		data: null
 		hasChild:
-			getter: () ->
+			getter: ()->
 				return true if @_children?.length > 0
 				return @_hasChild if @_hasChild?
 
@@ -261,7 +261,7 @@ class cola.Node extends cola.Element
 		children:
 			readOnly: true
 
-	constructor: (bind, data) ->
+	constructor: (bind, data)->
 		super()
 		@_bind = bind
 		@_alias = bind._expression?.alias
@@ -275,14 +275,14 @@ class cola.Node extends cola.Element
 
 		@_widget?._onNodeAttach?(@)
 
-	destroy: () ->
+	destroy: ()->
 		if @_children
 			for child in @_children
 				child.destroy()
 		@_widget?._onNodeDetach?(@)
 		return
 
-	remove: () ->
+	remove: ()->
 		if @_parent
 			parent = @_parent
 			i = parent._children.indexOf(@)
@@ -293,14 +293,14 @@ class cola.Node extends cola.Element
 		return
 
 cola.TreeSupportMixin =
-	constructor: () ->
+	constructor: ()->
 		@_nodeMap = {}
 
-	_onNodeAttach: (node) ->
+	_onNodeAttach: (node)->
 		@_nodeMap[node._id] = node
 		return
 
-	_onNodeDetach: (node) ->
+	_onNodeDetach: (node)->
 		delete @_nodeMap[node._id]
 		return
 

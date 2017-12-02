@@ -1,4 +1,4 @@
-_columnsSetter = (table, columnConfigs) ->
+_columnsSetter = (table, columnConfigs)->
 	if table?._columns
 		for column in table._columns
 			column._setTable(null)
@@ -20,20 +20,20 @@ class cola.AbstractTable extends cola.AbstractList
 	@attributes:
 		items:
 			refreshItems: true
-			setter: (items) ->
+			setter: (items)->
 				return if @_items is items
 				@_set("bind", undefined)
 				@_items = items
 				return
 		bind:
-			setter: (bindStr) ->
+			setter: (bindStr)->
 				return if @_bindStr is bindStr
 				@_set("items", undefined)
 				@_bindSetter(bindStr)
 				return
 
 		columns:
-			setter: (columnConfigs) ->
+			setter: (columnConfigs)->
 				_columnsSetter.call(@, @, columnConfigs)
 				@_collectionColumnsInfo()
 				return
@@ -95,31 +95,31 @@ class cola.AbstractTable extends cola.AbstractList
 				tagName: "td"
 				colSpan: 100
 
-	constructor: (config) ->
+	constructor: (config)->
 		@_columnMap = {}
 		super(config)
 
-	_getItems: () ->
+	_getItems: ()->
 		if @_items
 			return {items: @_items}
 		else
 			return super()
 
-	_regColumn: (column) ->
+	_regColumn: (column)->
 		if column._name
 			@_columnMap[column._name] = column
 		return
 
-	_unregColumn: (column) ->
+	_unregColumn: (column)->
 		if column._name
 			delete @_columnMap[column._name]
 		return
 
-	getColumn: (name) ->
+	getColumn: (name)->
 		return @_columnMap[name]
 
-	_collectionColumnsInfo: () ->
-		collectColumnInfo = (column, context, deepth) ->
+	_collectionColumnsInfo: ()->
+		collectColumnInfo = (column, context, deepth)->
 			info =
 				level: deepth
 				column: column
@@ -183,7 +183,7 @@ class cola.AbstractTable extends cola.AbstractList
 				collectColumnInfo(col, columnsInfo, 0)
 		return
 
-	_getBindDataType: () ->
+	_getBindDataType: ()->
 		return @_dataType if @_dataType
 		return @_dataType = super()
 
@@ -193,7 +193,7 @@ class cola.AbstractTable extends cola.AbstractList
 		@_createInnerDom(dom)
 		return dom
 
-	_createInnerDom: (dom) ->
+	_createInnerDom: (dom)->
 		$fly(dom).xAppend({
 			tagName: "div"
 			class: "table-wrapper"
@@ -213,12 +213,12 @@ class cola.AbstractTable extends cola.AbstractList
 						contextKey: "tbody"
 					}
 				]
-			scroll: (evt) =>
+			scroll: (evt)=>
 				if @_doms.fixedHeaderWrapper
 					@_doms.fixedHeaderWrapper.scrollLeft = evt.currentTarget.scrollLeft
 		}, @_doms)
 
-		$fly(@_doms.tbody).delegate(">tr >td", "click", (evt) =>
+		$fly(@_doms.tbody).delegate(">tr >td", "click", (evt)=>
 			columnName = evt.currentTarget._name
 			column = @getColumn(columnName)
 			eventArg =
@@ -229,7 +229,7 @@ class cola.AbstractTable extends cola.AbstractList
 		)
 		return
 
-	_parseDom: (dom) ->
+	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
 
@@ -264,7 +264,7 @@ class cola.AbstractTable extends cola.AbstractList
 		@_createInnerDom(dom)
 		return
 
-	_parseColumnDom: (dom) ->
+	_parseColumnDom: (dom)->
 		column = {}
 		for attr in dom.attributes
 			attrName = attr.name
@@ -294,7 +294,7 @@ class cola.AbstractTable extends cola.AbstractList
 			child = next
 		return column
 
-	_createNewItem: (itemType, item) ->
+	_createNewItem: (itemType, item)->
 		template = @getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
 		$fly(itemDom).addClass("table item " + itemType)
@@ -305,7 +305,7 @@ class cola.Table extends cola.AbstractTable
 	@tagName: "c-table"
 	@CLASS_NAME: "items-view widget-table"
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		super(dom)
 
 		dataType = @_getBindDataType()
@@ -344,7 +344,7 @@ class cola.Table extends cola.AbstractTable
 							column.set("template", template)
 						@_applyPropertyDefProperties?(column, propertyDef)
 
-		$fly(window).resize () =>
+		$fly(window).resize ()=>
 			if @_fixedHeaderVisible
 				fixedHeader = @_getFixedHeader()
 				$fly(fixedHeader).width(@_doms.itemsWrapper.clientWidth)
@@ -355,13 +355,13 @@ class cola.Table extends cola.AbstractTable
 		@_bindKeyDown()
 		return
 
-	_convertItems: (items) ->
+	_convertItems: (items)->
 		items = super(items)
 		if @_sortCriteria
 			items = cola.util.sort(items, @_sortCriteria)
 		return items
 
-	_sysHeaderClick: (column) ->
+	_sysHeaderClick: (column)->
 		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
 			if sortDirection is "asc" then sortDirection = "desc"
@@ -427,7 +427,7 @@ class cola.Table extends cola.AbstractTable
 				@_refreshItems()
 		return
 
-	_doRefreshItems: () ->
+	_doRefreshItems: ()->
 		return unless @_columnsInfo
 
 		totalWidth = @_doms.itemsWrapper.clientWidth
@@ -474,7 +474,7 @@ class cola.Table extends cola.AbstractTable
 
 				thead = @_doms.thead
 
-				$fly(thead).delegate("th", "click", (evt) =>
+				$fly(thead).delegate("th", "click", (evt)=>
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =
@@ -498,7 +498,7 @@ class cola.Table extends cola.AbstractTable
 				}, @_doms)
 
 				tfoot = @_doms.tfoot
-				$fly(tfoot).delegate("td", "click", (evt) =>
+				$fly(tfoot).delegate("td", "click", (evt)=>
 					columnName = evt.currentTarget._name
 					column = @getColumn(columnName)
 					eventArg =
@@ -510,7 +510,7 @@ class cola.Table extends cola.AbstractTable
 			@_refreshFooter(tfoot)
 
 			if !@_fixedFooterVisible
-				@_showFooterTimer = setInterval(() =>
+				@_showFooterTimer = setInterval(()=>
 					itemsWrapper = @_doms.itemsWrapper
 					if itemsWrapper.scrollHeight
 						@_refreshFixedFooter(300)
@@ -518,30 +518,30 @@ class cola.Table extends cola.AbstractTable
 				, 300)
 		return
 
-	_onItemInsert: (arg) ->
+	_onItemInsert: (arg)->
 		super(arg)
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
 		return
 
-	_onItemRemove: (arg) ->
+	_onItemRemove: (arg)->
 		super(arg)
 		@_refreshFixedFooter() if @_showFooter
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
 		return
 
-	_refreshHeader: (thead) ->
+	_refreshHeader: (thead)->
 		fragment = null
 		rowInfos = @_columnsInfo.rows
 		i = 0
@@ -593,14 +593,14 @@ class cola.Table extends cola.AbstractTable
 			thead.removeChild(thead.lastChild)
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, () =>
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
 		return
 
-	_refreshHeaderCell: (dom, columnInfo, isNew) ->
+	_refreshHeaderCell: (dom, columnInfo, isNew)->
 		column = columnInfo.column
 		dom.style.textAlign = column._align or "left"
 
@@ -633,7 +633,7 @@ class cola.Table extends cola.AbstractTable
 		dom.innerText = caption or ""
 		return
 
-	_refreshFooter: (tfoot) ->
+	_refreshFooter: (tfoot)->
 		colInfos = @_columnsInfo.dataColumns
 		row = tfoot.rows[0]
 		if !row
@@ -666,7 +666,7 @@ class cola.Table extends cola.AbstractTable
 			tfoot.appendChild(row)
 		return
 
-	_refreshFooterCell: (dom, columnInfo, isNew) ->
+	_refreshFooterCell: (dom, columnInfo, isNew)->
 		column = columnInfo.column
 		dom.style.textAlign = column._align or "left"
 
@@ -692,7 +692,7 @@ class cola.Table extends cola.AbstractTable
 		dom.innerHTML = "&nbsp;"
 		return
 
-	_doRefreshItemDom: (itemDom, item, itemScope) ->
+	_doRefreshItemDom: (itemDom, item, itemScope)->
 		itemType = itemDom._itemType
 
 		if @getListeners("renderRow")
@@ -725,7 +725,7 @@ class cola.Table extends cola.AbstractTable
 				itemDom.removeChild(itemDom.lastChild)
 		return
 
-	_refreshCell: (dom, item, columnInfo, itemScope, isNew) ->
+	_refreshCell: (dom, item, columnInfo, itemScope, isNew)->
 		column = columnInfo.column
 		dom.style.textAlign = column._align or ""
 
@@ -799,7 +799,7 @@ class cola.Table extends cola.AbstractTable
 			$dom.text(value)
 		return
 
-	_refreshFakeRow: (row) ->
+	_refreshFakeRow: (row)->
 		nextCell = row.firstElementChild
 		for colInfo, i in @_columnsInfo.dataColumns
 			cell = nextCell
@@ -817,7 +817,7 @@ class cola.Table extends cola.AbstractTable
 			row.removeChild(cell)
 		return
 
-	_getFixedHeader: (create) ->
+	_getFixedHeader: (create)->
 		fixedHeaderWrapper = @_doms.fixedHeaderWrapper
 		if not fixedHeaderWrapper and create
 			fixedHeaderWrapper = $.xCreate({
@@ -838,7 +838,7 @@ class cola.Table extends cola.AbstractTable
 			@_refreshFakeRow(fakeThead.firstElementChild)
 		return fixedHeaderWrapper
 
-	_getFixedFooter: (create) ->
+	_getFixedFooter: (create)->
 		fixedFooterWrapper = @_doms.fixedFooterWrapper
 		if not fixedFooterWrapper and create
 			fixedFooterWrapper = $.xCreate({
@@ -859,7 +859,7 @@ class cola.Table extends cola.AbstractTable
 			@_refreshFakeRow(fakeTfoot.firstElementChild)
 		return fixedFooterWrapper
 
-	_refreshFixedColgroup: (colgroup, fixedColgroup) ->
+	_refreshFixedColgroup: (colgroup, fixedColgroup)->
 		nextCol = colgroup.firstElementChild
 		nextFixedCol = fixedColgroup.firstElementChild
 		while nextCol
@@ -881,7 +881,7 @@ class cola.Table extends cola.AbstractTable
 			fixedColgroup.removeChild(fixedCol)
 		return
 
-	_setFixedHeaderSize: () ->
+	_setFixedHeaderSize: ()->
 		colgroup = @_doms.colgroup
 		fixedHeaderColgroup = @_doms.fixedHeaderColgroup
 		if !fixedHeaderColgroup
@@ -892,7 +892,7 @@ class cola.Table extends cola.AbstractTable
 		$fly(@_doms.fakeThead.firstElementChild).height(@_doms.thead.offsetHeight)
 		return
 
-	_setFixedFooterSize: () ->
+	_setFixedFooterSize: ()->
 		colgroup = @_doms.colgroup
 		fixedFooterColgroup = @_doms.fixedFooterColgroup
 		if !fixedFooterColgroup
@@ -903,7 +903,7 @@ class cola.Table extends cola.AbstractTable
 		$fly(@_doms.fakeTfoot.firstElementChild).height(@_doms.tfoot.offsetHeight)
 		return
 
-	_refreshFixedHeader: () ->
+	_refreshFixedHeader: ()->
 		itemsWrapper = @_doms.itemsWrapper
 		scrollTop = itemsWrapper.scrollTop
 		showFixedHeader = scrollTop > 0 and not (cola.browser.ie is 11)
@@ -929,7 +929,7 @@ class cola.Table extends cola.AbstractTable
 		cola._ignoreNodeRemoved = false
 		return
 
-	_refreshFixedFooter: (duration) ->
+	_refreshFixedFooter: (duration)->
 		if @_showFooterTimer
 			clearInterval(@_showFooterTimer)
 			delete @_showFooterTimer
@@ -964,7 +964,7 @@ class cola.Table extends cola.AbstractTable
 		cola._ignoreNodeRemoved = false
 		return
 
-	_onItemsWrapperScroll: () ->
+	_onItemsWrapperScroll: ()->
 		@_refreshFixedHeader() if @_showHeader
 		@_refreshFixedFooter() if @_showFooter
 		return super()

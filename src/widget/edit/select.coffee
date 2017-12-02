@@ -4,7 +4,7 @@ class cola.Select extends cola.AbstractInput
 
 	@attributes:
 		options:
-			setter: (options) ->
+			setter: (options)->
 				if typeof options is "string"
 					options = options.split(/[,;]/)
 					for item, i in options
@@ -33,7 +33,7 @@ class cola.Select extends cola.AbstractInput
 	_isEditorDom: (node)->
 		return node.nodeName is "SELECT"
 
-	_parseDom: (dom) ->
+	_parseDom: (dom)->
 		super(dom)
 		if !@_icon
 			child = @_doms.input.nextSibling
@@ -46,7 +46,7 @@ class cola.Select extends cola.AbstractInput
 				@set("icon", "dropdown")
 		return
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		@_refreshSelectOptions(@_doms.input) if @_options
 
 		$(@_doms.input).on("change", ()=>
@@ -58,14 +58,14 @@ class cola.Select extends cola.AbstractInput
 		)
 		return
 
-	_refreshSelectOptions: (select) ->
+	_refreshSelectOptions: (select)->
 		options = select.options
 		if @_options instanceof cola.EntityList
 			options.length = @_options.entityCount
 		else
 			options.length = @_options.length
 
-		cola.each @_options, (optionValue, i) =>
+		cola.each @_options, (optionValue, i)=>
 			option = options[i]
 			if cola.util.isSimpleValue(optionValue)
 				value = null
@@ -96,7 +96,7 @@ class cola.Select extends cola.AbstractInput
 			return
 		return
 
-	_refreshInputValue: (value) ->
+	_refreshInputValue: (value)->
 		super(value)
 		cola.util.toggleClass(@_doms.input, "placeholder", !value? or value is "")
 		return

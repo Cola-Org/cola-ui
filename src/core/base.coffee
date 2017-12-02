@@ -10,13 +10,13 @@ cola.version = "${version}"
 
 uniqueIdSeed = 1
 
-cola.uniqueId = () ->
+cola.uniqueId = ()->
 	return "_id" + (uniqueIdSeed++)
 
-cola.sequenceNo = () ->
+cola.sequenceNo = ()->
 	return uniqueIdSeed++
 
-cola._EMPTY_FUNC = () ->
+cola._EMPTY_FUNC = ()->
 
 if window?
 	do()->
@@ -75,7 +75,7 @@ colaEventRegistry =
 	beforeRouterSwitch: {}
 	routerSwitch: {}
 
-cola.on = (eventName, listener) ->
+cola.on = (eventName, listener)->
 	i = eventName.indexOf(":")
 	if i > 0
 		alias = eventName.substring(i + 1)
@@ -104,7 +104,7 @@ cola.on = (eventName, listener) ->
 		aliasMap[alias] = i
 	return @
 
-cola.off = (eventName, listener) ->
+cola.off = (eventName, listener)->
 	i = eventName.indexOf(":")
 	if i > 0
 		alias = eventName.substring(i + 1)
@@ -141,11 +141,11 @@ cola.off = (eventName, listener) ->
 
 	return @
 
-cola.getListeners = (eventName) ->
+cola.getListeners = (eventName)->
 	listener = colaEventRegistry[eventName]?.listeners
 	return if listener?.length then listener else null
 
-cola.fire = (eventName, self, arg = {}) ->
+cola.fire = (eventName, self, arg = {})->
 	listeners = colaEventRegistry[eventName]?.listeners
 	if listeners
 		for listener in listeners
@@ -159,7 +159,7 @@ cola.fire = (eventName, self, arg = {}) ->
 			if retValue == false then return false
 	return true
 
-cola.ready = (listener) ->
+cola.ready = (listener)->
 	return @on("ready", listener)
 
 ###
@@ -178,7 +178,7 @@ setting = {
 	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"
 }
 
-cola.setting = (key, value) ->
+cola.setting = (key, value)->
 	if typeof key == "string"
 		if value != undefined
 # setting(string, any)
@@ -211,13 +211,13 @@ class cola.Exception
 		if @error then console?.error?(@error)
 
 		exceptionStack.push(@)
-		setTimeout(() =>
+		setTimeout(()=>
 			if exceptionStack.indexOf(@) > -1
 				cola.Exception.processException(@)
 			return
 		, 50)
 
-	@processException = (ex) ->
+	@processException = (ex)->
 		if cola.Exception.ignoreAll then return
 
 		if ex then cola.Exception.removeException(ex)
@@ -250,12 +250,12 @@ class cola.Exception
 					cola.Exception.safeShowException(ex2)
 		return
 
-	@removeException = (ex) ->
+	@removeException = (ex)->
 		i = exceptionStack.indexOf(ex)
 		if i > -1 then exceptionStack.splice(i, 1)
 		return
 
-	@safeShowException: (ex) ->
+	@safeShowException: (ex)->
 		if ex instanceof cola.Exception or ex instanceof Error
 			msg = ex.message
 		else
@@ -263,13 +263,13 @@ class cola.Exception
 			alert?(msg)
 		return
 
-	@showException: (ex) -> @safeShowException(ex)
+	@showException: (ex)-> @safeShowException(ex)
 
 class cola.AbortException extends cola.Exception
-	constructor: () ->
+	constructor: ()->
 
 class cola.RunnableException extends cola.Exception
-	constructor: (@script) ->
+	constructor: (@script)->
 		super("[script]")
 
 ###
@@ -278,12 +278,12 @@ I18N
 
 resourceStore = {}
 
-sprintf = (templ, params...) ->
+sprintf = (templ, params...)->
 	for param, i in params
 		templ = templ.replace(new RegExp("\\{#{i}\\}", "g"), param)
 	return templ
 
-cola.resource = (key, params...) ->
+cola.resource = (key, params...)->
 	if typeof key == "string"
 # resource(key, params...)
 # read resource resource
@@ -303,14 +303,14 @@ cola.resource = (key, params...) ->
 		return
 
 class cola.ResourceException extends cola.Exception
-	constructor: (key, params...) ->
+	constructor: (key, params...)->
 		super(cola.resource(key, params...))
 
 ###
 Methods
 ###
 
-cola.callback = (callback, success, result) ->
+cola.callback = (callback, success, result)->
 	return unless callback
 	if success is undefined
 		success = true
@@ -321,7 +321,7 @@ cola.callback = (callback, success, result) ->
 	else
 		scope = callback.scope or @
 		if callback.delay
-			setTimeout(() ->
+			setTimeout(()->
 				callback.complete.call(scope, success, result)
 				return
 			, callback.delay)
@@ -332,5 +332,5 @@ cola.callback = (callback, success, result) ->
 ###
 Lang
 ###
-Date.prototype.toJSON = () ->
+Date.prototype.toJSON = ()->
 	cola.util.formatDate(@, cola.setting("defaultSubmitDateFormat"))

@@ -2,7 +2,7 @@ class cola.NestedListNode extends cola.Node
 	@attributes:
 		title:
 			readOnly: true
-			getter: () ->
+			getter: ()->
 				prop = @_bind._titleProperty
 				if prop
 					if @_data instanceof cola.Entity
@@ -22,7 +22,7 @@ class cola.NestedList extends cola.Widget
 
 	@attributes:
 		bind:
-			setter: (bind) ->
+			setter: (bind)->
 				if bind and !(bind instanceof cola.NestedListBind)
 					bind = new cola.NestedListBind(@, bind)
 				@_bind = bind
@@ -40,10 +40,10 @@ class cola.NestedList extends cola.Widget
 		title: null
 		layerIndex:
 			readOnly: true
-			getter: () -> @_layerIndex
+			getter: ()-> @_layerIndex
 		splitted:
 			readOnly: true
-			getter: () -> @_autoSplit and @_largeScreen
+			getter: ()-> @_autoSplit and @_largeScreen
 
 	@events:
 		getItemTemplate: null
@@ -52,7 +52,7 @@ class cola.NestedList extends cola.Widget
 		initLayer: null
 		topLayerChange: null
 
-	_initDom: (dom) ->
+	_initDom: (dom)->
 		if @_autoSplit
 			if cola.device.pad
 				@_largeScreen = true
@@ -100,7 +100,7 @@ class cola.NestedList extends cola.Widget
 		if @_bind
 			@_itemsRetrieved = true
 			nestedList = @
-			@_bind.retrieveChildNodes(nestedList._rootNode, () ->
+			@_bind.retrieveChildNodes(nestedList._rootNode, ()->
 				if nestedList._autoSplit and nestedList._largeScreen
 					children = nestedList._rootNode._children
 					firstNode = children?[0]
@@ -108,7 +108,7 @@ class cola.NestedList extends cola.Widget
 						nestedList._showLayer(1, children?[0])
 				return
 			)
-			itemsScope._retrieveItems = (dataCtx) -> nestedList._bind.retrieveChildNodes(nestedList._rootNode, null, dataCtx)
+			itemsScope._retrieveItems = (dataCtx)-> nestedList._bind.retrieveChildNodes(nestedList._rootNode, null, dataCtx)
 
 		@fire("topLayerChange", @, {
 			index: 0
@@ -123,7 +123,7 @@ class cola.NestedList extends cola.Widget
 			child = child.nextElementSibling
 		return
 
-	_createLayer: (index) ->
+	_createLayer: (index)->
 		highlightCurrentItem = (@_autoSplit and @_largeScreen and index == 0)
 		useLayer = index > (if @_autoSplit and @_largeScreen then 1 else 0)
 
@@ -144,15 +144,15 @@ class cola.NestedList extends cola.Widget
 			highlightCurrentItem: highlightCurrentItem
 			height: "100%"
 			userData: index
-			getItemTemplate: (self, arg) => @_onGetItemTemplate(self, arg)
-			renderItem: (self, arg) => @_onRenderItem(self, arg)
-			itemClick: (self, arg) => @_onItemClick(self, arg)
+			getItemTemplate: (self, arg)=> @_onGetItemTemplate(self, arg)
+			renderItem: (self, arg)=> @_onRenderItem(self, arg)
+			itemClick: (self, arg)=> @_onItemClick(self, arg)
 
 		if @_showTitleBar
 			if useLayer
 				menuItemsConfig = [{
 					icon: "chevron left"
-					click: () => @back()
+					click: ()=> @back()
 				}]
 			else
 				menuItemsConfig = undefined
@@ -188,7 +188,7 @@ class cola.NestedList extends cola.Widget
 
 		list = cola.widget(ctx.list)
 		oldRefreshItemDom = list._refreshItemDom
-		list._refreshItemDom = (itemDom, node, parentScope) ->
+		list._refreshItemDom = (itemDom, node, parentScope)->
 			itemScope = oldRefreshItemDom.apply(@, arguments)
 			node._scope = itemScope
 			return itemScope
@@ -210,7 +210,7 @@ class cola.NestedList extends cola.Widget
 		}
 		return layer
 
-	_initLayer: (layer, parentNode, index) ->
+	_initLayer: (layer, parentNode, index)->
 		layer.titleBar?.set("title", if parentNode then parentNode.get("title") else @_title)
 		@fire("initLayer", @, {
 			parentNode: parentNode
@@ -221,7 +221,7 @@ class cola.NestedList extends cola.Widget
 		})
 		return
 
-	_getLayerInfo: (layer) ->
+	_getLayerInfo: (layer)->
 		return {
 			index: layer.index
 			parentNode: layer.parentNode
@@ -232,7 +232,7 @@ class cola.NestedList extends cola.Widget
 			nodes: layer.list.get("items")
 		}
 
-	_showLayer: (index, parentNode, callback) ->
+	_showLayer: (index, parentNode, callback)->
 		if index <= @_layerIndex
 			i = index
 			while i <= @_layerIndex
@@ -250,7 +250,7 @@ class cola.NestedList extends cola.Widget
 		itemsScope = list._itemsScope
 		itemsScope.setParent(parentNode._scope)
 		parentNode._itemsScope = itemsScope
-		parentNode._bind.retrieveChildNodes(parentNode, () =>
+		parentNode._bind.retrieveChildNodes(parentNode, ()=>
 			if parentNode._children
 				@_initLayer(layer, parentNode, index)
 				if layer.container instanceof cola.Layer
@@ -261,16 +261,16 @@ class cola.NestedList extends cola.Widget
 			callback?(wrapper?)
 			return
 		)
-		itemsScope._retrieveItems = (dataCtx) -> parentNode._bind.retrieveChildNodes(parentNode, null, dataCtx)
+		itemsScope._retrieveItems = (dataCtx)-> parentNode._bind.retrieveChildNodes(parentNode, null, dataCtx)
 		return
 
-	_hideLayer: (animation) ->
+	_hideLayer: (animation)->
 		layer = @_layers[@_layerIndex]
 		delete layer.list._itemsScope._retrieveItems
 		options = {}
 		if !animation then options.animation = "none"
 		if layer.container instanceof cola.Layer
-			layer.container.hide(options, () ->
+			layer.container.hide(options, ()->
 				layer.titleBar?.set("rightItems", null)
 				return
 			)
@@ -283,18 +283,18 @@ class cola.NestedList extends cola.Widget
 		@fire("topLayerChange", @, @_getLayerInfo(previousLayer))
 		return
 
-	back: () ->
+	back: ()->
 		if @_layerIndex > (if @_autoSplit and @_largeScreen then 1 else 0)
 			@_hideLayer(true)
 			return true
 		else
 			return false
 
-	_onGetItemTemplate: (self, arg) ->
+	_onGetItemTemplate: (self, arg)->
 		node = arg.item
 		return @fire("getItemTemplate", @, { item: node._data })
 
-	_onItemClick: (self, arg) ->
+	_onItemClick: (self, arg)->
 		node = arg.item
 		retValue = @fire("itemClick", @, {
 			node: node
@@ -302,7 +302,7 @@ class cola.NestedList extends cola.Widget
 			bind: node._bind
 		})
 		if retValue != false
-			@_showLayer(self.get("userData") + 1, arg.item, (hasChild) =>
+			@_showLayer(self.get("userData") + 1, arg.item, (hasChild)=>
 				if !hasChild
 					@fire("leafItemClick", @, {
 						node: node
@@ -312,7 +312,7 @@ class cola.NestedList extends cola.Widget
 			)
 		return
 
-	_onRenderItem: (self, arg) ->
+	_onRenderItem: (self, arg)->
 		node = arg.item
 		hasChild = node.get("hasChild")
 		if !hasChild? and node._scope
@@ -327,11 +327,11 @@ class cola.NestedList extends cola.Widget
 			})
 		return
 
-	getLayer: (index) ->
+	getLayer: (index)->
 		layer = @_layers[index]
 		return if layer then @_getLayerInfo(layer) else null
 
-	getTopLayer: () ->
+	getTopLayer: ()->
 		return @getLayer(@_layerIndex)
 
 cola.Element.mixin(cola.NestedList, cola.TemplateSupport)

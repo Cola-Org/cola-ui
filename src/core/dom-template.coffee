@@ -3,7 +3,7 @@ ALIAS_REGEXP = new RegExp("\\$default", "g")
 
 cola._mainInitFuncs = []
 
-cola._rootFunc = () ->
+cola._rootFunc = ()->
 	fn = null
 	targetDom = null
 	modelName = null
@@ -17,7 +17,7 @@ cola._rootFunc = () ->
 		else if arg?.nodeType or typeof arg == "object" and arg.length > 0
 			targetDom = arg
 
-	init = (dom, model, param) ->
+	init = (dom, model, param)->
 		oldScope = cola.currentScope
 		cola.currentScope = model
 		try
@@ -59,7 +59,7 @@ cola._rootFunc = () ->
 				cola._renderDomTemplate(dom, model)
 	return cola
 
-cola._init = () ->
+cola._init = ()->
 	if cola.getListeners("beforeInit")
 		cola.fire("beforeInit", cola)
 		cola.off("beforeInit")
@@ -80,7 +80,7 @@ cola._init = () ->
 		cola.off("ready")
 	return
 
-$ () -> cola._init()
+$ ()-> cola._init()
 
 cola._userDomCompiler =
 	$: []
@@ -89,7 +89,7 @@ cola._userDomCompiler =
 
 cola.xCreate = $.xCreate
 
-cola.xRender = (template, model, context) ->
+cola.xRender = (template, model, context)->
 	return unless template
 
 	oldScope = cola.currentScope
@@ -142,13 +142,13 @@ cola.xRender = (template, model, context) ->
 			dom = documentFragment
 	return dom
 
-cola._renderDomTemplate = (dom, scope, context = {}) ->
+cola._renderDomTemplate = (dom, scope, context = {})->
 	if _doRenderDomTemplate(dom, scope, context)
 		$(dom).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 			.find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 	return
 
-_doRenderDomTemplate = (dom, scope, context) ->
+_doRenderDomTemplate = (dom, scope, context)->
 	return if dom.nodeType is 8 or dom.nodeName is "SVG"
 	return if dom.nodeType is 1 and
 		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
@@ -289,7 +289,7 @@ _doRenderDomTemplate = (dom, scope, context) ->
 			dom = tailDom or domBinding.dom
 	return dom
 
-createContentPart = (part, scope) ->
+createContentPart = (part, scope)->
 	if part instanceof cola.Expression
 		expression = part
 		textNode = document.createElement("span")
@@ -300,7 +300,7 @@ createContentPart = (part, scope) ->
 		textNode = document.createTextNode(part)
 	return textNode
 
-buildContent = (parts, dom, scope) ->
+buildContent = (parts, dom, scope)->
 	if parts.length == 1
 		childNode = createContentPart(parts[0], scope)
 	else
@@ -312,24 +312,24 @@ buildContent = (parts, dom, scope) ->
 	return
 
 cola._domBindingBuilder =
-	$: (dom, scope, features, context) ->
+	$: (dom, scope, features, context)->
 		forceInit = not context?.inRepeatTemplate
 		return new cola._DomBinding(dom, scope, features, forceInit)
 
-	repeat: (dom, scope, features, context) ->
+	repeat: (dom, scope, features, context)->
 		forceInit = not context?.inRepeatTemplate
 		domBinding = new cola._RepeatDomBinding(dom, scope, features, forceInit)
 		scope = domBinding.scope
 		return domBinding
 
-	alias: (dom, scope, features, context) ->
+	alias: (dom, scope, features, context)->
 		forceInit = not context?.inRepeatTemplate
 		domBinding = new cola._DomBinding(dom, scope, features, forceInit)
 		scope = domBinding.scope
 		return domBinding
 
 cola._domFeatureBuilder =
-	$: (scope, attrValue, attrName, dom) ->
+	$: (scope, attrValue, attrName, dom)->
 		if attrName is "display"
 			feature = new cola._DisplayFeature(attrValue)
 		else if attrName is "options" and dom.nodeName is "SELECT"
@@ -338,13 +338,13 @@ cola._domFeatureBuilder =
 			feature = new cola._DomAttrFeature(attrValue, attrName)
 		return feature
 
-	repeat: (scope, attrValue) ->
+	repeat: (scope, attrValue)->
 		return new cola._RepeatFeature(attrValue, "repeat")
 
-	alias: (scope, attrValue) ->
+	alias: (scope, attrValue)->
 		return new cola._AliasFeature(attrValue, "alias")
 
-	bind: (scope, attrValue, attrName, dom) ->
+	bind: (scope, attrValue, attrName, dom)->
 		nodeName = dom.nodeName
 		if nodeName is "INPUT"
 			type = dom.type
@@ -362,7 +362,7 @@ cola._domFeatureBuilder =
 			feature = new cola._DomAttrFeature(attrValue, "text")
 		return feature
 
-	style: (scope, attrValue) ->
+	style: (scope, attrValue)->
 		return false unless attrValue
 		style = cola.util.parseStyleLikeString(attrValue)
 
@@ -373,7 +373,7 @@ cola._domFeatureBuilder =
 				features.push(feature)
 		return features
 
-	classname: (scope, attrValue) ->
+	classname: (scope, attrValue)->
 		return false unless attrValue
 
 		features = []
@@ -391,15 +391,15 @@ cola._domFeatureBuilder =
 				features.push(feature)
 		return features
 
-	class: () -> @classname.apply(@, arguments)
+	class: ()-> @classname.apply(@, arguments)
 
-	resource: (scope, attrValue, attrName, dom) ->
+	resource: (scope, attrValue, attrName, dom)->
 		attrValue = cola.util.trim(attrValue)
 		if attrValue
 			$fly(dom).text(cola.resource(attrValue))
 		return
 
-	watch: (scope, attrValue) ->
+	watch: (scope, attrValue)->
 		i = attrValue.indexOf(" on ")
 		if i > 0
 			action = attrValue.substring(0, i)
@@ -416,5 +416,5 @@ cola._domFeatureBuilder =
 			throw new cola.Exception("\"#{expr}\" is not a valid watch expression.")
 		return feature
 
-	event: (scope, attrValue, attrName) ->
+	event: (scope, attrValue, attrName)->
 		return new cola._EventFeature(attrValue, attrName.substring(2))

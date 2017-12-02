@@ -6,11 +6,11 @@ else
 	cola = @cola
 #IMPORT_END
 
-cola.registerTypeResolver "validator", (config) ->
+cola.registerTypeResolver "validator", (config)->
 	return unless config and config.$type
 	return cola[cola.util.capitalize(config.$type) + "Validator"]
 
-cola.registerTypeResolver "validator", (config) ->
+cola.registerTypeResolver "validator", (config)->
 	if typeof config == "function"
 		return cola.CustomValidator
 
@@ -23,10 +23,10 @@ class cola.Validator extends cola.Definition
 		disabled: null
 		validateEmptyValue: null
 
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return "\"#{data}\" is not a valid value."
 
-	_parseValidResult: (result, data) ->
+	_parseValidResult: (result, data)->
 		if typeof result is "boolean"
 			if result
 				result = null
@@ -38,7 +38,7 @@ class cola.Validator extends cola.Definition
 			result = {type: @_messageType, text: result}
 		return result
 
-	validate: (data, entity) ->
+	validate: (data, entity)->
 		if not @_validateEmptyValue
 			return unless data? and data isnt ""
 		result = @_validate(data, entity)
@@ -51,10 +51,10 @@ class cola.RequiredValidator extends cola.Validator
 		trim:
 			defaultValue: true
 
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.required", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		if not (typeof data is "string") then return data?
 		if @_trim then data = cola.util.trim(data)
 		return !!data
@@ -68,10 +68,10 @@ class cola.NumberValidator extends cola.Validator
 		maxInclude:
 			defaultValue: true
 
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.number", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		result = true
 		if @_min?
 			result = if @_minInclude then (data >= @_min) else (data > @_min)
@@ -84,10 +84,10 @@ class cola.LengthValidator extends cola.Validator
 		min: null
 		max: null
 
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.length", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		if typeof data is "string" or typeof data is "number"
 			result = true
 			len = (data + "").length
@@ -105,10 +105,10 @@ class cola.RegExpValidator extends cola.Validator
 			defaultValue: "white"
 			enum: ["white", "black"]
 
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.regExp", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		regExp = @_regExp
 		if regExp and typeof data is "string"
 			if not regExp instanceof RegExp
@@ -121,19 +121,19 @@ class cola.RegExpValidator extends cola.Validator
 		return true
 
 class cola.EmailValidator extends cola.Validator
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.email", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		if typeof data is "string"
 			return !!data.match(/^([a-z0-9]*[-_\.]?[a-z0-9]+)*@([a-z0-9]*[-_]?[a-z0-9]+)+[\.][a-z]{2,3}([\.][a-z]{2})?$/i)
 		return true
 
 class cola.UrlValidator extends cola.Validator
-	_getDefaultMessage: (data) ->
+	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.email", data)
 
-	_validate: (data) ->
+	_validate: (data)->
 		if typeof data is "string"
 			return !!data.match(/^(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})/i)
 		return true
@@ -143,7 +143,7 @@ class cola.AsyncValidator extends cola.Validator
 		async:
 			defaultValue: true
 
-	validate: (data, entity, callback) ->
+	validate: (data, entity, callback)->
 		if entity instanceof Function
 			callback = entity
 			entity = undefined
@@ -152,7 +152,7 @@ class cola.AsyncValidator extends cola.Validator
 			return unless data? and data isnt ""
 		if @_async
 			result = @_validate(data, entity, {
-				complete: (success, result) =>
+				complete: (success, result)=>
 					if success
 						result = @_parseValidResult(result)
 					cola.callback(callback, success, result)
@@ -171,7 +171,7 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		ajaxOptions: null
 		data: null
 
-	_validate: (data, entity, callback) ->
+	_validate: (data, entity, callback)->
 		url = @_url.replace("{{data}}", data)
 		if url is @_url
 			sendData = @_data
@@ -215,7 +215,7 @@ class cola.CustomValidator extends cola.AsyncValidator
 			defaultValue: true
 		func: null
 
-	constructor: (config) ->
+	constructor: (config)->
 		if typeof config is "function"
 			super()
 			@set(
@@ -225,7 +225,7 @@ class cola.CustomValidator extends cola.AsyncValidator
 		else
 			super(config)
 
-	_validate: (data, entity, callback) ->
+	_validate: (data, entity, callback)->
 		if @_async and callback
 			if @_func
 				@_func(data, entity, callback)

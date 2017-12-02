@@ -82,5 +82,5 @@ cola.registerWidget(cola.MenuButton)
 cola.registerType("menuButton", "_default", cola.ButtonMenu)
 cola.registerType("menuButton", "menu", cola.ButtonMenu)
 
-cola.registerTypeResolver "menuButton", (config) ->
+cola.registerTypeResolver "menuButton", (config)->
 	return cola.resolveType("widget", config)

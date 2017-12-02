@@ -9,7 +9,7 @@ if typeof document.documentElement.style.flex != "string"
     用于刷新组件时频繁的编辑class name提高性能
 ###
 class cola.ClassNamePool
-	constructor: (domClass, semanticList = []) ->
+	constructor: (domClass, semanticList = [])->
 		@elements = []
 		domClass = if domClass then (" #{domClass} ").replace(cola.constants.CLASS_REG, " ") else " "
 
@@ -47,17 +47,17 @@ class cola.ClassNamePool
 		if !!status then @add(className) else @remove(className)
 		return
 
-_freezeRenderableElement = (node, data) ->
+_freezeRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
 	element?._freezed = true
 	return
 
-_unfreezeRenderableElement = (node, data) ->
+_unfreezeRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
 	delete element?._freezed
 	return
 
-_destroyRenderableElement = (node, data) ->
+_destroyRenderableElement = (node, data)->
 	element = data[cola.constants.DOM_ELEMENT_KEY]
 	if not element?._destroyed
 		element._domRemoved = true
@@ -105,7 +105,7 @@ class cola.RenderableElement extends cola.Element
 			$fly(dom).addClass("ui #{className}")
 		return dom
 
-	_doSet: (attr, attrConfig, value) ->
+	_doSet: (attr, attrConfig, value)->
 		if attrConfig?.refreshDom and @_dom
 			cola.util.delay(@, "refreshDom", 50, @_refreshDom)
 		return super(attr, attrConfig, value)
@@ -335,12 +335,12 @@ class cola.Widget extends cola.RenderableElement
 			@_bindEvent(eventName) if @getListeners(eventName)
 		return
 
-	_on: (eventName, listener, alias) ->
+	_on: (eventName, listener, alias)->
 		super(eventName, listener, alias)
 		@_bindEvent(eventName) if @_dom
 		return @
 
-	fire: (eventName, self, arg) ->
+	fire: (eventName, self, arg)->
 		return unless @_eventRegistry
 
 		eventConfig = @constructor.events.$get(eventName)
@@ -468,7 +468,7 @@ cola.floatWidget =
 	_zIndex: 1100
 	zIndex: ()-> return ++cola.floatWidget._zIndex
 
-cola.Exception.showException = (ex) ->
+cola.Exception.showException = (ex)->
 	if ex instanceof cola.Exception or ex instanceof Error
 		msg = ex.message
 	else

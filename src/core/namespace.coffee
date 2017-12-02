@@ -1,4 +1,4 @@
-@cola = cola = () ->
+@cola = cola = ()->
 	return cola["_rootFunc"]?.apply(cola, arguments)
 
 #IMPORT_BEGIN

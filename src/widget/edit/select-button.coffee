@@ -4,7 +4,7 @@ class cola.SelectButton extends cola.AbstractEditor
 	@attributes:
 		items:
 			expressionType: "repeat"
-			setter: (items) ->
+			setter: (items)->
 				if typeof items is "string"
 					items = items.split(/[,;]/)
 					for item, i in items

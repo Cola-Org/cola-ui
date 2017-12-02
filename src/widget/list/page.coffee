@@ -3,7 +3,7 @@ class cola.Pager extends cola.Widget
 	@CLASS_NAME: "ui pager empty"
 	@attributes:
 		bind:
-			setter: (bindStr) -> @_bindSetter(bindStr)
+			setter: (bindStr)-> @_bindSetter(bindStr)
 	_getBindItems: ()-> @_getItems()?.items
 	_initDom: (dom)->
 		@_doms ?= {}
@@ -88,7 +88,7 @@ class cola.Pager extends cola.Widget
 			data && cola.util.flush(data)
 		, 100)
 
-	pagerItemsRefresh: () ->
+	pagerItemsRefresh: ()->
 		pager = @
 		data = pager._getBindItems()
 		pageNo = 0
@@ -221,8 +221,8 @@ class cola.Pager extends cola.Widget
 		data?.nextPage()
 	_onItemsRefresh: ()-> @pagerItemsRefresh()
 	_onItemRefresh: (arg)->
-	_onItemInsert: (arg) ->
-	_onItemRemove: (arg) ->
+	_onItemInsert: (arg)->
+	_onItemRemove: (arg)->
 	_onItemsLoadingStart: (arg)->
 	_onItemsLoadingEnd: (arg)->
 	_onCurrentItemChange: (arg)->

@@ -283,5 +283,5 @@ cola.registerWidget(cola.ButtonGroup)
 
 cola.registerType("button-group", "_default", cola.Button)
 cola.registerType("button-group", "separator", cola.buttonGroup.Separator)
-cola.registerTypeResolver "button-group", (config) ->
+cola.registerTypeResolver "button-group", (config)->
 	return cola.resolveType("widget", config)

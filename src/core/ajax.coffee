@@ -1,4 +1,4 @@
-_toJSON = (data) ->
+_toJSON = (data)->
 	if data
 		if typeof data is "object"
 			if data instanceof cola.Entity or data instanceof cola.EntityList or data instanceof Date
@@ -13,7 +13,7 @@ _toJSON = (data) ->
 	return data
 
 originalAjax = $.ajax
-$.ajax = (url, settings) ->
+$.ajax = (url, settings)->
 	if typeof url is "object" and not settings
 		settings = url
 

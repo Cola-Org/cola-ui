@@ -9,7 +9,7 @@ else
 #IMPORT_END
 
 if XDate
-	$?(() ->
+	$?(()->
 		XDate.locales[''] = localeStrings = {}
 		localeStrings.monthNames = cola.resource("cola.date.monthNames", 6).split(",") if cola.resource("cola.date.monthNames")
 		localeStrings.monthNamesShort = cola.resource("cola.date.monthNamesShort").split(",") if cola.resource("cola.date.monthNamesShort")
@@ -20,7 +20,7 @@ if XDate
 		return
 	)
 
-	XDate.parsers.push (str) ->
+	XDate.parsers.push (str)->
 		if str.indexOf("||") < 0 then return
 
 		parts = str.split("||")

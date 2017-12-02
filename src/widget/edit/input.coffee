@@ -12,13 +12,13 @@ class cola.AbstractInput extends cola.AbstractEditor
 		name:
 			readOnlyAfterCreate: true
 		value:
-			setter: (value) ->
+			setter: (value)->
 				if @_dataType
 					value = @_dataType.parse(value)
 				return @_setValue(value)
 
 		dataType:
-			setter: (dataType) ->
+			setter: (dataType)->
 				return cola.DataType.dataTypeSetter.call(@, dataType)
 
 		placeholder:
@@ -46,7 +46,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 				return
 
 		corner:
-			getter: () ->
+			getter: ()->
 				return if @["_corner"] then cola.widget(@["_corner"]) else null
 			setter: (value)->
 				oldValue = @["_corner"]
@@ -60,7 +60,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 				return
 		label:
 			refreshDom: true
-			getter: () ->
+			getter: ()->
 				return if @["_label"] then cola.widget(@["_label"]) else null
 			setter: (value)->
 				oldValue = @["_label"]
@@ -79,7 +79,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 			enum: [ "left", "right" ]
 		actionButton:
 			refreshDom: true
-			getter: () ->
+			getter: ()->
 				return if @["_actionButton"] then cola.widget(@["_actionButton"]) else null
 			setter: (value)->
 				oldValue = @["_actionButton"]
@@ -106,7 +106,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 			delete @["_label"]
 		return
 
-	_bindSetter: (bindStr) ->
+	_bindSetter: (bindStr)->
 		super(bindStr)
 		dataType = @getBindingDataType()
 		if dataType then cola.DataType.dataTypeSetter.call(@, dataType)
@@ -335,11 +335,11 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_refreshInputValue(@_value)
 		return
 
-	_refreshInputValue: (value) ->
+	_refreshInputValue: (value)->
 		@_doms.input.value = if value? then value + "" else ""
 		return
 
-	_doRefreshDom: () ->
+	_doRefreshDom: ()->
 		return unless @_dom
 		super()
 
@@ -352,11 +352,11 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_classNamePool.toggle("readonly", !!@_finalReadOnly)
 		return
 
-	focus: () ->
+	focus: ()->
 		@_doms.input?.focus()
 		return
 
-	_postInput: () ->
+	_postInput: ()->
 		if not @_finalReadOnly
 			value = @_doms.input.value
 			if value is "" then value = null
@@ -428,7 +428,7 @@ class cola.Input extends cola.AbstractInput
 			@_doms.input?.select()
 		return
 
-	_refreshInputValue: (value) ->
+	_refreshInputValue: (value)->
 		inputType = @_inputType
 		if inputType is "text"
 			format = if @_focused then @_inputFormat else @_displayFormat
