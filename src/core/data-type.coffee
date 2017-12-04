@@ -68,10 +68,16 @@ EntityDataType
 
 class cola.EntityDataType extends cola.DataType
 	@attributes:
-		validatorsDisabled:
+		validatorsDisabled: # Deprecated
 			setter: (disabled)->
 				for propertyDef in @_properties.elements
 					propertyDef.set("validatorsDisabled", disabled)
+				return
+
+		ignoreValidation:
+			setter: (disabled)->
+				for propertyDef in @_properties.elements
+					propertyDef.set("ignoreValidation", disabled)
 				return
 
 		properties:
@@ -194,7 +200,14 @@ class cola.Property extends cola.Definition
 		aggregated:
 			readOnlyAfterCreate: true
 
-		validatorsDisabled:
+		validatorsDisabled:   # Deprecated
+			setter: (disabled)->
+				if @_validators
+					for validator in @_validators
+						validator.set("disabled", disabled)
+				return
+
+		ignoreValidation:
 			setter: (disabled)->
 				if @_validators
 					for validator in @_validators

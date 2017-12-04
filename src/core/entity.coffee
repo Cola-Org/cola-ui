@@ -331,6 +331,7 @@ class cola.Entity
 
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
+	_disableValidatorsCount: 0
 
 	#_parent
 	#_parentProperty
@@ -353,8 +354,12 @@ class cola.Entity
 			@_disableWriteObservers++
 			for prop, value of data
 				@_set(prop, value, true)
-			if data.state$ then @state = data.state$
 			@_disableWriteObservers--
+
+			if data.$state then @state = data.$state
+			else if data.state$ then @state = data.state$   # Deprecated
+
+			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
 		if dataType
 			dataType.fire("entityCreate", dataType, { entity: @ })
@@ -677,7 +682,7 @@ class cola.Entity
 					oldValue: oldValue
 				})
 
-			if not ignoreState and property?._validators
+			if not ignoreState and not @_disableValidatorsCount and property?._validators
 				if messages != undefined
 					@_messageHolder?.clear(prop)
 					@addMessage(prop, messages)
@@ -947,7 +952,14 @@ class cola.Entity
 
 	enableObservers: ()->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
-		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
+		return @
+
+	disableValidators: ()->
+		if @_disableValidatorsCount < 0 then @_disableValidatorsCount = 1 else @_disableValidatorsCount++
+		return @
+
+	enableValidators: ()->
+		if @_disableValidatorsCount < 1 then @_disableValidatorsCount = 0 else @_disableValidatorsCount--
 		return @
 
 	notifyObservers: ()->

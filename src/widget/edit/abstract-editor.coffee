@@ -13,14 +13,14 @@ class cola.AbstractEditor extends cola.Widget
 		state:
 			setter: (state)->
 				oldState = @_state
-				if oldState != state
+				if oldState isnt state
 					dom = @_dom
 					if dom and oldState
 						cola.util.removeClass(dom, oldState)
 
 					@_state = state
 
-					if dom and state
+					if dom and state and not @get$Dom().closest(".hide-state").length
 						cola.util.addClass(dom, state)
 				return
 

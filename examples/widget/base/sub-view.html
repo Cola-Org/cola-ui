@@ -16,13 +16,13 @@
 				urls.push(url);
 			});
 
-			$.ajax("loadRes?urls=" + encodeURIComponent(urls.join(",")), {
+			var delim = "<!----####---->";
+			$.ajax("loadRes?delim=" + encodeURIComponent(delim) + "&urls=" + encodeURIComponent(urls.join(",")), {
 				dataType: "text",
 				cache: true,
 				timeout: 60000
 			}).done(function(text) {
-				var sections = text.split("<!----####---->"), index = 0;
-
+				var sections = text.split(delim), index = 0;
 				for (var i = 0; i < dfdsArray.length; i++) {
 					var dfds = dfdsArray[i];
 					for (var j = 0; j < dfds.length; j++) {
@@ -32,31 +32,31 @@
 				}
 			}).fail(function() {
 				var firstDfd = dfdsArray[0][0];
-				firstDfd.reject.apply(firstDfd, arguments)
+				firstDfd.reject.apply(firstDfd, arguments);
 			});
 		};
 
 		var oldLoadResource = cola._loadResource;
-		cola._loadResource = function(context, url) {
-			if (/^(http[s]?:)?\/\//.test(url)) {
-				return oldLoadResource.call(cola, context, url)
-			}
-			else {
-				var dfd = $.Deferred();
-				var dfds = App.suspendedResources.get(url);
-				if (!dfds) {
-					App.suspendedResources.add(url, [dfd]);
-				}
-				else {
-					dfds.push(dfd);
-				}
-
-				if (!App.suspendedResourceTimer) {
-					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
-				}
-				return dfd;
-			}
-		};
+//		cola._loadResource = function(context, url) {
+//			if (/^(http[s]?:)?\/\//.test(url)) {
+//				return oldLoadResource.call(cola, context, url);
+//			}
+//			else {
+//				var dfd = $.Deferred();
+//				var dfds = App.suspendedResources.get(url);
+//				if (!dfds) {
+//					App.suspendedResources.add(url, [dfd]);
+//				}
+//				else {
+//					dfds.push(dfd);
+//				}
+//
+//				if (!App.suspendedResourceTimer) {
+//					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
+//				}
+//				return dfd;
+//			}
+//		};
 
 		cola(function (model) {
 			model.set("name", "Tom");
@@ -118,7 +118,7 @@
 							}, 200);
 						}));
 
-						var deferreds = []
+						var deferreds = [];
 						deferreds.push($.when.apply($, tasks).done(function () {
 							console.log("1: " + Array.prototype.join.call(arguments, ","));
 							return arguments;
