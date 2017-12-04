@@ -45,9 +45,8 @@ do() ->
 				jsDeferreds.push(_loadJs(context, jsUrl))
 
 			deferreds.push($.when.apply($, jsDeferreds).done(()->
-				for args, i in arguments
-					result = args[0]
-					continue unless result
+
+				onJsLoaded = (result)->
 					if typeof result is "string"
 						script = result
 						scriptElement = $.xCreate(
@@ -77,6 +76,15 @@ do() ->
 					else
 						initFuncs = result
 						Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
+					return
+
+				if jsDeferreds.length > 1
+					for args, i in arguments
+						result = args[0]
+						onJsLoaded(result) if result
+				else
+					result = arguments[0]
+					onJsLoaded(result) if result
 				return
 			))
 

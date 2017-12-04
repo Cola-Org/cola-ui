@@ -1086,6 +1086,7 @@ class cola.Entity
 		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
+		nullValue = options?.nullValue or true
 
 		data = @_data
 		json = {}
@@ -1099,6 +1100,10 @@ class cola.Entity
 				else if (value instanceof _Entity or value instanceof _EntityList)
 					if simpleValue then continue
 					value = value.toJSON(options)
+
+			continue if value is undefined
+			continue if value is null and not nullValue
+
 			json[prop] = value
 
 		if entityId then json.entityId$ = @id
