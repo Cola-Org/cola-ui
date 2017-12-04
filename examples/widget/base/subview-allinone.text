@@ -1,0 +1,26 @@
+<div c-bind="name"></div>
+<hr>
+<div c-widget="listView; bind:language in languages; textProperty:name"></div>
+<!----####---->
+cola(function (model, param) {
+	console.log("1");
+	model.dataType({
+		name: "TestDataType",
+		properties: {
+			id: {
+				caption: "ID"
+			},
+			name: {
+				caption: "Name"
+			}
+		}
+	});
+});
+<!----####---->
+cola(function (model, param) {
+	console.log("1-b");
+});
+<!----####---->
+body {
+	background: #f0f0f0;
+}

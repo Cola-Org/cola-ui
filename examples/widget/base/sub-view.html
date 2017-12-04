@@ -5,6 +5,59 @@
 	<meta charset="utf-8">
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
+		var App = {};
+
+		App.suspendedResources = new cola.util.KeyedArray();
+		App.loadSuspendedResources = function() {
+			delete App.suspendedResourceTimer;
+			var urls = [], dfdsArray = [];
+			App.suspendedResources.each(function(dfds, url) {
+				dfdsArray.push(dfds);
+				urls.push(url);
+			});
+
+			$.ajax("loadRes?urls=" + encodeURIComponent(urls.join(",")), {
+				dataType: "text",
+				cache: true,
+				timeout: 60000
+			}).done(function(text) {
+				var sections = text.split("<!----####---->"), index = 0;
+
+				for (var i = 0; i < dfdsArray.length; i++) {
+					var dfds = dfdsArray[i];
+					for (var j = 0; j < dfds.length; j++) {
+						var dfd = dfds[j];
+						dfd.resolve.call(dfd, sections[index++]);
+					}
+				}
+			}).fail(function() {
+				var firstDfd = dfdsArray[0][0];
+				firstDfd.reject.apply(firstDfd, arguments)
+			});
+		};
+
+		var oldLoadResource = cola._loadResource;
+		cola._loadResource = function(context, url) {
+			if (/^(http[s]?:)?\/\//.test(url)) {
+				return oldLoadResource.call(cola, context, url)
+			}
+			else {
+				var dfd = $.Deferred();
+				var dfds = App.suspendedResources.get(url);
+				if (!dfds) {
+					App.suspendedResources.add(url, [dfd]);
+				}
+				else {
+					dfds.push(dfd);
+				}
+
+				if (!App.suspendedResourceTimer) {
+					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
+				}
+				return dfd;
+			}
+		};
+
 		cola(function (model) {
 			model.set("name", "Tom");
 
