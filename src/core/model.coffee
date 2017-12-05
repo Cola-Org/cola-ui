@@ -217,8 +217,9 @@ class cola.Model extends cola.Scope
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
-	constructor: (parent, expressions)->
-		@setParent(parent)
+	constructor: (@parent, expressions)->
+		@action = @parent.action
+		@parent.registerChild(@)
 		if expressions
 			@setExpressions(expressions)
 

@@ -9,7 +9,7 @@ class cola.Form extends cola.Widget
 			setter: cola.DataType.dataTypeSetter
 
 		readOnly:
-			setter: (readOnly) ->
+			setter: (readOnly)->
 				@_readOnly = readOnly
 				if @_rendered
 					@get$Dom().find("field, fields >field").each((i, fieldDom)->
@@ -311,12 +311,12 @@ class cola.Field extends cola.Widget
 				@setMessage(keyMessage)
 		return
 
-	_doRefreshDom: () ->
+	_doRefreshDom: ()->
 		@refreshReadOnly()
 		@_classNamePool.toggle("readonly", @_finalReadOnly)
 		return super()
 
-	refreshReadOnly: () ->
+	refreshReadOnly: ()->
 		finalReadOnly = @_readOnly or @_form?._readOnly
 		if finalReadOnly != @_finalReadOnly
 			@_finalReadOnly = finalReadOnly

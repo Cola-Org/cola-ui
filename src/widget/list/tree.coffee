@@ -283,7 +283,7 @@ class cola.Tree extends cola.AbstractList
 		if textProperty
 			return (node._alias) + "." + textProperty
 
-	_doRefreshItems: (itemsWrapper) ->
+	_doRefreshItems: (itemsWrapper)->
 		super(itemsWrapper)
 		if @_currentNode
 			if not @_nodeMap[@_currentNode._id]

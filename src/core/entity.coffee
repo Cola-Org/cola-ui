@@ -331,11 +331,12 @@ class cola.Entity
 
 	_disableObserverCount: 0
 	_disableWriteObservers: 0
+	_disableValidatorsCount: 0
 
-#_parent
-#_parentProperty
-#_providerInvoker
-#_disableWriteObservers
+	#_parent
+	#_parentProperty
+	#_providerInvoker
+	#_disableWriteObservers
 
 	constructor: (data, dataType)->
 		@id = cola.uniqueId()
@@ -353,8 +354,12 @@ class cola.Entity
 			@_disableWriteObservers++
 			for prop, value of data
 				@_set(prop, value, true)
-			if data.state$ then @state = data.state$
 			@_disableWriteObservers--
+
+			if data.$state then @state = data.$state
+			else if data.state$ then @state = data.state$   # Deprecated
+
+			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
 		if dataType
 			dataType.fire("entityCreate", dataType, {entity: @})
@@ -947,11 +952,18 @@ class cola.Entity
 
 	enableObservers: ()->
 		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
-		if @_disableObserverCount < 1 then @_disableObserverCount = 0 else @_disableObserverCount--
+		return @
+
+	disableValidators: ()->
+		if @_disableValidatorsCount < 0 then @_disableValidatorsCount = 1 else @_disableValidatorsCount++
+		return @
+
+	enableValidators: ()->
+		if @_disableValidatorsCount < 1 then @_disableValidatorsCount = 0 else @_disableValidatorsCount--
 		return @
 
 	notifyObservers: ()->
-		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
+		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
 		return @
 
 	_notify: (type, arg)->
@@ -1009,11 +1021,17 @@ class cola.Entity
 			messageChanged = @_messageHolder?.clear(prop)
 			if prop
 				if @_validate(prop) or messageChanged
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {
+						entity: @
+						property: prop
+					})
 			else
 				for property in @dataType.getProperties().elements
 					if @_validate(property._property) or messageChanged
-						@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: property._property})
+						@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {
+							entity: @
+							property: property._property
+						})
 
 		else if @_messageHolder
 			if prop
@@ -1080,6 +1098,7 @@ class cola.Entity
 		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
+		nullValue = options?.nullValue or true
 
 		data = @_data
 		json = {}
@@ -1093,6 +1112,10 @@ class cola.Entity
 				else if (value instanceof _Entity or value instanceof _EntityList)
 					if simpleValue then continue
 					value = value.toJSON(options)
+
+			continue if value is undefined
+			continue if value is null and not nullValue
+
 			json[prop] = value
 
 		if entityId then json.entityId$ = @id
@@ -1265,10 +1288,10 @@ class cola.EntityList extends LinkedList
 
 	_disableObserverCount: 0
 
-# totalEntityCount
-# _parent
-# _parentProperty
-# _providerInvoker
+	# totalEntityCount
+	# _parent
+	# _parentProperty
+	# _providerInvoker
 
 	constructor: (array, dataType)->
 		@id = cola.uniqueId()
