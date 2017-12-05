@@ -236,6 +236,7 @@ class cola.Property extends cola.Definition
 		rejectInvalidValue: null
 
 	@events:
+		read: null
 		beforeWrite: null
 		write: null
 		beforeLoad: null

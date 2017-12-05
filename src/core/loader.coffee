@@ -80,7 +80,10 @@ do() ->
 
 				if jsDeferreds.length > 1
 					for args, i in arguments
-						result = args[0]
+						if typeof args is "string"
+							result = args
+						else
+							result = args[0]
 						onJsLoaded(result) if result
 				else
 					result = arguments[0]

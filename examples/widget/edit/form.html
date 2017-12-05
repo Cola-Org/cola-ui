@@ -18,14 +18,20 @@
 						caption: "中国人寿新一代核心系统"
 					},
 					age: {
-						dataType: "int",
-						validators: [
-							"required", {
-								$type: "number",
-								min: 16,
-								max: 60
-							}
-						]
+						dataType: "number",
+						// validators: [
+						// 	"required", {
+						// 		$type: "number",
+						// 		min: 16,
+						// 		max: 60
+						// 	}
+						// ],
+						read: function(self, arg) {
+							return arg.value * 100;
+						},
+						write: function(self, arg) {
+							arg.value = arg.value / 100;
+						}
 					},
 					email: {
 						validators: ["required", "email"]
@@ -71,6 +77,7 @@
 					}
 					else {
 						model.set("form", {
+							age: 60,
 							subObject1: {
 								subObject2: {}
 							}
@@ -81,6 +88,9 @@
 					var form = cola.widget("form1");
 					var readOnly = !form.get("readOnly");
 					form.set("readOnly", readOnly);
+				},
+				showData: function() {
+					alert(JSON.stringify(model.get("form").toJSON()));
 				}
 			});
 		});
@@ -92,13 +102,14 @@
 
 <c-button click="setEntity">Set Entity</c-button>
 <c-button click="setReadOnly">Set ReadOnly</c-button>
+<c-button click="showData">Show Data</c-button>
 
 <c-form class="hide-state" bind="form" id="form1">
 	<fields class="cols-3">
 		<field property="name"></field>
 		<field property="age">
 			<label></label>
-			<c-input c-post="onAgeChange(form)"></c-input>
+			<c-input c-post="onAgeChange(form)" displayFormat="0.##"></c-input>
 		</field>
 		<field property="email"></field>
 		<field property="subObject1.subObject2.num"></field>
