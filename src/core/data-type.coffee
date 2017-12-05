@@ -27,7 +27,7 @@ class cola.NumberDataType extends cola.BaseDataType
 	parse: (text)->
 		if not text then return 0
 
-		if typeof text == "number"
+		if typeof text is "number"
 			if @_isInteger
 				return Math.round(text)
 			else
@@ -42,8 +42,8 @@ class cola.NumberDataType extends cola.BaseDataType
 class cola.BooleanDataType extends cola.BaseDataType
 	parse: (text)->
 		if not text then return false
-		if typeof text == "boolean" then return text
-		if ["true", "on", "yes", "y", "1"].indexOf((text + "").toLowerCase()) > -1 then return true
+		if typeof text is "boolean" then return text
+		if ["TRUE", "ON", "YES", "Y", "1", "T"].indexOf((text + "").toUpperCase()) > -1 then return true
 		return false
 
 class cola.DateDataType extends cola.BaseDataType
@@ -117,7 +117,7 @@ class cola.EntityDataType extends cola.DataType
 
 	addProperty: (property)->
 		if not (property instanceof cola.Property)
-			if typeof property == "string"
+			if typeof property is "string"
 				property = new cola.Property(property: property)
 			else
 				property = new cola.Property(property)
