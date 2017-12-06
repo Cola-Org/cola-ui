@@ -841,7 +841,7 @@ class cola.Entity
 	reset: (prop)->
 		if prop
 			@_set(prop, undefined)
-			@clearMessages(prop)
+			@clearMessage(prop)
 		else
 			@disableObservers()
 			data = @_data
@@ -858,7 +858,7 @@ class cola.Entity
 		if prop
 			if data.hasOwnProperty(prop)
 				@_set(prop, @_oldData[prop])
-				@clearMessages(prop)
+				@clearMessage(prop)
 		else
 			if @_oldData
 				@disableObservers()
@@ -874,7 +874,7 @@ class cola.Entity
 
 	resetState: ()->
 		delete @_oldData
-		@clearMessages()
+		@clearMessage()
 		@setState(_Entity.STATE_NONE)
 		return @
 
@@ -1088,11 +1088,11 @@ class cola.Entity
 	getMessages: (prop)->
 		return @_messageHolder?.getMessages(prop)
 
-	clearMessages: (prop)->
+	clearMessage: (prop, force)->
 		return @ unless @_messageHolder
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
-		topKeyChanged = @_messageHolder.clear(prop)
+		topKeyChanged = @_messageHolder.clear(prop, force)
 		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
 		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
@@ -1990,15 +1990,44 @@ class cola.Entity.MessageHolder
 				topKeyChanged = true
 		return topKeyChanged
 
-	clear: (prop)->
-		if prop
-			changed = !!@propertyMessages[prop]
-			delete @propertyMessages[prop]
-			delete @keyMessage[prop]
+	clear: (prop, force)->
+		if not force
+			if prop
+				messages = propertyMessages[prop]
+				if messages
+					topKeyMessage = @keyMessage[$]
+					propertyMessages[prop] = newMessages = []
+					for message in messages
+						if message.sticky
+							newMessages.push(message)
+							if not keyMessage or @compare(message, keyMessage) > 0
+								keyMessage = message
+
+				changed = newMessages.length < messages.length
+				@keyMessage[prop] = keyMessage
+
+				for p, keyMessage of @keyMessage
+					if not topKeyMessage
+						topKeyMessage = keyMessage
+					else if @compare(keyMessage, topKeyMessage) > 0
+						topKeyMessage = keyMessage
+
+				@keyMessage["$"] = topKeyMessage
+			else
+				for prop of propertyMessages
+					if @clear(prop, force)
+						changed = true
+				if @clear("$", force)
+					changed = true
 		else
-			changed = !!@keyMessage["$"]
-			@keyMessage = {}
-			@propertyMessages = {}
+			if prop
+				changed = !!@propertyMessages[prop]
+				delete @propertyMessages[prop]
+				delete @keyMessage[prop]
+			else
+				changed = !!@keyMessage["$"]
+				@keyMessage = {}
+				@propertyMessages = {}
 		return changed
 
 	getMessages: (prop = "$")->
