@@ -112,7 +112,7 @@ class cola.Textarea extends cola.AbstractEditor
 		return unless @_dom
 		super()
 		@_refreshInputValue(@_value)
-		$fly(@_doms.input).prop("readOnly", @_finalReadOnly).attr("placeholder", @_placeholder)
+		$fly(@_doms.input).attr("readOnly", @_finalReadOnly).attr("placeholder", @_placeholder)
 		@_rows and $fly(@_doms.input).attr("rows", @_rows)
 		return
 

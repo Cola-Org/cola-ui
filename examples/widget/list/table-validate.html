@@ -20,6 +20,8 @@
 		<column property="prop2"></column>
 		<column property="prop3" template="input-column"></column>
 		<column property="prop3"></column>
+		<column property="prop4.key" template="input-column"></column>
+		<column property="prop4.key"></column>
 	</c-table>
 </div>
 <script type="text/javascript">
@@ -34,15 +36,25 @@
 				"prop2": {
 					dataType: "int",
 					validators: ["required"]
+				},
+				"prop4": {
+					dataType: {
+						properties: {
+							key: {
+								validators: ["required"]
+							}
+						}
+					}
 				}
 			}
 		});
 		model.describe("items", "Item");
-		model.set("items", [{}]);
+		model.set("items", [{ prop4:{} }]);
 
 		model.action({
 			validate: function() {
 				model.get("items#").validate();
+				model.get("items#.prop4").validate();
 			}
 		});
 	});

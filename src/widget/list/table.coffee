@@ -430,7 +430,7 @@ class cola.Table extends cola.AbstractTable
 	_doRefreshItems: ()->
 		return unless @_columnsInfo
 
-		totalWidth = @_doms.itemsWrapper.clientWidth
+		totalWidth = @_doms.itemsWrapper.clientWidth - 1
 		colgroup = @_doms.colgroup
 		nextCol = colgroup.firstElementChild
 		for colInfo, i in @_columnsInfo.dataColumns
@@ -442,13 +442,13 @@ class cola.Table extends cola.AbstractTable
 				nextCol = col.nextElementSibling
 
 			if colInfo.widthType == "percent"
-				width = Math.round(colInfo.width * totalWidth / 100)
+				width = Math.floor(colInfo.width * totalWidth / 100)
 				if width < 80 then width = 80
 				col.width = width + "px"
 			else if colInfo.widthType
 				col.width = colInfo.width + colInfo.widthType
 			else if colInfo.width
-				width = Math.round(colInfo.width * totalWidth / @_columnsInfo.totalWidth)
+				width = Math.floor(colInfo.width * totalWidth / @_columnsInfo.totalWidth)
 				if width < 80 then width = 80
 				col.width = width + "px"
 			else
@@ -760,7 +760,13 @@ class cola.Table extends cola.AbstractTable
 
 		if item instanceof cola.Entity and column._property
 			$cell = $fly(dom.parentNode)
-			message = item.getKeyMessage(column._property)
+			i = column._property.lastIndexOf(".")
+			if i > 0
+				subItem = item.get(column._property.substring(0, i))
+				message = subItem?.getKeyMessage(column._property.substring(i + 1))
+			else
+				message = item.getKeyMessage(column._property)
+
 			if message
 				if typeof message is "string"
 					message =
