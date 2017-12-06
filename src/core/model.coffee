@@ -335,6 +335,13 @@ class cola.SubScope extends cola.Scope
 			if isParent then return true
 		return false
 
+	isParentOf: (parent, child) ->
+		while child
+			if child.parent is parent
+				return true
+			child = child.parent
+		return false
+
 	processMessage: (bindingPath, path, type, arg)->
 		# 如果@aliasExpressions为空是不应该进入此方法的
 		if @messageTimestamp >= arg.timestamp then return
@@ -585,6 +592,18 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
+	findRelativeItem: (child)->
+		items = @originItems or @items
+		return unless items
+
+		item = null
+		while child
+			if child.parent is items
+				item = child
+				break
+			child = child.parent
+		return item
+
 	_processMessage: (bindingPath, path, type, arg)->
 		if @onMessage?(path, type, arg) is false
 			return true
@@ -601,14 +620,15 @@ class cola.ItemsScope extends cola.SubScope
 				processMoreMessage = true
 
 		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
+			debugger
 			if @isParentOfTarget(@expressionPaths, path)
 				@retrieveData()
 				@refreshItems()
 				allProcessed = true
 			else
-				parent = arg.entity?.parent
-				if parent is @items or @isOriginItems(parent)
-					@refreshItem(arg)
+				entity = @findRelativeItem(arg.entity)
+				if entity
+					@refreshItem(entity: entity)
 				else
 					processMoreMessage = true
 
