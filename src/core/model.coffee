@@ -620,7 +620,6 @@ class cola.ItemsScope extends cola.SubScope
 				processMoreMessage = true
 
 		else if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE
-			debugger
 			if @isParentOfTarget(@expressionPaths, path)
 				@retrieveData()
 				@refreshItems()
