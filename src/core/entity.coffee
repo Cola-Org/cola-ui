@@ -1106,7 +1106,7 @@ class cola.Entity
 		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
-		nullValue = options?.nullValue or true
+		nullValue = if options?.nullValue? then options.nullValue else true
 
 		data = @_data
 		json = {}

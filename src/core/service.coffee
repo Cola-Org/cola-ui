@@ -204,7 +204,7 @@ class cola.Provider extends cola.Definition
 			options.contentType = "application/json" if not options.contentType
 
 		if @_parameter instanceof cola.Entity or @_parameter instanceof cola.EntityList
-			parameter = @_parameter.toJSON()
+			parameter = @_parameter.toJSON(nullValue: false)
 		else
 			parameter = @_parameter
 
