@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="./include-all.js"></script>
+</head>
+<body style="padding: 80px;">
+
+<br><br><br><br><br><br><br>
+
+<c-input id="inputDemo" create="initInputTip"></c-input>
+
+<style>
+	.input-tip {
+		position: absolute;
+		font-size: 125%;
+		background: #fff8c5;
+		color: firebrick;
+		border: 1px solid #726f50;
+		padding: 0.25em 1em;
+		width: 16em;
+		height: 2em;
+		line-height: 2em;
+		margin-top: -8px;
+		transform: translate(-50%, -100%);
+	}
+</style>
+
+<script type="text/javascript">
+	cola(function (model) {
+
+		model.action({
+			initInputTip: function (self) {
+				var $tip, path;
+				self.set({
+					input: function (self, arg) {
+						model.set(path, arg.inputValue);
+					},
+					focus: function (self) {
+						if (!$tip) {
+							var id = self.getDom().id || cola.uniqueId();
+							path = id + "TipText";
+
+							var tipId = id + "Tip";
+							$tip = $("#" + tipId).addClass("input-tip");
+							if (!$tip.length) {
+								$tip = $(cola.xRender({
+									id: tipId,
+									class: "input-tip",
+									"c-bind": path
+								}, model));
+								$(document.body).append($tip);
+							}
+						}
+
+						model.set(path, self.get("value"));
+
+						var $inputDom = self.get$Dom();
+						var offset = $inputDom.offset();
+						$tip.css({
+							left: offset.left + $inputDom.width() / 2,
+							top: offset.top
+						}).show();
+					},
+					blur: function (self) {
+						$tip.hide();
+					}
+				});
+			}
+		});
+	});
+</script>
+</body>
+</html>

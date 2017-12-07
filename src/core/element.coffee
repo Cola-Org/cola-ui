@@ -264,10 +264,12 @@ class cola.Element
 					@on(attr, value)
 					return
 				else if typeof value is "string"
-					action = @_scope?.action(value)
-					if action
-						@on(attr, action)
-						return
+					for actionName in value.split(",")
+						if actionName
+							action = @_scope?.action(actionName)
+							if action
+								@on(attr, action)
+					return
 
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
