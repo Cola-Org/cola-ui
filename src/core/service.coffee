@@ -237,6 +237,10 @@ class cola.Provider extends cola.Definition
 		return options
 
 	translateResult: (result, invokerOptions)->
+		# Spring MVC+Ajax在分页模式下，null的返回会自动处理为""
+		if result is "" and @_pageSize > 0
+			result = null
+
 		if @_detectEnd and result instanceof Array
 			if result.length >= @_pageSize
 				result = result.slice(0, @_pageSize)

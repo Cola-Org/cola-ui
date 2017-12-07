@@ -231,6 +231,8 @@ class cola.ItemsView extends cola.Widget
 		@_setCurrentItemDom(currentItemDom)
 		return
 
+	refreshItems: ()-> @_refreshItems()
+
 	_refreshItems: ()->
 		if not @_dom
 			@_refreshItemsScheduled = true
@@ -399,7 +401,7 @@ class cola.ItemsView extends cola.Widget
 
 	_onItemRefresh: (arg)->
 		item = arg.entity
-		if typeof item == "object"
+		if typeof item is "object"
 			@refreshItem(item)
 		return
 

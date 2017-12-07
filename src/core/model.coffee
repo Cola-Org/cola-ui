@@ -829,7 +829,7 @@ class cola.AbstractDataModel
 		dataModel = @
 		@_shortcutMap[shortcut] = shortcutHolder = {
 			data: data
-			path: path
+			path: if path instanceof Array then path.join(".") else path
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@path.length)

@@ -355,12 +355,6 @@ class cola.Table extends cola.AbstractTable
 		@_bindKeyDown()
 		return
 
-	_convertItems: (items)->
-		items = super(items)
-		if @_sortCriteria
-			items = cola.util.sort(items, @_sortCriteria)
-		return items
-
 	_sysHeaderClick: (column)->
 		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
@@ -423,8 +417,7 @@ class cola.Table extends cola.AbstractTable
 				}) is false
 					return
 
-				@_sortCriteria = criteria
-				@_refreshItems()
+				@set("sortCriteria", criteria)
 		return
 
 	_doRefreshItems: ()->
