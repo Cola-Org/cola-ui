@@ -137,10 +137,8 @@ class cola._RepeatDomBinding extends cola._DomBinding
 
 			@scope = scope
 			headerNode = document.createComment("Repeat Head ")
-			cola._ignoreNodeRemoved = true
 			dom.parentNode.replaceChild(headerNode, dom)
 			cola.util.cacheDom(dom);
-			cola._ignoreNodeRemoved = false
 			@dom = headerNode
 
 			cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, @)

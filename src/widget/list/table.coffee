@@ -892,8 +892,7 @@ class cola.Table extends cola.Widget
 
 						cola.util.flush(collection)
 			else
-				@_sortCriteria = criteria
-				@_refreshItems()
+				@set("sortCriteria", criteria)
 		return
 
 cola.registerWidget(cola.Table)

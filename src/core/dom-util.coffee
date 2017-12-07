@@ -65,16 +65,12 @@ cola.util.userData = (node, key, data)->
 			else if node.getAttribute
 				node.setAttribute(USER_DATA_KEY, id)
 
-			userData[id] = store = {
-				__cleanStamp: cleanStamp
-			}
+			userData[id] = store = {}
 			userData.size++
 		else
 			store = userData[id]
 			if not store
-				userData[id] = store = {
-					__cleanStamp: cleanStamp
-				}
+				userData[id] = store = {}
 
 		store[key] = data
 
@@ -93,9 +89,7 @@ cola.util.userData = (node, key, data)->
 			else if node.getAttribute
 				node.setAttribute(USER_DATA_KEY, id)
 
-			userData[id] = store = {
-				__cleanStamp: cleanStamp
-			}
+			userData[id] = store = {}
 			for k, v of key
 				store[k] = v
 	else if arguments.length is 1
@@ -127,7 +121,7 @@ ON_NODE_DISPOSE_KEY = "__onNodeDispose"
 ON_NODE_REMOVE_KEY = "__onNodeRemove"
 ON_NODE_INSERT_KEY = "__onNodeInsert"
 
-cola.detachNode = (node)->
+cola.util.detachNode = (node)->
 	return unless node.parentNode
 	cola._ignoreNodeRemoved = true
 	node.parentNode.removeChild(node)
@@ -183,6 +177,8 @@ cola.util._getNodeDataId = (node)->
 _doNodeInserted = (node)->
 	id = cola.util._getNodeDataId(node)
 	if id
+		delete cola.util._nodesToBeRemove[id]
+
 		store = cola.util.userDataStore[id]
 		if store
 			listeners = store[ON_NODE_INSERT_KEY]
@@ -223,6 +219,8 @@ _doNodeRemoved = (node)->
 	return
 
 _DOMNodeInsertedListener = (evt)->
+	return if window.closed
+
 	node = evt.target
 	node and _doNodeInserted(node)
 	return
@@ -233,8 +231,6 @@ _DOMNodeRemovedListener = (evt)->
 	node = evt.target
 	node and _doNodeRemoved(node)
 	return
-
-cleanStamp = 1
 
 document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
@@ -273,20 +269,12 @@ cola.util.getGlobalTemplate = (name)->
 		if not template.hasAttribute("shared") then $fly(template).remove()
 	return html
 
-#if cola.device.mobile
-#	$fly(window).on("load", ()->
-#		FastClick.attach(document.body)
-#		return
-#	)
-
 if cola.browser.webkit
 	browser = "webkit"
 	if cola.browser.chrome
 		browser += " chrome"
 	else if cola.browser.safari
 		browser += " safari"
-#	else if cola.browser.qqbrowser
-#		browser += " qqbrowser"
 else if cola.browser.ie
 	browser = "ie"
 else if cola.browser.mozilla
