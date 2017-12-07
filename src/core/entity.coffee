@@ -841,7 +841,7 @@ class cola.Entity
 	reset: (prop)->
 		if prop
 			@_set(prop, undefined)
-			@clearMessage(prop)
+			@clearMessages(prop)
 		else
 			@disableObservers()
 			data = @_data
@@ -858,7 +858,7 @@ class cola.Entity
 		if prop
 			if data.hasOwnProperty(prop)
 				@_set(prop, @_oldData[prop])
-				@clearMessage(prop)
+				@clearMessages(prop)
 		else
 			if @_oldData
 				@disableObservers()
@@ -874,7 +874,7 @@ class cola.Entity
 
 	resetState: ()->
 		delete @_oldData
-		@clearMessage()
+		@clearMessages()
 		@setState(_Entity.STATE_NONE)
 		return @
 
@@ -1088,7 +1088,7 @@ class cola.Entity
 	getMessages: (prop)->
 		return @_messageHolder?.getMessages(prop)
 
-	clearMessage: (prop, force)->
+	clearMessages: (prop, force)->
 		return @ unless @_messageHolder
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
