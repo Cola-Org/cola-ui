@@ -197,6 +197,9 @@ cola.DataWidgetMixin =
 			if entity
 				if entity instanceof cola.Entity
 					return entity.get(@_bindInfo.property, "async")
+				else if entity instanceof cola.EntityList
+					if entity.current
+						return entity.current.get(@_bindInfo.property, "async")
 				else if typeof entity is "object"
 					return entity[@_bindInfo.property]
 			dataCtx.readOnly = true
