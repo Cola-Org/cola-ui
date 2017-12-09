@@ -892,8 +892,7 @@ class cola.Table extends cola.Widget
 
 						cola.util.flush(collection)
 			else
-				@_sortCriteria = criteria
-				@_refreshItems()
+				@set("sortCriteria", criteria)
 		return
 
 cola.registerWidget(cola.Table)
@@ -1172,6 +1171,35 @@ class cola.Table.InnerTable extends cola.AbstractList
 							defaultPath: "#{@_alias}.#{column._property}"
 						}
 				cola.xRender(dom, itemScope, context)
+
+		if item instanceof cola.Entity and column._property
+			$cell = $fly(dom.parentNode)
+			i = column._property.lastIndexOf(".")
+			if i > 0
+				subItem = item.get(column._property.substring(0, i))
+				message = subItem?.getKeyMessage(column._property.substring(i + 1))
+			else
+				message = item.getKeyMessage(column._property)
+
+			if message
+				if typeof message is "string"
+					message =
+						type: "error"
+						text: message
+
+				$cell.removeClass("info warn error").addClass(message.type)
+
+				$cell.attr("data-content", message.text)
+				if not dom._popupSetted
+					$cell.popup({
+						position: "bottom center"
+					})
+					dom._popupSetted = true
+				dom._hasState = true
+			else if dom._hasState
+				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+				dom._hasState = false
+				dom._popupSetted = false
 
 		return if column._real_template
 
