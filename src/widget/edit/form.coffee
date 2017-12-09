@@ -9,7 +9,7 @@ class cola.Form extends cola.Widget
 			setter: cola.DataType.dataTypeSetter
 
 		readOnly:
-			setter: (readOnly) ->
+			setter: (readOnly)->
 				@_readOnly = readOnly
 				if @_rendered
 					@get$Dom().find("field, fields >field").each((i, fieldDom)->
@@ -229,15 +229,14 @@ class cola.Field extends cola.Widget
 
 		bind = @_bindStr
 		if dom.parentNode
-			if dom.parentNode.nodeName is "C-FORM"
-				@_formDom = dom.parentNode
-			else if dom.parentNode.parentNode?.nodeName is "C-FORM"
-				@_formDom = dom.parentNode.parentNode
+			form = cola.widget(dom.parentNode)
+			if not (form instanceof cola.Form)
+				form = cola.widget(dom.parentNode.parentNode)
 
-		if @_formDom
-			@_form = cola.widget(@_formDom)
+		if form
+			@_form = form
 			if not bind and @_property
-				formBind = @_form?._bind
+				formBind = form?._bind
 				if formBind
 					bind = formBind + "." + @_property
 				else
@@ -311,18 +310,18 @@ class cola.Field extends cola.Widget
 				@setMessage(keyMessage)
 		return
 
-	_doRefreshDom: () ->
+	_doRefreshDom: ()->
 		@refreshReadOnly()
 		@_classNamePool.toggle("readonly", @_finalReadOnly)
 		return super()
 
-	refreshReadOnly: () ->
+	refreshReadOnly: ()->
 		finalReadOnly = @_readOnly or @_form?._readOnly
 		if finalReadOnly != @_finalReadOnly
 			@_finalReadOnly = finalReadOnly
 
 		if @_rendered
-			@get$Dom().find("input").each((i, input)=>
+			@get$Dom().find("input, textarea").each((i, input)=>
 				editor = cola.widget(input.parentNode)
 				if editor and editor._readOnlyFactor != @_finalReadOnly
 					editor._readOnlyFactor.field = @_finalReadOnly

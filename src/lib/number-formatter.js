@@ -14,20 +14,22 @@ this['formatNumber'] = function(m, v){
 	var prefix, suffix;
 	if (m) {
 		var i1, i2, i;
-		i1 = m.indexOf("#"), i2 = m.indexOf("0");
+		i1 = m.indexOf("#");
+		i2 = m.indexOf("0");
 		if (i1 < 0) i1 = 0;
 		if (i2 < 0) i2 = 0;
 		i = i1 < i2 ? i1 : i2;
 		if (i > 0) {
 			prefix = m.substring(0, i);
-			m = m.substring(i)
+			m = m.substring(i);
 		}
 
-		i1 = m.lastIndexOf("#"), i2 = m.lastIndexOf("0");
+		i1 = m.lastIndexOf("#");
+		i2 = m.lastIndexOf("0");
 		i = i1 > i2 ? i1 : i2;
-		if (i > 0 && i < m.length - 1) {
-			suffix = m.substring(i)
-			m = m.substring(0, i)
+		if (i >= 0 && i < m.length) {
+			suffix = m.substring(i + 1);
+			m = m.substring(0, i + 1);
 		}
 	}
 

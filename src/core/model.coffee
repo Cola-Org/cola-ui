@@ -214,6 +214,18 @@ class cola.Model extends cola.Scope
 		@_$doms ?= $(@_doms)
 		return @_$doms.find(selector)
 
+	tag: (tag)->
+		filtered = []
+		elements = cola.tagManager.find(tag)
+		for element in elements
+			scope = element._scope
+			while scope
+				if scope is @
+					filtered.push(element)
+					break
+				scope = scope.parent
+		return cola.Element.createGroup(filtered)
+
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
@@ -356,8 +368,15 @@ class cola.SubScope extends cola.Scope
 			if isParent then return true
 		return false
 
+	isParentOf: (parent, child) ->
+		while child
+			if child.parent is parent
+				return true
+			child = child.parent
+		return false
+
 	processMessage: (bindingPath, path, type, arg)->
-# 如果@aliasExpressions为空是不应该进入此方法的
+		# 如果@aliasExpressions为空是不应该进入此方法的
 		if @messageTimestamp >= arg.timestamp then return
 		@_processMessage(bindingPath, path, type, arg)
 
@@ -365,7 +384,7 @@ class cola.SubScope extends cola.Scope
 		return
 
 	_processMessage: (bindingPath, path, type, arg)->
-# 如果@aliasExpressions为空是不应该进入此方法的
+		# 如果@aliasExpressions为空是不应该进入此方法的
 		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
 			for alias, expression of @aliasExpressions
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
@@ -592,7 +611,7 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
-	_processMessage: (bindingPath, path, type, arg)->
+	_processMessage: (bindingPath, path, type, arg) ->
 		if @onMessage?(path, type, arg) is false
 			return true
 
@@ -613,9 +632,9 @@ class cola.ItemsScope extends cola.SubScope
 				@refreshItems()
 				allProcessed = true
 			else
-				parent = arg.entity?.parent
-				if parent is @items or @isOriginItems(parent)
-					@refreshItem(arg)
+				entity = @findRelativeItem(arg.entity)
+				if entity
+					@refreshItem(entity: entity)
 				else
 					processMoreMessage = true
 
@@ -817,7 +836,7 @@ class cola.AbstractDataModel
 		dataModel = @
 		@_shortcutMap[shortcut] = shortcutHolder = {
 			data: data
-			path: path
+			path: if path instanceof Array then path.join(".") else path
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@path.length)
@@ -1153,7 +1172,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	dataType: (name)->
 		return @parent.dataType(name)
 
-	addAlias: (alias, path) ->
+	addAlias: (alias, path)->
 		@_aliasMap[alias] =
 			data: undefined
 			alias: alias

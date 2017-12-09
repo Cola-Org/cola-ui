@@ -17,6 +17,8 @@ class cola.AbstractList extends cola.ItemsView
 
 		filterCriteria:
 			refreshItems: true
+		sortCriteria:
+			refreshItems: true
 
 	@events:
 		pullStart: null
@@ -63,8 +65,11 @@ class cola.AbstractList extends cola.ItemsView
 				arg.item = item
 				return @fire("filterItem", @, arg)
 			)
-		else if @_filterCriteria
-			items = cola.util.filter(items, @_filterCriteria)
+		else
+			if @_filterCriteria
+				items = cola.util.filter(items, @_filterCriteria)
+			if @_sortCriteria
+				items = cola.util.sort(items, @_sortCriteria)
 		return items
 
 	_refreshEmptyItemDom: ()->

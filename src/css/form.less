@@ -148,6 +148,21 @@
 	}
 }
 
+.hide-state {
+	field.required {
+		> label {
+			&:after {
+				display: none !important;
+			}
+		}
+	}
+
+	message.warn, messages.warn,
+	message.error, messages.error {
+		display: none !important;
+	}
+}
+
 .form, form-layout {
 	position: relative;
 	padding-top: 0.75rem;

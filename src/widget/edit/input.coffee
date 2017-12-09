@@ -210,7 +210,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 					altKey: event.altKey
 					event: event
 
-				if @fire("keyPress", @, arg) == false then return
+				if @fire("keyPress", @, arg) == false then return false
 				if event.keyCode is 13 and isIE11 then @_postInput()
 			)
 		return
@@ -346,7 +346,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_doms.input?.focus()
 		return
 
-	_postInput: () ->
+	_postInput: ()->
 		if not @_finalReadOnly
 			value = @_doms.input.value
 			if value is "" then value = null
@@ -380,7 +380,7 @@ class cola.Input extends cola.AbstractInput
 			defaultValue: true
 	@events:
 		keyPress: null
-		input: null
+		input:null
 
 	_createEditorDom: ()->
 		config =
@@ -396,6 +396,7 @@ class cola.Input extends cola.AbstractInput
 
 	_initDom: (dom)->
 		super(dom)
+
 		input = @_doms.input
 		$(input).on("input", ()=>
 			arg = {

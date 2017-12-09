@@ -135,7 +135,9 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		@_dom = dom
 		unless parseChild
 			@_bindToSemantic()
-		return super(dom, parseChild)
+		super(dom, parseChild)
+
+		return
 
 	_refreshEditorDom: ()->
 		@get$Dom().checkbox(if @_value is @_onValue then "check" else "uncheck")
@@ -149,8 +151,8 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		label = @get("label") or ""
 		$(@_doms.label).text(label)
 
-		readOnly = @get("readOnly")
-		@_classNamePool.toggle("read-only", readOnly)
+		@_classNamePool.toggle("readonly", @_finalReadOnly)
+		@_classNamePool.toggle("read-only", @_finalReadOnly)
 
 		$dom = @get$Dom()
 		$dom.checkbox(if !!@_disabled then "disable" else "enable")
@@ -163,7 +165,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 
 	toggle: ()->
 		state = !!@get("checked")
-		@set("checked", !state)
+		@set("checked", not state)
 		return @
 
 class cola.Checkbox extends cola.AbstractCheckbox

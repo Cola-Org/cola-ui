@@ -16,7 +16,8 @@ _processEntity = (entity, context, options)->
 		state: true
 		oldData: options.oldData
 	context.messages ?= {}
-	if not options.ignoreValidation and entity.state isnt cola.Entity.STATE_DELETED
+
+	if not options.ignoreValidators and entity.state isnt cola.Entity.STATE_DELETED
 		entity.validate()
 		messages = entity.findMessages()
 		if messages
@@ -27,16 +28,17 @@ _processEntity = (entity, context, options)->
 	if entity.state isnt cola.Entity.STATE_NONE
 		json = entity.toJSON(toJSONOptions)
 
-	data = entity._data
-	for prop, val of data
-		if prop.charCodeAt(0) is 36 # `$`
-			continue
-		if val and (val instanceof cola.Entity or val instanceof cola.EntityList)
-			context.parentProperty = prop
-			val = _extractDirtyTree(val, context, options)
-			if val?
-				json ?= entity.toJSON(toJSONOptions)
-				json[prop] = val
+	if entity.state isnt cola.Entity.STATE_DELETED
+		data = entity._data
+		for prop, val of data
+			if prop.charCodeAt(0) is 36 # `$`
+				continue
+			if val and (val instanceof cola.Entity or val instanceof cola.EntityList)
+				context.parentProperty = prop
+				val = _extractDirtyTree(val, context, options)
+				if val?
+					json ?= entity.toJSON(toJSONOptions)
+					json[prop] = val
 
 	if json?
 		context.entityMap[entity.id] = entity
