@@ -19,13 +19,13 @@
 					},
 					age: {
 						dataType: "number",
-						// validators: [
-						// 	"required", {
-						// 		$type: "number",
-						// 		min: 16,
-						// 		max: 60
-						// 	}
-						// ],
+						validators: [
+							"required", {
+								$type: "number",
+								min: 16,
+								max: 60
+							}
+						],
 						read: function(self, arg) {
 							return arg.value * 100;
 						},
@@ -104,7 +104,7 @@
 <c-button click="setReadOnly">Set ReadOnly</c-button>
 <c-button click="showData">Show Data</c-button>
 
-<c-form class="hide-state" bind="form" id="form1">
+<c-form _class="hide-state" bind="form" id="form1">
 	<fields class="cols-3">
 		<field property="name"></field>
 		<field property="age">

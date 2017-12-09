@@ -228,7 +228,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_inputFocused = false
 		@_refreshInput()
 
-		if not @_value? or @_value is "" and @_bindInfo?.writeable
+		if (not @_value? or @_value is "") and @_bindInfo?.writeable
 			propertyDef = @getBindingProperty()
 			if propertyDef?._required and propertyDef._validators
 				entity = @_scope.get(@_bindInfo.entityPath)
