@@ -116,9 +116,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					dom.appendChild(clearButton)
 
 				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
-
-			if @_disabled || @_readOnly
-				$fly(clearButton).addClass("disabled");
 		).on("click", ()=>
 			if @_openOnActive
 				if @_opened
@@ -134,8 +131,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				event: evt
 				inputValue: value
 			@fire("input", @, arg)
-		).on("focus", ()=> @_doFocus()
-		).on("blur", ()=> @_doBlur()
+		).on("focus", ()=> @_onFocus()
+		).on("blur", ()=> @_onBlur()
 		).on("keypress", ()=> @_inputEdited = true
 		)
 
@@ -145,9 +142,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @_items and @_valueProperty then @_setValue(@_value)
 		return
 
-	_doFocus: ()->
+	_onFocus: ()->
 		@_inputEdited = false
-		super(evt)
+		super()
 		return
 
 	_parseDom: (dom)->

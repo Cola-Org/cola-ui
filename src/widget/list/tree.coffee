@@ -476,8 +476,6 @@ class cola.Tree extends cola.AbstractList
 			node._bind.retrieveChildNodes(node, ()->
 				if expand
 					$fly(nodeDom).removeClass("expanding")
-					node._expanded = true if expand
-				node._hasExpanded = true
 
 				if node._children?.length > 0
 					tree._refreshChildNodes(itemDom, node, true)
@@ -494,6 +492,9 @@ class cola.Tree extends cola.AbstractList
 							$nodesWrapper.slideDown(150)
 				else
 					$fly(nodeDom).addClass("leaf")
+
+				node._expanded = true if expand
+				node._hasExpanded = true
 
 				callback?.call(tree)
 				return

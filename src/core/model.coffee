@@ -611,7 +611,21 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
-	_processMessage: (bindingPath, path, type, arg) ->
+	findRelativeItem: (child, deepth = 2)->
+		items = @originItems or @items
+		return unless items
+
+		i = 0
+		item = null
+		while child
+			if child.parent is items and i < deepth
+				item = child
+				break
+			child = child.parent
+			i++
+		return item
+
+	_processMessage: (bindingPath, path, type, arg)->
 		if @onMessage?(path, type, arg) is false
 			return true
 
@@ -1488,7 +1502,7 @@ class cola.ElementAttrBinding
 		return
 
 	processMessage: (bindingPath, path, type)->
-		return if @element._freezed > 0
+		return if @element._freezed
 		if cola.constants.MESSAGE_REFRESH <= type <= cola.constants.MESSAGE_CURRENT_CHANGE or @watchingMoreMessage
 			@refresh()
 		return
