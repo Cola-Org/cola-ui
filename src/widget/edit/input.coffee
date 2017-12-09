@@ -310,7 +310,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("name", @_name) if @_name
 		$inputDom.attr("placeholder", @get("placeholder"))
-		@_doms.input.readOnly = @_finalReadOnly
+		$inputDom.attr("readonly", @_finalReadOnly or null)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 
 		dataType = @_dataType

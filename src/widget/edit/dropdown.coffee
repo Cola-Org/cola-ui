@@ -91,7 +91,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				@close()
 			else if not @_finalReadOnly
 				@open()
-			return
+			@focus()
+			return false
 		).on("keypress", (evt)=>
 			arg =
 				keyCode: evt.keyCode
@@ -116,13 +117,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					dom.appendChild(clearButton)
 
 				$fly(clearButton).toggleClass("disabled", !@_doms.input.value)
-		).on("click", ()=>
-			if @_openOnActive
-				if @_opened
-					@close()
-				else if not @_finalReadOnly
-					@open()
-			return
 		)
 
 		$(@_doms.input).on("input", (evt)=>
@@ -131,10 +125,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				event: evt
 				inputValue: value
 			@fire("input", @, arg)
-		).on("focus", ()=> @_onFocus()
-		).on("blur", ()=> @_onBlur()
-		).on("keypress", ()=> @_inputEdited = true
-		)
+		).on("keypress", ()=> @_inputEdited = true)
 
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
@@ -144,6 +135,13 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_onFocus: ()->
 		@_inputEdited = false
+		super()
+		if @_openOnActive and not @_opened and not @_finalReadOnly
+			@open()
+		return
+
+	_onBlur: ()->
+		if @_opened then @close()
 		super()
 		return
 
@@ -177,7 +175,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.attr("readOnly", @_finalReadOnly or @_isEditorReadOnly())
+		$inputDom.attr("readOnly", @_finalReadOnly or @_isEditorReadOnly() or null)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
@@ -364,6 +362,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container = @_getContainer()
 		if container
 			container._dropdown = @
+			container._focusParent = @
 			container.on("hide", (self)->
 				delete self._dropdown
 				return
@@ -571,31 +570,10 @@ class cola.DropBox extends cola.Layer
 		, 300)
 		return
 
-	_onShow: ()->
-		super()
-		@_bodyListener = (evt)=>
-			target = evt.target
-			unless @_dropdown then return
-			dropdownDom = @_dropdown._dom
-			dropContainerDom = @_dom
-			while target
-				if target == dropdownDom or target == dropContainerDom
-					inDropdown = true
-					break
-				target = target.parentNode
-
-			if not inDropdown
-				@_dropdown.close()
-			return
-		$fly(document.body).on("click", @_bodyListener)
-		return
-
 	hide: (options, callback)->
 		if @_resizeTimer
 			clearInterval(@_resizeTimer)
 			delete @_resizeTimer
-
-		$fly(document.body).off("click", @_bodyListener)
 		super(options, callback)
 		return
 
@@ -688,8 +666,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 				text: "input"
 				type: "text",
 				class: "filter-input"
-				focus: ()=> @_doFocus()
-				blur: ()=> @_doBlur()
+				focus: ()=> @_onFocus()
+				blur: ()=> @_onBlur()
 				input: (evt)=>
 					if @_useValueContent
 						$valueContent = $fly(@_doms.valueContent)
@@ -776,7 +754,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		@_inputDirty = false
 		return super(item)
 
-	_doBlur: ()->
+	_onBlur: ()->
 		if @_inputDirty
 			@close(@_list?.get("currentItem") or null)
 		@_doms.filterInput?.value = ""

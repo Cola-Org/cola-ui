@@ -909,6 +909,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 	constructor: (config)->
 		@_itemsScope = config.table._itemsScope
+		@_alias = config.table._alias
 		super(config)
 		@_focusParent = @_table
 		@on("itemClick", (self, arg)=> @_table.fire("itemClick", @_table, arg))
