@@ -604,16 +604,18 @@ class cola.ItemsScope extends cola.SubScope
 				if isMatch then return true
 		return false
 
-	findRelativeItem: (child)->
+	findRelativeItem: (child, deepth = 2)->
 		items = @originItems or @items
 		return unless items
 
+		i = 0
 		item = null
 		while child
-			if child.parent is items
+			if child.parent is items and i < deepth
 				item = child
 				break
 			child = child.parent
+			i++
 		return item
 
 	_processMessage: (bindingPath, path, type, arg)->
