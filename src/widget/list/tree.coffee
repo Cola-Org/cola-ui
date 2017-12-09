@@ -300,11 +300,7 @@ class cola.Tree extends cola.AbstractList
 			@_refreshItemDom(nodeDom, node, node._parent._itemsScope)
 		return
 
-	refreshItem: (item)->
-		node = @findNode(item)
-		if node
-			@refreshNode(node)
-		return
+	refreshItem: (item)-> # 此方法会过早执行导致正展开的节点被意外关闭
 
 	_refreshItemDom: (itemDom, node, parentScope)->
 		nodeScope = cola.util.userData(itemDom, "scope")
@@ -474,31 +470,34 @@ class cola.Tree extends cola.AbstractList
 				itemsScope.addAuxExpression(expressions[1])
 
 		nodeDom = itemDom.firstElementChild
-		$fly(nodeDom).addClass("expanding") if expand and not node._expanded
-		node._bind.retrieveChildNodes(node, ()->
-			$fly(nodeDom).removeClass("expanding") if expand
-			if node._children?.length > 0
-				tree._refreshChildNodes(itemDom, node, true)
+		if expand and not node._expanded
+			$fly(nodeDom).addClass("expanding")
 
-				$nodeDom = $fly(nodeDom)
-				$nodeDom.removeClass("leaf")
-				$nodeDom.addClass("expanded") if expand
+			node._bind.retrieveChildNodes(node, ()->
+				if expand
+					$fly(nodeDom).removeClass("expanding")
+					node._expanded = true if expand
+				node._hasExpanded = true
 
-				$nodesWrapper = $fly(itemDom.lastChild)
-				if expand and $nodesWrapper.hasClass("child-nodes")
-					if noAnimation
-						$nodesWrapper.show()
-					else
-						$nodesWrapper.slideDown(150)
-			else
-				$fly(nodeDom).addClass("leaf")
+				if node._children?.length > 0
+					tree._refreshChildNodes(itemDom, node, true)
 
-			node._expanded = true if expand
-			node._hasExpanded = true
+					$nodeDom = $fly(nodeDom)
+					$nodeDom.removeClass("leaf")
+					$nodeDom.addClass("expanded") if expand
 
-			callback?.call(tree)
-			return
-		)
+					$nodesWrapper = $fly(itemDom.lastChild)
+					if expand and $nodesWrapper.hasClass("child-nodes")
+						if noAnimation
+							$nodesWrapper.show()
+						else
+							$nodesWrapper.slideDown(150)
+				else
+					$fly(nodeDom).addClass("leaf")
+
+				callback?.call(tree)
+				return
+			)
 		return
 
 	expand: (node, noAnimation = true)->

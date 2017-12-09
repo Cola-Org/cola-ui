@@ -229,15 +229,14 @@ class cola.Field extends cola.Widget
 
 		bind = @_bindStr
 		if dom.parentNode
-			if dom.parentNode.nodeName is "C-FORM"
-				@_formDom = dom.parentNode
-			else if dom.parentNode.parentNode?.nodeName is "C-FORM"
-				@_formDom = dom.parentNode.parentNode
+			form = cola.widget(dom.parentNode)
+			if not (form instanceof cola.Form)
+				form = cola.widget(dom.parentNode.parentNode)
 
-		if @_formDom
-			@_form = cola.widget(@_formDom)
+		if form
+			@_form = form
 			if not bind and @_property
-				formBind = @_form?._bind
+				formBind = form?._bind
 				if formBind
 					bind = formBind + "." + @_property
 				else

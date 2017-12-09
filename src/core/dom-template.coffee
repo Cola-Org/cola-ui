@@ -14,7 +14,7 @@ cola._rootFunc = ()->
 			modelName = arg
 		else if arg instanceof cola.Scope
 			model = arg
-		else if arg?.nodeType or typeof arg == "object" and arg.length > 0
+		else if arg?.nodeType or typeof arg is "object" and arg.length > 0
 			targetDom = arg
 
 	init = (dom, model, param)->

@@ -33,11 +33,13 @@ class cola.RadioGroup extends cola.AbstractEditor
 
 	_doRefreshDom: ()->
 		super()
+		@_classNamePool.toggle("readonly", !!@_finalReadOnly)
 		itemsDom = @_getItemsDom()
 		if itemsDom
 			$fly(@_dom).empty().append(itemsDom)
 		value = @_value
 		@_select(value)
+		return
 
 	_select: (value)->
 		if typeof value == "undefined"

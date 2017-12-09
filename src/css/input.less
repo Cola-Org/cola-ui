@@ -14,14 +14,10 @@
 
 .webkit {
 	.ui.toggle.checkbox {
-		label {
-			padding-left: 3.5rem !important;
-		}
-		&.no-transmit {
-			label:before, label:after {
-				-webkit-transition: none !important;
-				transition: none !important;
-			}
+		label:before, .box:before, label:after, .box:after,
+		input:checked ~ label:before, input:checked ~ .box:before, input:checked ~ label:after, input:checked ~ .box:after {
+			-webkit-transform: none !important;
+			transform: none !important;
 		}
 	}
 }

@@ -180,7 +180,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("placeholder", @get("placeholder"))
-		$inputDom.prop("readonly", @_finalReadOnly or @_isEditorReadOnly())
+		$inputDom.attr("readOnly", @_finalReadOnly or @_isEditorReadOnly())
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		@_setValueContent()
 		return
@@ -839,7 +839,7 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 			content: "<Undefined>"
 
 	_isEditorReadOnly: ()->
-		return false
+		return true
 
 	_getDropdownContent: ()->
 		if not @_dropdownContent

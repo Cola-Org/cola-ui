@@ -264,10 +264,12 @@ class cola.Element
 					@on(attr, value)
 					return
 				else if typeof value is "string"
-					action = @_scope?.action(value)
-					if action
-						@on(attr, action)
-						return
+					for actionName in value.split(",")
+						if actionName
+							action = @_scope?.action(actionName)
+							if action
+								@on(attr, action)
+					return
 
 			if ignoreError then return
 			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
@@ -499,7 +501,7 @@ cola.Element.createGroup = (elements, model)->
 	else
 		elements = if elements then elements.slice(0) else []
 
-	elements.set = (attr, value, ignoreError)->
+	elements.set = (attr, value, ignoreError = true)->
 		element.set(attr, value, ignoreError) for element in elements
 		return @
 	elements.on = (eventName, listener, once)->

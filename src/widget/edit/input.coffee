@@ -212,7 +212,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 					event: event
 					inputValue: $(input).val()
 
-				if @fire("keyPress", @, arg) == false then return
+				if @fire("keyPress", @, arg) == false then return false
 				if event.keyCode is 13 and isIE11 then @_postInput()
 			)
 		return

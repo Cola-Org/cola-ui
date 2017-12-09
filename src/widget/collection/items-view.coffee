@@ -231,6 +231,8 @@ class cola.ItemsView extends cola.Widget
 		@_setCurrentItemDom(currentItemDom)
 		return
 
+	refreshItems: ()-> @_refreshItems()
+
 	_refreshItems: ()->
 		if not @_dom
 			@_refreshItemsScheduled = true

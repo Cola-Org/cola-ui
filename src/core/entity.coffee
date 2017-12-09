@@ -466,6 +466,16 @@ class cola.Entity
 			return retValue
 
 		value = @_data[prop]
+
+		if property?.getListeners("read")
+			value = property.fire("read", property, {
+				entity: @,
+				property: prop,
+				value: value
+			})
+			cola.callback(callback, true, value) if callback
+			return value
+
 		if value == undefined
 			if property
 				provider = property.get("provider")
@@ -478,10 +488,10 @@ class cola.Entity
 			callbackProcessed = true
 		else if value instanceof cola.ProviderInvoker
 			providerInvoker = value
-			if loadMode == "sync"
+			if loadMode is "sync"
 				value = providerInvoker.invokeSync()
 				value = @_set(prop, value, true)
-			else if loadMode == "async"
+			else if loadMode is "async"
 				if callback then providerInvoker.callbacks.push(callback)
 				callbackProcessed = true
 				value = undefined
@@ -618,7 +628,7 @@ class cola.Entity
 			changed = oldValue != value
 
 		if changed
-			if property and property.getListeners("beforeWrite")
+			if property?.getListeners("beforeWrite")
 				if property.fire("beforeWrite", property, {
 					entity: @,
 					property: prop,
@@ -627,7 +637,7 @@ class cola.Entity
 				}) is false
 					return
 
-			if @dataType and @dataType.getListeners("beforeDataChange")
+			if @dataType?.getListeners("beforeDataChange")
 				if @dataType.fire("beforeDataChange", @dataType, {
 					entity: @,
 					property: prop,
@@ -661,6 +671,14 @@ class cola.Entity
 				if not ignoreState and @state is _Entity.STATE_NONE
 					@setState(_Entity.STATE_MODIFIED)
 
+			if property?.getListeners("write")
+				arg =
+					entity: @,
+					property: prop,
+					oldValue: oldValue
+					value: value
+				property.fire("write", property, arg)
+				value = arg.value
 			@_data[prop] = value
 
 			if not isSpecialProp and value? and (value instanceof _Entity or value instanceof _EntityList)
@@ -700,15 +718,7 @@ class cola.Entity
 				else
 					@validate(prop)
 
-			if property and property.getListeners("write")
-				property.fire("write", property, {
-					entity: @,
-					property: prop,
-					oldValue: oldValue
-					value: value
-				})
-
-			if @dataType and @dataType.getListeners("dataChange")
+			if @dataType?.getListeners("dataChange")
 				@dataType.fire("dataChange", @dataType, {
 					entity: @,
 					property: prop,
@@ -720,14 +730,12 @@ class cola.Entity
 	remove: (detach)->
 		if @parent
 			if @parent instanceof _EntityList
-				if @dataType
-					if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
-						return @
+				if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
+					return @
 
 				@parent.remove(@, detach)
 
-				if @dataType
-					@dataType.fire("entityRemove", @dataType, {entity: @})
+				@dataType?.fire("entityRemove", @dataType, { entity: @ })
 			else
 				@setState(_Entity.STATE_DELETED)
 				@parent.set(@_parentProperty, null)
@@ -795,8 +803,8 @@ class cola.Entity
 	setState: (state)->
 		return @ if @state is state
 
-		if state is _Entity.STATE_DELETED and @dataType
-			if @dataType.fire("beforeEntityRemove", @dataType, {entity: @}) is false
+		if state is _Entity.STATE_DELETED
+			if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
 				return @
 
 		if @state is _Entity.STATE_NONE and state is _Entity.STATE_MODIFIED
@@ -811,8 +819,8 @@ class cola.Entity
 			state: state
 		})
 
-		if state is _Entity.STATE_DELETED and @dataType
-			@dataType.fire("beforeEntityRemove", @dataType, {entity: @})
+		if state is _Entity.STATE_DELETED
+			@dataType?.fire("beforeEntityRemove", @dataType, { entity: @ })
 
 		return @
 
@@ -1080,13 +1088,13 @@ class cola.Entity
 	getMessages: (prop)->
 		return @_messageHolder?.getMessages(prop)
 
-	clearMessages: (prop)->
+	clearMessages: (prop, force)->
 		return @ unless @_messageHolder
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
-		topKeyChanged = @_messageHolder.clear(prop)
-		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
-		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
+		topKeyChanged = @_messageHolder.clear(prop, force)
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
+		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
 
 	findMessages: (prop, type)->
@@ -1098,7 +1106,7 @@ class cola.Entity
 		dataType = options?.dataType or false
 		oldData = options?.oldData or false
 		simpleValue = options?.simpleValue or false
-		nullValue = options?.nullValue or true
+		nullValue = if options?.nullValue? then options.nullValue else true
 
 		data = @_data
 		json = {}
@@ -1982,15 +1990,44 @@ class cola.Entity.MessageHolder
 				topKeyChanged = true
 		return topKeyChanged
 
-	clear: (prop)->
-		if prop
-			changed = !!@propertyMessages[prop]
-			delete @propertyMessages[prop]
-			delete @keyMessage[prop]
+	clear: (prop, force)->
+		if not force
+			if prop
+				messages = @propertyMessages[prop]
+				if messages
+					topKeyMessage = @keyMessage[$]
+					@propertyMessages[prop] = newMessages = []
+					for message in messages
+						if message.sticky
+							newMessages.push(message)
+							if not keyMessage or @compare(message, keyMessage) > 0
+								keyMessage = message
+
+				changed = (newMessages?.length or 0) < (messages?.length or 0)
+				@keyMessage[prop] = keyMessage
+
+				for p, keyMessage of @keyMessage
+					if not topKeyMessage
+						topKeyMessage = keyMessage
+					else if keyMessage and @compare(keyMessage, topKeyMessage) > 0
+						topKeyMessage = keyMessage
+
+				@keyMessage["$"] = topKeyMessage
+			else
+				for prop of @propertyMessages
+					if @clear(prop, force)
+						changed = true
+				if @clear("$", force)
+					changed = true
 		else
-			changed = !!@keyMessage["$"]
-			@keyMessage = {}
-			@propertyMessages = {}
+			if prop
+				changed = !!@propertyMessages[prop]
+				delete @propertyMessages[prop]
+				delete @keyMessage[prop]
+			else
+				changed = !!@keyMessage["$"]
+				@keyMessage = {}
+				@propertyMessages = {}
 		return changed
 
 	getMessages: (prop = "$")->
