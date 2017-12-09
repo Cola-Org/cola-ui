@@ -1093,7 +1093,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return if column._real_headerTemplate
 
 		caption = column._caption or column._name
-		if caption?.charCodeAt(0) == 95 # `_`
+		if caption?.charCodeAt(0) is 95 # `_`
 			caption = column._bind
 		dom.innerText = caption or ""
 		return
