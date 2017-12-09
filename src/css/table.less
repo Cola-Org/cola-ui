@@ -96,19 +96,19 @@
 				}
 			}
 
-			&.info {
+			&.info:after {
 			}
-			&.warn {
+			&.warn:after {
 				content: "";
 				position: absolute;
 				right: 0;
 				top: 0;
 				width: 0;
 				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @warningTextColor;
-				border-right: 0.4em solid @warningTextColor;
-				border-bottom: 0.4em solid transparent;
+				border-left: 0.3em solid transparent;
+				border-top: 0.3em solid @warningTextColor;
+				border-right: 0.3em solid @warningTextColor;
+				border-bottom: 0.3em solid transparent;
 				cursor: pointer;
 			}
 			&.error:after {
@@ -118,10 +118,10 @@
 				top: 0;
 				width: 0;
 				height: 0;
-				border-left: 0.4em solid transparent;
-				border-top: 0.4em solid @errorTextColor;
-				border-right: 0.4em solid @errorTextColor;
-				border-bottom: 0.4em solid transparent;
+				border-left: 0.3em solid transparent;
+				border-top: 0.3em solid @errorTextColor;
+				border-right: 0.3em solid @errorTextColor;
+				border-bottom: 0.3em solid transparent;
 				cursor: pointer;
 			}
 

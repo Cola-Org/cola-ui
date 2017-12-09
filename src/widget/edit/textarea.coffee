@@ -98,7 +98,7 @@ class cola.Textarea extends cola.AbstractEditor
 				ctrlKey: event.ctrlKey
 				altlKey: event.altlKey
 				event: event
-			if @fire("keyPress", @, arg) == false then return
+			if @fire("keyPress", @, arg) == false then return false
 			if event.keyCode == 13 && isIE11 then doPost()
 		)
 		super(dom)

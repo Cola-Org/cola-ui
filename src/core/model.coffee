@@ -214,6 +214,18 @@ class cola.Model extends cola.Scope
 		@_$doms ?= $(@_doms)
 		return @_$doms.find(selector)
 
+	tag: (tag)->
+		filtered = []
+		elements = cola.tagManager.find(tag)
+		for element in elements
+			scope = element._scope
+			while scope
+				if scope is @
+					filtered.push(element)
+					break
+				scope = scope.parent
+		return cola.Element.createGroup(filtered)
+
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 

@@ -1993,28 +1993,28 @@ class cola.Entity.MessageHolder
 	clear: (prop, force)->
 		if not force
 			if prop
-				messages = propertyMessages[prop]
+				messages = @propertyMessages[prop]
 				if messages
 					topKeyMessage = @keyMessage[$]
-					propertyMessages[prop] = newMessages = []
+					@propertyMessages[prop] = newMessages = []
 					for message in messages
 						if message.sticky
 							newMessages.push(message)
 							if not keyMessage or @compare(message, keyMessage) > 0
 								keyMessage = message
 
-				changed = newMessages.length < messages.length
+				changed = (newMessages?.length or 0) < (messages?.length or 0)
 				@keyMessage[prop] = keyMessage
 
 				for p, keyMessage of @keyMessage
 					if not topKeyMessage
 						topKeyMessage = keyMessage
-					else if @compare(keyMessage, topKeyMessage) > 0
+					else if keyMessage and @compare(keyMessage, topKeyMessage) > 0
 						topKeyMessage = keyMessage
 
 				@keyMessage["$"] = topKeyMessage
 			else
-				for prop of propertyMessages
+				for prop of @propertyMessages
 					if @clear(prop, force)
 						changed = true
 				if @clear("$", force)

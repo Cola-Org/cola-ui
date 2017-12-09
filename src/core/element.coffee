@@ -501,7 +501,7 @@ cola.Element.createGroup = (elements, model)->
 	else
 		elements = if elements then elements.slice(0) else []
 
-	elements.set = (attr, value, ignoreError)->
+	elements.set = (attr, value, ignoreError = true)->
 		element.set(attr, value, ignoreError) for element in elements
 		return @
 	elements.on = (eventName, listener, once)->

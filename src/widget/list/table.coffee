@@ -426,6 +426,16 @@ class cola.Table extends cola.AbstractTable
 		totalWidth = @_doms.itemsWrapper.clientWidth - 1
 		colgroup = @_doms.colgroup
 		nextCol = colgroup.firstElementChild
+
+		freeWidth = totalWidth
+		for colInfo in @_columnsInfo.dataColumns
+			if colInfo.widthType == "percent"
+				width = Math.floor(colInfo.width * totalWidth / 100)
+				if width < 80 then width = 80
+				freeWidth -= width
+			else if colInfo.widthType
+				freeWidth -= colInfo.width
+
 		for colInfo, i in @_columnsInfo.dataColumns
 			col = nextCol
 			if not col
@@ -438,14 +448,14 @@ class cola.Table extends cola.AbstractTable
 				width = Math.floor(colInfo.width * totalWidth / 100)
 				if width < 80 then width = 80
 				col.width = width + "px"
+				freeWidth -= width
 			else if colInfo.widthType
 				col.width = colInfo.width + colInfo.widthType
-			else if colInfo.width
-				width = Math.floor(colInfo.width * totalWidth / @_columnsInfo.totalWidth)
+				freeWidth -= colInfo.width
+			else
+				width = Math.floor((colInfo.width or 80) * freeWidth / @_columnsInfo.totalWidth)
 				if width < 80 then width = 80
 				col.width = width + "px"
-			else
-				col.width = ""
 
 			column = colInfo.column
 			col.valign = column._valign or ""
