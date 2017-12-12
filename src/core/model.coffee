@@ -85,15 +85,11 @@ class cola.Scope
 					if not (dataType instanceof cola.DataType)
 						if dataType.lazy isnt false
 							dataType = new cola.EntityDataType(dataType)
-							if dataType.name
-								@data.regDefinition(dataType.name, dataType)
 			else
 				dataType = name
 				if not (dataType instanceof cola.DataType)
 					if dataType.lazy isnt false
 						dataType = new cola.EntityDataType(dataType)
-						if dataType.name
-							@data.regDefinition(dataType.name, dataType)
 						return dataType
 			return
 

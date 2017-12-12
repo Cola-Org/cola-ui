@@ -692,13 +692,6 @@ class cola.Entity
 				@_mayHasSubEntity = true
 
 			@timestamp = cola.sequenceNo()
-			if @_disableWriteObservers is 0
-				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
-					entity: @
-					property: prop
-					value: value
-					oldValue: oldValue
-				})
 
 			if not ignoreState and not @_disableValidatorsCount and property?._validators
 				if messages != undefined
@@ -717,6 +710,14 @@ class cola.Entity
 								)
 				else
 					@validate(prop)
+
+			if @_disableWriteObservers is 0
+				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
+					entity: @
+					property: prop
+					value: value
+					oldValue: oldValue
+				})
 
 			if @dataType?.getListeners("dataChange")
 				@dataType.fire("dataChange", @dataType, {
@@ -2007,6 +2008,7 @@ class cola.Entity.MessageHolder
 				@keyMessage[prop] = keyMessage
 
 				for p, keyMessage of @keyMessage
+					if p is "$" then continue
 					if not topKeyMessage
 						topKeyMessage = keyMessage
 					else if keyMessage and @compare(keyMessage, topKeyMessage) > 0

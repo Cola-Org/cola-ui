@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+	<script src="../../include-all.js"></script>
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("items", [
+				{name: "Tab1"},
+				{name: "Tab2"}
+			]);
+		});
+	</script>
+</head>
+<body style="padding:20px;">
+
+<c-tab>
+	<nav>
+		<tabs>
+			<tab c-repeat="item in items" c-caption="item.name">
+				<c-input bind="item.name"></c-input>
+			</tab>
+		</tabs>
+	</nav>
+</c-tab>
+
+</body>
+</html>

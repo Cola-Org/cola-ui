@@ -62,6 +62,12 @@
 				}
 			});
 			model.describe("form", "Form");
+			model.set("form", {
+				age: 60,
+				subObject1: {
+					subObject2: {}
+				}
+			});
 
 			model.action({
 				onAgeChange: function (entity) {
@@ -106,8 +112,8 @@
 
 <c-form class="hide-state" bind="form" id="form1">
 	<fields class="cols-3">
-		<field property="name"></field>
-		<field property="age">
+		<field property="name" readonly="true"></field>
+		<field property="age" readonly="true">
 			<label></label>
 			<c-input c-post="onAgeChange(form)" displayFormat="0.##"></c-input>
 		</field>

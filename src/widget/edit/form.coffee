@@ -267,6 +267,7 @@ class cola.Field extends cola.Widget
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)
 			cola.xRender(editDom, @_scope)
+
 			editDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 
 		@_labelDom = dom.querySelector("label")
@@ -315,15 +316,15 @@ class cola.Field extends cola.Widget
 		finalReadOnly = @_readOnly or @_form?._readOnly
 		if finalReadOnly != @_finalReadOnly
 			@_finalReadOnly = finalReadOnly
-
-		if @_rendered
-			@get$Dom().find("input, textarea").each((i, input)=>
-				editor = cola.widget(input.parentNode)
-				if editor and editor._readOnlyFactor != @_finalReadOnly
-					editor._readOnlyFactor.field = @_finalReadOnly
-					editor._refreshDom()
-				return
-			)
+			if @_rendered
+				@get$Dom().find("input, textarea").each((i, input)=>
+					editor = cola.widget(input.parentNode)
+					if editor and editor._readOnlyFactor != @_finalReadOnly
+						editor._readOnlyFactor.field = @_finalReadOnly
+						editor._refreshDom()
+					return
+				)
+		return
 
 	setMessage: (message)->
 		if typeof message is "string"
