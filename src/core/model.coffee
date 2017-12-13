@@ -97,8 +97,7 @@ class cola.Scope
 		return @data.definition(name)
 
 	flush: (name, loadMode)->
-		@data.flush(name, loadMode)
-		return @
+		return cola.util.wrapDeferredWith(@, @data.flush(name, loadMode))
 
 	disableObservers: ()->
 		@data.disableObservers()
@@ -302,7 +301,7 @@ class cola.SubScope extends cola.Scope
 		@unwatchPath()
 		parent = @parent
 		if parent
-			@_watchPath = ["**"]
+			@_watchPath = [ "**" ]
 			parent.data.bind("**", @)
 			parent.watchAllMessages?()
 		return
@@ -805,7 +804,7 @@ class cola.AbstractDataModel
 			@removeShortcut(prop)
 			if not data or not (data instanceof cola.Entity or data instanceof cola.EntityList) or
 			  not data.parent or data is rootData._data[prop] # is not alias
-				@onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+				@onDataMessage([ prop ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @_rootData
 					property: prop
 					oldValue: oldShortcutData
@@ -843,11 +842,11 @@ class cola.AbstractDataModel
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@path.length)
-				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
+				dataModel.onDataMessage([ shortcut ].concat(relativePath), type, arg)
 				return
 		}
 		@bind(shortcutHolder.bindingPath, shortcutHolder)
-		@onDataMessage([shortcut], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+		@onDataMessage([ shortcut ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 			entity: @_rootData
 			property: shortcut
 			oldValue: oldShortcutData
@@ -867,8 +866,7 @@ class cola.AbstractDataModel
 		return @
 
 	flush: (name, loadMode)->
-		@_rootData?.flush(name, loadMode)
-		return @
+		return cola.util.wrapDeferredWith(@, @_rootData?.flush(name, loadMode))
 
 	bind: (path, processor)->
 		if not @bindingRegistry
@@ -1195,7 +1193,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			holder.dataType = data.dataType
 
 		if not silence
-			@onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: alias
 				value: data
@@ -1281,15 +1279,16 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
 			if holder
-				holder.data?.flush(path.substring(i + 1), loadMode)
+				dfd = holder.data?.flush(path.substring(i + 1), loadMode)
 			else
-				@parent.flush(path, loadMode)
+				dfd = @parent.flush(path, loadMode)
 		else
 			holder = @_aliasMap[path]
 			if holder
 				path = holder.path
-			if path then @parent.flush(path, loadMode)
-		return @
+			if path
+				dfd = @parent.flush(path, loadMode)
+		return cola.util.wrapDeferredWith(@, dfd)
 
 	onDataMessage: (path, type, arg)->
 		super(path, type, arg)
@@ -1334,7 +1333,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			@dataType = data.dataType
 
 		if not silence
-			@onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ @alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
 				value: data
@@ -1375,7 +1374,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 	setIndex: (index, silence)->
 		@_index = index
 		if not silence
-			@onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ cola.constants.REPEAT_INDEX ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: cola.constants.REPEAT_INDEX
 				value: index
@@ -1433,7 +1432,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 
 			if isChild
 				relativePath = arg.originPath.slice(itemData.getPath().length)
-				super([@alias].concat(relativePath), type, arg)
+				super([ @alias ].concat(relativePath), type, arg)
 		return
 
 ###

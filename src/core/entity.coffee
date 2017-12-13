@@ -401,7 +401,7 @@ class cola.Entity
 				parentData: @
 				property: prop)
 
-			if loadMode == "sync"
+			if loadMode is "sync"
 				if property and property.getListeners("beforeLoad")
 					if property.fire("beforeLoad", property, {
 						entity: @,
@@ -420,7 +420,8 @@ class cola.Entity
 						entity: @,
 						property: prop
 					})
-			else if loadMode == "async"
+
+			else if loadMode is "async"
 				if property and property.getListeners("beforeLoad")
 					if property.fire("beforeLoad", property, {
 						entity: @,
@@ -439,7 +440,7 @@ class cola.Entity
 					property: prop
 				}
 				@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-				providerInvoker.invokeAsync(
+				retValue = providerInvoker.invokeAsync(
 					complete: (success, result)=>
 						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 
@@ -461,6 +462,8 @@ class cola.Entity
 							cola.callback(callback, success, result)
 						return
 				)
+				retValue._isDeferred = true
+
 			else
 				cola.callback(callback, true, undefined)
 			return retValue
@@ -914,14 +917,14 @@ class cola.Entity
 		oldLoadMode = provider._loadMode
 		provider._loadMode = "lazy"
 		try
-			return @_get(property, loadMode, {
+			dfd = @_get(property, loadMode, {
 				complete: (success, result)=>
 					cola.callback(callback, success, result)
 					return
 			})
+			return cola.util.createDeferredIf(@, dfd)
 		finally
 			provider._loadMode = oldLoadMode
-		return
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel
@@ -937,8 +940,7 @@ class cola.Entity
 		if @_mayHasSubEntity
 			data = @_data
 			for p, value of data
-				if value and (value instanceof _Entity or value instanceof _EntityList) and
-				  p.charCodeAt(0) isnt 36    # `$`
+				if value and (value instanceof _Entity or value instanceof _EntityList) and p.charCodeAt(0) isnt 36    # `$`
 					value._setDataModel(dataModel)
 		return
 
@@ -1560,7 +1562,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
@@ -1581,7 +1583,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityInsert")
 			@dataType.fire("entityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1597,15 +1599,15 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
 
-		if entity == @current
+		if entity is @current
 			changeCurrent = true
 			newCurrent = @_findNext(entity)
-			if !newCurrent then newCurrent = @_findPrevious(entity)
+			if not newCurrent then newCurrent = @_findPrevious(entity)
 
 		page = entity._page
 		if detach
@@ -1627,7 +1629,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityRemove")
 			@dataType.fire("entityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1640,7 +1642,7 @@ class cola.EntityList extends LinkedList
 		return
 
 	setCurrent: (entity)->
-		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
+		if @current is entity or entity?.state is cola.Entity.STATE_DELETED then return @
 
 		if entity and entity.parent != @
 			throw new cola.Exception("The entity is not belongs to this EntityList.")
@@ -1650,7 +1652,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			}) is false
@@ -1670,7 +1672,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("currentChange")
 			@dataType.fire("currentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			})

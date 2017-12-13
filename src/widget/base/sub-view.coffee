@@ -128,7 +128,7 @@ class cola.SubView extends cola.Widget
 			cola.callback(callback, false, result)
 			return
 		)
-		return @_loadingDeferred
+		return cola.util.wrapDeferredWith(@, @_loadingDeferred)
 
 	loadIfNecessary: (options, callback)->
 		if typeof options is "function"
@@ -137,11 +137,7 @@ class cola.SubView extends cola.Widget
 
 		if  @_loaded
 			if not options or @_currentUrl is options.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl
-				dfd = @_loadingDeferred
-				dfd ?= $.Deferred((dfd)->
-					dfd.resolve()
-					return
-				)
+				dfd = cola.util.createDeferredIf(@_loadingDeferred)
 				return dfd.done(()->
 					cola.callback(callback, true)
 					return

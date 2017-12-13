@@ -141,7 +141,7 @@ cola.util.update = (url, data, options = {})->
 				console.error(error.responseJSON)
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
-#					description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
+					# description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
 					showDuration: 5000
 				)
 			else if error.messages?.error

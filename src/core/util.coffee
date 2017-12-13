@@ -6,6 +6,26 @@ else
 	cola = @cola
 #IMPORT_END
 
+cola.util.createDeferredIf = (originDfd, failbackArgs)->
+	return originDfd or $.Deferred().resolve(failbackArgs)
+
+cola.util.wrapDeferredWith = (context, originDfd, failbackArgs)->
+	if originDfd and not originDfd.notifyWith
+		return originDfd
+
+	dfd = $.Deferred()
+	if originDfd
+		originDfd.notify(()->
+			dfd.notifyWith.apply(dfd, [context, arguments])
+		).done(()->
+			dfd.resolveWith.apply(dfd, [context, arguments])
+		).fail(()->
+			dfd.rejectWith.apply(dfd, [context, arguments])
+		)
+	else
+		dfd.resolveWith(context, failbackArgs)
+	return dfd
+
 cola.util.findModel = (dom)->
 	domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
 	if domBinding

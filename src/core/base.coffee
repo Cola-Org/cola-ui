@@ -95,7 +95,7 @@ cola.on = (eventName, listener)->
 		listeners.push(listener)
 		i = listeners.length - 1
 	else
-		listenerRegistry.listeners = listeners = [listener]
+		listenerRegistry.listeners = listeners = [ listener ]
 		i = 0
 
 	if alias
@@ -181,19 +181,19 @@ setting = {
 cola.setting = (key, value)->
 	if typeof key == "string"
 		if value != undefined
-# setting(string, any)
+			# setting(string, any)
 			setting[key] = value
 			if cola.getListeners("settingChange")
-				cola.fire("settingChange", cola, {key: key})
+				cola.fire("settingChange", cola, { key: key })
 		else
-# setting(string)
+			# setting(string)
 			return setting[key]
 	else if typeof key == "object"
-# setting(object)
+		# setting(object)
 		for k, v of key
 			setting[k] = v
 			if cola.getListeners("settingChange")
-				cola.fire("settingChange", cola, {key: k})
+				cola.fire("settingChange", cola, { key: k })
 	return @
 
 definedSetting = colaSetting? or global?.colaSetting
@@ -223,7 +223,7 @@ class cola.Exception
 		if ex then cola.Exception.removeException(ex)
 		if ex instanceof cola.AbortException then return
 
-		if cola.fire("exception", cola, {exception: ex}) == false then return
+		if cola.fire("exception", cola, { exception: ex }) == false then return
 
 		if ex instanceof cola.RunnableException
 			eval("var fn = function(){#{ex.script}}")
@@ -285,19 +285,19 @@ sprintf = (templ, params...)->
 
 cola.resource = (key, params...)->
 	if typeof key == "string"
-# resource(key, params...)
-# read resource resource
+		# resource(key, params...)
+		# read resource resource
 		templ = resourceStore[key]
 		if templ?
 			if params.length
-				return sprintf.apply(@, [templ].concat(params))
+				return sprintf.apply(@, [ templ ].concat(params))
 			else
 				return templ
 		else
 			return params?[0] or key
 	else
-# resource(bundle)
-# load resource resources from bundle(json format)
+		# resource(bundle)
+		# load resource resources from bundle(json format)
 		bundle = key
 		resourceStore[key] = str for key, str of bundle
 		return
@@ -334,3 +334,5 @@ Lang
 ###
 Date.prototype.toJSON = ()->
 	cola.util.formatDate(@, cola.setting("defaultSubmitDateFormat"))
+
+
