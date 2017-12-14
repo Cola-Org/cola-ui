@@ -1051,12 +1051,12 @@ class cola.Entity
 		else if @_messageHolder
 			if prop
 				if @_messageHolder.clear(prop)
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ property: prop })
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
 			else
 				messages = @_messageHolder.getMessages()
 				@_messageHolder.clear()
 				for p in messages
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ property: p })
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: p })
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
