@@ -9,6 +9,7 @@ class cola.Form extends cola.Widget
 			setter: cola.DataType.dataTypeSetter
 
 		readOnly:
+			type: "boolean"
 			setter: (readOnly)->
 				@_readOnly = readOnly
 				if @_rendered
@@ -194,6 +195,7 @@ class cola.Field extends cola.Widget
 		caption: null
 		property: null
 		readOnly:
+			type: "boolean"
 			setter: (readOnly)->
 				@_readOnly = readOnly
 				@refreshReadOnly()
@@ -237,6 +239,7 @@ class cola.Field extends cola.Widget
 					bind = formBind + "." + @_property
 				else
 					bind = @_property
+			@_finalReadOnly = @_readOnly or form._readOnly
 
 		if bind then @_bindSetter(bind)
 
@@ -272,10 +275,6 @@ class cola.Field extends cola.Widget
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
-		if @_messageDom
-			$fly(@_messageDom).popup({
-				position: "bottom center"
-			})
 
 		if @_labelDom
 			$label = $fly(@_labelDom)
@@ -334,8 +333,9 @@ class cola.Field extends cola.Widget
 
 		@_message = message
 
+		$dom = @get$Dom()
 		if message
-			@get$Dom().addClass(message.type)
+			$dom.addClass(message.type)
 			if not @_messageDom
 				@_messageDom = document.createElement("message")
 				@getDom().appendChild(@_messageDom)
@@ -344,7 +344,7 @@ class cola.Field extends cola.Widget
 				})
 
 		else if @_state
-			@get$Dom().removeClass(@_state)
+			$dom.removeClass(@_state)
 
 		if @_messageDom
 			$message = $fly(@_messageDom)
@@ -352,10 +352,15 @@ class cola.Field extends cola.Widget
 				$message.addClass(message.type)
 				if $message.hasClass("text")
 					$message.text(message.text)
-				else
-					$message.attr("data-content", message.text)
 			else
-				$message.removeClass(@_state).empty().attr("data-content", null)
+				$message.removeClass(@_state).empty()
+
+		if message
+			$dom.attr("data-content", message.text).popup({
+				position: "bottom center"
+			})
+		else
+			$dom.attr("data-content", null).popup("destroy")
 
 		@_state = message?.type
 

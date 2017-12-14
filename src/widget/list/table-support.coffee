@@ -198,7 +198,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		selectedProperty = table._selectedProperty
 		if table._realItems
 			@_ignoreCheckedChange = true
-			cola.each @_table._realItems, (item)->
+			cola.each(@_table._realItems, (item)->
 				itemType = table._getItemType(item)
 				if itemType == "default"
 					if item instanceof cola.Entity
@@ -207,6 +207,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 						item[selectedProperty]
 						table.refreshItem(item)
 				return
+			, { currentPage: true })
 
 			setTimeout(()=>
 				@_ignoreCheckedChange = false

@@ -542,11 +542,9 @@ class cola.ItemsScope extends cola.SubScope
 
 	processMessage: (bindingPath, path, type, arg)->
 		if @messageTimestamp >= arg.timestamp then return
-		allProcessed = @_processMessage(bindingPath, path, type, arg)
+		@_processMessage(bindingPath, path, type, arg)
 
-		if allProcessed
-			@messageTimestamp = arg.timestamp
-		else if @itemScopeMap
+		if @itemScopeMap
 			itemScope = @findItemDomBinding(arg.data or arg.entity)
 			if itemScope
 				itemScope.processMessage(bindingPath, path, type, arg)
@@ -554,6 +552,7 @@ class cola.ItemsScope extends cola.SubScope
 				for id, itemScope of @itemScopeMap
 					if itemScope.hasExBinding()
 						itemScope.processMessage(bindingPath, path, type, arg)
+		@messageTimestamp = arg.timestamp
 		return
 
 	isOriginItems: (items)->
@@ -1025,7 +1024,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		if not @_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
 			@_rootData = rootData = @_createRootData(@_rootDataType)
-			rootData.state = cola.Entity.STATE_NEW
+			rootData.state = cola.Entity.STATE_NONE
 			dataModel = @
 			rootData._setDataModel(dataModel)
 		return @_rootData
