@@ -200,7 +200,7 @@ class cola.Property extends cola.Definition
 
 		aggregated:
 			readOnlyAfterCreate: true
-		loadForNewParentEntity:
+		loadForNewEntity:
 			readOnlyAfterCreate: true
 
 		validatorsDisabled:   # Deprecated

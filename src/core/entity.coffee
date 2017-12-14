@@ -357,7 +357,7 @@ class cola.Entity
 			@_disableWriteObservers--
 
 			if data.$state then @state = data.$state
-			else if data.state$ then @state = data.state$   # Deprecated
+			else if data.state$ then @state = data.state$ # Deprecated
 
 			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
@@ -395,68 +395,33 @@ class cola.Entity
 		property = @dataType?.getProperty(prop)
 
 		loadData = (provider)->
-			if property and @state is _Entity.STATE_NEW and not property._loadForNewParentEntity
+			retValue = undefined
+			if property and @state is _Entity.STATE_NEW and not property._loadForNewEntity
 				if property._aggregated
 					@_set(prop, [], true)
-					return @_data[prop]
-				return
+					retValue = @_data[prop]
+				loaded = true
 
-			retValue = undefined
-			providerInvoker = provider.getInvoker(
-				expressionData: @
-				parentData: @
-				property: prop)
+			if not loaded
+				providerInvoker = provider.getInvoker(
+					expressionData: @
+					parentData: @
+					property: prop)
 
-			if loadMode is "sync"
-				if property?.getListeners("beforeLoad")
-					if property.fire("beforeLoad", property, {
-						entity: @
-						property: prop
-					}) is false
-						return
+				if loadMode is "sync"
+					if property?.getListeners("beforeLoad")
+						if property.fire("beforeLoad", property, {
+							entity: @
+							property: prop
+						}) is false
+							loaded = true
 
-				retValue = providerInvoker.invokeSync()
-				@_set(prop, retValue, true)
-				retValue = @_data[prop]
-				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
-					retValue._providerInvoker = providerInvoker
-
-				if property?.getListeners("load")
-					property.fire("load", property, {
-						entity: @
-						property: prop
-					})
-
-			else if loadMode is "async"
-				if property?.getListeners("beforeLoad")
-					if property.fire("beforeLoad", property, {
-						entity: @
-						property: prop
-					}) is false
-						return
-
-				if context
-					context.unloaded = true
-					context.providerInvokers ?= []
-					context.providerInvokers.push(providerInvoker)
-
-				@_data[prop] = providerInvoker
-				notifyArg = {
-					data: @
-					property: prop
-				}
-				@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-				retValue = providerInvoker.invokeAsync(
-					complete: (success, result)=>
-						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-
-						if @_data[prop] != providerInvoker then success = false
-						if success
-							result = @_set(prop, result, true)
-							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
-								result._providerInvoker = providerInvoker
-						else
-							@_set(prop, null, true)
+					if loaded
+						retValue = providerInvoker.invokeSync()
+						@_set(prop, retValue, true)
+						retValue = @_data[prop]
+						if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
+							retValue._providerInvoker = providerInvoker
 
 						if property?.getListeners("load")
 							property.fire("load", property, {
@@ -464,14 +429,47 @@ class cola.Entity
 								property: prop
 							})
 
-						if callback
-							cola.callback(callback, success, result)
-						return
-				)
+				else if loadMode is "async"
+					if property?.getListeners("beforeLoad")
+						if property.fire("beforeLoad", property, {
+							entity: @
+							property: prop
+						}) is false
+							loaded = true
 
+					if loaded
+						if context
+							context.unloaded = true
+
+						notifyArg = {
+							data: @
+							property: prop
+						}
+						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
+						@_data[prop] = retValue = providerInvoker.invokeAsync(
+							complete: (success, result)=>
+								@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+
+								if @_data[prop] != retValue
+									if success
+										result = @_set(prop, result, true)
+										if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+											result._providerInvoker = providerInvoker
+									else
+										@_set(prop, null, true)
+
+									if property?.getListeners("load")
+										property.fire("load", property, {
+											entity: @
+											property: prop
+										})
+								return
+						)
+
+			if retValue?.notifyWith
+				return retValue
 			else
-				cola.callback(callback, true, undefined)
-			return retValue
+				return $.Deferred().resolve(retValue)
 
 		value = @_data[prop]
 
@@ -489,63 +487,32 @@ class cola.Entity
 				provider = property.get("provider")
 				context?.unloaded = !!provider
 				if loadMode isnt "never" and provider and provider._loadMode is "lazy"
-					value = loadData.call(@, provider)
-					callbackProcessed = true
-		else if value instanceof cola.Provider
-			value = loadData.call(@, value)
-			callbackProcessed = true
-		else if value instanceof cola.ProviderInvoker
-			providerInvoker = value
-			if loadMode is "sync"
-				value = providerInvoker.invokeSync()
-				value = @_set(prop, value, true)
-			else if loadMode is "async"
-				if callback then providerInvoker.callbacks.push(callback)
-				callbackProcessed = true
-				value = undefined
-
-				if context
-					context.unloaded = true
-					context.providerInvokers ?= []
-					context.providerInvokers.push(providerInvoker)
-			else
-				value = undefined
-				context?.unloaded = true
-
-			# TODO: delete this
-		else if typeof value is "function"
-			providerInvoker = {
-				_$providerInvoker: true
-				entity: @
-				func: value
-				callbacks: [ callback ]
-				invokeAsync: ()->
-					@func.call(@entity, (result)=>
-						for callback in @callbacks
-							cola.callback(callback, true, result)
+					dfd = loadData.call(@, provider).done((result)->
+						value = result
+						cola.callback(callback, true, result)
 						return
 					)
+					if callback
+						dfd.fail((result)->
+							cola.callback(callback, false, result)
+							return
+						)
+						callbackProcessed = true
+
+		else if typeof value is "object" and value?.notifyWith
+			value = undefined
+			if callback
+				value.done((result)->
+					cola.callback(callback, true, result)
 					return
-			}
-			@_data[prop] = providerInvoker
-			providerInvoker.invokeAsync()
-			value = undefined
-			callbackProcessed = true
+				).fail((result)->
+					cola.callback(callback, false, result)
+					return
+				)
+				callbackProcessed = true
 
 			if context
 				context.unloaded = true
-				context.providerInvokers ?= []
-				context.providerInvokers.push(providerInvoker)
-		else if typeof value is "object" and value?._$providerInvoker
-			value.callbacks.push(callback)
-
-			value = undefined
-			callbackProcessed = true
-
-			if context
-				context.unloaded = true
-				context.providerInvokers ?= []
-				context.providerInvokers.push(providerInvoker)
 
 		if callback and not callbackProcessed
 			cola.callback(callback, true, value)
@@ -922,14 +889,18 @@ class cola.Entity
 		oldLoadMode = provider._loadMode
 		provider._loadMode = "lazy"
 		try
-			return @_get(property, loadMode, {
+			retValue = @_get(property, loadMode, {
 				complete: (success, result)=>
 					cola.callback(callback, success, result)
 					return
 			})
 		finally
 			provider._loadMode = oldLoadMode
-		return
+
+		if not retValue?.notifyWith
+			retValue = $.Deferred().resolve(retValue)
+
+		return cola.util.wrapDeferredWith(@, retValue)
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel
@@ -1146,7 +1117,7 @@ class LinkedList
 	_size: 0
 
 	_insertElement: (element, insertMode, refEntity)->
-		if !@_first
+		if not @_first
 			@_first = @_last = element
 		else
 			if not insertMode or insertMode is "end"
@@ -2117,7 +2088,7 @@ cola.util.sort = (collection, comparator, caseSensitive)->
 cola.util.flush = (data, loadMode)->
 	if data instanceof cola.Entity or data instanceof cola.EntityList
 		if data.parent instanceof cola.Entity and data._parentProperty
-			data.parent.flush(data._parentProperty, loadMode)
+			return data.parent.flush(data._parentProperty, loadMode)
 	return
 
 ###
