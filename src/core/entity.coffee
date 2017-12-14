@@ -408,8 +408,6 @@ class cola.Entity
 				property: prop)
 
 			if loadMode is "sync"
-				if property and property.getListeners("beforeLoad")
-			if loadMode is "sync"
 				if property?.getListeners("beforeLoad")
 					if property.fire("beforeLoad", property, {
 						entity: @
