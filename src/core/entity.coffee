@@ -1250,7 +1250,9 @@ class Page extends LinkedList
 
 		entity._setDataModel(entityList._dataModel)
 		entity._onPathChange()
-		@entityCount++ if entity.state isnt _Entity.STATE_DELETED
+		if entity.state isnt _Entity.STATE_DELETED
+			@entityCount++
+			@totalEntityCount++
 		return
 
 	_removeElement: (entity)->
@@ -1260,7 +1262,9 @@ class Page extends LinkedList
 		delete entity.parent
 		entity._setDataModel(null)
 		entity._onPathChange()
-		@entityCount-- if entity.state isnt _Entity.STATE_DELETED
+		if entity.state isnt _Entity.STATE_DELETED
+			@entityCount--
+			@totalEntityCount--
 		return
 
 	_clearElements: ()->

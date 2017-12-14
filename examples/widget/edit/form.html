@@ -110,27 +110,27 @@
 <c-button click="setReadOnly">Set ReadOnly</c-button>
 <c-button click="showData">Show Data</c-button>
 
-<c-form class="hide-state" bind="form" id="form1">
+<c-form class="1hide-state" bind="form" id="form1">
 	<fields class="cols-3">
-		<field property="name" readonly="true"></field>
+		<field property="name"></field>
 		<field property="age" readonly="true">
 			<label></label>
 			<c-input c-post="onAgeChange(form)" displayFormat="0.##"></c-input>
 		</field>
 		<field property="email"></field>
-		<field property="married">
-			<label></label>
-			<c-toggle></c-toggle>
-		</field>
-		<field property="birthday">
-			<label></label>
-			<c-datepicker></c-datepicker>
-		</field>
-		<field property="subObject1.subObject2.num"></field>
-		<field>
-			<label></label>
-			<c-textarea bind="form.subObject1.subObject2.num"></c-textarea>
-		</field>
+		<!--<field property="married">-->
+			<!--<label></label>-->
+			<!--<c-toggle></c-toggle>-->
+		<!--</field>-->
+		<!--<field property="birthday">-->
+			<!--<label></label>-->
+			<!--<c-datepicker></c-datepicker>-->
+		<!--</field>-->
+		<!--<field property="subObject1.subObject2.num"></field>-->
+		<!--<field>-->
+			<!--<label></label>-->
+			<!--<c-textarea bind="form.subObject1.subObject2.num"></c-textarea>-->
+		<!--</field>-->
 	</fields>
 </c-form>
 
