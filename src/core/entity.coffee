@@ -1085,7 +1085,7 @@ class cola.Entity
 			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		else
 			topKeyChanged = @_addMessage(prop, message)
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ property: prop })
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
 			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
 
@@ -1100,7 +1100,7 @@ class cola.Entity
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
 		topKeyChanged = @_messageHolder.clear(prop, force)
-		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ property: prop })
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
 		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
 		return @
 
@@ -1485,7 +1485,15 @@ class cola.EntityList extends LinkedList
 		page = @_findPage(pageNo)
 		if page != @_currentPage
 			if page
-				@_setCurrentPage(page, setCurrent)
+				@_setCurrentPage(page)
+				if setCurrent
+					entity = page._first
+					while entity
+						if entity.state != _Entity.STATE_DELETED
+							@setCurrent(entity)
+							break;
+						entity = entity._next
+
 				cola.callback(callback, true)
 			else if loadMode isnt "never"
 				if setCurrent then @setCurrent(null)
