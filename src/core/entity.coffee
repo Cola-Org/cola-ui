@@ -438,38 +438,34 @@ class cola.Entity
 							loaded = true
 
 					if loaded
-						if context
-							context.unloaded = true
-
 						notifyArg = {
 							data: @
 							property: prop
 						}
 						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-						@_data[prop] = retValue = providerInvoker.invokeAsync(
-							complete: (success, result)=>
-								@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+						@_data[prop] = dfd = providerInvoker.invokeAsync().always(()=>
+							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+							return
+						).done((result)=>
+							if @_data[prop] isnt retValue
+								result = @_set(prop, result, true)
+								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+									result._providerInvoker = providerInvoker
 
-								if @_data[prop] != retValue
-									if success
-										result = @_set(prop, result, true)
-										if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
-											result._providerInvoker = providerInvoker
-									else
-										@_set(prop, null, true)
-
-									if property?.getListeners("load")
-										property.fire("load", property, {
-											entity: @
-											property: prop
-										})
-								return
+								if property?.getListeners("load")
+									property.fire("load", property, {
+										entity: @
+										property: prop
+									})
+							return
 						)
 
-			if retValue?.notifyWith
-				return retValue
-			else
-				return $.Deferred().resolve(retValue)
+						if context
+							context.unloaded = true
+							context.deferreds ?= []
+							context.deferreds.push(dfd)
+
+			return cola.util.createDeferredIf(dfd, retValue)
 
 		value = @_data[prop]
 
@@ -492,21 +488,13 @@ class cola.Entity
 						cola.callback(callback, true, result)
 						return
 					)
-					if callback
-						dfd.fail((result)->
-							cola.callback(callback, false, result)
-							return
-						)
-						callbackProcessed = true
+					callbackProcessed = true
 
 		else if typeof value is "object" and value?.notifyWith
 			value = undefined
 			if callback
 				value.done((result)->
 					cola.callback(callback, true, result)
-					return
-				).fail((result)->
-					cola.callback(callback, false, result)
 					return
 				)
 				callbackProcessed = true
@@ -519,9 +507,9 @@ class cola.Entity
 		return value
 
 	set: (prop, value, context)->
-		if typeof prop == "string"
+		if typeof prop is "string"
 			_setValue(@, prop, value, context)
-		else if prop and (typeof prop == "object")
+		else if prop and (typeof prop is "object")
 			config = prop
 			for prop, val of config
 				@set(prop, val)
@@ -557,9 +545,9 @@ class cola.Entity
 						else if dataType instanceof cola.EntityDataType
 							matched = true
 							if value instanceof _Entity
-								matched = value.dataType == dataType and not property._aggregated
+								matched = value.dataType is dataType and not property._aggregated
 							else if value instanceof _EntityList
-								matched = value.dataType == dataType and property._aggregated
+								matched = value.dataType is dataType and property._aggregated
 							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 								value = @_jsonToEntity(value, dataType, true, provider)
 							else
@@ -889,18 +877,17 @@ class cola.Entity
 		oldLoadMode = provider._loadMode
 		provider._loadMode = "lazy"
 		try
-			retValue = @_get(property, loadMode, {
-				complete: (success, result)=>
-					cola.callback(callback, success, result)
-					return
-			})
+			retValue = @_get(property, loadMode)
 		finally
 			provider._loadMode = oldLoadMode
 
 		if not retValue?.notifyWith
 			retValue = $.Deferred().resolve(retValue)
 
-		return cola.util.wrapDeferredWith(@, retValue)
+		return cola.util.wrapDeferredWith(@, retValue).done((result)->
+			cola.callback(callback, true, result)
+			return
+		)
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel
@@ -1219,22 +1206,22 @@ class Page extends Array
 		@hotIndex = 0
 		return
 
-	loadData: (callback)->
+	loadData: (loadMode)->
 		providerInvoker = @entityList._providerInvoker
 		if providerInvoker
 			providerInvoker.pageSize = @entityList.pageSize
 			providerInvoker.pageNo = @pageNo
-			if callback
-				dfd = providerInvoker.invokeAsync(
-					complete: (success, result)=>
-						if success then @initData(result)
-						cola.callback(callback, success, result)
-				)
-			else
+			if loadMode is "sync"
 				result = providerInvoker.invokeSync()
 				@initData(result)
-				dfd = $.Deferred().resolve(result)
-		return cola.util.createDeferredIf(dfd)
+			else
+				dfd = providerInvoker.invokeAsync().done((result)->
+					@initData(result)
+					if callback instanceof Function
+						cola.callback(callback, true, result)
+					return
+				)
+		return cola.util.createDeferredIf(dfd, result)
 
 class cola.EntityList
 	current: null
@@ -1337,7 +1324,7 @@ class cola.EntityList
 
 		if setCurrent
 			for entity in page
-				if entity.state != _Entity.STATE_DELETED
+				if entity.state isnt _Entity.STATE_DELETED
 					@setCurrent(entity)
 					break
 		return
@@ -1467,43 +1454,27 @@ class cola.EntityList
 		page = @_findPage(pageNo)
 		if page != @_currentPage
 			if page
-				@_setCurrentPage(page)
-				if setCurrent
-					entity = page._first
-					while entity
-						if entity.state != _Entity.STATE_DELETED
-							@setCurrent(entity)
-							break;
-						entity = entity._next
-
-				cola.callback(callback, true)
+				@_setCurrentPage(page, setCurrent)
 			else if loadMode isnt "never"
 				if setCurrent then @setCurrent(null)
 				page = @_createPage(pageNo)
 				if page
-					if loadMode is "async"
-						if not @_currentPage
-							@_setCurrentPage(page, setCurrent)
-
-						@_dontAutoSetCurrent++
-						page.loadData(
-							complete: (success, result)=>
-								@_dontAutoSetCurrent--
-								if success
-									if @_currentPage isnt page
-										@_setCurrentPage(page, setCurrent)
-									if page.entityCount and @pageCount < pageNo
-										@pageCount = pageNo
-								cola.callback(callback, success, result)
-								return
-						)
-					else
-						@_dontAutoSetCurrent++
-						page.loadData()
-						@_dontAutoSetCurrent--
+					if loadMode isnt "sync" and not @_currentPage
 						@_setCurrentPage(page, setCurrent)
-						cola.callback(callback, true)
-		return @
+
+					@_dontAutoSetCurrent++
+					dfd = page.loadData(loadMode).done((result)->
+						@_dontAutoSetCurrent--
+						if @_currentPage isnt page
+							@_setCurrentPage(page, setCurrent)
+						if page.entityCount and @pageCount < pageNo
+							@pageCount = pageNo
+						return
+					)
+		return cola.util.createDeferredIf(dfd, result).done(()->
+			cola.callback(callback, true)
+			return
+		)
 
 	loadPage: (pageNo, loadMode)->
 		return @_loadPage(pageNo, false, loadMode)
@@ -1516,24 +1487,20 @@ class cola.EntityList
 		return @_loadPage(pageNo, true, loadMode)
 
 	firstPage: (loadMode)->
-		@gotoPage(1, loadMode)
-		return @
+		return gotoPage(1, loadMode)
 
 	previousPage: (loadMode)->
 		pageNo = @pageNo - 1
 		if pageNo < 1 then pageNo = 1
-		@gotoPage(pageNo, loadMode)
-		return @
+		return gotoPage(pageNo, loadMode)
 
 	nextPage: (loadMode)->
 		pageNo = @pageNo + 1
 		if @pageCountDetermined and pageNo > @pageCount then pageNo = @pageCount
-		@gotoPage(pageNo, loadMode)
-		return @
+		return gotoPage(pageNo, loadMode)
 
 	lastPage: (loadMode)->
-		@gotoPage(@pageCount, loadMode)
-		return @
+		return gotoPage(@pageCount, loadMode)
 
 	insert: (entity, insertMode, refEntity)->
 		if isFinite(insertMode)

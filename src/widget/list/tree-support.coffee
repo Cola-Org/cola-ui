@@ -98,7 +98,7 @@ class cola.CascadeBind extends cola.Element
 	retrieveChildNodes: (parentNode, callback, dataCtx)->
 		isRoot = not parentNode._parent
 		hasChild = false
-		funcs = []
+		tasks = []
 		if @_recursive or isRoot
 			dataCtx ?= {}
 			if isRoot
@@ -106,10 +106,10 @@ class cola.CascadeBind extends cola.Element
 			else
 				expression = @_recursiveExpression or @_expression
 			items = expression.evaluate(parentNode._scope, "async", dataCtx)
-			if items == undefined and dataCtx.unloaded
+			if items is undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
 				if recursiveLoader
-					funcs.push((callback)-> recursiveLoader.invokeAsync(callback))
+					tasks.push(recursiveLoader.invokeAsync())
 			else
 				recursiveItems = items
 				originRecursiveItems = items.$origin if items instanceof Array
@@ -122,10 +122,10 @@ class cola.CascadeBind extends cola.Element
 		if @_child and not isRoot
 			dataCtx ?= {}
 			items = @_child._expression.evaluate(parentNode._scope, "async", dataCtx)
-			if items == undefined and dataCtx.unloaded
+			if items is undefined and dataCtx.unloaded
 				childLoader = dataCtx.providerInvokers?[0]
 				if childLoader
-					funcs.push((callback)-> childLoader.invokeAsync(callback))
+					tasks.push(childLoader.invokeAsync())
 			else
 				childItems = items
 				originChildItems = items.$origin if items instanceof Array
