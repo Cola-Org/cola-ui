@@ -447,8 +447,6 @@ class cola.Entity
 				@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 				providerInvoker.invokeAsync(
 					complete: (success, result)=>
-						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-
 						if @_data[prop] != providerInvoker then success = false
 						if success
 							result = @_set(prop, result, true)
@@ -456,6 +454,8 @@ class cola.Entity
 								result._providerInvoker = providerInvoker
 						else
 							@_set(prop, null, true)
+
+						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 
 						if property?.getListeners("load")
 							property.fire("load", property, {
