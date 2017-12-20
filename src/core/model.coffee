@@ -546,7 +546,7 @@ class cola.ItemsScope extends cola.SubScope
 
 	processMessage: (bindingPath, path, type, arg)->
 		if @messageTimestamp >= arg.timestamp then return
-		@_processMessage(bindingPath, path, type, arg)
+		allProcessed = @_processMessage(bindingPath, path, type, arg)
 
 		if @itemScopeMap
 			itemScope = @findItemDomBinding(arg.data or arg.entity)
@@ -556,7 +556,9 @@ class cola.ItemsScope extends cola.SubScope
 				for id, itemScope of @itemScopeMap
 					if itemScope.hasExBinding()
 						itemScope.processMessage(bindingPath, path, type, arg)
-		@messageTimestamp = arg.timestamp
+
+		if allProcessed
+			@messageTimestamp = arg.timestamp
 		return
 
 	isOriginItems: (items)->

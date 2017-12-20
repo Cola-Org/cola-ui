@@ -1078,7 +1078,8 @@ class cola.Entity
 		data = @_data
 		json = {}
 		for prop, value of data
-			if prop.charCodeAt(0) is 36 # `$`
+			c = prop.charCodeAt(0)
+			if c is 36 or c is 95 # `$` or `_`
 				continue
 
 			if value
