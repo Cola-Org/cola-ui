@@ -443,13 +443,11 @@ class cola.Entity
 							property: prop
 						}
 						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-						@_data[prop] = dfd = providerInvoker.invokeAsync().done((result)=>
-							if @_data[prop] isnt retValue
+						@_data[prop] = dfd = providerInvoker.invokeAsync((result)=>
+							if @_data[prop] is dfd
 								result = @_set(prop, result, true)
 								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 									result._providerInvoker = providerInvoker
-
-								@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 
 								if property?.getListeners("load")
 									property.fire("load", property, {
@@ -457,9 +455,8 @@ class cola.Entity
 										property: prop
 									})
 							return
-						).fail(()=>
+						).always(()=>
 							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-							return
 						)
 
 						if context
@@ -480,7 +477,7 @@ class cola.Entity
 			cola.callback(callback, true, value)
 			return value
 
-		if value == undefined
+		if value is undefined
 			if property
 				provider = property.get("provider")
 				context?.unloaded = !!provider
@@ -492,10 +489,11 @@ class cola.Entity
 					)
 					callbackProcessed = true
 
-		else if typeof value is "object" and value?.notifyWith
+		else if typeof value is "object" and value and value.done and value.fail
+			dfd = value
 			value = undefined
 			if callback
-				value.done((result)->
+				dfd.done((result)->
 					cola.callback(callback, true, result)
 					return
 				)
@@ -883,7 +881,7 @@ class cola.Entity
 		finally
 			provider._loadMode = oldLoadMode
 
-		if not retValue?.notifyWith
+		if not (retValue and retValue.done and retValue.fail)
 			retValue = $.Deferred().resolve(retValue)
 
 		return cola.util.wrapDeferredWith(@, retValue).done((result)->

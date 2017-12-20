@@ -10,17 +10,17 @@ cola.util.createDeferredIf = (originDfd, failbackArgs)->
 	return originDfd or $.Deferred().resolve(failbackArgs)
 
 cola.util.wrapDeferredWith = (context, originDfd, failbackArgs)->
-	if originDfd and not originDfd.notifyWith
+	if originDfd and (not originDfd.done or not originDfd.fail)
 		return originDfd
 
 	dfd = $.Deferred()
 	if originDfd
-		originDfd.notify(()->
-			dfd.notifyWith.apply(dfd, [context, arguments])
-		).done(()->
+		originDfd.done(()->
 			dfd.resolveWith.apply(dfd, [context, arguments])
 		).fail(()->
 			dfd.rejectWith.apply(dfd, [context, arguments])
+		).notify?(()->
+			dfd.notifyWith.apply(dfd, [context, arguments])
 		)
 	else
 		dfd.resolveWith(context, failbackArgs)
