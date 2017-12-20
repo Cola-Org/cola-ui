@@ -1479,18 +1479,18 @@ class cola.EntityList extends LinkedList
 		return not @pageCountDetermined or pageNo <= @pageCount
 
 	_loadPage: (pageNo, setCurrent, loadMode = "async")->
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+		if loadMode and (typeof loadMode isnt "function" or typeof loadMode isnt "object")
 			callback = loadMode
 			loadMode = "async"
 
 		page = @_findPage(pageNo)
-		if page != @_currentPage
+		if page isnt @_currentPage
 			if page
 				@_setCurrentPage(page)
 				if setCurrent
 					entity = page._first
 					while entity
-						if entity.state != _Entity.STATE_DELETED
+						if entity.state isnt _Entity.STATE_DELETED
 							@setCurrent(entity)
 							break;
 						entity = entity._next
