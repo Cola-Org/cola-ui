@@ -1582,7 +1582,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
@@ -1603,7 +1603,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityInsert")
 			@dataType.fire("entityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1619,7 +1619,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
@@ -1649,7 +1649,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityRemove")
 			@dataType.fire("entityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1662,9 +1662,9 @@ class cola.EntityList extends LinkedList
 		return
 
 	setCurrent: (entity)->
-		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
+		if @current is entity or entity?.state is cola.Entity.STATE_DELETED then return @
 
-		if entity and entity.parent != @
+		if entity and entity.parent isnt @
 			throw new cola.Exception("The entity is not belongs to this EntityList.")
 
 		oldCurrent = @current
@@ -1672,7 +1672,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			}) is false
@@ -1692,7 +1692,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("currentChange")
 			@dataType.fire("currentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			})
