@@ -1215,10 +1215,8 @@ class Page extends Array
 				result = providerInvoker.invokeSync()
 				@initData(result)
 			else
-				dfd = providerInvoker.invokeAsync().done((result)->
+				dfd = providerInvoker.invokeAsync().done((result)=>
 					@initData(result)
-					if callback instanceof Function
-						cola.callback(callback, true, result)
 					return
 				)
 		return cola.util.createDeferredIf(dfd, result)
@@ -1474,7 +1472,7 @@ class cola.EntityList
 						@_setCurrentPage(page, setCurrent)
 
 					@_dontAutoSetCurrent++
-					dfd = page.loadData(loadMode).done((result)->
+					dfd = page.loadData(loadMode).done((result)=>
 						@_dontAutoSetCurrent--
 						if @_currentPage isnt page
 							@_setCurrentPage(page, setCurrent)
@@ -1482,7 +1480,7 @@ class cola.EntityList
 							@pageCount = pageNo
 						return
 					)
-		return cola.util.createDeferredIf(dfd, result).done(()->
+		return cola.util.createDeferredIf(dfd).done(()->
 			cola.callback(callback, true)
 			return
 		)
@@ -1497,21 +1495,19 @@ class cola.EntityList
 			pageNo = @pageCount
 		return @_loadPage(pageNo, true, loadMode)
 
-	firstPage: (loadMode)->
-		return gotoPage(1, loadMode)
+	firstPage: (loadMode)-> @gotoPage(1, loadMode)
 
 	previousPage: (loadMode)->
 		pageNo = @pageNo - 1
 		if pageNo < 1 then pageNo = 1
-		return gotoPage(pageNo, loadMode)
+		return @gotoPage(pageNo, loadMode)
 
 	nextPage: (loadMode)->
 		pageNo = @pageNo + 1
 		if @pageCountDetermined and pageNo > @pageCount then pageNo = @pageCount
-		return gotoPage(pageNo, loadMode)
+		return @gotoPage(pageNo, loadMode)
 
-	lastPage: (loadMode)->
-		return gotoPage(@pageCount, loadMode)
+	lastPage: (loadMode)-> @gotoPage(@pageCount, loadMode)
 
 	insert: (entity, insertMode, refEntity)->
 		if isFinite(insertMode)
@@ -1628,7 +1624,7 @@ class cola.EntityList
 		if changeCurrent
 			@setCurrent(newCurrent)
 			if newCurrent
-				newCurrent.page.hotIndex = newCurrentIndex
+				newCurrent._page.hotIndex = newCurrentIndex
 		return entity
 
 	empty: ()->
