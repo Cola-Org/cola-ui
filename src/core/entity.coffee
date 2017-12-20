@@ -1293,10 +1293,21 @@ class cola.EntityList
 		return
 
 	fillData: (array)->
-		page = @_findPage(@pageNo)
-		page ?= new Page(@, @pageNo)
-		@_insertElement(page, "begin")
-		page.initData(array)
+		@_dontChangeCurrent = true
+		try
+			page = @_findPage(@pageNo)
+			page ?= new Page(@, @pageNo)
+			@_insertElement(page, "begin")
+			page.initData(array)
+
+			if not @current and page.length
+				for entity, i in entity
+					if entity.state isnt _Entity.STATE_DELETED
+						@setCurrent(entity)
+						page.hotIndex = i
+						break
+		finally
+			delete @_dontChangeCurrent
 		return
 
 	_setDataModel: (dataModel)->
@@ -1564,7 +1575,7 @@ class cola.EntityList
 				entity: entity
 			})
 
-		if not @current
+		if not @_dontChangeCurrent and not @current
 			@setCurrent(entity)
 			if 0 <= index < entity.page.length
 				entity.page.hotIndex = index
