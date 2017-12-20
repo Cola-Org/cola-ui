@@ -86,7 +86,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom).attr("tabIndex", 1).delegate(">.icon.dropdown", "click", () =>
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon.dropdown", "click", ()=>
 			if @_opened
 				@close()
 			else if not @_finalReadOnly
@@ -350,7 +350,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			return container
 		return
 
-	open: (callback) ->
+	open: (callback)->
 		if @_finalReadOnly then return
 		if @fire("beforeOpen", @) is false then return
 

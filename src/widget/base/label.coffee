@@ -86,7 +86,7 @@ class cola.Label extends cola.Widget
 			else
 				@_dom.appendChild(iconDom)
 		else if @_doms.iconDom
-			delete @_doms.iconDom
+			cola.detachNode(@_doms.iconDom)
 		return
 
 	_doRefreshDom: ()->
@@ -102,7 +102,7 @@ class cola.Label extends cola.Widget
 			$fly(textDom).text(text)
 			@_dom.appendChild(textDom)
 		else
-			delete @_doms.textDom
+			if textDom then cola.detachNode(textDom)
 
 		size = @get("size")
 		classNamePool.add(size) if size
@@ -144,7 +144,7 @@ class cola.ImageLabel extends cola.Label
 			if @_doms.image.parentNode isnt @_dom then @get$Dom().prepend(@_doms.image)
 			$fly(@_doms.image).attr("src", @_image)
 		else
-			delete @_doms.image
+			if @_doms.image then cola.detachNode(@_doms.image)
 
 		detailDom = $(".detail", @_dom)
 		if @_detail
