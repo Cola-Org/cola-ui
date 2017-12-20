@@ -438,11 +438,6 @@ class cola.Entity
 							loaded = true
 
 					if not loaded
-						notifyArg = {
-							data: @
-							property: prop
-						}
-						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 						@_data[prop] = dfd = providerInvoker.invokeAsync((result)=>
 							if @_data[prop] is dfd
 								result = @_set(prop, result, true)
@@ -458,6 +453,12 @@ class cola.Entity
 						).always(()=>
 							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 						)
+
+						notifyArg = {
+							data: @
+							property: prop
+						}
+						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 
 						if context
 							context.unloaded = true
@@ -501,6 +502,8 @@ class cola.Entity
 
 			if context
 				context.unloaded = true
+				context.deferreds ?= []
+				context.deferreds.push(dfd)
 
 		if callback and not callbackProcessed
 			cola.callback(callback, true, value)
