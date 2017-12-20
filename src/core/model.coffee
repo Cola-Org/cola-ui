@@ -101,8 +101,7 @@ class cola.Scope
 		return @data.definition(name)
 
 	flush: (name, loadMode)->
-		@data.flush(name, loadMode)
-		return @
+		return cola.util.wrapDeferredWith(@, @data.flush(name, loadMode))
 
 	disableObservers: ()->
 		@data.disableObservers()
@@ -229,40 +228,19 @@ class cola.Model extends cola.Scope
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
 
-	constructor: (parent, expressions)->
-		@setParent(parent)
+	constructor: (@parent, expressions)->
+		@action = @parent.action
+		@parent.registerChild(@)
 		if expressions
 			@setExpressions(expressions)
 
 	destroy: ()->
 		if @parent then @unwatchPath()
-		if @data and @data.model is @
-			@data.destroy?()
-		return
-
-	setParent: (parent)->
-		if @parent
-			@unwatchPath()
-			@parent.unregisterChild(@)
-			if @data is @parent.data
-				@data = null
-			@parent = null
-
-		@parent = parent
-		@data = parent.data if not @data
-		@action = parent.action
-		@parent.registerChild(@)
-
-		if @_watchAllMessages
-			@watchAllMessages()
-		else if @_watchPath
-			@watchPath(@_watchPath)
+		@data?.destroy?()
 		return
 
 	setExpressions: (expressions)->
-		throw new cola.Exception("Expressions can not be changed.") if @_expressionSetted
 		return unless expressions
-		@_expressionSetted = true
 
 		@data = new cola.SubDataModel(@)
 		@aliasExpressions = {}
@@ -327,7 +305,7 @@ class cola.SubScope extends cola.Scope
 		@unwatchPath()
 		parent = @parent
 		if parent
-			@_watchPath = ["**"]
+			@_watchPath = [ "**" ]
 			parent.data.bind("**", @)
 			parent.watchAllMessages?()
 		return
@@ -402,6 +380,7 @@ class cola.ItemScope extends cola.SubScope
 	constructor: (parent, @alias)->
 		super(parent)
 		@data = new cola.ItemDataModel(@, @alias, @parent?.dataType)
+		@action = @parent.action
 
 	watchPath: ()->
 
@@ -412,7 +391,7 @@ class cola.ItemsScope extends cola.SubScope
 
 	constructor: (parent, expression)->
 		@itemScopeMap = {}
-		super(parent)
+		@setParent(parent)
 		@setExpression(expression)
 
 	setExpression: (expression)->
@@ -461,6 +440,19 @@ class cola.ItemsScope extends cola.SubScope
 		for key, childScope of @itemScopeMap
 			childScope.notifyObservers(path)
 		return @
+
+	setParent: (parent)->
+		if @parent then @unwatchPath()
+
+		@parent = parent
+		@data = parent.data
+		@action = parent.action
+
+		if @_watchAllMessages
+			@watchAllMessages()
+		else if @_watchPath
+			@watchPath(@_watchPath)
+		return
 
 	setItems: (items)->
 		@_setItems(items)
@@ -554,11 +546,9 @@ class cola.ItemsScope extends cola.SubScope
 
 	processMessage: (bindingPath, path, type, arg)->
 		if @messageTimestamp >= arg.timestamp then return
-		allProcessed = @_processMessage(bindingPath, path, type, arg)
+		@_processMessage(bindingPath, path, type, arg)
 
-		if allProcessed
-			@messageTimestamp = arg.timestamp
-		else if @itemScopeMap
+		if @itemScopeMap
 			itemScope = @findItemDomBinding(arg.data or arg.entity)
 			if itemScope
 				itemScope.processMessage(bindingPath, path, type, arg)
@@ -566,6 +556,7 @@ class cola.ItemsScope extends cola.SubScope
 				for id, itemScope of @itemScopeMap
 					if itemScope.hasExBinding()
 						itemScope.processMessage(bindingPath, path, type, arg)
+		@messageTimestamp = arg.timestamp
 		return
 
 	isOriginItems: (items)->
@@ -816,7 +807,7 @@ class cola.AbstractDataModel
 			@removeShortcut(prop)
 			if not data or not (data instanceof cola.Entity or data instanceof cola.EntityList) or
 			  not data.parent or data is rootData._data[prop] # is not alias
-				@onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+				@onDataMessage([ prop ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @_rootData
 					property: prop
 					oldValue: oldShortcutData
@@ -854,11 +845,11 @@ class cola.AbstractDataModel
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@path.length)
-				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
+				dataModel.onDataMessage([ shortcut ].concat(relativePath), type, arg)
 				return
 		}
 		@bind(shortcutHolder.bindingPath, shortcutHolder)
-		@onDataMessage([shortcut], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+		@onDataMessage([ shortcut ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 			entity: @_rootData
 			property: shortcut
 			oldValue: oldShortcutData
@@ -878,8 +869,7 @@ class cola.AbstractDataModel
 		return @
 
 	flush: (name, loadMode)->
-		@_rootData?.flush(name, loadMode)
-		return @
+		return cola.util.wrapDeferredWith(@, @_rootData?.flush(name, loadMode))
 
 	bind: (path, processor)->
 		if not @bindingRegistry
@@ -1038,7 +1028,7 @@ class cola.DataModel extends cola.AbstractDataModel
 		if not @_rootData?
 			@_rootDataType ?= new cola.EntityDataType()
 			@_rootData = rootData = @_createRootData(@_rootDataType)
-			rootData.state = cola.Entity.STATE_NEW
+			rootData.state = cola.Entity.STATE_NONE
 			dataModel = @
 			rootData._setDataModel(dataModel)
 		return @_rootData
@@ -1206,7 +1196,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			holder.dataType = data.dataType
 
 		if not silence
-			@onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: alias
 				value: data
@@ -1292,15 +1282,16 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
 			if holder
-				holder.data?.flush(path.substring(i + 1), loadMode)
+				dfd = holder.data?.flush(path.substring(i + 1), loadMode)
 			else
-				@parent.flush(path, loadMode)
+				dfd = @parent.flush(path, loadMode)
 		else
 			holder = @_aliasMap[path]
 			if holder
 				path = holder.path
-			if path then @parent.flush(path, loadMode)
-		return @
+			if path
+				dfd = @parent.flush(path, loadMode)
+		return cola.util.wrapDeferredWith(@, dfd)
 
 	onDataMessage: (path, type, arg)->
 		super(path, type, arg)
@@ -1386,7 +1377,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 	setIndex: (index, silence)->
 		@_index = index
 		if not silence
-			@onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ cola.constants.REPEAT_INDEX ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: cola.constants.REPEAT_INDEX
 				value: index
@@ -1444,7 +1435,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 
 			if isChild
 				relativePath = arg.originPath.slice(itemData.getPath().length)
-				super([@alias].concat(relativePath), type, arg)
+				super([ @alias ].concat(relativePath), type, arg)
 		return
 
 ###

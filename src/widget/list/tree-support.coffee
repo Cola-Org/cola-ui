@@ -98,7 +98,7 @@ class cola.CascadeBind extends cola.Element
 	retrieveChildNodes: (parentNode, callback, dataCtx)->
 		isRoot = not parentNode._parent
 		hasChild = false
-		funcs = []
+		tasks = []
 		if @_recursive or isRoot
 			dataCtx ?= {}
 			if isRoot
@@ -106,13 +106,12 @@ class cola.CascadeBind extends cola.Element
 			else
 				expression = @_recursiveExpression or @_expression
 			items = expression.evaluate(parentNode._scope, "async", dataCtx)
-			if items == undefined and dataCtx.unloaded
+			if items is undefined and dataCtx.unloaded
 				recursiveLoader = dataCtx.providerInvokers?[0]
 				if recursiveLoader
-					funcs.push((callback)-> recursiveLoader.invokeAsync(callback))
+					tasks.push(recursiveLoader.invokeAsync())
 			else
 				recursiveItems = items
-				originRecursiveItems = items.$origin if items instanceof Array
 				if recursiveItems
 					if recursiveItems instanceof cola.EntityList
 						hasChild = recursiveItems.entityCount > 0
@@ -122,60 +121,45 @@ class cola.CascadeBind extends cola.Element
 		if @_child and not isRoot
 			dataCtx ?= {}
 			items = @_child._expression.evaluate(parentNode._scope, "async", dataCtx)
-			if items == undefined and dataCtx.unloaded
+			if items is undefined and dataCtx.unloaded
 				childLoader = dataCtx.providerInvokers?[0]
 				if childLoader
-					funcs.push((callback)-> childLoader.invokeAsync(callback))
-			else
-				childItems = items
-				originChildItems = items.$origin if items instanceof Array
-				hasChild = true
+					tasks.push(childLoader.invokeAsync())
 
-		if funcs.length
-			cola.util.waitForAll(funcs, {
-				scope: @
-				complete: (success, result)->
-					if success
-						hasChild = false
-						if @_recursive or isRoot
-							if isRoot
-								expression = @_expression
-							else
-								expression = @_recursiveExpression or @_expression
+		return $.when.apply($, tasks).done(()=>
+			hasChild = false
+			if @_recursive or isRoot
+				if isRoot
+					expression = @_expression
+				else
+					expression = @_recursiveExpression or @_expression
 
-							recursiveItems = expression.evaluate(parentNode._scope, "never")
-							originRecursiveItems = recursiveItems.$origin if recursiveItems instanceof Array
-							if recursiveItems
-								if recursiveItems instanceof cola.EntityList and recursiveItems.entityCount > 0
-									hasChild = true
-								else if recursiveItems.length > 0
-									hasChild = true
+				recursiveItems = expression.evaluate(parentNode._scope, "never")
+				originRecursiveItems = recursiveItems.$origin if recursiveItems instanceof Array
+				if recursiveItems
+					if recursiveItems instanceof cola.EntityList and recursiveItems.entityCount > 0
+						hasChild = true
+					else if recursiveItems.length > 0
+						hasChild = true
 
-						if @_child and not isRoot
-							childItems = @_child._expression.evaluate(parentNode._scope, "never")
-							originChildItems = childItems.$origin if childItems instanceof Array
-							if recursiveItems
-								if childItems instanceof cola.EntityList and childItems.entityCount > 0
-									hasChild = true
-								else if childItems.length > 0
-									hasChild = true
+			if @_child and not isRoot
+				childItems = @_child._expression.evaluate(parentNode._scope, "never")
+				originChildItems = childItems.$origin if childItems instanceof Array
+				if recursiveItems
+					if childItems instanceof cola.EntityList and childItems.entityCount > 0
+						hasChild = true
+					else if childItems.length > 0
+						hasChild = true
 
-						@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
-							originChildItems)
-						parentNode._hasChild = hasChild
-
-						parentNode._itemsScope.onItemsRefresh?()
-						if callback then cola.callback(callback, true)
-					else
-						if callback then cola.callback(callback, false, result)
-					return
-			})
-		else
-			@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems, originChildItems)
+			@_wrapChildItems(parentNode, recursiveItems, originRecursiveItems, childItems,
+			  originChildItems)
 			parentNode._hasChild = hasChild
+
 			parentNode._itemsScope.onItemsRefresh?()
-			if callback then cola.callback(callback, true)
-		return
+			cola.callback(callback, true)
+		).fail((error)->
+			cola.callback(callback, false, error)
+		)
 
 	hasChildItems: (parentScope)->
 		if @_recursive

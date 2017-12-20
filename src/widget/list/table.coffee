@@ -1178,7 +1178,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 			i = column._property.lastIndexOf(".")
 			if i > 0
 				subItem = item.get(column._property.substring(0, i))
-				message = subItem?.getKeyMessage(column._property.substring(i + 1))
+				if subItem and subItem instanceof cola.Entity
+					message = subItem.getKeyMessage(column._property.substring(i + 1))
 			else
 				message = item.getKeyMessage(column._property)
 

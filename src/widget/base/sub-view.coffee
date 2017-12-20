@@ -79,7 +79,6 @@ class cola.SubView extends cola.Widget
 			model = new cola.Model(parentModel)
 		cola.util.userData(dom, "_model", model)
 
-		@_loading = true
 		$dom = $(@_dom)
 		$content = $dom.find(">.content")
 
@@ -96,50 +95,57 @@ class cola.SubView extends cola.Widget
 			$dimmer = $dom.find(">.ui.dimmer")
 		$dimmer.addClass("active")
 
-		cola.loadSubView($content[0],
-			{
-				model: model
-				htmlUrl: @_url
-				jsUrl: @_jsUrl
-				cssUrl: @_cssUrl
-				timeout: @_timeout
-				param: @_param
-				callback: {
-					complete:(success, result)=>
-						@_currentUrl = @_url
-						@_currentJsUrl = @_jsUrl
-						@_currentCssUrl = @_cssUrl
+		@_currentUrl = @_url
+		@_currentJsUrl = @_jsUrl
+		@_currentCssUrl = @_cssUrl
+		@_loaded = false
 
-						if not @_showLoadingContent
-							$dom.find(">.content").css("visibility", "")
+		@_loadingDeferred = cola.loadSubView($content[0], {
+			model: model
+			htmlUrl: @_url
+			jsUrl: @_jsUrl
+			cssUrl: @_cssUrl
+			timeout: @_timeout
+			param: @_param
+		}).done(()=>
+			@_loadingDeferred = null
+			@_loaded = true
 
-						$dom.find(">.ui.dimmer").removeClass("active")
+			if not @_showLoadingContent
+				$dom.find(">.content").css("visibility", "")
 
-						@_loading = false
-						if success
-							retValue = @fire("load", @)
-						else
-							retValue = @fire("loadError", @, {
-								error: result
-							})
-						ret = cola.callback(callback, success, result)
-						if ret isnt undefined then retValue = ret
-						return retValue
-				}
+			$dom.find(">.ui.dimmer").removeClass("active")
+
+			@fire("load", @)
+			cola.callback(callback, true)
+			return
+		).fail((result)=>
+			@_loadingDeferred = null
+
+			@fire("loadError", @, {
+				error: result
 			})
-		return
+			cola.callback(callback, false, result)
+			return
+		)
+		return cola.util.wrapDeferredWith(@, @_loadingDeferred)
 
 	loadIfNecessary: (options, callback)->
 		if typeof options is "function"
 			callback = options
 			options = null
 
-		if  @_currentUrl and
-		  (not options or @_currentUrl is options.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl)
-			cola.callback(callback, true)
+		if  @_loaded
+			if not options or @_currentUrl is options.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl
+				dfd = cola.util.createDeferredIf(@_loadingDeferred)
+				return dfd.done(()->
+					cola.callback(callback, true)
+					return
+				)
+			else
+				throw new cola.Exception("Can not load SubView during loading.")
 		else
-			@load(options, callback)
-		return
+			return @load(options, callback)
 
 	unload: ()->
 		return unless @_dom or @_currentUrl

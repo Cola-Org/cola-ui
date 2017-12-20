@@ -11,7 +11,7 @@ cola.registerTypeResolver "validator", (config)->
 	return cola[cola.util.capitalize(config.$type) + "Validator"]
 
 cola.registerTypeResolver "validator", (config)->
-	if typeof config == "function"
+	if typeof config is "function"
 		return cola.CustomValidator
 
 class cola.Validator extends cola.Definition

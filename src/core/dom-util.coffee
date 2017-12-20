@@ -183,6 +183,7 @@ cola.util._getNodeDataId = (node)->
 _doNodeInserted = (node)->
 	id = cola.util._getNodeDataId(node)
 	if id
+		delete cola.util._nodesToBeRemove[id]
 		store = cola.util.userDataStore[id]
 		if store
 			listeners = store[ON_NODE_INSERT_KEY]

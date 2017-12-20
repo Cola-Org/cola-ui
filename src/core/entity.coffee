@@ -244,7 +244,7 @@ _sortCollection = (collection, comparator, caseSensitive)->
 
 	if comparator
 		if comparator == "$reverse"
-			return collection.reverse();
+			return collection.reverse()
 		else if typeof comparator == "string"
 			comparatorProps = []
 			for part in comparator.split(",")
@@ -357,7 +357,7 @@ class cola.Entity
 			@_disableWriteObservers--
 
 			if data.$state then @state = data.$state
-			else if data.state$ then @state = data.state$   # Deprecated
+			else if data.state$ then @state = data.state$ # Deprecated
 
 			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
@@ -396,84 +396,86 @@ class cola.Entity
 
 		loadData = (provider)->
 			retValue = undefined
-			providerInvoker = provider.getInvoker(
-				expressionData: @
-				parentData: @
-				property: prop)
+			if property and @state is _Entity.STATE_NEW and not property._loadForNewEntity
+				if property._aggregated
+					@_set(prop, [], true)
+					retValue = @_data[prop]
+				loaded = true
 
-			if loadMode == "sync"
-				if property and property.getListeners("beforeLoad")
-					if property.fire("beforeLoad", property, {
-						entity: @,
-						property: prop
-					}) is false
-						return
+			if not loaded
+				providerInvoker = provider.getInvoker(
+					expressionData: @
+					parentData: @
+					property: prop)
 
-				retValue = providerInvoker.invokeSync()
-				@_set(prop, retValue, true)
-				retValue = @_data[prop]
-				if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
-					retValue._providerInvoker = providerInvoker
+				if loadMode is "sync"
+					if property?.getListeners("beforeLoad")
+						if property.fire("beforeLoad", property, {
+							entity: @
+							property: prop
+						}) is false
+							loaded = true
 
-				if property and property.getListeners("load")
-					property.fire("load", property, {
-						entity: @,
-						property: prop
-					})
-			else if loadMode == "async"
-				if property and property.getListeners("beforeLoad")
-					if property.fire("beforeLoad", property, {
-						entity: @,
-						property: prop
-					}) is false
-						return
+					if loaded
+						retValue = providerInvoker.invokeSync()
+						@_set(prop, retValue, true)
+						retValue = @_data[prop]
+						if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
+							retValue._providerInvoker = providerInvoker
 
-				if context
-					context.unloaded = true
-					context.providerInvokers ?= []
-					context.providerInvokers.push(providerInvoker)
-
-				@_data[prop] = providerInvoker
-				notifyArg = {
-					data: @
-					property: prop
-				}
-				@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-				providerInvoker.invokeAsync(
-					complete: (success, result)=>
-						@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-
-						if @_data[prop] != providerInvoker then success = false
-						if success
-							result = @_set(prop, result, true)
-							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
-								result._providerInvoker = providerInvoker
-						else
-							@_set(prop, null, true)
-
-						if property and property.getListeners("load")
+						if property?.getListeners("load")
 							property.fire("load", property, {
-								entity: @,
+								entity: @
 								property: prop
 							})
 
-						if callback
-							cola.callback(callback, success, result)
-						return
-				)
-			else
-				cola.callback(callback, true, undefined)
-			return retValue
+				else if loadMode is "async"
+					if property?.getListeners("beforeLoad")
+						if property.fire("beforeLoad", property, {
+							entity: @
+							property: prop
+						}) is false
+							loaded = true
+
+					if not loaded
+						notifyArg = {
+							data: @
+							property: prop
+						}
+						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
+						@_data[prop] = dfd = providerInvoker.invokeAsync().always(()=>
+							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+							return
+						).done((result)=>
+							if @_data[prop] isnt retValue
+								result = @_set(prop, result, true)
+								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+									result._providerInvoker = providerInvoker
+
+								if property?.getListeners("load")
+									property.fire("load", property, {
+										entity: @
+										property: prop
+									})
+							return
+						)
+
+						if context
+							context.unloaded = true
+							context.deferreds ?= []
+							context.deferreds.push(dfd)
+
+			return cola.util.createDeferredIf(dfd, retValue)
 
 		value = @_data[prop]
 
 		if property?.getListeners("read")
 			value = property.fire("read", property, {
-				entity: @,
-				property: prop,
+				entity: @
+				property: prop
 				value: value
 			})
-			cola.callback(callback, true, value) if callback
+			cola.callback(callback, true, value)
 			return value
 
 		if value == undefined
@@ -481,72 +483,33 @@ class cola.Entity
 				provider = property.get("provider")
 				context?.unloaded = !!provider
 				if loadMode isnt "never" and provider and provider._loadMode is "lazy"
-					value = loadData.call(@, provider)
-					callbackProcessed = true
-		else if value instanceof cola.Provider
-			value = loadData.call(@, value)
-			callbackProcessed = true
-		else if value instanceof cola.ProviderInvoker
-			providerInvoker = value
-			if loadMode is "sync"
-				value = providerInvoker.invokeSync()
-				value = @_set(prop, value, true)
-			else if loadMode is "async"
-				if callback then providerInvoker.callbacks.push(callback)
-				callbackProcessed = true
-				value = undefined
-
-				if context
-					context.unloaded = true
-					context.providerInvokers ?= []
-					context.providerInvokers.push(providerInvoker)
-			else
-				value = undefined
-				context?.unloaded = true
-
-			# TODO: delete this
-		else if typeof value is "function"
-			providerInvoker = {
-				_$providerInvoker: true
-				entity: @
-				func: value
-				callbacks: [ callback ]
-				invokeAsync: ()->
-					@func.call(@entity, (result)=>
-						for callback in @callbacks
-							cola.callback(callback, true, result)
+					dfd = loadData.call(@, provider).done((result)->
+						value = result
+						cola.callback(callback, true, result)
 						return
 					)
+					callbackProcessed = true
+
+		else if typeof value is "object" and value?.notifyWith
+			value = undefined
+			if callback
+				value.done((result)->
+					cola.callback(callback, true, result)
 					return
-			}
-			@_data[prop] = providerInvoker
-			providerInvoker.invokeAsync()
-			value = undefined
-			callbackProcessed = true
+				)
+				callbackProcessed = true
 
 			if context
 				context.unloaded = true
-				context.providerInvokers ?= []
-				context.providerInvokers.push(providerInvoker)
-		else if typeof value is "object" and value?._$providerInvoker
-			value.callbacks.push(callback)
-
-			value = undefined
-			callbackProcessed = true
-
-			if context
-				context.unloaded = true
-				context.providerInvokers ?= []
-				context.providerInvokers.push(providerInvoker)
 
 		if callback and not callbackProcessed
 			cola.callback(callback, true, value)
 		return value
 
 	set: (prop, value, context)->
-		if typeof prop == "string"
+		if typeof prop is "string"
 			_setValue(@, prop, value, context)
-		else if prop and (typeof prop == "object")
+		else if prop and (typeof prop is "object")
 			config = prop
 			for prop, val of config
 				@set(prop, val)
@@ -582,9 +545,9 @@ class cola.Entity
 						else if dataType instanceof cola.EntityDataType
 							matched = true
 							if value instanceof _Entity
-								matched = value.dataType == dataType and not property._aggregated
+								matched = value.dataType is dataType and not property._aggregated
 							else if value instanceof _EntityList
-								matched = value.dataType == dataType and property._aggregated
+								matched = value.dataType is dataType and property._aggregated
 							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 								value = @_jsonToEntity(value, dataType, true, provider)
 							else
@@ -630,7 +593,7 @@ class cola.Entity
 		if changed
 			if property?.getListeners("beforeWrite")
 				if property.fire("beforeWrite", property, {
-					entity: @,
+					entity: @
 					property: prop,
 					oldValue: oldValue
 					value: value
@@ -639,7 +602,7 @@ class cola.Entity
 
 			if @dataType?.getListeners("beforeDataChange")
 				if @dataType.fire("beforeDataChange", @dataType, {
-					entity: @,
+					entity: @
 					property: prop,
 					oldValue: oldValue
 					value: value
@@ -673,7 +636,7 @@ class cola.Entity
 
 			if property?.getListeners("write")
 				arg =
-					entity: @,
+					entity: @
 					property: prop,
 					oldValue: oldValue
 					value: value
@@ -692,13 +655,6 @@ class cola.Entity
 				@_mayHasSubEntity = true
 
 			@timestamp = cola.sequenceNo()
-			if @_disableWriteObservers is 0
-				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
-					entity: @
-					property: prop
-					value: value
-					oldValue: oldValue
-				})
 
 			if not ignoreState and not @_disableValidatorsCount and property?._validators
 				if messages != undefined
@@ -718,9 +674,17 @@ class cola.Entity
 				else
 					@validate(prop)
 
+			if @_disableWriteObservers is 0
+				@_notify(cola.constants.MESSAGE_PROPERTY_CHANGE, {
+					entity: @
+					property: prop
+					value: value
+					oldValue: oldValue
+				})
+
 			if @dataType?.getListeners("dataChange")
 				@dataType.fire("dataChange", @dataType, {
-					entity: @,
+					entity: @
 					property: prop,
 					oldValue: oldValue
 					value: value
@@ -913,14 +877,17 @@ class cola.Entity
 		oldLoadMode = provider._loadMode
 		provider._loadMode = "lazy"
 		try
-			return @_get(property, loadMode, {
-				complete: (success, result)=>
-					cola.callback(callback, success, result)
-					return
-			})
+			retValue = @_get(property, loadMode)
 		finally
 			provider._loadMode = oldLoadMode
-		return
+
+		if not retValue?.notifyWith
+			retValue = $.Deferred().resolve(retValue)
+
+		return cola.util.wrapDeferredWith(@, retValue).done((result)->
+			cola.callback(callback, true, result)
+			return
+		)
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel
@@ -1133,11 +1100,153 @@ class cola.Entity
 			json.$oldData = @_oldData
 		return json
 
-class LinkedList
-	_size: 0
+class Page extends Array
+	loaded: false
+	entityCount: 0
+
+	constructor: (@entityList, @pageNo)->
+
+	initData: (json)->
+		rawJson = json
+		entityList = @entityList
+
+		if json.hasOwnProperty("$data")
+			json = rawJson.$data
+		else if json.hasOwnProperty("data$")    # Deprecated
+			json = rawJson.data$
+
+		if json and not (json instanceof Array)
+			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
+
+		if json?.length
+			dataType = entityList.dataType
+			for data in json
+				entity = new _Entity(data, dataType)
+				@insert(entity)
+
+			if rawJson.$entityCount?
+				entityList.totalEntityCount = rawJson.$entityCount
+			else if rawJson.entityCount$?    # Deprecated
+				entityList.totalEntityCount = rawJson.entityCount$
+
+			if entityList.totalEntityCount?
+				if entityList.pageSize
+					entityList.pageCount = Math.floor((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+				entityList.pageCountDetermined = true
+
+			entityList.entityCount += json.length
+			entityList.timestamp = cola.sequenceNo()
+
+			entityList._notify(cola.constants.MESSAGE_REFRESH, {
+				data: entityList
+			})
+		else
+			entityList.totalEntityCount = entityList.entityCount
+			entityList.pageCountDetermined = true
+		return
+
+	insert: (entity, index)->
+		if 0 <= index < @length
+			@splice(index, 0, entity)
+		else
+			index = @length
+			@push(entity)
+		@hotIndex = index
+
+		entityList = @entityList
+		entity._page = @
+		entity.parent = entityList
+		delete entity._parentProperty
+
+		if not @_dontAutoSetCurrent and not entityList.current?
+			if entity.state isnt _Entity.STATE_DELETED
+				entityList._setCurrentPage(entity._page, false)
+				entityList.setCurrent(entity)
+
+		entity._setDataModel(entityList._dataModel)
+		entity._onPathChange()
+		if entity.state isnt _Entity.STATE_DELETED
+			@entityCount++
+			@totalEntityCount++
+		return
+
+	remove: (entity)->
+		index = @indexOf(entity)
+		if index >= 0
+			@splice(index, 1)
+			if index is @hotIndex
+				if index is @length - 1
+					@hotIndex--
+			else if index < @hotIndex
+				@hotIndex--
+
+			delete entity._page
+			entity._parent = entity.parent
+			delete entity.parent
+			entity._setDataModel(null)
+			entity._onPathChange()
+			if entity.state isnt _Entity.STATE_DELETED
+				@entityCount--
+				@totalEntityCount--
+		return
+
+	clear: ()->
+		i = @length - 1
+		while i >= 0
+			entity = @[i]
+			delete entity._page
+			entity._parent = entity.parent
+			delete entity.parent
+			entity._setDataModel(null)
+			entity._onPathChange()
+			entity = entity._next
+			i--
+		@splice(0, @length)
+		@entityCount = 0
+		@hotIndex = 0
+		return
+
+	loadData: (loadMode)->
+		providerInvoker = @entityList._providerInvoker
+		if providerInvoker
+			providerInvoker.pageSize = @entityList.pageSize
+			providerInvoker.pageNo = @pageNo
+			if loadMode is "sync"
+				result = providerInvoker.invokeSync()
+				@initData(result)
+			else
+				dfd = providerInvoker.invokeAsync().done((result)->
+					@initData(result)
+					if callback instanceof Function
+						cola.callback(callback, true, result)
+					return
+				)
+		return cola.util.createDeferredIf(dfd, result)
+
+class cola.EntityList
+	current: null
+	entityCount: 0
+
+	pageSize: 0
+	pageNo: 1
+	pageCount: 1
+
+	_pageCount: 0
+	_disableObserverCount: 0
+
+	# totalEntityCount
+	# _parent
+	# _parentProperty
+	# _providerInvoker
+
+	constructor: (array, dataType)->
+		@id = cola.uniqueId()
+		@timestamp = cola.sequenceNo()
+		@dataType = dataType
+		if array then @fillData(array)
 
 	_insertElement: (element, insertMode, refEntity)->
-		if !@_first
+		if not @_first
 			@_first = @_last = element
 		else
 			if not insertMode or insertMode is "end"
@@ -1165,7 +1274,7 @@ class LinkedList
 				@_first._previous = element
 				@_first = element
 		element._page = @
-		@_size++
+		@_pageCount++
 		return
 
 	_removeElement: (element)->
@@ -1175,143 +1284,30 @@ class LinkedList
 		next?._previous = previous
 		if @_first is element then @_first = next
 		if @_last is element then @_last = previous
-		@_size--
+		@_pageCount--
 		return
 
 	_clearElements: ()->
 		@_first = @_last = null
-		@_size = 0
+		@_pageCount = 0
 		return
-
-class Page extends LinkedList
-	loaded: false
-	entityCount: 0
-
-	constructor: (@entityList, @pageNo)->
-
-	initData: (json)->
-		rawJson = json
-		entityList = @entityList
-
-		if json.hasOwnProperty("$data")
-			json = rawJson.$data
-		else if json.hasOwnProperty("data$")
-			json = rawJson.data$
-
-		if json and not (json instanceof Array)
-			throw new cola.Exception("Unmatched DataType. expect \"Array\" but \"Object\".")
-
-		if json?.length
-			dataType = entityList.dataType
-			for data in json
-				entity = new _Entity(data, dataType)
-				@_insertElement(entity)
-
-			if rawJson.$entityCount?
-				entityList.totalEntityCount = rawJson.$entityCount
-			else if rawJson.entityCount$?
-				entityList.totalEntityCount = rawJson.entityCount$
-
-			if entityList.totalEntityCount?
-				if entityList.pageSize
-					entityList.pageCount = Math.floor((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
-				entityList.pageCountDetermined = true
-
-			entityList.entityCount += json.length
-			entityList.timestamp = cola.sequenceNo()
-
-			entityList._notify(cola.constants.MESSAGE_REFRESH, {
-				data: entityList
-			})
-		else
-			entityList.totalEntityCount = entityList.entityCount
-			entityList.pageCountDetermined = true
-		return
-
-	_insertElement: (entity, insertMode, refEntity)->
-		super(entity, insertMode, refEntity)
-
-		entityList = @entityList
-		entity._page = @
-		entity.parent = entityList
-		delete entity._parentProperty
-
-		if not @dontAutoSetCurrent and not entityList.current?
-			if entity.state isnt _Entity.STATE_DELETED
-				entityList.current = entity
-				entityList._setCurrentPage(entity._page)
-
-		entity._setDataModel(entityList._dataModel)
-		entity._onPathChange()
-		@entityCount++ if entity.state isnt _Entity.STATE_DELETED
-		return
-
-	_removeElement: (entity)->
-		super(entity)
-		delete entity._page
-		entity._parent = entity.parent
-		delete entity.parent
-		entity._setDataModel(null)
-		entity._onPathChange()
-		@entityCount-- if entity.state isnt _Entity.STATE_DELETED
-		return
-
-	_clearElements: ()->
-		entity = @_first
-		while entity
-			delete entity._page
-			entity._parent = entity.parent
-			delete entity.parent
-			entity._setDataModel(null)
-			entity._onPathChange()
-			entity = entity._next
-		@entityCount = 0
-		super()
-		return
-
-	loadData: (callback)->
-		providerInvoker = @entityList._providerInvoker
-		if providerInvoker
-			providerInvoker.pageSize = @entityList.pageSize
-			providerInvoker.pageNo = @pageNo
-			if callback
-				providerInvoker.invokeAsync(
-					complete: (success, result)=>
-						if success then @initData(result)
-						cola.callback(callback, success, result)
-				)
-			else
-				result = providerInvoker.invokeSync()
-				@initData(result)
-		return
-
-class cola.EntityList extends LinkedList
-	current: null
-	entityCount: 0
-
-	pageMode: "append"
-	pageSize: 0
-	pageNo: 1
-	pageCount: 1
-
-	_disableObserverCount: 0
-
-	# totalEntityCount
-	# _parent
-	# _parentProperty
-	# _providerInvoker
-
-	constructor: (array, dataType)->
-		@id = cola.uniqueId()
-		@timestamp = cola.sequenceNo()
-		@dataType = dataType
-		if array then @fillData(array)
 
 	fillData: (array)->
-		page = @_findPage(@pageNo)
-		page ?= new Page(@, @pageNo)
-		@_insertElement(page, "begin")
-		page.initData(array)
+		@_dontChangeCurrent = true
+		try
+			page = @_findPage(@pageNo)
+			page ?= new Page(@, @pageNo)
+			@_insertElement(page, "begin")
+			page.initData(array)
+
+			if not @current and page.length
+				for entity, i in entity
+					if entity.state isnt _Entity.STATE_DELETED
+						@setCurrent(entity)
+						page.hotIndex = i
+						break
+		finally
+			delete @_dontChangeCurrent
 		return
 
 	_setDataModel: (dataModel)->
@@ -1323,81 +1319,84 @@ class cola.EntityList extends LinkedList
 
 		next = page._first
 		while page
-			if next
-				next._setDataModel(dataModel)
-				next = next._next
-			else
-				page = page._next
-				next = page?._first
+			for entity in page
+				entity._setDataModel(dataModel)
+			page = page._next
 		return
 
 	watch: _watch
 	unwatch: _unwatch
 	_triggerWatcher: _triggerWatcher
 
-	_setCurrentPage: (page)->
+	_setCurrentPage: (page, setCurrent)->
 		@_currentPage = page
 		@pageNo = page?.pageNo or 1
 		@timestamp = cola.sequenceNo()
+
+		if setCurrent
+			for entity in page
+				if entity.state isnt _Entity.STATE_DELETED
+					@setCurrent(entity)
+					break
 		return
 
 	_onPathChange: ()->
 		delete @_pathCache
 
 		page = @_first
-		if !page then return
+		if not page then return
 
 		next = page._first
 		while page
-			if next
-				next._onPathChange()
-				next = next._next
-			else
-				page = page._next
-				next = page?._first
+			for entity in page
+				entity._onPathChange()
+			page = page._next
 		return
 
 	_findPrevious: (entity)->
-		return if entity and entity.parent != @
-
-		if entity
-			page = entity._page
-			previous = entity._previous
-		else
-			page = @_last
-			previous = page._last
-
-		while page
-			if previous
-				if previous.state != _Entity.STATE_DELETED
-					return previous
+		if not (entity?.parent isnt @)
+			if entity
+				page = entity._page
+				if page[page.hotIndex] is entity
+					index = page.hotIndex
 				else
-					previous = previous._previous
+					index = page.indexOf(entity)
 			else
+				page = @_last
+				index = page.length
+
+			while page
+				while index > 0
+					entity = page[--index]
+					if entity.state isnt _Entity.STATE_DELETED
+						return [entity, index]
+
 				page = page._previous
-				previous = page?._last
-		return
+				index = page?.length
+		return []
 
 	_findNext: (entity)->
-		return if entity and entity.parent != @
-
-		if entity
-			page = entity._page
-			next = entity._next
-		else
-			page = @_first
-			next = page._first
-
-		while page
-			if next
-				if next.state != _Entity.STATE_DELETED
-					return next
+		if not (entity?.parent isnt @)
+			if entity
+				page = entity._page
+				if page[page.hotIndex] is entity
+					index = page.hotIndex
 				else
-					next = next._next
+					index = page.indexOf(entity)
 			else
+				page = @_first
+				index = -1
+
+			while page
+				lastIndex = page.length - 1
+				while index < lastIndex
+					entity = page[++index]
+					if entity.state isnt _Entity.STATE_DELETED
+						return [entity, index]
+
 				page = page._next
-				next = page?._first
-		return
+				index = -1
+		return []
 
 	_findPage: (pageNo)->
 		if pageNo < 1 then return null
@@ -1406,9 +1405,9 @@ class cola.EntityList extends LinkedList
 				return null
 
 		page = @_currentPage or @_first
-		if !page then return null
+		if not page then return null
 
-		if page.pageNo == pageNo
+		if page.pageNo is pageNo
 			return page
 		else if page.pageNo < pageNo
 			page = page._next
@@ -1437,9 +1436,9 @@ class cola.EntityList extends LinkedList
 		insertMode = "end"
 		refPage = @_currentPage or @_first
 		if refPage
-			if refPage.page == pageNo - 1
+			if refPage.page is pageNo - 1
 				insertMode = "after"
-			else if refPage.page == pageNo + 1
+			else if refPage.page is pageNo + 1
 				insertMode = "before"
 			else
 				page = @_last
@@ -1466,39 +1465,27 @@ class cola.EntityList extends LinkedList
 		page = @_findPage(pageNo)
 		if page != @_currentPage
 			if page
-				@_setCurrentPage(page)
-				if setCurrent
-					entity = page._first
-					while entity
-						if entity.state != _Entity.STATE_DELETED
-							@setCurrent(entity)
-							break;
-						entity = entity._next
-
-				cola.callback(callback, true)
+				@_setCurrentPage(page, setCurrent)
 			else if loadMode isnt "never"
 				if setCurrent then @setCurrent(null)
 				page = @_createPage(pageNo)
 				if page
-					if loadMode is "async"
-						if not @_currentPage
-							@_setCurrentPage(page)
+					if loadMode isnt "sync" and not @_currentPage
+						@_setCurrentPage(page, setCurrent)
 
-						page.loadData(
-							complete: (success, result)=>
-								if success
-									if @_currentPage isnt page
-										@_setCurrentPage(page)
-									if page.entityCount and @pageCount < pageNo
-										@pageCount = pageNo
-								cola.callback(callback, success, result)
-								return
-						)
-					else
-						page.loadData()
-						@_setCurrentPage(page)
-						cola.callback(callback, true)
-		return @
+					@_dontAutoSetCurrent++
+					dfd = page.loadData(loadMode).done((result)->
+						@_dontAutoSetCurrent--
+						if @_currentPage isnt page
+							@_setCurrentPage(page, setCurrent)
+						if page.entityCount and @pageCount < pageNo
+							@pageCount = pageNo
+						return
+					)
+		return cola.util.createDeferredIf(dfd, result).done(()->
+			cola.callback(callback, true)
+			return
+		)
 
 	loadPage: (pageNo, loadMode)->
 		return @_loadPage(pageNo, false, loadMode)
@@ -1511,36 +1498,40 @@ class cola.EntityList extends LinkedList
 		return @_loadPage(pageNo, true, loadMode)
 
 	firstPage: (loadMode)->
-		@gotoPage(1, loadMode)
-		return @
+		return gotoPage(1, loadMode)
 
 	previousPage: (loadMode)->
 		pageNo = @pageNo - 1
 		if pageNo < 1 then pageNo = 1
-		@gotoPage(pageNo, loadMode)
-		return @
+		return gotoPage(pageNo, loadMode)
 
 	nextPage: (loadMode)->
 		pageNo = @pageNo + 1
 		if @pageCountDetermined and pageNo > @pageCount then pageNo = @pageCount
-		@gotoPage(pageNo, loadMode)
-		return @
+		return gotoPage(pageNo, loadMode)
 
 	lastPage: (loadMode)->
-		@gotoPage(@pageCount, loadMode)
-		return @
+		return gotoPage(@pageCount, loadMode)
 
 	insert: (entity, insertMode, refEntity)->
-		if insertMode == "before" or insertMode == "after"
-			if refEntity and refEntity.parent != @
+		if isFinite(insertMode)
+			index = +insertMode
+		else if insertMode is "before" or insertMode is "after"
+			if refEntity and refEntity.parent isnt @
 				refEntity = null
 			refEntity ?= @current
-			if refEntity then page = refEntity._page
-		else if @pageMode == "append"
-			if insertMode == "end"
+			if refEntity
+				page = refEntity._page
+				index = page.indexOf(entity)
+				if insertMode is "after"
+					index++
+		else
+			if insertMode is "end"
 				page = @_last
-			else if insertMode == "begin"
+				index = page.length
+			else if insertMode is "begin"
 				page = @_first
+				index = 0
 
 		if not page
 			page = @_currentPage
@@ -1559,14 +1550,14 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
 
-		page.dontAutoSetCurrent = true
-		page._insertElement(entity, insertMode, refEntity)
-		page.dontAutoSetCurrent = false
+		page._dontAutoSetCurrent = true
+		page.insert(entity, index)
+		page._dontAutoSetCurrent = false
 
 		if entity.state isnt _Entity.STATE_DELETED then @entityCount++
 
@@ -1580,11 +1571,14 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityInsert")
 			@dataType.fire("entityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
-		if not @current then @setCurrent(entity)
+		if not @_dontChangeCurrent and not @current
+			@setCurrent(entity)
+			if 0 <= index < entity.page.length
+				entity.page.hotIndex = index
 		return entity
 
 	remove: (entity, detach)->
@@ -1596,25 +1590,26 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
 
-		if entity == @current
+		if entity is @current
 			changeCurrent = true
-			newCurrent = @_findNext(entity)
-			if !newCurrent then newCurrent = @_findPrevious(entity)
+			ret = @_findNext(entity)
+			if not ret.length then ret = @_findPrevious(entity)
+			[newCurrent, newCurrentIndex] = ret
 
 		page = entity._page
 		if detach
-			page._removeElement(entity)
+			page.remove(entity)
 			@entityCount--
-		else if entity.state == _Entity.STATE_NEW
+		else if entity.state is _Entity.STATE_NEW
 			entity.setState(_Entity.STATE_DELETED)
-			page._removeElement(entity)
+			page.remove(entity)
 			@entityCount--
-		else if entity.state != _Entity.STATE_DELETED
+		else if entity.state isnt _Entity.STATE_DELETED
 			entity.setState(_Entity.STATE_DELETED)
 			@entityCount--
 
@@ -1626,11 +1621,14 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityRemove")
 			@dataType.fire("entityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
-		@setCurrent(newCurrent) if changeCurrent
+		if changeCurrent
+			@setCurrent(newCurrent)
+			if newCurrent
+				newCurrent.page.hotIndex = newCurrentIndex
 		return entity
 
 	empty: ()->
@@ -1639,9 +1637,10 @@ class cola.EntityList extends LinkedList
 		return
 
 	setCurrent: (entity)->
-		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
+		if @current is entity or entity?.state is cola.Entity.STATE_DELETED
+			return @
 
-		if entity and entity.parent != @
+		if entity and entity.parent isnt @
 			throw new cola.Exception("The entity is not belongs to this EntityList.")
 
 		oldCurrent = @current
@@ -1649,7 +1648,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			}) is false
@@ -1658,7 +1657,10 @@ class cola.EntityList extends LinkedList
 		@current = entity
 
 		if entity
-			@_setCurrentPage(entity._page)
+			page = entity._page
+			@_setCurrentPage(page)
+			if page[page.hotIndex] isnt entity
+				page.hotIndex = page.indexOf(entity)
 			entity._onPathChange()
 
 		@_notify(cola.constants.MESSAGE_CURRENT_CHANGE, {
@@ -1669,49 +1671,53 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("currentChange")
 			@dataType.fire("currentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			})
 		return @
 
 	first: ()->
-		entity = @_findNext()
+		[entity, index] = @_findNext()
 		if entity
 			@setCurrent(entity)
+			entity.page.hotIndex = index
 			return entity
 		else
 			return @current
 
 	previous: ()->
-		entity = @_findPrevious(@current)
+		[entity, index] = @_findPrevious(@current)
 		if entity
 			@setCurrent(entity)
+			entity.page.hotIndex = index
 			return entity
 		else
 			return @current
 
 	next: ()->
-		entity = @_findNext(@current)
+		[entity, index] = @_findNext(@current)
 		if entity
 			@setCurrent(entity)
+			entity.page.hotIndex = index
 			return entity
 		else
 			return @current
 
 	last: ()->
-		entity = @_findPrevious()
+		[entity, index] = @_findPrevious()
 		if entity
 			@setCurrent(entity)
+			entity.page.hotIndex = index
 			return entity
 		else
 			return @current
 
 	hasPrevious: ()->
-		return !!@_findPrevious(@current)
+		return @_findPrevious(@current).length > 0
 
 	hasNext: ()->
-		return !!@_findNext(@current)
+		return @_findNext(@current).length > 0
 
 	_reset: ()->
 		@current = null
@@ -1721,7 +1727,7 @@ class cola.EntityList extends LinkedList
 
 		page = @_first
 		while page
-			page._clearElements()
+			page.clear()
 			page = page._next
 
 		delete @_currentPage
@@ -1749,7 +1755,7 @@ class cola.EntityList extends LinkedList
 			arg.originPath = path
 			@_dataModel?.onDataMessage(path, type, arg)
 
-			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE
+			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGEinsert or type is cola.constants.MESSAGE_REMOVE
 				@_triggerWatcher([ "*" ], type, arg)
 		return
 
@@ -1770,16 +1776,13 @@ class cola.EntityList extends LinkedList
 			page = @_findPage(pageNo)
 			return @ unless page
 
-		next = page._first
 		i = 0
 		while page
-			if next
-				if deleted or next.state != _Entity.STATE_DELETED
-					if fn.call(@, next, i++) == false then break
-				next = next._next
-			else if page and not pageNo
+			for entity in page
+				if deleted or entity.state isnt _Entity.STATE_DELETED
+					if fn.call(@, entity, i++) is false then break
+			if not pageNo
 				page = page._next
-				next = page?._first
 			else
 				break
 		return @
@@ -1791,31 +1794,21 @@ class cola.EntityList extends LinkedList
 
 		array = []
 		page = @_first
-		if page
-			next = page._first
-			while page
-				if next
-					if deleted or next.state != _Entity.STATE_DELETED
-						array.push(next.toJSON(options))
-					next = next._next
-				else
-					page = page._next
-					next = page?._first
+		while page
+			for entity in page
+				if deleted or entity.state isnt _Entity.STATE_DELETED
+					array.push(entity.toJSON(options))
+			page = page._next
 		return array
 
 	toArray: ()->
 		array = []
 		page = @_first
-		if page
-			next = page._first
-			while page
-				if next
-					if next.state != _Entity.STATE_DELETED
-						array.push(next)
-					next = next._next
-				else
-					page = page._next
-					next = page?._first
+		while page
+			for entity in page
+				if entity.state isnt _Entity.STATE_DELETED
+					array.push(entity)
+			page = page._next
 		return array
 
 	filter: (criteria, option)->
@@ -1860,17 +1853,21 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 					returnCurrent = true
 
 			if data instanceof _Entity
-				data = data._get(part, loadMode, (result)->
-					if result and result instanceof _EntityList
-						if noEntityList or returnCurrent
-							result = result.current
+				data = data._get(part, loadMode, {
+					complete: (success, result)->
+						if success
+							if result and result instanceof _EntityList
+								if noEntityList or returnCurrent
+									result = result.current
 
-					if result? and not isLast
-						evalPart(result, parts, i + 1)
-					else
-						callback?(result)
-					return
-				, context)
+							if result? and not isLast
+								evalPart(result, parts, i + 1)
+							else
+								cola.callback(callback, true, result)
+						else
+							cola.callback(callback, false, result)
+						return
+				}, context)
 				return
 			else
 				data = data[part]
@@ -1878,7 +1875,7 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 		if data? and not isLast
 			evalPart(data, parts, i + 1)
 		else
-			callback?(data)
+			cola.callback(callback, true, data)
 		return
 
 	if not callback
@@ -2007,6 +2004,7 @@ class cola.Entity.MessageHolder
 				@keyMessage[prop] = keyMessage
 
 				for p, keyMessage of @keyMessage
+					if p is "$" then continue
 					if not topKeyMessage
 						topKeyMessage = keyMessage
 					else if keyMessage and @compare(keyMessage, topKeyMessage) > 0
@@ -2091,7 +2089,7 @@ cola.util.sort = (collection, comparator, caseSensitive)->
 cola.util.flush = (data, loadMode)->
 	if data instanceof cola.Entity or data instanceof cola.EntityList
 		if data.parent instanceof cola.Entity and data._parentProperty
-			data.parent.flush(data._parentProperty, loadMode)
+			return data.parent.flush(data._parentProperty, loadMode)
 	return
 
 ###

@@ -66,22 +66,22 @@ class cola.NotifyTip extends cola.Layer
 	_onHide: ()->
 		super()
 		@destroy()
-		container=$("#c-notify-tip-container")
-		if container.children().length ==0
+		container = $("#c-notify-tip-container")
+		if container.children().length is 0
 			container.remove()
 
 	close: @hide
 
 cola.NotifyTipManager =
 	show: (options)->
-		if typeof options == "string"
+		if typeof options is "string"
 			options = {
 				message: options
 			}
 		tip = new cola.NotifyTip(options)
 		dom = tip.getDom()
 		container = $("#c-notify-tip-container")
-		if container.length == 0
+		if container.length is 0
 			container = $.xCreate({
 				tagName: "div",
 				id: "c-notify-tip-container"
@@ -92,28 +92,28 @@ cola.NotifyTipManager =
 		return tip
 
 	info: (options)->
-		if typeof options == "string"
+		if typeof options is "string"
 			options = {
 				message: options
 			}
 		options.type = "info"
 		cola.NotifyTipManager.show(options)
 	warning: (options)->
-		if typeof options == "string"
+		if typeof options is "string"
 			options = {
 				message: options
 			}
 		options.type = "warning"
 		cola.NotifyTipManager.show(options)
 	error: (options)->
-		if typeof options == "string"
+		if typeof options is "string"
 			options = {
 				message: options
 			}
 		options.type = "error"
 		cola.NotifyTipManager.show(options)
 	success: (options)->
-		if typeof options == "string"
+		if typeof options is "string"
 			options = {
 				message: options
 			}
