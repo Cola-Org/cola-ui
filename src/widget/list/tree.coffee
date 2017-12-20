@@ -471,7 +471,7 @@ class cola.Tree extends cola.AbstractList
 
 		nodeDom = itemDom.firstElementChild
 		$fly(nodeDom).addClass("expanding") if expand and not node._expanded
-		node._bind.retrieveChildNodes(node, ()->
+		node._bind.retrieveChildNodes(node).done(()->
 			$fly(nodeDom).removeClass("expanding") if expand
 			if node._children?.length > 0
 				tree._refreshChildNodes(itemDom, node, true)
@@ -491,9 +491,9 @@ class cola.Tree extends cola.AbstractList
 
 			node._expanded = true if expand
 			node._hasExpanded = true
-
-			callback?.call(tree)
-			return
+			cola.callback(callback, true)
+		).fail((error)->
+			cola.callback(callback, false, error)
 		)
 		return
 

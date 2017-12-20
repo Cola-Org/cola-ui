@@ -374,7 +374,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 		doCallback = ()=>
 			@fire("open", @)
-			callback?()
+			cola.callback(callback, true)
 			return
 
 		container = @_getContainer()

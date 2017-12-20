@@ -128,38 +128,6 @@ cola.util.cancelDelay = (owner, name)->
 		clearTimeout(timerId)
 	return
 
-cola.util.waitForAll = (funcs, callback)->
-	if not funcs or not funcs.length
-		cola.callback(callback, true)
-
-	completed = 0
-	total = funcs.length
-	procedures = {}
-	for func in funcs
-		id = cola.uniqueId()
-		procedures[id] = true
-
-		subCallback = {
-			id: id
-			complete: (success)->
-				return if disabled
-				if success
-					if procedures[@id]
-						delete procedures[@id]
-						completed++
-						if completed == total
-							cola.callback(callback, true)
-							disabled = true
-				else
-					cola.callback(callback, false)
-					disabled = true
-				return
-		}
-		subCallback.scope = subCallback
-
-		func(subCallback)
-	return
-
 cola.util.formatDate = (date, format)->
 	return "" unless date?
 	if not (date instanceof XDate)

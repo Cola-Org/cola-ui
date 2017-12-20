@@ -437,7 +437,7 @@ class cola.Entity
 						}) is false
 							loaded = true
 
-					if loaded
+					if not loaded
 						notifyArg = {
 							data: @
 							property: prop
@@ -475,7 +475,7 @@ class cola.Entity
 				property: prop
 				value: value
 			})
-			cola.callback(callback, true, value) if callback
+			cola.callback(callback, true, value)
 			return value
 
 		if value == undefined
@@ -1842,17 +1842,21 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 					returnCurrent = true
 
 			if data instanceof _Entity
-				data = data._get(part, loadMode, (result)->
-					if result and result instanceof _EntityList
-						if noEntityList or returnCurrent
-							result = result.current
+				data = data._get(part, loadMode, {
+					complete: (success, result)->
+						if success
+							if result and result instanceof _EntityList
+								if noEntityList or returnCurrent
+									result = result.current
 
-					if result? and not isLast
-						evalPart(result, parts, i + 1)
-					else
-						callback?(result)
-					return
-				, context)
+							if result? and not isLast
+								evalPart(result, parts, i + 1)
+							else
+								cola.callback(callback, true, result)
+						else
+							cola.callback(callback, false, result)
+						return
+				}, context)
 				return
 			else
 				data = data[part]
@@ -1860,7 +1864,7 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 		if data? and not isLast
 			evalPart(data, parts, i + 1)
 		else
-			callback?(data)
+			cola.callback(callback, true, data)
 		return
 
 	if not callback
