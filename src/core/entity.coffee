@@ -443,20 +443,22 @@ class cola.Entity
 							property: prop
 						}
 						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
-						@_data[prop] = dfd = providerInvoker.invokeAsync().always(()=>
-							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-							return
-						).done((result)=>
+						@_data[prop] = dfd = providerInvoker.invokeAsync().done((result)=>
 							if @_data[prop] isnt retValue
 								result = @_set(prop, result, true)
 								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 									result._providerInvoker = providerInvoker
+
+								@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 
 								if property?.getListeners("load")
 									property.fire("load", property, {
 										entity: @
 										property: prop
 									})
+							return
+						).fail(()=>
+							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
 							return
 						)
 
@@ -1121,9 +1123,14 @@ class Page extends Array
 
 		if json?.length
 			dataType = entityList.dataType
-			for data in json
-				entity = new _Entity(data, dataType)
-				@insert(entity)
+
+			@_dontChangeCurrent = true
+			try
+				for data in json
+					entity = new _Entity(data, dataType)
+					@insert(entity)
+			finally
+				delete @_dontChangeCurrent
 
 			if rawJson.$entityCount?
 				entityList.totalEntityCount = rawJson.$entityCount
@@ -1136,6 +1143,14 @@ class Page extends Array
 				entityList.pageCountDetermined = true
 
 			entityList.entityCount += json.length
+
+			if not entityList.current and @length
+				for entity, i in entity
+					if entity.state isnt _Entity.STATE_DELETED
+						entityList.setCurrent(entity)
+						page.hotIndex = i
+						break
+
 			entityList.timestamp = cola.sequenceNo()
 
 			entityList._notify(cola.constants.MESSAGE_REFRESH, {
@@ -1159,7 +1174,7 @@ class Page extends Array
 		entity.parent = entityList
 		delete entity._parentProperty
 
-		if not @_dontAutoSetCurrent and not entityList.current?
+		if not @_dontChangeCurrent and not entityList.current
 			if entity.state isnt _Entity.STATE_DELETED
 				entityList._setCurrentPage(entity._page, false)
 				entityList.setCurrent(entity)
@@ -1292,21 +1307,17 @@ class cola.EntityList
 		return
 
 	fillData: (array)->
-		@_dontChangeCurrent = true
-		try
-			page = @_findPage(@pageNo)
-			page ?= new Page(@, @pageNo)
+		page = @_findPage(@pageNo)
+		if not page
+			page = new Page(@, @pageNo)
 			@_insertElement(page, "begin")
-			page.initData(array)
+		page.initData(array)
 
-			if not @current and page.length
-				for entity, i in entity
-					if entity.state isnt _Entity.STATE_DELETED
-						@setCurrent(entity)
-						page.hotIndex = i
-						break
-		finally
-			delete @_dontChangeCurrent
+		if not @current
+			for entity in page
+				if entity.state isnt _Entity.STATE_DELETED
+					@setCurrent(entity)
+					break
 		return
 
 	_setDataModel: (dataModel)->
