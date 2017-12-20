@@ -94,10 +94,10 @@ _triggerWatcher = (path, type, arg)->
 
 _matchValue = (value, propFilter)->
 	if propFilter.strict
-		if not propFilter.caseSensitive and typeof propFilter.value == "string"
-			return (value + "").toLowerCase() == propFilter.value
+		if not propFilter.caseSensitive and typeof propFilter.value is "string"
+			return (value + "").toLowerCase() is propFilter.value
 		else
-			return value == propFilter.value
+			return value is propFilter.value
 	else
 		if not propFilter.caseSensitive
 			return (value + "").toLowerCase().indexOf(propFilter.value) > -1
@@ -117,7 +117,7 @@ cola._trimCriteria = (criteria, option = {})->
 			}
 	else if typeof criteria is "object"
 		for prop, propFilter of criteria
-			if typeof propFilter == "string"
+			if typeof propFilter is "string"
 				criteria[prop] = {
 					value: propFilter.toLowerCase()
 					caseSensitive: option.caseSensitive
@@ -125,7 +125,7 @@ cola._trimCriteria = (criteria, option = {})->
 				}
 			else
 				propFilter.caseSensitive ?= option.caseSensitive
-				if not propFilter.caseSensitive and typeof propFilter.value == "string"
+				if not propFilter.caseSensitive and typeof propFilter.value is "string"
 					propFilter.value = propFilter.value.toLowerCase()
 
 				propFilter.strict ?= option.strict
@@ -192,7 +192,7 @@ _filterEntity = (entity, criteria, option = {}, children)->
 			else
 				for prop, propFilter of criteria
 					data = null
-					if prop == "$"
+					if prop is "$"
 						matches = false
 						if option.mode is "entity"
 							data = entity._data
@@ -235,7 +235,7 @@ _filterEntity = (entity, criteria, option = {}, children)->
 
 _sortCollection = (collection, comparator, caseSensitive)->
 	return null unless collection
-	return collection if not comparator? or comparator == "$none"
+	return collection if not comparator? or comparator is "$none"
 
 	if collection instanceof cola.EntityList
 		origin = collection
@@ -243,16 +243,16 @@ _sortCollection = (collection, comparator, caseSensitive)->
 		collection.$origin = origin
 
 	if comparator
-		if comparator == "$reverse"
+		if comparator is "$reverse"
 			return collection.reverse()
-		else if typeof comparator == "string"
+		else if typeof comparator is "string"
 			comparatorProps = []
 			for part in comparator.split(",")
 				c = part.charCodeAt(0)
 				propDesc = false
-				if c == 43 # `+`
+				if c is 43 # `+`
 					prop = part.substring(1)
-				else if c == 45 # `-`
+				else if c is 45 # `-`
 					prop = part.substring(1)
 					propDesc = true
 				else
@@ -265,7 +265,7 @@ _sortCollection = (collection, comparator, caseSensitive)->
 					value2 = null
 					prop = comparatorProp.prop
 					if prop
-						if prop == "$random"
+						if prop is "$random"
 							return Math.random() * 2 - 1
 						else
 							if item1 instanceof cola.Entity
@@ -274,7 +274,7 @@ _sortCollection = (collection, comparator, caseSensitive)->
 								value1 = item1
 							else
 								value1 = item1[prop]
-							if !caseSensitive and typeof value1 == "string"
+							if not caseSensitive and typeof value1 is "string"
 								value1 = value1.toLowerCase()
 
 							if item2 instanceof cola.Entity
@@ -283,33 +283,33 @@ _sortCollection = (collection, comparator, caseSensitive)->
 								value2 = item2
 							else
 								value2 = item2[prop]
-							if !caseSensitive and typeof value2 == "string"
+							if not caseSensitive and typeof value2 is "string"
 								value2 = value2.toLowerCase()
 
 							result = 0
-							if !value1? then result = -1
-							else if !value2? then result = 1
+							if not value1? then result = -1
+							else if not value2? then result = 1
 							else if value1 > value2 then result = 1
 							else if value1 < value2 then result = -1
-							if result != 0
+							if result isnt 0
 								return if comparatorProp.desc then (0 - result) else result
 					else
 						result = 0
-						if !item1? then result = -1
-						else if !item2? then result = 1
+						if not item1? then result = -1
+						else if not item2? then result = 1
 						else if item1 > item2 then result = 1
 						else if item1 < item2 then result = -1
-						if result != 0
+						if result isnt 0
 							return if comparatorProp.desc then (0 - result) else result
 				return 0
 	else
 		comparator = (item1, item2)->
 			result = 0
-			if !caseSensitive
-				if typeof item1 == "string" then item1 = item1.toLowerCase()
-				if typeof item2 == "string" then item2 = item2.toLowerCase()
-			if !item1? then result = -1
-			else if !item2? then result = 1
+			if not caseSensitive
+				if typeof item1 is "string" then item1 = item1.toLowerCase()
+				if typeof item2 is "string" then item2 = item2.toLowerCase()
+			if not item1? then result = -1
+			else if not item2? then result = 1
 			else if item1 > item2 then result = 1
 			else if item1 < item2 then result = -1
 			return result
@@ -586,9 +586,9 @@ class cola.Entity
 							return
 						, 0)
 
-				changed = oldValue != value
+				changed = oldValue isnt value
 		else
-			changed = oldValue != value
+			changed = oldValue isnt value
 
 		if changed
 			if property?.getListeners("beforeWrite")
@@ -1309,7 +1309,7 @@ class cola.EntityList
 		return
 
 	_setDataModel: (dataModel)->
-		return if @_dataModel == dataModel
+		return if @_dataModel is dataModel
 		@_dataModel = dataModel
 
 		page = @_first
@@ -1410,7 +1410,7 @@ class cola.EntityList
 		else if page.pageNo < pageNo
 			page = page._next
 			while page?
-				if page.pageNo == pageNo
+				if page.pageNo is pageNo
 					return page
 				else if page.pageNo > pageNo
 					break
@@ -1418,7 +1418,7 @@ class cola.EntityList
 		else
 			page = page._previous
 			while page?
-				if page.pageNo == pageNo
+				if page.pageNo is pageNo
 					return page
 				else if page.pageNo < pageNo
 					break
@@ -1456,12 +1456,12 @@ class cola.EntityList
 		return not @pageCountDetermined or pageNo <= @pageCount
 
 	_loadPage: (pageNo, setCurrent, loadMode = "async")->
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+		if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 			callback = loadMode
 			loadMode = "async"
 
 		page = @_findPage(pageNo)
-		if page != @_currentPage
+		if page isnt @_currentPage
 			if page
 				@_setCurrentPage(page, setCurrent)
 			else if loadMode isnt "never"
@@ -1536,7 +1536,7 @@ class cola.EntityList
 				page = @_currentPage
 
 		if entity instanceof _Entity
-			if entity.parent and entity.parent != @
+			if entity.parent and entity.parent isnt @
 				throw new cola.Exception("Entity is already belongs to another owner. \"#{@._parentProperty or "Unknown"}\".")
 			if entity.state is _Entity.STATE_DELETED
 				entity.setState(_Entity.STATE_NONE)
@@ -1582,7 +1582,7 @@ class cola.EntityList
 			entity = @current
 			return undefined
 
-		return undefined if entity.parent != @
+		return undefined if entity.parent isnt @
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
@@ -1746,7 +1746,7 @@ class cola.EntityList
 		return @
 
 	_notify: (type, arg)->
-		if @_disableObserverCount == 0
+		if @_disableObserverCount is 0
 			path = @getPath()
 			arg.originPath = path
 			@_dataModel?.onDataMessage(path, type, arg)
@@ -1760,7 +1760,7 @@ class cola.EntityList
 		return @ unless page
 
 		if options?
-			if typeof options == "boolean"
+			if typeof options is "boolean"
 				deleted = options
 			else
 				deleted = options.deleted
@@ -1923,13 +1923,13 @@ _Entity._setValue = _setValue = (entity, path, value, context)->
 		if not (entity instanceof _EntityList)
 			if entity instanceof cola.ProviderInvoker
 				entity = undefined
-			else if typeof entity._set == "function"
+			else if typeof entity._set is "function"
 				entity._set(part2, value)
 			else
 				entity[part2] = value
 		else
 			throw new cola.Exception("Cannot set value to EntityList \"#{path}\".")
-	else if typeof entity._set == "function"
+	else if typeof entity._set is "function"
 		entity._set(path, value)
 	else
 		entity[path] = value
@@ -1939,7 +1939,7 @@ _Entity._getEntityId = (entity)->
 	return null unless entity
 	if entity instanceof cola.Entity
 		return entity.id
-	else if typeof entity == "object"
+	else if typeof entity is "object"
 		entity._id ?= cola.uniqueId()
 		return entity._id
 
@@ -2054,7 +2054,7 @@ cola.each = (collection, fn, options)->
 	if collection instanceof cola.EntityList
 		collection.each(fn, options)
 	else if collection instanceof Array
-		if typeof collection.each == "function"
+		if typeof collection.each is "function"
 			collection.each(fn)
 		else
 			cola.util.each(collection, fn)
@@ -2146,7 +2146,7 @@ class EntityIndex
 		if @deep
 			p = entity
 			while p
-				if p == @data
+				if p is @data
 					valid = true
 					break
 				p = p.parent
