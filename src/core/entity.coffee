@@ -1479,7 +1479,7 @@ class cola.EntityList extends LinkedList
 		return not @pageCountDetermined or pageNo <= @pageCount
 
 	_loadPage: (pageNo, setCurrent, loadMode = "async")->
-		if loadMode and (typeof loadMode isnt "function" or typeof loadMode isnt "object")
+		if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 			callback = loadMode
 			loadMode = "async"
 
