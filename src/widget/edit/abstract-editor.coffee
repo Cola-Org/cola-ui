@@ -34,19 +34,20 @@ class cola.AbstractEditor extends cola.Widget
 		if @_state
 			cola.util.addClass(dom, @_state)
 
-		if not @_bind
-			fieldDom = dom.parentNode
-			if fieldDom?.nodeName is "FIELD"
-				field = @_field = cola.widget(fieldDom)
-				if field
+		fieldDom = dom.parentNode
+		if fieldDom?.nodeName is "FIELD"
+			field = @_field = cola.widget(fieldDom)
+			if field
+				if not @_bind
 					if field._bind or field._property
 						bind = field._bind
 						if not bind and field._form
 							bind = field._form._bind + "." + field._property
 						@set("bind", bind)
-						if field._finalReadOnly
-							@_readOnlyFactor ?= {}
-							@_readOnlyFactor.field = field._finalReadOnly
+
+				if field._finalReadOnly
+					@_readOnlyFactor ?= {}
+					@_readOnlyFactor.field = field._finalReadOnly
 		return
 
 	_setValue: (value)->
@@ -110,6 +111,7 @@ class cola.AbstractEditor extends cola.Widget
 		if @_readOnlyFactor.model != ctx.readOnly
 			shouldRefresh = true
 			@_readOnlyFactor.model = ctx.readOnly
+
 		if value? and @_dataType
 			value = @_dataType.parse(value)
 		@_modelValue = value

@@ -742,6 +742,104 @@ class cola.Table extends cola.Widget
 		@_centerTable._onCurrentItemChange(arg)
 		return
 
+	_onItemInsert: (arg)->
+		@_refreshItems()
+		return
+
+	_onItemRemove: (arg)->
+		@_refreshItems()
+
+		if @_columnsInfo.selectColumns
+			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
+				for colInfo in @_columnsInfo.selectColumns
+					colInfo.column.refreshHeaderCheckbox()
+				return
+			)
+		return
+
+	_getCurrentItem: ()->
+		return @_centerTable._getCurrentItem()
+
+	_onBlur: ()->
+		@_currentInnerTable?.hideCellEditor()
+		return
+
+	_onKeyDown: (evt)->
+		centerTable = @_centerTable
+
+		if evt.keyCode is 9 # Tab
+			currentItem = @_getCurrentItem()
+			return unless currentItem
+
+			dataColumns = @_columnsInfo.dataColumns
+			index = -1
+			for columnInfo, i in dataColumns
+				if columnInfo.column is @_currentColumn
+					index = i
+					break
+
+			while not nextColumnInfo
+				if evt.shiftKey
+					if index <= 0 or index > dataColumns.length - 1
+						index = dataColumns.length - 1
+						itemDom = centerTable._getPreviousItemDom(centerTable._currentItemDom)
+						if itemDom
+							centerTable._setCurrentItemDom(itemDom)
+							currentItem = centerTable._getCurrentItem()
+					else
+						index--
+				else
+					if index < 0 or index >= dataColumns.length - 1
+						index = 0
+						itemDom = centerTable._getNextItemDom(centerTable._currentItemDom)
+						if itemDom
+							centerTable._setCurrentItemDom(itemDom)
+							currentItem = centerTable._getCurrentItem()
+					else
+						index++
+
+				columnInfo = dataColumns[index]
+				#				if not columnInfo.column._readOnly and columnInfo.column._property
+				nextColumnInfo = columnInfo
+
+			if nextColumnInfo and currentItem
+				if @_columnsInfo.center.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = centerTable
+				else if @_columnsInfo.left?.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = @_leftTable
+				else if @_columnsInfo.right?.dataColumns.indexOf(nextColumnInfo) >= 0
+					innerTable = @_rightTable
+
+				innerTable.setCurrentCell(currentItem, nextColumnInfo.column)
+				return false
+
+		else if evt.keyCode is 38 # up
+			currentItem = @_getCurrentItem()
+			if currentItem
+				itemDom = centerTable._getPreviousItemDom(centerTable._currentItemDom)
+			else
+				itemDom = @_getNextItemDom()
+
+			if itemDom
+				centerTable._setCurrentItemDom(itemDom)
+				currentItem = centerTable._getCurrentItem()
+				if currentItem and @_currentInnerTable
+					@_currentInnerTable.setCurrentCell(currentItem, @_currentColumn)
+
+		else if evt.keyCode is 40 # down
+			currentItem = @_getCurrentItem()
+			if currentItem
+				itemDom = centerTable._getNextItemDom(centerTable._currentItemDom)
+			else
+				itemDom = @_getFirstItemDom()
+
+			if itemDom
+				centerTable._setCurrentItemDom(itemDom)
+				currentItem = centerTable._getCurrentItem()
+				if currentItem and @_currentInnerTable
+					@_currentInnerTable.setCurrentCell(currentItem, @_currentColumn)
+		return
+
 	_sysHeaderClick: (column)->
 		if column instanceof cola.TableDataColumn and column.get("sortable")
 			sortDirection = column.get("sortDirection")
@@ -811,6 +909,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 	constructor: (config)->
 		@_itemsScope = config.table._itemsScope
+		@_alias = config.table._alias
 		super(config)
 		@_focusParent = @_table
 		@on("itemClick", (self, arg)=> @_table.fire("itemClick", @_table, arg))
@@ -994,7 +1093,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return if column._real_headerTemplate
 
 		caption = column._caption or column._name
-		if caption?.charCodeAt(0) == 95 # `_`
+		if caption?.charCodeAt(0) is 95 # `_`
 			caption = column._bind
 		dom.innerText = caption or ""
 		return
@@ -1079,7 +1178,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 			i = column._property.lastIndexOf(".")
 			if i > 0
 				subItem = item.get(column._property.substring(0, i))
-				message = subItem?.getKeyMessage(column._property.substring(i + 1))
+				if subItem and subItem instanceof cola.Entity
+					message = subItem.getKeyMessage(column._property.substring(i + 1))
 			else
 				message = item.getKeyMessage(column._property)
 

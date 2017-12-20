@@ -82,13 +82,13 @@ class cola.ProviderInvoker
 
 		if @_beforeSend then @_beforeSend(options)
 
-		$.ajax(options).done( (result)=>
+		retValue = $.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
 				result = arg.result
 
-			result = ajaxService.translateResult(result, options)
+			retValue = ajaxService.translateResult(result, options)
 
 			@invokeCallback(true, result)
 
@@ -99,9 +99,9 @@ class cola.ProviderInvoker
 					data = @parentData
 
 			if ajaxService.getListeners("success")
-				ajaxService.fire("success", ajaxService, {options: options, result: result, data: data })
+				ajaxService.fire("success", ajaxService, {options: options, result: retValue, data: data })
 			if ajaxService.getListeners("complete")
-				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
+				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: retValue, data: data })
 			return
 		).fail( (xhr, status, message)=>
 			console.error(xhr.responseJSON)
@@ -124,15 +124,14 @@ class cola.ProviderInvoker
 			retValue = ret if ret isnt undefined
 			return
 		)
-		return
+		return retValue
 
 	invokeAsync: (callback)->
 		@callbacks.push(callback)
 		if @invoking then return false
 
 		@invoking = true
-		@_internalInvoke()
-		return true
+		return @_internalInvoke()
 
 	invokeSync: (callback)->
 		if @invoking

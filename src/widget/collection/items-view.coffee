@@ -86,7 +86,7 @@ class cola.ItemsView extends cola.Widget
 				return true
 			)
 
-		if @_focusable then @get$Dom().attr("tabIndex", 1)
+		if @_focusable then @get$Dom().attr("tabIndex", 1).on("keydown", (evt)=> @_onKeyDown(evt))
 		return
 
 	getItems: ()->
@@ -464,7 +464,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_bindEvent: (eventName)->
-		if eventName is "itemPress"
+		if eventName == "itemPress"
 			@_on("press", (self, arg)=>
 				itemDom = @_findItemDom(arg.event.target)
 				if itemDom

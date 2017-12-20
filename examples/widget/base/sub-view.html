@@ -17,48 +17,66 @@
 			});
 
 			var delim = "<!----####---->";
-			$.ajax("loadRes?delim=" + encodeURIComponent(delim) + "&urls=" + encodeURIComponent(urls.join(",")), {
+			$.ajax("loadRes?urls=" + encodeURIComponent(urls.join("|")) + "&delim=" + encodeURIComponent(delim), {
 				dataType: "text",
 				cache: true,
 				timeout: 60000
-			}).done(function(text) {
+			}).done(function (text) {
 				var sections = text.split(delim), index = 0;
 				for (var i = 0; i < dfdsArray.length; i++) {
 					var dfds = dfdsArray[i];
 					for (var j = 0; j < dfds.length; j++) {
 						var dfd = dfds[j];
-						dfd.resolve.call(dfd, sections[index++]);
+						dfd.resolve.call(dfd, sections[index]);
 					}
+					index++;
 				}
-			}).fail(function() {
+			}).fail(function () {
 				var firstDfd = dfdsArray[0][0];
 				firstDfd.reject.apply(firstDfd, arguments);
 			});
 		};
 
 		var oldLoadResource = cola._loadResource;
-//		cola._loadResource = function(context, url) {
-//			if (/^(http[s]?:)?\/\//.test(url)) {
-//				return oldLoadResource.call(cola, context, url);
-//			}
-//			else {
-//				var dfd = $.Deferred();
-//				var dfds = App.suspendedResources.get(url);
-//				if (!dfds) {
-//					App.suspendedResources.add(url, [dfd]);
-//				}
-//				else {
-//					dfds.push(dfd);
-//				}
-//
-//				if (!App.suspendedResourceTimer) {
-//					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
-//				}
-//				return dfd;
-//			}
-//		};
+		cola._loadResource = function (context, url) {
+			if (/^(http[s]?:)?\/\//.test(url)) {
+				return oldLoadResource.call(cola, context, url);
+			}
+			else {
+				var dfd = $.Deferred();
+				var dfds = App.suspendedResources.get(url);
+				if (!dfds) {
+					App.suspendedResources.add(url, [dfd]);
+				}
+				else {
+					dfds.push(dfd);
+				}
+
+				if (!App.suspendedResourceTimer) {
+					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
+				}
+				return dfd;
+			}
+		};
 
 		cola(function (model) {
+			$.Deferred(function(dfd) {
+				setTimeout(function() {
+					dfd.resolve("Yeah!");
+				}, 100);
+			}).done(function(text) {
+				console.log("1: " + text);
+			}).done(function(text) {
+				console.log("2: " + text);
+				return $.Deferred(function(dfd) {
+					setTimeout(function() {
+						dfd.resolve("Yeah Again!");
+					}, 100);
+				});
+			}).done(function(text) {
+				console.log("3: " + text);
+			});
+
 			model.set("name", "Tom");
 
 			model.set("languages", [

@@ -2,6 +2,7 @@ _removeTranslateStyle = (element)->
 	for prefix in ['Moz', 'Webkit', 'O', 'ms']
 		element.style[prefix + "Transform"] = ""
 	element.style.transform = ""
+
 class cola.AbstractLayer extends cola.AbstractContainer
 	@tagName: "c-layer"
 
@@ -30,13 +31,14 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		@get$Dom().css({
 			zIndex: cola.floatWidget.zIndex()
 		})
+
 	_transition: (options, callback)->
 		return false if @fire("before#{cola.util.capitalize(options.target)}", @, {}) is false
 		@_doTransition(options, callback)
 		return @
 	_doTransition: (options, callback)->
-	show: (options = {}, callback)->
 
+	show: (options = {}, callback)->
 		return @ if !@_dom or @isVisible()
 
 		if @_lazyRender and not @_contentRendered

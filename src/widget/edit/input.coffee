@@ -197,7 +197,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 		super(dom)
 
 		if @_doms.input
-			input = @_doms.input
 			$(@_doms.input).on("change", ()=>
 				@_postInput()
 				return
@@ -210,7 +209,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 					ctrlKey: event.ctrlKey
 					altKey: event.altKey
 					event: event
-					inputValue: $(input).val()
 
 				if @fire("keyPress", @, arg) == false then return false
 				if event.keyCode is 13 and isIE11 then @_postInput()
@@ -230,7 +228,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		@_inputFocused = false
 		@_refreshInput()
 
-		if not @_value? or @_value is "" and @_bindInfo?.writeable
+		if (not @_value? or @_value is "") and @_bindInfo?.writeable
 			propertyDef = @getBindingProperty()
 			if propertyDef?._required and propertyDef._validators
 				entity = @_scope.get(@_bindInfo.entityPath)
@@ -312,7 +310,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		$inputDom = $fly(@_doms.input)
 		$inputDom.attr("name", @_name) if @_name
 		$inputDom.attr("placeholder", @get("placeholder"))
-		@_doms.input.readOnly = @_finalReadOnly
+		$inputDom.attr("readonly", @_finalReadOnly or null)
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 
 		dataType = @_dataType
@@ -382,7 +380,7 @@ class cola.Input extends cola.AbstractInput
 			defaultValue: true
 	@events:
 		keyPress: null
-		input: null
+		input:null
 
 	_createEditorDom: ()->
 		config =

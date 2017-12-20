@@ -135,7 +135,9 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		@_dom = dom
 		unless parseChild
 			@_bindToSemantic()
-		return super(dom, parseChild)
+		super(dom, parseChild)
+
+		return
 
 	_refreshEditorDom: ()->
 		@get$Dom().checkbox(if @_value is @_onValue then "check" else "uncheck")

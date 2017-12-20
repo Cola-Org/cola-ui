@@ -197,7 +197,10 @@ class cola.Property extends cola.Definition
 				@_provider = provider
 				return
 		defaultValue: null
+
 		aggregated:
+			readOnlyAfterCreate: true
+		loadForNewEntity:
 			readOnlyAfterCreate: true
 
 		validatorsDisabled:   # Deprecated

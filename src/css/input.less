@@ -1,23 +1,21 @@
 @import (reference) "global";
 
-.ui.input {
-	input:read-only, textarea:read-only {
+.ui.input.readonly {
+	input, textarea {
 		background-color: @inputReadOnlyBackgroundColor !important;
-	}
-}
-
-.hide-state {
-	.ui.input {
-
 	}
 }
 
 .webkit {
 	.ui.toggle.checkbox {
-		label:before, .box:before, label:after, .box:after,
-		input:checked ~ label:before, input:checked ~ .box:before, input:checked ~ label:after, input:checked ~ .box:after {
-			-webkit-transform: none !important;
-			transform: none !important;
+		label {
+			padding-left: 3.5rem !important;
+		}
+		&.no-transmit {
+			label:before, label:after {
+				-webkit-transition: none !important;
+				transition: none !important;
+			}
 		}
 	}
 }

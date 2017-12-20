@@ -72,7 +72,7 @@ do() ->
 								if context.suspendedInitFuncs?.length > oldLen
 									_jsCache[jsUrls[i]] = context.suspendedInitFuncs.slice(oldLen)
 						catch e
-						# do nothing
+							# do nothing
 					else
 						initFuncs = result
 						Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
@@ -83,7 +83,7 @@ do() ->
 						if typeof args is "string"
 							result = args
 						else
-							result = args[0]
+							result = args?[0]
 						onJsLoaded(result) if result
 				else
 					result = arguments[0]
@@ -94,7 +94,7 @@ do() ->
 		cssUrls?.forEach (cssUrl)->
 			deferreds.push(_loadCss(context, cssUrl))
 
-		$.when.apply($, deferreds).done(()->
+		return $.when.apply($, deferreds).done(()->
 			$fly(targetDom).removeClass("loading")
 
 			if targetDom.hasAttribute(cola.constants.IGNORE_DIRECTIVE)
@@ -128,7 +128,6 @@ do() ->
 					throw new cola.Exception(error)
 			return
 		)
-		return
 
 	cola.unloadSubView = (targetDom, context)->
 		$fly(targetDom).empty()

@@ -303,7 +303,7 @@ class cola.NestedList extends cola.Widget
 		})
 		if retValue != false
 			@_showLayer(self.get("userData") + 1, arg.item, (hasChild)=>
-				if !hasChild
+				if not hasChild
 					@fire("leafItemClick", @, {
 						node: node
 						item: node._data

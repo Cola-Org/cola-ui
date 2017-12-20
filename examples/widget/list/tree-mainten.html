@@ -48,39 +48,46 @@
 		</div>
 	</div>
 	<div class="flex-box">
-		<div style="padding: 2px">
-			<div c-widget="Panel; caption:详细信息; height:100%">
-				<div class="content">
-					<div class="ui form">
-						<div class="inline field">
-							<label>行政区域名称</label>
-							<div c-widget="input; bind:currentEditItem.name.label; postOnInput:true"></div>
-						</div>
-						<div class="inline field">
-							<label>行政区域名称</label>
-							<div c-widget="input; bind:currentEditItem.name.label; postOnInput:true"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+		<c-form bind="currentEditItem" dataType="Node">
+			<field property="name"></field>
+		</c-form>
+	</div>
+	<div class="flex-box">
+		<c-form bind="node.nodes#" dataType="Node">
+			<field property="name"></field>
+		</c-form>
 	</div>
 </div>
 </body>
 
 <script>
 	cola(function (model) {
+		model.dataType({
+			name: "Node",
+			properties: {
+				name: {
+					label: "Name",
+					validators: ["required"]
+				},
+				nodes: {
+					dataType: "Node"
+				}
+			}
+		});
+		model.describe("node", "Node");
+
 		setTimeout(function() {
+
 			model.set("node", {
 				nodes: [
 					{
-						name: {label: "中国"},
+						name: "中国",
 						nodes: [
 							{
-								name: {label: "上海"},
+								name: "上海",
 								nodes: [
 									{
-										name: {label: "浦东新区"}
+										name: "浦东新区"
 									}
 								]
 							}
@@ -110,25 +117,25 @@
 				tree.set("currentItem", entity);
 				event && event.stopPropagation();
 			},
-			refreshTree: function () {
-				model.set("node", {
-					nodes: [
-						{
-							name: {label:"中国222"},
-							nodes: [
-								{
-									name: {label:"上海222"},
-									nodes: [
-										{
-											name: {label:"浦东新区222"}
-										}
-									]
-								}
-							]
-						}
-					]
-				});
-			}
+			// refreshTree: function () {
+			// 	model.set("node", {
+			// 		nodes: [
+			// 			{
+			// 				name: {label:"中国222"},
+			// 				nodes: [
+			// 					{
+			// 						name: {label:"上海222"},
+			// 						nodes: [
+			// 							{
+			// 								name: {label:"浦东新区222"}
+			// 							}
+			// 						]
+			// 					}
+			// 				]
+			// 			}
+			// 		]
+			// 	});
+			// }
 
 
 		});
@@ -142,7 +149,7 @@
 				bind: {
 					recursive: true,
 					expandedProperty: "expanded",
-					textProperty: "name.label",
+					textProperty: "name",
 					expression: "node in node.nodes"
 				},
 

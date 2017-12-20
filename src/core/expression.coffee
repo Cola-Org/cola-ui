@@ -256,5 +256,4 @@ class cola.Expression
 					property: path.substring(i + 1)
 		return info
 
-	toString: ()->
-		return @raw
+	toString: ()-> @raw

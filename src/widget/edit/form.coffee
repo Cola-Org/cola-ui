@@ -9,6 +9,7 @@ class cola.Form extends cola.Widget
 			setter: cola.DataType.dataTypeSetter
 
 		readOnly:
+			type: "boolean"
 			setter: (readOnly)->
 				@_readOnly = readOnly
 				if @_rendered
@@ -198,6 +199,7 @@ class cola.Field extends cola.Widget
 		caption: null
 		property: null
 		readOnly:
+			type: "boolean"
 			setter: (readOnly)->
 				@_readOnly = readOnly
 				@refreshReadOnly()
@@ -241,6 +243,7 @@ class cola.Field extends cola.Widget
 					bind = formBind + "." + @_property
 				else
 					bind = @_property
+			@_finalReadOnly = @_readOnly or form._readOnly
 
 		if bind then @_bindSetter(bind)
 
@@ -271,14 +274,11 @@ class cola.Field extends cola.Widget
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)
 			cola.xRender(editDom, @_scope)
+
 			editDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 
 		@_labelDom = dom.querySelector("label")
 		@_messageDom = dom.querySelector("message")
-		if @_messageDom
-			$fly(@_messageDom).popup({
-				position: "bottom center"
-			})
 
 		if @_labelDom
 			$label = $fly(@_labelDom)
@@ -319,15 +319,15 @@ class cola.Field extends cola.Widget
 		finalReadOnly = @_readOnly or @_form?._readOnly
 		if finalReadOnly != @_finalReadOnly
 			@_finalReadOnly = finalReadOnly
-
-		if @_rendered
-			@get$Dom().find("input, textarea").each((i, input)=>
-				editor = cola.widget(input.parentNode)
-				if editor and editor._readOnlyFactor != @_finalReadOnly
-					editor._readOnlyFactor.field = @_finalReadOnly
-					editor._refreshDom()
-				return
-			)
+			if @_rendered
+				@get$Dom().find("input, textarea").each((i, input)=>
+					editor = cola.widget(input.parentNode)
+					if editor and editor._readOnlyFactor != @_finalReadOnly
+						editor._readOnlyFactor.field = @_finalReadOnly
+						editor._refreshDom()
+					return
+				)
+		return
 
 	setMessage: (message)->
 		if typeof message is "string"
@@ -337,8 +337,9 @@ class cola.Field extends cola.Widget
 
 		@_message = message
 
+		$dom = @get$Dom()
 		if message
-			@get$Dom().addClass(message.type)
+			$dom.addClass(message.type)
 			if not @_messageDom
 				@_messageDom = document.createElement("message")
 				@getDom().appendChild(@_messageDom)
@@ -347,7 +348,7 @@ class cola.Field extends cola.Widget
 				})
 
 		else if @_state
-			@get$Dom().removeClass(@_state)
+			$dom.removeClass(@_state)
 
 		if @_messageDom
 			$message = $fly(@_messageDom)
@@ -355,10 +356,15 @@ class cola.Field extends cola.Widget
 				$message.addClass(message.type)
 				if $message.hasClass("text")
 					$message.text(message.text)
-				else
-					$message.attr("data-content", message.text)
 			else
-				$message.removeClass(@_state).empty().attr("data-content", null)
+				$message.removeClass(@_state).empty()
+
+		if message
+			$dom.attr("data-content", message.text).popup({
+				position: "bottom center"
+			})
+		else
+			$dom.attr("data-content", null).popup("destroy")
 
 		@_state = message?.type
 

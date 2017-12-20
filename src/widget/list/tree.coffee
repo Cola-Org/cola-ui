@@ -470,34 +470,31 @@ class cola.Tree extends cola.AbstractList
 				itemsScope.addAuxExpression(expressions[1])
 
 		nodeDom = itemDom.firstElementChild
-		if expand and not node._expanded
-			$fly(nodeDom).addClass("expanding")
+		$fly(nodeDom).addClass("expanding") if expand and not node._expanded
+		node._bind.retrieveChildNodes(node).done(()->
+			$fly(nodeDom).removeClass("expanding") if expand
+			if node._children?.length > 0
+				tree._refreshChildNodes(itemDom, node, true)
 
-			node._bind.retrieveChildNodes(node, ()->
-				if expand
-					$fly(nodeDom).removeClass("expanding")
-					node._expanded = true if expand
-				node._hasExpanded = true
+				$nodeDom = $fly(nodeDom)
+				$nodeDom.removeClass("leaf")
+				$nodeDom.addClass("expanded") if expand
 
-				if node._children?.length > 0
-					tree._refreshChildNodes(itemDom, node, true)
+				$nodesWrapper = $fly(itemDom.lastChild)
+				if expand and $nodesWrapper.hasClass("child-nodes")
+					if noAnimation
+						$nodesWrapper.show()
+					else
+						$nodesWrapper.slideDown(150)
+			else
+				$fly(nodeDom).addClass("leaf")
 
-					$nodeDom = $fly(nodeDom)
-					$nodeDom.removeClass("leaf")
-					$nodeDom.addClass("expanded") if expand
-
-					$nodesWrapper = $fly(itemDom.lastChild)
-					if expand and $nodesWrapper.hasClass("child-nodes")
-						if noAnimation
-							$nodesWrapper.show()
-						else
-							$nodesWrapper.slideDown(150)
-				else
-					$fly(nodeDom).addClass("leaf")
-
-				callback?.call(tree)
-				return
-			)
+			node._expanded = true if expand
+			node._hasExpanded = true
+			cola.callback(callback, true)
+		).fail((error)->
+			cola.callback(callback, false, error)
+		)
 		return
 
 	expand: (node, noAnimation = true)->
