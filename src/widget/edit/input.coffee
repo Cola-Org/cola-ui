@@ -293,16 +293,17 @@ class cola.AbstractInput extends cola.AbstractEditor
 		classNamePool.remove("left icon")
 		classNamePool.remove("icon")
 
+		iconDom = @_doms.iconDom
 		if icon
-			@_doms.iconDom ?= document.createElement("i")
-			iconDom = @_doms.iconDom
-			$(iconDom).addClass("#{icon} icon")
+			@_doms.iconDom ?= iconDom = document.createElement("i")
+			$fly(iconDom).addClass("#{icon} icon")
 			leftIcon = iconPosition is "left"
 			classNamePool.add(if leftIcon then "left icon" else "icon")
 
 			if leftIcon then $(@_doms.input).before(iconDom) else @_dom.appendChild(iconDom)
-		else
-			$(@_doms.iconDom).remove() if @_doms.iconDom
+		else if iconDom
+			$fly(iconDom).remove()
+			delete @_doms.iconDom
 
 		return
 

@@ -86,7 +86,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom).attr("tabIndex", 1).delegate(">.icon.dropdown", "click", ()=>
+		$fly(dom).attr("tabIndex", 1).delegate(">.icon.drop", "click", ()=>
 			if @_opened
 				@close()
 			else if not @_finalReadOnly
@@ -141,7 +141,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_onBlur: ()->
-		if @_opened then @close()
+		if @_opened and @_finalOpenMode is "drop" then @close()
 		super()
 		return
 
@@ -171,6 +171,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_isEditorReadOnly: ()->
 		return not @_editable or (@_filterable and @_useValueContent)
+
+	_refreshIcon: ()->
+		super()
+		if @_doms.iconDom
+			$fly(@_doms.iconDom).addClass("drop")
+		return
 
 	_refreshInput: ()->
 		$inputDom = $fly(@_doms.input)
