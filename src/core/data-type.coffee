@@ -236,7 +236,6 @@ class cola.Property extends cola.Definition
 					else
 						addValidator(validators)
 				return
-		rejectInvalidValue: null
 
 	@events:
 		read: null

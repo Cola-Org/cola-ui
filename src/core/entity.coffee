@@ -612,7 +612,7 @@ class cola.Entity
 				}) is false
 					return
 
-			if not ignoreState and property?._validators and property._rejectInvalidValue
+			if not ignoreState and property?._validators
 				messages = null
 				for validator in property._validators
 					if value? or validator instanceof cola.RequiredValidator

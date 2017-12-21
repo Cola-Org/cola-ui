@@ -170,18 +170,18 @@
 		}
 		&.sortable {
 			> .content {
-				&:after {
+				&:before {
 					content: "\f0dc";
 					font-family: Icons;
 					margin-left: 0.5em;
 					color: @disabledTextColor;
 				}
 			}
-			&.asc > .content:after {
+			&.asc > .content:before {
 				content: "\f0de";
 				color: @darkTextColor;
 			}
-			&.desc > .content:after {
+			&.desc > .content:before {
 				content: "\f0dd";
 				color: @darkTextColor;
 			}
