@@ -363,7 +363,9 @@ class cola.SubScope extends cola.Scope
 
 	_processMessage: (bindingPath, path, type, arg)->
 		# 如果@aliasExpressions为空是不应该进入此方法的
-		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REMOVE
+		if type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
+		  type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGE_VALIDATION_STATE_CHANGE or
+		  type is cola.constants.MESSAGE_REMOVE
 			for alias, expression of @aliasExpressions
 				if not expression.paths and expression.hasComplexStatement and not expression.hasDefinedPath
 					cola.util.delay(@, "retrieve", 100, ()=>
@@ -994,7 +996,7 @@ class cola.AbstractDataModel
 				processor.processMessage(node.__path, path, type, arg)
 
 		if notifyChildren
-			notifyChildren2 = not (cola.constants.MESSAGE_EDITING_STATE_CHANGE <= type <= cola.constants.MESSAGE_VALIDATION_STATE_CHANGE) and not (cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
+			notifyChildren2 = type isnt cola.constants.MESSAGE_EDITING_STATE_CHANGE and not (cola.constants.MESSAGE_LOADING_START <= type <= cola.constants.MESSAGE_LOADING_END)
 
 			if notifyChildren2 and type is cola.constants.MESSAGE_CURRENT_CHANGE
 				type = cola.constants.MESSAGE_REFRESH
