@@ -169,19 +169,22 @@
 			}
 		}
 		&.sortable {
-			> .content {
-				&:before {
-					content: "\f0dc";
-					font-family: Icons;
-					margin-left: 0.5em;
-					color: @disabledTextColor;
-				}
+			&:before {
+				content: "\f0dc";
+				float: right;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100%;
+				padding-right: 0.175em;
+				font-family: Icons;
+				color: @disabledTextColor;
 			}
-			&.asc > .content:before {
+			&.asc:before {
 				content: "\f0de";
 				color: @darkTextColor;
 			}
-			&.desc > .content:before {
+			&.desc:before {
 				content: "\f0dd";
 				color: @darkTextColor;
 			}
