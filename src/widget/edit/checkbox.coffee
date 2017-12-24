@@ -23,10 +23,16 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			refreshDom: true
 			type: "boolean"
 			defaultValue: false
-			getter: ()-> return @_value is @_onValue
+			getter: ()->
+				if @_value is @_onValue
+					return true
+				else if @_value is @_offValue
+					return false
+				else
+					return undefined
 			setter: (state)->
 				checked = !!state
-				value = if checked then @get("onValue") else @get("offValue")
+				value = if checked then @_onValue else @_offValue
 				@_setValue(value)
 				return @
 
@@ -53,7 +59,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 					@_doms.input = child
 			child = child.nextElementSibling
 
-		if !@_doms.label and !@_doms.input
+		if not @_doms.label and not @_doms.input
 			@_$dom.append($.xCreate([
 				{
 					tagName: "input"

@@ -151,6 +151,9 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				triState: true
 				post: (self, arg)=>
+					checked = self.get("checked")
+					if checked isnt undefined
+						@selectAll(checked)
 					if typeof arg.value != "boolean"
 						@fire("change", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
 			)
@@ -172,7 +175,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox.refreshValue = ()=>
 				oldValue = checkbox._value
 				result = oldRefreshValue.call(checkbox)
-				if checkbox._value != oldValue
+				if checkbox._value isnt oldValue
 					arg =
 						model: checkbox.get("model")
 						dom: checkbox._dom
@@ -193,16 +196,16 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 				selected = undefined
 				cola.each @_table._realItems, (item)->
 					itemType = table._getItemType(item)
-					if itemType == "default"
+					if itemType is "default"
 						i++
 						if item instanceof cola.Entity
 							s = item.get(selectedProperty)
 						else
 							s = item[selectedProperty]
 
-						if i == 1
+						if i is 1
 							selected = s
-						else if selected != s
+						else if selected isnt s
 							selected = undefined
 							return false
 					return
