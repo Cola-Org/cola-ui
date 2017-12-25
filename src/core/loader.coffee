@@ -46,7 +46,12 @@ do() ->
 
 			deferreds.push($.when.apply($, jsDeferreds).done(()->
 
-				onJsLoaded = (result)->
+				onJsLoaded = (result, jsUrl)->
+					initFuncs = _jsCache[jsUrl]
+					if initFuncs
+						Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
+						return
+
 					if typeof result is "string"
 						script = result
 						scriptElement = $.xCreate(
@@ -70,7 +75,7 @@ do() ->
 								delete cola._suspendedInitFuncs
 
 								if context.suspendedInitFuncs?.length > oldLen
-									_jsCache[jsUrls[i]] = context.suspendedInitFuncs.slice(oldLen)
+									_jsCache[jsUrl] = context.suspendedInitFuncs.slice(oldLen)
 						catch e
 							# do nothing
 					else
@@ -84,10 +89,10 @@ do() ->
 							result = args
 						else
 							result = args?[0]
-						onJsLoaded(result) if result
+						onJsLoaded(result, jsUrls[i]) if result
 				else
 					result = arguments[0]
-					onJsLoaded(result) if result
+					onJsLoaded(result, jsUrls[0]) if result
 				return
 			))
 
@@ -209,9 +214,16 @@ do() ->
 			_cssCache[url] = cssElement
 
 			return cola._loadResource(context, url).done((css)->
+				cssElement = _cssCache[url]
+				if cssElement
+					refNum = +cssElement.getAttribute("_refNum") or 1
+					cssElement.setAttribute("_refNum", (refNum + 1) + "")
+					return
+
 				cssElement.innerHTML = css
 				head = document.querySelector("head") or document.documentElement
 				head.appendChild(cssElement)
+				return
 			).fail((xhr)->
 				xhr._url = url
 				return

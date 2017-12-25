@@ -41,7 +41,8 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 			refreshDom: true
 			setter: (value)-> @_setValue(value)
 
-	_modelValue: false
+	@events:
+		input: null
 
 	_parseDom: (dom)->
 		@_doms ?= {}
@@ -123,10 +124,13 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		return
 
 	_bindToSemantic: ()->
-		@get$Dom().checkbox(
-			onChange: ()=> @_setValue(@_getValue())
-		)
-		return
+		@get$Dom().checkbox({
+			onChange: ()=>
+				@_setValue(@_getValue())
+				if not @_ignoreInputEvent
+					@fire("input", @)
+				return
+		})
 
 	_setDom: (dom, parseChild)->
 		@_dom = dom
@@ -156,6 +160,13 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 
 		@_refreshEditorDom()
 		return
+
+	_setValue: (value)->
+		@_ignoreInputEvent = true
+		try
+			return super(value)
+		finally
+			@_ignoreInputEvent = false
 
 	_getValue: ()->
 		return if @get$Dom().checkbox("is checked") then @get("onValue") else @get("offValue")
@@ -205,6 +216,7 @@ class cola.Toggle extends cola.AbstractCheckbox
 		return unless @_dom
 		super()
 		unless @hasClass("slider") then @_classNamePool.add("toggle")
+		return
 
 cola.registerWidget(cola.Toggle)
 
