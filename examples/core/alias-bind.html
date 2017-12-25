@@ -57,5 +57,12 @@
 	<c-button click="addProduct">Add Product</c-button>
 </ul>
 
+<hr>
+
+<ul>
+	<label c-bind="selectedProduct.name"></label>
+	<c-subview c-alias="selectedProduct.items as items" url="alias-subview.html" jsUrl="$"></c-subview>
+</ul>
+
 </body>
 </html>

@@ -841,9 +841,10 @@ class cola.AbstractDataModel
 		@_shortcutMap[shortcut] = shortcutHolder = {
 			data: data
 			path: if path instanceof Array then path.join(".") else path
+			splittedPath: if path instanceof Array then path else path.split(".")
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
-				relativePath = path.slice(@path.length)
+				relativePath = path.slice(@splittedPath.length)
 				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
 				return
 		}

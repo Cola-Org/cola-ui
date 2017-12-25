@@ -128,7 +128,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				class: "in-cell"
 				triState: true
-				post: (self)=>
+				input: (self)=>
 					checked = self.get("checked")
 					@selectAll(checked)
 					@fire("change", @, { checkbox: self, oldValue: not checked, value: checked })
@@ -142,7 +142,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 			checkbox = new cola.Checkbox(
 				class: "in-cell"
 				bind: @_table._alias + "." + @_table._selectedProperty
-				post: (self, arg)=>
+				input: (self, arg)=>
 					if !@_ignoreCheckedChange
 						@refreshHeaderCheckbox()
 					arg.item = item
