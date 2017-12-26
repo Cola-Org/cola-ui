@@ -20,7 +20,7 @@
 		<label c-widget="label; text:{{items.col2}}"></label>
 	</div>
 	<div class="flex-box">
-		<div id="table1">
+		<c-table id="table1">
 			<template name="upper-template">
 				<div class="cell-content" c-bind="upper($default)"></div>
 			</template>
@@ -49,7 +49,7 @@
 					<!--<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>-->
 				<!--</template>-->
 			<!--</column>-->
-		</div>
+		</c-table>
 	</div>
 </div>
 <script type="text/javascript">
@@ -119,7 +119,6 @@
 
 		model.widgetConfig({
 			table1: {
-				$type: "table",
 				bind: "item in items",
 				readOnly: false,
 				showHeader: true,
@@ -129,7 +128,7 @@
 //                changeCurrentItem:false,
 //                highlightCurrentItem: false,
 				sortMode: "local",
-//				leftFixedCols: 2,
+				leftFixedCols: 2,
 //				rightFixedCols: 2,
 				itemClick: function() {
 					console.log("itemClick");

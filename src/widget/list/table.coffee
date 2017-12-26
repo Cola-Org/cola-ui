@@ -357,7 +357,10 @@ class cola.Table extends cola.Widget
 				if cell.className.indexOf("ui-draggable") < 0
 					$fly(cell).draggable(
 						appendTo: "body"
+						distance: 10
 						revert: "invalid"
+						revertDuration: 200
+						scroll: false
 						refreshPositions: true
 						helper: ()->
 							helper = cell.cloneNode(true)
@@ -375,8 +378,9 @@ class cola.Table extends cola.Widget
 									ui.helper.dragOverColumn = dragOverColumn
 									centerPosition = dragOverCell.offsetLeft + (dragOverCell.offsetWidth / 2)
 									$indicator = $fly(@_getColumnInsertIndicator(tableHeader)).removeClass("hidden")
+									dragPosLeft = ui.position.left + (dragOverCell.offsetWidth / 2)
 									$indicator.css("top", dragOverCell.offsetTop)
-									if ui.position.left < centerPosition
+									if dragPosLeft < centerPosition
 										$indicator.css("left", dragOverCell.offsetLeft)
 										ui.helper.dragOverMode = "before"
 									else
@@ -924,6 +928,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		@_doms ?= {}
 		dom = $.xCreate({
 			tagName: "div"
+			class: @_type
 			content:
 				class: "table-body"
 				contextKey: "tableBody"
