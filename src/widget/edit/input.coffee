@@ -420,13 +420,13 @@ class cola.Input extends cola.AbstractInput
 		inputType = @_inputType
 		if inputType is "text"
 			format = if @_focused then @_inputFormat else @_displayFormat
-			if isFinite(value)
-				if format
-					value = formatNumber(format, value)
-			else if value instanceof Date
+			if value instanceof Date
 				if not format
 					format = if @_focused then cola.setting("defaultDateTimeFormat") else cola.setting("defaultDateFormat")
 				value = (new XDate(value)).toString(format)
+			else if isFinite(value)
+				if format
+					value = formatNumber(format, value)
 		else
 			if value instanceof Date
 				if inputType is "date"

@@ -214,12 +214,6 @@ do() ->
 			_cssCache[url] = cssElement
 
 			return cola._loadResource(context, url).done((css)->
-				cssElement = _cssCache[url]
-				if cssElement
-					refNum = +cssElement.getAttribute("_refNum") or 1
-					cssElement.setAttribute("_refNum", (refNum + 1) + "")
-					return
-
 				cssElement.innerHTML = css
 				head = document.querySelector("head") or document.documentElement
 				head.appendChild(cssElement)
