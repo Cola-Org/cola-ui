@@ -35,7 +35,7 @@
 
 			<select-column></select-column>
 			<column property="int" template="input-column" footerTemplate="sum"></column>
-			<!--<column property="int" template="input-column" footerTemplate="sum"></column>-->
+			<column property="int" template="input-column" footerTemplate="sum"></column>
 			<column bind=".col1" template="upper-template"></column>
 			<!--<column caption="Group">-->
 				<!--<column property="bool" align="center" template="checkMark" editTemplate="toggle"></column>-->
@@ -43,12 +43,12 @@
 				<!--<column bind=".col3"></column>-->
 			<!--</column>-->
 			<column bind=".col4" sortable="true"></column>
-			<!--<column bind=".col5"></column>-->
-			<!--<column property="col4" caption="Operator" align="center">-->
-				<!--<template name="editTemplate">-->
-					<!--<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>-->
-				<!--</template>-->
-			<!--</column>-->
+			<column bind=".col5"></column>
+			<column property="col4" caption="Operator" align="center">
+				<template name="editTemplate">
+					<div c-widget="button;caption:Del;class:red;size:mini;click:{{del(item)}}"></div>
+				</template>
+			</column>
 		</c-table>
 	</div>
 </div>

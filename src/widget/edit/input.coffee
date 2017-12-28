@@ -387,7 +387,7 @@ class cola.Input extends cola.AbstractInput
 		config =
 			tagName: "input",
 			type: @_inputType or "text"
-		if @_inputType == "number"
+		if @_inputType is "number"
 			config.style =
 				"text-align": "right"
 		return $.xCreate(config)

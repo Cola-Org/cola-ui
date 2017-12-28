@@ -26,9 +26,28 @@
 
 .ui.widget-table {
 	border: 1px solid @borderColor;
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	box-sizing: border-box;
+	-webkit-flex-wrap: nowrap;
+	-ms-flex-wrap: nowrap;
+	flex-wrap: nowrap;
+
+	-webkit-align-content: stretch;
+	-ms-flex-line-pack: stretch;
+	align-content: stretch;
+	-webkit-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
 
 	.inner-table {
-		display: inline-block;
+		display: -webkit-box;
+		display: -moz-box;
 		position: relative;
 		overflow-x: visible;
 		overflow-y: hidden;
@@ -39,13 +58,21 @@
 			border-left-width: 0;
 		}
 
-		&.left {
-			float: left;
-		}
-		&.right {
-			float: right;
+		&.left, &.right {
+			-webkit-flex: 0 1 auto;
+			-ms-flex: 0 1 auto;
+			flex: 0 1 auto;
+			-webkit-align-self: auto;
+			-ms-flex-item-align: auto;
+			align-self: auto;
 		}
 		&.center {
+			-webkit-box-flex: 1;
+			-moz-box-flex: 1;
+			-webkit-flex: 1 1 auto;
+			-ms-flex: 1 1 auto;
+			flex: 1 1 auto;
+			overflow-x: hidden;
 		}
 
 		> .table-header, > .table-footer {

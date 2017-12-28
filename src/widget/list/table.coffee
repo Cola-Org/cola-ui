@@ -178,21 +178,18 @@ class cola.Table extends cola.Widget
 		return
 
 	_collectionColumnsInfo: ()->
+
 		collectColumnInfo = (column, context, deepth, rootIndex)->
+			context.rows = deepth + 1
 			info =
 				level: deepth
 				column: column
 			if column instanceof cola.TableGroupColumn
 				if column._columns
-					info.columns = cols = []
+					info.colInfos = colInfos = []
 					for col in column._columns
 						continue unless col._visible
-						if context.rows.length is deepth
-							context.rows[deepth] = []
-						cols.push(collectColumnInfo(col, context, deepth + 1, rootIndex))
-					if cols.length
-						if context.rows.length is deepth then context.rows[deepth] = []
-						context.rows[deepth].push(info)
+						colInfos.push(collectColumnInfo(col, context, deepth + 1, rootIndex))
 			else
 				if column._bind
 					bind = column._bind
@@ -223,15 +220,12 @@ class cola.Table extends cola.Widget
 				if column instanceof cola.TableSelectColumn
 					context.selectColumns ?= []
 					context.selectColumns.push(info)
-
-				if context.rows.length == deepth then context.rows[deepth] = []
-				context.rows[deepth].push(info)
 			return info
 
 		@_columnsInfo = columnsInfo = {
 			timestamp: cola.sequenceNo()
 			totalWidthWeight: 0
-			rows: [ [] ]
+			colInfos: []
 			dataColumns: []
 			alias: "item"
 		}
@@ -239,10 +233,6 @@ class cola.Table extends cola.Widget
 			expression = @_itemsScope.expression
 			if expression
 				columnsInfo.alias = expression.alias
-
-			for col, i in @_columns
-				continue unless col._visible
-				collectColumnInfo(col, columnsInfo, 0, i)
 
 			if @_leftFixedCols > 0 or @_rightFixedCols > 0
 				overflow = @_leftFixedCols + @_rightFixedCols - @_columns.length
@@ -260,13 +250,18 @@ class cola.Table extends cola.Widget
 			if @_leftFixedCols < 0 then @_leftFixedCols = 0
 			if @_rightFixedCols < 0 then @_rightFixedCols = 0
 
+			for col, i in @_columns
+				continue unless col._visible
+				colInfo = collectColumnInfo(col, columnsInfo, 0, i)
+				if colInfo
+					columnsInfo.colInfos.push(colInfo)
+
 			if @_leftFixedCols > 0 or @_rightFixedCols > 0
 				if @_leftFixedCols > 0
 					columnsInfo.left =
 						timestamp: columnsInfo.timestamp
 						start: 0
-						rows: columnsInfo.rows
-						columns: @_columns.slice(0, @_leftFixedCols)
+						colInfos: columnsInfo.colInfos.slice(0, @_leftFixedCols)
 						dataColumns: []
 				else
 					delete columnsInfo.left
@@ -276,7 +271,7 @@ class cola.Table extends cola.Widget
 						timestamp: columnsInfo.timestamp
 						start: @_columns.length - @_rightFixedCols
 						rows: columnsInfo.rows
-						columns: @_columns.slice(@_columns.length - @_rightFixedCols, @_rightFixedCols)
+						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - @_rightFixedCols, @_rightFixedCols)
 						dataColumns: []
 				else
 					delete columnsInfo.right
@@ -285,13 +280,13 @@ class cola.Table extends cola.Widget
 					timestamp: columnsInfo.timestamp
 					start: @_leftFixedCols
 					rows: columnsInfo.rows
-					columns: @_columns.slice(@_leftFixedCols, @_columns.length - @_leftFixedCols - @_rightFixedCols)
+					colInfos: columnsInfo.colInfos.slice(@_leftFixedCols, columnsInfo.colInfos.length - @_leftFixedCols - @_rightFixedCols)
 					dataColumns: []
 
-				for col in columnsInfo.dataColumns
-					if col < @_leftFixedCols
+				for col, i in columnsInfo.dataColumns
+					if i < @_leftFixedCols
 						columnsInfo.left.dataColumns.push(col)
-					else if col >= @_columns.length - @_rightFixedCols
+					else if i >= @_columns.length - @_rightFixedCols
 						columnsInfo.right.dataColumns.push(col)
 					else
 						columnsInfo.center.dataColumns.push(col)
@@ -302,7 +297,7 @@ class cola.Table extends cola.Widget
 					timestamp: columnsInfo.timestamp
 					start: 0
 					rows: columnsInfo.rows
-					columns: @_columns
+					colInfos: columnsInfo.colInfos
 					dataColumns: columnsInfo.dataColumns
 		return
 
@@ -993,7 +988,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				)
 
 			@_refreshHeader(header)
-			@_doms.tableBody.className = "table-body header-" + @_columnsInfo.rows.length
+			@_doms.tableBody.className = "table-body header-" + @_columnsInfo.rows
 
 		if @_table._showFooter
 			footer = @_doms.footer
@@ -1030,8 +1025,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		return
 
-	_refreshHeaderRow: (rowDom, cols, rowHeight)->
-		for colInfo in cols
+	_refreshHeaderRow: (rowDom, colInfos, rowHeight)->
+		for colInfo in colInfos
 			column = colInfo.column
 			cell = cola.xCreate(
 				class: "header-cell " + column._id + " h-center"
@@ -1049,7 +1044,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 					class: "header-group"
 					content: [ cell, subRowDom ]
 				)
-				@_refreshHeaderRow(subRowDom, colInfo.columns, rowHeight - 1)
+				@_refreshHeaderRow(subRowDom, colInfo.colInfos, rowHeight - 1)
 				rowDom.appendChild(groupColumnCell)
 			else
 				cell.className += " rows-" + rowHeight
@@ -1067,7 +1062,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		rowDom = $.xCreate(
 			class: "header-row first-row"
 		)
-		@_refreshHeaderRow(rowDom, @_columnsInfo.rows[0], @_columnsInfo.rows.length)
+		@_refreshHeaderRow(rowDom, @_columnsInfo.colInfos, @_columnsInfo.rows)
 		cola.xRender(rowDom, @_scope)
 		header.appendChild(rowDom)
 		return
