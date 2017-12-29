@@ -178,7 +178,6 @@ class cola.Table extends cola.Widget
 		return
 
 	_collectionColumnsInfo: ()->
-
 		collectColumnInfo = (column, context, deepth, rootIndex)->
 			context.rows = deepth + 1
 			info =
@@ -234,59 +233,72 @@ class cola.Table extends cola.Widget
 			if expression
 				columnsInfo.alias = expression.alias
 
-			if @_leftFixedCols > 0 or @_rightFixedCols > 0
-				overflow = @_leftFixedCols + @_rightFixedCols - @_columns.length
+			leftFixedCols = @_leftFixedCols
+			rightFixedCols = @_rightFixedCols
+
+			if leftFixedCols > 0 or rightFixedCols > 0
+				overflow = leftFixedCols + rightFixedCols - @_columns.length
 				if overflow >= 0
-					if @_rightFixedCols > overflow
-						@_rightFixedCols -= (overflow + 1)
+					if rightFixedCols > overflow
+						rightFixedCols -= (overflow + 1)
 						overflow = -1
 					else
-						@_rightFixedCols = 0
-						overflow -= @_rightFixedCols
+						rightFixedCols = 0
+						overflow -= rightFixedCols
 
 					if overflow >= 0
-						@_leftFixedCols -= (overflow + 1)
+						leftFixedCols -= (overflow + 1)
 
-			if @_leftFixedCols < 0 then @_leftFixedCols = 0
-			if @_rightFixedCols < 0 then @_rightFixedCols = 0
+			if leftFixedCols < 0 then leftFixedCols = 0
+			if rightFixedCols < 0 then rightFixedCols = 0
 
 			for col, i in @_columns
-				continue unless col._visible
+				if not col._visible
+					if i < leftFixedCols and leftFixedCols > 0
+						leftFixedCols--
+					if @_columns.length - i <= rightFixedCols and rightFixedCols > 0
+						rightFixedCols--
+					continue
+
 				colInfo = collectColumnInfo(col, columnsInfo, 0, i)
 				if colInfo
 					columnsInfo.colInfos.push(colInfo)
 
-			if @_leftFixedCols > 0 or @_rightFixedCols > 0
-				if @_leftFixedCols > 0
+			@_realLeftFixedCols = leftFixedCols
+			@_realRightFixedCols = rightFixedCols
+
+			if leftFixedCols > 0 or rightFixedCols > 0
+				if leftFixedCols > 0
 					columnsInfo.left =
 						timestamp: columnsInfo.timestamp
 						start: 0
-						colInfos: columnsInfo.colInfos.slice(0, @_leftFixedCols)
+						rows: columnsInfo.rows
+						colInfos: columnsInfo.colInfos.slice(0, leftFixedCols)
 						dataColumns: []
 				else
 					delete columnsInfo.left
 
-				if @_rightFixedCols > 0
+				if rightFixedCols > 0
 					columnsInfo.right =
 						timestamp: columnsInfo.timestamp
-						start: @_columns.length - @_rightFixedCols
+						start: @_columns.length - rightFixedCols
 						rows: columnsInfo.rows
-						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - @_rightFixedCols, @_rightFixedCols)
+						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - rightFixedCols, columnsInfo.colInfos.length - 1)
 						dataColumns: []
 				else
 					delete columnsInfo.right
 
 				columnsInfo.center =
 					timestamp: columnsInfo.timestamp
-					start: @_leftFixedCols
+					start: leftFixedCols
 					rows: columnsInfo.rows
-					colInfos: columnsInfo.colInfos.slice(@_leftFixedCols, columnsInfo.colInfos.length - @_leftFixedCols - @_rightFixedCols)
+					colInfos: columnsInfo.colInfos.slice(leftFixedCols, columnsInfo.colInfos.length - rightFixedCols)
 					dataColumns: []
 
 				for col, i in columnsInfo.dataColumns
-					if i < @_leftFixedCols
+					if i < leftFixedCols
 						columnsInfo.left.dataColumns.push(col)
-					else if i >= @_columns.length - @_rightFixedCols
+					else if i >= @_columns.length - rightFixedCols
 						columnsInfo.right.dataColumns.push(col)
 					else
 						columnsInfo.center.dataColumns.push(col)
@@ -308,12 +320,52 @@ class cola.Table extends cola.Widget
 		return dom
 
 	_createInnerDom: (dom)->
+		@_uniqueId = cola.uniqueId()
 		@_centerTable = new cola.Table.InnerTable(
 			scope: @_scope
 			type: "center"
 			table: @
+			class: @_uniqueId
 		)
 		@_centerTable.appendTo(dom)
+
+		$fly(dom).on("mouseenter", (evt)=>
+			tableBody = @_centerTable._doms.tableBody
+			if tableBody.scrollWidth > (tableBody.clientWidth + 2)
+				if not @_horiScrollBar
+					@_horiScrollBar = cola.xCreate({
+						class: "scroll-bar hori"
+						content:
+							class: "fake-content"
+					})
+					dom.appendChild(@_horiScrollBar)
+
+				horiScrollBar = @_horiScrollBar
+				horiScrollBar.querySelector(".fake-content").style.width =
+				  (tableBody.scrollWidth / tableBody.clientWidth * dom.clientWidth) + "px"
+				horiScrollBar.scrollLeft = tableBody.scrollLeft
+				horiScrollBar.style.display = ""
+			else if @_horiScrollBar
+				@_horiScrollBar.style.display = "none"
+
+			if tableBody.scrollHeight > (tableBody.clientHeight + 2)
+				if not @_vertScrollBar
+					@_vertScrollBar = cola.xCreate({
+						class: "scroll-bar vert"
+						content:
+							class: "fake-content"
+					})
+					dom.appendChild(@_vertScrollBar)
+
+				vertScrollBar = @_vertScrollBar
+				vertScrollBar.querySelector(".fake-content").style.height =
+				  (tableBody.scrollHeight / tableBody.clientHeight * dom.clientHeight) + "px"
+				vertScrollBar.scrollTop = tableBody.scrollTop
+				vertScrollBar.style.display = ""
+			else if @_vertScrollBar
+				@_vertScrollBar.style.display = "none"
+			return
+		)
 		return
 
 	_initDragDrop: (dom)->
@@ -596,6 +648,9 @@ class cola.Table extends cola.Widget
 		realTotalWidth = 0
 		weightColumns = []
 
+		leftPaneWidth = 0
+		rightPaneWidth = 0
+
 		columnCssDefs = []
 		for colInfo in @_columnsInfo.dataColumns
 			if colInfo.widthType is "weight"
@@ -616,6 +671,11 @@ class cola.Table extends cola.Widget
 				width = Math.round(colInfo.width) or 80
 				widthType = colInfo.widthType or "px"
 				realTotalWidth += width
+
+			if colInfo.index < @_realLeftFixedCols and widthType is "px"
+				leftPaneWidth += width
+			else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols and widthType is "px"
+				rightPaneWidth += width
 
 			def += "width:#{width}#{widthType};"
 			def += "}"
@@ -638,10 +698,21 @@ class cola.Table extends cola.Widget
 				realTotalWidth += width
 				adjust = rawWidth - width
 				def += "width:#{width}px;"
+
+				if colInfo.index < @_realLeftFixedCols
+					leftPaneWidth += width
+				else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols
+					rightPaneWidth += width
 			else
 				width = Math.round(colInfo.width * 100 / totalWidthWeight)
 				def += "width:#{width}%; min-width:#{colInfo.width}px"
 
+			def += "}"
+			columnCssDefs.push(def)
+
+		if leftPaneWidth or rightPaneWidth
+			def = ".#{@_uniqueId} {"
+			def += "margin-left:#{leftPaneWidth}px;margin-right:#{rightPaneWidth}px;"
 			def += "}"
 			columnCssDefs.push(def)
 
@@ -652,10 +723,12 @@ class cola.Table extends cola.Widget
 		)
 		@_styleSheetDom.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
 		head.appendChild(@_styleSheetDom)
+
 		return {
 			clientWidth: clientWidth
 			totalWidth: realTotalWidth
-			hasWeightColumn: weightColumns.length > 0
+			leftPaneWidth: leftPaneWidth
+			rightPaneWidth: rightPaneWidth
 		}
 
 	_doRefreshDom: ()->
@@ -664,10 +737,8 @@ class cola.Table extends cola.Widget
 
 		if @_refreshItemsScheduled
 			delete @_refreshItemsScheduled
-			if @_leftTable
-				@_leftTable._refreshItemsScheduled = true
-			if @_rightTable
-				@_rightTable._refreshItemsScheduled = true
+			@_leftTable?._refreshItemsScheduled = true
+			@_rightTable?._refreshItemsScheduled = true
 			@_centerTable._refreshItemsScheduled = true
 
 			@_refreshItems()
@@ -697,20 +768,21 @@ class cola.Table extends cola.Widget
 			@_columnsTimestamp = @_columnsInfo.timestamp
 			@_oldClientWidth = @_dom.clientWidth
 
+			$centerTableDom = @_centerTable.get$Dom()
 			if @_columnsInfo.left and not @_leftTable
 				@_leftTable = new cola.Table.InnerTable(
 					type: "left"
 					table: @
 				)
-				@_centerTable.get$Dom().before(@_leftTable.getDom())
-			if @_columnsInfo.right and not @_leftTable
+				$centerTableDom.before(@_leftTable.getDom())
+			if @_columnsInfo.right and not @_rightTable
 				@_rightTable = new cola.Table.InnerTable(
 					type: "right"
 					table: @
 				)
-				@_centerTable.get$Dom().after(@_rightTable.getDom())
+				$centerTableDom.after(@_rightTable.getDom())
 
-			info = @_buildStyleSheet()
+			@_buildStyleSheet()
 
 			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
@@ -719,13 +791,6 @@ class cola.Table extends cola.Widget
 		@_leftTable?._refreshItems()
 		@_rightTable?._refreshItems()
 		@_centerTable._refreshItems()
-
-		if info and info.totalWidth > info.clientWidth and info.hasWeightColumn
-			clientWidth = @_centerTable._doms.tableBody.clientWidth
-			if @_leftTable then clientWidth += @_leftTable._doms.tableBody.clientWidth
-			if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
-			if clientWidth isnt info.clientWidth
-				@_buildStyleSheet()
 
 		if @_columnsInfo.selectColumns
 			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
@@ -798,7 +863,7 @@ class cola.Table extends cola.Widget
 						index++
 
 				columnInfo = dataColumns[index]
-				#				if not columnInfo.column._readOnly and columnInfo.column._property
+				# if not columnInfo.column._readOnly and columnInfo.column._property
 				nextColumnInfo = columnInfo
 
 			if nextColumnInfo and currentItem
@@ -1018,11 +1083,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if @_type is "center"
 			@_table._realItems = @_realItems
 			@_table._realOriginItems = @_realOriginItems
-
-		rightMargin = (@_doms.tableBody.offsetWidth - @_doms.tableBody.clientWidth) + "px";
-		@_doms.tableHeader?.style.right = rightMargin
-		@_doms.tableFooter?.style.right = rightMargin
-
 		return
 
 	_refreshHeaderRow: (rowDom, colInfos, rowHeight)->

@@ -4,9 +4,16 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 	<meta charset="utf-8"/>
 	<script src="../../include-all.js"></script>
+	<style>
+		#scrollBar1::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+	</style>
 </head>
 
 <body>
+
 <div class="v-box" style="padding:16px;">
 	<div class="box" style="padding:2px">
 		<div c-widget="input; bind:items.col1"></div>
@@ -34,8 +41,7 @@
 			</template>
 
 			<select-column></select-column>
-			<column property="int" template="input-column" footerTemplate="sum"></column>
-			<column property="int" template="input-column" footerTemplate="sum"></column>
+			<column property="int" _template="input-column" footerTemplate="sum"></column>
 			<column bind=".col1" template="upper-template"></column>
 			<!--<column caption="Group">-->
 				<!--<column property="bool" align="center" template="checkMark" editTemplate="toggle"></column>-->
@@ -93,7 +99,10 @@
 		});
 
 		model.describe("items", "Item");
-		model.set("items", items);
+
+		// setTimeout(function() {
+			model.set("items", items);
+		// }, 0);
 
 		model.action({
 			add: function () {
@@ -129,7 +138,7 @@
 //                highlightCurrentItem: false,
 				sortMode: "local",
 				leftFixedCols: 2,
-//				rightFixedCols: 2,
+				rightFixedCols: 1,
 				itemClick: function() {
 					console.log("itemClick");
 				}
