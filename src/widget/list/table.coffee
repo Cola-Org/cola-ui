@@ -283,7 +283,7 @@ class cola.Table extends cola.Widget
 						timestamp: columnsInfo.timestamp
 						start: @_columns.length - rightFixedCols
 						rows: columnsInfo.rows
-						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - rightFixedCols, columnsInfo.colInfos.length - 1)
+						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - rightFixedCols, columnsInfo.colInfos.length)
 						dataColumns: []
 				else
 					delete columnsInfo.right
@@ -320,40 +320,47 @@ class cola.Table extends cola.Widget
 		return dom
 
 	_createInnerDom: (dom)->
-		@_uniqueId = cola.uniqueId()
 		@_centerTable = new cola.Table.InnerTable(
 			scope: @_scope
 			type: "center"
 			table: @
-			class: @_uniqueId
 		)
 		@_centerTable.appendTo(dom)
 
 		$fly(dom).on("mouseenter", (evt)=>
-			tableBody = @_centerTable._doms.tableBody
-			if tableBody.scrollWidth > (tableBody.clientWidth + 2)
+			table = @
+			innerTable = @_centerTable._dom
+			if innerTable.scrollWidth > (innerTable.clientWidth + 2)
 				if not @_horiScrollBar
 					@_horiScrollBar = cola.xCreate({
 						class: "scroll-bar hori"
 						content:
 							class: "fake-content"
+						scroll: ()->
+							innerTable.scrollLeft = @scrollLeft / @scrollWidth * innerTable.scrollWidth
 					})
 					dom.appendChild(@_horiScrollBar)
 
 				horiScrollBar = @_horiScrollBar
 				horiScrollBar.querySelector(".fake-content").style.width =
-				  (tableBody.scrollWidth / tableBody.clientWidth * dom.clientWidth) + "px"
-				horiScrollBar.scrollLeft = tableBody.scrollLeft
+				  (innerTable.scrollWidth / innerTable.clientWidth * dom.clientWidth) + "px"
+				horiScrollBar.scrollLeft = innerTable.scrollLeft
 				horiScrollBar.style.display = ""
 			else if @_horiScrollBar
 				@_horiScrollBar.style.display = "none"
 
+			tableBody = @_centerTable._doms.tableBody
 			if tableBody.scrollHeight > (tableBody.clientHeight + 2)
 				if not @_vertScrollBar
 					@_vertScrollBar = cola.xCreate({
 						class: "scroll-bar vert"
 						content:
 							class: "fake-content"
+						scroll: ()->
+							scrollTop = @scrollTop / @scrollHeight * tableBody.scrollHeight
+							tableBody.scrollTop = scrollTop
+							table._leftTable?._doms.tableBody.scrollTop = scrollTop
+							table._rightTable?._doms.tableBody.scrollTop = scrollTop
 					})
 					dom.appendChild(@_vertScrollBar)
 
@@ -571,6 +578,9 @@ class cola.Table extends cola.Widget
 		return unless dom
 		@_doms ?= {}
 
+		@_uniqueId ?= cola.uniqueId()
+		dom.className += " " + @_uniqueId
+
 		child = dom.firstElementChild
 		while child
 			cola.xRender(child)
@@ -641,7 +651,7 @@ class cola.Table extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-		clientWidth = @_centerTable._doms.tableBody.clientWidth
+		clientWidth = @_centerTable._doms.tableBody.clientWidth + 1
 		if @_leftTable then clientWidth += @_leftTable._doms.tableBody.clientWidth
 		if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
 
@@ -712,7 +722,7 @@ class cola.Table extends cola.Widget
 
 		if leftPaneWidth or rightPaneWidth
 			def = ".#{@_uniqueId} {"
-			def += "margin-left:#{leftPaneWidth}px;margin-right:#{rightPaneWidth}px;"
+			def += "padding-left:#{leftPaneWidth}px;padding-right:#{rightPaneWidth}px;"
 			def += "}"
 			columnCssDefs.push(def)
 
@@ -741,6 +751,8 @@ class cola.Table extends cola.Widget
 			@_rightTable?._refreshItemsScheduled = true
 			@_centerTable._refreshItemsScheduled = true
 
+			@_classNamePool.toggle("has-left-pane", @_realLeftFixedCols > 0)
+			@_classNamePool.toggle("has-right-pane", @_realRightFixedCols > 0)
 			@_refreshItems()
 		return
 
