@@ -78,10 +78,12 @@ domObserver =
 			domObserver.sizingObserverCount++
 
 		if domObserver.observingDomCount is 1 and not domObserver.mutationObserver
-			domObserver.mutationObserver = new MutationObserver(domObserver.mutationHandler);
+			domObserver.mutationObserver = new MutationObserver(domObserver.mutationHandler)
 			domObserver.mutationObserver.observe(document.body, {
 				subtree: true
 				attributes: true
+				childList: true
+				characterData: true
 			})
 		return
 

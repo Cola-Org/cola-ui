@@ -149,7 +149,7 @@
 
 	var callback = function (records) {
 		records.map(function (record) {
-//			debugger
+			// debugger
 // 			console.log('Previous attribute value: ' + record.oldValue);
 		});
 	};
@@ -157,9 +157,10 @@
 	var option = {
 		subtree: true,
 		attribute: true,
-		attributeOldValue: true
+		childList: true,
+		characterData: true
 	};
-	mo.observe(document.body, option);
+	mo.observe(document, option);
 
 	$("#table1").on("visibilityChange", function(evt, data) {
 		console.log('visibilityChange: ' + data.visible);
