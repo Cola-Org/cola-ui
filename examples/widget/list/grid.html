@@ -137,6 +137,7 @@
 //                changeCurrentItem:false,
 //                highlightCurrentItem: false,
 				sortMode: "local",
+				scrollMode: "scroll",
 				leftFixedCols: 2,
 				rightFixedCols: 1,
 				itemClick: function() {
@@ -153,12 +154,12 @@
 		});
 	};
 	var mo = new MutationObserver(callback);
-	var element = document.getElementById('table1');
 	var option = {
-		'attribute': true,
-		'attributeOldValue': true
+		subtree: true,
+		attribute: true,
+		attributeOldValue: true
 	};
-	mo.observe(element, option);
+	mo.observe(document.body, option);
 
 </script>
 </body>

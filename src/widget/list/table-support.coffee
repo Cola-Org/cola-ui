@@ -146,11 +146,11 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		change: null
 		itemChange: null
 
-	renderHeader: (dom, item)->
+	renderHeader: (dom)->
 		if not dom.firstElementChild
 			@_headerCheckbox = checkbox = new cola.Checkbox(
 				triState: true
-				post: (self, arg)=>
+				input: (self, arg)=>
 					checked = self.get("checked")
 					if checked isnt undefined
 						@selectAll(checked)
@@ -164,7 +164,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		if not dom.firstElementChild
 			checkbox = new cola.Checkbox(
 				bind: @_table._alias + "." + @_table._selectedProperty
-				post: (self, arg)=>
+				input: (self, arg)=>
 					if not @_ignoreCheckedChange
 						@refreshHeaderCheckbox()
 					arg.item = item

@@ -30,6 +30,8 @@ class cola.Table extends cola.Widget
 	@tagName: "c-table"
 	@CLASS_NAME: "items-view widget-table"
 
+	@scrollBarWidth = 10
+
 	@attributes:
 		items:
 			refreshItems: true
@@ -60,6 +62,9 @@ class cola.Table extends cola.Widget
 		showFooter:
 			type: "boolean"
 
+		scrollMode:
+			defaultValue: "auto" # auto/scroll
+			readOnlyAfterCreate: true
 		columnStretchable:
 			type: "boolean"
 			defaultValue: true
@@ -327,6 +332,9 @@ class cola.Table extends cola.Widget
 		)
 		@_centerTable.appendTo(dom)
 
+		if @_scrollMode is "scroll"
+			@_createVertScrollBar()
+
 		$fly(dom).on("mouseenter", (evt)=>
 			table = @
 			innerTable = @_centerTable._dom
@@ -337,43 +345,52 @@ class cola.Table extends cola.Widget
 						content:
 							class: "fake-content"
 						scroll: ()->
+							return if table._ignoreScrollbarMove
 							innerTable.scrollLeft = @scrollLeft / @scrollWidth * innerTable.scrollWidth
+							return
 					})
 					dom.appendChild(@_horiScrollBar)
 
 				horiScrollBar = @_horiScrollBar
 				horiScrollBar.querySelector(".fake-content").style.width =
 				  (innerTable.scrollWidth / innerTable.clientWidth * dom.clientWidth) + "px"
-				horiScrollBar.scrollLeft = innerTable.scrollLeft
+				horiScrollBar.scrollLeft = innerTable.scrollLeft / innerTable.scrollWidth * horiScrollBar.scrollWidth
 				horiScrollBar.style.display = ""
 			else if @_horiScrollBar
 				@_horiScrollBar.style.display = "none"
 
 			tableBody = @_centerTable._doms.tableBody
 			if tableBody.scrollHeight > (tableBody.clientHeight + 2)
-				if not @_vertScrollBar
-					@_vertScrollBar = cola.xCreate({
-						class: "scroll-bar vert"
-						content:
-							class: "fake-content"
-						scroll: ()->
-							scrollTop = @scrollTop / @scrollHeight * tableBody.scrollHeight
-							tableBody.scrollTop = scrollTop
-							table._leftTable?._doms.tableBody.scrollTop = scrollTop
-							table._rightTable?._doms.tableBody.scrollTop = scrollTop
-					})
-					dom.appendChild(@_vertScrollBar)
+				@_vertScrollBar ?= @_createVertScrollBar()
 
 				vertScrollBar = @_vertScrollBar
 				vertScrollBar.querySelector(".fake-content").style.height =
 				  (tableBody.scrollHeight / tableBody.clientHeight * dom.clientHeight) + "px"
-				vertScrollBar.scrollTop = tableBody.scrollTop
+				vertScrollBar.scrollTop = tableBody.scrollTop / tableBody.scrollHeight * vertScrollBar.scrollHeight
 				vertScrollBar.style.display = ""
 			else if @_vertScrollBar
 				@_vertScrollBar.style.display = "none"
 			return
 		)
 		return
+
+	_createVertScrollBar: ()->
+		table = @
+		@_vertScrollBar = cola.xCreate({
+			class: "scroll-bar vert"
+			content:
+				class: "fake-content"
+			scroll: ()->
+				return if table._ignoreScrollbarMove
+				tableBody = table._centerTable._doms.tableBody
+				scrollTop = @scrollTop / @scrollHeight * tableBody.scrollHeight
+				tableBody.scrollTop = scrollTop
+				table._leftTable?._doms.tableBody.scrollTop = scrollTop
+				table._rightTable?._doms.tableBody.scrollTop = scrollTop
+				return
+		})
+		@_dom.appendChild(@_vertScrollBar)
+		return @_vertScrollBar
 
 	_initDragDrop: (dom)->
 		$fly(dom).delegate(">.inner-table >.table-header", "mousemove", (evt)=>
@@ -528,9 +545,6 @@ class cola.Table extends cola.Widget
 		table = @
 		handler = tableHeader.querySelector(".resize-handler")
 		if not handler
-			innerTable = $fly(tableHeader).closest(".inner-table")[0]
-			tableBody = $fly(innerTable).find(">.table-body")[0]
-
 			handler = cola.xCreate(
 				class: "resize-handler"
 			)
@@ -538,26 +552,31 @@ class cola.Table extends cola.Widget
 				axis: "x"
 				start: ()->
 					cell = cola.util.userData(@, "cell")
-					helper = cola.xCreate(
-						class: "resize-helper"
-						style:
-							left: cell.offsetLeft - tableBody.scrollLeft - 1
-							width: cell.offsetWidth
-					)
+					helper = table._doms.resizeHelper
+					if not helper
+						helper = cola.xCreate(
+							class: "resize-helper"
+						)
+						table._dom.appendChild(helper)
+						table._doms.resizeHelper = helper
+
+					innerTable = $fly(cell).closest(".inner-table")[0]
+					$fly(helper).css(
+						left: (innerTable.offsetLeft + cell.offsetLeft - innerTable.scrollLeft - 1) + "px"
+						width: cell.offsetWidth + "px"
+					).show()
 					cola.util.userData(helper, "originalWidth", cell.offsetWidth)
-					innerTable.appendChild(helper)
-					cola.util.userData(@, "helper", helper)
 					table._innerDragging = true
 					return
 				stop: ()->
-					helper = cola.util.userData(@, "helper")
+					helper = table._doms.resizeHelper
 					column = cola.util.userData(@, "column")
 					column.set("width", helper.offsetWidth + "px")
-					$fly(helper).remove()
+					$fly(helper).hide()
 					table._innerDragging = false
 					return
 				drag: (evt, ui)->
-					helper = cola.util.userData(@, "helper")
+					helper = table._doms.resizeHelper
 					originalWidth = cola.util.userData(helper, "originalWidth")
 					$fly(helper).width(originalWidth + ui.position.left - ui.originalPosition.left)
 					return
@@ -651,15 +670,16 @@ class cola.Table extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: ()->
-		clientWidth = @_centerTable._doms.tableBody.clientWidth + 1
-		if @_leftTable then clientWidth += @_leftTable._doms.tableBody.clientWidth
-		if @_rightTable then clientWidth += @_rightTable._doms.tableBody.clientWidth
+		clientWidth = @_dom.clientWidth + 1
+		if @_scrollMode is "scroll"
+			clientWidth -= @constructor.scrollBarWidth
 
 		realTotalWidth = 0
 		weightColumns = []
 
 		leftPaneWidth = 0
 		rightPaneWidth = 0
+		centerPaneWidth = 0
 
 		columnCssDefs = []
 		for colInfo in @_columnsInfo.dataColumns
@@ -686,6 +706,8 @@ class cola.Table extends cola.Widget
 				leftPaneWidth += width
 			else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols and widthType is "px"
 				rightPaneWidth += width
+			else
+				centerPaneWidth += width
 
 			def += "width:#{width}#{widthType};"
 			def += "}"
@@ -713,6 +735,8 @@ class cola.Table extends cola.Widget
 					leftPaneWidth += width
 				else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols
 					rightPaneWidth += width
+				else
+					centerPaneWidth += width
 			else
 				width = Math.round(colInfo.width * 100 / totalWidthWeight)
 				def += "width:#{width}%; min-width:#{colInfo.width}px"
@@ -723,6 +747,11 @@ class cola.Table extends cola.Widget
 		if leftPaneWidth or rightPaneWidth
 			def = ".#{@_uniqueId} {"
 			def += "padding-left:#{leftPaneWidth}px;padding-right:#{rightPaneWidth}px;"
+			def += "}"
+			columnCssDefs.push(def)
+
+			def = ".#{@_uniqueId} >.center.ui.inner-table >.table-body{"
+			def += "width:#{centerPaneWidth}px;"
 			def += "}"
 			columnCssDefs.push(def)
 
@@ -751,6 +780,7 @@ class cola.Table extends cola.Widget
 			@_rightTable?._refreshItemsScheduled = true
 			@_centerTable._refreshItemsScheduled = true
 
+			@_classNamePool.toggle("scroll", @_scrollMode is "scroll")
 			@_classNamePool.toggle("has-left-pane", @_realLeftFixedCols > 0)
 			@_classNamePool.toggle("has-right-pane", @_realRightFixedCols > 0)
 			@_refreshItems()
@@ -1007,11 +1037,34 @@ class cola.Table.InnerTable extends cola.AbstractList
 				content:
 					tagName: "ul"
 					contextKey: "itemsWrapper"
-				scroll: (evt)=>
-					scrollLeft = evt.target.scrollLeft
-					@_doms.tableHeader?.scrollLeft = scrollLeft
-					@_doms.tableFooter?.scrollLeft = scrollLeft
-					return
+				mousewheel: (evt)=>
+					evt = evt.originalEvent
+
+					table = @_table
+					centerTableDom = table._centerTable._dom
+					scrollLeft = centerTableDom.scrollLeft + evt.deltaX
+
+					centerTableBody = table._centerTable._doms.tableBody
+					scrollTop = centerTableBody.scrollTop + evt.deltaY
+
+					oldScrollLeft = centerTableDom.scrollLeft
+					oldScrollTop = centerTableBody.scrollTop
+					centerTableDom.scrollLeft = scrollLeft
+					centerTableBody.scrollTop = scrollTop
+
+					if centerTableDom.scrollLeft is oldScrollLeft and centerTableBody.scrollTop is oldScrollTop
+						return true
+
+					table._leftTable?._doms.tableBody.scrollTop = scrollTop
+					table._rightTable?._doms.tableBody.scrollTop = scrollTop
+
+					table._ignoreScrollbarMove = true
+					if table._horiScrollBar
+						table._horiScrollBar.scrollLeft = scrollLeft / centerTableDom.scrollWidth * table._horiScrollBar.scrollWidth
+					if table._vertScrollBar
+						table._vertScrollBar.scrollTop = scrollTop / centerTableBody.scrollHeight * table._vertScrollBar.scrollHeight
+					table._ignoreScrollbarMove = false
+					return false
 		}, @_doms)
 
 		$fly(@_doms.itemsWrapper).delegate(".cell", "click", (evt)=>

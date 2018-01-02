@@ -30,11 +30,12 @@
 	display: block;
 	box-sizing: border-box;
 
-	.inner-table {
+	>.inner-table {
 		display: block;
 		position: relative;
 		overflow: hidden;
 		height: 100%;
+		background: @white;
 
 		&.left, &.right {
 			position: absolute;
@@ -54,12 +55,18 @@
 		&.right {
 			right: 0;
 		}
+		&.center {
+			>.table-body {
+				.box-shadow(0px 0px 1em 0px rgba(0, 0, 0, 0.1));
+			}
+		}
 
 		> .table-header, > .table-footer {
 			position: absolute;
 			left: 0;
 			overflow: hidden;
 			z-index: 1;
+			.box-shadow(0px 0px 1em 0px rgba(0, 0, 0, 0.1));
 			> table {
 				table-layout: fixed;
 				width: 0;
@@ -67,7 +74,6 @@
 		}
 		> .table-header {
 			top: 0;
-			padding-bottom: 1px;
 			> .resize-handler {
 				content: "";
 				position: absolute !important;
@@ -246,7 +252,7 @@
 		}
 		.header-cell {
 			position: relative;
-			border-width: 0 1px 1px 0;
+			border-width: 1px 1px 0 0;
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
 			&.rows-2 {
@@ -264,6 +270,9 @@
 		}
 		&.first-row {
 			position: relative;
+			.header-cell {
+				border-top-width: 0;
+			}
 		}
 	}
 	.footer-cell {
@@ -289,7 +298,7 @@
 		}
 	}
 
-	.scroll-bar {
+	>.scroll-bar {
 		z-index: 3;
 		&.hori {
 			position: absolute;
@@ -325,6 +334,15 @@
 	&:hover {
 		.scroll-bar {
 			display: block;
+		}
+	}
+
+	&.scroll {
+		>.scroll-bar.vert {
+			display: block !important;
+		}
+		>.inner-table.right {
+			right: 10px;
 		}
 	}
 
@@ -391,9 +409,9 @@
 
 .ui.widget-table {
 	.inner-table {
-		.table.item:hover:not(.current) .cell {
-			background: @itemsViewHoverBackground;
-		}
+		//.table.item:hover:not(.current) .cell {
+		//	background: @itemsViewHoverBackground;
+		//}
 		.table.item.current .cell {
 			background: @itemsViewCurrentBackground;
 		}
