@@ -36,6 +36,11 @@ class cola.Pager extends cola.Widget
 					step: 1,
 					change: ()->
 						pageNo = parseInt($(this).val())
+						
+						if pageNo > pager._pageCount
+							pageNo = pager._pageCount
+							$(this).val(pageNo)
+
 						pager.goTo(pageNo)
 
 				}
@@ -106,6 +111,8 @@ class cola.Pager extends cola.Widget
 			hasPrev = data.pageNo > 1
 			hasNext = pageCount > data.pageNo
 		@_pageNo = pageNo
+
+		@_pageCount = pageCount;
 
 		wrapper = @_doms.pageNoWrapper
 		$(wrapper).empty()
@@ -208,6 +215,7 @@ class cola.Pager extends cola.Widget
 
 		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
 		$(@_doms.gotoInput).val(pageNo);
+		$(@_doms.gotoInput).attr("max", pageCount);
 		cola.widget(@_doms._pageSizeInput).set("value", pageSize);
 
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
