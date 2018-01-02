@@ -578,16 +578,16 @@ class cola.Entity
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 
-					if cola.consoleOpened and cola.debugLevel > 9
-						setTimeout(()=>
-							if @getPath() and value.getPath?()
-								path = value.getPath().join(".")
-								cola.Entity._warnedDataPaths ?= {}
-								if not cola.Entity._warnedDataPaths[path]
-									cola.Entity._warnedDataPaths[path] = true
-									console.warn("No 'DataType' found for path: " + path)
-							return
-						, 0)
+					#if cola.consoleOpened and cola.debugLevel > 9
+					#	setTimeout(()=>
+					#		if @getPath() and value.getPath?()
+					#			path = value.getPath().join(".")
+					#			cola.Entity._warnedDataPaths ?= {}
+					#			if not cola.Entity._warnedDataPaths[path]
+					#				cola.Entity._warnedDataPaths[path] = true
+					#				console.warn("No 'DataType' found for path: " + path)
+					#		return
+					#	, 0)
 
 				changed = oldValue isnt value
 		else

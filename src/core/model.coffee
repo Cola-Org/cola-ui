@@ -850,7 +850,7 @@ class cola.AbstractDataModel
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@splittedPath.length)
-				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
+				dataModel.onDataMessage([ shortcut ].concat(relativePath), type, arg)
 				return
 		}
 		@bind(shortcutHolder.bindingPath, shortcutHolder)
@@ -903,15 +903,15 @@ class cola.AbstractDataModel
 						__processorMap: {}
 				node = subNode
 
-			if path.length > 1 and cola.consoleOpened and cola.debugLevel > 9
-				if path[path.length - 1].indexOf("*") >= 0
-					path = path.slice(0, path.length - 1)
-				if path.length > 1
-					joinedPath = path.join(".")
-					cola.Entity._warnedBindPaths ?= {}
-					if not cola.Entity._warnedBindPaths[joinedPath] and not @getProperty(joinedPath)
-						cola.Entity._warnedBindPaths[joinedPath] = true
-						console.warn("Binding path may be illegal: " + joinedPath)
+			#if path.length > 1 and cola.consoleOpened and cola.debugLevel > 9
+			#	if path[path.length - 1].indexOf("*") >= 0
+			#		path = path.slice(0, path.length - 1)
+			#	if path.length > 1
+			#		joinedPath = path.join(".")
+			#		cola.Entity._warnedBindPaths ?= {}
+			#		if not cola.Entity._warnedBindPaths[joinedPath] and not @getProperty(joinedPath)
+			#			cola.Entity._warnedBindPaths[joinedPath] = true
+			#			console.warn("Binding path may be illegal: " + joinedPath)
 
 			processor.id ?= cola.uniqueId()
 			node.__processorMap[processor.id] = processor
@@ -1341,7 +1341,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			@dataType = data.dataType
 
 		if not silence and @alias
-			@onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ @alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
 				value: data
