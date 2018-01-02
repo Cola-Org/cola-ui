@@ -178,6 +178,7 @@ class cola.Table extends cola.Widget
 				if refreshItems
 					@_refreshItemsScheduled = true
 				@_refreshDom()
+				@_refreshScrollbars()
 				return
 			)
 		return
@@ -336,42 +337,56 @@ class cola.Table extends cola.Widget
 			@_createVertScrollBar()
 
 		$fly(dom).on("mouseenter", (evt)=>
-			table = @
-			innerTable = @_centerTable._dom
-			if innerTable.scrollWidth > (innerTable.clientWidth + 2)
-				if not @_horiScrollBar
-					@_horiScrollBar = cola.xCreate({
-						class: "scroll-bar hori"
-						content:
-							class: "fake-content"
-						scroll: ()->
-							return if table._ignoreScrollbarMove
-							innerTable.scrollLeft = @scrollLeft / @scrollWidth * innerTable.scrollWidth
-							return
-					})
-					dom.appendChild(@_horiScrollBar)
+			@_mouseIn = true
+			@_refreshScrollbars()
+		).on("mouseleave", (evt)=>
+			@_mouseIn = false
+		).on("sizingChange", ()=>
+			@_buildStyleSheet()
+			@_refreshScrollbars()
+			return
+		)
+		return
 
-				horiScrollBar = @_horiScrollBar
+	_refreshScrollbars: ()->
+		table = @
+		dom = @_dom
+		innerTable = @_centerTable._dom
+		if innerTable.scrollWidth > (innerTable.clientWidth + 2)
+			if not @_horiScrollBar and table._mouseIn
+				@_horiScrollBar = cola.xCreate({
+					class: "scroll-bar hori"
+					content:
+						class: "fake-content"
+					scroll: ()->
+						return if table._ignoreScrollbarMove
+						innerTable.scrollLeft = @scrollLeft / @scrollWidth * innerTable.scrollWidth
+						return
+				})
+				dom.appendChild(@_horiScrollBar)
+
+			horiScrollBar = @_horiScrollBar
+			if horiScrollBar
 				horiScrollBar.querySelector(".fake-content").style.width =
 				  (innerTable.scrollWidth / innerTable.clientWidth * dom.clientWidth) + "px"
 				horiScrollBar.scrollLeft = innerTable.scrollLeft / innerTable.scrollWidth * horiScrollBar.scrollWidth
 				horiScrollBar.style.display = ""
-			else if @_horiScrollBar
-				@_horiScrollBar.style.display = "none"
+		else if @_horiScrollBar
+			@_horiScrollBar.style.display = "none"
 
-			tableBody = @_centerTable._doms.tableBody
-			if tableBody.scrollHeight > (tableBody.clientHeight + 2)
-				@_vertScrollBar ?= @_createVertScrollBar()
+		tableBody = @_centerTable._doms.tableBody
+		if tableBody.scrollHeight > (tableBody.clientHeight + 2)
+			if not @_vertScrollBar and table._mouseIn
+				@_vertScrollBar = @_createVertScrollBar()
 
-				vertScrollBar = @_vertScrollBar
+			vertScrollBar = @_vertScrollBar
+			if vertScrollBar
 				vertScrollBar.querySelector(".fake-content").style.height =
 				  (tableBody.scrollHeight / tableBody.clientHeight * dom.clientHeight) + "px"
 				vertScrollBar.scrollTop = tableBody.scrollTop / tableBody.scrollHeight * vertScrollBar.scrollHeight
 				vertScrollBar.style.display = ""
-			else if @_vertScrollBar
-				@_vertScrollBar.style.display = "none"
-			return
-		)
+		else if @_vertScrollBar
+			@_vertScrollBar.style.display = "none"
 		return
 
 	_createVertScrollBar: ()->

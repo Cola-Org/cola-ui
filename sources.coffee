@@ -19,6 +19,7 @@ sources =
 			"src/core/update.coffee"
 			"src/core/action.coffee"
 			"src/core/service.coffee"
+			"src/core/jquery-ext.coffee"
 			"src/core/dom-util.coffee"
 			"src/core/loader.coffee"
 			"src/core/router.coffee"

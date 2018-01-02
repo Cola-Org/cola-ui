@@ -150,7 +150,7 @@
 	var callback = function (records) {
 		records.map(function (record) {
 //			debugger
-			console.log('Previous attribute value: ' + record.oldValue);
+// 			console.log('Previous attribute value: ' + record.oldValue);
 		});
 	};
 	var mo = new MutationObserver(callback);
@@ -160,6 +160,12 @@
 		attributeOldValue: true
 	};
 	mo.observe(document.body, option);
+
+	$("#table1").on("visibilityChange", function(evt, data) {
+		console.log('visibilityChange: ' + data.visible);
+	}).on("sizingChange", function(evt, data) {
+		console.log('sizingChange: ' + [data.width, data.height]);
+	});
 
 </script>
 </body>

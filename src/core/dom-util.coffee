@@ -38,8 +38,6 @@ cola.util.cacheDom = (ele)->
 	cola._ignoreNodeRemoved = false
 	return
 
-USER_DATA_KEY = cola.constants.DOM_USER_DATA_KEY
-
 cola.util.userDataStore = {
 	size: 0
 }
@@ -52,7 +50,7 @@ cola.util.userData = (node, key, data)->
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
 	else if node.getAttribute
-		id = node.getAttribute(USER_DATA_KEY)
+		id = node.getAttribute(cola.constants.DOM_USER_DATA_KEY)
 
 	if arguments.length is 3
 		if not id
@@ -63,7 +61,7 @@ cola.util.userData = (node, key, data)->
 				else
 					node.nodeValue = if text then text + "|" + id else "|" + id
 			else if node.getAttribute
-				node.setAttribute(USER_DATA_KEY, id)
+				node.setAttribute(cola.constants.DOM_USER_DATA_KEY, id)
 
 			userData[id] = store = {
 				__cleanStamp: cleanStamp
@@ -85,13 +83,13 @@ cola.util.userData = (node, key, data)->
 				return store?[key]
 		else if key and typeof key is "object"
 			id = cola.uniqueId()
-			if node.nodeType == 8
+			if node.nodeType is 8
 				if i > -1
 					node.nodeValue = text.substring(0, i + 1) + id
 				else
 					node.nodeValue = if text then text + "|" + id else "|" + id
 			else if node.getAttribute
-				node.setAttribute(USER_DATA_KEY, id)
+				node.setAttribute(cola.constants.DOM_USER_DATA_KEY, id)
 
 			userData[id] = store = {
 				__cleanStamp: cleanStamp
@@ -109,7 +107,7 @@ cola.util.removeUserData = (node, key)->
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
 	else if node.getAttribute
-		id = node.getAttribute(USER_DATA_KEY)
+		id = node.getAttribute(cola.constants.DOM_USER_DATA_KEY)
 
 	if id
 		store = cola.util.userDataStore[id]
@@ -177,7 +175,7 @@ cola.util._getNodeDataId = (node)->
 		i = text.indexOf("|")
 		id = text.substring(i + 1) if i > -1
 	else if node.getAttribute
-		id = node.getAttribute(USER_DATA_KEY)
+		id = node.getAttribute(cola.constants.DOM_USER_DATA_KEY)
 	return id
 
 _doNodeInserted = (node)->
