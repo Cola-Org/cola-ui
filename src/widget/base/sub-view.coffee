@@ -41,12 +41,20 @@ class cola.SubView extends cola.Widget
 			$dom.xAppend(content)
 
 		if @_url and @_loadMode is "auto"
-			@load(
+			option =
 				url: @_url
 				jsUrl: @_jsUrl
 				cssUrl: @_cssUrl
 				param: @_param
-			)
+
+			if cola.util.isVisible(dom)
+				@load(option)
+			else
+				$dom.one("visibilityChange", (evt, data)=>
+					if data.visible
+						@loadIfNecessary(option)
+					return
+				)
 		return
 
 	load: (options, callback)->

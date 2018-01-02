@@ -12,6 +12,9 @@ this.$fly = (dom)->
 	_$[0] = dom
 	return _$
 
+cola.util.isVisible = (dom)->
+	return !!(dom._offsetWidth or dom._offsetHeight)
+
 cola.util.setText = (dom, text = "")->
 	if cola.browser.mozilla
 		if typeof text is "string"
