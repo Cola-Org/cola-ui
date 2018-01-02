@@ -192,7 +192,7 @@ _filterEntity = (entity, criteria, option = {}, children)->
 			else
 				for prop, propFilter of criteria
 					data = null
-					if prop == "$"
+					if prop is "$"
 						matches = false
 						if option.mode is "entity"
 							data = entity._data
@@ -1118,7 +1118,8 @@ class cola.Entity
 		data = @_data
 		json = {}
 		for prop, value of data
-			if prop.charCodeAt(0) is 36 # `$`
+			c = prop.charCodeAt(0)
+			if c is 36 or c is 95 # `$` or `_`
 				continue
 
 			if value
@@ -1478,18 +1479,18 @@ class cola.EntityList extends LinkedList
 		return not @pageCountDetermined or pageNo <= @pageCount
 
 	_loadPage: (pageNo, setCurrent, loadMode = "async")->
-		if loadMode and (typeof loadMode == "function" or typeof loadMode == "object")
+		if loadMode and (typeof loadMode is "function" or typeof loadMode is "object")
 			callback = loadMode
 			loadMode = "async"
 
 		page = @_findPage(pageNo)
-		if page != @_currentPage
+		if page isnt @_currentPage
 			if page
 				@_setCurrentPage(page)
 				if setCurrent
 					entity = page._first
 					while entity
-						if entity.state != _Entity.STATE_DELETED
+						if entity.state isnt _Entity.STATE_DELETED
 							@setCurrent(entity)
 							break;
 						entity = entity._next
@@ -1582,7 +1583,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityInsert")
 			if @dataType.fire("beforeEntityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
@@ -1603,7 +1604,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityInsert")
 			@dataType.fire("entityInsert", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1619,7 +1620,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeEntityRemove")
 			if @dataType.fire("beforeEntityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			}) is false
 				return null
@@ -1649,7 +1650,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("entityRemove")
 			@dataType.fire("entityRemove", @dataType, {
-				entityList: @,
+				entityList: @
 				entity: entity
 			})
 
@@ -1662,9 +1663,9 @@ class cola.EntityList extends LinkedList
 		return
 
 	setCurrent: (entity)->
-		if @current == entity or entity?.state == cola.Entity.STATE_DELETED then return @
+		if @current is entity or entity?.state is cola.Entity.STATE_DELETED then return @
 
-		if entity and entity.parent != @
+		if entity and entity.parent isnt @
 			throw new cola.Exception("The entity is not belongs to this EntityList.")
 
 		oldCurrent = @current
@@ -1672,7 +1673,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("beforeCurrentChange")
 			if @dataType.fire("beforeCurrentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			}) is false
@@ -1692,7 +1693,7 @@ class cola.EntityList extends LinkedList
 
 		if @dataType and @dataType.getListeners("currentChange")
 			@dataType.fire("currentChange", @dataType, {
-				entityList: @,
+				entityList: @
 				oldCurrent: oldCurrent
 				current: entity
 			})

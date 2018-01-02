@@ -65,21 +65,20 @@
 
 				&.sortable > div {
 					padding-right: 1.25em;
-					&:after {
+					&:before {
 						content: "\f0dc";
 						font-family: Icons;
 						position: absolute;
 						right: 0.25em;
-						top: 0.4em;
 						color: @disabledTextColor;
 					}
 				}
 
-				&.sortable.asc > div:after {
+				&.sortable.asc > div:before {
 					content: "\f0de";
 					color: @darkTextColor;
 				}
-				&.sortable.desc > div:after {
+				&.sortable.desc > div:before {
 					content: "\f0dd";
 					color: @darkTextColor;
 				}

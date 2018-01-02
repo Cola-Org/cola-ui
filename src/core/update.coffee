@@ -31,7 +31,8 @@ _processEntity = (entity, context, options)->
 	if entity.state isnt cola.Entity.STATE_DELETED
 		data = entity._data
 		for prop, val of data
-			if prop.charCodeAt(0) is 36 # `$`
+			c = prop.charCodeAt(0)
+			if c is 36 or c is 95 # `$` or `_`
 				continue
 			if val and (val instanceof cola.Entity or val instanceof cola.EntityList)
 				context.parentProperty = prop
@@ -84,7 +85,7 @@ cola.util.update = (url, data, options = {})->
 				url: url
 				type: options.method or "post"
 				contentType: options.contentType or "application/json"
-				dataType: "json"
+				# dataType: "json"
 				data: JSON.stringify(data)
 				options: options
 			).done (responseData)->
