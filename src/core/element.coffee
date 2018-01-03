@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./util")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 tagSplitter = " "
 
 doMergeDefinitions = (definitions, mergeDefinitions, overwrite)->

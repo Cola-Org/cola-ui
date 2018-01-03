@@ -1,12 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./ajax")
-	cola = require("./element")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 class cola.ProviderInvoker
 
 	constructor: (@ajaxService, @invokerOptions)->

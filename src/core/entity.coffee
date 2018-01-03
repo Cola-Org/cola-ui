@@ -1,12 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./data-type")
-	require("./service")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 _getEntityPath = ()->
 	if @_pathCache then return @_pathCache
 

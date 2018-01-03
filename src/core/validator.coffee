@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./element")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 cola.registerTypeResolver "validator", (config)->
 	return unless config and config.$type
 	return cola[cola.util.capitalize(config.$type) + "Validator"]

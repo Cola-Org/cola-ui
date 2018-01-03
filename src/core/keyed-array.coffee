@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./namespace")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 class cola.util.KeyedArray
 	size: 0
 

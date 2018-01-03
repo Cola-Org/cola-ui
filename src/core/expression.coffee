@@ -1,13 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	jsep = require("./../lib/jsep")
-	cola = require("./element")
-	module?.exports = cola
-else
-	jsep = @jsep
-	cola = @cola
-#IMPORT_END
-
 cola._compileText = (scope, text)->
 	p = 0
 	s = 0

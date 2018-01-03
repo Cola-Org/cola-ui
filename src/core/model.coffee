@@ -1,10 +1,3 @@
-if exports?
-	cola = require("./entity")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 ###
 Model and Scope
 ###

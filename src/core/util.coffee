@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./keyed-array")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 cola.util.createDeferredIf = (originDfd, failbackArgs)->
 	return originDfd or $.Deferred().resolve(failbackArgs)
 
