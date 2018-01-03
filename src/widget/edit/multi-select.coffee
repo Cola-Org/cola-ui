@@ -36,6 +36,8 @@ class cola.MultiSelect extends cola.CustomDropdown
 
 	removeItem: (item)->
 		if !item then return
+
+		if @_readOnly then return
 		if item.nodeType
 			data = $(item).data().item
 		else

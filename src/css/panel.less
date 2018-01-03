@@ -39,7 +39,7 @@
 					float: left;
 					line-height: @panelHeaderHeight;
 					display: inline-block;
-					
+
 				}
 				> i {
 					height: inherit;
@@ -62,8 +62,10 @@
 	overflow: hidden;
 	&.collapsed {
 		height: @panelHeaderHeight;
-		.collapse-btn:before {
-			.transform(rotate(-90deg));
+		> .header {
+			> .content .collapse-btn:before {
+				.transform(rotate(-90deg));
+			}
 		}
 	}
 	&.fieldset, &.groupbox {
