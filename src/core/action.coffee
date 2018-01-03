@@ -1,31 +1,5 @@
 defaultActionTimestamp = 0
 
-cola.defaultAction = (name, fn)->
-	return unless name
-
-	if typeof name is "string" and typeof fn is "function"
-		cola.defaultAction[name] = fn
-	else if typeof name is "object"
-		for n of name
-			cola.defaultAction[n] = name[n] if name.hasOwnProperty(n)
-	defaultActionTimestamp = cola.uniqueId()
-	return
-
-class cola.Chain
-	constructor: (data)->
-		@_data = data
-		if cola.Chain::timestamp isnt defaultActionTimestamp
-			cola.Chain::timestamp = defaultActionTimestamp
-
-			for name of cola.defaultAction
-				if not cola.Chain::[name] and cola.defaultAction.hasOwnProperty(name) and name isnt "chain"
-					do (name)->
-						cola.Chain::[name] = (args...)->
-							@_data = cola.defaultAction[name](@_data, args...)
-							return @
-
-cola.defaultAction.chain = (data)-> new cola.Chain(data)
-
 cola.defaultAction.get = (path)-> @get(path)
 
 cola.defaultAction["default"] = (value, defaultValue = "")-> value or defaultValue

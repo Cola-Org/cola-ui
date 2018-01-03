@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./util")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 cola.version = "${version}"
 
 uniqueIdSeed = 1
@@ -30,7 +22,6 @@ if window?
 			cola.browser.webkit = s[1] or -1
 			if (s = ua.match(/chrome\/([\d.]+)/)) then cola.browser.chrome = +s[1] or -1
 			else if (s = ua.match(/version\/([\d.]+).*safari/)) then cola.browser.safari = +s[1] or -1
-			if (s = ua.match(/qqbrowser\/([\d.]+)/)) then cola.browser.qqbrowser = +s[1] or -1
 		else if (s = ua.match(/msie ([\d.]+)/)) then cola.browser.ie = +s[1] or -1
 		else if (s = ua.match(/trident/)) then cola.browser.ie = 11
 		else if (s = ua.match(/firefox\/([\d.]+)/)) then cola.browser.mozilla = +s[1] or -1
@@ -85,7 +76,7 @@ cola.on = (eventName, listener)->
 	if !listenerRegistry
 		throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
-	if typeof listener != "function"
+	if typeof listener isnt "function"
 		throw new cola.Exception("Invalid event listener.")
 
 	listeners = listenerRegistry.listeners
@@ -99,7 +90,7 @@ cola.on = (eventName, listener)->
 		i = 0
 
 	if alias
-		if !aliasMap
+		if not aliasMap
 			listenerRegistry.aliasMap = aliasMap = {}
 		aliasMap[alias] = i
 	return @
@@ -111,10 +102,10 @@ cola.off = (eventName, listener)->
 		eventName = eventName.substring(0, i)
 
 	listenerRegistry = colaEventRegistry[eventName]
-	if !listenerRegistry then return @
+	if not listenerRegistry then return @
 
 	listeners = listenerRegistry.listeners
-	if !listeners or listeners.length == 0 then return @
+	if not listeners or listeners.length is 0 then return @
 
 	i = -1
 	if alias
@@ -138,7 +129,6 @@ cola.off = (eventName, listener)->
 	else
 		delete listenerRegistry.listeners
 		delete listenerRegistry.aliasMap
-
 	return @
 
 cola.getListeners = (eventName)->
@@ -223,7 +213,7 @@ class cola.Exception
 		if ex then cola.Exception.removeException(ex)
 		if ex instanceof cola.AbortException then return
 
-		if cola.fire("exception", cola, { exception: ex }) == false then return
+		if cola.fire("exception", cola, { exception: ex }) is false then return
 
 		if ex instanceof cola.RunnableException
 			eval("var fn = function(){#{ex.script}}")

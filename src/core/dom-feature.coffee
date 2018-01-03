@@ -431,7 +431,7 @@ class cola._DomAttrFeature extends cola._DomFeature
 		if value instanceof Date
 			defaultDateFormat = cola.setting("defaultDateFormat")
 			if defaultDateFormat
-				value = cola.defaultAction.formatDate(value, defaultDateFormat)
+				value = cola.util.formatDate(value, defaultDateFormat)
 
 		attr = @attr
 		if attr is "text"

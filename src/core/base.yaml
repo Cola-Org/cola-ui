@@ -1,238 +1,307 @@
-name: cola
-stereotype: namespace
-label: cola的命名空间
-description: |
-    cola的Javascript库时所使用的名称。
+- name: cola
+  stereotype: namespace
+  label: cola的命名空间
+  description: |
+      cola的Javascript库时所使用的名称。
 
-properties:
-  - name: version
-    type: string
-    label: Cola的版本号
+  properties:
+    - name: version
+      type: string
+      label: Cola的版本号
 
-methods:
-  - name: on
-    type: cola
-    label: 绑定一个Cola的全局事件
-    description: |
-      <code>
-      cola.on("ready", function() { ... });
-      </code>
-    arguments:
-      - name: eventName
-        type: string
-        label: 事件名
-        description: |
-          利用事件名称，我们可以为某个事件监听器定义别名。例如 ready:temp 表示我们要为ready事件绑定事件，同时指定改事件监听器的别名为temp。
-      - name: listener
-        type: function
-        label: 事件监听器方法
+  methods:
+    - name: uniqueId
+      type: string
+      label: 返回一个属于当前页面的唯一ID。
 
-  - name: off
-    type: cola
-    label: 根据事件名解绑一个Cola全局事件下的监听器
-    description: |
-      <code>
-      cola.off("ready"); // 解绑ready事件下的所有监听器
-      cola.off("ready:temp"); // 解绑ready事件下别名为temp的监听器
-      </code>
-    arguments:
-      - name: eventName
-        type: string
-        label: 事件名
-        description: |
-          如果我们不在事件名中定义别名，那么此方法会解绑该事件下的所有监听器。
-          如果我们在事件名中定义了别名，那么此方法只会解绑与该别名匹配的监听器。
+    - name: on
+      type: cola
+      label: 绑定一个Cola的全局事件
+      description: |
+        <code>
+        cola.on("ready", function() { ... });
+        </code>
+      arguments:
+        - name: eventName
+          type: string
+          label: 事件名
+          description: |
+            利用事件名称，我们可以为某个事件监听器定义别名。例如 ready:temp 表示我们要为ready事件绑定事件，
+            同时指定改事件监听器的别名为temp。
+        - name: listener
+          type: function
+          label: 事件监听器方法
 
-  - name: off
-    type: cola
-    label: 解绑一个Cola全局事件下的监听器
-    arguments:
-      - name: eventName
-        type: string
-        label: 事件名，此处不支持使用事件别名
-      - name: listener
-        type: function
-        label: 要解绑的监听器方法
+    - name: off
+      type: cola
+      label: 根据事件名解绑一个Cola全局事件下的监听器
+      description: |
+        <code>
+        cola.off("ready"); // 解绑ready事件下的所有监听器
+        cola.off("ready:temp"); // 解绑ready事件下别名为temp的监听器
+        </code>
+      arguments:
+        - name: eventName
+          type: string
+          label: 事件名
+          description: |
+            如果我们不在事件名中定义别名，那么此方法会解绑该事件下的所有监听器。
+            如果我们在事件名中定义了别名，那么此方法只会解绑与该别名匹配的监听器。
 
-  - name: getListeners
-    type: [function]
-    label: 返回某Cola的全局事件下的所有事件监听器，如果没有绑定任何监听器则返回null。
-    arguments:
-      - name: eventName
-        type: string
-        label: 事件名，此处不支持使用事件别名
+    - name: off
+      type: cola
+      label: 解绑一个Cola全局事件下的监听器
+      arguments:
+        - name: eventName
+          type: string
+          label: 事件名，此处不支持使用事件别名
+        - name: listener
+          type: function
+          label: 要解绑的监听器方法
 
-  - name: ready
-    type: array[function]
-    label: 为Cola绑定一个ready事件的监听器。
-    description: |
-      此方法相当于cola.on("ready", ...)的快捷方式。请参考 <a href="base.html#method:cola.on">cola.on(eventName,listener)</a>
-    arguments:
-      - name: listener
-        type: function
-        label: 事件监听器方法
+    - name: getListeners
+      type: [function]
+      label: 返回某Cola的全局事件下的所有事件监听器，如果没有绑定任何监听器则返回null。
+      arguments:
+        - name: eventName
+          type: string
+          label: 事件名，此处不支持使用事件别名
 
-  - name: setting
-    type: any
-    label: 读取一个设置项
-    description: |
-      目前Cola支持的设置项有:
-      <li>defaultChartset: 默认使用的字符集。默认值为utf-8。</li>
-    arguments:
-      - name: key
-        type: string
+    - name: ready
+      type: array[function]
+      label: 为Cola绑定一个ready事件的监听器。
+      description: |
+        此方法相当于cola.on("ready", ...)的快捷方式。请参考 <a href="base.html#method:cola.on">cola.on(eventName,listener)</a>
+      arguments:
+        - name: listener
+          type: function
+          label: 事件监听器方法
 
-  - name: setting
-    type: cola
-    label: 改写一个Cola设置项
-    arguments:
-      - name: key
-        type: string
-        label: 设置项的名称
-      - name: value
-        type: any
-        label: 设置项的值
+    - name: setting
+      type: any
+      label: 读取一个设置项
+      description: |
+        目前Cola支持的设置项有:
+        <li>defaultChartset: 默认使用的字符集。默认值为 utf-8</li>
+        <li>defaultNumberFormat: 默认的数值格式。默认值为 #,##0.##</li>
+        <li>defaultDateFormat: 默认的日期格式。默认值为 yyyy-MM-dd</li>
+        <li>defaultDateInputFormat: 默认的日期输入格式。默认值为 yyyy-MM-dd</li>
+        <li>defaultTimeFormat: 默认的时间格式。默认值为 HH:mm:ss</li>
+        <li>defaultTimeInputFormat: 默认的时间输入格式。默认值为 HH:m:mss</li>
+        <li>defaultDateTimeFormat: 默认的日期+时间格式。默认值为 yyyy-MM-dd HH:mm:ss</li>
+        <li>defaultDateTimeInputFormat: 默认的日期+时间输入格式。默认值为 yyyy-MM-dd HH:m:mss</li>
+        <li>defaultSubmitDateFormat: 默认的用于数据提交的日期格式。默认值为 yyyy-MM-dd'T'HH:mm:ss(.fff)zzz</li>
+      arguments:
+        - name: key
+          type: string
 
-  - name: setting
-    type: cola
-    label: 写入一批Cola设置项
-    arguments:
-      - name: config
-        type: json
-        label: 设置项的名称和值的JSON对象。
+    - name: setting
+      type: cola
+      label: 改写一个Cola设置项
+      arguments:
+        - name: key
+          type: string
+          label: 设置项的名称
+        - name: value
+          type: any
+          label: 设置项的值
 
-  - name: setting(key)
-    type: any
-    label: 读取Cola设置项
-    arguments:
-      - name: key
-        type: string
-        label: 设置项的名称
+    - name: setting
+      type: cola
+      label: 写入一批Cola设置项
+      arguments:
+        - name: config
+          type: json
+          label: 设置项的名称和值的JSON对象。
 
-  - name: resource
-    type: cola
-    label: 设置一批资源项
-    description: |
-      此功能通常用于实现客户端的国际化功能。即根据名称来管理一组资源项。实际使用时，我们可以根据语种的的不同为前端装入不同的资源文件。
-    arguments:
-      - name: bundle
-        type: json
-        label: 以JSON形式定义的一组资源项。
+    - name: setting
+      type: any
+      label: 读取Cola设置项
+      arguments:
+        - name: key
+          type: string
+          label: 设置项的名称
 
-  - name: resource(key)
-    type: string
-    label: 根据名称获得一个资源项
-    arguments:
-      - name: key
-        type: string
-        label: 资源项的名称
+    - name: resource
+      type: cola
+      label: 设置一批资源项
+      description: |
+        此功能通常用于实现客户端的国际化功能。即根据名称来管理一组资源项。实际使用时，我们可以根据语种的的不同为前端装入不同的资源文件。
+      arguments:
+        - name: bundle
+          type: json
+          label: 以JSON形式定义的一组资源项。
 
-  - name: resource
-    type: cola
-    label: 根据名称获得一个资源项，同时利用传入的参数对资源进行格式化处理
-    description: |
-      资源项中可以带有{0}、{1}这样的占位符，在实际的使用过程中Cola利用此方法传入的param参数依次替换资源项中的占位符并返回。例如:
-      <code>
-      cola.resource({ "greeting": "Hello {0}!" });  // 初始化一个资源项
-      var greeting = cola.resource("greeting", "Nick"); // greeting变量的值将是"Hello Nick!"
-      </code>
-    arguments:
-      - name: key
-        type: string
-        label: 资源项的名称
-      - name: param
-        type: any
-        label: 参数
+    - name: resource
+      type: cola
+      label: 根据名称获得一个资源项，同时利用传入的参数对资源进行格式化处理
+      description: |
+        资源项中可以带有{0}、{1}这样的占位符，在实际的使用过程中Cola利用此方法传入的param参数依次替换资源项中的占位符并返回。例如:
+        <code>
+        cola.resource({ "greeting": "Hello {0}!" });  // 初始化一个资源项
+        var greeting = cola.resource("greeting", "Nick"); // greeting变量的值将是"Hello Nick!"
+        </code>
+      arguments:
+        - name: key
+          type: string
+          label: 资源项的名称
+        - name: param
+          optinal: true
+          type: any
+          label: 参数
 
-  - name: tag
-    type: [cola.Element]
-    label: 根据给定的标签返回所有拥有此标签的对象。
-    description: |
-      此方法返回的数组并不是一个单纯的数组，首先我们可以完全按照数组的方式来使用它。
-      然后在即基础上这个数据拥有几个额外的方法，使得我们可以方便的对其中的所有对象执行统一的操作。这三个额外的方法包括：
-      <ul>
-        <li><a href="cola.Element.html#method:set">set()</a></li>
-        <li><a href="cola.Element.html#method:on">on()</a></li>
-        <li><a href="cola.Element.html#method:off">off()</a></li>
-      </ul>
-      以上这些方法的使用方法可以完全参照cola.Element中同名方法的描述。
-    arguments:
-      - name: tag
-        type: string
-        label: 要查找的标签
+  events:
+    - name: beforeInit
+      label: 当Cola将要开始进行页面初始化之前触发的事件
+      description: |
+        此事件发生在页面的第一批DOM装载完成之后，Cola尚未对DOM进行解析之前。
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
 
-events:
-  - name: ready
-    label: 当Cola完成页面初始化之后触发的事件
-    arguments:
-      - name: self
-        type: cola
-        label: cola对象本身
-      - name: arg
+    - name: ready
+      label: 当Cola完成页面初始化之后触发的事件
+      description: |
+        此事件发生在页面的第一批DOM装载完成之后，以及Cola王城对第一批DOM进行解析之后。
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
 
-  - name: settingChange
-    label: 当Cola的某个设置项的值被改变时触发的事件
-    arguments:
-      - name: self
-        type: cola
-        label: cola对象本身
-      - name: arg
-        properties:
-          - name: key
-            type: string
-            label: 被改变的设置项的名称
+    - name: settingChange
+      label: 当Cola的某个设置项的值被改变时触发的事件
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
+          properties:
+            - name: key
+              type: string
+              label: 被改变的设置项的名称
 
-  - name: excpetion
-    label: 当Cola抛出一个异常是触发的事件
-    description: |
-      注意，此处所指的异常特指那些由Cola框架抛出的异常。不能认为通过此事件可以捕获所有的前端异常。
-    arguments:
-      - name: self
-        type: cola
-        label: cola对象本身
-      - name: arg
-        properties:
-          - name: exception
-            type: cola.Exception
-            label: 异常对象
+    - name: excpetion
+      label: 当Cola抛出一个异常是触发的事件
+      description: |
+        注意，此处所指的异常特指那些由Cola框架抛出的异常。不能认为通过此事件可以捕获所有的前端异常。
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
+          properties:
+            - name: exception
+              type: cola.Exception
+              label: 异常对象
 
-  - name: beforeRouterSwitch
-    label: 当当前Router发生切换之前触发的事件
-    description: |
-      参考 <a href="../docs/router">Router(路由)</a></li>
-    arguments:
-      - name: self
-        type: cola
-        label: cola对象本身
-      - name: arg
-        properties:
-          - name: path
-            type: string
-            label: 当前的子路径
-          - name: prev
-            type: json
-            label: 当前的Router
-          - name: next
-            type: json
-            label: 将要切换到的Router
+    - name: beforeRouterSwitch
+      label: 当前Router发生切换之前触发的事件
+      description: |
+        参考 <a href="../docs/router">Router(路由)</a></li>
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
+          properties:
+            - name: path
+              type: string
+              label: 当前的子路径
+            - name: prev
+              type: json
+              label: 当前的Router
+            - name: next
+              type: json
+              label: 将要切换到的Router
 
-  - name: routerSwitch
-    label: 当当前Router发生切换之后触发的事件
-    description: |
-      参考 <a href="../docs/router">Router(路由)</a></li>
-    arguments:
-      - name: self
-        type: cola
-        label: cola对象本身
-      - name: arg
-        properties:
-          - name: path
-            type: string
-            label: 当前的子路径
-          - name: prev
-            type: json
-            label: 之前的Router
-          - name: next
-            type: json
-            label: 当前的Router
+    - name: routerSwitch
+      label: 当当前Router发生切换之后触发的事件
+      description: |
+        参考 <a href="../docs/router">Router(路由)</a></li>
+      arguments:
+        - name: self
+          type: cola
+          label: cola对象本身
+        - name: arg
+          properties:
+            - name: path
+              type: string
+              label: 当前的子路径
+            - name: prev
+              type: json
+              label: 之前的Router
+            - name: next
+              type: json
+              label: 当前的Router
 
+- name: cola.browser
+  stereotype: namespace
+  label: 当前浏览器信息
+  description: |
+      此命名空间用于标识当前浏览器的类型和版本，注意一下的各属性有可能存在两个值同时为true的情况。
+      例如：当使用Safari浏览器时webkit和safari将同时为true。
+  properties:
+    - name: webkit
+      type: boolean
+      label: 是否webkit内核的浏览器
+      description: |
+          目前仍把Chrome当做webkit内核的浏览器，今后这一规则有可能会改变。
+
+    - name: chrome
+      type: boolean
+      label: 是否Chrome浏览器
+
+    - name: safari
+      type: boolean
+      label: 是否Safari浏览器
+
+    - name: ie
+      type: boolean
+      label: 是否IE浏览器
+
+    - name: mozilla
+      type: boolean
+      label: 是否Firefox浏览器
+
+    - name: opera
+      type: boolean
+      label: 是否Opera浏览器
+
+    - name: version
+      type: string
+      label: 浏览器的版本号
+
+- name: cola.os
+  stereotype: namespace
+  label: 当前操作系统信息
+  properties:
+    - name: ios
+      type: boolean
+      label: 是否iOS系统
+
+    - name: android
+      type: boolean
+      label: 是否Android系统
+
+- name: cola.device
+  stereotype: namespace
+  label: 当前设备信息
+  properties:
+    - name: mobile
+      type: boolean
+      label: 是否移动设备
+
+    - name: desktop
+      type: boolean
+      label: 是否桌面PC
+
+    - name: phone
+      type: boolean
+      label: 是否手机
+
+    - name: pad
+      type: boolean
+      label: 是否平板
