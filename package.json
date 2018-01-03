@@ -6,9 +6,6 @@
     "doc": "doc",
     "test": "test"
   },
-  "scripts": {
-    "test": "mocha"
-  },
   "devDependencies": {
     "chai": "^2.3.0",
     "coffee-script": "^1.12.7",
