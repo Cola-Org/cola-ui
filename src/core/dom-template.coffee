@@ -1,4 +1,4 @@
-IGNORE_NODES = ["SCRIPT", "STYLE", "META", "TEMPLATE"]
+IGNORE_NODES = [ "SCRIPT", "STYLE", "META", "TEMPLATE" ]
 ALIAS_REGEXP = new RegExp("\\$default", "g")
 
 cola._mainInitFuncs = []
@@ -27,10 +27,10 @@ cola._rootFunc = ()->
 			dom ?= document.body
 
 			if not model._doms
-				model._doms = if dom instanceof Array then dom else [dom]
+				model._doms = if dom instanceof Array then dom else [ dom ]
 			else
 				if not model._doms instanceof Array
-					model._doms = [model._dom]
+					model._doms = [ model._dom ]
 				model._doms.concat(dom)
 			delete model._$doms
 
@@ -151,7 +151,7 @@ cola._renderDomTemplate = (dom, scope, context = {})->
 _doRenderDomTemplate = (dom, scope, context)->
 	return if dom.nodeType is 8 or dom.nodeName is "SVG"
 	return if dom.nodeType is 1 and
-		(dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
+	  (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
 	return if IGNORE_NODES.indexOf(dom.nodeName) > -1
 
 	if dom.nodeType is 3 # #text
@@ -159,6 +159,39 @@ _doRenderDomTemplate = (dom, scope, context)->
 		parts = cola._compileText(scope, bindingExpr)
 		buildContent(parts, dom, scope) if parts?.length
 		return dom
+
+	else if dom.nodeType is 1 # #element
+		if dom.className.indexOf(cola.constants.LAZY_CLASS) >= 0 and
+		  dom.className.split(' ').indexOf(cola.constants.LAZY_CLASS) >= 0
+			$(dom).on "visibilityChange", (evt, data)->
+				return unless data.visible
+				if not dom._rendered
+					dom._rendered = true
+					cola._renderDomTemplate(dom, scope)
+				else
+					cola.util._unfreezeDom(dom)
+				return
+
+			if dom.offsetWidth is 0 and dom.offsetHeight is 0
+				return
+			else
+				dom._rendered = true
+		else if dom.className.indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0 and
+		  dom.className.split(' ').indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0
+			cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
+			$(dom).on "visibilityChange", (evt, data)->
+				return unless data.visible
+				if not dom._contentRendered
+					dom._contentRendered = true
+					cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
+					cola._renderDomTemplate(dom, scope)
+				else
+					child = dom.firstChild
+					while child
+						cola.util._unfreezeDom(child)
+						child = child.nextSibling
+				return
+
 	else if dom.nodeType is 11 # #documentFragment
 		child = dom.firstElementChild
 		while child
@@ -274,8 +307,6 @@ _doRenderDomTemplate = (dom, scope, context)->
 		if cola._userDomCompiler.$endContent.length
 			for customDomCompiler in cola._userDomCompiler.$endContent
 				customDomCompiler(scope, dom, context, childContext)
-	else
-		cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
 
 	if oldScope
 		scope = oldScope
@@ -382,7 +413,7 @@ cola._domFeatureBuilder =
 			feature = new cola._DomClassFeature(attrValue)
 			features.push(feature)
 		catch
-			# do nothing
+		# do nothing
 
 		if not features.length
 			classConfig = cola.util.parseStyleLikeString(attrValue)

@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./util")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 _$ = $()
 _$.length = 1
 this.$fly = (dom)->
@@ -24,20 +16,20 @@ cola.util.setText = (dom, text = "")->
 		dom.innerText = text
 	return
 
-doms = {}
 cola.util.cacheDom = (ele)->
 	cola._ignoreNodeRemoved = true
-	if not doms.hiddenDiv
-		doms.hiddenDiv = $.xCreate(
+	hiddenDiv = cola.util.cacheDom.hiddenDiv
+	if not hiddenDiv
+		cola.util.cacheDom.hiddenDiv = hiddenDiv = $.xCreate(
 			tagName: "div"
 			id: "_hidden_div"
 			style:
 				display: "none"
 		)
-		doms.hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-		document.body.appendChild(doms.hiddenDiv)
+		hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
+		document.body.appendChild(hiddenDiv)
 
-	doms.hiddenDiv.appendChild(ele)
+	hiddenDiv.appendChild(ele)
 	cola._ignoreNodeRemoved = false
 	return
 
@@ -202,7 +194,7 @@ _doNodeInserted = (node)->
 	return
 
 _doNodeRemoved = (node)->
-	if node.parentNode is doms.hiddenDiv
+	if node.parentNode is cola.util.cacheDom.hiddenDiv
 		return
 
 	id = cola.util._getNodeDataId(node)
@@ -267,6 +259,50 @@ setInterval(()->
 	if changed then cola.util._nodesToBeRemove = {}
 	return
 , 5000)
+
+jQuery.event.special.domFreezed =
+	setup: ()->
+		@_hasFreezedListener = true
+		return
+	teardown: ()->
+		delete @_hasFreezedListener
+		return
+
+jQuery.event.special.domUnfreezed =
+	setup: ()->
+		@_hasUnfreezedListener = true
+		return
+	teardown: ()->
+		delete @_hasUnfreezedListener
+		return
+
+cola.util._freezeDom = (dom)->
+	oldFreezedCount = dom._freezedCount
+	dom._freezedCount = (dom._freezedCount || 0) + 1
+	if oldFreezedCount is 0
+		if dom._hasFreezedListener
+			$fly(dom).trigger("domFreezed")
+
+		child = dom.firstChild
+		while child
+			cola.util._freezeDom(child)
+			child = child.nextSibling
+		return
+	return
+
+cola.util._unfreezeDom = (dom)->
+	if dom._freezedCount > 0
+		dom._freezedCount--
+		if dom._freezedCount is 0
+			if dom._hasUnfreezedListener
+				$fly(dom).trigger("domUnfreezed")
+
+			child = dom.firstChild
+			while child
+				cola.util._unfreezeDom(child)
+				child = child.nextSibling
+		return
+	return
 
 cola.util.getGlobalTemplate = (name)->
 	template = document.getElementById(name)

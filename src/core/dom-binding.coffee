@@ -1,13 +1,3 @@
-_freezeDomBinding = (node, data)->
-	domBinding = data[cola.constants.DOM_BINDING_KEY]
-	domBinding?.freezed = true
-	return
-
-_unfreezeDomBinding = (node, data)->
-	domBinding = data[cola.constants.DOM_BINDING_KEY]
-	delete domBinding?.freezed
-	return
-
 _destroyDomBinding = (node, data)->
 	domBinding = data[cola.constants.DOM_BINDING_KEY]
 	domBinding?.destroy()
@@ -26,8 +16,6 @@ class cola._DomBinding
 		if not clone
 			cola.util.userData(dom, cola.constants.DOM_BINDING_KEY, @)
 
-		cola.util.onNodeRemove(dom, _freezeDomBinding)
-		cola.util.onNodeInsert(dom, _unfreezeDomBinding)
 		cola.util.onNodeDispose(dom, _destroyDomBinding)
 
 	destroy: ()->
@@ -48,7 +36,7 @@ class cola._DomBinding
 		feature.init(@, forceInit or @forceInit)
 
 		if not @features
-			@features = [feature]
+			@features = [ feature ]
 		else
 			@features.push(feature)
 
@@ -81,7 +69,16 @@ class cola._DomBinding
 		pipe = {
 			path: path
 			processMessage: (bindingPath, path, type, arg)=>
-				return if @freezed
+				if not @dom.parentNode or @dom.parentNode is cola.util.cacheDom.hiddenDiv
+					cola.util._freezeDom(@dom)
+				if @dom._freezedCount > 0
+					if not @_hasMissingBindingMessage
+						@_hasMissingBindingMessage = true
+						@$dom.one "domUnfreezed", ()=>
+							delete @_hasMissingBindingMessage
+							@refresh()
+							return
+					return
 
 				if not feature.disabled
 					if arg.timestamp <= feature._lastTimestamp then return
@@ -97,7 +94,7 @@ class cola._DomBinding
 
 		holder = @[feature.id]
 		if not holder
-			@[feature.id] = [pipe]
+			@[feature.id] = [ pipe ]
 		else
 			holder.push(pipe)
 		return
@@ -146,8 +143,6 @@ class cola._RepeatDomBinding extends cola._DomBinding
 			cola.util.userData(headerNode, cola.constants.DOM_BINDING_KEY, @)
 			cola.util.userData(headerNode, cola.constants.REPEAT_TEMPLATE_KEY, dom)
 
-			cola.util.onNodeRemove(headerNode, _freezeDomBinding)
-			cola.util.onNodeInsert(headerNode, _unfreezeDomBinding)
 			cola.util.onNodeDispose(headerNode, (node, data)->
 				_destroyDomBinding(headerNode, data)
 				$fly(dom).remove()

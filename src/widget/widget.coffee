@@ -47,24 +47,6 @@ class cola.ClassNamePool
 		if !!status then @add(className) else @remove(className)
 		return
 
-_freezeRenderableElement = (node, data)->
-	element = data[cola.constants.DOM_ELEMENT_KEY]
-	if element
-		element._freezed = (element._freezed or 0) + 1
-	return
-
-_unfreezeRenderableElement = (node, data)->
-	element = data[cola.constants.DOM_ELEMENT_KEY]
-	element?._freezed--
-	return
-
-_destroyRenderableElement = (node, data)->
-	element = data[cola.constants.DOM_ELEMENT_KEY]
-	if not element?._destroyed
-		element._domRemoved = true
-		element.destroy()
-	return
-
 ###
     可渲染元素
 ###
@@ -82,14 +64,20 @@ class cola.RenderableElement extends cola.Element
 		@_setDom(dom, true) if dom
 
 	_initDom: (dom)-> return # 此方法主要负责初始化内部Dom
-	_parseDom: (dom)-> return # 此方法主要负责解析dom 子类应覆写此方法
+	_parseDom: (dom)-> return # 此方法主要负责解析dom子类应覆写此方法
 	_setDom: (dom, parseChild)->
 		return unless dom
 		@_dom = dom
 		cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, @)
-		cola.util.onNodeRemove(dom, _freezeRenderableElement)
-		cola.util.onNodeInsert(dom, _unfreezeRenderableElement)
-		cola.util.onNodeDispose(dom, _destroyRenderableElement)
+		cola.util.onNodeRemove(dom, cola.util._freezeDom)
+		cola.util.onNodeInsert(dom, cola.util._unfreezeDom)
+		cola.util.onNodeDispose(dom, (node, data)->
+			element = data[cola.constants.DOM_ELEMENT_KEY]
+			if not element?._destroyed
+				element._domRemoved = true
+				element.destroy()
+			return
+		)
 		if parseChild then @_parseDom(dom)
 		@_initDom(dom)
 		arg =
@@ -117,7 +105,19 @@ class cola.RenderableElement extends cola.Element
 		return
 
 	_refreshDom: ()->
-		return if not @_dom or @_destroyed or @_freezed > 0
+		return if not @_dom or @_destroyed
+
+		if not @dom.parentNode or @dom.parentNode is cola.util.cacheDom.hiddenDiv
+			cola.util._freezeDom(@dom)
+		if @dom._freezedCount > 0
+			if not @_hasMissingWidgetMessage
+				@_hasMissingWidgetMessage = true
+				@$dom.one "domUnfreezed", ()=>
+					delete @_hasMissingWidgetMessage
+					@refresh()
+					return
+			return
+
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
 		className = @constructor.CLASS_NAME
 		if className
@@ -215,7 +215,6 @@ class cola.Widget extends cola.RenderableElement
 	@SEMANTIC_CLASS: [ "left floated", "right floated" ]
 
 	@attributes:
-
 		float:
 			refreshDom: true
 			enum: [ "left", "right", "" ]

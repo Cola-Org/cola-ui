@@ -10,7 +10,8 @@ cola.constants = {
 	IGNORE_DIRECTIVE: "c-ignore"
 
 	SHOW_ON_READY_CLASS: "show-on-ready"
-	ACTIVE_ON_VISIBLE_CLASS: "active-on-visible"
+	LAZY_CLASS: "lazy"
+	LAZY_CONTENT_CLASS: "lazy-content"
 	COLLECTION_CURRENT_CLASS: "current"
 
 	DEFAULT_PATH: "$root"
