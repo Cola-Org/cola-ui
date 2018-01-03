@@ -72,7 +72,7 @@ cola.util.update = (url, data, options = {})->
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
 	context.messages ?= {}
-	if not options.ignoreValidation
+	if not options.disableValidators
 		if context.messages.error
 			deferred = $.Deferred().reject(messages: context.messages)
 

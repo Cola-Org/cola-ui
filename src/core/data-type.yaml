@@ -29,6 +29,10 @@
     即用于描述Entity型数据的数据类型。此种数据类型最主要的作用是利用其中的properties来描述Entity的某些属性。
 
   attributes:
+    - name: disableValidators
+      type: boolean
+      label: 是否禁用改数据类型下的所有属性中的校验器
+
     - name: properties
       type: json || [json] || cola.util.KeyedArray
       label: 属性描述的集合
@@ -81,6 +85,15 @@
       type: cola.util.KeyedArray
       label: 根据所有属性描述
       description: 此方法等同于get("properties")
+
+  events:
+    - name: beforeCurrentChange
+      label: 类型为该DataType的某个实体集合中的当前实体切换之前触发的事件
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label:
+        - name: arg
 
 - name: cola.Property
   stereotype: class

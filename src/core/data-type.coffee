@@ -1,14 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	XDate = require("./../lib/xdate")
-	cola = require("./expression")
-	require("./date")
-	module?.exports = cola
-else
-	XDate = @XDate
-	cola = @cola
-#IMPORT_END
-
 class cola.DataType extends cola.Definition
 
 class cola.BaseDataType extends cola.DataType
@@ -68,16 +57,10 @@ EntityDataType
 
 class cola.EntityDataType extends cola.DataType
 	@attributes:
-		validatorsDisabled: # Deprecated
+		disableValidators:
 			setter: (disabled)->
 				for propertyDef in @_properties.elements
-					propertyDef.set("validatorsDisabled", disabled)
-				return
-
-		ignoreValidation:
-			setter: (disabled)->
-				for propertyDef in @_properties.elements
-					propertyDef.set("ignoreValidation", disabled)
+					propertyDef.set("disableValidators", disabled)
 				return
 
 		properties:
@@ -203,14 +186,7 @@ class cola.Property extends cola.Definition
 		loadForNewEntity:
 			readOnlyAfterCreate: true
 
-		validatorsDisabled:   # Deprecated
-			setter: (disabled)->
-				if @_validators
-					for validator in @_validators
-						validator.set("disabled", disabled)
-				return
-
-		ignoreValidation:
+		disableValidators:
 			setter: (disabled)->
 				if @_validators
 					for validator in @_validators
