@@ -5,10 +5,10 @@ module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: pkg
 		clean:
-			build: ["dest/work", "dist"]
-			workTemp: ["dest/work/cola"]
-			dev: ["dest/dev"]
-			"core-widget": ["dist/cola-widget.js"]
+			build: [ "dest/work", "dist" ]
+			workTemp: [ "dest/work/cola" ]
+			dev: [ "dest/dev" ]
+			"core-widget": [ "dist/cola-widget.js" ]
 		coffee:
 			dev:
 				options:
@@ -64,34 +64,21 @@ module.exports = (grunt) ->
 			libs:
 				expand: true
 				cwd: "src"
-				src: ["lib/**"]
+				src: [ "lib/**" ]
 				dest: "dest/dev"
 
 			semantic:
 				expand: true
 				cwd: "src/lib/semantic-ui"
-				src: ["themes/**", "semantic.css", "semantic.js"]
+				src: [ "themes/**", "semantic.css", "semantic.js" ]
 				dest: "dist"
 
 			apiResources:
 				expand: true
 				cwd: "node_modules/grunt-cola-ui-build"
-				src: ["resources/**"]
+				src: [ "resources/**" ]
 				dest: "api"
 
-		mochaTest:
-			test:
-				options:
-					mocha:
-						ui: "qunit"
-					reporter: "spec"
-				src: ["test/mocha/*.js"]
-		qunit:
-			all:
-				options:
-					urls: [
-						"http://localhost:9001/test/qunit/all.html"
-					]
 		uglify:
 			options:
 				expand: true
@@ -111,24 +98,19 @@ module.exports = (grunt) ->
 				files: [
 					expand: true
 					cwd: "src"
-					src: ["**/*.yaml"]
+					src: [ "**/*.yaml" ]
 					dest: "api"
 				]
 		watch:
 			coffee:
-				files: ["src/**/*.coffee"]
+				files: [ "src/**/*.coffee" ]
 				tasks: "coffee:dev"
 			less:
-				files: ["src/**/*.less"]
+				files: [ "src/**/*.less" ]
 				tasks: "less:dev"
 			libs:
-				files: ["src/lib/**"]
+				files: [ "src/lib/**" ]
 				tasks: "copy:libs"
-		connect:
-			testServer:
-				options:
-					port: 9001
-					base: "."
 		yamlToDoc:
 			api:
 				options:
@@ -138,7 +120,7 @@ module.exports = (grunt) ->
 					{
 						expand: true
 						cwd: "src"
-						src: ["**/*.yaml"]
+						src: [ "**/*.yaml" ]
 						dest: "api"
 					}
 				]
@@ -153,7 +135,7 @@ module.exports = (grunt) ->
 		"cola-ui-license":
 			options:
 				license: """
-/*! Colla - #{pkg.version}
+/*! Cola - #{pkg.version}
  * Copyright (C) 2015-2017 Benny Bao & Alex Tong.
  * Licensed under the MIT license */
 
@@ -172,18 +154,18 @@ module.exports = (grunt) ->
 					"dist/3rd.js": sources.lib.js
 			cola:
 				files:
-					"dist/cola.js": ["dist/cola-core.js", "dist/cola-widget.js"]
+					"dist/cola.js": [ "dist/cola-core.js", "dist/cola-widget.js" ]
 			all:
 				files:
-					"dist/all/javascript.js": ["dist/3rd.js", "dist/semantic.js", "dist/cola.js"]
-					"dist/all/css.js": ["dist/semantic.css", "dist/cola.css"]
+					"dist/all/javascript.js": [ "dist/3rd.js", "dist/semantic.js", "dist/cola.js" ]
+					"dist/all/css.js": [ "dist/semantic.css", "dist/cola.css" ]
 		cssmin:
 			target:
 				files: [
 					{
 						expand: true
 						cwd: "dist"
-						src: ["cola.css", "semantic.css"]
+						src: [ "cola.css", "semantic.css" ]
 						dest: "dist"
 						ext: ".min.css"
 					}
@@ -226,34 +208,36 @@ module.exports = (grunt) ->
 
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-less"
-	grunt.loadNpmTasks "grunt-mocha-test"
-	grunt.loadNpmTasks "grunt-contrib-qunit"
 	grunt.loadNpmTasks "grunt-contrib-uglify"
 	grunt.loadNpmTasks "grunt-yaml"
 	grunt.loadNpmTasks "grunt-contrib-watch"
 	grunt.loadNpmTasks "grunt-contrib-copy"
 	grunt.loadNpmTasks "grunt-contrib-clean"
-	grunt.loadNpmTasks "grunt-contrib-connect"
 	grunt.loadNpmTasks "grunt-cola-ui-build"
 	grunt.loadNpmTasks "grunt-contrib-concat"
 	grunt.loadNpmTasks "grunt-contrib-rename"
 	grunt.loadNpmTasks "grunt-contrib-cssmin"
 	grunt.loadNpmTasks "grunt-contrib-compress"
 
-	grunt.registerTask "mochaTask", ["mochaTest"]
-	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
-	grunt.registerTask "test", ["mochaTask", "qunitTask"]
-
-	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
-	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
-	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
-	grunt.registerTask "w", ["watch"]
-	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
+	grunt.registerTask "compile", [ "clean:dev", "coffee:dev", "less:dev", "copy:libs" ]
+	grunt.registerTask "api", [ "yamlToDoc", "copy:apiResources" ]
+	grunt.registerTask "all", [ "clean", "coffee", "less", "uglify", "copy" ]
+	grunt.registerTask "w", [ "watch" ]
+	grunt.registerTask "build", [
+		"clean:build",
+		"cola-ui-clean",
+		"coffee:cola-core",
+		"coffee:cola-widget",
 		"coffee:i18n",
-		"less:build", "cola-ui-license", "concat:3rd-core", "concat:3rd", "concat:cola",
-		"clean:core-widget", "copy:semantic",
+		"less:build",
+		"cola-ui-license",
+		"concat:3rd-core",
+		"concat:3rd",
+		"concat:cola",
+		"clean:core-widget",
+		"copy:semantic",
 		"uglify:build",
 		"cssmin",
-#								 "compress",
-		"clean:workTemp"]
-	grunt.registerTask "concat-all", ["build", "concat:all"]
+		#"compress",
+		"clean:workTemp" ]
+	grunt.registerTask "concat-all", [ "build", "concat:all" ]

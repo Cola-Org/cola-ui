@@ -1,10 +1,6 @@
 @cola = cola = ()->
 	return cola["_rootFunc"]?.apply(cola, arguments)
 
-#IMPORT_BEGIN
-module?.exports = cola
-#IMPORT_END
-
 cola.util = {}
 
 cola.constants = {
