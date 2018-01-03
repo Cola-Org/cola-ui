@@ -1,0 +1,293 @@
+name: cola.defaultAction
+stereotype: namespace
+label: 隐式Action
+description: |
+    此命名空间中的方法都将被用作绑定表达式中的隐式Action。
+
+methods:
+  - name: get
+    type: any
+    label: 根据传入的数据路径从Model中返回结果
+    description: |
+      此Action内部调用Model.get()方法。
+    arguments:
+      - name: path
+        type: string
+        label: 数据路径
+
+  - name: default
+    type: any
+    label: 返回默认值
+    description: |
+      如果第一个参数的值是有效的则返回第一个参数，否则返回第二个参数。
+      有效的含义是指利用Javascript语法的中的广义逻辑判断结果为true。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+      - name: defaultValue
+        type: any
+        label: 默认值
+
+  - name: int
+    type: int
+    label: 将传入的数据转换成int值。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: float
+    type: float
+    label: 将传入的数据转换成float值。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: bool
+    type: boolean
+    label: 将传入的数据转换成boolean值。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: is
+    type: boolean
+    label: 判断传入的参数是否为广义的逻辑true。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: not
+    type: boolean
+    label: 判断传入的参数是否为广义的逻辑false。
+    description: |
+      此方法的返回结果与is()相反。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: isEmpty
+    type: boolean
+    label: 判断传入的参数是否为空。
+    description: |
+      如果传入的参数为数组或实体集合，那么判断是否为空的依据是该数组(或集合)的长度是否为0。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: isNotEmpty
+    type: boolean
+    label: 判断传入的参数是否不为空。
+    description: |
+      此方法的返回结果与isEmpty()相反。
+    arguments:
+      - name: value
+        type: any
+        label: 参数值
+
+  - name: state
+    type: string
+    label: 返回一个数据实体的state。
+    arguments:
+      - name: entity
+        type: cola.Entity
+        label: 数据实体
+
+  - name: len
+    type: int
+    label: 返回一个字符串、数组或实体集合的长度。
+    arguments:
+      - name: data
+        type: string | array | cola.Entity
+        label: 字符串、数组或实体集合
+
+  - name: upperCase
+    type: string
+    label: 将传入的字符串转换为大写。
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: upperCase
+    type: string
+    label: 将传入的字符串转换为大写。
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: lowerCase
+    type: string
+    label: 将传入的字符串转换为小写。
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: capitalize
+    type: string
+    label: 将传入的字符串的首字母转换为大写。
+    arguments:
+      - name: str
+        type: string
+        label: 字符串
+
+  - name: resource
+    type: string
+    label: 返回一个国际化资源。
+    description: |
+      请参考cola.resource()方法。
+    arguments:
+      - name: key
+        type: string
+        label: 国际化资源键值
+      - name: params
+        type: [any]
+        optional: true
+        label: 参数
+
+  - name: filter
+    type: array
+    label: 过滤一个数组或实体集合。
+    description: |
+      请参考cola.util.filter()方法。
+    arguments:
+      - name: collection
+        type: array | cola.EntityList
+        label: 要过滤的数组或实体集合
+      - name: criteria
+        type: string | object
+        label: 过滤条件
+
+  - name: sort
+    type: array
+    label: 对一个数组或实体集合进行排序。
+    description: |
+      请参考cola.util.sort()方法。
+    arguments:
+      - name: collection
+        type: array | cola.EntityList
+        label: 要排序的数组或实体集合
+      - name: criteria
+        type: string | object
+        label: 排序条件
+
+  - name: top
+    type: array
+    label: 返回由数组或实体集合的前若干项组成的新数组。
+    arguments:
+      - name: collection
+        type: array | cola.EntityList
+        label: 原数组或实体集合
+      - name: top
+        type: int
+        optinal: true
+        defaultValue: 1
+        label: 指定要返回前多少项
+
+  - name: toJSON
+    type: string
+    label: 将传入的实体或实体集合转换成JSON字符串。
+    arguments:
+      - name: data
+        type: cola.Entity | cola.EntityList
+        label: 实体或实体集合
+
+  - name: formatDate
+    deprecated: true
+    type: string
+    label: 格式化输出日期。
+    description: |
+      建议改用format()。
+    arguments:
+      - name: date
+        type: date
+        label: 要格式化的日期
+      - name: format
+        type: string
+        label: 日期格式化样式
+
+  - name: formatNumber
+    deprecated: true
+    type: string
+    label: 格式化输出数值。
+    description: |
+      建议改用format()。
+    arguments:
+      - name: number
+        type: number
+        label: 要格式化的数字
+      - name: format
+        type: string
+        label: 数字格式化样式
+
+  - name: format
+    type: string
+    label: 可自动根据传入参数的类型来并利用pattern字符串进行格式化输出。
+    description: |
+      请参考cola.util.formatNumber()或cola.util.formatNumber()方法。
+    arguments:
+      - name: data
+        type: date | number
+        label: 要格式化的数值，通常为日期或数字
+      - name: pattern
+        type: string
+        label: 格式化样式
+
+  - name: caption
+    type: string
+    label: 根据传入的路径返回相应数据模型字段上的标题定义。
+    arguments:
+      - name: path
+        type: string
+        label: 数据路径
+
+  - name: number2Word
+    type: string
+    label: 将传入的数字转换为英文数字。
+    description: |
+      例如：1转换为one、7转换为seven。
+    arguments:
+      - name: num
+        type: int
+        label: 整数
+
+  - name: path
+    type: string
+    label: 将若干段路径片段拼接成一段完整的路径。
+    description: |
+      请参考cola.util.path()方法。
+    arguments:
+      - name: parts
+        type: [string]
+        label: 路径片段
+
+  - name: dictionary
+    type: array
+    label: 根据名称返回一个数据字典中的所有键值对数组。
+    description: |
+      请参考cola.util.dictionary()方法。
+    arguments:
+      - name: dictionaryName
+        type: string
+        label: 数据字典的名称
+
+  - name: translate
+    type: string
+    label: 根据传入的键值利用数据字典返回值对应的值。
+    description: |
+      请参考cola.util.translate()方法。
+    arguments:
+      - name: dictionaryName
+        type: string
+        label: 数据字典的名称
+      - name: key
+        type: string | any
+        label: 键值

@@ -1,0 +1,58 @@
+name: cola.contants
+stereotype: namespace
+label: cola中的常量
+description: |
+    cola中常用的静态值。
+
+properties:
+  - name: MESSAGE_REFRESH
+    type: string
+    label: 数据模型消息 - 完全刷新 (0)
+
+  - name: MESSAGE_PROPERTY_CHANGE
+    type: string
+    label: 数据模型消息 - 实体属性值变化 (1)
+    description: |
+        当某个数据实体中的属性值发生改变时触发。
+
+  - name: MESSAGE_CURRENT_CHANGE
+    type: string
+    label: 数据模型消息 - 当前实体变化 (10)
+    description: |
+        此种数据消息只会由实体集合发出，当实体集合中的当前实体切换时（包含由空切换为某个具体的实体，或由某个具体的实体切换为空）发出。
+
+  - name: MESSAGE_EDITING_STATE_CHANGE
+    type: string
+    label: 数据模型消息 - 实体编辑状态变化 (11)
+    description: |
+        当实体的state值发生改变是触发的消息。
+
+  - name: MESSAGE_VALIDATION_STATE_CHANGE
+    type: string
+    label: 数据模型消息 - 实体校验状态变化 (15)
+    description: |
+        当实体中某属性的校验状态或校验信息发生改变是触发的消息。
+
+  - name: MESSAGE_INSERT
+    type: string
+    label: 数据模型消息 - 实体集合插入 (20)
+    description: |
+        当向实体集合中插入一个新的实体时触发的消息。
+
+  - name: MESSAGE_REMOVE
+    type: string
+    label: 数据模型消息 - 实体集合删除 (21)
+    description: |
+        当从实体集合中删除一个实体时触发的消息。
+
+  - name: MESSAGE_LOADING_START
+    type: string
+    label: 数据模型消息 - 开始装载 (30)
+    description: |
+        当某实体集合和实体中的某个属性开始执行异步数据装载时触发的消息。
+
+  - name: MESSAGE_LOADING_END
+    type: string
+    label: 数据模型消息 - 结束装载 (31)
+    description: |
+        当某实体集合和实体中的某个属性完成行异步数据装载时触发的消息。

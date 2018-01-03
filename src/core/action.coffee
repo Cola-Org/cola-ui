@@ -1,11 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	cola = require("./model")
-	module?.exports = cola
-else
-	cola = @cola
-#IMPORT_END
-
 defaultActionTimestamp = 0
 
 cola.defaultAction = (name, fn)->
@@ -41,9 +33,9 @@ cola.defaultAction["default"] = (value, defaultValue = "")-> value or defaultVal
 cola.defaultAction["int"] = (value)-> +value or 0
 cola.defaultAction["float"] = (value)-> +value or 0
 
-cola.defaultAction["is"] = (value)-> !!value
-cola.defaultAction["bool"] = cola.defaultAction.is
-cola.defaultAction["not"] = (value)-> not value
+cola.defaultAction["bool"] = (value)-> !!value
+cola.defaultAction["is"] = -> cola.defaultAction.bool
+cola.defaultAction["not"] = (value)-> !value
 
 cola.defaultAction.isEmpty = (value)->
 	if value instanceof Array
@@ -62,15 +54,15 @@ cola.defaultAction.state = (entity)-> entity?.state
 cola.defaultAction.len = (value)->
 	if not value
 		return 0
-	if value instanceof Array
+	if value instanceof Array or value instanceof string
 		return value.length
 	if  value instanceof cola.EntityList
 		return value.entityCount
 	return 0
 
-cola.defaultAction["upperCase"] = (value)-> value?.toUpperCase()
-cola.defaultAction["lowerCase"] = (value)-> value?.toLowerCase()
-cola.defaultAction["capitalize"] = (value)-> cola.util.capitalize(value)
+cola.defaultAction["upperCase"] = (str)-> str?.toUpperCase()
+cola.defaultAction["lowerCase"] = (str)-> str?.toLowerCase()
+cola.defaultAction["capitalize"] = (str)-> cola.util.capitalize(str)
 
 cola.defaultAction.resource = (key, params...)-> cola.resource(key, params...)
 
@@ -117,9 +109,6 @@ cola.defaultAction.caption = (path)->
 
 _numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"]
 cola.defaultAction.number2Word = (number)-> _numberWords[number]
-
-cola.defaultAction.backgroundImage = (url, defaultUrl)->
-	if url then "url(#{url})" else (defaultUrl or "none")
 		
 cola.defaultAction.path = (parts...)-> cola.util.path(parts)
 

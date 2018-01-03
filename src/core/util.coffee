@@ -128,16 +128,16 @@ cola.util.cancelDelay = (owner, name)->
 		clearTimeout(timerId)
 	return
 
-cola.util.formatDate = (date, format)->
+cola.util.formatDate = (date, pattern)->
 	return "" unless date?
 	if not (date instanceof XDate)
 		date = new XDate(date)
-	return date.toString(format or cola.setting("defaultDateFormat"))
+	return date.toString(pattern or cola.setting("defaultDateFormat"))
 
-cola.util.formatNumber = (number, format)->
+cola.util.formatNumber = (number, pattern)->
 	return "" unless number?
 	return number if isNaN(number)
-	return formatNumber(format or cola.setting("defaultNumberFormat"), number)
+	return formatNumber(pattern or cola.setting("defaultNumberFormat"), number)
 
 cola.util.format = (value, format)->
 	if value instanceof Date
