@@ -8,7 +8,11 @@ class cola.CardBook extends cola.AbstractItemGroup
 
 	_initDom: (dom)->
 		super(dom)
-		if @_items then @_itemsRender()
+		if @_items
+			@_itemsRender()
+			for item in @_items
+				if not $fly(item).hasClass("active")
+					cola.util._freezeDom(item)
 		return
 
 	_parseDom: (dom)->
@@ -38,8 +42,14 @@ class cola.CardBook extends cola.AbstractItemGroup
 					newItem: newItem
 				return @ if @fire("beforeChange", @, arg) is false
 				@_currentIndex = index
-				if oldItem then $(oldItem).removeClass("active")
-				if newItem then $(newItem).addClass("active")
+				if oldItem
+					$(oldItem).removeClass("active")
+					cola.util._freezeDom(oldItem)
+
+				if newItem
+					$(newItem).addClass("active")
+					cola.util._unfreezeDom(newItem)
+
 				@fire("change", @, arg)
 		else
 			@_currentIndex = index
