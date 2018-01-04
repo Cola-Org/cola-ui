@@ -26,6 +26,7 @@ cola.util.cacheDom = (ele)->
 			style:
 				display: "none"
 		)
+		cola.util._freezeDom(hiddenDiv)
 		hiddenDiv.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 		document.body.appendChild(hiddenDiv)
 
@@ -132,7 +133,7 @@ cola.util.onNodeRemove = (node, listener)->
 		if oldListener instanceof Array
 			oldListener.push(listener)
 		else
-			cola.util.userData(node, ON_NODE_REMOVE_KEY, [oldListener, listener])
+			cola.util.userData(node, ON_NODE_REMOVE_KEY, [ oldListener, listener ])
 	else
 		cola.util.userData(node, ON_NODE_REMOVE_KEY, listener)
 	return
@@ -143,7 +144,7 @@ cola.util.onNodeDispose = (node, listener)->
 		if oldListener instanceof Array
 			oldListener.push(listener)
 		else
-			cola.util.userData(node, ON_NODE_DISPOSE_KEY, [oldListener, listener])
+			cola.util.userData(node, ON_NODE_DISPOSE_KEY, [ oldListener, listener ])
 	else
 		cola.util.userData(node, ON_NODE_DISPOSE_KEY, listener)
 	return
@@ -154,7 +155,7 @@ cola.util.onNodeInsert = (node, listener)->
 		if oldListener instanceof Array
 			oldListener.push(listener)
 		else
-			cola.util.userData(node, ON_NODE_INSERT_KEY, [oldListener, listener])
+			cola.util.userData(node, ON_NODE_INSERT_KEY, [ oldListener, listener ])
 	else
 		cola.util.userData(node, ON_NODE_INSERT_KEY, listener)
 	return
@@ -216,20 +217,18 @@ _DOMNodeInsertedListener = (evt)->
 	node = evt.target
 	if node
 		_doNodeInserted(node)
-
-		if node.parentNode is cola.util.cacheDom.hiddenDiv
-			node._cachedDom = true
+		if node.parentNode._freezedCount > 0
 			cola.util._freezeDom(node)
-		else if node._cachedDom
-			delete node._cachedDom
-			cola.util._unfreezeDom(node)
 	return
 
 _DOMNodeRemovedListener = (evt)->
 	return if cola._ignoreNodeRemoved or window.closed
 
 	node = evt.target
-	node and _doNodeRemoved(node)
+	if node
+		_doNodeRemoved(node)
+		if node.parentNode._freezedCount > 0
+			cola.util._unfreezeDom(node)
 	return
 
 cleanStamp = 1
@@ -327,8 +326,8 @@ if cola.browser.webkit
 		browser += " chrome"
 	else if cola.browser.safari
 		browser += " safari"
-#	else if cola.browser.qqbrowser
-#		browser += " qqbrowser"
+	#	else if cola.browser.qqbrowser
+	#		browser += " qqbrowser"
 else if cola.browser.ie
 	browser = "ie"
 else if cola.browser.mozilla

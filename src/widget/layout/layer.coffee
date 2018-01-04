@@ -38,7 +38,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 	show: (options = {}, callback)->
 		return @ if not @_dom or @isVisible()
 
-		if typeof options == "function"
+		if typeof options is "function"
 			callback = options
 			options = {}
 
@@ -50,8 +50,8 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		return @
 
 	hide: (options = {}, callback)->
-		return @ if !@_dom or !@isVisible()
-		if typeof options == "function"
+		return @ if not @_dom or not @isVisible()
+		if typeof options is "function"
 			callback = options
 			options = {}
 
@@ -65,7 +65,13 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		return @[if @isVisible() then "hide" else "show"].apply(@, arguments)
 
 	isVisible: ()->
-		return  @get$Dom().transition("stop all").hasClass("visible")
+		return @get$Dom().transition("stop all").hasClass("visible")
+
+	_initDom: (dom)->
+		super(dom)
+		if not @get$Dom().hasClass("visible")
+			cola.util._freezeDom(dom)
+		return
 
 class cola.Layer extends cola.AbstractLayer
 	@CLASS_NAME: "layer transition hidden"

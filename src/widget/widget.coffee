@@ -48,7 +48,7 @@ class cola.ClassNamePool
 		return
 
 ###
-    可渲染元素
+可渲染元素
 ###
 class cola.RenderableElement extends cola.Element
 	@events:
@@ -63,8 +63,8 @@ class cola.RenderableElement extends cola.Element
 		super(config)
 		@_setDom(dom, true) if dom
 
-	_initDom: (dom)-> return # 此方法主要负责初始化内部Dom
-	_parseDom: (dom)-> return # 此方法主要负责解析dom子类应覆写此方法
+	_initDom: (dom)-> # 此方法主要负责初始化内部Dom
+	_parseDom: (dom)-> # 此方法主要负责解析dom子类应覆写此方法
 	_setDom: (dom, parseChild)->
 		return unless dom
 		@_dom = dom
