@@ -69,8 +69,6 @@ class cola._DomBinding
 		pipe = {
 			path: path
 			processMessage: (bindingPath, path, type, arg)=>
-				if not @dom.parentNode or @dom.parentNode is cola.util.cacheDom.hiddenDiv
-					cola.util._freezeDom(@dom)
 				if @dom._freezedCount > 0
 					if not @_hasMissingBindingMessage
 						@_hasMissingBindingMessage = true

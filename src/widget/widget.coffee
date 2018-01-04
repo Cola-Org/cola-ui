@@ -69,8 +69,6 @@ class cola.RenderableElement extends cola.Element
 		return unless dom
 		@_dom = dom
 		cola.util.userData(dom, cola.constants.DOM_ELEMENT_KEY, @)
-		cola.util.onNodeRemove(dom, cola.util._freezeDom)
-		cola.util.onNodeInsert(dom, cola.util._unfreezeDom)
 		cola.util.onNodeDispose(dom, (node, data)->
 			element = data[cola.constants.DOM_ELEMENT_KEY]
 			if not element?._destroyed
@@ -107,12 +105,10 @@ class cola.RenderableElement extends cola.Element
 	_refreshDom: ()->
 		return if not @_dom or @_destroyed
 
-		if not @dom.parentNode or @dom.parentNode is cola.util.cacheDom.hiddenDiv
-			cola.util._freezeDom(@dom)
-		if @dom._freezedCount > 0
+		if @_dom._freezedCount > 0
 			if not @_hasMissingWidgetMessage
 				@_hasMissingWidgetMessage = true
-				@$dom.one "domUnfreezed", ()=>
+				@_$dom.one "domUnfreezed", ()=>
 					delete @_hasMissingWidgetMessage
 					@refresh()
 					return

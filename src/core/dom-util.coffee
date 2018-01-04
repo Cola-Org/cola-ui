@@ -33,9 +33,8 @@ cola.util.cacheDom = (ele)->
 	cola._ignoreNodeRemoved = false
 	return
 
-cola.util.userDataStore = {
+cola.util.userDataStore =
 	size: 0
-}
 
 cola.util.userData = (node, key, data)->
 	return if node.nodeType is 3
@@ -194,9 +193,6 @@ _doNodeInserted = (node)->
 	return
 
 _doNodeRemoved = (node)->
-	if node.parentNode is cola.util.cacheDom.hiddenDiv
-		return
-
 	id = cola.util._getNodeDataId(node)
 	if id
 		cola.util._nodesToBeRemove[id] = node
@@ -218,7 +214,15 @@ _doNodeRemoved = (node)->
 
 _DOMNodeInsertedListener = (evt)->
 	node = evt.target
-	node and _doNodeInserted(node)
+	if node
+		_doNodeInserted(node)
+
+		if node.parentNode is cola.util.cacheDom.hiddenDiv
+			node._cachedDom = true
+			cola.util._freezeDom(node)
+		else if node._cachedDom
+			delete node._cachedDom
+			cola.util._unfreezeDom(node)
 	return
 
 _DOMNodeRemovedListener = (evt)->
@@ -258,7 +262,7 @@ setInterval(()->
 
 	if changed then cola.util._nodesToBeRemove = {}
 	return
-, 5000)
+, 300)
 
 jQuery.event.special.domFreezed =
 	setup: ()->

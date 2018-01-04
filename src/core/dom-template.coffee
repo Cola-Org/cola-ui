@@ -148,19 +148,40 @@ cola._renderDomTemplate = (dom, scope, context = {})->
 			.find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 	return
 
+_initLazyDom = (dom, includeSelf)->
+	$(dom).on "visibilityChange", (evt, data)->
+		if data.visible and not dom._rendered
+			dom._rendered = true
+			cola._renderDomTemplate(dom, scope)
+
+		if includeSelf
+			if data.visible then cola.util._unfreezeDom(dom) else cola.util._freezeDom(dom)
+		else
+			child = dom.firstChild
+			if data.visible
+				while child
+					cola.util._unfreezeDom(child)
+					child = child.nextSibling
+			else
+				while child
+					cola.util._freezeDom(child)
+					child = child.nextSibling
+		return
+	return
+
 _doRenderDomTemplate = (dom, scope, context)->
 	return if dom.nodeType is 8 or dom.nodeName is "SVG"
 	return if dom.nodeType is 1 and
 	  (dom.hasAttribute(cola.constants.IGNORE_DIRECTIVE) or dom.className.indexOf?(cola.constants.IGNORE_DIRECTIVE) >= 0)
 	return if IGNORE_NODES.indexOf(dom.nodeName) > -1
 
-	if dom.nodeType is 3 # #text
+	if dom.nodeType is 3 # text
 		bindingExpr = dom.nodeValue
 		parts = cola._compileText(scope, bindingExpr)
 		buildContent(parts, dom, scope) if parts?.length
 		return dom
 
-	else if dom.nodeType is 1 # #element
+	else if dom.nodeType is 1 # element
 		if dom.className.indexOf(cola.constants.LAZY_CLASS) >= 0 and
 		  dom.className.split(' ').indexOf(cola.constants.LAZY_CLASS) >= 0
 			$(dom).on "visibilityChange", (evt, data)->
@@ -192,7 +213,7 @@ _doRenderDomTemplate = (dom, scope, context)->
 						child = child.nextSibling
 				return
 
-	else if dom.nodeType is 11 # #documentFragment
+	else if dom.nodeType is 11 # documentFragment
 		child = dom.firstElementChild
 		while child
 			child = _doRenderDomTemplate(child, scope, context) or child

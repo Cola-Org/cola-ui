@@ -219,17 +219,13 @@ class cola.Expression
 		@script = parts.join("")
 		return
 
-	getData: (scope, path, loadMode, dataCtx)  ->
+	getData: (scope, path, loadMode, dataCtx)->
 		retValue = scope.get(path, loadMode, dataCtx)
 		if retValue is undefined and dataCtx?.vars
 			retValue = dataCtx.vars[path]
 		return retValue
 
-	evaluate: (scope, loadMode, dataCtx)  ->
-		retValue = eval(@script)
-		if retValue instanceof cola.Chain
-			retValue = retValue._data
-		return retValue
+	evaluate: (scope, loadMode, dataCtx)-> eval(@script)
 
 	getParentPathInfo: ()->
 		return @parentPath if @parentPath isnt undefined

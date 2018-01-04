@@ -286,6 +286,10 @@
       type: boolean
       label: 是否Android系统
 
+    - name: windows
+      type: boolean
+      label: 是否Windows系统
+
 - name: cola.device
   stereotype: namespace
   label: 当前设备信息
