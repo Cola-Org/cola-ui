@@ -1,6 +1,7 @@
 _getEntityId = cola.Entity._getEntityId
 
 class cola.ItemsView extends cola.Widget
+
 	@attributes:
 		allowNoCurrent:
 			type: "boolean"
@@ -330,6 +331,12 @@ class cola.ItemsView extends cola.Widget
 					@_appendTailDom?(itemsWrapper)
 		return
 
+	_getItemScope: (parentScope, alias, item)->
+		itemScope = new cola.ItemScope(parentScope, alias)
+		cola.currentScope = itemScope
+		itemScope.data.setItemData(item, true)
+		return itemScope
+
 	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope)->
 		if item is @_currentItem
 			@_currentItemDom = itemDom
@@ -354,38 +361,37 @@ class cola.ItemsView extends cola.Widget
 
 		itemScope = cola.util.userData(itemDom, "scope")
 		oldScope = cola.currentScope
-		try
-			if not itemScope
-				itemScope = new cola.ItemScope(parentScope, alias)
-				cola.currentScope = itemScope
-				itemScope.data.setItemData(item, true)
-				cola.util.userData(itemDom, "scope", itemScope)
+
+		if not itemScope
+			itemScope = @_getItemScope(parentScope, alias, item)
+			cola.util.userData(itemDom, "scope", itemScope)
+			cola.util.userData(itemDom, "item", originItem)
+			@_doRefreshItemDom?(itemDom, item, itemScope)
+			cola.xRender(itemDom, itemScope, @_templateContext)
+		else
+			cola.currentScope = itemScope
+			if itemScope.data.getItemData() isnt item
+				if itemDom._itemId and @_itemDomMap[itemDom._itemId] is itemDom
+					delete @_itemDomMap[itemDom._itemId]
+
+				if itemScope.data.alias isnt alias
+					throw new cola.Exception("Repeat alias mismatch. Expect \"#{itemScope.alias}\" but \"#{alias}\".")
+
 				cola.util.userData(itemDom, "item", originItem)
-				@_doRefreshItemDom?(itemDom, item, itemScope)
-				cola.xRender(itemDom, itemScope, @_templateContext)
-			else
-				cola.currentScope = itemScope
-				if itemScope.data.getItemData() isnt item
-					if itemDom._itemId and @_itemDomMap[itemDom._itemId] is itemDom
-						delete @_itemDomMap[itemDom._itemId]
+				itemScope.data.setItemData(item)
 
-					if itemScope.data.alias isnt alias
-						throw new cola.Exception("Repeat alias mismatch. Expect \"#{itemScope.alias}\" but \"#{alias}\".")
+			@_doRefreshItemDom?(itemDom, item, itemScope)
 
-					cola.util.userData(itemDom, "item", originItem)
-					itemScope.data.setItemData(item)
+		if itemId
+			parentScope.regItemScope(itemId, itemScope)
 
-				@_doRefreshItemDom?(itemDom, item, itemScope)
-			parentScope.regItemScope(itemId, itemScope) if itemId
-
-			if @getListeners("renderItem")
-				@fire("renderItem", @, {
-					item: originItem
-					dom: itemDom
-					scope: itemScope
-				})
-		finally
-			cola.currentScope = oldScope
+		if @getListeners("renderItem")
+			@fire("renderItem", @, {
+				item: originItem
+				dom: itemDom
+				scope: itemScope
+			})
+		cola.currentScope = oldScope
 
 		if itemId
 			itemDom._itemId = itemId

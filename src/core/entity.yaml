@@ -393,7 +393,7 @@
           type: json
           label: 选项
           optional: true
-          arguments:
+          properties:
             - name: deleted
               type: boolean
               label: 是否转换那些被标为已删除的Entity
@@ -721,7 +721,7 @@
           type: json
           label: 选项
           optional: true
-          arguments:
+          properties:
             - name: deleted
               type: boolean
               label: 是否转换那些被标为已删除的Entity
@@ -760,7 +760,7 @@
           type: json
           label: 选项
           optional: true
-          arguments:
+          properties:
             - name: deleted
               type: boolean
               label: 是否转换那些被标为已删除的Entity
@@ -770,3 +770,92 @@
             - name: pageNo
               type: number
               label: 是否只迭代指定的页中的Entity
+
+- name: cola.util
+  stereotype: namespace
+  methods:
+    - name: filter
+      type: array
+      label: 对一个数组或EntityList进行过滤
+      arguments:
+        - name: data
+          type: array || cola.EntityList
+          label: 要过滤的数组或EntityList
+        - name: criteria
+          type: stirng || object
+          label: 过滤条件
+          description: |
+            此参数有两种定义方式：
+            <ul>
+              <li>
+              当我们传入一个字符串时，表示用该值匹配对象中的每一个属性（如果集合中的对象本身就是一个值而非对象，那么则直接匹配该值）。
+              </li>
+              <li>
+              如果criteria是一个JSON对象，那么我们就可以在JSON中定义更加详细的过滤规则。例如，它可能会是这个样子的...
+              <code>
+              {
+                name: { //属性名，如果属性名为"$"表示要匹配每一个属性
+                  value: "b", //要匹配的值，模糊匹配
+                  caseSensitive: true //是否大小写敏感，非必须
+                },
+                gendar: {
+                  value: "male",
+                  strict: true //是否严格匹配，非必须
+                }
+              }
+              </code>
+              以上的定义表示过滤出所有name属性中带有字母b（大小写敏感）的员工一级gendar属性为male的员工。
+              </li>
+            </ul>
+
+    - name: sort
+      type: array
+      label: 对一个数组或EntityList进行排序
+      arguments:
+        - name: data
+          type: array || cola.EntityList
+          label: 要排序的数组或EntityList
+        - name: comparator
+          type: stirng || object
+          label: 排序条件
+          description: |
+            此参数有四种定义方式：
+            <ul>
+              <li>
+              如果comparator是字符串，表示是一个属性名，即按照此属性进行排序。如果第一个字符为'+'或'-'表示正向或逆向的排序。
+              例如： sort(employees, 'age') 表示按照age从小到大排序; sort(employees, '-age') 表示按照age从大到小排序。
+              如果集合中数据本身就是一个值而非对象，则可以省略上面的属性名，比如： sort(names, '-') 表示逆向排序names中的值。
+              </li>
+              <li>
+              如果comparator是一个JSON对象，那么我们就可以在JSON中定义更加详细的排序规则。例如，它可能会是这个样子的...
+              <code>
+              [
+                { prop:"age", desc:true }, //按照age逆向排序
+                { prop:"name", caseSensitive: true } //按照name排序，且大小写敏感
+              ]
+              </code>
+              以上的定义先按照age逆向排序，再按照name排序，且大小写敏感。
+              </li>
+              <li>
+              如果comparator为$none，表示不排序，以原始顺序返回。
+              </li>
+              <li>
+              如果comparator为$random，表示随机排序。
+              </li>
+            </ul>
+
+    - name: where
+      type: array
+      label: 根据给定的条件对数组或EntityList中的数据进行查询，并返回数组型的结果
+      arguments:
+        - name:
+          type:
+          label:
+
+    - name: find
+      type: object || cola.Entity
+      label: 根据给定的条件对数组或EntityList中的数据进行查询，并返回匹配的第一比数据
+      arguments:
+        - name:
+          type:
+          label:

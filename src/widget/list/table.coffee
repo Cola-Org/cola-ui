@@ -154,6 +154,13 @@ class cola.Table extends cola.Widget
 		else
 			return super()
 
+	_getItemScope: (parentScope, alias, item)->
+		debugger
+		itemScope = new cola.ItemScope(parentScope, alias)
+		cola.currentScope = itemScope
+		itemScope.data.setItemData(item, true)
+		return itemScope
+
 	_getItemType: (type)->
 		return @_centerTable._getItemType(type)
 
@@ -185,8 +192,11 @@ class cola.Table extends cola.Widget
 
 	_collectionColumnsInfo: ()->
 		collectColumnInfo = (column, context, deepth, rootIndex)->
-			context.rows = deepth + 1
+			if deepth + 1 > context.rows
+				context.rows = deepth + 1
+
 			info =
+				rootIndex: rootIndex
 				level: deepth
 				column: column
 			if column instanceof cola.TableGroupColumn
@@ -232,6 +242,7 @@ class cola.Table extends cola.Widget
 			totalWidthWeight: 0
 			colInfos: []
 			dataColumns: []
+			rows: 1
 			alias: "item"
 		}
 		if @_columns
@@ -301,7 +312,8 @@ class cola.Table extends cola.Widget
 					colInfos: columnsInfo.colInfos.slice(leftFixedCols, columnsInfo.colInfos.length - rightFixedCols)
 					dataColumns: []
 
-				for col, i in columnsInfo.dataColumns
+				for col in columnsInfo.dataColumns
+					i = col.rootIndex
 					if i < leftFixedCols
 						columnsInfo.left.dataColumns.push(col)
 					else if i >= @_columns.length - rightFixedCols
@@ -1023,6 +1035,8 @@ cola.Element.mixin(cola.Table, cola.DataItemsWidgetMixin)
 class cola.Table.InnerTable extends cola.AbstractList
 	@CLASS_NAME: "inner-table"
 
+	manageItemScope: false
+
 	@attributes:
 		type: null
 		table: null
@@ -1038,6 +1052,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 		@on("itemPress", (self, arg)=> @_table.fire("itemPress", @_table, arg))
 
 	_createItemsScope: ()-> @_itemsScope
+
+	_getItemScope: (parentScope, alias, item)->
+		return @_table._getItemScope(parentScope, alias, item)
 
 	_getItems: ()-> @_table._getItems()
 
