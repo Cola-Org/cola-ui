@@ -569,16 +569,16 @@ class cola.Entity
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false, provider)
 
-					#if cola.consoleOpened and cola.debugLevel > 9
-					#	setTimeout(()=>
-					#		if @getPath() and value.getPath?()
-					#			path = value.getPath().join(".")
-					#			cola.Entity._warnedDataPaths ?= {}
-					#			if not cola.Entity._warnedDataPaths[path]
-					#				cola.Entity._warnedDataPaths[path] = true
-					#				console.warn("No 'DataType' found for path: " + path)
-					#		return
-					#	, 0)
+				#if cola.consoleOpened and cola.debugLevel > 9
+				#	setTimeout(()=>
+				#		if @getPath() and value.getPath?()
+				#			path = value.getPath().join(".")
+				#			cola.Entity._warnedDataPaths ?= {}
+				#			if not cola.Entity._warnedDataPaths[path]
+				#				cola.Entity._warnedDataPaths[path] = true
+				#				console.warn("No 'DataType' found for path: " + path)
+				#		return
+				#	, 0)
 
 				changed = oldValue isnt value
 		else
@@ -686,17 +686,13 @@ class cola.Entity
 		return value
 
 	remove: (detach)->
-		if @parent
-			if @parent instanceof _EntityList
-				if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
-					return @
-
-				@parent.remove(@, detach)
-
-				@dataType?.fire("entityRemove", @dataType, { entity: @ })
+		parent = @parent
+		if parent
+			if parent instanceof _EntityList
+				parent.remove(@, detach)
 			else
-				@setState(_Entity.STATE_DELETED)
-				@parent.set(@_parentProperty, null)
+				if @setState(_Entity.STATE_DELETED)
+					parent.set(@_parentProperty, null)
 		else
 			@setState(_Entity.STATE_DELETED)
 		return @
@@ -759,11 +755,12 @@ class cola.Entity
 		return @
 
 	setState: (state)->
-		return @ if @state is state
+		return true if @state is state
 
+		parent = @parent
 		if state is _Entity.STATE_DELETED
-			if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @ }) is false
-				return @
+			if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @, parent: parent }) is false
+				return false
 
 		if @state is _Entity.STATE_NONE and state is _Entity.STATE_MODIFIED
 			@_storeOldData()
@@ -778,9 +775,8 @@ class cola.Entity
 		})
 
 		if state is _Entity.STATE_DELETED
-			@dataType?.fire("beforeEntityRemove", @dataType, { entity: @ })
-
-		return @
+			@dataType?.fire("entityRemove", @dataType, { entity: @, parent: parent })
+		return true
 
 	_storeOldData: ()->
 		return if @_oldData
@@ -1092,7 +1088,7 @@ class cola.Entity
 		if state then json.state$ = @state
 		if dataType and @dataType?._name then json.dataType$ = @dataType?._name
 		if oldData and @_oldData
-			json.$oldData = @_oldData
+			json.oldData$ = @_oldData
 		return json
 
 class Page extends Array
@@ -1371,7 +1367,7 @@ class cola.EntityList
 				while index > 0
 					entity = page[--index]
 					if entity.state isnt _Entity.STATE_DELETED
-						return [entity, index]
+						return [ entity, index ]
 
 				page = page._previous
 				index = page?.length
@@ -1394,7 +1390,7 @@ class cola.EntityList
 				while index < lastIndex
 					entity = page[++index]
 					if entity.state isnt _Entity.STATE_DELETED
-						return [entity, index]
+						return [ entity, index ]
 
 				page = page._next
 				index = -1
@@ -1584,12 +1580,11 @@ class cola.EntityList
 	remove: (entity, detach)->
 		if not entity?
 			entity = @current
-			return undefined
 
 		return undefined if entity.parent isnt @
 
-		if @dataType and @dataType.getListeners("beforeEntityRemove")
-			if @dataType.fire("beforeEntityRemove", @dataType, {
+		if @dataType and @dataType.getListeners("beforeEntityDelete")
+			if @dataType.fire("beforeEntityDelete", @dataType, {
 				entityList: @
 				entity: entity
 			}) is false
@@ -1606,11 +1601,13 @@ class cola.EntityList
 			page.remove(entity)
 			@entityCount--
 		else if entity.state is _Entity.STATE_NEW
-			entity.setState(_Entity.STATE_DELETED)
+			if entity.setState(_Entity.STATE_DELETED) is false
+				return null
 			page.remove(entity)
 			@entityCount--
 		else if entity.state isnt _Entity.STATE_DELETED
-			entity.setState(_Entity.STATE_DELETED)
+			if entity.setState(_Entity.STATE_DELETED) is false
+				return null
 			@entityCount--
 
 		@timestamp = cola.sequenceNo()
@@ -1619,8 +1616,8 @@ class cola.EntityList
 			entity: entity
 		})
 
-		if @dataType and @dataType.getListeners("entityRemove")
-			@dataType.fire("entityRemove", @dataType, {
+		if @dataType and @dataType.getListeners("entityDelete")
+			@dataType.fire("entityDelete", @dataType, {
 				entityList: @
 				entity: entity
 			})
@@ -1634,7 +1631,7 @@ class cola.EntityList
 	empty: ()->
 		@_reset()
 		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
-		return
+		return @
 
 	setCurrent: (entity)->
 		if @current is entity or entity?.state is cola.Entity.STATE_DELETED

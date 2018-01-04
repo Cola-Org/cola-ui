@@ -183,7 +183,7 @@ class cola.Element
 
 	set: (attr, value, ignoreError)->
 		if typeof attr is "string"
-# set(string, any)
+			# set(string, any)
 			if attr.indexOf(".") > -1
 				paths = attr.split(".")
 				obj = @
@@ -207,7 +207,7 @@ class cola.Element
 			else
 				@_set(attr, value, ignoreError)
 		else
-# set(object, ignoreError)
+			# set(object, ignoreError)
 			config = attr
 			ignoreError = value
 			for attr of config

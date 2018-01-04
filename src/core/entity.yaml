@@ -11,25 +11,42 @@
         - name: dataType
           type: cola.EntityDataType
           optional: true
-          label: 数据类型
+          label: DataType
 
   properties:
+    - name: STATE_NONE
+      type: string
+      static: true
+      label: Entity的状态 - 无状态
+    - name: STATE_NEW
+      type: string
+      static: true
+      label: Entity的状态 - 新增状态
+    - name: STATE_MODIFIED
+      type: string
+      static: true
+      label: Entity的状态 - 被修改状态
+    - name: STATE_DELETED
+      type: string
+      static: true
+      label: Entity的状态 - 被删除状态
+
     - name: state
       type: string
-      label: 数据实体的状态
+      label: Entity的状态
       description: |
         该状态目前有四种可能的取值：
         <ul>
-          <li>none - 无状态</li>
-          <li>new - 新增状态</li>
-          <li>modified - 被修改状态</li>
-          <li>deleted - 被删除状态</li>
+          <li>NONE - 无状态</li>
+          <li>NEW - 新增状态</li>
+          <li>MODIFIED - 被修改状态</li>
+          <li>DELETED - 被删除状态</li>
         </ul>
         参考: <a href="#method:setState">setState(state)</a>
 
     - name: dataType
       type: cola.EntityDataType
-      label: 数据类型
+      label: DataType
 
   methods:
     - name: hasValue
@@ -60,11 +77,32 @@
               <li>async - 异步装载模式</li>
               <li>sync - 同步装载模式</li>
               <li>never - 不装载</li>
-              <li>
-              传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
-              回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
-              </li>
+              <li>传入一个回调方法，相当于按照异步模式装载。</li>
             </ul>
+
+    - name: getAsync
+      type: Deferred
+      label: 以异步方式获取一个属性的值
+      description: |
+        该方法返回一个Deferred对象用于方便我们获得异步调用的返回结果，关于Deferred对象的详细说明请参考
+        <a href="//api.jquery.com/jquery.deferred/">//api.jquery.com/jquery.deferred/</a>。
+        <p>
+        示例如下...
+        <code>
+        entity.getAsync("detail").done(function(detail) {
+          // 此处我们得到了detail的值
+        });
+        </code>
+        </p>
+      arguments:
+        - name: prop
+          type: string
+          label: 属性名或路径
+        - name: callback
+          type: function
+          optional: true
+          label: 回调函数
+          description: 建议使用此方法返回的Deferred对象代替此回调函数。
 
     - name: set
       type: cola.Entity
@@ -87,24 +125,34 @@
 
     - name: remove
       type: cola.Entity
-      label: 删除当前数据实体。
+      label: 删除当前Entity。
       description: |
-        如果这个数据实体此时是另一个父Entity的某属性值，或者它正隶属于某个EntityList。
-        那么，此操作也会将此数据实体从父Entity或EntityList中移除。
+        如果这个Entity此时是另一个父Entity的某属性值，或者它正隶属于某个EntityList。
+        那么，此操作也会将此Entity从父Entity或EntityList中移除。
+      arguments:
+        - name: detach
+          type: boolean
+          optional: true
+          label: 是否强制删除
+          description: |
+            如果启用这个属性，那么这个Entity的删除操作会将改Entity彻底从抹除，并且更改Entity的state，
+            这样，这个Entity也将不会出现在后续的数据提交操作中，Server是无法直接感知这一删除动作的。
 
     - name: createChild
       type: cola.Entity
       label: 在某个属性中创建一个新的子Entity并返回。
       description: |
         如果之前已经通过DataType声明了相应子属性的DataType，那么新创建的子Entity将是与该DataTypre匹配的。
+        同时，如果该属性的声明中已将aggregated设置为true，那么这一操作会在该属性中先创建一个EntityList（如果属性原本为空的话），
+        然后再将新的Entity插入到这个EntityList中。
       arguments:
         - name: prop
           type: string
           label: 属性名
         - name: data
           type: json
-          label: 以JSON方式定义的一批属性值，用于初始化新Entity中的数据。此参数可省略。
           optional: true
+          label: 以JSON方式定义的一批属性值，用于初始化新Entity中的数据。此参数可省略。
 
     - name: createBrother
       type: cola.Entity
@@ -114,19 +162,30 @@
       arguments:
         - name: data
           type: json
-          label: 以JSON方式定义的一批属性值，用于初始化新Entity中的数据。此参数可省略。
           optional: true
+          label: 以JSON方式定义的一批属性值，用于初始化新Entity中的数据。此参数可省略。
+
+    - name: setCurrent
+      type: cola.Entity
+      label: 将该Entity设置为当前Entity。
+      description: |
+        此方法首先会创建一个与当前Entity类型相同的新Entity，如果当前Entity隶属于某个EntityList，那么新创建的Entity还会被自动添加到EntityList中。
+      arguments:
+        - name: tree
+          type: boolean
+          optional: true
+          label: 是否不断的向上迭代将每一级上层Entity设置为所属的EntityList的当前Entity。
 
     - name: setState
       type: cola.Entity
-      label: 设置数据实体的状态
+      label: 设置Entity的状态
       description: |
         该状态有四种取值:
         <ul>
-          <li>none - 无状态</li>
-          <li>new - 新增状态</li>
-          <li>modified - 被修改状态</li>
-          <li>deleted - 被删除状态</li>
+          <li>NONE - 无状态</li>
+          <li>NEW - 新增状态</li>
+          <li>MODIFIED - 被修改状态</li>
+          <li>DELETED - 被删除状态</li>
         </ul>
         参考: <a href="#property:state">state</a>
       arguments:
@@ -143,17 +202,37 @@
           type: string
           label: 属性名
 
-    - name: reset
+    - name: cancel
       type: cola.Entity
-      label: 重置某个属性或整个Entity
+      label: 将某个属性的属性值还原成初始值。
       description: |
-        如果定义了prop参数，那么此方法会清除该属性的值和相关的校验信息，但此种清除并不会导致Entity的状态发生改变。
-        如果没有定义prop参数，那么此方法会清除整个Entity中的所有数据和校验信息并重置整个Entity的状态。
+        此处的初始值是指从Server端装载到的值或者成功执行完最后一次数据提交之后的值。
       arguments:
         - name: prop
           type: string
           label: 属性名
-          optional: true
+
+    - name: cancel
+      type: cola.Entity
+      label: 将所有属性的值还原成初始值。
+      description: |
+        此处的初始值是指从Server端装载到的值或者成功执行完最后一次数据提交之后的值。
+
+    - name: reset
+      type: cola.Entity
+      label: 重置某个属性
+      description: |
+        清除该属性的值和相关的校验信息，但此种清除并不会导致Entity的状态发生改变。
+      arguments:
+        - name: prop
+          type: string
+          label: 属性名
+
+    - name: reset
+      type: cola.Entity
+      label: 重置整个Entity
+      description: |
+        清除整个Entity中的所有数据和校验信息并重置整个Entity的状态。
 
     - name: resetState
       type: cola.Entity
@@ -176,16 +255,26 @@
       label: 返回当前Entity的数据路径
 
     - name: flush
-      type: cola.Entity
+      type: Deferred
       label: 刷新某个属性的数据
       description: |
         此方法只有在该属性的数据是通过cola.Provider获取的情况下是有效的，即通知Cola清空该属性的数据并重新利用Provider获取。
+        该方法返回一个Deferred对象用于方便我们获得异步调用的返回结果，关于Deferred对象的详细说明请参考
+        <a href="//api.jquery.com/jquery.deferred/">//api.jquery.com/jquery.deferred/</a>。
+        <p>
+        示例如下...
+        <code>
+        entity.flush("detail").done(function(detail) {
+          // 此处我们得到了detail的值
+        });
+        </code>
+        </p>
       arguments:
         - name: prop
           type: string
           label: 属性名
         - name: loadMode
-          type: string | function | Object
+          type: string | function | object
           defaultValue: async
           optional: true
           label: 懒加载属性的装载模式，默认值为async。
@@ -195,37 +284,106 @@
               <li>async - 异步装载模式</li>
               <li>sync - 同步装载模式</li>
               <li>never - 不装载</li>
-              <li>
-              传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
-              回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
-              </li>
+              <li>传入一个回调方法，相当于按照异步模式装载。建议您以Deferred方式替代回调方法。</li>
             </ul>
 
     - name: disableObservers
       type: cola.Entity
       label: 将禁止Entity向观察者发送消息
-      description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
+      description: |
+        参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: enableObservers
       type: cola.Entity
       label: 将禁止Entity向观察者发送消息
-      description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
+      description: |
+        参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: notifyObservers
       type: cola.Entity
-      label: 将禁止Entity向观察者发送消息
-      description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
+      label: 向Entity的观察者发送一个刷新消息
 
     - name: validate
       type: boolean
       label: 校验当前Entity中的数据并返回是否校验通过
-      description: |
-        如果定义了属性名，那么此方法只校验指定的属性，否则将校验每一个属性。
+
+    - name: validate
+      type: boolean
+      label: 校验当前Entity中的某个属性的值并返回是否校验通过
       arguments:
         - name: prop
           type: string
           label: 属性名
+
+    - name: addMessage
+      type: cola.Entity
+      label: 向Entity中添加一条或多条消息。
+      description: |
+        此处的消息是指一个Entity或者某个属性上的附加信息，通常是一些校验信息。
+        <p>
+        每一条消息是一个JSON对象，其中包含一下个子属性：
+        <ul>
+          <li>type - 消息的类型。目前包含error、warn、info三种类型。</li>
+          <li>text - 消息的文本。</li>
+          <li>sticky - 是否具有粘性。逻辑值，可以为空。用于标识此条消息是否可以被clearMessages()方法清除。</li>
+        </ul>
+        </p>
+      arguments:
+        - name: property
+          type: string
+          label: 属性名
+        - name: message
+          type: string || [string] || json || [json]
+          label: 要添加的消息
+          description: |
+            定义一个消息时，我们可以简单的使用一个字符串来声明一个消息。
+            Cola会自动将这段字符串当做消息的text，并且将这个新消息的type设定为error。
+            此方法也支持利用数组快速的添加多个消息。
+
+    - name: getKeyMessage
+      type: json
+      label: 返回当前Entity中级别最高的一条消息，包含属性下的消息。
+      description: |
+        Cola比较消息的级别时按照error高于warn高于info的标准，例如当一个Entity同时拥有一条error消息和一条info消息时，
+        getKeyMessage()会返回那条error消息。
+
+    - name: getKeyMessage
+      type: json
+      label: 返回当前Entity中某个属性下级别最高的一条消息
+      arguments:
+        - name: property
+          type: string
+          label: 属性名
+
+    - name: getMessages
+      type: [json]
+      label: 返回当前Entity中所有的消息，包含属性下的消息。
+
+    - name: getMessages
+      type: [json]
+      label: 返回当前Entity中某个属性下所有的消息
+      arguments:
+        - name: property
+          type: string
+          label: 属性名
+
+    - name: clearMessages
+      type: cola.Entity
+      label: 清除当前Entity下的消息，不包含那些特定属性下的消息。
+      arguments:
+        - name: property
+          type: string
+          label: 属性名
+          description: |
+            如果传null，表示清除整个Entity中的所有消息，包含那些属性下的消息。
+            如果传某个具体的属性名，表示清除该属性下的消息。
+        - name: force
+          type: boolean
           optional: true
+          label: 是否清除具有粘性的消息
+          description: |
+            默认情况下clearMessages()方法并不清除粘性消息，即那些sticky为true的消息。
+            如果设定此参数为true，那么粘性消息也将被一并清除。
 
     - name: toJSON
       type: json
@@ -236,6 +394,9 @@
           label: 选项
           optional: true
           arguments:
+            - name: deleted
+              type: boolean
+              label: 是否转换那些被标为已删除的Entity
             - name: state
               type: boolean
               label: 是否转换Entity的状态
@@ -243,7 +404,15 @@
               type: boolean
               label: 是否转换旧值
               description: |
-                如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 $oldData 的子属性中。
+                如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 oldData$ 的子属性中。
+            - name: simpleValue
+              type: boolean
+              label: 是否值转换简单值
+              description: |
+                简单值是指string、number、boolean、date这样写数值。
+            - name: nullValue
+              type: boolean
+              label: 是否将值为null的属性生成到JSON中
 
 - name: cola.EntityList
   stereotype: class
@@ -281,7 +450,7 @@
         - name: dataType
           type: cola.EntityDataType
           optional: true
-          label: 数据类型
+          label: DataType
 
   properties:
     - name: current
@@ -377,10 +546,7 @@
               <li>async - 异步装载模式</li>
               <li>sync - 同步装载模式</li>
               <li>never - 不装载</li>
-              <li>
-              传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
-              回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
-              </li>
+              <li>传入一个回调方法，相当于按照异步模式装载。</li>
             </ul>
 
     - name: gotoPage
@@ -453,25 +619,10 @@
           label: 要添加的Entity
           description: |
             如果向此参数中传入一个JSON对象，那么Cola会自动将其转换成cola.Entity的实例。
-        - name: insertMode
-          type: string
-          defaultValue: end
+        - name: index
+          type: number
           optional: true
-          label: 插入模式
-          description: |
-            该插入模式目前有四种可能的取值：
-            <ul>
-              <li>begin - 在最前面插入</li>
-              <li>before - 在refEntity之前插入</li>
-              <li>after - 在refEntity之后插入</li>
-              <li>end - 在最后插入</li>
-            </ul>
-        - name: refEntity
-          type: cola.Entity
-          optional: true
-          label: 参照Entity
-          description: |
-            如果不指定此参数则以EntityList中的当前Entity作为参照Entity。
+          label: 插入位置
 
     - name: remove
       type: cola.Entity
@@ -522,14 +673,20 @@
       type: [string]
       label: 返回当前EntityList的数据路径
 
-    - name: flush
+    - name: empty
       type: cola.EntityList
-      label: 刷新该EntityList
+      label: 清除当前EntityList中的所有Entity
+      description: |
+        注意此方法并不会改变这些Entity的状态。
+
+    - name: flush
+      type: Deferred
+      label: 重新装载该EntityList中的数据
       description: |
         此方法只有在该EntityList是通过cola.Provider获取的情况下是有效的，即通知Cola清空该EntityList中所有的数据并重新利用Provider获取。
       arguments:
         - name: loadMode
-          type: string | function | Object
+          type: string | function | object
           defaultValue: async
           optional: true
           label: 懒加载属性的装载模式，默认值为async。
@@ -539,10 +696,7 @@
               <li>async - 异步装载模式</li>
               <li>sync - 同步装载模式</li>
               <li>never - 不装载</li>
-              <li>
-              传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
-              回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
-              </li>
+              <li>传入一个回调方法，相当于按照异步模式装载。建议您以Deferred方式替代回调方法。</li>
             </ul>
 
     - name: disableObservers
@@ -556,9 +710,8 @@
       description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: notifyObservers
-      type: cola.EntityList
-      label: 将禁止EntityList向观察者发送消息
-      description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
+      type: cola.Entity
+      label: 向Entity的观察者发送一个刷新消息
 
     - name: toJSON
       type: [json]
@@ -575,13 +728,19 @@
             - name: state
               type: boolean
               label: 是否转换Entity的状态
-              description: |
-                如果启用此选项Cola会将状态存入名为 $state 的JSON属性中。
             - name: oldData
               type: boolean
               label: 是否转换旧值
               description: |
-                如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 $oldData 的子属性中。
+                如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 oldData$ 的子属性中。
+            - name: simpleValue
+              type: boolean
+              label: 是否值转换简单值
+              description: |
+                简单值是指string、number、boolean、date这样写数值。
+            - name: nullValue
+              type: boolean
+              label: 是否将值为null的属性生成到JSON中
 
     - name: toArray
       type: [cola.Entity]

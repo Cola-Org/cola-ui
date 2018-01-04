@@ -1,13 +1,3 @@
-#IMPORT_BEGIN
-if exports?
-	XDate = require("./../lib/xdate")
-	cola = require("./base")
-	module?.exports = cola
-else
-	XDate = @XDate
-	cola = @cola
-#IMPORT_END
-
 if XDate
 	$?(()->
 		XDate.locales[''] = localeStrings = {}
@@ -41,21 +31,21 @@ if XDate
 		i = 0
 		while i < format.length
 			c = format.charAt(i)
-			if c == "\""
+			if c is "\""
 				hasText = true
-				if inQuota == c
+				if inQuota is c
 					inQuota = false
-				else if !inQuota
+				else if not inQuota
 					inQuota = c
-			else if !inQuota and parts[c]
-				if parts[c].len == 0 then patterns.push(c)
+			else if not inQuota and parts[c]
+				if parts[c].len is 0 then patterns.push(c)
 				parts[c].len++
 			else
 				hasText = true
 			i++
 
 		shouldReturn = false
-		if !hasText
+		if not hasText
 			if dateStr.match(/^\d{2,14}$/)
 				shouldReturn = true
 				start = 0
@@ -67,9 +57,9 @@ if XDate
 						start += part.len
 		else
 			digits = dateStr.split(/\D+/)
-			if digits[digits.length - 1] == "" then digits.splice(digits.length - 1, 1)
-			if digits[0] == "" then digits.splice(0, 1)
-			if patterns.length == digits.length
+			if digits[digits.length - 1] is "" then digits.splice(digits.length - 1, 1)
+			if digits[0] is "" then digits.splice(0, 1)
+			if patterns.length is digits.length
 				shouldReturn = true
 				for pattern, i in patterns
 					parts[pattern].value = +digits[i]

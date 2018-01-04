@@ -9,6 +9,11 @@
     请参考： <a href="../docs/element">Element</a>
 
   attributes:
+    - name: model
+      type: cola.Model
+      readOnly: true
+      label: 该对象所属的cola.Model
+
     - name: tag
       type: string[]
       label: 对象拥有的标签
@@ -28,6 +33,13 @@
       label: 自定义数据。这里的自定义数据可以是任意数据类型，Cola-UI不会对其内容做任何处理。
 
   events:
+    - name: create
+      label: 当有对象被创建时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Element
+          label: cola对象本身
+
     - name: attributeChange
       label: 当有属性的值被改写时触发的事件。
       arguments:
@@ -85,6 +97,7 @@
         - name: listener
           type: Function
           label: 事件监听器
+
     - name: one
       type: cola.Element
       label: 绑定一个一次性事件监听器
@@ -96,6 +109,7 @@
         - name: listener
           type: Function
           label: 事件监听器
+
     - name: off
       type: cola.Element
       label: 解绑一个事件监听器
@@ -107,6 +121,18 @@
           type: Function
           optional: true
           label: 事件监听器
+
+- name: cola.Definition
+  stereotype: class
+  super: cola.Element
+  label: 声明类对象
+  description: |
+    声明类对象都有一个name属性，可以方便我们利用model.definition()方法，根据那么快速的获得一个声明对象的实例。
+
+  attributes:
+    - name: name
+      type: string
+      label: 名称
 
 - name: cola
   stereotype: namespace

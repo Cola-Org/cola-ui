@@ -15,7 +15,7 @@
       <li>date  - 日期时间类型。</li>
       <li>json  - 表示该属性中的数值是纯JSON，这样Cola就不会尝试将这些数据转换成Entity和EntityList。
       否则在默认情况下，我们向一个Entity属性中设置一个JSON或JSON的数组，再一次从中获取内容时得到的将是Entity和EntityList。</li>
-      <li>entity  - 表示该属性中的数值是数据实体。即允许Cola自动将JSON数据转换成Entity和EntityList。
+      <li>entity  - 表示该属性中的数值是Entity。即允许Cola自动将JSON数据转换成Entity和EntityList。
       虽然Cola默认的的处理机制就是会做这样的转换，但是作此设定还是会在某些情况下带来不同。
       比如当我们设置一个空数组到某属性中时，由于数组中没有任何元素，因此Cola无法判断根据元素的类型是否需要进行转换，
       那么在使用此种DataType的情况，Cola会将其转换成一个空的EntityList。</li>
@@ -24,7 +24,7 @@
 - name: cola.EntityDataType
   stereotype: class
   super: cola.DataType
-  label: 实体数据类型
+  label: Entity数据类型
   description: |
     即用于描述Entity型数据的数据类型。此种数据类型最主要的作用是利用其中的properties来描述Entity的某些属性。
 
@@ -88,12 +88,206 @@
 
   events:
     - name: beforeCurrentChange
-      label: 类型为该DataType的某个实体集合中的当前实体切换之前触发的事件
+      label: 类型为该DataType的某个EntityList中的当前Entity切换之前触发的事件。
+      description: |
+        在该事件中返回false可以阻止当前Entity发生切换。
+      type: boolean
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entityList
+              type: cola.EntityList
+              label: 触发该事件的EntityList
+            - name: oldCurrent
+              type: cola.Entity
+              label: 目前的当前Entity
+            - name: current
+              type: cola.Entity
+              label: 新的当前Entity
+
+    - name: currentChange
+      label: 类型为该DataType的某个EntityList中的当前Entity切换之后触发的事件。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entityList
+              type: cola.EntityList
+              label: 触发该事件的EntityList
+            - name: oldCurrent
+              type: cola.Entity
+              label: 原有的当前Entity
+            - name: current
+              type: cola.Entity
+              label: 现有的当前Entity
+
+    - name: beforeDataChange
+      label: 类型为该DataType的某个Entity中的某个属性值发生改变之前触发的事件。
+      description: |
+        在该事件中返回false可以阻止属性值被修改。
+      type: boolean
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 将被修改的属性名
+            - name: oldValue
+              type: any
+              label: 现有的值
+            - name: value
+              type: any
+              label: 新的值
+
+    - name: dataChange
+      label: 类型为该DataType的某个Entity中的某个属性值发生改变之后触发的事件。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 被修改的属性名
+            - name: oldValue
+              type: any
+              label: 原有的值
+            - name: value
+              type: any
+              label: 现有的值
+
+    - name: entityCreate
+      label: 类型为该DataType的某个新Entity被创建时触发的事件。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+
+    - name: beforeEntityRemove
+      label: 类型为该DataType的某个Entity将要被移除之前触发的事件。
+      description: |
+        在该事件中返回false可以阻止该Entity被移除。
+        此事件与beforeEntityDelete的区别是beforeEntityDelete特指从EntityList中删除的操作，
+        而beforeEntityRemove则会在所有当一个Entity的状态被修改为cola.Entity.STATE_DELETED时触发，
+        beforeEntityRemove的触发范围包含beforeEntityDelete的范围。
+      type: boolean
       arguments:
         - name: self
           type: cola.EntityDataType
           label:
         - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 将被移除的Entity
+            - name: parent
+              type: cola.Entity || cola.EntityList
+              label: 被移除的Entity所属的父Entity或EntityList
+
+    - name: entityRemove
+      label: 类型为该DataType的某个Entity将要被移除之后触发的事件。
+      description: |
+        此事件与entityDelete的区别是entityDelete特指从EntityList中删除的操作，
+        而entityRemove则会在所有当一个Entity的状态被修改为cola.Entity.STATE_DELETED时触发，
+        entityRemove的触发范围包含entityDelete的范围。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 将被移除的Entity
+            - name: parent
+              type: cola.Entity || cola.EntityList
+              label: 被移除的Entity原先所属的父Entity或EntityList
+
+    - name: beforeEntityInsert
+      label: 类型为该DataType的某个Entity被添加到某个EntityList之前触发的事件。
+      description: |
+        在该事件中返回false可以阻止该Entity的添加动作。
+      type: boolean
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 插入的Entity
+            - name: entityList
+              type: cola.EntityList
+              label: 被插入的EntityList
+
+    - name: entityInsert
+      label: 类型为该DataType的某个Entity被删除之后触发的事件。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 插入的Entity
+            - name: entityList
+              type: cola.EntityList
+              label: 被插入的EntityList
+
+    - name: beforeEntityDelete
+      label: 类型为该DataType的某个Entity将要被从EntityList中删除之前触发的事件。
+      description: |
+        在该事件中返回false可以阻止该Entity被删除。
+      type: boolean
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 将被删除的Entity
+            - name: entityList
+              type: cola.EntityList
+              label: 被删除的Entity所属的EntityList
+
+    - name: entityDelete
+      label: 类型为该DataType的某个Entity被从EntityList中删除之后触发的事件。
+      arguments:
+        - name: self
+          type: cola.EntityDataType
+          label: 触发改事件的DataType
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 被删除的Entity
+            - name: entityList
+              type: cola.EntityList
+              label: 被删除的Entity原先所属的EntityList
 
 - name: cola.Property
   stereotype: class
@@ -108,6 +302,7 @@
       label: 属性名
 
     - name: owner
+      readOnly: true
       type: cola.EntityDataType
       label: 该属性描述所属的EntityDataType
 
@@ -118,10 +313,6 @@
     - name: defaultValue
       type: any
       label: 属性的默认值
-
-    - name: required
-      type: boolean
-      label: 属性的是否必须有值
 
     - name: dataType
       type: string || json || cola.DataType
@@ -169,6 +360,14 @@
           <li>使用JSON配置对象，表示直接利用此JSON配置对象创建一个新的Provider。</li>
         </ul>
 
+    - name: loadForNewEntity
+      type: boolean
+      label: 对于状态为cola.Entity.STATE_NEW的Entity是否属性值装载
+      description: |
+        如果这个属性中定义了provider，那么通常情况下Cola会在必要的时候自动利用provider去装载该属性的内容。
+        但是在打不风情况下，我们可能不希望新增的Entity去执行这样的装载。因为新增的Entity可能很大可能是不会用于下一级的内容的。
+        如果你确实需要针对新增的Entity去执行装载，那么你需要将此属性设置为true。
+
     - name: validators
       type: string || function || json || [json] || [cola.Validator]
       label: 属性的数据校验器
@@ -185,10 +384,104 @@
           <li>使用json或[json]，Cola会根据这些JSON配置对象创建一个或多个数据校验器。</li>
         </ul>
 
-    - name: rejectInvalidValue
+    - name: disableValidators
       type: boolean
-      label: 是否拒绝未通过校验的数据进入Entity
-      description: |
-        默认情况下Cola并不会阻止未通过校验的数据设置进Entity，而是会将整个Entity标记为未通过校验的状态。
-        用户可以在界面上看到那些数据未通过校验并尝试修正他们，我们认为这样的方式有助于改善界面的操作体验。
-        但在部分情况下，您可能希望直接拒绝这些不正确的数据设置进Entity，此时可以将rejectInvalidValue设置为true。
+      label: 是否禁用该属性声明下定义的校验器
+
+  events:
+    - name: read
+      label: 当Entity中的该属性的值被外界读取时触发的事件。
+      description: 该事件的返回值将被作为属性值传递给外界。
+      type: any
+      arguments:
+        - name: self
+          type: cola.Property
+          label: 触发事件的属性声明
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 属性名
+            - name: value
+              type: any
+              label: 默认将要返回给外界的值
+
+    - name: beforeWrite
+      label: 当Entity中的该属性的值将要被外界修改前触发的事件。
+      description: 在该事件中返回false可以阻止本次的赋值动作。
+      type: false
+      arguments:
+        - name: self
+          type: cola.Property
+          label: 触发事件的属性声明
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 属性名
+            - name: oldValue
+              type: any
+              label: 该属性原有的属性值
+            - name: value
+              type: any
+              label: 将要被写入的值
+
+    - name: write
+      label: 当Entity中的该属性的值被外界修改时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Property
+          label:
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 属性名
+            - name: oldValue
+              type: any
+              label: 该属性原有的属性值
+            - name: value
+              type: any
+              label: 将要被写入的值
+              description: 修改此处的value值可以自定义实际向属性中写入的值。
+
+    - name: beforeLoad
+      label: 当Entity中的该属性将要执行数据装载之前触发的事件。
+      description: 在该事件中返回false可以阻止本次的数据装载动作。
+      type: false
+      arguments:
+        - name: self
+          type: cola.Property
+          label: 触发事件的属性声明
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 属性名
+
+    - name: load
+      label: 当Entity中的该属性执行数据装载之后触发的事件。
+      arguments:
+        - name: self
+          type: cola.Property
+          label: 触发事件的属性声明
+        - name: arg
+          properties:
+            - name: entity
+              type: cola.Entity
+              label: 触发该事件的Entity
+            - name: property
+              type: string
+              label: 属性名

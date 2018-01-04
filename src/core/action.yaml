@@ -75,7 +75,7 @@ methods:
     type: boolean
     label: 判断传入的参数是否为空。
     description: |
-      如果传入的参数为数组或实体集合，那么判断是否为空的依据是该数组(或集合)的长度是否为0。
+      如果传入的参数为数组或EntityList，那么判断是否为空的依据是该数组(或集合)的长度是否为0。
     arguments:
       - name: value
         type: any
@@ -93,19 +93,19 @@ methods:
 
   - name: state
     type: string
-    label: 返回一个数据实体的state。
+    label: 返回一个Entity的state。
     arguments:
       - name: entity
         type: cola.Entity
-        label: 数据实体
+        label: Entity
 
   - name: len
     type: int
-    label: 返回一个字符串、数组或实体集合的长度。
+    label: 返回一个字符串、数组或EntityList的长度。
     arguments:
       - name: data
-        type: string | array | cola.Entity
-        label: 字符串、数组或实体集合
+        type: string || array || cola.Entity
+        label: 字符串、数组或EntityList
 
   - name: upperCase
     type: string
@@ -155,37 +155,37 @@ methods:
 
   - name: filter
     type: array
-    label: 过滤一个数组或实体集合。
+    label: 过滤一个数组或EntityList。
     description: |
       请参考cola.util.filter()方法。
     arguments:
       - name: collection
-        type: array | cola.EntityList
-        label: 要过滤的数组或实体集合
+        type: array || cola.EntityList
+        label: 要过滤的数组或EntityList
       - name: criteria
-        type: string | object
+        type: string || object
         label: 过滤条件
 
   - name: sort
     type: array
-    label: 对一个数组或实体集合进行排序。
+    label: 对一个数组或EntityList进行排序。
     description: |
       请参考cola.util.sort()方法。
     arguments:
       - name: collection
-        type: array | cola.EntityList
-        label: 要排序的数组或实体集合
+        type: array || cola.EntityList
+        label: 要排序的数组或EntityList
       - name: criteria
-        type: string | object
+        type: string || object
         label: 排序条件
 
   - name: top
     type: array
-    label: 返回由数组或实体集合的前若干项组成的新数组。
+    label: 返回由数组或EntityList的前若干项组成的新数组。
     arguments:
       - name: collection
-        type: array | cola.EntityList
-        label: 原数组或实体集合
+        type: array || cola.EntityList
+        label: 原数组或EntityList
       - name: top
         type: int
         optinal: true
@@ -194,11 +194,11 @@ methods:
 
   - name: toJSON
     type: string
-    label: 将传入的实体或实体集合转换成JSON字符串。
+    label: 将传入的Entity或EntityList转换成JSON字符串。
     arguments:
       - name: data
-        type: cola.Entity | cola.EntityList
-        label: 实体或实体集合
+        type: cola.Entity || cola.EntityList
+        label: Entity或EntityList
 
   - name: formatDate
     deprecated: true
@@ -235,7 +235,7 @@ methods:
       请参考cola.util.formatNumber()或cola.util.formatNumber()方法。
     arguments:
       - name: data
-        type: date | number
+        type: date || number
         label: 要格式化的数值，通常为日期或数字
       - name: pattern
         type: string
@@ -289,5 +289,5 @@ methods:
         type: string
         label: 数据字典的名称
       - name: key
-        type: string | any
+        type: string || any
         label: 键值
