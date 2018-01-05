@@ -13,7 +13,7 @@ events:
         label: 事件参数
         properties:
           - name: visible
-            type: bool
+            type: boolean
             label: 是否可见
 
   - name: sizingChange

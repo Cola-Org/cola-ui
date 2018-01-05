@@ -78,7 +78,7 @@ cola.util.update = (url, data, options = {})->
 
 	if not deferred
 		if options.preProcessor
-			data = options.preProcessor(data, options)
+			data = options.preProcessor(data)
 
 		if data or options.alwaysExecute
 			deferred = $.ajax(
@@ -87,11 +87,11 @@ cola.util.update = (url, data, options = {})->
 				contentType: options.contentType or "application/json"
 				# dataType: "json"
 				data: JSON.stringify(data)
-				options: options
+				options: options.ajaxOptions
 			).done (responseData)->
 				if context
-					if options.postProcessor
-						return options.postProcessor(responseData, options)
+					if options.postProcessor?(responseData) is false
+						return
 
 					if responseData?.entityMap
 						for entityId, entityDiff of responseData.entityMap
@@ -131,6 +131,9 @@ cola.util.update = (url, data, options = {})->
 		return if options.silence
 		setTimeout(()=>
 			return if @errorProcessed
+
+			if options.errorProcessor?(error) is false
+				return
 
 			if error is "NO_DATA"
 				console.warn(cola.resource("cola.data.noDataSubmit"))

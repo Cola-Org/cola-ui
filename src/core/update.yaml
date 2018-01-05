@@ -1,0 +1,173 @@
+name: cola.util
+stereotype: namespace
+methods:
+  - name: dirtyTree
+    label: 从给定的一组数据中提取出"最小脏树"
+    type: json || [json]
+    description: |
+      <p>
+      "最小脏树"的概念是这样的，当我们提交一个EntityList或和包含子Entity的数据时出于性能考虑，
+      通常我们并不需要提交整个EntityList或Entity，原则上我们只需要提交其中那些"脏"状态的Entity就可以了。
+      </p>
+      <p>
+      但是，对于那些状结构的数据而言，简单提取出"脏"状态的Entity会破坏树原有的结构。
+      为了保证提交的数据仍然保持正确的数据结构，我们就不得不多提交一些必要的并不"脏"的Entity。
+      我们将以这种方式提取出来的仍然保持正确结构的"脏"数据树称为"最小脏树"。
+      </p>
+    arguments:
+      - name: data
+        type: cola.Entity || cola.EntityList
+        label: 源数据
+      - name: options
+        type: json
+        label: 选项
+        optional: true
+        properties:
+          - name: entityId
+            type: boolean
+            defaultValue: true
+            description: 是否在最终的JSON中生成Entity在当前页面中的内部唯一ID，该ID会被保存在一个名为 entityId$ 的特殊属性中。
+          - name: state
+            type: boolean
+            defaultValue: true
+            description: 是否转换Entity的状态
+          - name: oldData
+            type: boolean
+            label: 是否转换旧值
+            description: |
+              如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 oldData$ 的子属性中。
+          - name: simpleValue
+            type: boolean
+            description: 是否提取简单属性值。启用此选项后我们只能提取出第一层的Entity中的简单值。
+          - name: nullValue
+            type: boolean
+            description: 是否将值为null的属性生成到JSON中
+
+  - name: update
+    label: 提交数据
+    type: Deferred
+    arguments:
+      - name: url
+        type: string
+        label: 数据提交到的目标URL
+      - name: data
+        type: cola.Entity || cola.EntityList || json || [json] || any
+        label: 要提交的源数据
+        description: |
+          <p>
+          如果给定的源数据是cola.Entity或cola.EntityList，此方法会在内部调用 cola.util.dirtyTree() 得到最终要提交到服务端的JSON数据。
+          </p>
+          <p>
+          默认情况下，当异常发生时Cola会自动提示异常信息。但是有时我们可能希望自行处理这些异常信息，有两个方法可以做到这一点...
+          <li>
+          利用Deferred对象的fail处理器，例如...
+          <code>
+          cola.util.update("/yourServiceUrl", data).fail(function(error) {
+            // 自行处理异常信息的代码
+            this.errorProcessed = true; // 通知Cola异常信息已被处理，后续的系统默认处理将被跳过
+          );
+          </code>
+          </li>
+          <li>
+          利用options中的errorProcessor选项，例如...
+          <code>
+          cola.util.update("/yourServiceUrl", data, {
+            errorProcessor: function(error) {
+              // 自行处理异常信息的代码
+              return false; // 通知Cola忽略系统默认处理机制
+            }
+          });
+          </code>
+          </li>
+          </p>
+      - name: options
+        type: json
+        label: 选项
+        optional: true
+        properties:
+          - name: entityId
+            type: boolean
+            defaultValue: true
+            description: 是否在最终的JSON中生成Entity在当前页面中的内部唯一ID，该ID会被保存在一个名为 entityId$ 的特殊属性中。
+          - name: state
+            type: boolean
+            defaultValue: true
+            description: 是否转换Entity的状态
+          - name: oldData
+            type: boolean
+            label: 是否转换旧值
+            description: |
+              如果启用此选项Cola会将所有旧值转换成一个JSON对象并存入名为 oldData$ 的子属性中。
+          - name: simpleValue
+            type: boolean
+            description: 是否提取简单属性值。启用此选项后我们只能提取出第一层的Entity中的简单值。
+          - name: nullValue
+            type: boolean
+            description: 是否将值为null的属性生成到JSON中
+          - name: disableValidators
+            type: boolean
+            description: |
+              是否在提交前禁用相关的数据校验器，否则会自动在提交前对数据进行校验，如果校验未通过则数据不会被提交。
+          - name: alwaysExecute
+            type: boolean
+            description: |
+              启用此选项，表示不论是否存在需要提交的"脏"数据，都执行提交操作。如果没有"脏"数据将提交null值。
+          - name: silence
+            type: boolean
+            description: |
+              是否已静默方式执行，即便报错也不给出任何提示。不过开发者仍可以通过Deferred对象或option.errorProcessor来处理异常。
+          - name: preProcessor
+            type: function
+            description: |
+              提交数据的预处理器。可以在此处定义一个function用于在数据最终被发送之前对数据做最后的处理。
+              此方法包含一个参数：
+              <ul>
+              <li>data  - 将被发送的数据</li>
+              </ul>
+          - name: postProcessor
+            type: function
+            description: |
+              提交数据的后置处理器。可以在此处定义一个function用于在提交成功后的返回数据最终被处理之前做些处理。
+              此方法包含一个参数：
+              <ul>
+              <li>data  - 返回数据</li>
+              </ul>
+              如果此方法的返回值为false，表示将跳出系统原有的数据处理逻辑。
+          - name: errorProcessor
+            type: function
+            description:
+              自定义错误处理器。可以在此处定义一个function用于自定义异常的处理机制。
+              此方法包含一个参数：
+              <ul>
+              <li>error  - 返回数据</li>
+              </ul>
+              如果此方法的返回值为false，表示将跳出系统原有的异常处理逻辑。
+          - name: ajaxOptions
+            description: 用于传递给内部jQuery.ajax()的settings参数
+
+  - name: autoUpdate
+    label: 自动提交
+    type: json || [json]
+    description: |
+      此方法可以监听Model中某个数据路径下的数据，当这些数据发生变化时Cola会自动将修改提交到指定的服务中。
+    arguments:
+      - name: url
+        type: string
+        label: 数据提交到的目标URL
+      - name: model
+        type: cola.Model
+        label: 要监听的Model
+      - name: path
+        type: string
+        label: 要监听的数据路径
+      - name: options
+        type: json
+        label: 选项。此选项支持 cola.util.update() 方法的options参数中的所有的子选项，同时还支持更多。
+        optional: true
+        properties:
+          - name: delay
+            type: number
+            defaultValue: 5000
+            description:
+              延时提交的毫秒数。即当Cola监听到数据发生改变后延时一定的时间才提交数据。
+              如果在此段时间内数据发生了更多修改，那么延时也将重新计时。此功能用于避免网页中发生过于频繁的提交操作。

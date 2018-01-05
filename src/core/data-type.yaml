@@ -97,6 +97,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entityList
@@ -116,6 +117,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entityList
@@ -138,6 +140,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -160,6 +163,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -182,6 +186,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -201,6 +206,7 @@
           type: cola.EntityDataType
           label:
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -221,6 +227,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -240,6 +247,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -256,6 +264,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -275,6 +284,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -291,6 +301,7 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -409,6 +420,7 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -430,6 +442,7 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -452,6 +465,7 @@
           type: cola.Property
           label:
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -477,6 +491,7 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity
@@ -493,6 +508,7 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: entity

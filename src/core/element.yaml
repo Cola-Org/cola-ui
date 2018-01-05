@@ -49,6 +49,7 @@
           type: cola.Element
           label: cola对象本身
         - name: arg
+          type: json
           label: 事件参数
           properties:
             - name: attribute

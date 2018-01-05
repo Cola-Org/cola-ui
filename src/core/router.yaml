@@ -10,6 +10,8 @@ methods:
         type: cola
         label: cola对象本身
       - name: arg
+        type: json
+        label: 事件参数
         properties:
           - name: path
             type: string
@@ -30,6 +32,8 @@ methods:
         type: cola
         label: cola对象本身
       - name: arg
+        type: json
+        label: 事件参数
         properties:
           - name: path
             type: string

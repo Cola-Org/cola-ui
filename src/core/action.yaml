@@ -45,7 +45,7 @@ methods:
         type: any
         label: 参数值
 
-  - name: bool
+  - name: boolean
     type: boolean
     label: 将传入的数据转换成boolean值。
     arguments:
