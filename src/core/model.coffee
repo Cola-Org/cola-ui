@@ -1340,6 +1340,9 @@ class cola.ItemDataModel extends cola.SubDataModel
 		return if oldData is data
 
 		itemsScope = @model.parent
+		if not (itemsScope instanceof cola.ItemsScope)
+			itemsScope = null
+
 		oldData = @_itemData
 		if typeof oldData is "object" and itemsScope
 			if itemsScope.getItemScope(oldData) is @model
