@@ -61,5 +61,5 @@ methods:
       - name: context
         type: json
         optional: true
-        label: 上下文对象
+        description: 上下文对象
         description: 传给内部使用的xCreate方法，用于保存那些定义了contextKey的DOM元素。

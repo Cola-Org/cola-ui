@@ -352,6 +352,24 @@
           type: string
           label: Action的name
 
+    - name: tag
+      type: [cola.Element]
+      label: 根据给定的标签返回所有此Model中拥有此标签的对象。
+      description: |
+        请参考 cola.tag() 方法。
+      arguments:
+        - name: tag
+          type: string
+          label: 要查找的标签
+
+    - name: $
+      type: jQuery
+      label: 根据CSS Selector在此Model中查找DOM元素，并包装为jQuery对象返回。
+      arguments:
+        - name: selector
+          type: string
+          label: CSS Selector
+
 - name: cola
   stereotype: namespace
   methods:

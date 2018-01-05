@@ -34,6 +34,8 @@ cola.Model::widgetConfig = (id, config)->
         @_widgetConfig[id] = config
     return
 
+cola.Model::widget = (config)-> cola.widget(config, null, @)
+
 ALIAS_REGEXP = new RegExp("\\$default", "g")
 
 _findWidgetConfig = (scope, name)->
@@ -304,8 +306,6 @@ cola.findWidget = (dom, typeName, thisWindow)->
         return widget
 
     return find(window, dom, type)
-
-cola.Model::widget = (config)-> cola.widget(config, null, @)
 
 ###
 User Widget

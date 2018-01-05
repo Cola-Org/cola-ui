@@ -37,12 +37,6 @@ cola.util.isSimpleValue = (value)->
 	type = typeof value
 	return type != "object" and type != "function" or value instanceof Date or value instanceof Array
 
-cola.util.each = (array, fn)->
-	for item, i in array
-		if fn(item, i) is false
-			break
-	return
-
 cola.util.path = (parts...)->
 	last = parts.length - 1
 	for part, i in parts
@@ -57,6 +51,12 @@ cola.util.path = (parts...)->
 
 		if changed then parts[i] = part
 	return parts.join("/")
+
+cola.util.each = (array, fn)->
+	for item, i in array
+		if fn(item, i) is false
+			break
+	return
 
 cola.util.parseStyleLikeString = (styleStr, headerProp)->
 	return false unless styleStr

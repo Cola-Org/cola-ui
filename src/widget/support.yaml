@@ -1,0 +1,21 @@
+- name: cola.Model
+  stereotype: class
+
+  methods:
+    - name: widgetConfig
+      type: cola.Model
+      label:
+      description: |
+      arguments:
+        - name: config
+          type: json
+          label:
+
+    - name: widget
+      type: cola.Model
+      label:
+      description: |
+      arguments:
+        - name: config
+          type: json
+          label:

@@ -135,9 +135,9 @@ class cola.AsyncValidator extends cola.Validator
 		async:
 			defaultValue: true
 
-	validate: (data, entity, callback)->
+	validate: (data, entity, done)->
 		if entity instanceof Function
-			callback = entity
+			done = entity
 			entity = undefined
 
 		if not @_validateEmptyValue
@@ -147,13 +147,13 @@ class cola.AsyncValidator extends cola.Validator
 				complete: (success, result)=>
 					if success
 						result = @_parseValidResult(result)
-					cola.callback(callback, success, result)
+						done?(result)
 					return
 			})
 		else
 			result = @_validate(data, entity)
 			result = @_parseValidResult(result)
-			cola.callback(callback, true, result)
+			done?(result)
 		return result
 
 class cola.AjaxValidator extends cola.AsyncValidator
@@ -163,7 +163,7 @@ class cola.AjaxValidator extends cola.AsyncValidator
 		ajaxOptions: null
 		data: null
 
-	_validate: (data, entity, callback)->
+	_validate: (data, entity, done)->
 		url = @_url.replace("{{data}}", data)
 		if url is @_url
 			sendData = @_data
@@ -187,17 +187,12 @@ class cola.AjaxValidator extends cola.AsyncValidator
 				if not options.hasOwnProperty(p)
 					options[p] = v
 
+		retValue = null
 		$.ajax(options).done((result)=>
-			if callback
-				return cola.callback(callback, true, result)
-			else
-				return result
-		).fail((error)=>
-			if callback
-				return cola.callback(callback, false, error)
-			else
-				return error
+			retValue = result
+			done?(result)
 		)
+		return retValue
 
 class cola.CustomValidator extends cola.AsyncValidator
 	@attributes:
@@ -217,12 +212,12 @@ class cola.CustomValidator extends cola.AsyncValidator
 		else
 			super(config)
 
-	_validate: (data, entity, callback)->
-		if @_async and callback
+	_validate: (data, entity, done)->
+		if @_async and done
 			if @_func
-				@_func(data, entity, callback)
+				@_func(data, entity, done)
 			else
-				cola.callback(callback, true)
+				done(null)
 			return
 		else
 			return @_func?(data, entity)

@@ -29,10 +29,21 @@ methods:
         type: any
         label: 值
 
-  - name: concatUrl
+  - name: path
     type: string
     label: 将一组url片段连接成一个url，该方法可以自动处理连接时的“/”分割符，避免遗漏或重复。
     arguments:
       - name: part...
         type: string
         label: url片段
+
+  - name: each
+  - name: findModel
+  - name: formatDate
+  - name: formatNumber
+  - name: format
+  - name: queryParams
+  - name: pathParams
+  - name: dictionary
+  - name: translate
+  - name: isSuperClass

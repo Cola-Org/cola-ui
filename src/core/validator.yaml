@@ -246,25 +246,44 @@
     - name: async
       type: boolean
       defualtValue: false
-      label: 是否以异步的方式执行Ajax操作
+      label: 是否异步模式的校验器
 
     - name: func
       type: function
       label: 自定义的校验方法
       description: |
+        <p>
         此方法在同步模式和异步模式下的定义方式有所不同。在同步模式下校验结果直接通过方法的返回值传递给系统，而在异步模式下校验结果需通过回调方法传递给系统。
-        例如:
+        </p>
+        <p>
+        此方法支持三个参数：
+        <ul>
+        <li>value - 要校验的值。</li>
+        <li>entity  - 当前Entity。</li>
+        <li>done  - 如果是异步模式的校验器，还可以利用此回调告知Cola最终的校验结果</li>
+        </ul>
+        </p>
+        <p>
+        例如下面是一个简单的自定义校验器的示例:
         <code>
-        function(value, callback) {
+        function(value) {
+          if (value % 2 !== 0) {
+            return "此处只能输入偶数";
+          }
+        }
+        </code>
+        </p>
+        <p>
+        例如下面是一个异步自定义校验器的示例:
+        <code>
+        function(value, entity, done) {
           $.ajax({
             url: "/xxxx/xxx",
             data: value,
             success: function(message) {
-              cola.callback(callback, true, message);
-            },
-            error: function(xhr, status, ex) {
-              cola.callback(callback, false, ex);
+              done(message);
             }
           });
         }
         </code>
+        </p>
