@@ -1,0 +1,40 @@
+name: $
+stereotype: namespace
+events:
+
+  - name: visibilityChange
+    label: 用于监听一个DOM元素的可见性的变化
+    arguments:
+      - name: event
+        type: Event
+        label: 浏览器默认的Event对象
+      - name: data
+        type: json
+        label: 事件参数
+        properties:
+          - name: visible
+            type: bool
+            label: 是否可见
+
+  - name: sizingChange
+    label: 用于监听一个DOM元素的尺寸的变化
+    arguments:
+      - name: event
+        type: Event
+        label: 浏览器默认的Event对象
+      - name: data
+        type: json
+        label: 事件参数
+        properties:
+          - name: originWidth
+            type: int
+            label: 变化前的宽度
+          - name: origiHeight
+            type: int
+            label: 变化前的高度
+          - name: width
+            type: int
+            label: 新的宽度
+          - name: height
+            type: int
+            label: 新的高度

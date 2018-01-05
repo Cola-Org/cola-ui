@@ -1,0 +1,42 @@
+name: cola
+stereotype: namespace
+methods:
+  - name: beforeRouterSwitch
+    label: 当前Router发生切换之前触发的事件
+    description: |
+      参考 <a href="../docs/router">Router(路由)</a></li>
+    arguments:
+      - name: self
+        type: cola
+        label: cola对象本身
+      - name: arg
+        properties:
+          - name: path
+            type: string
+            label: 当前的子路径
+          - name: prev
+            type: json
+            label: 当前的Router
+          - name: next
+            type: json
+            label: 将要切换到的Router
+
+  - name: routerSwitch
+    label: 当当前Router发生切换之后触发的事件
+    description: |
+      参考 <a href="../docs/router">Router(路由)</a></li>
+    arguments:
+      - name: self
+        type: cola
+        label: cola对象本身
+      - name: arg
+        properties:
+          - name: path
+            type: string
+            label: 当前的子路径
+          - name: prev
+            type: json
+            label: 之前的Router
+          - name: next
+            type: json
+            label: 当前的Router

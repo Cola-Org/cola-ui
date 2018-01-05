@@ -88,7 +88,7 @@ class cola.Scope
 						if dataType.name
 							@data.regDefinition(dataType.name, dataType)
 						return dataType
-			return
+			return @
 
 	definition: (name)->
 		return @data.definition(name)

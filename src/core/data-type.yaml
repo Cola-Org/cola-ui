@@ -97,16 +97,17 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entityList
               type: cola.EntityList
-              label: 触发该事件的EntityList
+              description: 触发该事件的EntityList
             - name: oldCurrent
               type: cola.Entity
-              label: 目前的当前Entity
+              description: 目前的当前Entity
             - name: current
               type: cola.Entity
-              label: 新的当前Entity
+              description: 新的当前Entity
 
     - name: currentChange
       label: 类型为该DataType的某个EntityList中的当前Entity切换之后触发的事件。
@@ -115,16 +116,17 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entityList
               type: cola.EntityList
-              label: 触发该事件的EntityList
+              description: 触发该事件的EntityList
             - name: oldCurrent
               type: cola.Entity
-              label: 原有的当前Entity
+              description: 原有的当前Entity
             - name: current
               type: cola.Entity
-              label: 现有的当前Entity
+              description: 现有的当前Entity
 
     - name: beforeDataChange
       label: 类型为该DataType的某个Entity中的某个属性值发生改变之前触发的事件。
@@ -136,19 +138,20 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 将被修改的属性名
+              description: 将被修改的属性名
             - name: oldValue
               type: any
-              label: 现有的值
+              description: 现有的值
             - name: value
               type: any
-              label: 新的值
+              description: 新的值
 
     - name: dataChange
       label: 类型为该DataType的某个Entity中的某个属性值发生改变之后触发的事件。
@@ -157,19 +160,20 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 被修改的属性名
+              description: 被修改的属性名
             - name: oldValue
               type: any
-              label: 原有的值
+              description: 原有的值
             - name: value
               type: any
-              label: 现有的值
+              description: 现有的值
 
     - name: entityCreate
       label: 类型为该DataType的某个新Entity被创建时触发的事件。
@@ -178,10 +182,11 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
 
     - name: beforeEntityRemove
       label: 类型为该DataType的某个Entity将要被移除之前触发的事件。
@@ -196,13 +201,14 @@
           type: cola.EntityDataType
           label:
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 将被移除的Entity
+              description: 将被移除的Entity
             - name: parent
               type: cola.Entity || cola.EntityList
-              label: 被移除的Entity所属的父Entity或EntityList
+              description: 被移除的Entity所属的父Entity或EntityList
 
     - name: entityRemove
       label: 类型为该DataType的某个Entity将要被移除之后触发的事件。
@@ -215,13 +221,14 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 将被移除的Entity
+              description: 将被移除的Entity
             - name: parent
               type: cola.Entity || cola.EntityList
-              label: 被移除的Entity原先所属的父Entity或EntityList
+              description: 被移除的Entity原先所属的父Entity或EntityList
 
     - name: beforeEntityInsert
       label: 类型为该DataType的某个Entity被添加到某个EntityList之前触发的事件。
@@ -233,13 +240,14 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 插入的Entity
+              description: 插入的Entity
             - name: entityList
               type: cola.EntityList
-              label: 被插入的EntityList
+              description: 被插入的EntityList
 
     - name: entityInsert
       label: 类型为该DataType的某个Entity被删除之后触发的事件。
@@ -248,13 +256,14 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 插入的Entity
+              description: 插入的Entity
             - name: entityList
               type: cola.EntityList
-              label: 被插入的EntityList
+              description: 被插入的EntityList
 
     - name: beforeEntityDelete
       label: 类型为该DataType的某个Entity将要被从EntityList中删除之前触发的事件。
@@ -266,13 +275,14 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 将被删除的Entity
+              description: 将被删除的Entity
             - name: entityList
               type: cola.EntityList
-              label: 被删除的Entity所属的EntityList
+              description: 被删除的Entity所属的EntityList
 
     - name: entityDelete
       label: 类型为该DataType的某个Entity被从EntityList中删除之后触发的事件。
@@ -281,13 +291,14 @@
           type: cola.EntityDataType
           label: 触发改事件的DataType
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 被删除的Entity
+              description: 被删除的Entity
             - name: entityList
               type: cola.EntityList
-              label: 被删除的Entity原先所属的EntityList
+              description: 被删除的Entity原先所属的EntityList
 
 - name: cola.Property
   stereotype: class
@@ -398,16 +409,17 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 属性名
+              description: 属性名
             - name: value
               type: any
-              label: 默认将要返回给外界的值
+              description: 默认将要返回给外界的值
 
     - name: beforeWrite
       label: 当Entity中的该属性的值将要被外界修改前触发的事件。
@@ -418,19 +430,20 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 属性名
+              description: 属性名
             - name: oldValue
               type: any
-              label: 该属性原有的属性值
+              description: 该属性原有的属性值
             - name: value
               type: any
-              label: 将要被写入的值
+              description: 将要被写入的值
 
     - name: write
       label: 当Entity中的该属性的值被外界修改时触发的事件。
@@ -439,16 +452,17 @@
           type: cola.Property
           label:
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 属性名
+              description: 属性名
             - name: oldValue
               type: any
-              label: 该属性原有的属性值
+              description: 该属性原有的属性值
             - name: value
               type: any
               label: 将要被写入的值
@@ -463,13 +477,14 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 属性名
+              description: 属性名
 
     - name: load
       label: 当Entity中的该属性执行数据装载之后触发的事件。
@@ -478,10 +493,11 @@
           type: cola.Property
           label: 触发事件的属性声明
         - name: arg
+          label: 事件参数
           properties:
             - name: entity
               type: cola.Entity
-              label: 触发该事件的Entity
+              description: 触发该事件的Entity
             - name: property
               type: string
-              label: 属性名
+              description: 属性名

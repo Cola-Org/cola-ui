@@ -160,6 +160,7 @@
           type: cola
           label: cola对象本身
         - name: arg
+          label: 事件参数
 
     - name: ready
       label: 当Cola完成页面初始化之后触发的事件
@@ -170,6 +171,7 @@
           type: cola
           label: cola对象本身
         - name: arg
+          label: 事件参数
 
     - name: settingChange
       label: 当Cola的某个设置项的值被改变时触发的事件
@@ -178,10 +180,11 @@
           type: cola
           label: cola对象本身
         - name: arg
+          label: 事件参数
           properties:
             - name: key
               type: string
-              label: 被改变的设置项的名称
+              description: 被改变的设置项的名称
 
     - name: excpetion
       label: 当Cola抛出一个异常是触发的事件
@@ -192,50 +195,11 @@
           type: cola
           label: cola对象本身
         - name: arg
+          label: 事件参数
           properties:
             - name: exception
               type: cola.Exception
-              label: 异常对象
-
-    - name: beforeRouterSwitch
-      label: 当前Router发生切换之前触发的事件
-      description: |
-        参考 <a href="../docs/router">Router(路由)</a></li>
-      arguments:
-        - name: self
-          type: cola
-          label: cola对象本身
-        - name: arg
-          properties:
-            - name: path
-              type: string
-              label: 当前的子路径
-            - name: prev
-              type: json
-              label: 当前的Router
-            - name: next
-              type: json
-              label: 将要切换到的Router
-
-    - name: routerSwitch
-      label: 当当前Router发生切换之后触发的事件
-      description: |
-        参考 <a href="../docs/router">Router(路由)</a></li>
-      arguments:
-        - name: self
-          type: cola
-          label: cola对象本身
-        - name: arg
-          properties:
-            - name: path
-              type: string
-              label: 当前的子路径
-            - name: prev
-              type: json
-              label: 之前的Router
-            - name: next
-              type: json
-              label: 当前的Router
+              description: 异常对象
 
 - name: cola.browser
   stereotype: namespace

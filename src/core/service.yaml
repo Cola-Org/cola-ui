@@ -8,9 +8,18 @@ attributes:
   - name: url
     type: string
     label: Ajax服务的URL
+
   - name: loadMode
     type: string
-    label: Ajax服务的URL
+    label: 装载模式
+    enum:
+      - lazy
+      - manual
+    defaultValue: lazy
+    description:
+      <li>lazy  - 懒装载模式。即只要有任何代码尝试从与改Provider相关的数据项中取值，就会触发该Provider的装载动作。</li>
+      <li>manual  - 手动模式。只有当用户主动调用flush()方法的时候才会触发该Provider的装载动作。</li>
+
   - name: method
     type: string
     enum:
@@ -30,15 +39,30 @@ attributes:
   - name: pageSize
     type: number
     label: 对于集合型数据而言，进行分页装载时每一页的大小
+    description: |
+      请参考jQuery.ajax的 <a href="//api.jquery.com/jQuery.ajax/">settings</a> 参数。
 
 events:
-  - name: beforeSend
-    label: 请求发送之前触发的事件
+  - name: beforeExecute
+    label: Provider执行之前触发的事件
     arguments:
       - name: self
         type: cola.Provider
         label: Provider本身
       - name: arg
+        label: 事件参数
+
+  - name: beforeSend
+    label: 请求发送之前触发的事件
+    description: |
+      beforeExecute事件的触发时机比beforeSend事件更早。
+      beforeSend是在请求发出前的最后一刻触发，因此在beforeSend事件修改Provider的属性是无法立即生效的，而在beforeExecute事件中则可以。
+    arguments:
+      - name: self
+        type: cola.Provider
+        label: Provider本身
+      - name: arg
+        label: 事件参数
         properties:
           - name: options
             type: json
@@ -51,6 +75,7 @@ events:
         type: cola.Provider
         label: Provider本身
       - name: arg
+        label: 事件参数
         properties:
           - name: options
             type: json
@@ -69,29 +94,7 @@ events:
         type: cola.Provider
         label: Provider本身
       - name: arg
-        properties:
-          - name: options
-            type: json
-            description: 内部调用jQuery.ajax()时使用的选项参数。
-          - name: result
-            type: any
-            description: 请求成功后Server端返回的结果
-  - name: response
-    label: 请求成功返回数据之后触发的事件，此事件可预处理服务端 返回的数据
-    description: |
-      <code>
-                 response:function(self,arg){
-                    var result=arg.result;
-                    var list=result.myDataList;
-                    //重新回设数据。
-                    arg.result=list
-                 }
-                 </code>
-    arguments:
-      - name: self
-        type: cola.Provider
-        label: Provider本身
-      - name: arg
+        label: 事件参数
         properties:
           - name: options
             type: json
@@ -100,6 +103,32 @@ events:
             type: any
             description: 请求成功后Server端返回的结果
 
+  - name: response
+    label: 请求成功返回数据之后触发的事件，此事件可预处理服务端 返回的数据
+    description: |
+      <code>
+      response:function(self,arg){
+        var result=arg.result;
+        var list=result.myDataList;
+        //重新回设数据。
+        arg.result=list
+      }
+      </code>
+    arguments:
+      - name: self
+        type: cola.Provider
+        label: Provider本身
+      - name: arg
+        label: 事件参数
+        properties:
+          - name: options
+            type: json
+            description: 内部调用jQuery.ajax()时使用的选项参数。
+          - name: result
+            type: any
+            writable: true
+            description: 请求成功后Server端返回的结果，修改此属性可以替换Provider实际装载到的结果。
+
   - name: error
     label: 请求失败时触发的事件
     arguments:
@@ -107,6 +136,7 @@ events:
         type: cola.Provider
         label: Provider本身
       - name: arg
+        label: 事件参数
         properties:
           - name: options
             type: json

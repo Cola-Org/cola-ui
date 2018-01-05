@@ -204,8 +204,7 @@ methods:
     deprecated: true
     type: string
     label: 格式化输出日期。
-    description: |
-      建议改用format()。
+    description: 建议改用format()。
     arguments:
       - name: date
         type: date
@@ -218,8 +217,7 @@ methods:
     deprecated: true
     type: string
     label: 格式化输出数值。
-    description: |
-      建议改用format()。
+    description: 建议改用format()。
     arguments:
       - name: number
         type: number

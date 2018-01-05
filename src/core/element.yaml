@@ -39,6 +39,8 @@
         - name: self
           type: cola.Element
           label: cola对象本身
+        - name: arg
+          label: 事件参数
 
     - name: attributeChange
       label: 当有属性的值被改写时触发的事件。
@@ -47,6 +49,7 @@
           type: cola.Element
           label: cola对象本身
         - name: arg
+          label: 事件参数
           properties:
             - name: attribute
               type: string
@@ -58,6 +61,8 @@
         - name: self
           type: cola.Element
           label: cola对象本身
+        - name: arg
+          label: 事件参数
 
   methods:
     - name: get

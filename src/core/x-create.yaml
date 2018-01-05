@@ -1,6 +1,5 @@
 name: $
 stereotype: namespace
-
 methods:
   - name: xCreate
     type: HTMLElement || [HTMLElement]

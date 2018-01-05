@@ -1,270 +1,368 @@
-name: cola.Model
-stereotype: class
-label: cola的视图模型对象
+- name: cola.Model
+  stereotype: class
+  label: cola的视图模型对象
 
-methods:
-  - name: get
-    type: any
-    label: 从Model中读取一个数据项
-    description: |
-      当一个数据项的值是懒装载的，那么在我们通过get()方法尝试从此数据项中读取内容时，Cola会利用loadMode参数的值来确定要如何来装载尚未装载的数据。
-    arguments:
-      - name: name
-        type: string
-        label: 数据项名或路径
-      - name: loadMode
-        type: string | function | Object
-        defaultValue: async
-        optional: true
-        label: 懒加载属性的装载模式，默认值为async。
-        description: |
-          该装载模式目前有四种可能的取值：
-          <ul>
-            <li>async - 异步装载模式</li>
-            <li>sync - 同步装载模式</li>
-            <li>never - 不装载</li>
-            <li>
-            传入一个回调方法或一个回调对象，相当于按照异步模式装载，同时定义了该异步操作的回调方法或回调对象。
-            回调对象的定义请参考: <a href="/docs/definitions">回调对象</a>
-            </li>
-          </ul>
+  properties:
+    - name: parent
+      type: cola.Model
+      label: 父视图模型对象
 
-  - name: set
-    type: cola.Model
-    label: 向Model中设置一个数据项
-    arguments:
-      - name: name
-        type: string
-        label: 数据项名或路径
-      - name: value
-        type: any
-        label: 数据
+  methods:
+    - name: get
+      type: any
+      label: 从Model中读取数据
+      description: |
+        当一个数据项的值是懒装载的，那么在我们通过get()方法尝试从此数据项中读取内容时，
+        Cola会利用loadMode参数的值来确定要如何来装载尚未装载的数据。
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称或路径
+        - name: loadMode
+          type: string | function | Object
+          defaultValue: async
+          optional: true
+          label: 懒加载属性的装载模式，默认值为async。
+          description: |
+            该装载模式目前有四种可能的取值：
+            <ul>
+              <li>async - 异步装载模式</li>
+              <li>sync - 同步装载模式</li>
+              <li>never - 不装载</li>
+              <li>传入一个回调方法，相当于按照异步模式装载。</li>
+            </ul>
+            <p>
+            如果我们试图读取的数据项在当前Model中不存在，Cola还会进一步到父Model中去查找该数据项（如果存在父Model的话）。
+            </p>
 
-  - name: set
-    type: cola.Model
-    label: 向Model中设置一批数据项
-    arguments:
-      - name: data
-        type: JSON
-        label: 以JSON方式定义的一批数据项
+    - name: getAsync
+      type: Deferred
+      label: 以异步的方式从Model中读取数据
+      description: |
+        该方法返回一个Deferred对象用于方便我们获得异步调用的返回结果，关于Deferred对象的详细说明请参考
+        <a href="//api.jquery.com/jquery.deferred/">//api.jquery.com/jquery.deferred/</a>。
+        <p>
+        示例如下...
+        <code>
+        entity.getAsync("detail").done(function(detail) {
+          // 此处我们得到了detail的值
+        });
+        </code>
+        </p>
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称或路径
+        - name: callback
+          type: function
+          optional: true
+          label: 回调函数
+          description: 建议使用此方法返回的Deferred对象代替此回调函数。
 
-  - name: describe
-    type: cola.Model
-    label: 描述Model中的一个数据项
-    description: |
-      我们可以把描述一个数据项的过程看做是定义一个DataType中的Property，事实上Cola内部的实现机制也就是这样的。
-      所以此方法第二种参数可传递的JSON配置对象其实也就是一个Property的配置对象。
-      参考：<a href="cola.Property.html">cola.Property</a>。
-    arguments:
-      - name: name
-        type: string
-        label: 数据项名，此处不支持数据路径
-      - name: config
-        type: json
-        label: 以JSON形式定义的
+    - name: set
+      type: cola.Model
+      label: 向Model中设置一个数据项
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称或路径
+        - name: value
+          type: any
+          label: 数据
 
-  - name: describe
-    type: cola.Model
-    label: 定义Model中的一个数据项的数据类型
-    description: |
-      当我们直接向此方法的第二个参数传递一个字符串时，Cola会将此字符串理解成DataType的name，并将找到的DataType设置为该Property的数据类型。
-    arguments:
-      - name: name
-        type: string
-        label: 数据项名，此处不支持数据路径
-      - name: dataType
-        type: string
-        label: DataType的name
+    - name: set
+      type: cola.Model
+      label: 向Model中设置一批数据项
+      arguments:
+        - name: data
+          type: JSON
+          label: 以JSON方式定义的一批数据项
 
-  - name: definition
-    type: cola.Definition
-    label: 根据名称获得一个数据描述对象的实例
-    description: |
-      参考：<a href="cola.Definition.html#name">cola.Definition的name属性</a>。
-    arguments:
-      - name: name
-        type: string
-        label: 数据描述对象的名称
+    - name: describe
+      type: cola.Model
+      label: 描述Model中的一个数据项
+      description: |
+        我们可以把描述一个数据项的过程看做是定义一个DataType中的Property，事实上Cola内部的实现机制也就是这样的。
+        所以此方法第二种参数可传递的JSON配置对象其实也就是一个Property的配置对象。
+        参考：<a href="cola.Property.html">cola.Property</a>。
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称，此处不支持数据路径
+        - name: config
+          type: json
+          label: 以JSON形式定义的
 
-  - name: watch
-    type: cola.Model
-    label: 监听某数据路径的数据变化
-    description: |
-      此方法可以一次监听一个路径，也可以利用数组定义多个路径。在定义路径时还可以通过通配符来声明路径的监听范围。
-      比如: 比如 person.* 表示监听person中的所有子属性的值的变化；person.** 这表示监听person中任意一级的子属性的变化。
-    arguments:
-      - name: path
-        type: string || [string]
-        label: 数据路径
-      - name: listener
-        type: function
-        label: 监听器方法
-        description: |
-          该方法支持以下三个参数：
-          <ul>
-            <li>path - 本次触发相关的数据路径</li>
-            <li>type - 数据消息的类型</li>
-            <li>arg - 数据消息的相关参数</li>
-          </ul>
+    - name: describe
+      type: cola.Model
+      label: 定义Model中的一个数据项的数据类型
+      description: |
+        当我们直接向此方法的第二个参数传递一个字符串时，Cola会将此字符串理解成DataType的name，并将找到的DataType设置为该Property的数据类型。
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称，此处不支持数据路径
+        - name: dataType
+          type: string
+          label: DataType的name
 
-          目前可能的数据消息包含以下这些类型，每一种消息类型还可能带有不同的消息参数：
-          <ul>
-            <li>
-              cola.constants.MESSAGE_REFRESH  - 数据刷新消息。此时arg包含下列子属性:
-              <ul>
-                <li>data - 发生了整体变化的数据，可能是cola.Entity或cola.EntityList。</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_PROPERTY_CHANGE  - Entity的属性值改变。此时arg包含下列子属性:
-              <ul>
-                <li>entity - 发生改变cola.Entity实例</li>
-                <li>property - 改变的属性名</li>
-                <li>value - 改变后的值</li>
-                <li>oldValue - 改变前的值</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_CURRENT_CHANGE  - cola.EntityList中的当前Entity改变。
-              注意这里所说的改变不是当前Entity的内容改变，而是指cola.EntityList中的当前Entity由一个变成了另一个。此时arg包含下列子属性:
-              <ul>
-                <li>entityList - 发生改变cola.EntityList</li>
-                <li>current - 新的当前Entity</li>
-                <li>oldCurrent - 改变前的当前Entity</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_EDITING_STATE_CHANGE  - Entity的编辑状态改变。此时arg包含下列子属性:
-              <ul>
-                <li>entity - 发生改变cola.Entity</li>
-                <li>state - 新的state</li>
-                <li>oldState - 改变前的state</li>
-              </ul>
-              编辑状态有下列几种：
-              <ul>
-                <li>none - 无状态，即未发生改变。</li>
-                <li>new - 新增</li>
-                <li>modifed - 已被修改</li>
-                <li>deleted - 已被删除</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_VALIDATION_STATE_CHANGE  - Entity的校验状态改变。此时arg包含下列子属性:
-              <ul>
-                <li>entity - 发生改变cola.Entity</li>
-                <li>property - 如果此属性有值表示是Entity中特定的属性的校验状态发生了改变；如果此属性为空则表示整个Entity的校验状态发生了改变。
-                比如当一个Entity中有两个属性的校验状态为error，那么此时整个Entity的校验状态也是error。如果其中某个属性的值修改后已通过了校验，那么该属性的校验状态发生了改变。
-                但是整个Entity的校验状态仍是error。</li>
-              </ul>
-              校验状态有下列几种：
-              <ul>
-                <li>none - 无状态，即合法状态。</li>
-                <li>info - 有校验信息，仍属于合法状态。</li>
-                <li>warning - 有警告信息，仍属于合法状态。</li>
-                <li>error - 有错误信息，属于不合法状态。</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_INSERT  -  EntityList中插入了新的Entity。此时arg包含下列子属性:
-              <ul>
-                <li>entityList - 相关的EntityList</li>
-                <li>entity - 新增的Entity</li>
-                <li>insertMode - 插入模式，参考<a href="cola.EntityList.html#method:insert">EntityList.insert()</a></li>
-                <li>refEntity - 参照Entity，参考<a href="cola.EntityList.html#method:insert">EntityList.insert()</a></li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_REMOVE  - 从EntityList中删除一个Entity。此时arg包含下列子属性:
-              <ul>
-                <li>entityList - 相关的EntityList</li>
-                <li>entity - 被删除的Entity</li>
-              </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_LOADING_START  - 开始执行数据装载。此时arg包含下列子属性:
-               <ul>
-                 <li>data - 相关的Entity或EntityList</li>
-                 <li>property - 如果是Entity的某个属性发生的数据装载，那么此属性将用于标注该属性的属性名。</li>
-               </ul>
-            </li>
-            <li>
-              cola.constants.MESSAGE_LOADING_END  - 数据装载结束。此时arg的子属性同cola.constants.MESSAGE_LOADING_START一致。
-            </li>
-          </ul>
+    - name: dataType
+      type: cola.DataType
+      label: 根据数据项名称从Model获得一个DataType的实例
+      description: |
+        此种调用方法也可以用 model.definition() 来替代，只不多使用此方法我们不能得到DataType之外的其他声明对象。
+      arguments:
+        - name: name
+          type: string
+          label: 数据项名称，此处不支持数据路径
 
-  - name: disableObservers
-    type: cola.Entity
-    label: 将禁止Entity向观察者发送消息
-    description: |
-      此方法最常见的使用场景是在将要对数据进行批量的操作之前，先调用 disableObservers() 禁止消息发送。
-      这样界面就无法得到数据被改变的通知，也就不会随着操作进行大量重复而无意义的重渲染。
-      当批量的操作完成之后，再调用 enableObservers() 重新允许消息发送。
-      此时也可以调用 notifyObservers() 方法通知所有观察者进行重渲染。
-      需要注意的是 disableObservers() 和 enableObservers() 内部是使用计数器来管理的，
-      这意味着当你连续调用了两次 disableObservers() 之后，必须也要调用两次 enableObservers() 才能冲洗恢复消息发送。
+    - name: dataType
+      type: cola.Model
+      label: 向Model中注册一个或多个DataType
+      arguments:
+        - name: config
+          type: json || [json]
+          label: JSON方式的DataType配置对象
+          description: |
+            示例如下...
+            <code>
+            model.dataType({
+              name: "Employee",
+              properties: {
+                name: { dataType: "string", validators: ["required"] },
+                age: { dataType: "int" }
+              }
+            });
+            </code>
+            以上代码声明了一个名为Employee的DataType。
 
-  - name: enableObservers
-    type: cola.Entity
-    label: 允许Entity向观察者发送消息
-    description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+    - name: definition
+      type: cola.Definition
+      label: 根据名称获得一个数据描述对象的实例
+      description: |
+        参考：<a href="cola.Definition.html#name">cola.Definition的name属性</a>。
+      arguments:
+        - name: name
+          type: string
+          label: 数据描述对象的名称
 
-  - name: notifyObservers
-    type: cola.Entity
-    label: 通知观察者数据已更改
-    description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+    - name: flush
+      type: Deferred
+      label: 刷新某个数据项的数据
+      description: |
+        此方法只有在该数据项的数据是通过cola.Provider获取的情况下是有效的，即通知Cola清空该数据项的数据并重新利用Provider获取。
+        该方法返回一个Deferred对象用于方便我们获得异步调用的返回结果，关于Deferred对象的详细说明请参考
+        <a href="//api.jquery.com/jquery.deferred/">//api.jquery.com/jquery.deferred/</a>。
+        <p>
+        示例如下...
+        <code>
+        model.flush("employees").done(function(employees) {
+          // 此处我们得到了employees
+        });
+        </code>
+        </p>
+      arguments:
+        - name: prop
+          type: string
+          label: 属性名
+        - name: loadMode
+          type: string | function | object
+          defaultValue: async
+          optional: true
+          label: 懒加载属性的装载模式，默认值为async。
+          description: |
+            该装载模式目前有四种可能的取值：
+            <ul>
+              <li>async - 异步装载模式</li>
+              <li>sync - 同步装载模式</li>
+              <li>never - 不装载</li>
+              <li>传入一个回调方法，相当于按照异步模式装载。建议您以Deferred方式替代回调方法。</li>
+            </ul>
 
-  - name: action
-    type: cola.Model
-    label: 声明一个Action
-    description: |
-      Action其实就是一个Function，将Function声明为一个Action的目的是为了供dom模板来调用。
+    - name: watch
+      type: cola.Model
+      label: 监听某数据路径的数据变化
+      description: |
+        此方法可以一次监听一个路径，也可以利用数组定义多个路径。在定义路径时还可以通过通配符来声明路径的监听范围。
+        比如: 比如 person.* 表示监听person中的所有子属性的值的变化；person.** 这表示监听person中任意一级的子属性的变化。
+      arguments:
+        - name: path
+          type: string || [string]
+          label: 数据路径
+        - name: listener
+          type: function
+          label: 监听器方法
+          description: |
+            该方法支持以下三个参数：
+            <ul>
+              <li>path - 本次触发相关的数据路径</li>
+              <li>type - 数据消息的类型</li>
+              <li>arg - 数据消息的相关参数</li>
+            </ul>
 
-      定义Action其实还有一个更加简单的方法，例如下面的两段代码作用是相同的：
-      <code>
-      model.action("showMessage", function() {
-        ... ...
-      });
-      </code>
-      和
-      <code>
-      model.action.showMessage = function() {
-        ... ...
-      };
-      </code>
-    arguments:
-      - name: name
-        type: string
-        label: Action的name
-      - name: action
-        type: function
-        label: Action方法
+            目前可能的数据消息包含以下这些类型，每一种消息类型还可能带有不同的消息参数：
+            <ul>
+              <li>
+                cola.constants.MESSAGE_REFRESH  - 数据刷新消息。
+              </li>
+              <li>
+                cola.constants.MESSAGE_PROPERTY_CHANGE  - Entity的属性值改变。此时arg包含下列子属性:
+                <ul>
+                  <li>entity - 发生改变cola.Entity实例</li>
+                  <li>property - 改变的属性名</li>
+                  <li>value - 改变后的值</li>
+                  <li>oldValue - 改变前的值</li>
+                </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_CURRENT_CHANGE  - cola.EntityList中的当前Entity改变。
+                注意这里所说的改变不是当前Entity的内容改变，而是指cola.EntityList中的当前Entity由一个变成了另一个。此时arg包含下列子属性:
+                <ul>
+                  <li>entityList - 发生改变cola.EntityList</li>
+                  <li>current - 新的当前Entity</li>
+                  <li>oldCurrent - 改变前的当前Entity</li>
+                </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_EDITING_STATE_CHANGE  - Entity的编辑状态改变。此时arg包含下列子属性:
+                <ul>
+                  <li>entity - 发生改变cola.Entity</li>
+                  <li>state - 新的state</li>
+                  <li>oldState - 改变前的state</li>
+                </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_VALIDATION_STATE_CHANGE  - Entity的校验状态改变。此时arg包含下列子属性:
+                <ul>
+                  <li>entity - 发生改变cola.Entity</li>
+                  <li>property - 如果此属性有值表示是Entity中特定的属性的校验状态发生了改变；如果此属性为空则表示整个Entity的校验状态发生了改变。
+                  比如当一个Entity中有两个属性的校验状态为error，那么此时整个Entity的校验状态也是error。如果其中某个属性的值修改后已通过了校验，那么该属性的校验状态发生了改变。
+                  但是整个Entity的校验状态仍是error。</li>
+              </li>
+              <li>
+                cola.constants.MESSAGE_INSERT  -  EntityList中插入了新的Entity。此时arg包含下列子属性:
+                <ul>
+                  <li>entityList - 相关的EntityList</li>
+                  <li>entity - 新增的Entity</li>
+                  <li>insertMode - 插入模式，参考<a href="cola.EntityList.html#method:insert">EntityList.insert()</a></li>
+                  <li>refEntity - 参照Entity，参考<a href="cola.EntityList.html#method:insert">EntityList.insert()</a></li>
+                </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_REMOVE  - 从EntityList中删除一个Entity。此时arg包含下列子属性:
+                <ul>
+                  <li>entityList - 相关的EntityList</li>
+                  <li>entity - 被删除的Entity</li>
+                </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_LOADING_START  - 开始执行数据装载。此时arg包含下列子属性:
+                 <ul>
+                   <li>data - 相关的Entity或EntityList</li>
+                   <li>property - 如果是Entity的某个属性发生的数据装载，那么此属性将用于标注该属性的属性名。</li>
+                 </ul>
+              </li>
+              <li>
+                cola.constants.MESSAGE_LOADING_END  - 数据装载结束。此时arg的子属性同cola.constants.MESSAGE_LOADING_START一致。
+              </li>
+            </ul>
 
-  - name: action
-    type: cola.Model
-    label: 声明一组Action
-    description: |
-      例如:
-      <code>
-      model.action({
-        showMessage: function() {
+    - name: disableObservers
+      type: cola.Entity
+      label: 禁止Entity向观察者发送消息
+      description: |
+        此方法最常见的使用场景是在将要对数据进行批量的操作之前，先调用 disableObservers() 禁止消息发送。
+        这样界面就无法得到数据被改变的通知，也就不会随着操作进行大量重复而无意义的重渲染。
+        当批量的操作完成之后，再调用 enableObservers() 重新允许消息发送。
+        此时也可以调用 notifyObservers() 方法通知所有观察者进行重渲染。
+        需要注意的是 disableObservers() 和 enableObservers() 内部是使用计数器来管理的，
+        这意味着当你连续调用了两次 disableObservers() 之后，必须也要调用两次 enableObservers() 才能冲洗恢复消息发送。
+
+    - name: enableObservers
+      type: cola.Entity
+      label: 允许Entity向观察者发送消息
+      description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+
+    - name: notifyObservers
+      type: cola.Entity
+      label: 通知观察者数据已更改
+      description: 参考 <a href="#method:disableObservers">disableObservers()</a>
+
+    - name: action
+      type: cola.Model
+      label: 声明一个Action
+      description: |
+        Action其实就是一个Function，将Function声明为一个Action的目的是为了供dom模板来调用。
+        定义Action其实还有一个更加简单的方法，例如下面的两段代码作用是很多情况下是相同的：
+        <code>
+        model.action("showMessage", function() {
           ... ...
-        },
-        buyNow: function() {
+        });
+        </code>
+        和
+        <code>
+        model.action.showMessage = function() {
           ... ...
-        }
-      });
-      </code>
-    arguments:
-      - name: config
-        type: json
-        label: 以JSON方法定义的一组Action方法
+        };
+        </code>
+      arguments:
+        - name: name
+          type: string
+          label: Action的name
+        - name: action
+          type: function
+          label: Action方法
 
-  - name: action
-    type: function
-    label: 根据名称查找一个Action
-    description: |
-      此方法不仅可用于查找本Model中的Action，当某个名称的Action在本Model中无法找到时Cola会进一步到父Model中查找。
-    arguments:
-      - name: name
-        type: string
-        label: Action的name
+    - name: action
+      type: cola.Model
+      label: 声明一组Action
+      description: |
+        例如:
+        <code>
+        model.action({
+          showMessage: function() {
+            ... ...
+          },
+          buyNow: function() {
+            ... ...
+          }
+        });
+        </code>
+      arguments:
+        - name: config
+          type: json
+          label: 以JSON方法定义的一组Action方法
+
+    - name: action
+      type: function
+      label: 根据名称查找一个Action
+      description: |
+        获得Action其实还有一个更加简单的方法，例如下面的两段代码作用是很多情况下是相同的：
+        <code>
+        model.action("showMessage")("要提示的信息");
+        </code>
+        和
+        <code>
+        model.action.showMessage("要提示的信息");
+        </code>
+        以上两种方法，在某种情况下会有写差别。
+        如果我们试图获得的Action在当前Model中不存在，使用第一种方法时Cola还会进一步到父Model中去查找该Action（如果存在父Model的话）。
+      arguments:
+        - name: name
+          type: string
+          label: Action的name
+
+- name: cola
+  stereotype: namespace
+  methods:
+    - name: model
+      type: cola.Model
+      label: 根据名称返回一个当前页面中的Model
+      description: |
+        大部分情况下我们可能都不会为Model定义名称，因此此方法的主要使用场景是用来获得当前页面中的默认Model（顶层Model），
+        即使用时不定义下面的name属性，则表示返回当前页面中的默认Model。
+      arguments:
+        - name: name
+          type: string
+          label: Model的名称
+          optional: true
