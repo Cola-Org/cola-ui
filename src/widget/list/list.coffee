@@ -248,7 +248,6 @@ class cola.ListView extends cola.AbstractList
 		groupScope = cola.util.userData(groupDom, "scope")
 		if not groupScope
 			groupDom._itemScope = groupScope = new cola.ItemScope(parentScope, group._alias)
-			parentScope.regItemScope(groupId, groupScope)
 			groupScope.data.setItemData(group, true)
 			cola.util.userData(groupDom, "scope", groupScope)
 			cola.util.userData(groupDom, "item", group)

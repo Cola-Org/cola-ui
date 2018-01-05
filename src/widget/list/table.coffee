@@ -155,10 +155,13 @@ class cola.Table extends cola.Widget
 			return super()
 
 	_getItemScope: (parentScope, alias, item)->
-		debugger
-		itemScope = new cola.ItemScope(parentScope, alias)
-		cola.currentScope = itemScope
-		itemScope.data.setItemData(item, true)
+		itemScope = parentScope.getItemScope(item)
+		if itemScope
+			cola.currentScope = itemScope
+		else
+			itemScope = new cola.ItemScope(parentScope, alias)
+			cola.currentScope = itemScope
+			itemScope.data.setItemData(item, true)
 		return itemScope
 
 	_getItemType: (type)->

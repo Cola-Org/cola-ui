@@ -147,8 +147,6 @@ class cola.ItemsView extends cola.Widget
 	_onItemRemove: (arg)->
 		itemId = _getEntityId(arg.entity)
 		if itemId
-			arg.itemsScope.unregItemScope(itemId)
-
 			itemDom = @_itemDomMap[itemId]
 			delete @_itemDomMap[itemId]
 			if itemDom
@@ -267,8 +265,6 @@ class cola.ItemsView extends cola.Widget
 			delete @_currentItemDom
 		@_currentItem = currentItem
 
-		@_itemsScope.resetItemScopeMap()
-
 		@_refreshEmptyItemDom?()
 
 		lastItem = null
@@ -381,9 +377,6 @@ class cola.ItemsView extends cola.Widget
 				itemScope.data.setItemData(item)
 
 			@_doRefreshItemDom?(itemDom, item, itemScope)
-
-		if itemId
-			parentScope.regItemScope(itemId, itemScope)
 
 		if @getListeners("renderItem")
 			@fire("renderItem", @, {

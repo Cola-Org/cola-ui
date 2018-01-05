@@ -215,10 +215,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			itemId = cola.Entity._getEntityId(entity)
 			if itemId
 				itemScope = itemsScope.getItemScope(entity)
-
 				itemDomBinding = domBinding.itemDomBindingMap[itemId]
 				if itemDomBinding
-					itemsScope.unregItemScope(itemId)
 					itemDomBinding.remove()
 					delete domBinding.currentItemDom if itemDomBinding.dom == domBinding.currentItemDom
 
@@ -262,7 +260,6 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			documentFragment = null
 			if items
 				domBinding.itemDomBindingMap = {}
-				scope.resetItemScopeMap()
 
 				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
 				cola.each items, (item, i)=>
@@ -276,11 +273,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						itemScope = itemDomBinding.scope
 						if typeof item is "object"
 							itemId = cola.Entity._getEntityId(item)
-						else
-							itemId = cola.uniqueId()
-						scope.regItemScope(itemId, itemScope)
-						itemDomBinding.itemId = itemId
-						domBinding.itemDomBindingMap[itemId] = itemDomBinding
+							itemDomBinding.itemId = itemId
+							domBinding.itemDomBindingMap[itemId] = itemDomBinding
 						itemScope.data.setItemData(item)
 						itemScope.data.setIndex(i + 1)
 					else
@@ -316,11 +310,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		if typeof item is "object"
 			itemId = cola.Entity._getEntityId(item)
-		else
-			itemId = cola.uniqueId()
-		scope.regItemScope(itemId, itemScope)
-		domBinding.itemId = itemId
-		repeatDomBinding.itemDomBindingMap[itemId] = domBinding
+			domBinding.itemId = itemId
+			repeatDomBinding.itemDomBindingMap[itemId] = domBinding
 		return itemDom
 
 	deepCloneNodeData: (node, scope)->

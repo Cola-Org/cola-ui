@@ -376,6 +376,7 @@ class cola.ItemScope extends cola.SubScope
 		super(parent)
 		@data = new cola.ItemDataModel(@, @alias, @parent?.dataType)
 		@action = @parent.action
+		parent.registerChild(@)
 
 	watchPath: ()->
 
@@ -419,7 +420,32 @@ class cola.ItemsScope extends cola.SubScope
 			@watchPath(expression.paths)
 		return
 
-	registerChild: ()->
+	registerChild: (itemScope)->
+		return unless itemScope.data
+		item = itemScope.data.getItemData()
+		if item instanceof cola.Entity
+			itemId = cola.Entity._getEntityId(item)
+			@regItemScope(itemId, itemScope)
+		return
+
+	unregisterChild: (itemScope)->
+		item = itemScope.data.getItemData()
+		if typeof item is "object"
+			itemId = cola.Entity._getEntityId(item)
+			@unregItemScope(itemId)
+		return
+
+	getItemScope: (item)->
+		itemId = cola.Entity._getEntityId(item)
+		return @itemScopeMap[itemId]
+
+	regItemScope: (itemId, itemScope)->
+		@itemScopeMap[itemId] = itemScope
+		return
+
+	unregItemScope: (itemId)->
+		delete @itemScopeMap[itemId]
+		return
 
 	disableObservers: ()->
 		for key, childScope of @itemScopeMap
@@ -498,22 +524,6 @@ class cola.ItemsScope extends cola.SubScope
 	changeCurrentItem: (arg)->
 		arg.itemsScope = @
 		@onCurrentItemChange?(arg)
-		return
-
-	resetItemScopeMap: ()->
-		@itemScopeMap = {}
-		return
-
-	getItemScope: (item)->
-		itemId = cola.Entity._getEntityId(item)
-		return @itemScopeMap[itemId]
-
-	regItemScope: (itemId, itemScope)->
-		@itemScopeMap[itemId] = itemScope
-		return
-
-	unregItemScope: (itemId)->
-		delete @itemScopeMap[itemId]
 		return
 
 	findItemDomBinding: (item)->
@@ -1327,10 +1337,22 @@ class cola.ItemDataModel extends cola.SubDataModel
 		return @_itemData
 
 	setItemData: (data, silence)->
+		return if oldData is data
+
+		itemsScope = @model.parent
 		oldData = @_itemData
+		if typeof oldData is "object" and itemsScope
+			if itemsScope.getItemScope(oldData) is @model
+				itemId = cola.Entity._getEntityId(oldData)
+				itemsScope.unregItemScope(itemId)
+
 		@_itemData = data
 
-		if data instanceof cola.Entity or data instanceof cola.EntityList
+		if data instanceof cola.Entity and itemsScope
+			itemId = cola.Entity._getEntityId(data)
+			itemsScope.regItemScope(itemId, @model)
+
+		if typeof data is "object" or data instanceof cola.EntityList
 			@dataType = data.dataType
 
 		if not silence and @alias
