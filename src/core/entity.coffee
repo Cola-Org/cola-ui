@@ -2093,15 +2093,15 @@ cola.util.flush = (data, loadMode)->
 index
 ###
 
-class EntityIndex
+class cola.EntityIndex
 	constructor: (@data, @property, @option = {})->
 		@model = model = @data._dataModel?.model
 		if not model
 			throw new cola.Exception("The Entity or EntityList is not belongs to any Model.")
 
-		@deep = @option.deep
+		@tree = @option.tree
 		@isCollection = @data instanceof cola.EntityList
-		if not @deep and not @isCollection
+		if not @tree and not @isCollection
 			throw new cola.Exception("Can not build index for single Entity.")
 
 		@index = {}
@@ -2133,9 +2133,16 @@ class EntityIndex
 		@index[value + ""] = entity
 		@idMap[entity.id] = true
 
-		if @deep
+		if @tree
+			if typeof @tree is "string"
+				childProperty = @tree
+			else
+				childProperty = null
+
 			data = entity._data
 			for p, v of data
+				if childProperty and p isnt childProperty
+					continue
 				if v
 					if v instanceof cola.Entity
 						@_buildIndexForEntity(v)
@@ -2144,7 +2151,7 @@ class EntityIndex
 		return
 
 	onEntityAttach: (entity)->
-		if @deep
+		if @tree
 			p = entity
 			while p
 				if p is @data
@@ -2179,4 +2186,4 @@ class EntityIndex
 
 cola.util.buildIndex = (data, property, option)->
 	index = data._indexMap?[property]
-	return index or new EntityIndex(data, property, option)
+	return index or new cola.EntityIndex(data, property, option)

@@ -3,7 +3,7 @@
   label: 数据实体
 
   constructors:
-    - arguments:
+    - properties:
         - name: data
           type: json
           optional: true
@@ -52,7 +52,7 @@
     - name: hasValue
       type: boolean
       label: 判断某属性中是否有值
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -62,7 +62,7 @@
       label: 获取一个属性的值
       description: |
         当一个属性的值是懒装载的，那么在我们通过get()方法尝试从此属性中读取内容时，Cola会利用loadMode参数的值来确定要如何来装载尚未装载的数据。
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名或路径
@@ -94,7 +94,7 @@
         });
         </code>
         </p>
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名或路径
@@ -107,7 +107,7 @@
     - name: set
       type: cola.Entity
       label: 设置一个属性的值
-      arguments:
+      properties:
         - name: name
           type: string
           label: 属性名或路径
@@ -118,7 +118,7 @@
     - name: set
       type: cola.Entity
       label: 设置一批属性的值
-      arguments:
+      properties:
         - name: data
           type: json
           label: 以JSON方式定义的一批属性值
@@ -129,7 +129,7 @@
       description: |
         如果这个Entity此时是另一个父Entity的某属性值，或者它正隶属于某个EntityList。
         那么，此操作也会将此Entity从父Entity或EntityList中移除。
-      arguments:
+      properties:
         - name: detach
           type: boolean
           optional: true
@@ -145,7 +145,7 @@
         如果之前已经通过DataType声明了相应子属性的DataType，那么新创建的子Entity将是与该DataTypre匹配的。
         同时，如果该属性的声明中已将aggregated设置为true，那么这一操作会在该属性中先创建一个EntityList（如果属性原本为空的话），
         然后再将新的Entity插入到这个EntityList中。
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -159,7 +159,7 @@
       label: 创建一个兄弟Entity并返回。
       description: |
         此方法首先会创建一个与当前Entity类型相同的新Entity，如果当前Entity隶属于某个EntityList，那么新创建的Entity还会被自动添加到EntityList中。
-      arguments:
+      properties:
         - name: data
           type: json
           optional: true
@@ -170,7 +170,7 @@
       label: 将该Entity设置为当前Entity。
       description: |
         此方法首先会创建一个与当前Entity类型相同的新Entity，如果当前Entity隶属于某个EntityList，那么新创建的Entity还会被自动添加到EntityList中。
-      arguments:
+      properties:
         - name: tree
           type: boolean
           optional: true
@@ -188,7 +188,7 @@
           <li>DELETED - 被删除状态</li>
         </ul>
         参考: <a href="#property:state">state</a>
-      arguments:
+      properties:
         - name: state
           type: string
 
@@ -197,7 +197,7 @@
       label: 返回某属性的旧值
       description: |
         即返回某属性修改之前的值。如果当前Entity并不处于modified状态，那么此方法将返回undefined。
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -207,7 +207,7 @@
       label: 将某个属性的属性值还原成初始值。
       description: |
         此处的初始值是指从Server端装载到的值或者成功执行完最后一次数据提交之后的值。
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -223,7 +223,7 @@
       label: 重置某个属性
       description: |
         清除该属性的值和相关的校验信息，但此种清除并不会导致Entity的状态发生改变。
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -244,7 +244,7 @@
       description: |
         如果没有定义path参数，那么此方法会直接返回当前Entity的DataType。
         如果定义了path参数，那么此方法会根据这个路径返回相应子属性或子对象的DataType。
-      arguments:
+      properties:
         - name: path
           type: string
           label: 属性名或路径
@@ -269,7 +269,7 @@
         });
         </code>
         </p>
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -289,19 +289,27 @@
 
     - name: disableObservers
       type: cola.Entity
-      label: 将禁止Entity向观察者发送消息
+      label: 禁止Entity向观察者发送消息
       description: |
         参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: enableObservers
       type: cola.Entity
-      label: 将禁止Entity向观察者发送消息
+      label: 允许Entity向观察者发送消息
       description: |
         参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: notifyObservers
       type: cola.Entity
       label: 向Entity的观察者发送一个刷新消息
+
+    - name: disableValidators
+      type: cola.Entity
+      label: 禁止Entity中的所有校验器
+
+    - name: enableValidators
+      type: cola.Entity
+      label: 启用Entity中的所有校验器
 
     - name: validate
       type: boolean
@@ -310,7 +318,7 @@
     - name: validate
       type: boolean
       label: 校验当前Entity中的某个属性的值并返回是否校验通过
-      arguments:
+      properties:
         - name: prop
           type: string
           label: 属性名
@@ -328,7 +336,7 @@
           <li>sticky - 是否具有粘性。逻辑值，可以为空。用于标识此条消息是否可以被clearMessages()方法清除。</li>
         </ul>
         </p>
-      arguments:
+      properties:
         - name: property
           type: string
           label: 属性名
@@ -350,7 +358,7 @@
     - name: getKeyMessage
       type: json
       label: 返回当前Entity中某个属性下级别最高的一条消息
-      arguments:
+      properties:
         - name: property
           type: string
           label: 属性名
@@ -362,7 +370,7 @@
     - name: getMessages
       type: [json]
       label: 返回当前Entity中某个属性下所有的消息
-      arguments:
+      properties:
         - name: property
           type: string
           label: 属性名
@@ -370,7 +378,7 @@
     - name: clearMessages
       type: cola.Entity
       label: 清除当前Entity下的消息，不包含那些特定属性下的消息。
-      arguments:
+      properties:
         - name: property
           type: string
           label: 属性名
@@ -388,7 +396,7 @@
     - name: toJSON
       type: json
       label: 将Entity转换成一个JSON对象
-      arguments:
+      properties:
         - name: options
           type: json
           label: 选项
@@ -442,7 +450,7 @@
     </ul>
 
   constructors:
-    - arguments:
+    - properties:
         - name: array
           type: array
           optional: true
@@ -516,7 +524,7 @@
     - name: fillData
       type: cola.EntityList
       label: 利用数组填充当前页的数据
-      arguments:
+      properties:
         - name: array
           type: string
           label: 以JSON数组方式定义的数据
@@ -531,7 +539,7 @@
     - name: loadPage
       type: cola.EntityList
       label: 装载指定页的数据
-      arguments:
+      properties:
         - name: pageNo
           type: mnumber
           label: 要装载的页号
@@ -552,7 +560,7 @@
     - name: gotoPage
       type: cola.EntityList
       label: 跳转到指定的页
-      arguments:
+      properties:
         - name: pageNo
           type: mnumber
           label: 要前往的页号
@@ -565,7 +573,7 @@
     - name: firstPage
       type: cola.EntityList
       label: 跳转到第一页
-      arguments:
+      properties:
         - name: loadMode
           type: string
           defaultValue: async
@@ -575,7 +583,7 @@
     - name: previousPage
       type: cola.EntityList
       label: 跳转到上一页
-      arguments:
+      properties:
         - name: loadMode
           type: string
           defaultValue: async
@@ -585,7 +593,7 @@
     - name: nextPage
       type: cola.EntityList
       label: 跳转到下一页
-      arguments:
+      properties:
         - name: loadMode
           type: string
           defaultValue: async
@@ -595,7 +603,7 @@
     - name: lastPage
       type: cola.EntityList
       label: 跳转到最后一页
-      arguments:
+      properties:
         - name: loadMode
           type: string
           defaultValue: async
@@ -612,7 +620,7 @@
           <li><a href="cola.Entity.html#method:createChild">Entity.createChild()</a></li>
           <li><a href="cola.Entity.html#method:createBrother">Entity.createBrother()</a></li>
         </ul>
-      arguments:
+      properties:
         - name: entity
           type: json | cola.Entity
           optional: true
@@ -629,7 +637,7 @@
       label: 从EntityList中删除一个Entity
       description: |
         在实际使用过程中，建议您直接使用<a href="cola.Entity.html#method:remove">Entity.remove()</a>来完成这一操作。
-      arguments:
+      properties:
         - name: entity
           type: cola.Entity
           optional: true
@@ -648,7 +656,7 @@
     - name: setCurrent
       type: cola.EntityList
       label: 将某个Entity设定为EntityList的当前Entity
-      arguments:
+      properties:
         - name: entity
           type: cola.Entity
           label: 要设定的当前Entity
@@ -684,7 +692,17 @@
       label: 重新装载该EntityList中的数据
       description: |
         此方法只有在该EntityList是通过cola.Provider获取的情况下是有效的，即通知Cola清空该EntityList中所有的数据并重新利用Provider获取。
-      arguments:
+        该方法返回一个Deferred对象用于方便我们获得异步调用的返回结果，关于Deferred对象的详细说明请参考
+        <a href="//api.jquery.com/jquery.deferred/">//api.jquery.com/jquery.deferred/</a>。
+        <p>
+        示例如下...
+        <code>
+        entity.flush("detail").done(function(detail) {
+          // 此处我们得到了detail的值
+        });
+        </code>
+        </p>
+      properties:
         - name: loadMode
           type: string | function | object
           defaultValue: async
@@ -701,22 +719,22 @@
 
     - name: disableObservers
       type: cola.EntityList
-      label: 将禁止EntityList向观察者发送消息
+      label: 禁止EntityList向观察者发送消息
       description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: enableObservers
       type: cola.EntityList
-      label: 将禁止EntityList向观察者发送消息
+      label: 允许EntityList向观察者发送消息
       description: 参考 <a href="cola.Model.html:method:disableObservers">cola.Model.disableObservers()</a>
 
     - name: notifyObservers
-      type: cola.Entity
+      type: cola.EntityList
       label: 向Entity的观察者发送一个刷新消息
 
     - name: toJSON
       type: [json]
       label: 将EntityList转换成一个JSON对象的数组
-      arguments:
+      properties:
         - name: options
           type: json
           label: 选项
@@ -749,7 +767,7 @@
     - name: each
       type: cola.EntityList
       label: 迭代集合中的Entity
-      arguments:
+      properties:
         - name: fn
           type: function
           label: 迭代方法
@@ -777,7 +795,7 @@
     - name: filter
       type: array
       label: 对一个数组或EntityList进行过滤
-      arguments:
+      properties:
         - name: data
           type: array || cola.EntityList
           label: 要过滤的数组或EntityList
@@ -811,7 +829,7 @@
     - name: sort
       type: array
       label: 对一个数组或EntityList进行排序
-      arguments:
+      properties:
         - name: data
           type: array || cola.EntityList
           label: 要排序的数组或EntityList
@@ -846,16 +864,53 @@
 
     - name: where
       type: array
-      label: 根据给定的条件对数组或EntityList中的数据进行查询，并返回数组型的结果
-      arguments:
-        - name:
-          type:
-          label:
+      label: 根据给定的条件对数组或EntityList中的数据进行查询，并以数组的形式返回结果
+      properties:
+        - name: data
+          type: array || cola.EntityList
+          label: 要过滤的数组或EntityList
+        - name: criteria
+          type: stirng || object
+          label: 查询条件
+          description: 请参考 cola.util.filter() 的criteria参数
 
     - name: find
       type: object || cola.Entity
       label: 根据给定的条件对数组或EntityList中的数据进行查询，并返回匹配的第一比数据
-      arguments:
-        - name:
-          type:
-          label:
+      properties:
+        - name: data
+          type: array || cola.EntityList
+          label: 要过滤的数组或EntityList
+        - name: criteria
+          type: stirng || object
+          label: 查询条件
+          description: 请参考 cola.util.filter() 的criteria参数
+
+    - name: buildIndex
+      type: cola.EntityIndex
+      label: 为一组Entity建立索引
+      description: |
+        如果你需要频繁的利用某中特定的条件从一组Entity中查找实例，可以考虑利用此方法提高搜索效率。
+      properties:
+        - name: data
+          type: cola.EntityList || cola.Entity
+          label: 要索引的EntityList或Entity
+        - name: property
+          type: stirng
+          label: 要索引的属性名
+          description: 目前只支持定义一个属性名
+        - name: option
+          label: 选项
+          optional: true
+          properties:
+            - name: tree
+              type: bool || string
+              label: 是否以树状结构向下钻取，为每一层的Entity建立索引
+              description: |
+                <li>如果不定义此选项，默认情况下此方法只为EntityList中的第一层Entity建立索引。</li>
+                <li>如果定义了tree=true，此方法可以向下钻取每一层每个子属性下的Entity建立索引。</li>
+                <li>如果定义了tree为属性名，此方法可以根据这个属性向下钻取每一层的Entity建立索引。</li>
+                <code>
+                var index = cola.util.buildIndex(model.get("employee"), "name");
+                var employee = index.find("Nick");  // 查找name='Nick'的Employee对象
+                </code>
