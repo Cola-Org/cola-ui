@@ -1,4 +1,3 @@
-
 - name: cola.AbstractDropdown
   stereotype: class
   super: cola.AbstractInput

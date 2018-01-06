@@ -65,9 +65,6 @@ class cola.Table extends cola.Widget
 		scrollMode:
 			defaultValue: "auto" # auto/scroll
 			readOnlyAfterCreate: true
-		columnStretchable:
-			type: "boolean"
-			defaultValue: true
 		selectedProperty:
 			defaultValue: "selected"
 

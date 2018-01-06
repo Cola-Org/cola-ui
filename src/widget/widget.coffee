@@ -501,7 +501,7 @@ cola._setFocusWidget = (widget)->
 	focusedWidgets = []
 	while widget
 		focusedWidgets.push(widget)
-		widget = widget._focusParent or cola.findWidget(widget, null, true)
+		widget = widget._focusParent or cola.findWidget(widget, null)
 
 	if cola.focusedWidgets
 		for oldFocusedWidget, i in cola.focusedWidgets

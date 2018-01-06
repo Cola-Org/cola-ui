@@ -1,0 +1,5 @@
+name: cola.SubView
+stereotype: class
+label: 子视图控件
+super: cola.Widget
+attributes:

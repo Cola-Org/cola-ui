@@ -30,10 +30,20 @@
           type: cola.TableColumn
           label: 列本身
         - name: arg
+          label: 事件参数
           properties:
             - name: dom
               type: HTMLElement
               label: 标题栏对应的DOM元素。
+
+    - name: headerClick
+      label: 当该列的标题栏被单击时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableColumn
+          label: 列本身
+        - name: arg
+          label: 事件参数
 
 - name: cola.TableGroupColumn
   stereotype: class
@@ -55,6 +65,21 @@
     - name: width
       type: int
       label: 列的宽度
+      defaultValue: 100
+      description: |
+        表格列的宽度有几种定义方式：
+        <ul>
+        <li>
+        纯数字 - 如果我们使用纯数字，那么该数字表示表格列的宽度权重。
+        Cola会利用此数字来平衡各列的宽度，使表格尽可能获得最优的显示结果。默认值为100。
+        </li>
+        <li>
+        数字+px - 例如120px，表示一个像素值的绝对宽度。该表格列的宽度不会参与列宽的自动调整计算。
+        </li>
+        <li>
+        百分比 - 表示相对于整个表格可是区域宽的的百分比。
+        </li>
+        </ul>
 
     - name: align
       enum:
@@ -96,11 +121,79 @@
         因此，ColaUI在此处支持了一种更加简洁的定义方式。你可以把列的绑定表达式通常应该是这样的`.name`、`.price`这种形式。
         只要是以`.`开头表达式，表格会自动为其添加相应的迭代变量。
 
+    - name: readOnly
+      type: boolean
+      label: 是否只读
+
+    - name: sortable
+      type: boolean
+
+      label: 是否支持用户通过鼠标点击表格头对数据进行排序
+    - name: sortDirection
+      enum:
+        - asc
+        - desc
+      label: 当前的排序顺序
+
+    - name: resizeable
+      type: boolean
+      defaultValue: true
+      label: 是否支持用户通过鼠标拖拽调整列宽
+
     - name: template
       type: string
       label: 列的单元格使用的渲染模板
+
+    - name: editTemplate
+      type: string
+      label: 列的单元格中浮动编辑器使用的渲染模板
+
+  events:
+    - name: renderCell
+      label: 当表格渲染该列的单元格时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableColumn
+          label: 列本身
+        - name: arg
+          label: 事件参数
+          properties:
+            - name: dom
+              type: HTMLElement
+              label: 标题栏对应的DOM元素。
+
+    - name: renderFooter
+      label: 当表格渲染该列的汇总栏时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableColumn
+          label: 列本身
+        - name: arg
+          label: 事件参数
+          properties:
+            - name: dom
+              type: HTMLElement
+              label: 标题栏对应的DOM元素。
 
 - name: cola.TableSelectColumn
   stereotype: class
   super: cola.TableContentColumn
   label: 选择列
+  events:
+    - name: headerSelectionChange
+      label: 当表格头中的选择框被点击时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableSelectColumn
+          label: 列本身
+        - name: arg
+          label: 事件参数
+
+    - name: itemSelectionChange
+      label: 当表格中某一行的选择框被点击时触发的事件。
+      arguments:
+        - name: self
+          type: cola.TableSelectColumn
+          label: 列本身
+        - name: arg
+          label: 事件参数

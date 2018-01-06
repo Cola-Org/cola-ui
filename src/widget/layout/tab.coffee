@@ -602,7 +602,7 @@ class cola.TabButton extends cola.tab.AbstractTabButton
 		processDefault = @fire("beforeClose", @, arg)
 		return @ if processDefault is false
 
-		tab = cola.findWidget(@_dom, cola.Tab)
+		tab = cola.findWidget(@_dom, cola.Tab, true)
 		tab.removeTab(@);
 
 		@destroy()

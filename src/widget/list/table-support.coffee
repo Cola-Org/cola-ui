@@ -104,7 +104,7 @@ class cola.TableContentColumn extends cola.TableColumn
 	@attributes:
 		width:
 			refreshColumns: true
-			defaultValue: 80
+			defaultValue: 100
 		valign:
 			refreshColumns: true
 			enum: [ "top", "center", "bottom" ]
@@ -143,8 +143,8 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 		align:
 			defaultValue: "center"
 	@events:
-		change: null
-		itemChange: null
+		headerSelectionChange: null
+		itemSelectionChange: null
 
 	renderHeader: (dom)->
 		if not dom.firstElementChild
@@ -155,7 +155,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 					if checked isnt undefined
 						@selectAll(checked)
 					if typeof arg.value != "boolean"
-						@fire("change", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
+						@fire("headerSelectionChange", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
 			)
 			checkbox.appendTo(dom)
 		return
@@ -168,7 +168,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 					if not @_ignoreCheckedChange
 						@refreshHeaderCheckbox()
 					arg.item = item
-					@fire("itemChange", @, arg)
+					@fire("itemSelectionChange", @, arg)
 					return
 			)
 			oldRefreshValue = checkbox.refreshValue
@@ -180,7 +180,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 						model: checkbox.get("model")
 						dom: checkbox._dom
 						item: item
-					@fire("itemChange", @, arg)
+					@fire("itemSelectionChange", @, arg)
 				return result
 
 			checkbox.appendTo(dom)

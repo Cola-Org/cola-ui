@@ -36,16 +36,45 @@
       type: boolean
       label: 是否显示表格汇总栏
 
-    - name: columnStrecthable
-      type: boolean
-      defaultValue: true
-      label: 是否自动调整各表格列的宽度
+    - name: scrollMode
+      enum:
+        - auto
+        - scroll
+      defaultValue: auto
+      label: 滚动模式
+      description: |
+        <li>auto  - 只有在需要时才显示浮动的纵向滚动栏，但浮动滚动栏显示时可能会略微覆盖最后一列的部分内容。</li>
+        <li>scroll  - 始终显示纵向滚动栏。</li>
 
     - name: selectedProperty
       type: boolean
       label: 当需要启动表格的多选功能时以数据对象的哪个属性来保存数据的多选状态。
       description: |
         要使用表格的多选，通常需要在表格中添加一个选择列。
+
+    - name: sortMode
+      enum:
+        - remote
+        - local
+      defaultValue: remote
+      label: 排序模式
+      description: |
+        <li>remote  - 远端数据排序，此操作会自动对表格绑定的EntityList执行flush操作。
+        在自动刷新数据的请求中表格会自动向Server端发送sort参数。</li>
+        <li>local  - 只对当前页的数据做本地排序。</li>
+
+    - name: readOnly
+      type: boolean
+      defaultValue: true
+      label: 是否默认只读
+
+    - name: leftFixedCols
+      type: boolean
+      label: 锁定表格最左边的几列
+
+    - name: rightFixedCols
+      type: boolean
+      label: 锁定表格最右边的几列
 
   events:
     - name: renderRow
@@ -58,10 +87,10 @@
           properties:
             - name: item
               type: cola.Entity || any
-              label: 要渲染的行对应的数据。
+              label: 要渲染的行对应的数据
             - name: dom
               type: HTMLElement
-              label: 要渲染的行对应的DOM元素。
+              label: 要渲染的行对应的DOM元素
 
     - name: renderCell
       label: 当表格渲染某一单元格时触发的事件。
@@ -73,13 +102,13 @@
           properties:
             - name: item
               type: cola.Entity || any
-              label: 要渲染的单元格对应的数据。
+              label: 要渲染的单元格对应的数据
             - name: column
               type: cola.TableContentColumn
-              label: 要渲染的单元格对应的列。
+              label: 要渲染的单元格对应的列
             - name: dom
               type: HTMLElement
-              label: 要渲染的单元格对应的DOM元素。
+              label: 要渲染的单元格对应的DOM元素
 
     - name: renderHeaderCell
       label: 当表格渲染标题单元格时触发的事件。
@@ -91,10 +120,10 @@
           properties:
             - name: column
               type: cola.TableContentColumn
-              label: 要渲染的单元格对应的列。
+              label: 要渲染的单元格对应的列
             - name: dom
               type: HTMLElement
-              label: 要渲染的单元格对应的DOM元素。
+              label: 要渲染的单元格对应的DOM元素
 
     - name: renderFooterCell
       label: 当表格渲染汇总栏单元格时触发的事件。
@@ -106,10 +135,51 @@
           properties:
             - name: column
               type: cola.TableContentColumn
-              label: 要渲染的单元格对应的列。
+              label: 要渲染的单元格对应的列
             - name: dom
               type: HTMLElement
-              label: 要渲染的单元格对应的DOM元素。
+              label: 要渲染的单元格对应的DOM元素
+
+    - name: headerClick
+      label: 当表格头被单击时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: column
+              type: cola.TableColumn
+              label: 被单击的列
+
+    - name: footerClick
+      label: 当表格汇总栏被单击时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: column
+              type: cola.TableColumn
+              label: 被单击的列
+
+    - name: sortDirectionChange
+      label: 当表格中某列的排序规则被改变时触发的事件。
+      arguments:
+        - name: self
+          type: cola.Table
+          label: 表格本身
+        - name: arg
+          properties:
+            - name: column
+              type: cola.TableContentColumn
+              label: 触发事件的列
+            - name: sortDirection
+              enum:
+                - asc
+                - desc
+              label: 顺序
 
   method:
     - name: getColumn
