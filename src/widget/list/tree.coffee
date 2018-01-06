@@ -369,7 +369,6 @@ class cola.Tree extends cola.AbstractList
 			parentItemDom.appendChild(nodesWrapper)
 
 		itemsScope = parentNode._itemsScope
-		itemsScope.resetItemScopeMap()
 
 		documentFragment = null
 		currentItemDom = nodesWrapper.firstElementChild

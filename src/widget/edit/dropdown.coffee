@@ -489,6 +489,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
 class cola.DropBox extends cola.Layer
+	@tagName: "c-drop-box"
 	@CLASS_NAME: "drop-box transition"
 	@attributes:
 		height:

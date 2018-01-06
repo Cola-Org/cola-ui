@@ -69,7 +69,8 @@ class cola.AbstractLayer extends cola.AbstractContainer
 
 	_initDom: (dom)->
 		super(dom)
-		if not @get$Dom().hasClass("visible")
+		$dom = @get$Dom()
+		if not $dom.hasClass("visible")
 			cola.util._freezeDom(dom)
 		return
 

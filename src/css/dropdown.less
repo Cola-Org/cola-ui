@@ -108,7 +108,7 @@
 	min-width: 20em;
 }
 
-.ui.drop-box {
+.ui.drop-box, c-drop-box {
 	position: absolute;
 	overflow: auto;
 	box-sizing: border-box;
@@ -119,6 +119,7 @@
 	top: -9999px;
 	overflow-x: hidden;
 	background: @inputBackground;
+	display: none;
 
 	&.direction-down {
 		border-radius: 0 0 @borderRadius @borderRadius;

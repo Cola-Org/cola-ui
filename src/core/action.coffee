@@ -39,7 +39,7 @@ cola.defaultAction.state = (entity)-> entity?.state
 cola.defaultAction.len = (value)->
 	if not value
 		return 0
-	if value instanceof Array or value instanceof string
+	if value instanceof Array or typeof value is "string"
 		return value.length
 	if  value instanceof cola.EntityList
 		return value.entityCount

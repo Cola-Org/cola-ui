@@ -153,27 +153,6 @@ cola._renderDomTemplate = (dom, scope, context = {})->
 			.find("." + cola.constants.SHOW_ON_READY_CLASS).removeClass(cola.constants.SHOW_ON_READY_CLASS)
 	return
 
-_initLazyDom = (dom, includeSelf)->
-	$(dom).on "visibilityChange", (evt, data)->
-		if data.visible and not dom._rendered
-			dom._rendered = true
-			cola._renderDomTemplate(dom, scope)
-
-		if includeSelf
-			if data.visible then cola.util._unfreezeDom(dom) else cola.util._freezeDom(dom)
-		else
-			child = dom.firstChild
-			if data.visible
-				while child
-					cola.util._unfreezeDom(child)
-					child = child.nextSibling
-			else
-				while child
-					cola.util._freezeDom(child)
-					child = child.nextSibling
-		return
-	return
-
 _doRenderDomTemplate = (dom, scope, context)->
 	return if dom.nodeType is 8 or dom.nodeName is "SVG"
 	return if dom.nodeType is 1 and
@@ -187,36 +166,46 @@ _doRenderDomTemplate = (dom, scope, context)->
 		return dom
 
 	else if dom.nodeType is 1 # element
-		if dom.className.indexOf(cola.constants.LAZY_CLASS) >= 0 and
-		  dom.className.split(' ').indexOf(cola.constants.LAZY_CLASS) >= 0
-			$(dom).on "visibilityChange", (evt, data)->
-				return unless data.visible
-				if not dom._rendered
-					dom._rendered = true
-					cola._renderDomTemplate(dom, scope)
-				else
-					cola.util._unfreezeDom(dom)
-				return
+		if not dom._ignoreLazyClass
+			if dom.className.indexOf(cola.constants.LAZY_CLASS) >= 0 and
+			  dom.className.split(' ').indexOf(cola.constants.LAZY_CLASS) >= 0
+				$(dom).on "visibilityChange", (evt, data)->
+					return unless data.visible
+					if not dom._rendered
+						dom._rendered = true
+						dom._ignoreLazyClass = true
+						cola._renderDomTemplate(dom, scope)
+					else if data.visible
+						cola.util._unfreezeDom(dom)
+					else
+						cola.util._freezeDom(dom)
+					return
 
-			if dom.offsetWidth is 0 and dom.offsetHeight is 0
-				return
-			else
-				dom._rendered = true
-		else if dom.className.indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0 and
-		  dom.className.split(' ').indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0
-			cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
-			$(dom).on "visibilityChange", (evt, data)->
-				return unless data.visible
-				if not dom._contentRendered
-					dom._contentRendered = true
-					cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
-					cola._renderDomTemplate(dom, scope)
+				if dom.offsetWidth is 0 and dom.offsetHeight is 0
+					return
 				else
-					child = dom.firstChild
-					while child
-						cola.util._unfreezeDom(child)
-						child = child.nextSibling
-				return
+					dom._rendered = true
+			else if dom.className.indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0 and
+			  dom.className.split(' ').indexOf(cola.constants.LAZY_CONTENT_CLASS) >= 0
+				cola.util.userData(dom, cola.constants.DOM_SKIP_CHILDREN, true)
+				$(dom).on "visibilityChange", (evt, data)->
+					return unless data.visible
+					if not dom._contentRendered
+						dom._contentRendered = true
+						cola.util.removeUserData(dom, cola.constants.DOM_SKIP_CHILDREN)
+						dom._ignoreLazyClass = true
+						cola._renderDomTemplate(dom, scope)
+					else if data.visible
+						child = dom.firstChild
+						while child
+							cola.util._unfreezeDom(child)
+							child = child.nextSibling
+					else
+						child = dom.firstChild
+						while child
+							cola.util._freezeDom(child)
+							child = child.nextSibling
+					return
 
 	else if dom.nodeType is 11 # documentFragment
 		child = dom.firstElementChild

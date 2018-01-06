@@ -867,6 +867,8 @@ class cola.Table extends cola.Widget
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
+
+		cola.util.delay(@, "refreshScrollbars", 300, @_refreshScrollbars)
 		return
 
 	_onCurrentItemChange: (arg)->
@@ -1251,7 +1253,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		caption = column._caption or column._name
 		if caption?.charCodeAt(0) is 95 # `_`
-			caption = column._bind
+			caption = column._property or column._bind
 		dom.innerText = caption or ""
 		return
 

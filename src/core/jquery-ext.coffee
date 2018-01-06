@@ -30,27 +30,26 @@ domObserver =
 
 		for id, holder of domObserver.doms
 			dom = holder.dom
-			width = dom.offsetWidth
-			height = dom.offsetHeight
+			originWidth = dom._originWidth
+			originHeight = dom._originHeight
+			dom._originHeight = width = dom.offsetWidth
+			dom._originHeight = height = dom.offsetHeight
 			visible = !!(width or height)
 
 			if holder.scopes & domObserver.VISIBILITY
-				if visible isnt !!(dom._originWidth or dom._originHeight)
+				if visible isnt !!(originWidth or originHeight)
 					$fly(dom).trigger("visibilityChange", {
 						visible: visible
 					})
 
 			if visible and holder.scopes & domObserver.SIZING
-				if width isnt dom._originWidth or height isnt dom._originHeight
+				if width isnt originWidth or height isnt originHeight
 					$fly(dom).trigger("sizingChange", {
-						originWidth: dom._originWidth
-						originHeight: dom._originHeight
+						originWidth: originWidth
+						originHeight: originHeight
 						width: width
 						height: height
 					})
-
-			dom._originWidth = width
-			dom._originHeight = height
 		return
 
 	observe: (dom, type)->

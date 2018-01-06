@@ -405,14 +405,13 @@ _extendWidget = (superCls, definition)->
 	return cls
 
 cola.defineWidget = (parentType, definition)->
-	if not cola.util.isSuperClass(cola.Widget, parentType)
-		definition = parentType
-		parentType = cola.TemplateWidget
+	type = parentType
+	if not cola.util.isSuperClass(cola.Widget, type)
+		definition = type
+		type = cola.TemplateWidget
 
-	if not definition
-		throw new cola.Exception("Argument 'definition' undefined.")
-
-	type = _extendWidget(parentType, definition)
+	if definition
+		type = _extendWidget(type, definition)
 
 	tagNames = type.tagName?.toUpperCase()
 	if tagNames
