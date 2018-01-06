@@ -8,9 +8,9 @@ cola._rootFunc = ()->
 	targetDom = null
 	modelName = null
 	for arg in arguments
-		if typeof arg == "function"
+		if typeof arg is "function"
 			fn = arg
-		else if typeof arg == "string"
+		else if typeof arg is "string"
 			modelName = arg
 		else if arg instanceof cola.Scope
 			model = arg
@@ -65,6 +65,11 @@ cola._init = ()->
 		cola.off("beforeInit")
 
 	initFuncs = cola._mainInitFuncs
+
+	if not initFuncs.length
+		cola ()->
+		initFuncs = cola._mainInitFuncs
+
 	delete cola._mainInitFuncs
 
 	for initFunc in initFuncs
