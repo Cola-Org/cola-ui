@@ -38,12 +38,188 @@ methods:
         label: url片段
 
   - name: each
+    type: void
+    label: 迭代一个数组或EntityList
+    arguments:
+      - name: data
+        type: array || cola.EntityList
+        label: 要迭代的数据
+      - name: fn
+        type: function
+        label: 迭代方法
+        description: |
+          示例如下：
+          <code>
+          cola.util.each(employees, function(employee, i) {
+            if (employees.get("name") === "Nick") {
+              // do something
+              return false; // 返回false表示终止迭代
+            }
+          });
+          </code>
+
   - name: findModel
+    type: cola.Model
+    label: 根据传入的DOM元素查找其相关的Model
+    arguments:
+      - name: dom
+        type: HTMLElement
+        label: DOM元素
+
   - name: formatDate
+    type: string
+    label: 将传入的日期转换成特定格式的字符串
+    description: |
+      参考以下部分示例:
+      <code>
+      cola.util.formatDate(date, "yyyy-MM-dd")  // 2018-01-06
+      cola.util.formatDate(date, "HH:mm:ss")  // 12:06:17.509
+      cola.util.formatDate(date, "yyyy'年'MM'月'dd'日' dddd")  // 2018年01月06日 星期六
+      cola.util.formatDate(date, "yyyy-MM-dd'T'HH:mm:ss.fffzzz")  // 2018-01-06T12:06:17.509+0800
+      cola.util.formatDate(date, "yyyy-MM-dd HH:mm:ss z")  // 2018-01-06 12:15:28 +8
+      </code>
+    arguments:
+      - name: date
+        type: Date
+        label: 日期
+      - name: pattern
+        type: string
+        label: 输出格式
+
   - name: formatNumber
+    type: string
+    label: 将传入的数字转换成特定格式的字符串
+    description: |
+      参考以下部分示例:
+      <code>
+      cola.util.formatNumber(123456.789, "0") // 123457
+      cola.util.formatNumber(123456.789, "0.00") // 123456.79
+      cola.util.formatNumber(123456.789, "0.######") // 123456.789
+      cola.util.formatNumber(123456.789, "0.000000") // 123456.789000
+      cola.util.formatNumber(123456.789, "#,#0.00") // 12,34,56.79
+      cola.util.formatNumber(123456.789, "￥0.00") // ￥123456.79
+      cola.util.formatNumber(123456, "0.00") // 123456.00
+      </code>
+    arguments:
+      - name: number
+        type: number
+        label: 数字
+      - name: pattern
+        type: string
+        label: 输出格式
+
   - name: format
+    type: string
+    label: 自动根据传入数据的类型转成特定格式的字符串
+    description: |
+      此方法内部自动判断传入数据的类型来决定要调用cola.util.formatNumber()还是cola.util.formatDate()
+    arguments:
+      - name: data
+        type: number || date
+        label: 数字或日期
+      - name: pattern
+        type: string
+        label: 输出格式
+
   - name: queryParams
+    type: json
+    label: 将当前页面URL中的get参数转换成一个JSON对象
+    description: |
+      例如：
+      <code>
+      // 假设URL中目前是 http://cola-ui.com/search?type=event&keyword=beforeChange
+      var param = cola.util.queryParams();
+      /*
+      param的内容应该是这样的...
+      {
+        type: "event",
+        keyword: "beforeChange"
+      }
+      */
+      </code>
+
   - name: pathParams
+    type: [string]
+    label: 将当前页面URL按照RESTFUL的规范解析成一个数组
+    description: |
+      例如：
+      <code>
+      // 假设URL中目前是 http://cola-ui.com/api/cola.Entity/member/get
+      var parts = cola.util.pathParams("api");
+      /*
+      parts的内容应该是这样的...
+      ["cola.Entity", "member", "get"]
+      */
+      </code>
+    arguments:
+      - name: prefix
+        type: string
+        label: 前缀片段，即本次解析只关注URL中该前缀后面的部分
+
   - name: dictionary
+    type: [json]
+    label: 注册一个键值对字典
+    description: |
+      <p>
+      此方法通常与 cola.util.translate() 或绑定表达式中的 translate() 配合使用。
+      </p>
+      <p>
+      注册字典有两种方式...
+      <li>
+      以一个JSON对象来定义，例如：
+      <code>
+      cola.util.dictionary("currency", {
+        "CNY": "人民币",
+        "USD": "美元",
+        "EUR": "欧元"
+      });
+      </code>
+      以此种方式定义字典的缺点是无法按照顺序迭代所有键值对，当我们需要把字典项迭代出来的时候，各项的顺序是无法确定的。
+      因此我们还提供了另一种定义方式。
+      </li>
+      <li>
+      以数组方式定义，例如：
+      <code>
+      cola.util.dictionary("currency", [
+        { key: "CNY", value: "人民币" },
+        { key: "USD", value: "美元" },
+        { key: "EUR", value: "欧元" }
+      ]);
+      </code>
+      </li>
+      </p>
+    arguments:
+      - name: name
+        type: string
+        label: 字典的名称
+      - name: keyValues
+        type: json | [json]
+        label: 键值对数据
+
+  - name: dictionary
+    type: [json]
+    label: 根据名称获得字典的键值对列表
+    description: |
+      不论该字典的数据之前是以何种方式声明此方法返回的数据都是如下这种形式的：
+      <code>
+      [
+        { key: "CNY", value: "人民币" },
+        { key: "USD", value: "美元" },
+        { key: "EUR", value: "欧元" }
+      ]
+      </code>
+    arguments:
+      - name: name
+        type: string
+        label: 字典的名称
+
   - name: translate
-  - name: isSuperClass
+    type: string
+    label: 根据字典名称和键返回值
+    arguments:
+      - name: name
+        type: string
+        label: 字典的名称
+      - name: key
+        type: string
+        label: 键
