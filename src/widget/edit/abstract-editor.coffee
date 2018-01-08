@@ -61,7 +61,7 @@ class cola.AbstractEditor extends cola.Widget
 		else
 			@_value = value
 
-		if @_rendered and (value isnt @_modelValue or not @_bindStr)
+		if @_rendered and (value isnt @_modelValue or not @_bindInfo)
 			@post()
 
 		@onSetValue?(value)
