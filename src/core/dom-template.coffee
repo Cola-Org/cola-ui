@@ -166,7 +166,7 @@ _doRenderDomTemplate = (dom, scope, context)->
 		return dom
 
 	else if dom.nodeType is 1 # element
-		if not dom._ignoreLazyClass
+		if dom.className?.indexOf and not dom._ignoreLazyClass
 			if dom.className.indexOf(cola.constants.LAZY_CLASS) >= 0 and
 			  dom.className.split(' ').indexOf(cola.constants.LAZY_CLASS) >= 0
 				$(dom).on "visibilityChange", (evt, data)->
