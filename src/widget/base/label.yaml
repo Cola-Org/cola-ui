@@ -3,38 +3,10 @@
   label: cola 文本标签控件
   super: cola.Widget
   attributes:
-    - name: size
-      label: 尺寸
-      type: string
-      enum:
-        - mini
-        - tiny
-        - small
-        - medium
-        - large
-        - big
-        - huge
-        - massive
 
     - name: text
       label: 显示的内容
       type: string
-
-
-    - name: color
-      label: 颜色
-      type: string
-      enum:
-        - black
-        - yellow
-        - green
-        - blue
-        - orange
-        - purple
-        - red
-        - pink
-        - teal
-      defaultValue: ""
 
     - name: icon
       label: 图标

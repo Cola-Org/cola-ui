@@ -87,7 +87,12 @@
       defaultValue: false
       type: boolean
 
-    - name: states
+    - name: disabled
+      label: 禁用
+      defaultValue: false
+      type: boolean
+
+    - name: state
       label: 状态
       enum:
         - loading
@@ -101,13 +106,6 @@
   super: cola.AbstractButton
 
   attributes:
-    - name: fluid
-      label: 流体按钮组
-      type: boolean
-      defaultValue: false
-      description: |
-        将横向或垂直撑满容器
-
     - name: mutuallyExclusive
       label: 内部元素状态互斥
       defaultValue: true

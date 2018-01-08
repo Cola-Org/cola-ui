@@ -17,6 +17,10 @@
       defaultValue: false
       description: 是否只读
 
+    - name: state
+      type: Object
+      description: 状态
+
   events:
     - name: beforePost
       description: 当编辑器确认其中的编辑内容之前触发的事件。

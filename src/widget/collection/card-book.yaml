@@ -29,3 +29,17 @@ events:
           - name: oldItem
             type: cola.Widget|HTMLElemnt
             description: 切换前的当前Item
+methods:
+  - name: setCurrent
+    label: 设置当前
+    arguments:
+      - name: name
+        type: string
+        description: 目标元素name
+
+  - name: setCurrentIndex
+    label: 设置当前的另一种用法
+    arguments:
+      - name: index
+        type: integer
+        description: 目前元素位置

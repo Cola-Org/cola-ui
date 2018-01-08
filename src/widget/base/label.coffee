@@ -10,16 +10,6 @@ class cola.Label extends cola.Widget
 	@CLASS_NAME: "label"
 	
 	@attributes:
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @_size
-				if oldValue and oldValue isnt value and @_dom
-					@removeClass(oldValue)
-				@_size = value
-				return
-
 		text:
 			refreshDom: true
 
@@ -41,15 +31,6 @@ class cola.Label extends cola.Widget
 			type: "boolean"
 			defaultValue: false
 			refreshDom: true
-
-		color:
-			refreshDom: true
-			enum: ["black", "yellow", "green", "blue", "orange", "purple", "red", "pink", "teal"]
-			setter: (value)->
-				oldValue = @_color
-				@removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@_color = value
-				return
 
 		attached:
 			refreshDom: true
@@ -104,11 +85,9 @@ class cola.Label extends cola.Widget
 		else
 			if textDom then cola.detachNode(textDom)
 
-		size = @get("size")
-		classNamePool.add(size) if size
 
-		color = @get("color")
-		classNamePool.add(color) if color
+
+
 
 		@_refreshIcon()
 

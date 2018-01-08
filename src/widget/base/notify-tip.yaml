@@ -1,0 +1,71 @@
+name: cola.NotifyTipManager
+stereotype: namespace
+label: Cola中提醒信息管理器
+
+methods:
+  - name: info
+    label: 消息级别-提醒信息
+    description: |
+      <code>
+        cola.NotifyTipManager.info({
+          message: "系统消息", // 消息头
+          description: "今晚19：00准时看新闻联播哦！", //详细内容
+          showDuration: 5000  //显示时长
+        });
+      </code>
+    arguments:
+      - name: options
+        type: json
+        label: 信息配置
+
+
+
+  - name: warning
+    label: 警告级别-提醒信息
+    arguments:
+      - name: options
+        type: json
+        label: 信息配置
+    description: |
+        示例如下：
+        <code>
+        cola.NotifyTipManager.warning({
+          message: "系统消息", // 消息头
+          description: "今晚19：00准时看新闻联播哦！", //详细内容
+          showDuration: 5000  //显示时长
+        });
+        </code>
+
+  - name: error
+    label: 错误级别-提醒信息
+    arguments:
+      - name: options
+        type: json
+        label: 信息配置
+    description: |
+        示例如下：
+        <code>
+        cola.NotifyTipManager.error({
+          message: "系统消息", // 消息头
+          description: "今晚19：00准时看新闻联播哦！", //详细内容
+          showDuration: 5000  //显示时长
+        });
+        </code>
+
+  - name: success
+    label: 成功级别-提醒信息
+    arguments:
+      - name: options
+        type: json
+        label: 信息配置
+    description: |
+        示例如下：
+        <code>
+        cola.NotifyTipManager.success({
+          message: "系统消息", // 消息头
+          description: "今晚19：00准时看新闻联播哦！", //详细内容
+          showDuration: 5000  //显示时长
+        });
+        </code>
+  - name: clear
+    label: 清空现有消息提醒(所有)

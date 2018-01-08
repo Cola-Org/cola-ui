@@ -3,3 +3,64 @@ stereotype: class
 label: 子视图控件
 super: cola.Widget
 attributes:
+  - name: url
+    label: Html 地址
+    type: string
+    readOnlyAfterCreate: true
+
+
+  - name: jsUrl
+    label: JavaScript脚本地址，
+    type: string
+    description: |
+      如果与Html Url统一地址,可以简写为 $ 或者 $.js
+      <code>
+      <c-subview url="./subview/edit.html" jsUrl="$"></c-subview>
+      </code>
+      支持多个脚本(以|分割)
+      <code>
+      <c-subview url="./subview/edit.html" jsUrl="$|resources/chart.js|data/list.js"></c-subview>
+      </code>
+
+  - name: cssUrl
+    label: JavaScript脚本地址
+    type: string
+    description: |
+      如果与Html Url统一地址,可以简写为 $ 或者 $.css
+      <code>
+      <c-subview url="./subview/edit.html" jsUrl="$" cssUrl="$"></c-subview>
+      </code>
+
+  - name: timeout
+    type: Integer
+    label: 装载超时设置(毫秒)
+
+  - name: parentModel
+    type: cola.Model
+    label: 夫Model/宿主Model
+
+  - name: modelName
+    type: string
+    label: 定义Model 的Name
+    description: |
+      如定义此属性为 editSubView 可执行如下脚本获得内部 Model对象
+      <code>
+      var innerMdoel=cola.model("editSubView")
+      </code>
+
+  - name: contentModel
+    label: 子试图内部Model
+
+  - name: param
+    type: Object
+    label: 参数
+    description: |
+      如定义此属性可以在初始化脚本中可获得此参数内容
+      <code>
+      cola(function(model,param){
+        // param 为设定值
+      })
+      </code>
+
+
+

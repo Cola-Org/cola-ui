@@ -24,11 +24,22 @@ events:
           - name: column
             type: number
             description: 列号
+
   - name: change
     description: 当控件日期发生改变时触发(用户通过交互选择日期时)
     arguments:
       - name: date
         description: 改变后当前日期
+
+  - name: monthChange
+    description: 当控件月份切换时触
+    arguments:
+      - name: year
+        description: 改变后年份
+
+      - name: year
+        description: 改变后月份
+
   - name: cellClick
     description: 当日期单元格被单击时触发此事件
     arguments:
@@ -77,6 +88,13 @@ methods:
     return:
       type: cola.Calendar
       description: 组件本身
+
+  - name: setYear
+    label: 设置年份
+    return:
+      type: cola.Calendar
+      description: 组件本身
+
 
   - name: getDateCellDom
     arguments:
