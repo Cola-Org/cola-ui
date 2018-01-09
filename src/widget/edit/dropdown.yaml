@@ -39,6 +39,27 @@
       defaultValue: auto
       description: 下拉框打开模式
 
+    - name: assignment
+      label: 多属性赋值
+      type: string
+      description: |
+        数据实体(JSON对象或dorado.Entity对象)中的多个属性赋值到目标实体。
+        <code>
+        <c-dropdown assignment="structureName=name;structureId=id"></c-dropdown>
+        // 将下拉框是数据中的
+        // 字段name 赋值到目标实体structureName字段
+        // 字段id 赋值到目标实体structureId字段
+        </code>
+
+    - name: editable
+      type: boolean
+      label: 是否允许用在相应的编辑框中进行文本输入。
+      defaultValue: true
+
+    - name: showClearButton
+      type: boolean
+      label: 是否显示清空按钮
+      defaultValue: true
 
     - name: dropdownWidth
       type: string||int
@@ -71,6 +92,98 @@
       description: 打开下拉框之后触发此事件
     - name: close
       description: 关闭下拉框之后触发此事件
+
+    - name: initDropdownBox
+      description: 初始化DropdownBox 之后触发此事件
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: dropdownBox
+              type: HTMLElement
+              description: dropdownBox 容器 Dom
+
+    - name: selectData
+      description: 选中数据后触发此事件
+      arguments:
+        - name: self
+          label: 组件本身
+        - name: arg
+          properties:
+            - name: data
+              type: Object||cola.Entity
+              description: 选中的数据对象
+    - name: focus
+      description: 当控件获得控制焦点时触发的事件。
+    - name: input
+      description: 当控件值被重新赋值时触发此事件
+    - name: blur
+      description: 当控件失去控制焦点时触发的事件
+    - name: keyDown
+      label: 当控件拥有焦点并且有按键被按下时触发的事件。
+      arguments:
+        - name: self
+          description: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: keyCode
+              type: int
+              description: 按键对应的keyCode
+            - name: shiftKey
+              type: boolean
+              description: Shift键是否按下。
+            - name: ctrlKey
+              type: boolean
+              description: Ctrl键是否按下。
+            - name: altKey
+              type: boolean
+              description: Alt键是否按下。
+            - name: event
+              type: Event
+              description: DHTML中的事件event参数。
+
+    - name: keyPress
+      label: 当控件拥有焦点并且有ASCII码的按键被按下时触发的事件。
+      arguments:
+        - name: self
+          description: 事件的发起者,即组件本身
+        - name: arg
+          properties:
+            - name: keyCode
+              type: int
+              description: 按键对应的keyCode
+            - name: shiftKey
+              type: boolean
+              description: Shift键是否按下。
+            - name: ctrlKey
+              type: boolean
+              description: Ctrl键是否按下。
+            - name: altKey
+              type: boolean
+              description: Alt键是否按下。
+            - name: event
+              type: Event
+              description: DHTML中的事件event参数。
+  methods:
+    - name: open
+      label: 打开下拉框
+
+    - name: close
+      label: 关闭下拉框
+      arguments:
+        - name: selectedData
+          type: object||cola.Entity
+        - name: callback
+          type: function
+      description: |
+        <code>
+        var dropdown=new cola.Widget('dropdown');
+        widget.close({name:"tom",id:1234},function(){
+          console.log("值已被选中")
+        })
+        </code>
+
 
 
 

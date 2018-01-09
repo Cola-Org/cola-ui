@@ -1,0 +1,11 @@
+name: cola.Pager
+stereotype: class
+super: cola.Widget
+label: 分页条
+
+attributes:
+  - name: bind
+    type: string
+    label: 绑定表达式。
+    description: 此属性不要与items属性同时使用。
+

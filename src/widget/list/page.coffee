@@ -36,7 +36,7 @@ class cola.Pager extends cola.Widget
 					step: 1,
 					change: ()->
 						pageNo = parseInt($(this).val())
-						
+
 						if pageNo > pager._pageCount
 							pageNo = pager._pageCount
 							$(this).val(pageNo)
