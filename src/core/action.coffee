@@ -96,6 +96,9 @@ cola.defaultAction.toJSON = (data)->
 		return data.toJSON()
 	return data
 
+cola.defaultAction.map = (str)->
+	return cola.util.parseStyleLikeString(str)
+
 cola.defaultAction.formatDate = cola.util.formatDate
 
 cola.defaultAction.formatNumber = cola.util.formatNumber
