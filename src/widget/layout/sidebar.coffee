@@ -40,8 +40,6 @@ class cola.Sidebar extends cola.AbstractLayer
 			return null
 
 		direction = @_direction
-
-
 		duration = options.duration or @_duration or 300
 
 		$dom = @get$Dom()

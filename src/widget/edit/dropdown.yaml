@@ -23,7 +23,6 @@
       description: |
         数据实体(JSON对象或dorado.Entity对象)中的某个属性名，表示下拉框用于显示的数值来自于哪个属性。 如果不定义此属性则系统将按照property中定义的属性来处理。
 
-
     - name: openOnActive
       type: boolean
       description: 是否启用自动打开的功能。即当相应的编辑框获得输入焦点时自动打开此下拉框。
@@ -46,10 +45,8 @@
         数据实体(JSON对象或dorado.Entity对象)中的多个属性赋值到目标实体。
         <code>
         <c-dropdown assignment="structureName=name;structureId=id"></c-dropdown>
-        // 将下拉框是数据中的
-        // 字段name 赋值到目标实体structureName字段
-        // 字段id 赋值到目标实体structureId字段
         </code>
+        上面assignment属性的含义是将下拉框是数据中的字段name赋值到目标实体structureName字段，字段id 赋值到目标实体structureId字段。
 
     - name: editable
       type: boolean
@@ -184,10 +181,6 @@
         })
         </code>
 
-
-
-
-
 - name: cola.Dropdown
   stereotype: class
   super: cola.AbstractDropdown
@@ -200,7 +193,6 @@
     - name: filterProperty
       label: 过滤值对应属性
       type: string
-
 
     - name: filterable
       type: boolean
@@ -218,6 +210,6 @@
 
     - name: content
       label: 下拉框内部内容
-      type: Any
+      type: coson || HTMLElement || cola.Widget || string
 
 
