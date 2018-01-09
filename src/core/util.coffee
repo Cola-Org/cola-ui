@@ -73,7 +73,7 @@ cola.util.parseStyleLikeString = (styleStr, headerProp)->
 		else
 			part = @trim(part)
 			if not part then continue
-			if i == 0 and headerProp
+			if i is 0 and headerProp
 				style[headerProp] = part
 			else
 				style[part] = true
