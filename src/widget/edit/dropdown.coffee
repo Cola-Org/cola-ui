@@ -2,7 +2,7 @@ dropdownDialogMargin = 0
 
 cola.findDropDown = (target)->
 	layer = cola.findWidget(target, cola.AbstractLayer, true)
-	while layer and not layer.hasClass("drop-container")
+	while layer and not layer._dropdown
 		layer = cola.findWidget(layer, cola.AbstractLayer, true)
 	return layer?._dropdown
 
