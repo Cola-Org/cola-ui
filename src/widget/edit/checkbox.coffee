@@ -114,6 +114,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	_bindToSemantic: ()->
 		@get$Dom().checkbox({
 			onChange: ()=>
+				return if @_ignoreSemanticEvent
 				@_setValue(@_getValue())
 				if not @_ignoreInputEvent
 					@fire("input", @)
@@ -129,7 +130,10 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 		return
 
 	_refreshEditorDom: ()->
+		@_ignoreSemanticEvent = true
 		@get$Dom().checkbox(if @_value is @_onValue then "check" else "uncheck")
+		@_ignoreSemanticEvent = false
+		return
 
 	_doRefreshDom: ()->
 		return unless @_dom
@@ -178,7 +182,9 @@ class cola.Checkbox extends cola.AbstractCheckbox
 
 	_refreshEditorDom: ()->
 		if @_triState and @_value isnt @_onValue and @_value isnt @_offValue
+			@_ignoreSemanticEvent = true
 			@get$Dom().checkbox("set indeterminate")
+			@_ignoreSemanticEvent = false
 			return
 		super()
 
