@@ -79,19 +79,6 @@ module.exports = (grunt) ->
 				src: ["resources/**"]
 				dest: "api"
 
-		mochaTest:
-			test:
-				options:
-					mocha:
-						ui: "qunit"
-					reporter: "spec"
-				src: ["test/mocha/*.js"]
-		qunit:
-			all:
-				options:
-					urls: [
-						"http://localhost:9001/test/qunit/all.html"
-					]
 		uglify:
 			options:
 				expand: true
@@ -124,11 +111,6 @@ module.exports = (grunt) ->
 			libs:
 				files: ["src/lib/**"]
 				tasks: "copy:libs"
-		connect:
-			testServer:
-				options:
-					port: 9001
-					base: "."
 		yamlToDoc:
 			api:
 				options:
@@ -226,27 +208,20 @@ module.exports = (grunt) ->
 
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-less"
-	grunt.loadNpmTasks "grunt-mocha-test"
-	grunt.loadNpmTasks "grunt-contrib-qunit"
 	grunt.loadNpmTasks "grunt-contrib-uglify"
 	grunt.loadNpmTasks "grunt-yaml"
 	grunt.loadNpmTasks "grunt-contrib-watch"
 	grunt.loadNpmTasks "grunt-contrib-copy"
 	grunt.loadNpmTasks "grunt-contrib-clean"
-	grunt.loadNpmTasks "grunt-contrib-connect"
 	grunt.loadNpmTasks "grunt-cola-ui-build"
 	grunt.loadNpmTasks "grunt-contrib-concat"
 	grunt.loadNpmTasks "grunt-contrib-rename"
 	grunt.loadNpmTasks "grunt-contrib-cssmin"
 	grunt.loadNpmTasks "grunt-contrib-compress"
 
-	grunt.registerTask "mochaTask", ["mochaTest"]
-	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
-	grunt.registerTask "test", ["mochaTask", "qunitTask"]
-
 	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
 	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
-	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
+	grunt.registerTask "all", ["clean", "coffee", "less", "uglify", "copy"]
 	grunt.registerTask "w", ["watch"]
 	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 		"coffee:i18n",

@@ -33,11 +33,15 @@ class cola.NumberDataType extends cola.BaseDataType
 			else
 				return text
 
-		if @_isInteger
-			n = Math.round(+text)
-		else
-			n = +text
-		return if isNaN(n) then 0 else n
+		text =  n + ""
+		if text.indexOf("e") > 0
+			if text.charAt(0) is "-"
+				n = Number.MIN_SAFE_INTEGER
+			else
+				n = Number.MAX_SAFE_INTEGER
+		else if isNaN(n)
+			n = 0
+		return n
 
 class cola.BooleanDataType extends cola.BaseDataType
 	parse: (text)->
