@@ -555,6 +555,9 @@ class cola.Entity
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
 							value = dataType.parse(value)
+
+						if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value is Number.MAX_SAFE_INTEGER)
+							throw new cola.Exception(cola.resource("cola.validator.error.number", value))
 				else if typeof value is "object" and value? and not isSpecialProp
 					if value instanceof Array
 						convert = true
