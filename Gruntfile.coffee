@@ -5,10 +5,10 @@ module.exports = (grunt) ->
 	grunt.initConfig
 		pkg: pkg
 		clean:
-			build: [ "dest/work", "dist" ]
-			workTemp: [ "dest/work/cola" ]
-			dev: [ "dest/dev" ]
-			"core-widget": [ "dist/cola-widget.js" ]
+			build: ["dest/work", "dist"]
+			workTemp: ["dest/work/cola"]
+			dev: ["dest/dev"]
+			"core-widget": ["dist/cola-widget.js"]
 		coffee:
 			dev:
 				options:
@@ -28,6 +28,10 @@ module.exports = (grunt) ->
 				options:
 					sourceMap: false
 					join: true
+					process: (content, srcpath)->
+						console.log("replace version")
+						return content.replace("${version}", '#{pkg.version}');
+
 				files:
 					"dist/cola-core.js": [
 						"dest/work/cola/coffee/cola.coffee"
@@ -64,19 +68,19 @@ module.exports = (grunt) ->
 			libs:
 				expand: true
 				cwd: "src"
-				src: [ "lib/**" ]
+				src: ["lib/**"]
 				dest: "dest/dev"
 
 			semantic:
 				expand: true
 				cwd: "src/lib/semantic-ui"
-				src: [ "themes/**", "semantic.css", "semantic.js" ]
+				src: ["themes/**", "semantic.css", "semantic.js"]
 				dest: "dist"
 
 			apiResources:
 				expand: true
 				cwd: "node_modules/grunt-cola-ui-build"
-				src: [ "resources/**" ]
+				src: ["resources/**"]
 				dest: "api"
 
 		uglify:
@@ -98,18 +102,18 @@ module.exports = (grunt) ->
 				files: [
 					expand: true
 					cwd: "src"
-					src: [ "**/*.yaml" ]
+					src: ["**/*.yaml"]
 					dest: "api"
 				]
 		watch:
 			coffee:
-				files: [ "src/**/*.coffee" ]
+				files: ["src/**/*.coffee"]
 				tasks: "coffee:dev"
 			less:
-				files: [ "src/**/*.less" ]
+				files: ["src/**/*.less"]
 				tasks: "less:dev"
 			libs:
-				files: [ "src/lib/**" ]
+				files: ["src/lib/**"]
 				tasks: "copy:libs"
 		yamlToDoc:
 			api:
@@ -120,7 +124,7 @@ module.exports = (grunt) ->
 					{
 						expand: true
 						cwd: "src"
-						src: [ "**/*.yaml" ]
+						src: ["**/*.yaml"]
 						dest: "api"
 					}
 				]
@@ -135,7 +139,7 @@ module.exports = (grunt) ->
 		"cola-ui-license":
 			options:
 				license: """
-/*! Cola - #{pkg.version}
+/*! Cola - v#{pkg.version}(#{grunt.template.today('yyyy-mm-dd HH:MM:ss')})
  * Copyright (C) 2015-2017 Benny Bao & Alex Tong.
  * Licensed under the MIT license */
 
@@ -154,18 +158,18 @@ module.exports = (grunt) ->
 					"dist/3rd.js": sources.lib.js
 			cola:
 				files:
-					"dist/cola.js": [ "dist/cola-core.js", "dist/cola-widget.js" ]
+					"dist/cola.js": ["dist/cola-core.js", "dist/cola-widget.js"]
 			all:
 				files:
-					"dist/all/javascript.js": [ "dist/3rd.js", "dist/semantic.js", "dist/cola.js" ]
-					"dist/all/css.js": [ "dist/semantic.css", "dist/cola.css" ]
+					"dist/all/javascript.js": ["dist/3rd.js", "dist/semantic.js", "dist/cola.js"]
+					"dist/all/css.js": ["dist/semantic.css", "dist/cola.css"]
 		cssmin:
 			target:
 				files: [
 					{
 						expand: true
 						cwd: "dist"
-						src: [ "cola.css", "semantic.css" ]
+						src: ["cola.css", "semantic.css"]
 						dest: "dist"
 						ext: ".min.css"
 					}
@@ -205,6 +209,14 @@ module.exports = (grunt) ->
 						ext: ".gz.css"
 					}
 				]
+		replace:
+			version:
+				src: ["dist/cola.js", "dist/cola-core.js"],
+				overwrite: true,
+				replacements: [{
+					from: '${version}',
+					to: "#{pkg.version}"
+				}]
 
 	grunt.loadNpmTasks "grunt-contrib-coffee"
 	grunt.loadNpmTasks "grunt-contrib-less"
@@ -218,6 +230,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-rename"
 	grunt.loadNpmTasks "grunt-contrib-cssmin"
 	grunt.loadNpmTasks "grunt-contrib-compress"
+	grunt.loadNpmTasks('grunt-text-replace');
 
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
@@ -239,5 +252,5 @@ module.exports = (grunt) ->
 		"uglify:build",
 		"cssmin",
 #								 "compress",
-		"clean:workTemp"]
+		"clean:workTemp", "replace:version"]
 	grunt.registerTask "concat-all", ["build", "concat:all"]
