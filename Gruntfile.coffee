@@ -219,15 +219,15 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-cssmin"
 	grunt.loadNpmTasks "grunt-contrib-compress"
 
-	grunt.registerTask "compile", [ "clean:dev", "coffee:dev", "less:dev", "copy:libs" ]
-	grunt.registerTask "api", [ "yamlToDoc", "copy:apiResources" ]
-	grunt.registerTask "all", [ "clean", "coffee", "less", "uglify", "copy" ]
-	grunt.registerTask "w", [ "watch" ]
-	grunt.registerTask "build", [
-		"clean:build",
-		"cola-ui-clean",
-		"coffee:cola-core",
-		"coffee:cola-widget",
+	grunt.registerTask "mochaTask", ["mochaTest"]
+	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]
+	grunt.registerTask "test", ["mochaTask", "qunitTask"]
+
+	grunt.registerTask "compile", ["clean:dev", "coffee:dev", "less:dev", "copy:libs"]
+	grunt.registerTask "api", ["yamlToDoc", "copy:apiResources"]
+	grunt.registerTask "all", ["clean", "coffee", "less", "mochaTest", "uglify", "copy"]
+	grunt.registerTask "w", ["watch"]
+	grunt.registerTask "build", ["clean:build", "cola-ui-clean", "coffee:cola-core", "coffee:cola-widget",
 		"coffee:i18n",
 		"less:build",
 		"cola-ui-license",
@@ -238,6 +238,6 @@ module.exports = (grunt) ->
 		"copy:semantic",
 		"uglify:build",
 		"cssmin",
-		#"compress",
-		"clean:workTemp" ]
-	grunt.registerTask "concat-all", [ "build", "concat:all" ]
+#								 "compress",
+		"clean:workTemp"]
+	grunt.registerTask "concat-all", ["build", "concat:all"]
