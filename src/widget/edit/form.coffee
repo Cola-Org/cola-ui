@@ -197,6 +197,7 @@ class cola.Field extends cola.Widget
 				return
 
 		caption: null
+		name: null
 		property: null
 		readOnly:
 			type: "boolean"
@@ -258,18 +259,19 @@ class cola.Field extends cola.Widget
 			))
 
 			if propertyDef
+				name = @_name or propertyDef.property
 				propertyType = propertyDef.get("dataType")
 				if propertyType instanceof cola.BooleanDataType
 					if @_type is "checkbox"
-						editContent = { tagName: "c-checkbox", bind: bind }
+						editContent = { tagName: "c-checkbox", bind: bind, name: name }
 					else
-						editContent = { tagName: "c-toggle", bind: bind }
+						editContent = { tagName: "c-toggle", bind: bind, name: name }
 				else if @_type is "date" or propertyType instanceof cola.DateDataType
-					editContent = { tagName: "c-datepicker", bind: bind }
+					editContent = { tagName: "c-datepicker", bind: bind, name: name }
 				else if @_type is "textarea"
-					editContent = { tagName: "c-textarea", bind: bind }
+					editContent = { tagName: "c-textarea", bind: bind, name: name }
 
-			editContent ?= { tagName: "c-input", bind: bind }
+			editContent ?= { tagName: "c-input", bind: bind, name: name }
 
 			editDom = cola.xCreate(editContent)
 			dom.appendChild(editDom)

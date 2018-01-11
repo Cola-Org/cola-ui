@@ -45,6 +45,7 @@ class cola.AbstractEditor extends cola.Widget
 							bind = field._form._bind + "." + field._property
 						@set("bind", bind)
 
+				@_name ?= field._name or field._property
 				if field._finalReadOnly
 					@_readOnlyFactor ?= {}
 					@_readOnlyFactor.field = field._finalReadOnly

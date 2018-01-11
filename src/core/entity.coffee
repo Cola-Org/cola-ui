@@ -1318,7 +1318,6 @@ class cola.EntityList
 		page = @_first
 		if not page then return
 
-		next = page._first
 		while page
 			for entity in page
 				entity._setDataModel(dataModel)
@@ -1347,7 +1346,6 @@ class cola.EntityList
 		page = @_first
 		if not page then return
 
-		next = page._first
 		while page
 			for entity in page
 				entity._onPathChange()

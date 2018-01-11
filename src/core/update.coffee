@@ -49,16 +49,13 @@ _processEntity = (entity, context, options)->
 _processEntityList = (entityList, context, options)->
 	entities = []
 	page = entityList._first
-	if page
-		next = page._first
-		while page
-			if next
-				json = _processEntity(next, context, options)
-				if json? then entities.push(json)
-				next = next._next
-			else
-				page = page._next
-				next = page?._first
+	if not page then return
+
+	while page
+		for entity in page
+			json = _processEntity(entity, context, options)
+			if json? then entities.push(json)
+		page = page._next
 	return if entities.length then entities else null
 
 _extractDirtyTree = (data, context, options)->
@@ -71,6 +68,7 @@ cola.util.update = (url, data, options = {})->
 	context = options.context = options.context or {}
 	if data and (data instanceof cola.Entity or data instanceof cola.EntityList)
 		data = cola.util.dirtyTree(data, options)
+
 	context.messages ?= {}
 	if not options.disableValidators
 		if context.messages.error

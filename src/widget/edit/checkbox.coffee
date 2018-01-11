@@ -101,7 +101,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 					tagName: "input"
 					type: @constructor.INPUT_TYPE
 					contextKey: "input"
-					name: @get("name") or ""
+					name: @_name or ""
 				}
 				{
 					tagName: "label"
