@@ -33,8 +33,8 @@ class cola.NumberDataType extends cola.BaseDataType
 			else
 				return text
 
-		text =  n + ""
-		if text.indexOf("e") > 0
+		n = +text
+		if text.indexOf("e+") > 0
 			if text.charAt(0) is "-"
 				n = Number.MIN_SAFE_INTEGER
 			else
