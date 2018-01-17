@@ -60,6 +60,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		dropdownLayer: null
 		dropdownWidth: null
 		dropdownHeight: null
+		dropdownTitle: null
 
 	@events:
 		initDropdownBox: null
@@ -331,10 +332,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			if openMode is "drop"
 				config.duration = 200
 				config.dropdown = @
-				config.ui = config.ui + " " + @_ui
+				config.ui = @_ui
 				container = new cola.DropBox(config)
 			else if openMode is "layer"
-				if openMode is "Sidebar"
+				if openMode is "sidebar"
 					config.animation = "slide up"
 					config.height = "50%"
 
@@ -350,6 +351,23 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				config.modalOpacity = 0.05
 				config.closeable = false
 				config.dimmerClose = true
+				if not config.width then config.width = "80%"
+				if not config.height then config.height = "80%"
+
+				if @_dropdownTitle
+					config.dom = $.xCreate(
+						content: [
+							{
+								class: "header"
+								content: @_dropdownTitle
+							}
+							{
+								class: "content"
+								content: config.dom
+							}
+						]
+					)
+
 				container = new cola.Dialog(config)
 			@_container = container
 
