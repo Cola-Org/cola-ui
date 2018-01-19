@@ -190,7 +190,8 @@ class cola.Property extends cola.Definition
 
 		aggregated:
 			readOnlyAfterCreate: true
-		loadForNewEntity:
+		skipLoading:    # smart, never
+			defaultValue: "smart"
 			readOnlyAfterCreate: true
 
 		disableValidators:

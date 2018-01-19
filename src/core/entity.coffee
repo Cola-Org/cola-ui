@@ -387,18 +387,33 @@ class cola.Entity
 
 		loadData = (provider)->
 			retValue = undefined
-			if property and @state is _Entity.STATE_NEW and not property._loadForNewEntity
-				if property._aggregated
-					@_set(prop, [], true)
-					retValue = @_data[prop]
-				loaded = true
-
 			if not loaded
 				providerInvoker = provider.getInvoker(
 					expressionData: @
 					parentData: @
-					property: prop)
+					property: prop
+				)
 
+				if @parent instanceof cola.Entity and property._skipLoading is "smart"
+					parameter = providerInvoker.invokerOptions.data
+					skip = not parameter?
+					if not skip and parameter and typeof parameter is "object"
+						hasValidParameter = false
+						for p, v of parameter
+							if not parameter.hasOwnProperty(p) or cola.constants._SYS_PARAMS.indexOf(p) >= 0
+								continue
+							if v
+								hasValidParameter = true
+								break
+						skip = not hasValidParameter
+
+					if skip
+						if property._aggregated
+							@_set(prop, [], true)
+							retValue = @_data[prop]
+					loaded = true
+
+			if not loaded
 				if loadMode is "sync"
 					if property?.getListeners("beforeLoad")
 						if property.fire("beforeLoad", property, {

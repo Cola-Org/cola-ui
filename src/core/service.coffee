@@ -171,7 +171,7 @@ class cola.Provider extends cola.Definition
 		if expr.charCodeAt(0) is 123	# `{`
 			if expr.match(/^{{[^{{}}]+}}$/)
 				expression = expr.substring(2, expr.length - 2)
-				if _SYS_PARAMS.indexOf(expression) < 0
+				if cola.constants._SYS_PARAMS.indexOf(expression) < 0
 					expression = cola._compileExpression(context.expressionScope, expression)
 					if expression
 						return expression.evaluate(context.expressionScope, "never")
@@ -252,8 +252,6 @@ class cola.Provider extends cola.Definition
 		invoker.pageSize = @_pageSize
 		invoker.detectEnd = @_detectEnd
 		return invoker
-
-_SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
 
 class _ExpressionDataModel extends cola.AbstractDataModel
 	constructor: (model, @entity)->

@@ -29,6 +29,8 @@ cola.constants = {
 	CLASS_REG: /[\t\r\n\f]/g
 	WIDGET_DIMENSION_UNIT: "px"
 
+	_SYS_PARAMS: ["$pageNo", "$pageSize", "$from", "$limit"]
+
 	MESSAGE_REFRESH: 0
 	MESSAGE_PROPERTY_CHANGE: 1
 
