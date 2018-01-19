@@ -1030,7 +1030,9 @@ class cola.AbstractDataModel
 class cola.DataModel extends cola.AbstractDataModel
 
 	_createRootData: (rootDataType)->
-		return new cola.Entity(null, rootDataType)
+		entity = new cola.Entity(null, rootDataType)
+		entity._isRootData = true
+		return entity
 
 	_getRootData: ()->
 		if not @_rootData?

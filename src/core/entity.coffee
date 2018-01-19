@@ -394,7 +394,7 @@ class cola.Entity
 					property: prop
 				)
 
-				if @parent instanceof cola.Entity and property._skipLoading is "smart"
+				if not @_isRootData and property._skipLoading is "smart"
 					parameter = providerInvoker.invokerOptions.data
 					skip = not parameter?
 					if not skip and parameter and typeof parameter is "object"
@@ -411,7 +411,7 @@ class cola.Entity
 						if property._aggregated
 							@_set(prop, [], true)
 							retValue = @_data[prop]
-					loaded = true
+						loaded = true
 
 			if not loaded
 				if loadMode is "sync"
@@ -669,7 +669,7 @@ class cola.Entity
 			@timestamp = cola.sequenceNo()
 
 			if not ignoreState and not @_disableValidatorsCount and property?._validators
-				if messages != undefined
+				if messages?
 					@_messageHolder?.clear(prop)
 					@addMessage(prop, messages)
 
