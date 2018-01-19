@@ -139,7 +139,7 @@ module.exports = (grunt) ->
 		"cola-ui-license":
 			options:
 				license: """
-/*! Cola - v#{pkg.version}(#{grunt.template.today('yyyy-mm-dd HH:MM:ss')})
+/*! Cola - v#{pkg.version} (#{grunt.template.today('yyyy-mm-dd HH:MM:ss')})
  * Copyright (C) 2015-2017 Benny Bao & Alex Tong.
  * Licensed under the MIT license */
 
@@ -215,7 +215,7 @@ module.exports = (grunt) ->
 				overwrite: true,
 				replacements: [{
 					from: '${version}',
-					to: "#{pkg.version}"
+					to: "#{pkg.version}.#{grunt.template.today('yymmddHHMMss')}"
 				}]
 
 	grunt.loadNpmTasks "grunt-contrib-coffee"
