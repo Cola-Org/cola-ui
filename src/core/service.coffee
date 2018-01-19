@@ -75,7 +75,7 @@ class cola.ProviderInvoker
 		if @_beforeSend then @_beforeSend(options)
 
 		@invoking = true
-		@deferred = $.ajax(options).done( (result)=>
+		@deferred = retValue = $.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
