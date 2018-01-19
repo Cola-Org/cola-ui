@@ -5,6 +5,7 @@ class cola.ProviderInvoker
 
 	invokeCallback: (success, result)->
 		@invoking = false
+		@deferred = null
 		callbacks = @callbacks
 		@callbacks = []
 		for callback in callbacks
@@ -73,7 +74,8 @@ class cola.ProviderInvoker
 
 		if @_beforeSend then @_beforeSend(options)
 
-		retValue = $.ajax(options).done( (result)=>
+		@invoking = true
+		@deferred = $.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
@@ -119,9 +121,8 @@ class cola.ProviderInvoker
 
 	invokeAsync: (callback)->
 		@callbacks.push(callback)
-		if @invoking then return false
-
-		@invoking = true
+		if @invoking
+			return @deferred
 		return @_internalInvoke()
 
 	invokeSync: (callback)->
