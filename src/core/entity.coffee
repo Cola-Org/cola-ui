@@ -556,7 +556,7 @@ class cola.Entity
 							if value instanceof _Entity
 								matched = value.dataType is dataType and not property._aggregated
 							else if value instanceof _EntityList
-								matched = value.dataType is dataType and property._aggregated
+								matched = value.dataType is dataType and property._aggregated isnt false
 							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 								value = @_jsonToEntity(value, dataType, true, provider)
 							else
@@ -714,6 +714,30 @@ class cola.Entity
 		else
 			@setState(_Entity.STATE_DELETED)
 		return @
+
+	insert: (prop, data)->
+		if data and data instanceof Array
+			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
+
+		property = @dataType?.getProperty(prop)
+		propertyDataType = property?._dataType
+		if propertyDataType and not (propertyDataType instanceof cola.EntityDataType)
+			throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"#{propertyDataType._name}\".")
+
+		entityList = @_get(prop, "never")
+		if not entityList?
+			entityList = new cola.EntityList(null, propertyDataType)
+			provider = property._provider
+			if provider
+				entityList.pageSize = provider._pageSize
+				entityList._providerInvoker = provider.getInvoker(
+					expressionData: @
+					parentData: entityList)
+
+			@_disableWriteObservers++
+			@_set(prop, entityList)
+			@_disableWriteObservers--
+		return entityList.insert(data)
 
 	createChild: (prop, data)->
 		if data and data instanceof Array

@@ -65,6 +65,9 @@ class cola.Scope
 			@data.set(path, data, context)
 		return @
 
+	insert: (prop, data)->
+		return @data.insert(prop, data)
+
 	describe: (property, config)->
 		return @data.describe(property, config)
 
@@ -871,6 +874,9 @@ class cola.AbstractDataModel
 			delete @_shortcutMap[shortcut]
 			@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
 		return
+
+	insert: (prop, data)->
+		return @_rootData.insert(prop, data)
 
 	reset: (name)->
 		@_rootData?.reset(name)
