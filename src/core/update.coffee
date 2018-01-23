@@ -104,20 +104,20 @@ cola.util.update = (url, data, options = {})->
 							if state
 								if state is cola.Entity.STATE_DELETED or (state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
 									if entity._page
-										entity._page._removeElement(entity)
+										entity._page.remove(entity)
 									else if entity.parent
 										entity.parent._set(entity._parentProperty, null, true)
 								else
 									entity.setState(state)
 							else
 								if entity.state is cola.Entity.STATE_DELETED
-									entity._page?._removeElement(entity)
+									entity._page?.remove(entity)
 								else
 									entity.setState(cola.Entity.STATE_NONE)
 					else
 						for entityId, entity of context.entityMap
 							if entity.state is cola.Entity.STATE_DELETED
-								entity._page?._removeElement(entity)
+								entity._page?.remove(entity)
 							else
 								entity.setState(cola.Entity.STATE_NONE)
 
