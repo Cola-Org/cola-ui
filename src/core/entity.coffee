@@ -1591,9 +1591,9 @@ class cola.EntityList
 			}) is false
 				return null
 
-		page._dontAutoSetCurrent = true
+		page._dontChangeCurrent = true
 		page.insert(entity, index)
-		page._dontAutoSetCurrent = false
+		page._dontChangeCurrent = false
 
 		if entity.state isnt _Entity.STATE_DELETED then @entityCount++
 
