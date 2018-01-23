@@ -122,8 +122,10 @@ cola.util.update = (url, data, options = {})->
 								entity.setState(cola.Entity.STATE_NONE)
 
 				return responseData.result
-		else
+		else if options.failOnNoData isnt false
 			deferred = $.Deferred().reject("NO_DATA")
+		else
+			deferred = $.Deferred().resolve(null)
 
 	deferred.fail (error)->
 		return if options.silence
