@@ -36,15 +36,19 @@ class cola.Form extends cola.Widget
 					usedCols = maxCols
 
 					for field in fields
+						propertyType = null
+						if field.dataType
+							propertyType = cola.DataType.defaultDataTypes[field.dataType]
+
 						if dataType
 							propertyDef = dataType.getProperty(field.property)
 						if propertyDef
 							caption = field.caption or propertyDef.get("caption") or field.property
-							propertyType = propertyDef.get("dataType")
+							if not propertyType
+								propertyType = propertyDef.get("dataType")
 							labelUserData = { captionSetted: true }
 						else
 							caption = field.caption or field.property
-							propertyType = null
 
 						if usedCols + (field.cols or defaultFieldCols) > maxCols
 							usedCols = 0
