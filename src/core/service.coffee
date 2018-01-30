@@ -83,7 +83,7 @@ class cola.ProviderInvoker
 
 			retValue = ajaxService.translateResult(result, options)
 
-			@invokeCallback(true, result)
+			@invokeCallback(true, retValue)
 
 			if @parentData
 				if @property
