@@ -407,7 +407,7 @@ class cola.Entity
 								break
 						skip = not hasValidParameter
 
-					if skip
+					if skip and providerInvoker.invokerOptions.url is provider._url
 						if property._aggregated
 							@_set(prop, [], true)
 							retValue = @_data[prop]

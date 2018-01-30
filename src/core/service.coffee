@@ -70,7 +70,7 @@ class cola.ProviderInvoker
 
 		if ajaxService.getListeners("beforeSend")
 			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
-				return
+				return $.Deferred()
 
 		if @_beforeSend then @_beforeSend(options)
 

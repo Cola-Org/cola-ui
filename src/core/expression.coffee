@@ -225,7 +225,12 @@ class cola.Expression
 			retValue = dataCtx.vars[path]
 		return retValue
 
-	evaluate: (scope, loadMode, dataCtx)-> eval(@script)
+	evaluate: (scope, loadMode, dataCtx)->
+		try
+			return eval(@script)
+		catch e
+			console.error(@raw)
+			throw e
 
 	getParentPathInfo: ()->
 		return @parentPath if @parentPath isnt undefined
