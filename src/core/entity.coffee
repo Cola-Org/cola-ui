@@ -422,7 +422,7 @@ class cola.Entity
 						}) is false
 							loaded = true
 
-					if loaded
+					if not loaded
 						retValue = providerInvoker.invokeSync()
 						@_set(prop, retValue, true)
 						retValue = @_data[prop]

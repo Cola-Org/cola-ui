@@ -5,6 +5,34 @@
 	<title>演示</title>
 
 	<script src="./include-all.js"></script>
+	<script>
+		var dfd = $.Deferred(function(dfd) {
+			setTimeout(function() {
+				dfd.resolve(1);
+			}, 500);
+		});
+
+		dfd.then(function(data) {
+			console.log(data);
+			return 2;
+		}).then(function(data) {
+			console.log(data);
+			return 3;
+		}).then(function(data) {
+			console.log(data);
+			return dfd = $.Deferred(function(dfd) {
+				setTimeout(function() {
+					dfd.resolve(4);
+				}, 500);
+			});
+		}).then(function(data) {
+			console.log(data);
+			return 5;
+		}).then(function(data) {
+			console.log(data);
+			return 6;
+		})
+	</script>
 	<style>
 		.dib_vm {
 			display: -webkit-box;
