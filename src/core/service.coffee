@@ -82,7 +82,7 @@ class cola.ProviderInvoker
 
 		if @_beforeSend then @_beforeSend(options)
 
-		$.ajax(options).done( (result)=>
+		return $.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
@@ -94,7 +94,7 @@ class cola.ProviderInvoker
 
 			if @parentData
 				if @property
-					data = @parentData.get(@property)
+					data = @parentData.get(@property, "never")
 				else
 					data = @parentData
 
@@ -138,7 +138,12 @@ class cola.ProviderInvoker
 		if @invoking
 			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
 		@callbacks.push(callback)
-		return @_internalInvoke(false)
+		retValue = undefined
+		@_internalInvoke(false).done((result)->
+			retValue = result
+			return
+		)
+		return retValue
 
 class cola.Provider extends cola.Definition
 	@attributes:

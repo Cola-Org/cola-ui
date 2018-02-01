@@ -64,8 +64,12 @@ class cola.Tree extends cola.AbstractList
 					@_itemsScope.setExpression(bind._expression)
 				return
 
-		currentNode:
+		rootNode:
 			readOnly: true
+		currentNode:
+			setter: (node)->
+				@_setCurrentNode(node)
+				return
 
 		currentItemAlias:
 			setter: (alias)->
@@ -498,12 +502,14 @@ class cola.Tree extends cola.AbstractList
 		return
 
 	expand: (node, noAnimation = true)->
-		@_prepareChildNode(node, true, noAnimation, ()=>
-			if @_autoCollapse and node._parent?._children
-				for brotherNode in node._parent._children
-					if brotherNode isnt node and brotherNode.get("expanded")
-						@collapse(brotherNode)
-		)
+		return $.Deferred (dfd)=>
+			@_prepareChildNode(node, true, noAnimation, ()=>
+				if @_autoCollapse and node._parent?._children
+					for brotherNode in node._parent._children
+						if brotherNode isnt node and brotherNode.get("expanded")
+							@collapse(brotherNode)
+				dfd.resolve(node.get("children"))
+			)
 		return
 
 	collapse: (node, noAnimation = true)->

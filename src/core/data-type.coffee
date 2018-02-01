@@ -33,14 +33,14 @@ class cola.NumberDataType extends cola.BaseDataType
 			else
 				return text
 
-		n = +text
 		if text.indexOf("e+") > 0
 			if text.charAt(0) is "-"
 				n = Number.MIN_SAFE_INTEGER
 			else
 				n = Number.MAX_SAFE_INTEGER
-		else if isNaN(n)
-			n = 0
+		else
+			n = +text
+			if isNaN(n) then n = 0
 		return n
 
 class cola.BooleanDataType extends cola.BaseDataType
