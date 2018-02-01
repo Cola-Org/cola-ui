@@ -12,6 +12,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 
 		visible:
 			type: "boolean"
+			defaultValue: false
 			readOnly: true
 			getter: ()->
 				return @isVisible()
