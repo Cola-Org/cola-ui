@@ -17,7 +17,7 @@ $.ajax = (url, settings)->
 	if typeof url is "object" and not settings
 		settings = url
 
-	data = settings.data
+	data = settings?.data
 	if data
 		if typeof data is "object"
 			if data instanceof cola.Entity or data instanceof cola.EntityList
