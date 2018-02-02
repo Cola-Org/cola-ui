@@ -1,0 +1,8 @@
+- name: cola.Form
+  stereotype: class
+  super: cola.Widget
+  tagName: c-form
+  attributes:
+    - name: bind
+      type: string
+      label: 绑定表达式。

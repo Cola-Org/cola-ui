@@ -2,6 +2,7 @@
 - name: cola.Select
   stereotype: class
   super: cola.AbstractInput
+  tagName: c-select
   attributes:
     - name: options
       type: Array|cola.EntityList

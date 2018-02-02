@@ -57,7 +57,7 @@
   stereotype: class
   label: cola按钮控件类
   super: cola.AbstractButton
-
+  tagName: c-button
   attributes:
     - name: caption
       label: 标题
@@ -103,6 +103,7 @@
 - name: cola.ButtonGroup
   stereotype: class
   label: cola按钮组类
+  tagName: c-buttonGroup
   super: cola.AbstractButton
 
   attributes:

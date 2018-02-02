@@ -2,6 +2,7 @@
 - name: cola.steps.Step
   stereotype: class
   super: cola.Widget
+  tagName: c-steps
   attributes:
     - name: icon
       type: string

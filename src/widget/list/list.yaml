@@ -2,6 +2,7 @@ name: cola.ListView
 stereotype: class
 super: cola.AbstractList
 label: 列表
+tagName: c-listView
 
 attributes:
   - name: items

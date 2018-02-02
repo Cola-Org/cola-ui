@@ -1,48 +1,7 @@
-
-- name: cola.RadioButton
-  stereotype: class
-  super: cola.Widget
-  attributes:
-    - name: type
-      type: string
-      enum:
-        - radio
-        - toggle
-        - slider
-      defaultValue: radio
-      description: Button类型
-
-    - name: label
-      type: string
-      description: 单选框显示的文本。
-
-    - name: name
-      type: string
-      description: 名称
-
-    - name: disabled
-      type: boolean
-      defaultValue: false
-      description: 失效的，禁用的
-
-    - name: value
-      type: int|boolean|Object
-      defaultValue: true
-      description: 单选框的值。
-
-    - name: checked
-      defaultValue: false
-      type: boolean
-      description: 单选框是否选中，默认值是false。
-
-  methods:
-    - name: toggle
-      label: 切换值;onValue与offValue之间
-
-
 - name: cola.RadioGroup
   stereotype: class
   super: cola.AbstractEditor
+  tagName: c-radio-group
   attributes:
 
     - name: name

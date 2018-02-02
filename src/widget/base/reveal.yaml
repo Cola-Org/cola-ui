@@ -2,6 +2,7 @@ name: cola.Reveal
 stereotype: class
 label: cola 面具控件
 super: cola.Widget
+tagName: c-reveal
 attributes:
   - name: type
     label: 动画模式

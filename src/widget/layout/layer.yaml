@@ -2,7 +2,7 @@ name: cola.Layer
 stereotype: class
 label: cola 层控件
 super: cola.AbstractContainer
-
+tagName: c-layer
 attributes:
   - name: animation
     type: String

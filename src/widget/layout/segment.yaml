@@ -1,6 +1,7 @@
 name: cola.Segment
 stereotype: class
 label: cola 片段控件
+tagName: c-segment
 description: 此控件主要用于片段布局，也可当做容器控件
 super: cola.AbstractContainer
 attributes:

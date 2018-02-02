@@ -2,7 +2,7 @@
   stereotype: class
   label: 面板控件
   super: cola.AbstractContainer
-
+  tagName: c-panel
   attributes:
     - name: collapsible
       type: Boolean

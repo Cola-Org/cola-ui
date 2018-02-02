@@ -1,19 +1,10 @@
 class cola.Image extends cola.Widget
-	@tagName: "img"
+	@tagName: "c-img"
 
 	@CLASS_NAME: "image"
 	@attributes:
 		src:
 			refreshDom: true
-		size:
-			enum: ["mini", "tiny", "small", "medium", "large", "big", "huge", "massive"]
-			refreshDom: true
-			setter: (value)->
-				oldValue = @["_size"]
-				@get$Dom().removeClass(oldValue) if oldValue and oldValue isnt value and @_dom
-				@["_size"] = value
-				return
-
 		disabled:
 			type: "boolean"
 			refreshDom: true

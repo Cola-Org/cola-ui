@@ -2,7 +2,6 @@ name: cola.ItemsView
 stereotype: class
 super: cola.Widget
 label: 集合型控件类
-
 attributes:
   - name: allowNoCurrent
     type: boolean

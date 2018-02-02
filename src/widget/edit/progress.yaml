@@ -1,6 +1,7 @@
 - name: cola.Progress
   stereotype: class
   super: cola.Widget
+  tagName: c-progress
   attributes:
     - name: total
       type: number

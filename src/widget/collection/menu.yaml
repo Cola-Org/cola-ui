@@ -46,6 +46,7 @@
   stereotype: class
   label: cola Menu控件
   super: cola.Widget
+  tagName: c-menu
   attributes:
     - name: items
       type: Array
@@ -175,6 +176,7 @@
   stereotype: class
   label: cola 标题栏控件
   super: cola.Menu
+  tagName: c-titlebar
   attributes:
     - name: title
       label: 标题

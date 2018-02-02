@@ -2,6 +2,7 @@ name: cola.Stack
 stereotype: class
 label: Stark 可无限切换的是堆容器 用户可通过此控件展示数据
 super: cola.Widget
+tagName: c-stack
 events:
   - name: change
     label: 当切换之后触发

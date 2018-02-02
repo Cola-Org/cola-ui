@@ -2,6 +2,7 @@ name: cola.Carousel
 stereotype: class
 label: cola 走马灯控件。
 super: cola.AbstractItemGroup
+tagName: c-carousel
 attributes:
   - name: orientation
     type: String

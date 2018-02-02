@@ -2,6 +2,7 @@ name: cola.Dialog
 stereotype: class
 label: cola 弹出框控件
 super: cola.Layer
+tagName: c-dialog
 
 attributes:
   - name: context

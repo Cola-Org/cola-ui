@@ -183,6 +183,7 @@
 
 - name: cola.Dropdown
   stereotype: class
+  tagName: c-dropdown
   super: cola.AbstractDropdown
   attributes:
     - name: filterValue
@@ -205,6 +206,7 @@
 
 - name: cola.CustomDropdown
   stereotype: class
+  tagName: c-customDropdown
   super: cola.AbstractDropdown
   attributes:
 

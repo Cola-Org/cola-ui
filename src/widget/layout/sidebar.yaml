@@ -1,6 +1,7 @@
 
 - name: cola.Sidebar
   stereotype: class
+  tagName: c-sidebar
   super: cola.AbstractContainer
   description: 侧边栏控件此控件需与cola.Drawer 配合使用
   attributes:

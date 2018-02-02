@@ -2,7 +2,7 @@
   stereotype: class
   super: cola.ItemsView
   label: 表格控件
-
+  tagName: c-table
   attributes:
     - name: items
       type: cola.EntityList || [any]

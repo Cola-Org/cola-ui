@@ -2,7 +2,6 @@
   stereotype: class
   super: cola.Node
   label: 树中的节点
-
   attributes:
     - name: expanded
       type: boolean
@@ -44,6 +43,7 @@
   stereotype: class
   super: cola.ItemsView
   label: 用于实现级联式绑定的声明对象
+  tagName: c-tree
 
   attributes:
     - name: bind

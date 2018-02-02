@@ -22,7 +22,7 @@
   stereotype: class
   super: cola.Widget
   label: 列表
-
+  tagName: c-nestedList
   attributes:
     - name: bind
       type: cola.NestedListBind

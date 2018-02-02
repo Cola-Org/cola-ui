@@ -3,6 +3,7 @@
   stereotype: class
   super: cola.Widget
   description: 分割面板
+  tagName: c-split-pane
   attributes:
     - name: direction
       type: String

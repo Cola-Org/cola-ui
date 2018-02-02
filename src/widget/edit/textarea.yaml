@@ -1,0 +1,10 @@
+
+- name: cola.Textarea
+  stereotype: class
+  super: cola.AbstractEditor
+  tagName: c-textarea
+  attributes:
+    - name: rows
+      type: number
+      description: 默认行数
+

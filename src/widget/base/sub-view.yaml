@@ -2,6 +2,7 @@ name: cola.SubView
 stereotype: class
 label: 子视图控件
 super: cola.Widget
+tagName: c-subView
 attributes:
   - name: url
     label: Html 地址

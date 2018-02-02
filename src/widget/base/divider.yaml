@@ -2,6 +2,7 @@ name: cola.Divider
 stereotype: class
 label: cola分割线控件
 super: cola.AbstractContainer
+tagName: c-divider
 attributes:
   - name: direction
     label: 方向

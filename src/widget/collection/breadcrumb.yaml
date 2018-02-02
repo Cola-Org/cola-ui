@@ -2,6 +2,7 @@
   stereotype: class
   label: cola 面包屑控件
   super: cola.Widget
+
   attributes:
     - name: text
       label: 内容
@@ -25,6 +26,7 @@
   stereotype: class
   label: cola 面包屑控件
   super: cola.Widget
+  tagName: c-breadcrumb
   attributes:
     - name: divider
       label: 分隔符

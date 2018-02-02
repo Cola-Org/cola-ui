@@ -2,6 +2,7 @@
   stereotype: class
   label: cola 文本标签控件
   super: cola.Widget
+  tagName: c-label
   attributes:
 
     - name: text

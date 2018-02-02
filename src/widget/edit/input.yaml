@@ -80,6 +80,7 @@
 - name: cola.Input
   stereotype: class
   super: cola.AbstractInput
+  tagName: c-input
   attributes:
     - name: displayFormat
       type: String

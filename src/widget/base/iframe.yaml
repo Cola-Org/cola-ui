@@ -2,6 +2,7 @@ name: cola.IFrame
 stereotype: class
 label: cola IFrame控件
 super: cola.Widget
+tagName: c-iframe
 attributes:
   - name: path
     label: IFrame 对应的路径

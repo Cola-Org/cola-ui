@@ -46,6 +46,7 @@
 
 - name: cola.Tab
   stereotype: class
+  tagName: c-tab
   super: cola.Widget
   description: 标签页控件
   attributes:

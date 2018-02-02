@@ -2,7 +2,7 @@ name: cola.Pager
 stereotype: class
 super: cola.Widget
 label: 分页条
-
+tagName: c-pager
 attributes:
   - name: bind
     type: string

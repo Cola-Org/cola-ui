@@ -1,4 +1,5 @@
 name: cola.TimeLine
 stereotype: class
+tagName: c-timeLine
 super: cola.AbstractList
 label: 时间线控件

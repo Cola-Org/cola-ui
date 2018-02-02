@@ -2,6 +2,7 @@ name: cola.CardBook
 stereotype: class
 label: cola 卡片组件,该组件可以添加多个子组件，但是每次只能显示一个子组件，显示的组件称为活动组件。
 super: cola.AbstractItemGroup
+tagName: c-cardBook
 events:
   - name: beforeChange
     label: 当切换之前触发

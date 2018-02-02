@@ -46,6 +46,7 @@
 - name: cola.Checkbox
   stereotype: class
   super: cola.AbstractCheckbox
+  tagName: c-checkbox
   attributes:
 
     - name: indeterminateValue
@@ -58,9 +59,6 @@
       description: 是否3态复选框，即是否启用复选框的mixed状态。
 
 - name: cola.Toggle
-  stereotype: class
-  super: cola.AbstractCheckbox
-
-- name: cola.Slider
+  tagName: c-toggle
   stereotype: class
   super: cola.AbstractCheckbox

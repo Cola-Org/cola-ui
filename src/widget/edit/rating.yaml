@@ -2,6 +2,7 @@
 - name: cola.Rating
   stereotype: class
   super: cola.Widget
+  tagName: c-rating
   attributes:
     - name: rating
       type: Int

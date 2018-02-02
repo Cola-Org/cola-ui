@@ -2,6 +2,7 @@ name: cola.Calendar
 stereotype: class
 label: cola日历控件
 super: cola.Widget
+tagName: c-calendar
 attributes:
   - name: date
     label: 当前日期
