@@ -5,9 +5,9 @@ class cola.SubView extends cola.Widget
 	@attributes:
 		loading: null
 
-		loadMode:
+		loadMode:   # lazy、auto、manual
 			readOnlyAfterCreate: true
-			defaultValue: "auto"
+			defaultValue: "lazy"
 
 		url:
 			readOnlyAfterCreate: true
@@ -40,21 +40,24 @@ class cola.SubView extends cola.Widget
 			content[cola.constants.IGNORE_DIRECTIVE] = true
 			$dom.xAppend(content)
 
-		if @_url and @_loadMode is "auto"
+		if @_url
 			option =
 				url: @_url
 				jsUrl: @_jsUrl
 				cssUrl: @_cssUrl
 				param: @_param
 
-			if cola.util.isVisible(dom)
+			if @_loadMode is "lazy"
+				if cola.util.isVisible(dom)
+					@load(option)
+				else
+					$dom.one("visibilityChange", (evt, data)=>
+						if data.visible
+							@loadIfNecessary(option)
+						return
+					)
+			else if @_loadMode is "auto"
 				@load(option)
-			else
-				$dom.one("visibilityChange", (evt, data)=>
-					if data.visible
-						@loadIfNecessary(option)
-					return
-				)
 		return
 
 	load: (options, callback)->
@@ -74,17 +77,22 @@ class cola.SubView extends cola.Widget
 			@_timeout = options.timeout if options.timeout
 			@_param = options.param if options.param
 
-		if @_parentModel instanceof cola.Scope
-			parentModel = @_parentModel
-		else if @_parentModel
-			parentModel = cola.model(@_parentModel)
-		else
-			parentModel = @_scope or cola.model(cola.constants.DEFAULT_PATH)
-
 		if @_modelName
-			model = new cola.Model(@_modelName, parentModel)
-		else
-			model = new cola.Model(parentModel)
+			model = cola.model(@_modelName)
+
+		if not model
+			if @_parentModel instanceof cola.Scope
+				parentModel = @_parentModel
+			else if @_parentModel
+				parentModel = cola.model(@_parentModel)
+			else
+				parentModel = @_scope or cola.model(cola.constants.DEFAULT_PATH)
+
+			if @_modelName
+				model = new cola.Model(@_modelName, parentModel)
+			else
+				model = new cola.Model(parentModel)
+			@_hasOwnModel = true
 		cola.util.userData(dom, "_model", model)
 
 		$dom = $(@_dom)
@@ -167,8 +175,9 @@ class cola.SubView extends cola.Widget
 		delete @_currentCssUrl
 
 		dom = @_dom
-		model = cola.util.userData(dom, "_model")
-		model?.destroy()
+		if @_hasOwnModel = true
+			model = cola.util.userData(dom, "_model")
+			model?.destroy()
 		cola.util.removeUserData(dom, "_model")
 
 		@fire("unload", @)

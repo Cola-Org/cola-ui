@@ -65,6 +65,9 @@ class cola.Scope
 			@data.set(path, data, context)
 		return @
 
+	insert: (prop, data)->
+		return @data.insert(prop, data)
+
 	describe: (property, config)->
 		return @data.describe(property, config)
 
@@ -872,6 +875,9 @@ class cola.AbstractDataModel
 			@unbind(oldAliasHolder.bindingPath, oldAliasHolder)
 		return
 
+	insert: (prop, data)->
+		return @_rootData.insert(prop, data)
+
 	reset: (name)->
 		@_rootData?.reset(name)
 		return @
@@ -1030,7 +1036,9 @@ class cola.AbstractDataModel
 class cola.DataModel extends cola.AbstractDataModel
 
 	_createRootData: (rootDataType)->
-		return new cola.Entity(null, rootDataType)
+		entity = new cola.Entity(null, rootDataType)
+		entity._isRootData = true
+		return entity
 
 	_getRootData: ()->
 		if not @_rootData?

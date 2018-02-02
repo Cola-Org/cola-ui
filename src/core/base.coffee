@@ -186,9 +186,10 @@ cola.setting = (key, value)->
 				cola.fire("settingChange", cola, { key: k })
 	return @
 
-definedSetting = colaSetting? or global?.colaSetting
-if definedSetting
-	cola.setting(key, value) for key, value of definedSetting
+do()->
+	definedSetting = colaSetting? or global?.colaSetting
+	if definedSetting
+		cola.setting(key, value) for key, value of definedSetting
 
 ###
 Exception

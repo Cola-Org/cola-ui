@@ -104,26 +104,28 @@ cola.util.update = (url, data, options = {})->
 							if state
 								if state is cola.Entity.STATE_DELETED or (state is cola.Entity.STATE_NONE and entity.state is cola.Entity.STATE_DELETED)
 									if entity._page
-										entity._page._removeElement(entity)
+										entity._page.remove(entity)
 									else if entity.parent
 										entity.parent._set(entity._parentProperty, null, true)
 								else
 									entity.setState(state)
 							else
 								if entity.state is cola.Entity.STATE_DELETED
-									entity._page?._removeElement(entity)
+									entity._page?.remove(entity)
 								else
 									entity.setState(cola.Entity.STATE_NONE)
 					else
 						for entityId, entity of context.entityMap
 							if entity.state is cola.Entity.STATE_DELETED
-								entity._page?._removeElement(entity)
+								entity._page?.remove(entity)
 							else
 								entity.setState(cola.Entity.STATE_NONE)
 
 				return responseData.result
-		else
+		else if options.failOnNoData isnt false
 			deferred = $.Deferred().reject("NO_DATA")
+		else
+			deferred = $.Deferred().resolve(null)
 
 	deferred.fail (error)->
 		return if options.silence
@@ -143,7 +145,7 @@ cola.util.update = (url, data, options = {})->
 				console.error(error.responseJSON)
 				cola.NotifyTipManager.error(
 					message: cola.resource("cola.data.validateErrorTitle")
-					# description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
+					description: cola.resource("cola.data.validateErrorMessage", error.responseJSON.description)
 					showDuration: 5000
 				)
 			else if error.messages?.error

@@ -119,6 +119,7 @@ cola.util.removeUserData = (node, key)->
 ON_NODE_DISPOSE_KEY = "__onNodeDispose"
 ON_NODE_REMOVE_KEY = "__onNodeRemove"
 ON_NODE_INSERT_KEY = "__onNodeInsert"
+cleanStamp = 1
 
 cola.detachNode = (node)->
 	return unless node.parentNode
@@ -231,38 +232,6 @@ _DOMNodeRemovedListener = (evt)->
 			cola.util._unfreezeDom(node)
 	return
 
-cleanStamp = 1
-
-document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
-
-$fly(window).on("unload", ()->
-	document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
-	document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
-	return
-)
-
-setInterval(()->
-	userDataStore = cola.util.userDataStore
-	nodesToBeRemove = cola.util._nodesToBeRemove
-	for id, node of nodesToBeRemove
-		store = userDataStore[id]
-		if store
-			changed = true
-			listeners = store[ON_NODE_DISPOSE_KEY]
-			if listeners
-				if listeners instanceof Array
-					for listener in listeners
-						listener(node, store)
-				else
-					listeners(node, store)
-			delete userDataStore[id]
-			userDataStore.size--
-
-	if changed then cola.util._nodesToBeRemove = {}
-	return
-, 300)
-
 jQuery.event.special.domFreezed =
 	setup: ()->
 		@_hasFreezedListener = true
@@ -314,40 +283,73 @@ cola.util.getGlobalTemplate = (name)->
 		if not template.hasAttribute("shared") then $fly(template).remove()
 	return html
 
-#if cola.device.mobile
-#	$fly(window).on("load", ()->
-#		FastClick.attach(document.body)
-#		return
-#	)
 
-if cola.browser.webkit
-	browser = "webkit"
-	if cola.browser.chrome
-		browser += " chrome"
-	else if cola.browser.safari
-		browser += " safari"
-	#	else if cola.browser.qqbrowser
-	#		browser += " qqbrowser"
-else if cola.browser.ie
-	browser = "ie"
-else if cola.browser.mozilla
-	browser = "mozilla"
-else
-	browser = ""
 
-if cola.os.android
-	os = " android"
-else if cola.os.ios
-	os = " ios"
-else if cola.os.windows
-	os = " windows"
-else
-	os = ""
+do ()->
+	document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+	document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
 
-if cola.device.mobile
-	os += " mobile"
-else if cola.device.desktop
-	os += " desktop"
+	$fly(window).on("unload", ()->
+		document.removeEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
+		document.removeEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)
+		return
+	)
 
-if browser or os
-	$fly(document.documentElement).addClass(browser + os)
+	setInterval(()->
+		userDataStore = cola.util.userDataStore
+		nodesToBeRemove = cola.util._nodesToBeRemove
+		for id, node of nodesToBeRemove
+			store = userDataStore[id]
+			if store
+				changed = true
+				listeners = store[ON_NODE_DISPOSE_KEY]
+				if listeners
+					if listeners instanceof Array
+						for listener in listeners
+							listener(node, store)
+					else
+						listeners(node, store)
+				delete userDataStore[id]
+				userDataStore.size--
+
+		if changed then cola.util._nodesToBeRemove = {}
+		return
+	, 300)
+
+	#if cola.device.mobile
+	#	$fly(window).on("load", ()->
+	#		FastClick.attach(document.body)
+	#		return
+	#	)
+
+	if cola.browser.webkit
+		browser = "webkit"
+		if cola.browser.chrome
+			browser += " chrome"
+		else if cola.browser.safari
+			browser += " safari"
+		#	else if cola.browser.qqbrowser
+		#		browser += " qqbrowser"
+	else if cola.browser.ie
+		browser = "ie"
+	else if cola.browser.mozilla
+		browser = "mozilla"
+	else
+		browser = ""
+
+	if cola.os.android
+		os = " android"
+	else if cola.os.ios
+		os = " ios"
+	else if cola.os.windows
+		os = " windows"
+	else
+		os = ""
+
+	if cola.device.mobile
+		os += " mobile"
+	else if cola.device.desktop
+		os += " desktop"
+
+	if browser or os
+		$fly(document.documentElement).addClass(browser + os)

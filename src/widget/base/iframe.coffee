@@ -7,7 +7,7 @@ class cola.IFrame extends cola.Widget
 		path:
 			defaultValue: BLANK_PATH
 			setter: (value)->
-#oldValue = @_path
+				#oldValue = @_path
 				@_path = value
 				#return if oldValue is value or !@_dom
 				@_loaded = false

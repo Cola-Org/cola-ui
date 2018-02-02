@@ -142,7 +142,7 @@ class cola.Dialog extends cola.Layer
 		_parseChild = (node, target)=>
 			childNode = node.firstElementChild
 			while childNode
-				if childNode.nodeType == 1
+				if childNode.nodeType is 1
 					widget = cola.widget(childNode)
 					@_addContentElement(widget or childNode, target)
 				childNode = childNode.nextElementSibling

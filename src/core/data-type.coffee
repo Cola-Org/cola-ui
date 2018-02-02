@@ -18,21 +18,19 @@ class cola.NumberDataType extends cola.BaseDataType
 
 		if typeof text is "number"
 			if @_isInteger
-				return Math.round(text)
+				n = Math.round(text)
 			else
-				return text
-
-		if @_isInteger
-			n = Math.round(+text)
+				n = text
 		else
-			n = +text
-
-		text =  n + ""
-		if text.indexOf("e") > 0
-			if text.charAt(0) is "-"
-				n = Number.MIN_SAFE_INTEGER
+			if @_isInteger
+				n = Math.round(+text)
 			else
-				n = Number.MAX_SAFE_INTEGER
+				n = +text
+
+		if n < Number.MIN_SAFE_INTEGER
+			n = Number.MIN_SAFE_INTEGER
+		else if n > Number.MAX_SAFE_INTEGER
+			n = Number.MAX_SAFE_INTEGER
 		else if isNaN(n)
 			n = 0
 		return n
@@ -192,7 +190,8 @@ class cola.Property extends cola.Definition
 
 		aggregated:
 			readOnlyAfterCreate: true
-		loadForNewEntity:
+		skipLoading:    # smart, never
+			defaultValue: "smart"
 			readOnlyAfterCreate: true
 
 		disableValidators:

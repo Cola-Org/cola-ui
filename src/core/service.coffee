@@ -5,6 +5,7 @@ class cola.ProviderInvoker
 
 	invokeCallback: (success, result)->
 		@invoking = false
+		@deferred = null
 		callbacks = @callbacks
 		@callbacks = []
 		for callback in callbacks
@@ -69,11 +70,12 @@ class cola.ProviderInvoker
 
 		if ajaxService.getListeners("beforeSend")
 			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
-				return
+				return $.Deferred()
 
 		if @_beforeSend then @_beforeSend(options)
 
-		retValue = $.ajax(options).done( (result)=>
+		@invoking = true
+		@deferred = retValue = $.ajax(options).done( (result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
@@ -81,11 +83,11 @@ class cola.ProviderInvoker
 
 			retValue = ajaxService.translateResult(result, options)
 
-			@invokeCallback(true, result)
+			@invokeCallback(true, retValue)
 
 			if @parentData
 				if @property
-					data = @parentData.get(@property)
+					data = @parentData.get(@property, "never")
 				else
 					data = @parentData
 
@@ -119,16 +121,20 @@ class cola.ProviderInvoker
 
 	invokeAsync: (callback)->
 		@callbacks.push(callback)
-		if @invoking then return false
-
-		@invoking = true
+		if @invoking
+			return @deferred
 		return @_internalInvoke()
 
 	invokeSync: (callback)->
 		if @invoking
 			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
 		@callbacks.push(callback)
-		return @_internalInvoke(false)
+		retValue = undefined
+		@_internalInvoke(false).done((result)->
+			retValue = result
+			return
+		)
+		return retValue
 
 class cola.Provider extends cola.Definition
 	@attributes:
@@ -171,7 +177,7 @@ class cola.Provider extends cola.Definition
 		if expr.charCodeAt(0) is 123	# `{`
 			if expr.match(/^{{[^{{}}]+}}$/)
 				expression = expr.substring(2, expr.length - 2)
-				if _SYS_PARAMS.indexOf(expression) < 0
+				if cola.constants._SYS_PARAMS.indexOf(expression) < 0
 					expression = cola._compileExpression(context.expressionScope, expression)
 					if expression
 						return expression.evaluate(context.expressionScope, "never")
@@ -252,8 +258,6 @@ class cola.Provider extends cola.Definition
 		invoker.pageSize = @_pageSize
 		invoker.detectEnd = @_detectEnd
 		return invoker
-
-_SYS_PARAMS = ["$pageNo", "$pageSize", "$from", "$limit"]
 
 class _ExpressionDataModel extends cola.AbstractDataModel
 	constructor: (model, @entity)->

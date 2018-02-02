@@ -1467,6 +1467,11 @@ class cola.Table.InnerTable extends cola.AbstractList
 							defaultPath: "#{@_table._alias}.#{column._property}"
 						}
 						cola.xRender(templateDom, scope, context)
+
+						if templateDom
+							editor = cola.widget(templateDom)
+							if editor instanceof cola.AbstractEditor and not editor._bindInfo
+								editor.set("bind", "#{@_table._alias}.#{column._property}")
 					finally
 						cola.currentScope = oldScope
 				else

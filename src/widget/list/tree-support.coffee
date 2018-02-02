@@ -107,9 +107,7 @@ class cola.CascadeBind extends cola.Element
 				expression = @_recursiveExpression or @_expression
 			items = expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items is undefined and dataCtx.unloaded
-				recursiveLoader = dataCtx.providerInvokers?[0]
-				if recursiveLoader
-					tasks.push(recursiveLoader.invokeAsync())
+				tasks = tasks.concat(dataCtx.deferreds)
 			else
 				recursiveItems = items
 				if recursiveItems
@@ -122,9 +120,7 @@ class cola.CascadeBind extends cola.Element
 			dataCtx ?= {}
 			items = @_child._expression.evaluate(parentNode._scope, "async", dataCtx)
 			if items is undefined and dataCtx.unloaded
-				childLoader = dataCtx.providerInvokers?[0]
-				if childLoader
-					tasks.push(childLoader.invokeAsync())
+				tasks = tasks.concat(dataCtx.deferreds)
 
 		return $.when.apply($, tasks).done(()=>
 			hasChild = false
