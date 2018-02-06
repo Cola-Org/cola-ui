@@ -444,26 +444,29 @@ class cola.Entity
 							loaded = true
 
 					if not loaded
-						@_data[prop] = dfd = providerInvoker.invokeAsync((result)=>
-							if @_data[prop] is dfd
-								result = @_set(prop, result, true)
-								if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
-									result._providerInvoker = providerInvoker
-
-								if property?.getListeners("load")
-									property.fire("load", property, {
-										entity: @
-										property: prop
-									})
-							return
-						).always(()=>
-							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
-						)
-
 						notifyArg = {
 							data: @
 							property: prop
 						}
+						completed = false
+						dfd = providerInvoker.invokeAsync(
+						).done((result)=>
+							result = @_set(prop, result, true)
+							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+								result._providerInvoker = providerInvoker
+
+							if property?.getListeners("load")
+								property.fire("load", property, {
+									entity: @
+									property: prop
+								})
+							return
+						).always(()=>
+							completed = true
+							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
+							return
+						)
+						if not completed then @_data[prop] = dfd
 						@_notify(cola.constants.MESSAGE_LOADING_START, notifyArg)
 
 						if context
@@ -571,8 +574,9 @@ class cola.Entity
 						else
 							value = dataType.parse(value)
 
-						if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value is Number.MAX_SAFE_INTEGER)
-							throw new cola.Exception(cola.resource("cola.validator.error.number", value))
+						#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
+							# is Number.MAX_SAFE_INTEGER)
+						#	throw new cola.Exception(cola.resource("cola.validator.error.number", value))
 				else if typeof value is "object" and value? and not isSpecialProp
 					if value instanceof Array
 						convert = true
