@@ -135,21 +135,30 @@ class cola.SubView extends cola.Widget
 			callback = options
 			options = null
 
-		if  @_loaded
-			if not options or @_currentUrl is options.url and @_currentJsUrl is options.jsUrl and @_currentCssUrl is options.cssUrl
-				dfd = @_loadingDeferred
-				dfd ?= $.Deferred((dfd)->
-					dfd.resolve()
-					return
-				)
-				return dfd.done(()->
+		url = @_url
+		jsUrl  = @_jsUrl
+		cssUrl = @_cssUrl
+		url = options.url if options.url
+		jsUrl = options.jsUrl if options.jsUrl
+		cssUrl = options.cssUrl if options.cssUrl
+
+		if @_loadingDeferred
+			if @_currentUrl is url and @_currentJsUrl is jsUrl and @_currentCssUrl is cssUrl
+				return @_loadingDeferred.done(()->
 					cola.callback(callback, true)
 					return
 				)
 			else
 				throw new cola.Exception("Can not load SubView during loading.")
-		else
-			return @load(options, callback)
+
+		if @_loaded and @_currentUrl is url and @_currentJsUrl is jsUrl and @_currentCssUrl is cssUrl
+			dfd = $.Deferred().resolve()
+			return dfd.done(()->
+				cola.callback(callback, true)
+				return
+			)
+
+		return @load(options, callback)
 
 	unload: ()->
 		return unless @_dom or @_currentUrl

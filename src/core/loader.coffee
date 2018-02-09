@@ -49,7 +49,8 @@ do() ->
 				onJsLoaded = (result, jsUrl)->
 					initFuncs = _jsCache[jsUrl]
 					if initFuncs
-						Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
+						if initFuncs isnt "CACHED"
+							Array.prototype.push.apply(context.suspendedInitFuncs, initFuncs)
 						return
 
 					if typeof result is "string"
@@ -76,6 +77,8 @@ do() ->
 
 								if context.suspendedInitFuncs?.length > oldLen
 									_jsCache[jsUrl] = context.suspendedInitFuncs.slice(oldLen)
+								else
+									_jsCache[jsUrl] = "CACHED"
 						catch e
 							# do nothing
 					else

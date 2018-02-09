@@ -198,6 +198,7 @@ class cola.Model extends cola.Scope
 				return @
 
 	destroy: ()->
+		@fire("destroy")
 		@parent?.unregisterChild(@)
 		cola.removeModel(@name) if @name
 		@data.destroy?()
@@ -221,6 +222,23 @@ class cola.Model extends cola.Scope
 					break
 				scope = scope.parent
 		return cola.Element.createGroup(filtered)
+
+	on: (eventName, fn)->
+		listeners = @_listeners
+		if not listeners
+			@_listeners = listeners = {}
+		if not listeners[eventName]
+			listeners[eventName] = []
+		listeners[eventName].push(fn)
+		return @
+
+	fire: (eventName, arg)->
+		return if not @_listeners
+		handlers = @_listeners[eventName]
+		return if not handlers
+		for handler in handlers
+			handler.apply(@, [ @, arg or {} ])
+		return
 
 class cola.SubScope extends cola.Scope
 	repeatNotification: true
@@ -302,7 +320,7 @@ class cola.SubScope extends cola.Scope
 		@unwatchPath()
 		parent = @parent
 		if parent
-			@_watchPath = ["**"]
+			@_watchPath = [ "**" ]
 			parent.data.bind("**", @)
 			parent.watchAllMessages?()
 		return
@@ -806,7 +824,7 @@ class cola.AbstractDataModel
 			@removeShortcut(prop)
 			if not data or not (data instanceof cola.Entity or data instanceof cola.EntityList) or
 			  not data.parent or data is rootData._data[prop] # is not alias
-				@onDataMessage([prop], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+				@onDataMessage([ prop ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 					entity: @_rootData
 					property: prop
 					oldValue: oldShortcutData
@@ -845,11 +863,11 @@ class cola.AbstractDataModel
 			bindingPath: path.slice(0).concat("**")
 			processMessage: (bindingPath, path, type, arg)->
 				relativePath = path.slice(@splittedPath.length)
-				dataModel.onDataMessage([shortcut].concat(relativePath), type, arg)
+				dataModel.onDataMessage([ shortcut ].concat(relativePath), type, arg)
 				return
 		}
 		@bind(shortcutHolder.bindingPath, shortcutHolder)
-		@onDataMessage([shortcut], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+		@onDataMessage([ shortcut ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 			entity: @_rootData
 			property: shortcut
 			oldValue: oldShortcutData
@@ -1197,7 +1215,7 @@ class cola.SubDataModel extends cola.AbstractDataModel
 			holder.dataType = data.dataType
 
 		if not silence
-			@onDataMessage([alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: alias
 				value: data
@@ -1336,7 +1354,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 			@dataType = data.dataType
 
 		if not silence
-			@onDataMessage([@alias], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ @alias ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: @alias
 				value: data
@@ -1377,7 +1395,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 	setIndex: (index, silence)->
 		@_index = index
 		if not silence
-			@onDataMessage([cola.constants.REPEAT_INDEX], cola.constants.MESSAGE_PROPERTY_CHANGE, {
+			@onDataMessage([ cola.constants.REPEAT_INDEX ], cola.constants.MESSAGE_PROPERTY_CHANGE, {
 				entity: null
 				property: cola.constants.REPEAT_INDEX
 				value: index
@@ -1435,7 +1453,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 
 			if isChild
 				relativePath = arg.originPath.slice(itemData.getPath().length)
-				super([@alias].concat(relativePath), type, arg)
+				super([ @alias ].concat(relativePath), type, arg)
 		return
 
 ###
