@@ -197,6 +197,7 @@ class cola.Model extends cola.Scope
 				return @
 
 	destroy: ()->
+		@fire("destroy")
 		@parent?.unregisterChild(@)
 		cola.removeModel(@name) if @name
 		@data.destroy?()
@@ -220,6 +221,23 @@ class cola.Model extends cola.Scope
 					break
 				scope = scope.parent
 		return cola.Element.createGroup(filtered)
+
+	on: (eventName, fn)->
+		listeners = @_listeners
+		if not listeners
+			@_listeners = listeners = {}
+		if not listeners[eventName]
+			listeners[eventName] = []
+		listeners[eventName].push(fn)
+		return @
+
+	fire: (eventName, arg)->
+		return if not @_listeners
+		handlers = @_listeners[eventName]
+		return if not handlers
+		for handler in handlers
+			handler.apply(@, [ @, arg or {} ])
+		return
 
 class cola.SubScope extends cola.Scope
 	repeatNotification: true

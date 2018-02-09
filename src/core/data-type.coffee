@@ -18,21 +18,18 @@ class cola.NumberDataType extends cola.BaseDataType
 
 		if typeof text is "number"
 			if @_isInteger
-				n = Math.round(text)
+				return Math.round(text)
 			else
-				n = text
-		else
-			if @_isInteger
-				n = Math.round(+text)
-			else
-				n = +text
+				return text
 
-		if n < Number.MIN_SAFE_INTEGER
-			n = Number.MIN_SAFE_INTEGER
-		else if n > Number.MAX_SAFE_INTEGER
-			n = Number.MAX_SAFE_INTEGER
-		else if isNaN(n)
-			n = 0
+		if text.indexOf("e+") > 0
+			if text.charAt(0) is "-"
+				n = Number.MIN_SAFE_INTEGER
+			else
+				n = Number.MAX_SAFE_INTEGER
+		else
+			n = +text
+			if isNaN(n) then n = 0
 		return n
 
 class cola.BooleanDataType extends cola.BaseDataType
