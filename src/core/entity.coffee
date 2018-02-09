@@ -449,8 +449,7 @@ class cola.Entity
 							property: prop
 						}
 						completed = false
-						dfd = providerInvoker.invokeAsync(
-						).done((result)=>
+						dfd = providerInvoker.invokeAsync((result)=>
 							result = @_set(prop, result, true)
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
