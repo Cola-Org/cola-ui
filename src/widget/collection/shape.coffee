@@ -33,10 +33,9 @@ class cola.Shape extends cola.AbstractItemGroup
 			sides = $(@_doms.wrap).find(".side")
 			if currentDom
 				oldIndex = sides.index(currentDom)
-				console.log(oldIndex)
 				if index == oldIndex then return
 			sides.removeClass("active")
-			targetDom = sides.eq(index).addClass("active")
+			sides.eq(index).addClass("active")
 
 		return @
 

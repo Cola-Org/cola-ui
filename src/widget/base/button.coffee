@@ -24,9 +24,7 @@ class cola.Button extends cola.Widget
 			enum: ["left", "right"]
 
 		focusable:
-			type: "boolean"
-			refreshDom: true
-			defaultValue: false
+			defaultValue: true
 
 		disabled:
 			type: "boolean"
@@ -101,8 +99,6 @@ class cola.Button extends cola.Widget
 			$dom.append(captionDom) if captionDom.parentNode isnt @_dom
 		else
 			$fly(captionDom).remove() if captionDom
-
-		if @get("focusable") then $dom.attr("tabindex", "0") else $dom.removeAttr("tabindex")
 
 		@_refreshIcon()
 		state = @_state

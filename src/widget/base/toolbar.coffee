@@ -21,11 +21,6 @@ class cola.ToolbarButton extends cola.Widget
 			defaultValue: "left"
 			enum: ["left", "right"]
 
-		focusable:
-			type: "boolean"
-			refreshDom: true
-			defaultValue: false
-
 		disabled:
 			type: "boolean"
 			refreshDom: true
@@ -60,7 +55,6 @@ class cola.ToolbarButton extends cola.Widget
 		return unless @_dom
 		super()
 		$innerDom = $(@_doms.innerDom);
-		classNamePool = @_classNamePool
 		caption = @_caption
 		captionDom = $innerDom.find(".caption")
 		if caption
@@ -73,14 +67,14 @@ class cola.ToolbarButton extends cola.Widget
 		else
 			$(captionDom).empty()
 
-		if @get("focusable") then $innerDom.attr("tabindex", "0") else $innerDom.removeAttr("tabindex")
-
 		@_refreshIcon()
 		$innerDom.toggleClass("disabled", @_disabled)
 		return
+
 class cola.Toolbar extends cola.Widget
 	@tagName: "c-toolbar"
 	@CLASS_NAME: "ui toolbar"
+
 cola.registerWidget(cola.ToolbarButton)
 cola.registerWidget(cola.Toolbar)
 

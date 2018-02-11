@@ -24,8 +24,6 @@ class cola.ItemsView extends cola.Widget
 			defaultValue: true
 
 		focusable:
-			type: "boolean"
-			refreshDom: true
 			defaultValue: true
 
 	@events:

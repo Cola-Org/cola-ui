@@ -142,7 +142,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_onBlur: ()->
-		if @_opened and @_finalOpenMode is "drop" then @close()
+		if @_opened and @_finalOpenMode is "drop"
+			setTimeout(()=>
+				if not @_focused
+					@close()
+				return
+			, 50)
 		super()
 		return
 
@@ -516,6 +521,15 @@ class cola.DropBox extends cola.Layer
 				@_maxHeight = height
 				return
 		dropdown: null
+
+	_initDom: (dom)->
+		super(dom)
+		@_$dom.on("mousedown", ()=>
+			if not @_focused
+				cola._setFocusWidget(@)
+			return
+		)
+		return
 
 	resize: (opened)->
 		dom = @getDom()

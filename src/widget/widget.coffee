@@ -243,7 +243,7 @@ class cola.Widget extends cola.RenderableElement
 			refreshDom: true
 		focusable:
 			type: "boolean"
-			refreshDom: true
+			readOnlyAfterCreate: true
 			defaultValue: false
 
 	@events:
@@ -315,6 +315,13 @@ class cola.Widget extends cola.RenderableElement
 
 	_initDom: (dom)->
 		super(dom)
+
+		$dom = @get$Dom()
+		if @_focusable
+			if not $dom.attr("tabindex")?
+				$dom.attr("tabindex", "0")
+			$dom.on("focus", ()=> cola._setFocusWidget(@))
+
 		popup = @_popup
 		if popup
 			popupOptions = {}
@@ -524,7 +531,15 @@ cola._setFocusWidget = (widget)->
 		focusedWidget.onFocus()
 	return
 
-$fly(document.body).on("keydown", (evt)->
+$fly(document.body).on("mousedown", (evt)->
+	target = evt.target
+	while target
+		if target.getAttribute?("tabindex")?
+			return
+		target = target?.parentNode
+	cola._setFocusWidget(null)
+	return
+).on("keydown", (evt)->
 	if cola.focusedWidgets
 		for widget in cola.focusedWidgets
 			if widget.onKeyDown(evt) is false

@@ -97,6 +97,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 			defaultValue: "right"
 			enum: [ "left", "right" ]
 
+		focusable:
+			defaultValue: true
+
 	destroy: ()->
 		unless @_destroyed
 			super()
@@ -201,7 +204,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 				@_postInput()
 				return
 			).on("focus", ()=> cola._setFocusWidget(@)
-			).on("blur", ()=> cola._setFocusWidget(null)
 			).on("keypress", (event)=>
 				arg =
 					keyCode: event.keyCode
