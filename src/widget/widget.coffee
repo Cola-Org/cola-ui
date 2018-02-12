@@ -93,7 +93,7 @@ class cola.RenderableElement extends cola.Element
 		return dom
 
 	_doSet: (attr, attrConfig, value)->
-		if attrConfig?.refreshDom and @_dom
+		if attrConfig?.refreshDom and @_dom and value isnt @_get(attr)
 			cola.util.delay(@, "refreshDom", 50, @_refreshDom)
 		return super(attr, attrConfig, value)
 
@@ -531,10 +531,10 @@ cola._setFocusWidget = (widget)->
 		focusedWidget.onFocus()
 	return
 
-$fly(document.body).on("mousedown", (evt)->
+$fly(document.body).on("mouseup", (evt)->
 	target = evt.target
 	while target
-		if target.getAttribute?("tabindex")?
+		if target.getAttribute?("tabindex")? or target.nodeName is "INPUT" or target.nodeName is "TEXTAREA"
 			return
 		target = target?.parentNode
 	cola._setFocusWidget(null)
