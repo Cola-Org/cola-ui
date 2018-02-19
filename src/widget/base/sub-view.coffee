@@ -150,6 +150,7 @@ class cola.SubView extends cola.Widget
 		if typeof options is "function"
 			callback = options
 			options = null
+		options ?= {}
 
 		url = @_url
 		jsUrl  = @_jsUrl

@@ -8,6 +8,7 @@ class cola.AbstractContainer extends cola.Widget
 				@_setContent(value, "content")
 				return @
 	_initDom:(dom)->
+		super(dom)
 		if @_content
 			@_render(el, "content") for el in @_content
 		return

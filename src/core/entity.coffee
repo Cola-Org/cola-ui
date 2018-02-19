@@ -459,7 +459,7 @@ class cola.Entity
 									entity: @
 									property: prop
 								})
-							return
+							return result
 						).always(()=>
 							completed = true
 							@_notify(cola.constants.MESSAGE_LOADING_END, notifyArg)
@@ -526,13 +526,11 @@ class cola.Entity
 				@set(prop, val)
 		return @
 
-	_jsonToEntity: (value, dataType, aggregated, provider)->
-		result = cola.DataType.jsonToEntity(value, dataType, aggregated, provider?._pageSize)
-		if result and provider
-			result._providerInvoker = provider.getInvoker(
-				expressionData: @
-				parentData: result
-			)
+	_jsonToEntity: (value, dataType, aggregated)->
+		providerInvoker = value?.$providerInvoker
+		result = cola.DataType.jsonToEntity(value, dataType, aggregated, providerInvoker?.pageSize)
+		if result and providerInvoker
+			result._providerInvoker = providerInvoker
 		return result
 
 	_set: (prop, value, ignoreState)->
@@ -560,7 +558,7 @@ class cola.Entity
 							else if value instanceof _EntityList
 								matched = value.dataType is dataType and property._aggregated isnt false
 							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
-								value = @_jsonToEntity(value, dataType, true, provider)
+								value = @_jsonToEntity(value, dataType, true)
 							else
 								value = new _Entity(value, dataType)
 
@@ -582,13 +580,13 @@ class cola.Entity
 						if value.length > 0
 							item = value[0]
 							if cola.util.isSimpleValue(item) then convert = false
-						value = @_jsonToEntity(value, null, true, provider) if convert
+						value = @_jsonToEntity(value, null, true) if convert
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
-						value = @_jsonToEntity(value, null, true, provider)
+						value = @_jsonToEntity(value, null, true)
 					else if value instanceof Date
 						# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
-						value = @_jsonToEntity(value, null, false, provider)
+						value = @_jsonToEntity(value, null, false)
 
 				#if cola.consoleOpened and cola.debugLevel > 9
 				#	setTimeout(()=>

@@ -87,12 +87,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				contextKey: "valueContent"
 			}, @_doms)
 
-		$fly(dom).attr("tabIndex", 1).delegate(">.icon.drop", "click", ()=>
+		$fly(dom).delegate(">.icon.drop", "click", ()=>
 			if @_opened
-				@close()
+				if new Date() - @_openTimestamp > 300
+					@close()
 			else if not @_finalReadOnly
 				@open()
-			@focus()
 			return false
 		).on("keypress", (evt)=>
 			arg =
@@ -425,12 +425,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			container.show?(doCallback)
 
 			@_opened = true
+			@_openTimestamp = new Date()
 			$fly(@_dom).addClass("opened")
 
 			if @_useValueContent
 				@_refreshInputValue(null)
 			return true
-
 		return
 
 	close: (selectedData, callback)->
@@ -521,6 +521,9 @@ class cola.DropBox extends cola.Layer
 				@_maxHeight = height
 				return
 		dropdown: null
+
+		focusable:
+			defaultValue: true
 
 	_initDom: (dom)->
 		super(dom)

@@ -320,7 +320,6 @@ class cola.Widget extends cola.RenderableElement
 		if @_focusable
 			if not $dom.attr("tabindex")?
 				$dom.attr("tabindex", "0")
-			$dom.on("focus", ()=> cola._setFocusWidget(@))
 
 		popup = @_popup
 		if popup
@@ -531,11 +530,16 @@ cola._setFocusWidget = (widget)->
 		focusedWidget.onFocus()
 	return
 
-$fly(document.body).on("mouseup", (evt)->
+$fly(document.body).on("mousedown", (evt)->
 	target = evt.target
 	while target
-		if target.getAttribute?("tabindex")? or target.nodeName is "INPUT" or target.nodeName is "TEXTAREA"
+		if target.nodeName is "INPUT" or target.nodeName is "TEXTAREA"
 			return
+		else if target.getAttribute?("tabindex")?
+			widget = cola.widget(target)
+			if not widget?._focused
+				widget?.focus()
+				return
 		target = target?.parentNode
 	cola._setFocusWidget(null)
 	return
@@ -549,7 +553,7 @@ $fly(document.body).on("mouseup", (evt)->
 
 cola.floatWidget =
 	_zIndex: 1100
-	zIndex: ()-> return ++cola.floatWidget._zIndex
+	zIndex: ()-> ++cola.floatWidget._zIndex
 
 cola.Exception.showException = (ex)->
 	if ex instanceof cola.Exception or ex instanceof Error

@@ -76,15 +76,19 @@ class cola.ProviderInvoker
 		if @_beforeSend then @_beforeSend(options)
 
 		@invoking = true
-		@deferred = retValue = $.ajax(options).done( (result)=>
+		@deferred = retValue = $.ajax(options).then((result)=>
 			if ajaxService.getListeners("response")
 				arg = {options: options, result: result}
 				ajaxService.fire("response", ajaxService, arg)
 				result = arg.result
 
-			retValue = ajaxService.translateResult(result, options)
+			result = ajaxService.translateResult(result, options)
+			if result and typeof result is "object"
+				result.$providerInvoker = @
 
-			@invokeCallback(true, retValue)
+			data = @invokeCallback(true, result)
+			if data is undefined
+				data = result
 
 			if @parentData
 				if @property
@@ -93,11 +97,11 @@ class cola.ProviderInvoker
 					data = @parentData
 
 			if ajaxService.getListeners("success")
-				ajaxService.fire("success", ajaxService, {options: options, result: retValue, data: data })
+				ajaxService.fire("success", ajaxService, {options: options, result: result, data: data })
 			if ajaxService.getListeners("complete")
-				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: retValue, data: data })
-			return
-		).fail( (xhr, status, message)=>
+				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
+			return data
+		).fail((xhr, status, message)=>
 			console.error(xhr.responseJSON)
 
 			error =
