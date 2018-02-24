@@ -101,7 +101,6 @@ sources =
 			"src/widget/list/tree.coffee"
 			"src/widget/list/table-support.coffee"
 			"src/widget/list/table.coffee"
-			"src/widget/list/pager.coffee"
 			"src/widget/list/time-line.coffee"
 			"src/widget/list/page.coffee"
 		]
@@ -146,7 +145,6 @@ sources =
 			"src/css/stack.less"
 			"src/css/radio.less"
 			"src/css/sidebar.less"
-			"src/css/pager.less"
 			"src/css/time-line.less"
 			"src/css/panel.less"
 #			"src/css/semantic/input-overrides.less"

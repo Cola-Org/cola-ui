@@ -77,6 +77,26 @@ class cola.RenderableElement extends cola.Element
 			return
 		)
 		if parseChild then @_parseDom(dom)
+
+
+		$dom = @get$Dom()
+		if @_focusable
+			if not $dom.attr("tabindex")?
+				$dom.attr("tabindex", "0")
+
+		popup = @_popup
+		if popup
+			popupOptions = {}
+			if typeof popup is "string" or (popup.constructor == Object.prototype.constructor and popup.tagName) or popup.nodeType is 1
+				popupOptions.html = cola.xRender(popup)
+			else if popup.constructor == Object.prototype.constructor
+				popupOptions = popup
+				if popupOptions.content
+					popupOptions.html = cola.xRender(popupOptions.content)
+				else if popupOptions.html
+					popupOptions.html = cola.xRender(popupOptions.html)
+			$dom.popup(popupOptions)
+
 		@_initDom(dom)
 		arg =
 			dom: dom
@@ -313,27 +333,6 @@ class cola.Widget extends cola.RenderableElement
 		swipeDown:
 			hammerEvent: "swipedown"
 
-	_initDom: (dom)->
-		super(dom)
-
-		$dom = @get$Dom()
-		if @_focusable
-			if not $dom.attr("tabindex")?
-				$dom.attr("tabindex", "0")
-
-		popup = @_popup
-		if popup
-			popupOptions = {}
-			if typeof popup is "string" or (popup.constructor == Object.prototype.constructor and popup.tagName) or popup.nodeType is 1
-				popupOptions.html = cola.xRender(popup)
-			else if popup.constructor == Object.prototype.constructor
-				popupOptions = popup
-				if popupOptions.content
-					popupOptions.html = cola.xRender(popupOptions.content)
-				else if popupOptions.html
-					popupOptions.html = cola.xRender(popupOptions.html)
-			$fly(dom).popup(popupOptions)
-
 	_setDom: (dom, parseChild)->
 		return unless dom
 		super(dom, parseChild)
@@ -535,10 +534,11 @@ $fly(document.body).on("mousedown", (evt)->
 	while target
 		if target.nodeName is "INPUT" or target.nodeName is "TEXTAREA"
 			return
-		else if target.getAttribute?("tabindex")?
+		else
 			widget = cola.widget(target)
-			if not widget?._focused
-				widget?.focus()
+			if widget
+				if widget isnt cola.focusedWidgets?[0]
+					cola._setFocusWidget(widget)
 				return
 		target = target?.parentNode
 	cola._setFocusWidget(null)

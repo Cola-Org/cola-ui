@@ -251,11 +251,14 @@ cola.widget = (config, namespace, model)->
 			for c in config
 				group.push(cola.widget(c, namespace, model))
 			return cola.Element.createGroup(group)
-		else if config.nodeType is 1
-			widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY)
-			if model and not isSubWidget(widget)
-				widget = null
-			return if widget instanceof cola.Widget then widget else null
+		else if config.nodeType
+			if config.nodeType is 1
+				widget = cola.util.userData(config, cola.constants.DOM_ELEMENT_KEY)
+				if model and not isSubWidget(widget)
+					widget = null
+				return if widget instanceof cola.Widget then widget else null
+			else
+				return null
 		else
 			constr = config.$constr or cola.resolveType(namespace or "widget", config, cola.Widget)
 			if model and not config.scope

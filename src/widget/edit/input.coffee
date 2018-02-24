@@ -204,7 +204,6 @@ class cola.AbstractInput extends cola.AbstractEditor
 				@_postInput()
 				return
 			).on("focus", ()=> cola._setFocusWidget(@)
-			# ).on("blur", ()=> @_postInput()
 			).on("keypress", (event)=>
 				arg =
 					keyCode: event.keyCode
@@ -354,6 +353,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		if not @_finalReadOnly
 			value = @_doms.input.value
 			if value is "" then value = null
+
 			dataType = @_dataType
 			if dataType
 				if @_inputType is "text"
@@ -362,7 +362,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 						inputFormat ?= cola.setting("defaultDateInputFormat")
 						value = inputFormat + "||" + value
 				value = dataType.parse(value)
-			@set("value", value)
+
+			if @_modelValue isnt value
+				@set("value", value)
 		return
 
 class cola.Input extends cola.AbstractInput
@@ -411,6 +413,11 @@ class cola.Input extends cola.AbstractInput
 			if @_postOnInput then @_postInput()
 			return
 		)
+		return
+
+	_onBlur: ()->
+		@_postInput()
+		super()
 		return
 
 	_onFocus: ()->

@@ -80,8 +80,9 @@ class cola.Pager extends cola.Widget
 		data = @_getBindItems()
 		data?.gotoPage(parseInt(pageNo))
 
-
 	pageSize: (pageSize)->
+		return unless pageSize > 0
+
 		@_pageTimmer && clearTimeout(@_pageTimmer)
 		data = @_getBindItems()
 
@@ -222,11 +223,6 @@ class cola.Pager extends cola.Widget
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");
 		$(@_dom).find(".nav-btn.prev").toggleClass("disabled", !hasPrev);
 		$(@_dom).find(".nav-btn.next").toggleClass("disabled", !hasNext);
-
-
-
-
-
 
 	prevPage: ()->
 		data = @_getBindItems()

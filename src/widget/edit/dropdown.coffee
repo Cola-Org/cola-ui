@@ -144,8 +144,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_onBlur: ()->
 		if @_opened and @_finalOpenMode is "drop"
 			setTimeout(()=>
-				if not @_focused
-					@close()
+				@close()
 				return
 			, 50)
 		super()
@@ -524,15 +523,6 @@ class cola.DropBox extends cola.Layer
 
 		focusable:
 			defaultValue: true
-
-	_initDom: (dom)->
-		super(dom)
-		@_$dom.on("mousedown", ()=>
-			if not @_focused
-				cola._setFocusWidget(@)
-			return
-		)
-		return
 
 	resize: (opened)->
 		dom = @getDom()

@@ -611,6 +611,8 @@ class cola.YearGrid extends cola.RenderableElement
 		refreshCellDom: null
 
 	_initDom: (dom)->
+		super(dom)
+
 		picker = @
 		@_doms ?= {}
 		table = $.xCreate({

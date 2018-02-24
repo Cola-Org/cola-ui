@@ -1259,10 +1259,12 @@ class Page extends Array
 			providerInvoker.pageSize = @entityList.pageSize
 			providerInvoker.pageNo = @pageNo
 			if loadMode is "sync"
-				result = providerInvoker.invokeSync()
-				@initData(result)
+				result = providerInvoker.invokeSync((result)=>
+					@initData(result)
+					return
+				)
 			else
-				dfd = providerInvoker.invokeAsync().done((result)=>
+				dfd = providerInvoker.invokeAsync((result)=>
 					@initData(result)
 					return
 				)
