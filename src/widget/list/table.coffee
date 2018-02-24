@@ -70,6 +70,11 @@ class cola.Table extends cola.Widget
 
 		sortMode:
 			defaultValue: "remote" # local/remote
+		sortCriteria:
+			setter: (sortCriteria)->
+				@_sortCriteria = sortCriteria
+				return
+
 		readOnly:
 			type: "boolean"
 			defaultValue: true
