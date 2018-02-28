@@ -125,7 +125,7 @@ class cola.ProviderInvoker
 		return retValue
 
 	invokeAsync: (callback)->
-		@callbacks.push(callback)
+		@callbacks.push(callback) if callback
 		if @invoking
 			return @deferred
 		return @_internalInvoke()
@@ -133,7 +133,7 @@ class cola.ProviderInvoker
 	invokeSync: (callback)->
 		if @invoking
 			throw new cola.Exception("Cannot perform synchronized request during an asynchronized request executing. [#{@url}]")
-		@callbacks.push(callback)
+		@callbacks.push(callback) if callback
 		retValue = undefined
 		@_internalInvoke(false).done((result)->
 			retValue = result

@@ -423,17 +423,18 @@ class cola.Entity
 							loaded = true
 
 					if not loaded
-						retValue = providerInvoker.invokeSync()
-						@_set(prop, retValue, true)
-						retValue = @_data[prop]
-						if retValue and (retValue instanceof cola.EntityList or retValue instanceof cola.Entity)
-							retValue._providerInvoker = providerInvoker
+						retValue = providerInvoker.invokeSync((result)=>
+							result = @_set(prop, result, true)
+							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
+								result._providerInvoker = providerInvoker
 
-						if property?.getListeners("load")
-							property.fire("load", property, {
-								entity: @
-								property: prop
-							})
+							if property?.getListeners("load")
+								property.fire("load", property, {
+									entity: @
+									property: prop
+								})
+							return result
+						)
 
 				else if loadMode is "async"
 					if property?.getListeners("beforeLoad")
