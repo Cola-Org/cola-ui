@@ -25,7 +25,7 @@ _processEntity = (entity, context, options)->
 				context.messages[message.type] ?= []
 				context.messages[message.type].push(message)
 
-	if entity.state isnt cola.Entity.STATE_NONE
+	if entity.state and entity.state isnt cola.Entity.STATE_NONE
 		json = entity.toJSON(toJSONOptions)
 
 	if entity.state isnt cola.Entity.STATE_DELETED

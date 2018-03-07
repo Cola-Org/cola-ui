@@ -19,7 +19,7 @@ cola.defaultAction["int"] = (value)-> +value or 0
 cola.defaultAction["float"] = (value)-> +value or 0
 
 cola.defaultAction["bool"] = (value)-> !!value
-cola.defaultAction["is"] = -> cola.defaultAction.bool
+cola.defaultAction["is"] = cola.defaultAction["bool"]
 cola.defaultAction["not"] = (value)-> !value
 
 cola.defaultAction.isEmpty = (value)->

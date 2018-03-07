@@ -496,6 +496,9 @@ class cola.Entity
 						value = result
 						cola.callback(callback, true, result)
 						return
+					).fail((error)->
+						cola.callback(callback, false, error)
+						return
 					)
 					callbackProcessed = true
 
@@ -505,6 +508,9 @@ class cola.Entity
 			if callback
 				dfd.done((result)->
 					cola.callback(callback, true, result)
+					return
+				).fail((error)->
+					cola.callback(callback, false, error)
 					return
 				)
 				callbackProcessed = true
@@ -908,20 +914,21 @@ class cola.Entity
 			callback = loadMode
 			loadMode = "async"
 
+		dfd = $.Deferred()
 		oldLoadMode = provider._loadMode
 		provider._loadMode = "lazy"
 		try
-			retValue = @_get(property, loadMode)
+			@_get(property, loadMode, {
+				complete: (success, result)->
+					cola.callback(callback, success, result)
+					if success
+						dfd.resolve(result)
+					else
+						dfd.reject(result)
+			})
 		finally
 			provider._loadMode = oldLoadMode
-
-		if not (retValue and retValue.done and retValue.fail)
-			retValue = $.Deferred().resolve(retValue)
-
-		return cola.util.wrapDeferredWith(@, retValue).done((result)->
-			cola.callback(callback, true, result)
-			return
-		)
+		return dfd
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel

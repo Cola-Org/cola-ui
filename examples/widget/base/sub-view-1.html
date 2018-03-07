@@ -1,3 +1,8 @@
 <div c-bind="name"></div>
 <hr>
-<div c-widget="listView; bind:language in languages; textProperty:name"></div>
+<c-form bind="languages2">
+	<field property="name"></field>
+	<field property="value"></field>
+</c-form>
+<hr>
+<c-listview bind="language in languages2" textProperty="name"></c-listview>

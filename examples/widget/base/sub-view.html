@@ -5,78 +5,7 @@
 	<meta charset="utf-8">
 	<script src="../../include-all.js"></script>
 	<script type="text/javascript">
-		var App = {};
-
-		App.suspendedResources = new cola.util.KeyedArray();
-		App.loadSuspendedResources = function() {
-			delete App.suspendedResourceTimer;
-			var urls = [], dfdsArray = [];
-			App.suspendedResources.each(function(dfds, url) {
-				dfdsArray.push(dfds);
-				urls.push(url);
-			});
-
-			var delim = "<!----####---->";
-			$.ajax("loadRes?urls=" + encodeURIComponent(urls.join("|")) + "&delim=" + encodeURIComponent(delim), {
-				dataType: "text",
-				cache: true,
-				timeout: 60000
-			}).done(function (text) {
-				var sections = text.split(delim), index = 0;
-				for (var i = 0; i < dfdsArray.length; i++) {
-					var dfds = dfdsArray[i];
-					for (var j = 0; j < dfds.length; j++) {
-						var dfd = dfds[j];
-						dfd.resolve.call(dfd, sections[index]);
-					}
-					index++;
-				}
-			}).fail(function () {
-				var firstDfd = dfdsArray[0][0];
-				firstDfd.reject.apply(firstDfd, arguments);
-			});
-		};
-
-		var oldLoadResource = cola._loadResource;
-		cola._loadResource = function (context, url) {
-			if (/^(http[s]?:)?\/\//.test(url)) {
-				return oldLoadResource.call(cola, context, url);
-			}
-			else {
-				var dfd = $.Deferred();
-				var dfds = App.suspendedResources.get(url);
-				if (!dfds) {
-					App.suspendedResources.add(url, [dfd]);
-				}
-				else {
-					dfds.push(dfd);
-				}
-
-				if (!App.suspendedResourceTimer) {
-					App.suspendedResourceTimer = setTimeout(App.loadSuspendedResources, 0);
-				}
-				return dfd;
-			}
-		};
-
 		cola(function (model) {
-			$.Deferred(function(dfd) {
-				setTimeout(function() {
-					dfd.resolve("Yeah!");
-				}, 100);
-			}).done(function(text) {
-				console.log("1: " + text);
-			}).done(function(text) {
-				console.log("2: " + text);
-				return $.Deferred(function(dfd) {
-					setTimeout(function() {
-						dfd.resolve("Yeah Again!");
-					}, 100);
-				});
-			}).done(function(text) {
-				console.log("3: " + text);
-			});
-
 			model.set("name", "Tom");
 
 			model.set("languages", [
@@ -107,50 +36,6 @@
 						var subView = cola.widget("subView");
 						subView.unload();
 					}
-				},
-				btnTestPromise: {
-					$type: "button",
-					caption: "Test Promise",
-					click: function () {
-						var tasks = [];
-
-						tasks.push($.Deferred(function (dfd) {
-							setTimeout(function () {
-								var result = "A";
-								console.log(result);
-								dfd.resolve(result);
-							}, 100);
-						}));
-						tasks.push($.Deferred(function (dfd) {
-							setTimeout(function () {
-								var result = "B";
-								console.log(result);
-								dfd.resolve(result);
-							}, 500);
-						}));
-						tasks.push($.Deferred(function (dfd) {
-							setTimeout(function () {
-								var result = "C";
-								console.log(result);
-								dfd.resolve(result);
-							}, 200);
-						}));
-
-						var deferreds = [];
-						deferreds.push($.when.apply($, tasks).done(function () {
-							console.log("1: " + Array.prototype.join.call(arguments, ","));
-							return arguments;
-						}));
-
-						deferreds.push($.when.apply($, tasks).done(function () {
-							console.log("2: " + Array.prototype.join.call(arguments, ","));
-							return arguments;
-						}));
-
-						$.when.apply($, deferreds).done(function () {
-							console.log("finished: " + Array.prototype.join.call(arguments, ","));
-						})
-					}
 				}
 			});
 		});
@@ -161,11 +46,12 @@
 
 <div id="btnLoad"></div>
 <div id="btnUnload"></div>
-<div id="btnTestPromise"></div>
 
 <p></p>
 
-<c-subview id="subView" url="sub-view-1.html" cssUrl="$" jsUrl="sub-view-1-b.js|$" c-param="param"
+<c-subview c-alias="languages.name as name;languages as languages2" id="subView" url="sub-view-1.html" cssUrl="$"
+		   jsUrl="$"
+		   c-param="param"
 		   style="height:480px"></c-subview>
 
 </body>
