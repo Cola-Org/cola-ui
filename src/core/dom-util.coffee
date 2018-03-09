@@ -74,6 +74,7 @@ cola.util.userData = (node, key, data)->
 				userData[id] = store = {
 					__cleanStamp: cleanStamp
 				}
+				userData.size++
 
 		store[key] = data
 
@@ -95,6 +96,7 @@ cola.util.userData = (node, key, data)->
 			userData[id] = store = {
 				__cleanStamp: cleanStamp
 			}
+			userData.size++
 			for k, v of key
 				store[k] = v
 	else if arguments.length is 1
