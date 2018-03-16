@@ -335,33 +335,34 @@ class cola.Field extends cola.Widget
 
 		$dom = @get$Dom()
 		if message
-			$dom.addClass(message.type)
+			$dom.removeClass("error warn info").addClass(message.type)
 			if not @_messageDom
 				@_messageDom = document.createElement("message")
 				@getDom().appendChild(@_messageDom)
-				$fly(@_messageDom).popup({
+				$fly(@_messageDom).popup(
 					position: "bottom center"
-				})
-
+				)
 		else if @_state
 			$dom.removeClass(@_state)
 
 		if @_messageDom
 			$message = $fly(@_messageDom)
 			if message
-				$message.addClass(message.type)
-				if $message.hasClass("text")
-					$message.text(message.text)
+				$message.prop("className", message.type)
 			else
-				$message.removeClass(@_state).empty()
+				$message.prop("className", "")
 
 		if message
-			$dom.attr("data-content", message.text).popup({
-				position: "bottom center"
-			})
+			$dom.attr("data-content", message.text)
+			if not @_message
+				$dom.popup({
+					position: "bottom center"
+				})
 		else
-			$dom.attr("data-content", null).popup("destroy")
+			if @_message
+				$dom.attr("data-content", null).popup("destroy")
 
+		@_message = message
 		@_state = message?.type
 
 		@_form?.refreshMessages()

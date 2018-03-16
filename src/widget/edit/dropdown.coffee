@@ -12,6 +12,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	@attributes:
 		items:
 			expressionType: "repeat"
+			expressionNegative: true
 			setter: (items)->
 				if typeof items is "string"
 					items = items.split(/[,;]/)
@@ -835,6 +836,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		if attrBinding
 			list.set("bind", attrBinding.expression.raw)
 		else
+			@_refreshAttrValue("items")
 			list.set("items", @_items)
 		list.refresh()
 

@@ -312,20 +312,21 @@ class cola.Widget extends cola.RenderableElement
 		swipeDown:
 			hammerEvent: "swipedown"
 
-	_initDom: (dom)->
-		super(dom)
-		popup = @_popup
-		if popup
-			popupOptions = {}
-			if typeof popup is "string" or (popup.constructor == Object.prototype.constructor and popup.tagName) or popup.nodeType is 1
-				popupOptions.html = cola.xRender(popup)
-			else if popup.constructor == Object.prototype.constructor
-				popupOptions = popup
-				if popupOptions.content
-					popupOptions.html = cola.xRender(popupOptions.content)
-				else if popupOptions.html
-					popupOptions.html = cola.xRender(popupOptions.html)
-			$fly(dom).popup(popupOptions)
+#	_initDom: (dom)->
+#		super(dom)
+#		popup = @_popup
+#		if popup
+#			popupOptions = {}
+#			if typeof popup is "string" or (popup.constructor == Object.prototype.constructor and popup.tagName) or popup.nodeType is 1
+#				popupOptions.html = cola.xRender(popup)
+#			else if popup.constructor == Object.prototype.constructor
+#				popupOptions = popup
+#				if popupOptions.content
+#					popupOptions.html = cola.xRender(popupOptions.content)
+#				else if popupOptions.html
+#					popupOptions.html = cola.xRender(popupOptions.html)
+#			$fly(dom).popup(popupOptions)
+#		return
 
 	_setDom: (dom, parseChild)->
 		return unless dom

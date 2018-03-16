@@ -138,9 +138,10 @@ class cola.SubView extends cola.Widget
 		url = @_url
 		jsUrl  = @_jsUrl
 		cssUrl = @_cssUrl
-		url = options.url if options.url
-		jsUrl = options.jsUrl if options.jsUrl
-		cssUrl = options.cssUrl if options.cssUrl
+		if options
+			url = options.url if options.url
+			jsUrl = options.jsUrl if options.jsUrl
+			cssUrl = options.cssUrl if options.cssUrl
 
 		if @_loadingDeferred
 			if @_currentUrl is url and @_currentJsUrl is jsUrl and @_currentCssUrl is cssUrl
