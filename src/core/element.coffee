@@ -258,9 +258,7 @@ class cola.Element
 				else if typeof value is "string"
 					for actionName in value.split(",")
 						if actionName
-							action = @_scope?.action(actionName)
-							if action
-								@on(attr, action)
+							@on(attr, (self, arg)=> @_scope?.action(actionName)(self, arg))
 					return
 
 			if ignoreError then return
@@ -286,7 +284,8 @@ class cola.Element
 			if expression.isStatic
 				value = expression.evaluate(scope, "never")
 			else
-				elementAttrBinding = new cola.ElementAttrBinding(@, attr, expression, scope)
+				elementAttrBinding = new cola.ElementAttrBinding(
+				  @, attr, expression, scope, attrConfig?.expressionNegative)
 
 				@_elementAttrBindings ?= {}
 				elementAttrBindings = @_elementAttrBindings
@@ -310,6 +309,12 @@ class cola.Element
 				return
 
 		@["_" + (attrConfig?.name or attr)] = value
+		return
+
+	_refreshAttrValue: (attr)->
+		if @constructor.attributes.$has(attr)
+			elementAttrBinding = @_elementAttrBindings?[attr]
+			elementAttrBinding?.refresh()
 		return
 
 	_on: (eventName, listener, alias, once)->

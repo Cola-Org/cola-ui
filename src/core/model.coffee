@@ -133,12 +133,6 @@ class cola.Scope
 	hasExBinding: ()->
 		return @_hasExBinding
 
-	setHasExBinding: (hasExBinding)->
-		return if @_hasExBinding is hasExBinding
-		@_hasExBinding = hasExBinding
-		@parent?.setHasExBinding(true) if hasExBinding
-		return
-
 	registerChild: (childScope)->
 		@_childScopes ?= []
 		@_childScopes.push(childScope)
@@ -173,7 +167,7 @@ class cola.Model extends cola.Scope
 			parent = cola.model(parentName)
 
 		@parent = parent
-		@setHasExBinding(true)
+		@_hasExBinding = true
 
 		@data = new cola.DataModel(@)
 
@@ -1264,13 +1258,18 @@ class cola.SubDataModel extends cola.AbstractDataModel
 	_isExBindingPath: (path)->
 		return not @_aliasMap[path[0]]
 
-	_bind: (path, processor)->
-		super(path, processor)
-
+	_testHasExBinding: (path)->
 		if not @_exBindingProcessed and @_isExBindingPath(path)
 			@_exBindingProcessed = true
-			@model.setHasExBinding(true)
-			@model.watchAllMessages()
+			model = @model
+			model._hasExBinding = true
+			model.watchAllMessages()
+			model.parent?._testHasExBinding?(path)
+		return
+
+	_bind: (path, processor)->
+		super(path, processor)
+		@_testHasExBinding(path)
 		return
 
 	get: (path, loadMode, context)->
@@ -1526,19 +1525,21 @@ Element binding
 ###
 
 class cola.ElementAttrBinding
-	constructor: (@element, @attr, @expression, scope)->
+	constructor: (@element, @attr, @expression, scope, @negative)->
 		@scope = scope
 		@paths = @expression.paths or []
 		@watchingMoreMessage = not @paths.length and @expression.hasComplexStatement and not @expression.hasDefinedPath
 
-		for path in @paths
-			scope.data.bind(path, @)
+		if not @negative
+			for path in @paths
+				scope.data.bind(path, @)
 
 	destroy: ()->
-		paths = @paths
-		if paths
-			for path in paths
-				@scope.data.unbind(path, @)
+		if not @negative
+			paths = @paths
+			if paths
+				for path in paths
+					@scope.data.unbind(path, @)
 		return
 
 	processMessage: (bindingPath, path, type)->

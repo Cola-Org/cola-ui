@@ -1373,7 +1373,9 @@ class cola.Table.InnerTable extends cola.AbstractList
 					dom._popupSetted = true
 				dom._hasState = true
 			else if dom._hasState
-				$cell.removeClass("info warn error").attr("data-content", "").popup("destroy")
+				$cell.removeClass("info warn error")
+				if dom._popupSetted
+					$cell.attr("data-content", "").popup("destroy")
 				dom._hasState = false
 				dom._popupSetted = false
 

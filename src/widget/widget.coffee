@@ -427,6 +427,7 @@ class cola.Widget extends cola.RenderableElement
 		@_focused = false
 		@get$Dom().removeClass("focused")
 		@_onBlur?()
+		@fire("blur", @)
 		return
 
 	onKeyDown: (evt)->

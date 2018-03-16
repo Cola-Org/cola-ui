@@ -69,7 +69,6 @@ class cola.Textarea extends cola.AbstractEditor
 			@_focused = false
 			@removeClass("focused")
 			@_refreshInputValue(@_value)
-			@fire("blur", @)
 
 			if !@_value? or @_value is "" and @_bindInfo?.writeable
 				propertyDef = @getBindingProperty()
