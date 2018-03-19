@@ -17,7 +17,7 @@
 			attributes: {
 				blockTemplate: {
 					readOnlyAfterCreate: true,
-					setter: function(blockTemplate) {
+					setter: function (blockTemplate) {
 						if (blockTemplate instanceof cola.Entity) {
 							blockTemplate = blockTemplate.toJSON();
 						}
@@ -26,15 +26,13 @@
 				}
 			},
 			template: {
-				content: {
-					tagName: "c-panel",
-					"c-caption": "=template.caption",
-					content: [
-						{
-							class: "content"
-						}
-					]
-				}
+				tagName: "c-panel",
+				"c-caption": "=template.caption",
+				content: [
+					{
+						class: "content"
+					}
+				]
 			},
 			initDom: function (dom) {
 				if (this._blockTemplate) {
@@ -92,7 +90,7 @@
 				}
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderFormList: function ($dom, template) {
+			_renderFormList: function (dom, template) {
 				var index = template.dataPath.lastIndexOf(".");
 				var parentPath = template.dataPath.substring(0, index);
 				var listProperty = template.dataPath.substring(index + 1);
@@ -141,7 +139,7 @@
 				];
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderTable: function ($dom, template) {
+			_renderTable: function (dom, template) {
 				var elements = template.elements, columns = [];
 				if (elements) {
 					for (var i = 0, len = elements.length; i < len; i++) {
@@ -196,7 +194,7 @@
 				];
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderSubView: function ($dom, template) {
+			_renderSubView: function (dom, template) {
 				var coson = {
 					tagName: "c-subview",
 					url: template.url,
@@ -210,7 +208,7 @@
 				}
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderHtml: function ($dom, template) {
+			_renderHtml: function (dom, template) {
 				var coson = {
 					html: template.content
 				};
@@ -219,7 +217,7 @@
 				}
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderCoson: function ($dom, template) {
+			_renderCoson: function (dom, template) {
 				var coson = {
 					content: template.content
 				};
@@ -228,7 +226,7 @@
 				}
 				dom.appendChild(cola.xRender(coson, this.get("model")));
 			},
-			_renderIFrame: function ($dom, template) {
+			_renderIFrame: function (dom, template) {
 				$dom.xAppend({
 					tagName: "c-iframe",
 					path: template.url
@@ -243,11 +241,10 @@
 			model.set("template", template);
 
 			var blocks = [];
-			model.get("template.blocks").each(function(blockTemplate) {
+			model.get("template.blocks").each(function (blockTemplate) {
 				blocks.push(new cola.Block({
 					blockTemplate: blockTemplate
 				}));
-				return false;
 			});
 			document.body.appendChild(cola.xRender(blocks, model));
 		});
