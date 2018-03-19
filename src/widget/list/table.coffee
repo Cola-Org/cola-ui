@@ -388,8 +388,10 @@ class cola.Table extends cola.Widget
 				  (innerTable.scrollWidth / innerTable.clientWidth * dom.clientWidth) + "px"
 				horiScrollBar.scrollLeft = innerTable.scrollLeft / innerTable.scrollWidth * horiScrollBar.scrollWidth
 				horiScrollBar.style.display = ""
-		else if @_horiScrollBar
-			@_horiScrollBar.style.display = "none"
+
+			@_$dom.addClass("h-scroll")
+		else
+			@_$dom.removeClass("h-scroll")
 
 		tableBody = @_centerTable._doms.tableBody
 		if tableBody.scrollHeight > (tableBody.clientHeight + 2)
@@ -812,7 +814,7 @@ class cola.Table extends cola.Widget
 			@_rightTable?._refreshItemsScheduled = true
 			@_centerTable._refreshItemsScheduled = true
 
-			@_classNamePool.toggle("scroll", @_scrollMode is "scroll")
+			@_classNamePool.toggle("v-scroll", @_scrollMode is "scroll")
 			@_classNamePool.toggle("has-left-pane", @_realLeftFixedCols > 0)
 			@_classNamePool.toggle("has-right-pane", @_realRightFixedCols > 0)
 			@_refreshItems()
