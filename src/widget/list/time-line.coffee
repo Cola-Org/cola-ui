@@ -1,6 +1,6 @@
 class cola.TimeLine extends cola.AbstractList
 	@tagName: "c-timeLine"
-	@CLASS_NAME: "time-line"
+	@className: "time-line"
 
 	@attributes:
 		bind:

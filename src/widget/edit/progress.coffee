@@ -1,6 +1,6 @@
 class cola.Progress extends cola.Widget
 	@tagName: "c-progress"
-	@CLASS_NAME: "progress"
+	@className: "progress"
 	@attributes:
 		total:
 			type: "number"

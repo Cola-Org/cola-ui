@@ -18,7 +18,7 @@ class cola.NestedListBind extends cola.CascadeBind
 
 class cola.NestedList extends cola.Widget
 	@tagName: "c-nestedList"
-	@CLASS_NAME: "nested-list"
+	@className: "nested-list"
 
 	@attributes:
 		bind:

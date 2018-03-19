@@ -7,7 +7,7 @@ cola.findDropDown = (target)->
 	return layer?._dropdown
 
 class cola.AbstractDropdown extends cola.AbstractInput
-	@CLASS_NAME: "input drop"
+	@className: "input drop"
 
 	@attributes:
 		items:
@@ -514,7 +514,7 @@ cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
 
 class cola.DropBox extends cola.Layer
 	@tagName: "c-drop-box"
-	@CLASS_NAME: "drop-box transition"
+	@className: "drop-box transition"
 	@attributes:
 		height:
 			setter: (height)->

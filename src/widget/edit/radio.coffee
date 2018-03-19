@@ -1,6 +1,6 @@
 class cola.RadioGroup extends cola.AbstractEditor
 	@tagName: "c-radio-group"
-	@CLASS_NAME: "ui radio-group"
+	@className: "ui radio-group"
 	@attributes:
 		items:
 			expressionType: "repeat"

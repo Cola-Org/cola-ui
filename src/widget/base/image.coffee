@@ -1,7 +1,7 @@
 class cola.Image extends cola.Widget
 	@tagName: "c-img"
 
-	@CLASS_NAME: "image"
+	@className: "image"
 	@attributes:
 		src:
 			refreshDom: true
@@ -36,4 +36,4 @@ class cola.Image extends cola.Widget
 		return
 
 class cola.Avatar extends cola.Image
-	@CLASS_NAME: "avatar image"
+	@className: "avatar image"

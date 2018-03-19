@@ -3,7 +3,7 @@
 ###
 class cola.ToolbarButton extends cola.Widget
 	@tagName: "c-toolbar-button"
-	@CLASS_NAME: "toolbar-button"
+	@className: "toolbar-button"
 	@attributes:
 		caption:
 			refreshDom: true
@@ -73,7 +73,7 @@ class cola.ToolbarButton extends cola.Widget
 
 class cola.Toolbar extends cola.Widget
 	@tagName: "c-toolbar"
-	@CLASS_NAME: "ui toolbar"
+	@className: "ui toolbar"
 
 cola.registerWidget(cola.ToolbarButton)
 cola.registerWidget(cola.Toolbar)

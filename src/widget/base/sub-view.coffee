@@ -1,6 +1,6 @@
 class cola.SubView extends cola.Widget
 	@tagName: "c-subView"
-	@CLASS_NAME: "sub-view"
+	@className: "sub-view"
 
 	@attributes:
 		loading: null

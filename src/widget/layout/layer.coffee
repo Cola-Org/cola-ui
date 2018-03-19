@@ -77,7 +77,7 @@ class cola.AbstractLayer extends cola.AbstractContainer
 		return
 
 class cola.Layer extends cola.AbstractLayer
-	@CLASS_NAME: "layer transition hidden"
+	@className: "layer transition hidden"
 	@attributes:
 		animation:
 			defaultValue: "slide left"

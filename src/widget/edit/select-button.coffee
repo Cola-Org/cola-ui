@@ -1,6 +1,6 @@
 class cola.SelectButton extends cola.AbstractEditor
 	@tagName: "c-select-button"
-	@CLASS_NAME: "ui select-button buttons"
+	@className: "ui select-button buttons"
 	@attributes:
 		items:
 			expressionType: "repeat"

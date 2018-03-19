@@ -153,7 +153,7 @@ class cola.slotPicker.ZyngaScroller extends cola.Element
 
 class cola.AbstractSlotList extends cola.RenderableElement
 class cola.SlotList extends cola.AbstractSlotList
-    @CLASS_NAME: "list"
+    @className: "list"
     @attributes:
         viewItemCount:
             type: "number"
@@ -226,7 +226,7 @@ class cola.SlotList extends cola.AbstractSlotList
         @_doms ?= {}
         doms = @_doms
         dom = $.xCreate({
-            class: @constructor.CLASS_NAME
+            class: @constructor.className
             content: [{
                 class: "items-wrap",
                 contextKey: "body"
@@ -379,7 +379,7 @@ class cola.RangeSlotList extends cola.SlotList
         return items
 
 class cola.MultiSlotPicker extends cola.AbstractSlotList
-    @CLASS_NAME: "multi-slot-picker"
+    @className: "multi-slot-picker"
     @slotConfigs: []
     @attributes:
         height: null
@@ -387,7 +387,7 @@ class cola.MultiSlotPicker extends cola.AbstractSlotList
         picker = @
         doms = {}
         dom = $.xCreate({
-            class: @constructor.CLASS_NAME
+            class: @constructor.className
             content: [{
                 class: "body"
                 contextKey: "body"
@@ -679,7 +679,7 @@ dateTypeConfig =
 cola.mobile ?= {}
 
 class cola.mobile.DateTimePicker extends cola.MultiSlotPicker
-    @CLASS_NAME: "multi-slot-picker"
+    @className: "multi-slot-picker"
     @slotConfigs: []
     @attributes:
         type:

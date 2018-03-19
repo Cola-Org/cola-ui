@@ -2,7 +2,7 @@
 
 class cola.Segment extends cola.AbstractContainer
 	@tagName: "c-segment"
-	@CLASS_NAME: "segment"
+	@className: "segment"
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
 		"top attached", "bottom attached", "left attached", "right attached",

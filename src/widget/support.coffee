@@ -369,7 +369,11 @@ _extendWidget = (superCls, definition)->
 
 	cls::_createDom = ()->
 		if @_template
-			dom = cola.xRender(@_template or {}, @_widgetModel)
+			dom = cola.xRender({
+				tagName: @constructor.tagName or "DIV"
+				class: "ui " + (@constructor.className or "")
+				content: @_template
+			}, @_widgetModel)
 			@_domCreated = true
 			return dom
 		else

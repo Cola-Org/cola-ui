@@ -7,7 +7,7 @@ class cola.Label extends cola.Widget
 		"top attached", "bottom attached",
 		"left ribbon", "right ribbon", "center aligned"
 	]
-	@CLASS_NAME: "label"
+	@className: "label"
 	
 	@attributes:
 		text:
@@ -100,7 +100,7 @@ cola.registerWidget(cola.Label)
 
 class cola.ImageLabel extends cola.Label
 	@tagName: "c-imageLabel"
-	@CLASS_NAME: "image label"
+	@className: "image label"
 	
 	@attributes:
 		image: null
@@ -143,7 +143,7 @@ cola.registerWidget(cola.ImageLabel)
 
 class cola.PointingLabel extends cola.Label
 	@tagName: "c-pointingLabel"
-	@CLASS_NAME: "pointing label"
+	@className: "pointing label"
 	
 	@attributes:
 		pointing:
@@ -166,13 +166,13 @@ cola.registerWidget(cola.PointingLabel)
 
 class cola.Tag extends cola.Label
 	@tagName: "c-tag"
-	@CLASS_NAME: "tag label"
+	@className: "tag label"
 
 cola.registerWidget(cola.Tag)
 
 class cola.Corner extends cola.Label
 	@tagName: "c-corner"
-	@CLASS_NAME: "corner label"
+	@className: "corner label"
 	
 	@attributes:
 		position:
@@ -195,7 +195,7 @@ cola.registerWidget(cola.Corner)
 
 class cola.Ribbon extends cola.Label
 	@tagName: "c-ribbon"
-	@CLASS_NAME: "ribbon label"
+	@className: "ribbon label"
 	
 	@attributes:
 		position:

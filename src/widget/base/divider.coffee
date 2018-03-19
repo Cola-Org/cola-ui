@@ -1,6 +1,6 @@
 class cola.Divider extends cola.AbstractContainer
 	@tagName: "c-divider"
-	@CLASS_NAME: "divider"
+	@className: "divider"
 
 	@attributes:
 		direction:

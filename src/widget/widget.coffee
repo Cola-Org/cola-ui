@@ -78,7 +78,6 @@ class cola.RenderableElement extends cola.Element
 		)
 		if parseChild then @_parseDom(dom)
 
-
 		$dom = @get$Dom()
 		if @_focusable
 			if not $dom.attr("tabindex")?
@@ -107,7 +106,7 @@ class cola.RenderableElement extends cola.Element
 
 	_createDom: ()->
 		dom = document.createElement(@constructor.tagName or "div")
-		className = @constructor.CLASS_NAME or ""
+		className = @constructor.className or ""
 		if className
 			dom.className = "ui #{className}"
 		return dom
@@ -135,7 +134,7 @@ class cola.RenderableElement extends cola.Element
 			return
 
 		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
-		className = @constructor.CLASS_NAME
+		className = @constructor.className
 		if className
 			@_classNamePool.add("ui")
 			names = $.trim(className).split(" ")

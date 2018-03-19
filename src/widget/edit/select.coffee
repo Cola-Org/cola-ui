@@ -1,6 +1,6 @@
 class cola.Select extends cola.AbstractInput
 	@tagName: "c-select"
-	@CLASS_NAME: "input select"
+	@className: "input select"
 
 	@attributes:
 		options:

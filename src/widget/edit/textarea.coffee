@@ -1,7 +1,7 @@
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.Textarea extends cola.AbstractEditor
-	@CLASS_NAME: "input textarea"
+	@className: "input textarea"
 	@tagName: "c-textarea"
 	@attributes:
 		postOnInput:

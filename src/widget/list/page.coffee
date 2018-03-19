@@ -1,6 +1,6 @@
 class cola.Pager extends cola.Widget
 	@tagName: "c-pager"
-	@CLASS_NAME: "ui pager empty"
+	@className: "ui pager empty"
 	@attributes:
 		bind:
 			setter: (bindStr)-> @_bindSetter(bindStr)

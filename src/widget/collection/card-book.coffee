@@ -1,6 +1,6 @@
 class cola.CardBook extends cola.AbstractItemGroup
 	@tagName: "c-cardBook"
-	@CLASS_NAME: "card-book"
+	@className: "card-book"
 
 	@events:
 		beforeChange: null

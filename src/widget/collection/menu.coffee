@@ -1,6 +1,6 @@
 class cola.Menu extends cola.Widget
 	@tagName: "c-menu"
-	@CLASS_NAME: "ui menu"
+	@className: "ui menu"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
 	@SEMANTIC_CLASS: ["top fixed", "right fixed", "bottom fixed", "left fixed"]
 
@@ -335,7 +335,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 	@tagName: "a,item"
 	@parentWidget: cola.Menu
 
-	@CLASS_NAME: "item"
+	@className: "item"
 
 	@attributes:
 		caption:
@@ -413,7 +413,7 @@ class cola.menu.MenuItem extends cola.menu.AbstractMenuItem
 
 		return $.xCreate({
 			tagName: tagName,
-			class: @constructor.CLASS_NAME,
+			class: @constructor.className,
 			content: [
 				{
 					tagName: "span",
@@ -478,7 +478,7 @@ class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 	@tagName: "dropdown-item"
 	@parentWidget: cola.Menu
 
-	@CLASS_NAME: "dropdown item"
+	@className: "dropdown item"
 
 	@attributes:
 		icon:
@@ -490,7 +490,7 @@ class cola.menu.DropdownMenuItem extends cola.menu.MenuItem
 
 		return $.xCreate({
 			tagName: "DIV",
-			class: @constructor.CLASS_NAME,
+			class: @constructor.className,
 			content: [
 				{
 					tagName: "span"
@@ -515,7 +515,7 @@ cola.registerWidget(cola.menu.DropdownMenuItem)
 
 class cola.TitleBar extends cola.Menu
 	@tagName: "c-titlebar"
-	@CLASS_NAME: "menu title-bar"
+	@className: "menu title-bar"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
 
 	@attributes:

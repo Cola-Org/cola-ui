@@ -9,7 +9,7 @@ _createGroupArray = ()->
 
 class cola.ListView extends cola.AbstractList
 	@tagName: "c-listView"
-	@CLASS_NAME: "items-view list-view"
+	@className: "items-view list-view"
 
 	_columnsChanged: true
 

@@ -28,7 +28,7 @@ _columnsSetter = (table, columnConfigs)->
 
 class cola.Table extends cola.Widget
 	@tagName: "c-table"
-	@CLASS_NAME: "items-view widget-table"
+	@className: "items-view widget-table"
 
 	@scrollBarWidth = 10
 
@@ -1050,7 +1050,7 @@ cola.Element.mixin(cola.Table, cola.TemplateSupport)
 cola.Element.mixin(cola.Table, cola.DataItemsWidgetMixin)
 
 class cola.Table.InnerTable extends cola.AbstractList
-	@CLASS_NAME: "inner-table"
+	@className: "inner-table"
 
 	manageItemScope: false
 

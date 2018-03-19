@@ -1,6 +1,6 @@
 class cola.Sidebar extends cola.AbstractLayer
 	@tagName: "c-sidebar"
-	@CLASS_NAME: "ui sidebar"
+	@className: "ui sidebar"
 
 	@attributes:
 		direction:

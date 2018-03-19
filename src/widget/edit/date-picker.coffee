@@ -1,5 +1,5 @@
 class cola.DateGrid extends cola.RenderableElement
-	@CLASS_NAME: "calendar"
+	@className: "calendar"
 	@attributes:
 		columnCount:
 			type: "number"
@@ -427,7 +427,7 @@ class cola.DateGrid extends cola.RenderableElement
 
 class cola.DatePicker extends cola.CustomDropdown
 	@tagName: "c-datepicker"
-	@CLASS_NAME: "date input drop"
+	@className: "date input drop"
 	@attributes:
 		displayFormat: null
 		inputFormat: null
@@ -599,7 +599,7 @@ class cola.DatePicker extends cola.CustomDropdown
 
 		return @_dropdownContent
 class cola.YearGrid extends cola.RenderableElement
-	@CLASS_NAME: "year-grid"
+	@className: "year-grid"
 	@tagName: "c-year-grid"
 	@attributes:
 		value:
@@ -727,7 +727,7 @@ class cola.YearGrid extends cola.RenderableElement
 		return @ unless @_dom
 		return @
 class cola.YearMonthGrid extends cola.RenderableElement
-	@CLASS_NAME: "year-month-grid"
+	@className: "year-month-grid"
 	@tagName: "c-yearMonthGrid"
 	@attributes:
 		value:
@@ -904,7 +904,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 
 class cola.YearMonthDropDown extends cola.CustomDropdown
 	@tagName: "c-yearmonthdropdown"
-	@CLASS_NAME: "year-month input date drop"
+	@className: "year-month input date drop"
 	@attributes:
 		icon:
 			defaultValue: "calendar"
@@ -954,10 +954,10 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 
 class cola.YearMonthPicker extends cola.YearMonthDropDown
 	@tagName: "c-monthpicker"
-	@CLASS_NAME: "year-month input date drop"
+	@className: "year-month input date drop"
 
 class cola.TimeEditor extends cola.Widget
-	@CLASS_NAME: "ui time-editor"
+	@className: "ui time-editor"
 	@attributes:
 		hour:
 			defaultValue: "00"

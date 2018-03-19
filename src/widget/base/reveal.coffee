@@ -4,7 +4,7 @@ Reveal 组件
 
 class cola.Reveal extends cola.Widget
 	@tagName: "c-reveal"
-	@CLASS_NAME: "ui reveal"
+	@className: "ui reveal"
 
 	@attributes:
 		type:

@@ -1,6 +1,6 @@
 class cola.Form extends cola.Widget
 	@tagName: "c-form"
-	@CLASS_NAME: "form"
+	@className: "form"
 
 	@attributes:
 		bind:
@@ -189,7 +189,7 @@ cola.registerWidget(cola.Form)
 
 class cola.Field extends cola.Widget
 	@tagName: "field"
-	@CLASS_NAME: "field"
+	@className: "field"
 
 	@attributes:
 		bind:

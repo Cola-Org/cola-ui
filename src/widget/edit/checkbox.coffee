@@ -1,6 +1,6 @@
 class cola.AbstractCheckbox extends cola.AbstractEditor
 	@tagName: "c-checkbox"
-	@CLASS_NAME: "checkbox"
+	@className: "checkbox"
 	@INPUT_TYPE: "checkbox"
 
 	@attributes:
@@ -95,7 +95,7 @@ class cola.AbstractCheckbox extends cola.AbstractEditor
 	_createDom: ()->
 		return $.xCreate({
 			tagName: "DIV"
-			class: "ui #{@constructor.CLASS_NAME}"
+			class: "ui #{@constructor.className}"
 			content: [
 				{
 					tagName: "input"

@@ -4,7 +4,7 @@
 
 class cola.Button extends cola.Widget
 	@tagName: "c-button"
-	@CLASS_NAME: "button"
+	@className: "button"
 	@attributes:
 		caption:
 			refreshDom: true
@@ -115,7 +115,7 @@ class cola.buttonGroup.Separator extends cola.Widget
 	@parentWidget: cola.ButtonGroup
 
 	@SEMANTIC_CLASS: []
-	@CLASS_NAME: "or"
+	@className: "or"
 
 	@attributes:
 		text:
@@ -145,7 +145,7 @@ class cola.ButtonGroup extends cola.Widget
 
 
 	@CHILDREN_TYPE_NAMESPACE: "button-group"
-	@CLASS_NAME: "buttons"
+	@className: "buttons"
 
 	@attributes:
 

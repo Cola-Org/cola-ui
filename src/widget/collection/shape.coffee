@@ -1,6 +1,6 @@
 class cola.Shape extends cola.AbstractItemGroup
 	@tagName: "c-shape"
-	@CLASS_NAME: "shape"
+	@className: "shape"
 
 	@attributes:
 		bind:

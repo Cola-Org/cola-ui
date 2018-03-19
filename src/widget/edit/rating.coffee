@@ -1,6 +1,6 @@
 class cola.Rating extends cola.Widget
 	@tagName: "c-rating"
-	@CLASS_NAME: "rating"
+	@className: "rating"
 
 	@attributes:
 		rating:

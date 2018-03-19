@@ -1,6 +1,6 @@
 class cola.Dialog extends cola.Layer
 	@tagName: "c-dialog"
-	@CLASS_NAME: "dialog transition hidden"
+	@className: "dialog transition hidden"
 
 	@attributes:
 		context: null

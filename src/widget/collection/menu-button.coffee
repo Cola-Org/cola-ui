@@ -10,7 +10,7 @@ class cola.ButtonMenu extends cola.Menu
 
 class cola.MenuButton extends cola.Button
 	@tagName: "c-menuButton"
-	@CLASS_NAME: "dropdown button"
+	@className: "dropdown button"
 
 	@attributes:
 		menuItems:

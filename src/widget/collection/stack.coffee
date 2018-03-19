@@ -1,7 +1,7 @@
 #TODO 关于touchEnd在此控件之外触发的情况 后续解决
 class cola.Stack extends cola.Widget
 	@tagName: "c-stack"
-	@CLASS_NAME: "stack"
+	@className: "stack"
 	@attributes:
 		touchable:
 			defaultValue: true

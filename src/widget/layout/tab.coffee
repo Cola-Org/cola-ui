@@ -7,7 +7,7 @@ $(window).resize(()->
 
 class cola.Tab extends cola.Widget
 	@tagName: "c-tab"
-	@CLASS_NAME: "c-tab"
+	@className: "c-tab"
 
 	@attributes:
 		direction:
@@ -573,7 +573,7 @@ class cola.tab.AbstractTabButton extends cola.Widget
 
 class cola.TabButton extends cola.tab.AbstractTabButton
 	@tagName: "tab"
-	@CLASS_NAME: "tab-button"
+	@className: "tab-button"
 	@parentWidget: cola.Tab
 
 	@attributes:

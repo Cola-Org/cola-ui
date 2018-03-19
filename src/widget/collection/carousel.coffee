@@ -1,6 +1,6 @@
 class cola.Carousel extends cola.AbstractItemGroup
 	@tagName: "c-carousel"
-	@CLASS_NAME: "carousel"
+	@className: "carousel"
 
 	@attributes:
 		bind:

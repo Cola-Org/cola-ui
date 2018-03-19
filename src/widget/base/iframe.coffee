@@ -1,7 +1,7 @@
 BLANK_PATH = "about:blank"
 class cola.IFrame extends cola.Widget
 	@tagName: "c-iframe"
-	@CLASS_NAME: "iframe"
+	@className: "iframe"
 
 	@attributes:
 		path:

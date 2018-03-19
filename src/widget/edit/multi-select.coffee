@@ -1,5 +1,5 @@
 class cola.MultiSelect extends cola.CustomDropdown
-	@CLASS_NAME: "ui tag-editor"
+	@className: "ui tag-editor"
 	@tagName: "c-multiSelect"
 	@events:
 		renderItem: null

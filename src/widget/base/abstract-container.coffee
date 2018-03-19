@@ -22,7 +22,6 @@ class cola.AbstractContainer extends cola.Widget
 				widget = cola.widget(child)
 				@_content.push(widget) if widget
 			child = child.nextElementSibling
-
 		return
 
 	getContentContainer: ()->

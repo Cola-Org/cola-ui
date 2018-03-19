@@ -222,7 +222,7 @@ do->
 
 
 	class cola.calendar.SwipePicker extends cola.RenderableElement
-		@CLASS_NAME: "ui swipe-picker"
+		@className: "ui swipe-picker"
 		@attributes:
 			calendar: null
 		@events:
@@ -407,7 +407,7 @@ do->
 
 
 	class cola.Calendar extends cola.Widget
-		@CLASS_NAME: "calendar"
+		@className: "calendar"
 		@tagName: "c-calendar"
 
 		@attributes:

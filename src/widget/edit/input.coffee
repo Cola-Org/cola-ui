@@ -1,7 +1,7 @@
 isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.AbstractInput extends cola.AbstractEditor
-	@CLASS_NAME: "input"
+	@className: "input"
 	@SEMANTIC_CLASS: [
 		"left floated", "right floated",
 		"corner labeled", "right labeled",
@@ -179,7 +179,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return node.nodeName is "INPUT"
 
 	_createDom: ()->
-		className = @constructor.CLASS_NAME
+		className = @constructor.className
 		@_doms ?= {}
 		inputDom = @_doms.input = @_createEditorDom()
 
@@ -369,7 +369,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 class cola.Input extends cola.AbstractInput
 	@tagName: "c-input"
-	@CLASS_NAME: "input"
+	@className: "input"
 
 	@attributes:
 		displayFormat: null

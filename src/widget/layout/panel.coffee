@@ -1,5 +1,5 @@
 class cola.Panel extends cola.AbstractContainer
-	@CLASS_NAME: "panel"
+	@className: "panel"
 	@tagName: "c-panel"
 	@attributes:
 		collapsible:
@@ -123,7 +123,6 @@ class cola.Panel extends cola.AbstractContainer
 		toolsDom.appendChild(node) for node in nodes
 		headerContent.appendChild(toolsDom)
 
-
 		@_render(headerContent, "header")
 		@_makeContentDom("content") unless @_doms.content
 		return
@@ -185,11 +184,11 @@ class cola.Panel extends cola.AbstractContainer
 cola.Element.mixin(cola.Panel, cola.TemplateSupport)
 
 class cola.FieldSet extends cola.Panel
-	@CLASS_NAME: "panel fieldset"
+	@className: "panel fieldset"
 	@tagName: "c-fieldset"
 
 class cola.GroupBox extends cola.Panel
-	@CLASS_NAME: "panel groupbox"
+	@className: "panel groupbox"
 	@tagName: "c-groupbox"
 
 cola.registerWidget(cola.Panel)

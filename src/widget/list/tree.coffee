@@ -49,7 +49,7 @@ class cola.TreeNodeBind extends cola.CascadeBind
 
 class cola.Tree extends cola.AbstractList
 	@tagName: "c-tree"
-	@CLASS_NAME: "items-view tree"
+	@className: "items-view tree"
 
 	@attributes:
 		bind:

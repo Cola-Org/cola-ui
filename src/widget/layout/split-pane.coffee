@@ -1,6 +1,6 @@
 class cola.SplitPane extends cola.Widget
 	@tagName: "c-split-pane"
-	@CLASS_NAME: "ui split-pane"
+	@className: "ui split-pane"
 
 	@attributes:
 		direction:

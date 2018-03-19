@@ -2,7 +2,7 @@ TipManager = []
 
 class cola.NotifyTip extends cola.Layer
 	@tagName: "message"
-	@CLASS_NAME: "notify-tip transition hidden message"
+	@className: "notify-tip transition hidden message"
 	@attributes:
 		type:
 			defaultValue: ""
