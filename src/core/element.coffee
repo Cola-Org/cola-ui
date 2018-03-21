@@ -258,7 +258,7 @@ class cola.Element
 				else if typeof value is "string"
 					for actionName in value.split(",")
 						if actionName
-							@on(attr, (self, arg)=> @_scope?.action(actionName)(self, arg))
+							@on(attr, (self, arg)=> self._scope?.action(actionName)(self, arg))
 					return
 
 			if ignoreError then return

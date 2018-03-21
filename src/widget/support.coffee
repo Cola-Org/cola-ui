@@ -8,19 +8,41 @@ $.xCreate.templateProcessors.push (template, context)->
 		dom = widget.getDom()
 		dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 	return dom
+	
+getElementConfigKey = (dom)->
+	dom._configKey ?=cola.uniqueId()
+	return dom._configKey
 
-cola.xCreate.attributeProcessor["c-widget"] = cola.xCreate.attributeProcessor.widgetConfig = ($dom, attrName, attrValue, context)->
+getElementConfig = (dom, context)->
+	configKey = getElementConfigKey(dom)
+	configs = context.configs
+	if not configs
+		context.configs = configs = {}
+	configs[configKey] ?= {}
+	return configs[configKey]
+
+cola.xCreate.attributeProcessor["$"] = (dom, attrName, attrValue, context)->
 	return unless attrValue
-	if typeof attrValue is "string"
-		$dom.attr(attrName, attrValue)
-	else if context
-		configKey = cola.uniqueId()
-		$dom.attr("c-widget-config", configKey)
-		widgetConfigs = context.widgetConfigs
-		if not widgetConfigs
-			context.widgetConfigs = widgetConfigs = {}
-		widgetConfigs[configKey] = attrValue
-	return
+	if typeof attrValue is "function"
+		if context.xRender
+			config = getElementConfig(dom, context)
+			config.events ?= {}
+			config.events[attrName] = attrValue
+			return false
+	else if typeof attrValue is "object"
+		config = getElementConfig(dom, context)
+		config[attrName] = attrValue
+		return false
+	return true
+
+cola.xCreate.attributeProcessor["c-widget"] = (dom, attrName, attrValue, context)->
+	return unless attrValue
+	if typeof attrValue is "object"
+		if context
+			widgetConfig = getElementWidgetConfig(dom, context)
+			$.extend(widgetConfig, attrValue)
+		return
+	return true
 
 cola.Model::widgetConfig = (id, config)->
 	if arguments.length is 1
@@ -125,9 +147,9 @@ _compileWidgetAttribute = (scope, dom, context)->
 				importNames = null
 				for p, v of config
 					importName = null
-					if p.charCodeAt(0) == 64 # `@`
+					if p.charCodeAt(0) is 64 # `@`
 						importName = p.substring(1)
-					else if p == "$type" and typeof v == "string" and v.charCodeAt(0) == 35 # `#`
+					else if p is "$type" and typeof v is "string" and v.charCodeAt(0) is 35 # `#`
 						importName = v.substring(1)
 					if importName
 						delete config[p]
@@ -151,9 +173,9 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 	parentWidget = context.parentWidget
 	tagName = dom.tagName
 
-	configKey = dom.getAttribute("c-widget-config")
+	configKey = dom._configKey
 	if configKey
-		dom.removeAttribute("c-widget-config")
+		delete dom._configKey
 		config = context.widgetConfigs?[configKey]
 		if config
 			if jsonConfig
@@ -341,7 +363,7 @@ _extendWidget = (superCls, definition)->
 		cls.__super__.constructor.call(@, config)
 		return
 
-	`extend(cls, superCls)`
+	extend(cls, superCls)
 
 	cls.tagName = definition.tagName?.toUpperCase() or ""
 	cls.parentWidget = definition.parentWidget if definition.parentWidget

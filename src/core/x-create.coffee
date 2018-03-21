@@ -4,7 +4,7 @@ oldIE = `!-[1,]`
 $.xCreate = xCreate = (template, context)->
 
 	isSimpleValue = (value)->
-		if value == null or value == undefined then return true
+		if value == null then return true
 		type = typeof value
 		return type isnt "object" and type isnt "function" or value instanceof Date
 
@@ -43,7 +43,7 @@ $.xCreate = xCreate = (template, context)->
 		content = template.content
 		if content?
 			if isSimpleValue(content)
-				if typeof content == "string" and content.charAt(0) == '^'
+				if typeof content is "string" and content.charAt(0) is '^'
 					appendChild(el, document.createElement(content.substring(1)))
 				else
 					$el.text(content)
@@ -51,7 +51,7 @@ $.xCreate = xCreate = (template, context)->
 				if content instanceof Array
 					for part in content
 						if isSimpleValue(part)
-							if typeof part == "string" and part.charAt(0) == '^'
+							if typeof part is "string" and part.charAt(0) is '^'
 								appendChild(el, document.createElement(part.substring(1)))
 							else
 								appendChild(el, document.createTextNode(part))
@@ -70,51 +70,58 @@ $.xCreate = xCreate = (template, context)->
 xCreate.templateProcessors = []
 
 xCreate.attributeProcessor =
-	data: ($el, attrName, attrValue, context)->
-		$el.data(attrValue)
+	data: (el, attrName, attrValue, context)->
+		$fly(el).data(attrValue)
 		return
 
-	style: ($el, attrName, attrValue, context)->
-		if typeof attrValue == "string"
-			$el.attr("style", attrValue)
+	style: (el, attrName, attrValue, context)->
+		if typeof attrValue is "string"
+			el.style = attrValue
 		else if attrValue != null
-			$el.css(attrValue)
+			$fly(el).css(attrValue)
 		return
 
 setAttrs = (el, $el, attrs, context)  ->
+	defaultAttributeProcessor = xCreate.attributeProcessor["$"]
+
 	for attrName of attrs
 		attrValue = attrs[attrName]
 		if attrValue is undefined then continue
 
 		attributeProcessor = xCreate.attributeProcessor[attrName]
 		if attributeProcessor
-			attributeProcessor($el, attrName, attrValue, context)
-		else
-			switch attrName
-				when "tagName", "nodeName", "content", "html"
-					continue
-				when "contextKey"
-					if context instanceof Object and attrValue and typeof attrValue == "string"
-						context[attrValue] = el
-				when "data"
-					if typeof attrValue is "object" and not (attrValue instanceof Date)
-						for k, v of attrValue
-							$el.data(k, v)
-					else
-						$el.attr("data", attrValue)
-				when "classname"
-					$el.attr("class", attrValue)
+			if attributeProcessor(el, attrName, attrValue, context) isnt true
+				continue
+
+		if defaultAttributeProcessor
+			if defaultAttributeProcessor(el, attrName, attrValue, context) isnt true
+				continue
+
+		switch attrName
+			when "tagName", "nodeName", "content", "html"
+				continue
+			when "contextKey"
+				if context instanceof Object and attrValue and typeof attrValue is "string"
+					context[attrValue] = el
+			when "data"
+				if typeof attrValue is "object" and not (attrValue instanceof Date)
+					for k, v of attrValue
+						$el.data(k, v)
 				else
-					if typeof attrValue is "function"
-						$el.on(attrName, attrValue)
-					else
-						if typeof attrValue is "boolean"
-							attrValue = attrValue + ""
-						el.setAttribute(attrName, attrValue)
+					$el.attr("data", attrValue)
+			when "classname"
+				$el.attr("class", attrValue)
+			else
+				if typeof attrValue is "function"
+					$el.on(attrName, attrValue)
+				else
+					if typeof attrValue is "boolean"
+						attrValue = attrValue + ""
+					el.setAttribute(attrName, attrValue)
 	return
 
 appendChild = (parentEl, el)->
-	if parentEl.nodeName == "TABLE" and el.nodeName == "TR"
+	if parentEl.nodeName is "TABLE" and el.nodeName is "TR"
 		tbody;
 		if parentEl and parentEl.tBodies[0]
 			tbody = parentEl.tBodies[0]

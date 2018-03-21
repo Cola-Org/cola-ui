@@ -11,14 +11,13 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		return realPath
 
 	get: (path, loadMode, context)->
-		cc = path.charCodeAt(0);
-		if cc is 64 # `@`
+		if not path or path.charCodeAt(0) is 64 # `@`
 			return @model.parent?.data.get(@_getRealPath(path), loadMode, context)
 		else
 			return @widget.get(path, true)
 
 	set: (path, value)->
-		if path.charCodeAt(0) is 64 # `@`
+		if not path or path.charCodeAt(0) is 64 # `@`
 			@model.parent?.data.set(@_getRealPath(path), value)
 		else
 			@widget.set(path, value)

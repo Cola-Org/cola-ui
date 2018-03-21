@@ -43,6 +43,10 @@
 					}
 				}
 			},
+			addNode: function(self) {
+				debugger;
+				App.addBusinessChild(model, model.get(parentPath), listProperty);
+			},
 			generateFormCoson: function (template, bind) {
 				var elements = template.elements, coson = null;
 				if (elements) {
@@ -88,9 +92,10 @@
 				if (template.alias) {
 					coson["c-alias"] = template.alias + " as " + template.dataPath;
 				}
-				dom.appendChild(cola.xRender(coson, this.get("model")));
+				dom.appendChild(cola.xRender(coson, this.get("widgetModel")));
 			},
 			_renderFormList: function (dom, template) {
+				var model = self.get("model");
 				var index = template.dataPath.lastIndexOf(".");
 				var parentPath = template.dataPath.substring(0, index);
 				var listProperty = template.dataPath.substring(index + 1);
@@ -113,7 +118,7 @@
 										{
 											tagName: "i",
 											class: "remove-button icon trash outline",
-											"c-onclick": "removeNode(item)"
+											"c-onclick": "removeNode(self, item)"
 										}
 									]
 								},
@@ -130,10 +135,7 @@
 							class: "fluid basic add-button",
 							icon: "plus",
 							caption: "添加",
-							click: function (self) {
-								var model = self.get("model");
-								App.addBusinessChild(model, model.get(parentPath), listProperty);
-							}
+							"c-onclick": "addNode(self, item)"
 						}
 					}
 				];
@@ -178,10 +180,7 @@
 								tagName: "c-button",
 								icon: "plus",
 								class: "primary icon",
-								click: function () {
-									var model = self.get("model");
-									App.addBusinessChild(model, model.get(parentPath), listProperty);
-								}
+								"c-onclick": "addNode(self)"
 							}
 						]
 					},
@@ -239,6 +238,11 @@
 	<script type="text/javascript">
 		cola(function (model) {
 			model.set("template", template);
+
+			model.set("actual", {
+				underwritingAcceptDate: new Date(),
+				underwritingResultRecord: []
+			});
 
 			var blocks = [];
 			model.get("template.blocks").each(function (blockTemplate) {

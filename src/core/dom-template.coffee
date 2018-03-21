@@ -102,7 +102,7 @@ cola.xRender = (template, model, context)->
 
 	if template.nodeType
 		dom = template
-	else if typeof template == "string"
+	else if typeof template is "string"
 		if template.match(/^\#[\w\-\$]*$/)
 			template = cola.util.getGlobalTemplate(template.substring(1))
 			dom = null
@@ -119,7 +119,9 @@ cola.xRender = (template, model, context)->
 	else
 		cola.currentScope = model
 		try
-			context ?= {}
+			context ?=
+				xRender: true
+
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()
 				for node in template

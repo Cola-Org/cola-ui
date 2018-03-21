@@ -391,6 +391,8 @@ class cola.Table extends cola.Widget
 
 			@_$dom.addClass("h-scroll")
 		else
+			if @_horiScrollBar
+				@_horiScrollBar.style.display = "none"
 			@_$dom.removeClass("h-scroll")
 
 		tableBody = @_centerTable._doms.tableBody
