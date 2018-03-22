@@ -111,36 +111,36 @@ var template = {
 			dataPath: "actual.underwritingResultRecord",
 			caption: "核保结果信息",
 			elements: [
-				{
-					property: "underwritingSn",
-					caption: "核保序号",
-					editContent: {
-						tagName: "c-input"
-					}
-				},
-				{
-					property: "underwritingDate",
-					caption: "核保日期",
-					editContent: {
-						tagName: "c-input",
-						displayFormat: "yyyy-MM-dd HH:mm:ss.fff",
-						inputFormat: "yyyy-MM-dd"
-					}
-				},
-				{
-					property: "appliedPartyId",
-					caption: "承保对象",
-					editContent: {
-						tagName: "c-input"
-					}
-				},
-				{
-					property: "underwritingComment",
-					caption: "核保意见",
-					editContent: {
-						tagName: "c-input"
-					}
-				}
+				// {
+				// 	property: "underwritingSn",
+				// 	caption: "核保序号",
+				// 	editContent: {
+				// 		tagName: "c-input"
+				// 	}
+				// },
+				// {
+				// 	property: "underwritingDate",
+				// 	caption: "核保日期",
+				// 	editContent: {
+				// 		tagName: "c-input",
+				// 		displayFormat: "yyyy-MM-dd HH:mm:ss.fff",
+				// 		inputFormat: "yyyy-MM-dd"
+				// 	}
+				// },
+				// {
+				// 	property: "appliedPartyId",
+				// 	caption: "承保对象",
+				// 	editContent: {
+				// 		tagName: "c-input"
+				// 	}
+				// },
+				// {
+				// 	property: "underwritingComment",
+				// 	caption: "核保意见",
+				// 	editContent: {
+				// 		tagName: "c-input"
+				// 	}
+				// }
 			]
 		},
 		{

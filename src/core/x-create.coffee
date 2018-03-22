@@ -93,10 +93,6 @@ setAttrs = (el, $el, attrs, context)  ->
 			if attributeProcessor(el, attrName, attrValue, context) isnt true
 				continue
 
-		if defaultAttributeProcessor
-			if defaultAttributeProcessor(el, attrName, attrValue, context) isnt true
-				continue
-
 		switch attrName
 			when "tagName", "nodeName", "content", "html"
 				continue
@@ -112,6 +108,10 @@ setAttrs = (el, $el, attrs, context)  ->
 			when "classname"
 				$el.attr("class", attrValue)
 			else
+				if defaultAttributeProcessor
+					if defaultAttributeProcessor(el, attrName, attrValue, context) isnt true
+						continue
+
 				if typeof attrValue is "function"
 					$el.on(attrName, attrValue)
 				else

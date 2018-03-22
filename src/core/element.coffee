@@ -154,6 +154,9 @@ class cola.Element
 		@_set("tag", null) if @_tag
 		return
 
+	_getExpressionScope: ()->
+		return @_scope or cola.currentScope
+
 	get: (attr, ignoreError)->
 		if attr.indexOf(".") > -1
 			paths = attr.split(".")
@@ -240,13 +243,14 @@ class cola.Element
 			if @constructor.events.$has(eventName)
 				if value instanceof cola.Expression
 					expression = value
-					scope = @_scope
 					@on(attr, (self, arg)->
+						scope = self._getExpressionScope()
 						expression.evaluate(scope, "never", {
 							vars:
 								$self: self
 								$arg: arg
 								$dom: arg.dom
+								$model: scope
 								$event: arg.event
 						})
 						return
@@ -258,7 +262,8 @@ class cola.Element
 				else if typeof value is "string"
 					for actionName in value.split(",")
 						if actionName
-							@on(attr, (self, arg)=> self._scope?.action(actionName)(self, arg))
+							@on(attr, (self, arg)=>
+								self._getExpressionScope().action(actionName)(self, arg))
 					return
 
 			if ignoreError then return
@@ -280,7 +285,7 @@ class cola.Element
 
 		if value instanceof cola.Expression and cola.currentScope
 			expression = value
-			scope = cola.currentScope
+			scope = @_getExpressionScope()
 			if expression.isStatic
 				value = expression.evaluate(scope, "never")
 			else

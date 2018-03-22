@@ -1,7 +1,7 @@
 class cola.Label extends cola.Widget
 	@tagName: "c-label"
 
-	@SEMANTIC_CLASS: [
+	@semanticClass: [
 		"left floated", "right floated",
 		"left top attached", "right top attached", "right bottom attached", "left bottom attached",
 		"top attached", "bottom attached",

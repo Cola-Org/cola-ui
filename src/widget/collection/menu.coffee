@@ -2,7 +2,7 @@ class cola.Menu extends cola.Widget
 	@tagName: "c-menu"
 	@className: "ui menu"
 	@CHILDREN_TYPE_NAMESPACE: "menu"
-	@SEMANTIC_CLASS: ["top fixed", "right fixed", "bottom fixed", "left fixed"]
+	@semanticClass: ["top fixed", "right fixed", "bottom fixed", "left fixed"]
 
 	@attributes:
 		items:

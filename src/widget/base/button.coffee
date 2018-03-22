@@ -114,7 +114,7 @@ class cola.buttonGroup.Separator extends cola.Widget
 	@tagName: "separator"
 	@parentWidget: cola.ButtonGroup
 
-	@SEMANTIC_CLASS: []
+	@semanticClass: []
 	@className: "or"
 
 	@attributes:

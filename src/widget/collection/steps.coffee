@@ -3,7 +3,7 @@ class cola.Steps extends cola.Widget
 
 	@CHILDREN_TYPE_NAMESPACE: "steps"
 	@className: "steps"
-	@SEMANTIC_CLASS: ["tablet stackable", "left floated", "right floated"]
+	@semanticClass: ["tablet stackable", "left floated", "right floated"]
 
 	@attributes:
 		size:

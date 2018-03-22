@@ -2,7 +2,7 @@ isIE11 = (/Trident\/7\./).test(navigator.userAgent)
 
 class cola.AbstractInput extends cola.AbstractEditor
 	@className: "input"
-	@SEMANTIC_CLASS: [
+	@semanticClass: [
 		"left floated", "right floated",
 		"corner labeled", "right labeled",
 		"left icon", "left action"

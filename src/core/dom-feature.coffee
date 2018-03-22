@@ -389,6 +389,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 			try
 				return @evaluate(domBinding, {
 					vars:
+						$model: cola.currentScope
 						$event: evt
 				}, "never")
 			finally

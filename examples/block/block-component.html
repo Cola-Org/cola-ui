@@ -43,10 +43,6 @@
 					}
 				}
 			},
-			addNode: function(self) {
-				debugger;
-				App.addBusinessChild(model, model.get(parentPath), listProperty);
-			},
 			generateFormCoson: function (template, bind) {
 				var elements = template.elements, coson = null;
 				if (elements) {
@@ -135,7 +131,9 @@
 							class: "fluid basic add-button",
 							icon: "plus",
 							caption: "添加",
-							"c-onclick": "addNode(self, item)"
+							click: function (self) {
+								self.addNode(parentPath, listProperty);
+							}
 						}
 					}
 				];
@@ -163,7 +161,14 @@
 						content: {
 							tagName: "i",
 							class: "remove-button icon trash outline",
-							"c-onclick": "removeNode(item)"
+							style: "display:block;background:yellow",
+							click: function() {
+								debugger
+								var model = cola.currentScope;
+								var node = model.get("node");
+								node.remove()
+								// App.removeBusinessChild(model, node);
+							}
 						}
 					}
 				});
@@ -180,13 +185,18 @@
 								tagName: "c-button",
 								icon: "plus",
 								class: "primary icon",
-								"c-onclick": "addNode(self)"
+								click: function (self) {
+									var model = self.get("model");
+									var parent = model.get(parentPath);
+									parent.createChild(listProperty);
+									// App.addBusinessChild(model, parent, listProperty);
+								}
 							}
 						]
 					},
 					{
 						$type: "table",
-						bind: "item in " + template.dataPath,
+						bind: "node in " + template.dataPath,
 						columns: columns,
 						columnStretchable: false
 					}

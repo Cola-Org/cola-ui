@@ -4,6 +4,7 @@ PAN_VERTICAL_events = [ "panUp", "panDown" ]
 SWIPE_VERTICAL_events = [ "swipeUp", "swipeDown" ]
 if typeof document.documentElement.style.flex != "string"
 	$(document.documentElement).addClass("flex-unsupported")
+
 ###
     ClassName池对象
     用于刷新组件时频繁的编辑class name提高性能
@@ -133,7 +134,7 @@ class cola.RenderableElement extends cola.Element
 					return
 			return
 
-		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.SEMANTIC_CLASS)
+		@_classNamePool = new cola.ClassNamePool(@_dom.className, @constructor.semanticClass)
 		className = @constructor.className
 		if className
 			@_classNamePool.add("ui")
@@ -227,7 +228,7 @@ class cola.RenderableElement extends cola.Element
 Cola 基础组件
 ###
 class cola.Widget extends cola.RenderableElement
-	@SEMANTIC_CLASS: [ "left floated", "right floated" ]
+	@semanticClass: [ "left floated", "right floated" ]
 
 	@attributes:
 		float:

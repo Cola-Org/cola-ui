@@ -8,29 +8,21 @@ $.xCreate.templateProcessors.push (template, context)->
 		dom = widget.getDom()
 		dom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
 	return dom
-	
-getElementConfigKey = (dom)->
-	dom._configKey ?=cola.uniqueId()
-	return dom._configKey
 
-getElementConfig = (dom, context)->
-	configKey = getElementConfigKey(dom)
-	configs = context.configs
-	if not configs
-		context.configs = configs = {}
-	configs[configKey] ?= {}
-	return configs[configKey]
+_getElementConfig = (dom)->
+	dom._config ?= {}
+	return dom._config
 
 cola.xCreate.attributeProcessor["$"] = (dom, attrName, attrValue, context)->
 	return unless attrValue
 	if typeof attrValue is "function"
-		if context.xRender
-			config = getElementConfig(dom, context)
+		if context?.xRender
+			config = _getElementConfig(dom)
 			config.events ?= {}
 			config.events[attrName] = attrValue
 			return false
 	else if typeof attrValue is "object"
-		config = getElementConfig(dom, context)
+		config = _getElementConfig(dom)
 		config[attrName] = attrValue
 		return false
 	return true
@@ -39,8 +31,8 @@ cola.xCreate.attributeProcessor["c-widget"] = (dom, attrName, attrValue, context
 	return unless attrValue
 	if typeof attrValue is "object"
 		if context
-			widgetConfig = getElementWidgetConfig(dom, context)
-			$.extend(widgetConfig, attrValue)
+			config = _getElementConfig(dom)
+			$.extend(config, attrValue)
 		return
 	return true
 
@@ -127,40 +119,31 @@ _compileWidgetDom = (scope, dom, widgetType, config = {}, context)->
 	return config
 
 _compileWidgetAttribute = (scope, dom, context)->
-	widgetConfigStr = dom.getAttribute("c-config")
+	widgetConfigStr = dom.getAttribute("c-widget")
 	if widgetConfigStr
-		importNames = widgetConfigStr.split(/[,;]/)
-		config = {}
-		for importName in importNames
-			importConfig = _findWidgetConfig(scope, importName)
-			if importConfig
-				config[ip] = iv for ip, iv of importConfig
-	else
-		widgetConfigStr = dom.getAttribute("c-widget")
-		if widgetConfigStr
-			dom.removeAttribute("c-widget")
-			if context.defaultPath
-				widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
+		dom.removeAttribute("c-widget")
+		if context.defaultPath
+			widgetConfigStr = widgetConfigStr.replace(ALIAS_REGEXP, context.defaultPath)
 
-			config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
-			if config
-				importNames = null
-				for p, v of config
-					importName = null
-					if p.charCodeAt(0) is 64 # `@`
-						importName = p.substring(1)
-					else if p is "$type" and typeof v is "string" and v.charCodeAt(0) is 35 # `#`
-						importName = v.substring(1)
-					if importName
-						delete config[p]
-						importNames ?= []
-						importNames.push(importName)
+		config = cola.util.parseStyleLikeString(widgetConfigStr, "$type")
+		if config
+			importNames = null
+			for p, v of config
+				importName = null
+				if p.charCodeAt(0) is 64 # `@`
+					importName = p.substring(1)
+				else if p is "$type" and typeof v is "string" and v.charCodeAt(0) is 35 # `#`
+					importName = v.substring(1)
+				if importName
+					delete config[p]
+					importNames ?= []
+					importNames.push(importName)
 
-				if importNames
-					for importName in importNames
-						importConfig = _findWidgetConfig(scope, importName)
-						if importConfig
-							config[ip] = iv for ip, iv of importConfig
+			if importNames
+				for importName in importNames
+					importConfig = _findWidgetConfig(scope, importName)
+					if importConfig
+						config[ip] = iv for ip, iv of importConfig
 	return config
 
 cola._userDomCompiler.$.push((scope, dom, context)->
@@ -173,26 +156,29 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 	parentWidget = context.parentWidget
 	tagName = dom.tagName
 
-	configKey = dom._configKey
-	if configKey
-		delete dom._configKey
-		config = context.widgetConfigs?[configKey]
-		if config
-			if jsonConfig
-				for k, v of config
-					if not jsonConfig.hasOwnProperty(k) then jsonConfig[k] = v
-			else
-				jsonConfig = config
-
 	config = _compileWidgetAttribute(scope, dom, context)
 	if not config or (not config.$type and not config.$constr)
 		widgetType = parentWidget?.childTagNames?[tagName]
 		widgetType ?= WIDGET_TAGS_REGISTRY[tagName]
 		if widgetType
 			config = _compileWidgetDom(scope, dom, widgetType, config, context)
-	return null unless config or jsonConfig
+
+	if context?.xRender
+		elementConfig = dom._config
+		if elementConfig
+			delete dom._config
+
+	if not config and not jsonConfig
+		if elementConfig
+			if elementConfig.events
+				for eventName, handler of elementConfig.events
+					$fly(dom).on(eventName, handler)
+		return null
 
 	config ?= {}
+	if elementConfig
+		for k, v of elementConfig
+			if k isnt "events" then config[k] = v
 	if jsonConfig
 		for k, v of jsonConfig
 			if not config.hasOwnProperty(k) then config[k] = v
@@ -214,6 +200,15 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 		cola.currentScope = scope
 		try
 			widget = cola.widget(config)
+
+			if elementConfig
+				if elementConfig.events
+					for eventName, handler of elementConfig.events
+						if widget.constructor.events.$has(eventName)
+							widget.on(eventName, handler)
+						else
+							$fly(dom).on(eventName, handler)
+
 			return widget
 		finally
 			cola.currentScope = oldScope
@@ -363,7 +358,7 @@ _extendWidget = (superCls, definition)->
 		cls.__super__.constructor.call(@, config)
 		return
 
-	extend(cls, superCls)
+	`extend(cls, superCls)`
 
 	cls.tagName = definition.tagName?.toUpperCase() or ""
 	cls.parentWidget = definition.parentWidget if definition.parentWidget

@@ -11,13 +11,15 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		return realPath
 
 	get: (path, loadMode, context)->
-		if not path or path.charCodeAt(0) is 64 # `@`
+		if not path
+			return null
+		else if path.charCodeAt(0) is 64 # `@`
 			return @model.parent?.data.get(@_getRealPath(path), loadMode, context)
 		else
 			return @widget.get(path, true)
 
 	set: (path, value)->
-		if not path or path.charCodeAt(0) is 64 # `@`
+		if path.charCodeAt(0) is 64 # `@`
 			@model.parent?.data.set(@_getRealPath(path), value)
 		else
 			@widget.set(path, value)
@@ -49,7 +51,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		return super(path, processor)
 
 	_transferDynaProperty: (property)->
-		oldPath = @dynaPropertyPathMap[property]
+		oldPath = @dynaPropertyPathMap?[property]
 		path = @widget.get(property)
 
 		if path isnt oldPath?.join(".")
