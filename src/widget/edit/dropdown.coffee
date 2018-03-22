@@ -161,6 +161,36 @@ class cola.AbstractDropdown extends cola.AbstractInput
 	_doFocus: ()->
 		@_inputEdited = false
 		super()
+		@_showValueTipIfNecessary()
+		return
+
+	_doBlur: ()->
+		super()
+		if @_doms.tipDom
+			setTimeout(()=>
+				$fly(@_doms.tipDom).empty()
+				cola.util.cacheDom(@_doms.tipDom)
+			, 500)
+		return
+
+	_showValueTipIfNecessary: ()->
+		if @_useValueContent and @_doms.valueContent
+			valueContent = @_doms.valueContent
+			if valueContent.scrollWidth > valueContent.clientWidth
+				tipDom = @_doms.tipDom
+				if not tipDom
+					@_doms.tipDom = tipDom = cola.xCreate({
+						class: "dropdown-value-tip"
+					})
+				if tipDom isnt document.body
+					document.body.appendChild(tipDom)
+
+				tipDom.innerHTML = @_doms.valueContent.innerHTML
+				rect = $fly(@_dom).offset()
+				$fly(tipDom).css(
+					left: rect.left + @_dom.offsetWidth / 2
+					top: rect.top
+				)
 		return
 
 	_parseDom: (dom)->
@@ -289,11 +319,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		template = @getTemplate("value-content")
 		if template
 			valueContent.appendChild(template)
+
 		return
 
 	_getFinalOpenMode: ()->
 		openMode = @_openMode
-		if !openMode or openMode is "auto"
+		if openMode or openMode is "auto"
 			if cola.device.desktop
 				openMode = "drop"
 			else if cola.device.phone
@@ -496,6 +527,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 		@_skipFindCurrentItem = false
 		@refresh()
+		@_showValueTipIfNecessary()
 		return
 
 cola.Element.mixin(cola.AbstractDropdown, cola.TemplateSupport)
