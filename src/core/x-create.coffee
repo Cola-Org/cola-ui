@@ -104,9 +104,9 @@ setAttrs = (el, $el, attrs, context)  ->
 					for k, v of attrValue
 						$el.data(k, v)
 				else
-					$el.attr("data", attrValue)
+					el.data = attrValue
 			when "classname"
-				$el.attr("class", attrValue)
+				$el.className = attrValue
 			else
 				if defaultAttributeProcessor
 					if defaultAttributeProcessor(el, attrName, attrValue, context) isnt true

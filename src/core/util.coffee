@@ -19,9 +19,16 @@ cola.util.wrapDeferredWith = (context, originDfd, failbackArgs)->
 	return dfd
 
 cola.util.findModel = (dom)->
+	scope = cola.util.userData(dom, "scope")
+	if scope
+		return scope
+
 	domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
 	if domBinding
-		return domBinding.subScope or domBinding.scope
+		return domBinding.scope
+
+	if dom.parentNode
+		return cola.util.findModel(dom.parentNode)
 	else
 		return null
 
@@ -141,11 +148,21 @@ cola.util.format = (value, format)->
 	else
 		return value
 
-cola.util.getItemByItemDom = (itemDom)->
-	itemDom = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
-	if itemDom.scope and itemDom.scope instanceof cola.ItemScope
-		return itemDom.scope.data.getItemData()
-	return null
+cola.util.getItemByItemDom = (dom)->
+	scope = cola.util.userData(dom, "scope")
+	if scope and scope instanceof cola.ItemScope
+		return scope.data.getItemData()
+
+	domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
+	if domBinding
+		scope = domBinding.scope
+		if scope and scope instanceof cola.ItemScope
+			return scope.data.getItemData()
+
+	if dom.parentNode
+		return cola.util.getItemByItemDom(dom.parentNode)
+	else
+		return null
 
 ## URL
 

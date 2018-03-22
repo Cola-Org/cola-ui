@@ -338,7 +338,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding = cola.util.userData(dom, cola.constants.DOM_BINDING_KEY)
 		if domBinding
 			domBinding.refresh()
-			itemScope = domBinding.subScope or domBinding.scope
+			itemScope = domBinding.scope
 			if domBinding instanceof cola._RepeatDomBinding
 				currentDom = cola.util.userData(domBinding.dom, cola.constants.REPEAT_TAIL_KEY)
 

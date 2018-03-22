@@ -114,7 +114,11 @@
 										{
 											tagName: "i",
 											class: "remove-button icon trash outline",
-											"c-onclick": "removeNode(self, item)"
+											click: function () {
+												var node = cola.util.getItemByItemDom(this);
+												node.remove()
+												// App.removeBusinessChild(model, node);
+											}
 										}
 									]
 								},
@@ -132,7 +136,10 @@
 							icon: "plus",
 							caption: "添加",
 							click: function (self) {
-								self.addNode(parentPath, listProperty);
+								var model = self.get("model");
+								var parent = model.get(parentPath);
+								parent.createChild(listProperty);
+								// App.addBusinessChild(model, parent, listProperty);
 							}
 						}
 					}
@@ -157,18 +164,14 @@
 
 				columns.push({
 					width: "70px",
+					align: "center",
 					template: {
-						content: {
-							tagName: "i",
-							class: "remove-button icon trash outline",
-							style: "display:block;background:yellow",
-							click: function() {
-								debugger
-								var model = cola.currentScope;
-								var node = model.get("node");
-								node.remove()
-								// App.removeBusinessChild(model, node);
-							}
+						tagName: "i",
+						class: "remove-button icon trash outline",
+						click: function () {
+							var node = cola.util.getItemByItemDom(this);
+							node.remove()
+							// App.removeBusinessChild(model, node);
 						}
 					}
 				});

@@ -1338,7 +1338,6 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if isNew
 			template = column.getTemplate("template")
 			if template
-#				template = @_cloneTemplate(template)
 				dom.appendChild(template)
 				if column._property
 					if column._format
