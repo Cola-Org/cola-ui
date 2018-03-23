@@ -376,7 +376,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				container = new cola.Layer(config)
 			else if openMode is "sidebar"
 				config.direction = "bottom"
-				config.size = document.body.clientHeight / 2
+				config.size = document.documentElement.clientHeight / 2
 				$fly(config.dom.firstChild.firstChild).before(titleContent)
 				container = new cola.Sidebar(config)
 			else if openMode is "dialog"
@@ -433,7 +433,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				$containerDom.removeClass("hidden")
 				containerHeight = $containerDom.height()
 
-				clientHeight = document.body.clientHeight
+				clientHeight = document.documentElement.clientHeight
 				if containerHeight > (clientHeight - dropdownDialogMargin * 2)
 					height = $flexContent.height() - (containerHeight - (clientHeight - dropdownDialogMargin * 2))
 					$containerDom.addClass("hidden")
@@ -564,8 +564,7 @@ class cola.DropBox extends cola.Layer
 		else
 			if @_maxHeight
 				$dom.css("max-height", @_maxHeight)
-			else
-				$dom.css("height", "")
+			$dom.css("height", "")
 
 			$dom.removeClass("hidden")
 			boxWidth = $dom.width()
@@ -573,15 +572,14 @@ class cola.DropBox extends cola.Layer
 			$dom.addClass("hidden")
 
 		rect = $fly(dropdownDom).offset()
-		clientWidth = document.body.clientWidth - 11
-		clientHeight = document.body.clientHeight - 11
-		bottomSpace = Math.abs(clientHeight - rect.top - dropdownDom.clientHeight)
+		clientWidth = document.documentElement.clientWidth - 6
+		clientHeight = document.documentElement.clientHeight - 6
+		bottomSpace = Math.abs(document.documentElement.scrollTop + clientHeight - rect.top - dropdownDom.clientHeight)
 
 		if bottomSpace >= boxHeight
 			direction = "down"
 		else
-			scrollTop = document.documentElement.scrollTop
-			topSpace = rect.top - scrollTop - 6
+			topSpace = rect.top - document.documentElement.scrollTop - 6
 			if topSpace > bottomSpace
 				direction = "up"
 				if boxHeight > topSpace then height = topSpace
@@ -597,7 +595,7 @@ class cola.DropBox extends cola.Layer
 					if dom.firstElementChild.offsetHeight < dom.clientHeight
 						$dom.css("height", "auto")
 
-			if direction == "down"
+			if direction is "down"
 				top = rect.top + dropdownDom.clientHeight
 			else
 				top = rect.top - dom.offsetHeight + 2
@@ -615,7 +613,7 @@ class cola.DropBox extends cola.Layer
 				.css("left", left).css("top", top)
 
 		$dom.css("min-width", dropdownDom.offsetWidth || 80)
-			.css("max-width", document.body.clientWidth)
+			.css("max-width", document.documentElement.clientWidth)
 		return
 
 	show: (options, callback)->
