@@ -171,6 +171,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				$fly(tipDom).css(
 					left: rect.left + @_dom.offsetWidth / 2
 					top: rect.top
+					minWidth: @_dom.offsetWidth
 				)
 		return
 
