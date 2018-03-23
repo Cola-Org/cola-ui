@@ -140,6 +140,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		super()
 		if @_openOnActive and not @_opened and not @_finalReadOnly
 			@open()
+		if @_useValueContent
+			@_showValueTipIfNecessary()
 		return
 
 	_onBlur: ()->
@@ -149,6 +151,27 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				return
 			, 50)
 		super()
+		@_doms.tipDom and cola.util.cacheDom(@_doms.tipDom)
+		return
+
+	_showValueTipIfNecessary: ()->
+		if @_useValueContent and @_doms.valueContent
+			valueContent = @_doms.valueContent
+			if valueContent.scrollWidth > valueContent.clientWidth
+				tipDom = @_doms.tipDom
+				if not tipDom
+					@_doms.tipDom = tipDom = cola.xCreate({
+						class: "dropdown-value-tip"
+					})
+				if tipDom isnt document.body
+					document.body.appendChild(tipDom)
+
+				tipDom.innerHTML = @_doms.valueContent.innerHTML
+				rect = $fly(@_dom).offset()
+				$fly(tipDom).css(
+					left: rect.left + @_dom.offsetWidth / 2
+					top: rect.top
+				)
 		return
 
 	_parseDom: (dom)->
@@ -273,6 +296,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 			if @_useValueContent
 				$fly(@_doms.valueContent).hide()
+
+		if @_focused and @_useValueContent
+			@_showValueTipIfNecessary()
 		return
 
 	_initValueContent: (valueContent, context)->
