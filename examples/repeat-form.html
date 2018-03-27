@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<script src="./include-all.js"></script>
+
+	<script type="text/javascript">
+		cola(function (model) {
+			model.set("blocks", [
+				{
+					"label": "Block 1"
+				},
+				{
+					"label": "Block 2"
+				},
+				{
+					"label": "Block 3"
+				}
+			]);
+
+			model.action({
+				post: function (self) {
+					alert(self.get("model").get("block.label"));
+				}
+			});
+		});
+	</script>
+</head>
+<body style="padding: 20px;">
+
+<div c-repeat="block in blocks">
+	<c-form c-bind="block">
+		<field property="label">
+			<label></label>
+			<c-input post="post"></c-input>
+		</field>
+	</c-form>
+</div>
+
+</body>
+</html>
