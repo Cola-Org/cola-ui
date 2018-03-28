@@ -854,10 +854,9 @@ class cola.Dropdown extends cola.AbstractDropdown
 		list = @_list
 		list._textProperty = @_textProperty or @_valueProperty or "value"
 		if attrBinding
-			list.set("bind", attrBinding.expression.raw)
-		else
 			@_refreshAttrValue("items")
-			list.set("items", @_items)
+			list.set("bind", attrBinding.expression.raw)
+		list.set("items", @_items)
 		list.refresh()
 
 cola.registerWidget(cola.Dropdown)
