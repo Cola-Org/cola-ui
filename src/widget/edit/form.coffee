@@ -362,15 +362,15 @@ class cola.Field extends cola.Widget
 			else
 				$message.prop("className", "")
 
-		if message
-			$dom.attr("data-content", message.text)
-			if not @_message
-				$dom.popup({
-					position: "bottom center"
-				})
-		else
-			if @_message
-				$dom.attr("data-content", null).popup("destroy")
+			if message
+				$message.attr("data-content", message.text)
+				if not @_message
+					$message.popup({
+						position: "bottom center"
+					})
+			else
+				if @_message
+					$message.attr("data-content", null).popup("destroy")
 
 		@_message = message
 		@_state = message?.type
