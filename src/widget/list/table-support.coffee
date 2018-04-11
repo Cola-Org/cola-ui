@@ -57,6 +57,9 @@ class cola.TableColumn extends cola.Element
 		return
 
 	getTemplate: (type, defaultTemplate)->
+		template = @["_real_" + type]
+		return template if template isnt undefined
+
 		templateDef = @get(type) or defaultTemplate
 		return null unless templateDef
 
@@ -77,6 +80,8 @@ class cola.TableColumn extends cola.Element
 
 		if not template
 			template = @_table.getTemplate(templateDef)
+
+		@["_real_" + type] = template or null
 		return template
 
 class cola.TableGroupColumn extends cola.TableColumn
