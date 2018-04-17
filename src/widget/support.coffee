@@ -16,7 +16,7 @@ _getElementConfig = (dom)->
 cola.xCreate.attributeProcessor["$"] = (dom, attrName, attrValue, context)->
 	return unless attrValue
 	if typeof attrValue is "function"
-		if context?.xRender
+		if context?.xRenderMode
 			config = _getElementConfig(dom)
 			config.events ?= {}
 			config.events[attrName] = attrValue
@@ -163,7 +163,7 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 		if widgetType
 			config = _compileWidgetDom(scope, dom, widgetType, config, context)
 
-	if context?.xRender
+	if context?.xRenderMode
 		elementConfig = dom._config
 		if elementConfig
 			delete dom._config

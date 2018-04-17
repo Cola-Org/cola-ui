@@ -10,6 +10,8 @@
 
 <c-tree-dropdown></c-tree-dropdown>
 
+<c-query-pane></c-query-pane>
+
 <script type="text/javascript">
 	cola.defineWidget(cola.CustomDropdown, {
 		tagName: "c-tree-dropdown",
@@ -29,6 +31,176 @@
                 cssUrl: "$.less"
 			};
         }
+	});
+
+	cola.QueryPane = cola.defineWidget({
+		tagName: "c-query-pane",
+		attributes: {
+			bind: {
+				readOnlyAfterCreate: true
+			},
+			dataType: null,
+			fields: {
+				setter: function (fields) {
+					this._fields = fields;
+					if (this._form) this._form.set("fields", fields);
+				}
+			}
+		},
+		events: {
+			reset: null,
+			query: null
+		},
+		initDom: function (dom) {
+			var self = this, model = self.get("model"), fragment;
+			var formDom = dom.querySelector("c-query-form");
+			if (!formDom) {
+				dom.appendChild(cola.xRender({
+					class: "form-container",
+					content: {
+						tagName: "c-query-form",
+						bind: self._bind,
+						dataType: self._dataType
+					}
+				}, model));
+				formDom = dom.querySelector("c-query-form");
+			}
+			else {
+				formDom.setAttribute("bind", self._bind);
+				if (self._dataType) formDom.setAttribute("dataType", self._dataType);
+				cola.xRender(formDom);
+				formDom.setAttribute(cola.constants.IGNORE_DIRECTIVE, "");
+			}
+			self._formDom = formDom;
+
+			self._form = cola.widget(formDom);
+			if (self._fields) self._form.set("fields", self._fields);
+
+			fragment = cola.xRender({
+				class: "button-pane",
+				content: [
+					{
+						tagName: "c-button",
+						icon: "undo",
+						caption: "[(#{reset})]",
+						click: function () {
+							if (self.getListeners("reset")) {
+								self.fire("reset", self);
+							}
+							else {
+								model.set(self._bind, {});
+							}
+						}
+					},
+					{
+						tagName: "c-button",
+						class: "primary",
+						icon: "search",
+						caption: "[(#{query})]",
+						click: function () {
+							self.fire("query", self);
+							self.setExpand(false);
+						}
+					}
+				]
+			}, model);
+			formDom.appendChild(fragment);
+
+			var briefDom = self._briefDom = dom.querySelector("c-condition-brief");
+			if (!briefDom) {
+				self._briefDom = briefDom = $.xCreate({
+					tagName: "c-condition-brief",
+					class: "condition-brief",
+					content: [
+						{
+							tagName: "span",
+							class: "title",
+							content: "[(#{queryCondition})]"
+						},
+						{
+							tagName: "span",
+							class: "content",
+							contextKey: "_briefContent"
+						}
+					],
+					click: function () {
+						self.setExpand(true);
+					}
+				}, self);
+				dom.appendChild(briefDom);
+			}
+		},
+		refreshBrief: function () {
+			var brief = [];
+			this._formDom.querySelectorAll("field").forEach(function (fieldDom) {
+				var childDom = fieldDom.firstElementChild;
+				var label, value;
+				while (childDom) {
+					var editor = cola.widget(childDom);
+					if (editor instanceof cola.AbstractEditor) {
+						if (editor instanceof cola.TagEditor) {
+							value = editor.get("value");
+						}
+						else if (editor instanceof cola.AbstractCheckbox) {
+							if (editor.get("checked")) value = "▣";
+						}
+						else {
+							var inputDom = editor.getDom().querySelector("input");
+							if (inputDom) value = inputDom.value;
+						}
+					}
+					childDom = childDom.nextElementSibling;
+				}
+
+				if (value != null && value !== "") {
+					var labelDom = fieldDom.querySelector("label");
+					if (labelDom) label = labelDom.innerText;
+
+					brief.push({
+						tagName: "span",
+						class: "pair",
+						content: [
+							{
+								tagName: "label",
+								class: "label",
+								content: label
+							},
+							{
+								tagName: "label",
+								class: "value",
+								content: value
+							}
+						]
+					});
+				}
+			});
+
+			if (!brief.length) {
+				brief.push({
+					tagName: "span",
+					class: "pair empty",
+					content: "[(#{empty})]"
+				});
+			}
+
+			var $briefContent = $(this._briefContent).empty();
+			if ($briefContent) $briefContent.xAppend(brief);
+		},
+		setExpand: function (expanded) {
+			var dom = this.getDom(), $dom = this.get$Dom();
+			$dom.css("height", dom.offsetHeight).css("overflow", "hidden");
+			$dom.toggleClass("collapsed", !expanded);
+
+			var offsetHeight;
+			if (expanded) {
+				offsetHeight = this._formDom.parentNode.offsetHeight;
+			}
+			else {
+				this.refreshBrief();
+				offsetHeight = this._briefDom.offsetHeight;
+			}
+			$dom.css("height", offsetHeight);
+		}
 	});
 
     cola(function (model) {
