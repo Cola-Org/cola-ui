@@ -508,6 +508,7 @@ class cola.Table extends cola.Widget
 								ui.helper.dragOverColumn = null
 								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
 						drop: (evt, ui)=>
+							shouldRefreshTable = false
 							draggingColumn = ui.helper.draggingColumn
 							dragOverColumn = ui.helper.dragOverColumn
 							columns = dragOverColumn._parent?._columns
@@ -526,12 +527,16 @@ class cola.Table extends cola.Widget
 								else
 									columns.splice(i, 0, draggingColumn)
 								dragOverColumn._parent.set("columns", columns)
+								shouldRefreshTable = true
 
 							if ui.helper.dragOverCell
 								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
 								ui.helper.dragOverCell = null
 								ui.helper.dragOverColumn = null
 								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
+
+							if shouldRefreshTable
+								@_onColumnChange(true)
 							return
 					)
 				return
