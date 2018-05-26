@@ -4,6 +4,7 @@
 	position: fixed;
 	z-index: 1000;
 	display: none;
+	overflow: hidden;
 	top: 50%;
 	left: 50%;
 	text-align: left;
@@ -27,16 +28,6 @@
 
 }
 
-.ui.dialog > :first-child:not(.icon),
-.ui.dialog > .icon:first-child + * {
-	border-top-left-radius: 0.28571429rem;
-	border-top-right-radius: 0.28571429rem;
-}
-
-.ui.dialog > :last-child {
-	border-bottom-left-radius: 0.28571429rem;
-	border-bottom-right-radius: 0.28571429rem;
-}
 
 /*******************************
             Content
@@ -49,8 +40,8 @@
 .ui.dialog .close-btn {
 	cursor: pointer;
 	position: absolute;
-	top: -1rem;
-	right: -1.25rem;
+	top: 1rem;
+	right: 1rem;
 	z-index: 1;
 	border-radius: 50%;
 	font-size: 1.25em;
@@ -60,6 +51,7 @@
 	height: 2rem;
 	padding: 0;
 }
+
 
 .ui.dialog .close-btn:hover {
 
@@ -81,8 +73,7 @@
 
 .ui.dialog > .header:not(.ui) {
 	font-size: 1.42857143rem;
-	line-height: 1.2857em;
-	font-weight: bold;
+	font-weight: 400;
 }
 
 /*--------------

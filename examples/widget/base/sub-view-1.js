@@ -1,2 +1,0 @@
-cola(function (model, param) {
-});
