@@ -1,6 +1,7 @@
 @import (reference) "global";
 
 .ui.dialog, c-dialog {
+	border-radius: @border-radius;
 	position: fixed;
 	z-index: 1000;
 	display: none;
@@ -14,7 +15,6 @@
 	-webkit-transform-origin: 50% 25%;
 	-ms-transform-origin: 50% 25%;
 	transform-origin: 50% 25%;
-	border-radius: 0.28571429rem;
 	-webkit-user-select: text;
 	-moz-user-select: text;
 	-ms-user-select: text;
@@ -25,92 +25,75 @@
 	&.v-box {
 		height: auto;
 	}
+	.close-btn {
+		cursor: pointer;
+		position: absolute;
+		background: transparent;
+		top: 0.75rem;
+		right: 0.75rem;
+		margin: 0px;
+		z-index: 1;
+		font-size: 1.25em;
+		color: @fontColor;
+		line-height: 2rem;
+		width: 2rem;
+		height: 2rem;
+		padding: 0;
 
-}
+		&:hover {
+			font-size: 1.5em;
+		}
+	}
 
+	> .close-btn > i.close.icon {
+		font-family: "colafont" !important;
+		&:before {
+			content: "\e6e1" !important;
+		}
+	}
+	> .header {
+		box-sizing: border-box;
+		background: #ffffff;
+		margin: 0em;
+		padding: 1rem;
+		box-shadow: none;
+		color: rgba(0, 0, 0, 0.85);
+		border-bottom: 1px solid rgba(34, 36, 38, 0.15);
+		&:not(.ui) {
+			font-size: 1.25rem;
+			font-weight: 400;
+		}
+		> .caption {
+			margin-left: 6px;
+		}
+	}
 
-/*******************************
-            Content
-*******************************/
+	> .header, > .content, > .actions {
+		box-sizing: border-box;
+	}
 
-/*--------------
-     Close
----------------*/
+	> .actions {
+		> .button {
+			margin-left: 0.75em;
+		}
+		background: #f9fafb;
+		padding: 1rem 1rem;
+		border-top: 1px solid rgba(34, 36, 38, 0.15);
+		text-align: right;
+	}
 
-.ui.dialog .close-btn {
-	cursor: pointer;
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
-	z-index: 1;
-	border-radius: 50%;
-	font-size: 1.25em;
-	color: #ffffff;
-	line-height: 2rem;
-	width: 2rem;
-	height: 2rem;
-	padding: 0;
-}
+	> .content:not(.flex-box) {
 
+		width: 100%;
+		font-size: 1em;
+		line-height: 1.4;
+		padding: 1.5rem;
+		overflow: auto;
+		background: #ffffff;
+	}
 
-.ui.dialog .close-btn:hover {
-
-}
-
-/*--------------
-     Header
----------------*/
-
-.ui.dialog > .header {
-	box-sizing: border-box;
-	background: #ffffff;
-	margin: 0em;
-	padding: 1.25rem 1.5rem;
-	box-shadow: none;
-	color: rgba(0, 0, 0, 0.85);
-	border-bottom: 1px solid rgba(34, 36, 38, 0.15);
-}
-
-.ui.dialog > .header:not(.ui) {
-	font-size: 1.42857143rem;
-	font-weight: 400;
-}
-
-/*--------------
-     Content
----------------*/
-
-.ui.dialog > .content:not(.flex-box) {
-
-	width: 100%;
-	font-size: 1em;
-	line-height: 1.4;
-	padding: 1.5rem;
-	overflow: auto;
-	background: #ffffff;
-}
-
-/*--------------
-     Actions
----------------*/
-
-.ui.dialog .actions {
-	background: #f9fafb;
-	padding: 1rem 1rem;
-	border-top: 1px solid rgba(34, 36, 38, 0.15);
-	text-align: right;
-}
-
-.ui.dialog .actions > .button {
-	margin-left: 0.75em;
 }
 
 .ui.fixed.dimmer {
 	position: fixed !important;
-}
-
-.ui.dialog {
-	> .header, > .content, > .actions {
-		box-sizing: border-box;
-	}
 }
