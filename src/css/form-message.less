@@ -95,6 +95,7 @@ messages {
 }
 
 message, messages {
+
 	.list:not(.ui) {
 		text-align: left;
 		padding: 0em;
@@ -149,6 +150,16 @@ message, messages {
 			font-family: "Icons";
 		}
 	}
+
+	&:before {
+		position: absolute;
+		left: 1em;
+		top: 1em;
+	}
+}
+
+message {
+	padding-left: 2.5em;
 }
 
 messages {
@@ -178,6 +189,17 @@ messages {
 #c-notify-tip-container {
 	message {
 		margin: @verticalMargin 0em;
+	}
+}
+
+.ui.form {
+	.field > message {
+		padding-left: 1em;
+		&:before {
+			position: inherit;
+			left: auto;
+			top: auto;
+		}
 	}
 }
 

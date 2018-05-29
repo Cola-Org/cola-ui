@@ -1,5 +1,5 @@
 sources = require "./sources"
-
+targetDir = ""
 module.exports = (grunt) ->
 	pkg = grunt.file.readJSON "package.json"
 	grunt.initConfig
@@ -82,6 +82,11 @@ module.exports = (grunt) ->
 				cwd: "node_modules/grunt-cola-ui-build"
 				src: ["resources/**"]
 				dest: "api"
+			deploy:
+				expand: true
+				cwd: "dist"
+				src: ["./**"]
+				dest: targetDir
 
 		uglify:
 			options:
@@ -252,5 +257,7 @@ module.exports = (grunt) ->
 		"uglify:build",
 		"cssmin",
 #								 "compress",
-		"clean:workTemp", "replace:version"]
+		"clean:workTemp", "replace:version", "copy:all"]
 	grunt.registerTask "concat-all", ["build", "concat:all"]
+	if targetDir
+		grunt.registerTask "deploy", ["copy:deploy"]
