@@ -15,7 +15,6 @@
 	}
 }
 
-
 @keyframes breath {
 	.breathKeyframes()
 }
@@ -43,14 +42,13 @@
 		display: none !important;
 	}
 
-
-	.actions.alert{
-		.approve.button,.deny.button{
+	.actions.alert {
+		.approve.button, .deny.button {
 			display: none;
 		}
 	}
-	.actions:not(.alert){
-		.close.button{
+	.actions:not(.alert) {
+		.close.button {
 			display: none;
 		}
 	}
@@ -80,6 +78,12 @@
 				font-size: 1em;
 				color: @headerFontColor;
 				line-height: 2rem;
+				i {
+					font-family: "colafont" !important;
+					&:before {
+						content: "\e6e1";
+					}
+				}
 			}
 			.close-btn:hover {
 				opacity: 1;
@@ -95,7 +99,7 @@
 				&:not(.ui) {
 					font-size: 1.42857143rem;
 					line-height: 1.2857em;
-					font-weight: bold;
+
 				}
 			}
 			> .image.content {
@@ -255,6 +259,7 @@
 				}
 			}
 		}
+
 		&.simplicity {
 			.content-container {
 				> .header {
@@ -263,7 +268,7 @@
 					.caption {
 						line-height: 1.5rem;
 						font-size: 1rem;
-						font-weight: bold;
+
 						display: inline-block;
 						padding: 0.5785em 0.75em 0.75em 1em;
 					}
@@ -273,6 +278,7 @@
 						top: 0px;
 						line-height: 2.75rem;
 						right: 10px;
+
 					}
 					&::after {
 						height: 1px;
@@ -371,7 +377,6 @@
 					.caption {
 						line-height: 1.5rem;
 						font-size: 1rem;
-						font-weight: bold;
 						display: inline-block;
 						padding: 0.5785em 0.75em 0.75em 1em;
 					}
