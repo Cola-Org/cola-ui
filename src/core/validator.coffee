@@ -123,7 +123,7 @@ class cola.EmailValidator extends cola.Validator
 
 class cola.UrlValidator extends cola.Validator
 	_getDefaultMessage: (data)->
-		return cola.resource("cola.validator.error.email", data)
+		return cola.resource("cola.validator.error.url", data)
 
 	_validate: (data)->
 		if typeof data is "string"

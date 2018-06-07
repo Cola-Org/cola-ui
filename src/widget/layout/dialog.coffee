@@ -32,7 +32,7 @@ class cola.Dialog extends cola.Layer
 			defaultValue: true
 		modalOpacity:
 			type: "number"
-			defaultValue: 0.6
+			defaultValue: 0.1
 		dimmerClose:
 			type: "boolean"
 			defaultValue: false

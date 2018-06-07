@@ -257,7 +257,7 @@ module.exports = (grunt) ->
 		"uglify:build",
 		"cssmin",
 #								 "compress",
-		"clean:workTemp", "replace:version", "copy:all"]
+		"clean:workTemp", "replace:version"]
 	grunt.registerTask "concat-all", ["build", "concat:all"]
 	if targetDir
 		grunt.registerTask "deploy", ["copy:deploy"]

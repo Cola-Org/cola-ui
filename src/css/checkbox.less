@@ -1,0 +1,20 @@
+@import (reference) "global";
+
+.ui.checkbox {
+	.box:after, label:after {
+		top: 1px;
+		left: 1px;
+	}
+	.box:before, label:before {
+		border-radius: 0px;
+	}
+	&.toggle, &.slider {
+		.box:after, label:after {
+			top: 0px;
+			left: 0px;
+		}
+		.box:before, label:before {
+			border-radius: 1.25rem;
+		}
+	}
+}

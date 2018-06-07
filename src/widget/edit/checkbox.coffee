@@ -196,7 +196,7 @@ class cola.Checkbox extends cola.AbstractCheckbox
 		if @_triState and @_value isnt @_onValue and @_value isnt @_offValue
 			@_ignoreSemanticEvent = true
 			@get$Dom().checkbox("set indeterminate")
-			@_ignoreSemanticEvent = true
+			@_ignoreSemanticEvent = false
 			return
 		return super()
 

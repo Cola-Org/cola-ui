@@ -9,7 +9,7 @@
 @tableFootCellPadding: 0.4em 0.4em;
 @tableCellPadding: 0.6em 0.4em;
 
-@tableHeadBackground: white;
+@tableHeadBackground: #fbfbfb;
 @tableFootBackground: @tableHeadBackground;
 @tableCurrentCellBackground: fade(@primaryColor, 15%);
 @tableColumnDraggingHelperBackground: @tableHeadBackground;
@@ -23,14 +23,14 @@
 @tableInvertedFootLineColor: lighten(@tableInvertedFootBackground, 12%);
 @tableInvertedRowLineColor: transparent;
 @tableInvertedColLineColor: transparent;
-
+@tableBoxShadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.3);
 .ui.widget-table {
 	border: 1px solid @borderColor;
 	position: relative;
 	display: block;
 	box-sizing: border-box;
 
-	>.inner-table {
+	> .inner-table {
 		display: block;
 		position: relative;
 		overflow: hidden;
@@ -41,7 +41,7 @@
 			top: 0;
 			bottom: 0;
 			z-index: 2;
-			.box-shadow(0px 0px 1em 0px rgba(0, 0, 0, 0.1));
+			.box-shadow(@tableBoxShadow);
 			.cell, .header-cell, .footer-cell {
 				&:last-child {
 					border-right-width: 0;
@@ -56,8 +56,8 @@
 		}
 		&.center {
 			height: 100%;
-			>.table-body {
-				.box-shadow(0px 0px 1em 0px rgba(0, 0, 0, 0.1));
+			> .table-body {
+				.box-shadow(@tableBoxShadow);
 			}
 		}
 
@@ -66,7 +66,7 @@
 			left: 0;
 			overflow: hidden;
 			z-index: 1;
-			.box-shadow(0px 0px 1em 0px rgba(0, 0, 0, 0.1));
+			.box-shadow(@tableBoxShadow);
 			> table {
 				table-layout: fixed;
 				width: 0;
@@ -162,9 +162,15 @@
 		}
 	}
 
+	.header-cell, .footer-cell {
+		height: @rowHeight;
+	}
+	.cell {
+		min-height: @rowHeight;
+
+	}
 	.cell, .header-cell, .footer-cell {
 		box-sizing: border-box;
-		height: @rowHeight;
 		overflow-x: hidden;
 		overflow-y: visible;
 		font-size: 1rem;
@@ -299,7 +305,7 @@
 		}
 	}
 
-	>.scroll-bar {
+	> .scroll-bar {
 		z-index: 3;
 		&.hori {
 			position: absolute;
@@ -309,7 +315,7 @@
 			height: 10px;
 			overflow: hidden;
 			overflow-x: scroll;
-			>.fake-content {
+			> .fake-content {
 				height: 1px;
 			}
 		}
@@ -322,7 +328,7 @@
 			overflow: hidden;
 			overflow-y: scroll;
 			display: none;
-			>.fake-content {
+			> .fake-content {
 				width: 1px;
 			}
 		}
@@ -338,28 +344,28 @@
 	}
 
 	&.v-scroll {
-		>.scroll-bar.vert {
+		> .scroll-bar.vert {
 			display: block !important;
 		}
-		>.inner-table.right {
+		> .inner-table.right {
 			right: 10px;
 		}
 	}
 
 	&.h-scroll {
 		padding-bottom: 10px;
-		>.inner-table.left, >.inner-table.right, >.scroll-bar.vert {
+		> .inner-table.left, > .inner-table.right, > .scroll-bar.vert {
 			bottom: 10px;
 		}
 		&.v-scroll {
-			>.scroll-bar.hori {
+			> .scroll-bar.hori {
 				right: 10px;
 			}
 		}
 	}
 
 	&.has-right-pane {
-		>.inner-table.center {
+		> .inner-table.center {
 			.cell, .header-cell, .footer-cell {
 				&:last-child {
 					border-right-width: 0;
@@ -421,9 +427,9 @@
 
 .ui.widget-table {
 	.inner-table {
-		//.table.item:hover:not(.current) .cell {
-		//	background: @itemsViewHoverBackground;
-		//}
+		.table.item:hover:not(.current) .cell {
+			background: @itemsViewHoverBackground;
+		}
 		.table.item.current .cell {
 			background: @itemsViewCurrentBackground;
 		}
