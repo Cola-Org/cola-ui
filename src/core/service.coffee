@@ -35,6 +35,9 @@ class cola.ProviderInvoker
 		return changed
 
 	applyPagingParameters: (options)->
+		if options.sendJson or options.data?
+			options.data = JSON.parse(options.data)
+
 		if not @_replaceSysParams(options)
 			if not options.data? then options.data = {}
 			if cola.setting("pagingParamStyle") is "from"
@@ -43,6 +46,9 @@ class cola.ProviderInvoker
 			else
 				options.data.pageSize = @pageSize
 				options.data.pageNo = @pageNo
+
+		if options.sendJson
+			options.data = JSON.stringify(options.data)
 		return
 
 	_beforeSend: (options)->

@@ -35,7 +35,10 @@ class cola.NotifyTip extends cola.Layer
 				contextKey: "description"
 			}
 		], @_doms)
-		$(@_doms.closeBtn).on("click", ()-> notifyTip.hide())
+		$(@_doms.closeBtn).on("click", ()->
+			notifyTip.hide()
+			return false
+		)
 
 	_doRefreshDom: ()->
 		return unless @_dom

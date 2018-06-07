@@ -95,7 +95,6 @@ messages {
 }
 
 message, messages {
-
 	.list:not(.ui) {
 		text-align: left;
 		padding: 0em;
@@ -150,16 +149,6 @@ message, messages {
 			font-family: "Icons";
 		}
 	}
-
-	&:before {
-		position: absolute;
-		left: 1em;
-		top: 1em;
-	}
-}
-
-message {
-	padding-left: 2.5em;
 }
 
 messages {
@@ -184,12 +173,6 @@ messages {
 .form message.error,
 .form messages.error {
 	display: block;
-}
-
-#c-notify-tip-container {
-	message {
-		margin: @verticalMargin 0em;
-	}
 }
 
 .ui.form {

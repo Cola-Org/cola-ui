@@ -235,7 +235,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks "grunt-contrib-rename"
 	grunt.loadNpmTasks "grunt-contrib-cssmin"
 	grunt.loadNpmTasks "grunt-contrib-compress"
-	grunt.loadNpmTasks('grunt-text-replace');
+	grunt.loadNpmTasks "grunt-text-replace";
 
 	grunt.registerTask "mochaTask", ["mochaTest"]
 	grunt.registerTask "qunitTask", ["connect:testServer", "qunit"]

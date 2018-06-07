@@ -625,11 +625,12 @@ class cola.Table extends cola.Widget
 		return handler
 
 	_getColumnInsertIndicator: (tableHeader)->
-		indicator = tableHeader.querySelector(".insert-indicator")
+		indicator = @_doms.columnInsertIndicator
 		if not indicator
-			indicator = cola.xCreate(
+			@_doms.columnInsertIndicator = indicator = cola.xCreate(
 				class: "insert-indicator"
 			)
+		if indicator.parentNode isnt tableHeader
 			tableHeader.appendChild(indicator)
 		return indicator
 

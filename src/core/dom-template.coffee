@@ -1,4 +1,4 @@
-IGNORE_NODES = [ "SCRIPT", "STYLE", "META", "TEMPLATE" ]
+IGNORE_NODES = [ "SCRIPT", "STYLE", "META", "TEMPLATE", "OBJECT" ]
 ALIAS_REGEXP = new RegExp("\\$default", "g")
 
 cola._mainInitFuncs = []

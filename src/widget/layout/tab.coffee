@@ -233,7 +233,7 @@ class cola.Tab extends cola.Widget
 		content = $(contents).find(">content[name='" + tab._name + "']")
 		if content.length > 0
 			return content[0]
-	getCurrentTab: (index)->
+	getCurrentTab: ()->
 		unless @_dom then return
 		$tabDom = @get$Dom().find(">nav>tabs>tab.active")
 		if $tabDom.length > 0
