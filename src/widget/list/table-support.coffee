@@ -154,7 +154,7 @@ class cola.TableSelectColumn extends cola.TableContentColumn
 					checked = self.get("checked")
 					if checked isnt undefined
 						@selectAll(checked)
-					if typeof arg.value != "boolean"
+					if typeof arg.value isnt "boolean"
 						@fire("headerSelectionChange", @, { checkbox: self, oldValue: arg.oldValue, value: arg.value })
 			)
 			checkbox.appendTo(dom)
