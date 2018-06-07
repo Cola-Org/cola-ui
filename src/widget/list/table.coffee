@@ -71,8 +71,10 @@ class cola.Table extends cola.Widget
 		sortMode:
 			defaultValue: "remote" # local/remote
 		sortCriteria:
+			refreshItems: true
 			setter: (sortCriteria)->
 				@_sortCriteria = sortCriteria
+				@_centerTable._sortCriteria = sortCriteria
 				return
 
 		readOnly:
@@ -346,6 +348,7 @@ class cola.Table extends cola.Widget
 			scope: @_scope
 			type: "center"
 			table: @
+			sortCriteria: @_sortCriteria
 		)
 		@_centerTable.appendTo(dom)
 
