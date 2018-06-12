@@ -1,20 +1,35 @@
 @import (reference) "global";
 
 .ui.checkbox {
-	.box:after, label:after {
+	label:after {
 		top: 1px;
 		left: 1px;
 	}
-	.box:before, label:before {
+	label:before {
 		border-radius: 0px;
 	}
-	&.toggle, &.slider {
-		.box:after, label:after {
-			top: 0px;
-			left: 0px;
-		}
-		.box:before, label:before {
+	&.toggle {
+		input ~ label:before {
+			border: 1px solid @borderColor !important;
 			border-radius: 1.25rem;
+			top: 2px;
+		}
+		input ~ label:after {
+			left: 2px;
+			top: 3px;
+		}
+
+		input:checked ~ label:after {
+			left: 25px;
+		}
+		&:hover {
+			border-color: transparent;
+			label:before {
+				border: 1px solid rgba(0, 0, 0, 0.15);
+			}
+
 		}
 	}
+
+	//padding-left: 52px !important;
 }

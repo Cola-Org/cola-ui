@@ -58,7 +58,10 @@ cola.TagEditor = cola.defineWidget({
 				inputValue: inputValue,
 				input: @
 			})
+		).on("blur", ()->
+			tagEditor.close()
 		)
+
 
 	removeItem: (item)->
 		if item
