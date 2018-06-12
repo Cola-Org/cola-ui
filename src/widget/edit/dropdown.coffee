@@ -725,8 +725,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 				text: "input"
 				type: "text",
 				class: "filter-input"
-				focus: ()=> @_onFocus()
-				blur: ()=> @_onBlur()
+				focus: ()=> @onFocus()
+				blur: ()=> @onBlur()
 				input: (evt)=>
 					if @_useValueContent
 						$valueContent = $fly(@_doms.valueContent)
@@ -811,6 +811,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 
 	_selectData: (item)->
 		@_inputDirty = false
+		@_doms.filterInput?.value = ""
 		return super(item)
 
 	_onBlur: ()->
