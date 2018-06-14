@@ -160,6 +160,7 @@ sources =
 			"src/css/tag-editor.less"
 			"src/css/page.less"
 			"src/css/checkbox.less"
+			"src/css/subview.less"
 		]
 
 	lib:

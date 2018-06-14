@@ -633,7 +633,7 @@ class cola.Entity
 				messages = null
 				for validator in property._validators
 					if value? or validator instanceof cola.RequiredValidator
-						unless validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
+						if not validator._disabled and validator instanceof cola.AsyncValidator and validator.get("async")
 							message = validator.validate(value, @)
 							if message
 								messages ?= []
