@@ -26,7 +26,11 @@ class cola.SubView extends cola.Widget
 				return if @_dom then cola.util.userData(@_dom, "_model") else null
 
 		param: null
-		showLoadingContent: null
+		showLoadingDimmer:
+			type: "boolean"
+			defaultValue: true
+		showLoadingContent:
+			type: "boolean"
 
 	@events:
 		load: null
@@ -101,15 +105,16 @@ class cola.SubView extends cola.Widget
 		if not @_showLoadingContent
 			$content.css("visibility", "hidden")
 
-		$dimmer = $dom.find(">.ui.dimmer")
-		if $dimmer.length is 0
-			$dom.xAppend(
-				class: "ui inverted dimmer"
-				content:
-					class: "ui loader"
-			)
+		if @_showLoadingDimmer
 			$dimmer = $dom.find(">.ui.dimmer")
-		$dimmer.addClass("active")
+			if $dimmer.length is 0
+				$dom.xAppend(
+					class: "ui inverted dimmer"
+					content:
+						class: "ui loader"
+				)
+				$dimmer = $dom.find(">.ui.dimmer")
+			$dimmer.addClass("active")
 
 		@_currentUrl = @_url
 		@_currentJsUrl = @_jsUrl
