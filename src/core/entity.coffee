@@ -1403,7 +1403,7 @@ class cola.EntityList
 		return
 
 	_findPrevious: (entity)->
-		if not (entity?.parent isnt @)
+		if not entity or entity.parent is @
 			if entity
 				page = entity._page
 				if page[page.hotIndex] is entity
@@ -1425,7 +1425,7 @@ class cola.EntityList
 		return []
 
 	_findNext: (entity)->
-		if not (entity?.parent isnt @)
+		if not entity or entity.parent is @
 			if entity
 				page = entity._page
 				if page[page.hotIndex] is entity
@@ -1624,8 +1624,8 @@ class cola.EntityList
 
 		if not @_dontChangeCurrent and not @current
 			@setCurrent(entity)
-			if 0 <= index < entity.page.length
-				entity.page.hotIndex = index
+			if 0 <= index < entity._page.length
+				entity._page.hotIndex = index
 		return entity
 
 	remove: (entity, detach)->
@@ -1729,7 +1729,7 @@ class cola.EntityList
 		[entity, index] = @_findNext()
 		if entity
 			@setCurrent(entity)
-			entity.page.hotIndex = index
+			entity._page.hotIndex = index
 			return entity
 		else
 			return @current
@@ -1738,7 +1738,7 @@ class cola.EntityList
 		[entity, index] = @_findPrevious(@current)
 		if entity
 			@setCurrent(entity)
-			entity.page.hotIndex = index
+			entity._page.hotIndex = index
 			return entity
 		else
 			return @current
@@ -1747,7 +1747,7 @@ class cola.EntityList
 		[entity, index] = @_findNext(@current)
 		if entity
 			@setCurrent(entity)
-			entity.page.hotIndex = index
+			entity._page.hotIndex = index
 			return entity
 		else
 			return @current
@@ -1756,10 +1756,26 @@ class cola.EntityList
 		[entity, index] = @_findPrevious()
 		if entity
 			@setCurrent(entity)
-			entity.page.hotIndex = index
+			entity._page.hotIndex = index
 			return entity
 		else
 			return @current
+
+	getFirst: ()->
+		[entity, index] = @_findNext()
+		return entity
+
+	getPrevious: ()->
+		[entity, index] = @_findPrevious(@current)
+		return entity
+
+	getNext: ()->
+		[entity, index] = @_findNext(@current)
+		return entity
+
+	getLast: ()->
+		[entity, index] = @_findPrevious()
+		return entity
 
 	hasPrevious: ()->
 		return @_findPrevious(@current).length > 0
