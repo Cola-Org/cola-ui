@@ -185,7 +185,7 @@ class cola.Property extends cola.Definition
 				return
 		defaultValue: null
 
-		aggregated:
+		multiple:
 			readOnlyAfterCreate: true
 		skipLoading:    # smart, never
 			defaultValue: "smart"
@@ -225,18 +225,18 @@ class cola.Property extends cola.Definition
 		beforeLoad: null
 		load: null
 
-cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize)->
-	if aggregated == undefined
+cola.DataType.jsonToEntity = (json, dataType, multiple, pageSize)->
+	if multiple == undefined
 		if json instanceof Array
-			aggregated = true
+			multiple = true
 		else if typeof json is "object" and json.hasOwnProperty("$data")
-			aggregated = json.$data instanceof Array
+			multiple = json.$data instanceof Array
 		else if typeof json is "object" and json.hasOwnProperty("data$")
-			aggregated = json.data$ instanceof Array
+			multiple = json.data$ instanceof Array
 		else
-			aggregated = false
+			multiple = false
 
-	if aggregated
+	if multiple
 		entityList = new cola.EntityList(null, dataType)
 		if pageSize then entityList.pageSize = pageSize
 		entityList.fillData(json)
@@ -246,11 +246,11 @@ cola.DataType.jsonToEntity = (json, dataType, aggregated, pageSize)->
 			throw new cola.Exception("Unmatched DataType. expect \"Object\" but \"Array\".")
 		return new cola.Entity(json, dataType)
 
-cola.DataType.jsonToData = (json, dataType, aggregated, pageSize)->
+cola.DataType.jsonToData = (json, dataType, multiple, pageSize)->
 	if dataType instanceof cola.StringDataType and typeof json isnt "string" or dataType instanceof cola.BooleanDataType and typeof json isnt "boolean" or dataType instanceof cola.NumberDataType and typeof json isnt "number" or dataType instanceof cola.DateDataType and not (json instanceof Date)
 		result = dataType.parse(json)
 	else if dataType instanceof cola.EntityDataType
-		result = cola.DataType.jsonToEntity(json, dataType, aggregated, pageSize)
+		result = cola.DataType.jsonToEntity(json, dataType, multiple, pageSize)
 	else if dataType and typeof json is "object"
 		result = dataType.parse(json)
 	else

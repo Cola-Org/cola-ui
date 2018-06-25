@@ -408,7 +408,7 @@ class cola.Entity
 						skip = not hasValidParameter
 
 					if skip and providerInvoker.invokerOptions.url is provider._url
-						if property._aggregated
+						if property._multiple
 							@_set(prop, [], true)
 							retValue = @_data[prop]
 						loaded = true
@@ -533,9 +533,9 @@ class cola.Entity
 				@set(prop, val)
 		return @
 
-	_jsonToEntity: (value, dataType, aggregated)->
+	_jsonToEntity: (value, dataType, multiple)->
 		providerInvoker = value?.$providerInvoker
-		result = cola.DataType.jsonToEntity(value, dataType, aggregated, providerInvoker?.pageSize)
+		result = cola.DataType.jsonToEntity(value, dataType, multiple, providerInvoker?.pageSize)
 		if result and providerInvoker
 			result._providerInvoker = providerInvoker
 		return result
@@ -561,10 +561,10 @@ class cola.Entity
 						else if dataType instanceof cola.EntityDataType
 							matched = true
 							if value instanceof _Entity
-								matched = value.dataType is dataType and not property._aggregated
+								matched = value.dataType is dataType and not property._multiple
 							else if value instanceof _EntityList
-								matched = value.dataType is dataType and property._aggregated isnt false
-							else if property._aggregated or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
+								matched = value.dataType is dataType and property._multiple isnt false
+							else if property._multiple or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 								value = @_jsonToEntity(value, dataType, true)
 							else
 								value = new _Entity(value, dataType)
@@ -572,7 +572,7 @@ class cola.Entity
 							if not matched
 								expectedType = dataType.get("name")
 								actualType = value.dataType?.get("name") or "undefined"
-								if property._aggregated then expectedType = "[#{expectedType}]"
+								if property._multiple then expectedType = "[#{expectedType}]"
 								if value instanceof cola.EntityList then actualType = "[#{actualType}]"
 								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
 						else
@@ -757,7 +757,7 @@ class cola.Entity
 			throw new cola.Exception("Unmatched DataType. expect \"cola.EntityDataType\" but \"#{propertyDataType._name}\".")
 
 		oldValue = @_get(prop, "never")
-		if property?._aggregated or oldValue instanceof cola.EntityList
+		if property?._multiple or oldValue instanceof cola.EntityList
 			entityList = oldValue
 			if not entityList?
 				entityList = new cola.EntityList(null, propertyDataType)

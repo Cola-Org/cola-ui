@@ -350,7 +350,7 @@
           <li>使用JSON配置对象，表示直接利用此JSON配置对象创建一个新的DataType并勇气作为属性的DataType。</li>
         </ul>
 
-    - name: aggregated
+    - name: multiple
       type: boolean
       label: 是否集合类型
       description: |
@@ -359,7 +359,7 @@
 
         例如，假设Entity的person属性目前为空，当我们调用Entity.createChild("person", {...})向person属性中添加一个对象时，
         Cola无法判断应该向其中直接添加一个Person，还是首先创建一个EntityList并将新的Entity添加到该EntityList中。
-        为了区分这种情况，我们需要用到aggregated。
+        为了区分这种情况，我们需要用到multiple。
 
         此Attribute的值为undefined/true/false时会得到三种不同的处理结果。
         <ul>
