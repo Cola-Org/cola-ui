@@ -185,7 +185,7 @@ class cola.Table extends cola.Widget
 
 	_onColumnChange: (refreshItems)->
 		if @_rendered
-			cola.util.delay(@, "onColumnChange", 100, ()=>
+			cola.util.delay(@, "onColumnChange", 50, ()=>
 				@_collectionColumnsInfo()
 				@_buildStyleSheet()
 				if refreshItems
@@ -827,6 +827,9 @@ class cola.Table extends cola.Widget
 			@_classNamePool.toggle("v-scroll", @_scrollMode is "scroll")
 			@_classNamePool.toggle("has-left-pane", @_realLeftFixedCols > 0)
 			@_classNamePool.toggle("has-right-pane", @_realRightFixedCols > 0)
+
+			if not @_columnsInfo
+				@_collectionColumnsInfo()
 			@_refreshItems()
 		return
 
@@ -879,7 +882,7 @@ class cola.Table extends cola.Widget
 		@_centerTable._refreshItems()
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
+			cola.util.delay(@, "refreshHeaderCheckbox", 50, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
@@ -902,7 +905,7 @@ class cola.Table extends cola.Widget
 		@_refreshItems()
 
 		if @_columnsInfo.selectColumns
-			cola.util.delay(@, "refreshHeaderCheckbox", 100, ()=>
+			cola.util.delay(@, "refreshHeaderCheckbox", 50, ()=>
 				for colInfo in @_columnsInfo.selectColumns
 					colInfo.column.refreshHeaderCheckbox()
 				return
@@ -1289,8 +1292,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 	_doRefreshItemDom: (itemDom, item, itemScope)->
 		itemType = itemDom._itemType
 
-		if @getListeners("renderItem")
-			if @fire("renderItem", @, { item: item, dom: itemDom, scope: itemScope }) == false
+		if @_table.getListeners("renderItem")
+			if @_table.fire("renderItem", @_table, { item: item, dom: itemDom, scope: itemScope }) == false
 				return
 
 		if itemType == "default"
@@ -1338,8 +1341,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 			if column.fire("renderCell", column, { item: item, dom: dom, scope: itemScope }) == false
 				return
 
-		if @getListeners("renderCell")
-			if @fire("renderCell", @,
+		if @_table.getListeners("renderCell")
+			if @_table.fire("renderCell", @_table,
 			  { item: item, column: column, dom: dom, scope: itemScope }) == false
 				return
 
@@ -1397,7 +1400,11 @@ class cola.Table.InnerTable extends cola.AbstractList
 		if columnInfo.expression
 			$dom.attr("c-bind", columnInfo.expression.raw)
 		else if column._property
-			value = item.get(column._property)
+			if item instanceof cola.Entity
+				value = item.get(column._property)
+			else
+				value = item[column._property]
+
 			if column._format
 				value = cola.defaultAction.format(value, column._format)
 			else

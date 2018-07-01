@@ -4,6 +4,12 @@
 	font-weight: @font-weight;
 	border-radius: @border-radius;
 	padding: 8px 10px;
+
+	&.loading {
+		&:before, &:after {
+			margin: -.825em 0 0 -.825em;
+		}
+	}
 }
 
 .ui.buttons .button:last-child {

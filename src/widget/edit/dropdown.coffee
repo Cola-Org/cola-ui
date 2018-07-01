@@ -649,8 +649,6 @@ class cola.Dropdown extends cola.AbstractDropdown
 		filterInterval:
 			defaultValue: 300
 
-		acceptAnyValue: null
-
 	@events:
 		filterItem: null
 
@@ -804,31 +802,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		return
 
 	_getSelectData: ()->
-		if @_acceptAnyValue
-			items = @_list.get("items")
-			if items
-				if items instanceof Array
-					if items.length is 1 then item = items[0]
-				else if items instanceof cola.EntityList
-					if items.entityCount is 1 then item = items.current
-
-			value = @_doms.input.value
-			if item instanceof cola.Entity
-				if item.get(@_filterProperty or @_textProperty) is value
-					return item
-			else if typeof item is "object"
-				if item[@_filterProperty or @_textProperty] is value
-					return item
-
-			if value
-				item = {}
-				item[@_valueProperty] = value
-				item[@_textProperty] = value
-				return item
-			else
-				return null
-		else
-			return @_list?.get("currentItem") or null
+		return @_list?.get("currentItem") or null
 
 	_onKeyDown: (evt)->
 		if evt.keyCode is 13 # Enter
@@ -918,3 +892,32 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 		return @_dropdownContent
 
 cola.registerWidget(cola.CustomDropdown)
+
+class cola.ComboBox extends cola.Dropdown
+	@tagName: "c-combo-box"
+
+	_getSelectData: ()->
+		items = @_list.get("items")
+		if items
+			if items instanceof Array
+				if items.length is 1 then item = items[0]
+			else if items instanceof cola.EntityList
+				if items.entityCount is 1 then item = items.current
+
+		value = @_doms.input.value
+		if item instanceof cola.Entity
+			if item.get(@_filterProperty or @_textProperty) is value
+				return item
+		else if typeof item is "object"
+			if item[@_filterProperty or @_textProperty] is value
+				return item
+
+		if value
+			item = {}
+			item[@_valueProperty] = value
+			item[@_textProperty] = value
+			return item
+		else
+			return null
+
+cola.registerWidget(cola.ComboBox)

@@ -274,7 +274,7 @@ cola.DataItemsWidgetMixin =
 			@_itemsRetrieved = true
 			@_itemsScope.retrieveData()
 		return {
-			items: @_itemsScope.items
+			items: @_items or @_itemsScope.items
 			originItems: @_itemsScope.originItems
 		}
 
