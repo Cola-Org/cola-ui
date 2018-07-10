@@ -1,9 +1,8 @@
 renderTabs = []
-$(window).resize(()->
+$(window).resize ()->
 	for tab in renderTabs
 		tab.refreshNavButtons()
 	return
-)
 
 class cola.Tab extends cola.Widget
 	@tagName: "c-tab"
@@ -37,9 +36,11 @@ class cola.Tab extends cola.Widget
 			setter: (index)->
 				@setCurrentTab(index)
 				return @
+
 	@events:
 		beforeChange: null
 		change: null
+
 	_tabContentRender: (tab)->
 		contentsContainer = @getContentsContainer()
 		container = tab.get("contentContainer")

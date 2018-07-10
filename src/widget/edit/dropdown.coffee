@@ -82,6 +82,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			@_useValueContent = true
 
 		if @_useValueContent
+			@_doms.input.value = ""
 			$fly(@_doms.input).xInsertAfter({
 				tagName: "div"
 				class: "value-content"
@@ -455,8 +456,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			@_openTimestamp = new Date()
 			$fly(@_dom).addClass("opened")
 
-			if @_useValueContent
-				@_refreshInputValue(null)
+			@_refreshInputValue(null)
 			return true
 		return
 
@@ -741,7 +741,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		return
 
 	_refreshInputValue: (value)->
-		if not @_useValueContent then super(value)
+		super(if @_useValueContent then null else value)
 		return
 
 	open: ()->
