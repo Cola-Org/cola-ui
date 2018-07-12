@@ -329,7 +329,9 @@ class cola.AbstractInput extends cola.AbstractEditor
 		return
 
 	_refreshInputValue: (value)->
-		@_doms.input.value = if value? then value + "" else ""
+		text = if value? then value + "" else ""
+		if text isnt @_doms.input.value
+			@_doms.input.value = text
 		return
 
 	_doRefreshDom: ()->
