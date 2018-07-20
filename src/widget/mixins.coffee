@@ -102,12 +102,13 @@ cola.TemplateSupport =
 		if template instanceof Array
 			if supportMultiNodes and template.length > 1
 				fragment = document.createDocumentFragment()
-				fragment.appendChild(templ.cloneNode(true)) for templ in template
+				for templ in template
+					fragment.appendChild($fly(templ).clone(true, true)[0])
 				return fragment
 			else
-				return template[0].cloneNode(true)
+				return $fly(template[0]).clone(true, true)[0]
 		else
-			return template.cloneNode(true)
+			return $fly(template).clone(true, true)[0]
 
 cola.DataWidgetMixin =
 	_dataWidget: true
