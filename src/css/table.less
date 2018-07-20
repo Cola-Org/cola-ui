@@ -24,6 +24,7 @@
 @tableInvertedRowLineColor: transparent;
 @tableInvertedColLineColor: transparent;
 @tableBoxShadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.3);
+
 .ui.widget-table {
 	border: 1px solid @borderColor;
 	position: relative;
@@ -299,9 +300,6 @@
 			border-width: 0 1px 1px 0;
 			border-style: solid;
 			border-color: @tableColLineColor;
-			&.current {
-				background: @tableCurrentCellBackground;
-			}
 		}
 	}
 
@@ -425,13 +423,16 @@
 	}
 }
 
-.ui.widget-table {
+.ui.widget-table.highlight-current {
 	.inner-table {
 		.table.item:hover:not(.current) .cell {
 			background: @itemsViewHoverBackground;
 		}
 		.table.item.current .cell {
 			background: @itemsViewCurrentBackground;
+		}
+		.table.item > .cell.current {
+			background: @tableCurrentCellBackground;
 		}
 	}
 }

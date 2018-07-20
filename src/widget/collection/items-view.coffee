@@ -94,6 +94,7 @@ class cola.ItemsView extends cola.Widget
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
+		@_classNamePool.toggle("highlight-current", @_highlightCurrentItem)
 		if @_refreshItemsScheduled
 			delete @_refreshItemsScheduled
 			@_refreshItems()
@@ -187,7 +188,7 @@ class cola.ItemsView extends cola.Widget
 		if @_currentItemDom
 			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
 		@_currentItemDom = currentItemDom
-		if currentItemDom and @_highlightCurrentItem
+		if currentItemDom
 			$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 		return
 
@@ -306,7 +307,7 @@ class cola.ItemsView extends cola.Widget
 				itemDom = nextItemDom
 
 		delete @_currentItem
-		if @_currentItemDom and @_highlightCurrentItem
+		if @_currentItemDom
 			$fly(@_currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 
 		if documentFragment

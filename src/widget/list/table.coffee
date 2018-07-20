@@ -824,6 +824,7 @@ class cola.Table extends cola.Widget
 			@_rightTable?._refreshItemsScheduled = true
 			@_centerTable._refreshItemsScheduled = true
 
+			@_classNamePool.toggle("highlight-current", @_highlightCurrentItem)
 			@_classNamePool.toggle("v-scroll", @_scrollMode is "scroll")
 			@_classNamePool.toggle("has-left-pane", @_realLeftFixedCols > 0)
 			@_classNamePool.toggle("has-right-pane", @_realRightFixedCols > 0)
@@ -1077,6 +1078,12 @@ class cola.Table.InnerTable extends cola.AbstractList
 	constructor: (config)->
 		@_itemsScope = config.table._itemsScope
 		@_alias = config.table._alias
+
+		config.allowNoCurrent = config.table._allowNoCurrent
+		config.currentPageOnly = config.table._currentPageOnly
+		config.highlightCurrentItem = config.table._highlightCurrentItem
+		config.changeCurrentItem = config.table._changeCurrentItem
+
 		super(config)
 		@_focusParent = @_table
 		@on("itemClick", (self, arg)=> @_table.fire("itemClick", @_table, arg))
