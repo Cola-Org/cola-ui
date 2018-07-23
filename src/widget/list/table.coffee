@@ -95,6 +95,18 @@ class cola.Table extends cola.Widget
 				if @_rendered then @_collectionColumnsInfo()
 				return
 
+		allowNoCurrent:
+			type: "boolean"
+		currentPageOnly:
+			type: "boolean"
+			defaultValue: true
+		highlightCurrentItem:
+			type: "boolean"
+			defaultValue: true
+		changeCurrentItem:
+			type: "boolean"
+			defaultValue: true
+
 	@events:
 		renderItem: null
 		renderCell: null
