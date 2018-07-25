@@ -105,6 +105,9 @@ setAttrs = (el, $el, attrs, context)  ->
 						$el.data(k, v)
 				else
 					el.data = attrValue
+			when "userData"
+				if attrValue and typeof attrValue is "object"
+					cola.util.userData(el, attrValue)
 			when "classname"
 				$el.className = attrValue
 			else

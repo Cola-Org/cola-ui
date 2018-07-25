@@ -34,7 +34,7 @@ domObserver =
 			originHeight = dom._originHeight
 			dom._originHeight = width = dom.offsetWidth
 			dom._originHeight = height = dom.offsetHeight
-			visible = !!(width or height)
+			visible = !!(width and height)
 
 			if holder.scopes & domObserver.VISIBILITY
 				if visible isnt !!(originWidth or originHeight)

@@ -62,6 +62,10 @@ class cola.SubView extends cola.Widget
 					)
 			else if @_loadMode is "auto"
 				@load(option)
+			else if isFinite(@_loadMode)
+				setTimeout(()=>
+					@load(option)
+				, parseInt(@_loadMode))
 		return
 
 	load: (options, callback)->

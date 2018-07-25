@@ -5,6 +5,15 @@ class cola.RadioGroup extends cola.AbstractEditor
 		items:
 			expressionType: "repeat"
 			setter: (items)->
+				if typeof items is "string"
+					items = items.split(/[,;]/)
+					for item, i in items
+						index = item.indexOf("=")
+						if index >= 0
+							items[i] =
+								key: item.substring(0, index)
+								value: item.substring(index + 1)
+
 				if not @_valueProperty and not @_textProperty
 					result = cola.util.decideValueProperty(items)
 					if result
@@ -49,7 +58,10 @@ class cola.RadioGroup extends cola.AbstractEditor
 			dom[0].checked = true
 
 	_getDomValue: (itemDom)->
-		item = cola.util.getItemByItemDom(itemDom)
+		item = cola.util.userData(itemDom, "item")
+		if not item
+			item = cola.util.getItemByItemDom(itemDom)
+
 		if item
 			if item instanceof cola.Entity
 				return item.get(@_valueProperty)
@@ -66,7 +78,6 @@ class cola.RadioGroup extends cola.AbstractEditor
 			itemsDom = cola.xRender({
 				tagName: "item",
 				"c-repeat": "item in " + raw,
-				"c-caption": textProperty,
 				content: [
 					{
 						tagName: "input",
@@ -80,7 +91,28 @@ class cola.RadioGroup extends cola.AbstractEditor
 					}
 				]
 			}, attrBinding.scope)
-
+		else
+			if @_items
+				itemsDom = document.createDocumentFragment()
+				$itemsDom = $(itemsDom)
+				for item in @_items
+					$itemsDom.xAppend(
+						tagName: "item",
+						content: [
+							{
+								tagName: "input",
+								name: @_name,
+								type: "radio",
+								value: item[@_valueProperty or "key"]
+							},
+							{
+								tagName: "label",
+								content: item[@_textProperty or "value"]
+							}
+						]
+						userData:
+							item: item
+					)
 		return itemsDom
 
 cola.registerWidget(cola.RadioGroup)
