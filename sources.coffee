@@ -51,6 +51,7 @@ sources =
 			"src/widget/base/reveal.coffee"
 			"src/widget/base/search.coffee"
 			"src/widget/base/toolbar.coffee"
+			"src/widget/base/notify-tip.coffee"
 		]
 		edit: [
 			"src/widget/edit/abstract-editor.coffee"
@@ -77,7 +78,6 @@ sources =
 			"src/widget/layout/sidebar.coffee"
 			"src/widget/layout/tab.coffee"
 			"src/widget/layout/panel.coffee"
-			"src/widget/base/notify-tip.coffee"
 			"src/widget/layout/split-pane.coffee"
 		]
 		collection: [
