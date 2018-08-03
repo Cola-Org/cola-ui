@@ -121,7 +121,7 @@
 			width: 1em;
 			margin-top: -1em;
 			opacity: 0.5;
-			color: @primaryColor;
+
 			cursor: pointer;
 			&:before {
 				font-family: Icons;
@@ -136,6 +136,7 @@
 
 			&:hover {
 				opacity: 1.0;
+				color: @primaryColor;
 			}
 			&.prev {
 				left: 6px;
@@ -147,30 +148,37 @@
 	}
 	.header {
 		padding: 0.5em 1em;
-		border-bottom: 1px solid @primaryColor;
 		> .year {
 			.display(box);
 
 			> .button {
 				display: block;
 				.box-flex(0);
-				width: 2.5em;
+				width: 3em;
 				height: 1.5em;
 				line-height: 1.5em;
-				text-align: center;
-				color: @primaryColor;
 				cursor: pointer;
 				font-style: normal;
 				font-weight: normal;
 				font-size: 1.25em;
 
-				&.prev:before {
-					font-family: Icons;
-					content: "\f104";
+				&.prev {
+					text-align: right;
+					&:before {
+						font-family: Icons;
+						content: "\f104";
+					}
 				}
-				&.next:before {
-					font-family: Icons;
-					content: "\f105";
+				&.next {
+					text-align: left;
+					&:before {
+						font-family: Icons;
+						content: "\f105";
+					}
+				}
+
+				&:hover {
+					color: @primaryColor;
 				}
 			}
 
@@ -206,7 +214,7 @@
 					color: @primaryColor;
 				}
 				> div {
-					padding: 0.4em 0.8em;
+					padding: 0.4em 0;
 					display: inline-block;
 					border-radius: 2px;
 					width: 5em;
@@ -286,7 +294,6 @@
 			color: @invertedTextColor;
 			border-radius: 4px;
 			cursor: pointer;
-
 		}
 		> .h-box {
 			height: 100%;
@@ -302,5 +309,14 @@
 				padding: 0 4px 0 0;
 			}
 		}
+	}
+}
+
+.ui.drop-box {
+	.year-picker {
+		padding: 20px 4px;
+	}
+	.month-picker {
+		padding: 20px 4px;
 	}
 }

@@ -157,7 +157,7 @@ class cola.DateGrid extends cola.RenderableElement
 						tagName: "tbody",
 						contextKey: "body"
 					}
-				} ]
+				}]
 		}, @_doms)
 
 		i = 0
@@ -287,7 +287,7 @@ class cola.DateGrid extends cola.RenderableElement
 		lastSelectedCell = @_lastSelectedCell
 
 		unless @_dom
-			@_selectionPosition = { row: row, column: column }
+			@_selectionPosition = {row: row, column: column}
 			return @
 		if lastSelectedCell
 			$fly(lastSelectedCell).removeClass(@_selectedCellClassName || "selected")
@@ -426,7 +426,7 @@ class cola.DateGrid extends cola.RenderableElement
 		return @
 
 class cola.DatePicker extends cola.CustomDropdown
-	@tagName: "c-datepicker"
+	@tagName: "c-datepicker,c-date-picker"
 	@className: "date input drop"
 	@attributes:
 		displayFormat: null
@@ -742,40 +742,40 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		picker = @
 		@_doms ?= {}
 		headerDom = $.xCreate(
-		  {
-			  tagName: "div"
-			  class: "header"
-			  contextKey: "header"
-			  content: [
-				  {
-					  tagName: "div"
-					  class: "year"
-					  content: [
-						  {
-							  tagName: "div"
-							  class: "button prev"
-							  contextKey: "prevYearButton"
-							  click: ()->
-								  picker.prevYear()
-						  }
-						  {
-							  tagName: "div"
-							  class: "label"
-							  contextKey: "yearLabel"
-						  }
-						  {
-							  tagName: "div"
-							  class: "button next"
-							  contextKey: "nextYearButton"
-							  click: ()->
-								  picker.nextYear()
-						  }
+			{
+				tagName: "div"
+				class: "header"
+				contextKey: "header"
+				content: [
+					{
+						tagName: "div"
+						class: "year"
+						content: [
+							{
+								tagName: "div"
+								class: "button prev"
+								contextKey: "prevYearButton"
+								click: ()->
+									picker.prevYear()
+							}
+							{
+								tagName: "div"
+								class: "label"
+								contextKey: "yearLabel"
+							}
+							{
+								tagName: "div"
+								class: "button next"
+								contextKey: "nextYearButton"
+								click: ()->
+									picker.nextYear()
+							}
 
-					  ]
-				  }
-			  ]
+						]
+					}
+				]
 
-		  }, @_doms)
+			}, @_doms)
 
 		table = $.xCreate({
 			tagName: "table"
@@ -948,12 +948,18 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 				cellClick: (self, arg)=>
 					datePicker.close(self.get("value"))
 			})
-			@_dropdownContent = dateGrid.getDom()
+			
+			content = $.xCreate({
+				tagName: "div"
+				class: "month-picker"
+			})
+			content.appendChild(dateGrid.getDom())
+			@_dropdownContent = content
 
 		return @_dropdownContent
 
 class cola.YearMonthPicker extends cola.YearMonthDropDown
-	@tagName: "c-monthpicker"
+	@tagName: "c-monthpicker,c-month-picker"
 	@className: "year-month input date drop"
 
 class cola.TimeEditor extends cola.Widget
@@ -1032,10 +1038,67 @@ class cola.TimeEditor extends cola.Widget
 
 	_doRefreshDom: ()->
 		super()
-		for v in [ "hour", "minute", "second" ]
+		for v in ["hour", "minute", "second"]
 			$fly(@_doms[v]).val(@["_#{v}"])
 		return
 
 cola.registerWidget(cola.DatePicker)
 cola.registerWidget(cola.YearMonthDropDown)
 cola.registerWidget(cola.YearMonthPicker)
+
+
+class cola.YearPicker extends cola.CustomDropdown
+	@tagName: "c-yearpicker,c-year-picker"
+	@className: "year input date drop"
+	@attributes:
+		icon:
+			defaultValue: "calendar"
+	@events:
+		focus: null
+		blur: null
+		keyDown: null
+		keyPress: null
+
+	_postInput: ()->
+		if not @_finalReadOnly
+			value = $(@_doms.input).val()
+			@set("value", value)
+		return
+
+	_refreshInput: ()->
+		$inputDom = $fly(@_doms.input)
+		$inputDom.attr("name", @_name) if @_name
+		$inputDom.attr("placeholder", @get("placeholder"))
+		@_doms.input.readOnly = @_finalReadOnly
+		@get("actionButton")?.set("disabled", @_finalReadOnly)
+		$inputDom.prop("type", "text").css("text-align", "left")
+
+		@_refreshInputValue(@_value)
+		return
+
+	open: ()->
+		if super()
+			value = @get("value")
+			unless value
+				date = new Date()
+				value = date.getFullYear() - 1
+			@_dataGrid.set("value", value)
+			return true
+		return
+
+	_getDropdownContent: ()->
+		yearPicker = @
+		if !@_dropdownContent
+			@_dataGrid = dateGrid = new cola.YearGrid({
+				cellClick: (self, arg)=>
+					yearPicker.close(self.get("value"))
+			})
+			content = $.xCreate({
+				tagName: "div"
+				class: "year-picker"
+			})
+			content.appendChild(dateGrid.getDom())
+			@_dropdownContent = content
+		return @_dropdownContent
+
+cola.registerWidget(cola.YearPicker)
