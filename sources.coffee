@@ -51,7 +51,6 @@ sources =
 			"src/widget/base/reveal.coffee"
 			"src/widget/base/search.coffee"
 			"src/widget/base/toolbar.coffee"
-			"src/widget/base/notify-tip.coffee"
 		]
 		edit: [
 			"src/widget/edit/abstract-editor.coffee"
@@ -78,6 +77,7 @@ sources =
 			"src/widget/layout/sidebar.coffee"
 			"src/widget/layout/tab.coffee"
 			"src/widget/layout/panel.coffee"
+			"src/widget/base/notify-tip.coffee"
 			"src/widget/layout/split-pane.coffee"
 		]
 		collection: [
@@ -149,8 +149,8 @@ sources =
 			"src/css/sidebar.less"
 			"src/css/time-line.less"
 			"src/css/panel.less"
-#			"src/css/semantic/input-overrides.less"
-#			"src/css/semantic/segment-overrides.less"
+			# "src/css/semantic/input-overrides.less"
+			# "src/css/semantic/segment-overrides.less"
 			"src/css/textarea.less"
 			"src/css/notify-tip.less"
 			"src/css/split-pane.less"
@@ -176,7 +176,7 @@ sources =
 			"src/lib/scroller.js"
 			"src/lib/easy-scroller.js"
 
-#			"src/lib/fastclick.js"
+			# "src/lib/fastclick.js"
 		]
 
 	"lib-core":
@@ -191,6 +191,6 @@ sources =
 		css: ["lib/semantic-ui/semantic.css"]
 
 sources.coffee.widgetAll = _.union(sources.coffee.widget, sources.coffee.base,
-	sources.coffee.layout, sources.coffee.edit, sources.coffee.collection, sources.coffee.list)
+  sources.coffee.layout, sources.coffee.edit, sources.coffee.collection, sources.coffee.list)
 
 module?.exports = sources
