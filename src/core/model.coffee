@@ -1078,6 +1078,15 @@ class cola.DataModel extends cola.AbstractDataModel
 					propertyDef.set("dataType", config)
 				else
 					propertyDef.set(config)
+
+				if propertyDef._loadMode is "auto"
+					if not cola.inited
+						cola.fire("ready", () =>
+							@model.get(property)
+						)
+					else
+						@model.get(property)
+
 		else if property
 			config = property
 			for propertyName, propertyConfig of config

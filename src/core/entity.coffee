@@ -491,7 +491,7 @@ class cola.Entity
 			if property
 				provider = property.get("provider")
 				context?.unloaded = !!provider
-				if loadMode isnt "never" and provider and provider._loadMode is "lazy"
+				if loadMode isnt "never" and provider and provider._loadMode isnt "never"
 					dfd = loadData.call(@, provider).done((result)->
 						value = result
 						cola.callback(callback, true, result)
@@ -1178,7 +1178,8 @@ class Page extends Array
 
 			if entityList.totalEntityCount?
 				if entityList.pageSize
-					entityList.pageCount = Math.floor((entityList.totalEntityCount + entityList.pageSize - 1) / entityList.pageSize)
+					temp = entityList.totalEntityCount + entityList.pageSize - 1
+					entityList.pageCount = Math.floor(temp / entityList.pageSize)
 				entityList.pageCountDetermined = true
 
 			entityList.entityCount += json.length
