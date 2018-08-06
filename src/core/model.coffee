@@ -1079,7 +1079,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				else
 					propertyDef.set(config)
 
-				if propertyDef._loadMode is "auto"
+				if propertyDef._provider?._loadMode is "auto"
 					if not cola.inited
 						cola.fire("ready", () =>
 							@model.get(property)
