@@ -652,7 +652,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 	@events:
 		filterItem: null
 
-	@TEMPLATES:
+	@templates:
 		"default":
 			tagName: "li"
 			"c-bind": "$default"
@@ -874,7 +874,7 @@ class cola.CustomDropdown extends cola.AbstractDropdown
 	@attributes:
 		content: null
 
-	@TEMPLATES:
+	@templates:
 		"default":
 			tagName: "div"
 			content: "<Undefined>"

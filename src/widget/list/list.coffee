@@ -79,7 +79,7 @@ class cola.ListView extends cola.AbstractList
 		itemSlidePaneShow: null
 		itemSlidePaneHide: null
 
-	@TEMPLATES:
+	@templates:
 		"default":
 			tagName: "li"
 			"c-bind": "$default"

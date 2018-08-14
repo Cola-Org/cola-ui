@@ -26,7 +26,7 @@ _columnsSetter = (table, columnConfigs)->
 	@_columns = columns
 	return
 
-class cola.Table extends cola.Widget
+class cola.Table extends cola.AbstractTable
 	@tagName: "c-table"
 	@className: "items-view widget-table"
 
@@ -47,20 +47,8 @@ class cola.Table extends cola.Widget
 				@_bindSetter(bindStr)
 				return
 
-		columns:
-			refreshItems: true
-			setter: (columnConfigs)->
-				_columnsSetter.call(@, @, columnConfigs)
-				@_collectionColumnsInfo()
-				return
 		dataType:
 			setter: cola.DataType.dataTypeSetter
-
-		showHeader:
-			type: "boolean"
-			defaultValue: true
-		showFooter:
-			type: "boolean"
 
 		scrollMode:
 			defaultValue: "auto" # auto/scroll
@@ -100,35 +88,15 @@ class cola.Table extends cola.Widget
 		currentPageOnly:
 			type: "boolean"
 			defaultValue: true
-		highlightCurrentItem:
-			type: "boolean"
-			defaultValue: true
 		changeCurrentItem:
 			type: "boolean"
 			defaultValue: true
 
 	@events:
-		renderItem: null
-		renderCell: null
-		renderHeaderCell: null
-		renderFooterCell: null
-		itemClick: null
-		itemDoubleClick: null
-		itemPress: null
-		cellClick: null
-		headerClick: null
-		footerClick: null
+		filterItem: null
 		sortDirectionChange: null
 
-	@TEMPLATES:
-		"default-row":
-			tagName: "div"
-
-		"boolean-column":
-			"c-display": "$default"
-			content:
-				tagName: "i"
-				class: "green checkmark icon"
+	@templates:
 		"checkbox-column":
 			tagName: "c-checkbox"
 			bind: "$default"
@@ -159,15 +127,27 @@ class cola.Table extends cola.Widget
 			tagName: "c-date-picker"
 			bind: "$default"
 
-	constructor: (config)->
-		@_columnMap = {}
-		super(config)
-
 	_getItems: ()->
 		if @_items
-			return { items: @_items }
+			return items: @_items
 		else
 			return super()
+
+	_convertItems: (items)->
+		if @getListeners("filterItem")
+			arg = {
+				filterCriteria: @_filterCriteria
+			}
+			items = cola.util.filter(items, (item)=>
+				arg.item = item
+				return @fire("filterItem", @, arg)
+			)
+		else
+			if @_filterCriteria
+				items = cola.util.filter(items, @_filterCriteria)
+			if @_sortCriteria
+				items = cola.util.sort(items, @_sortCriteria)
+		return items
 
 	_getItemScope: (parentScope, alias, item)->
 		itemScope = parentScope.getItemScope(item)
@@ -182,185 +162,20 @@ class cola.Table extends cola.Widget
 	_getItemType: (type)->
 		return @_centerTable._getItemType(type)
 
-	_regColumn: (column)->
-		if column._name
-			@_columnMap[column._name] = column
-		return
-
-	_unregColumn: (column)->
-		if column._name
-			delete @_columnMap[column._name]
-		return
-
-	getColumn: (name)->
-		return @_columnMap[name]
-
-	_onColumnChange: (refreshItems)->
-		if @_rendered
-			cola.util.delay(@, "onColumnChange", 50, ()=>
-				@_collectionColumnsInfo()
-				@_buildStyleSheet()
-				if refreshItems
-					@_refreshItemsScheduled = true
-				@_refreshDom()
-				@_refreshScrollbars()
-				return
-			)
-		return
-
-	_collectionColumnsInfo: ()->
-		collectColumnInfo = (column, context, deepth, rootIndex)->
-			if deepth + 1 > context.rows
-				context.rows = deepth + 1
-
-			info =
-				rootIndex: rootIndex
-				level: deepth
-				column: column
-			if column instanceof cola.TableGroupColumn
-				if column._columns
-					info.colInfos = colInfos = []
-					for col in column._columns
-						continue unless col._visible
-						colInfos.push(collectColumnInfo(col, context, deepth + 1, rootIndex))
-			else
-				if column._bind
-					bind = column._bind
-					if bind.charCodeAt(0) is 46 # `.`
-						if not column._property
-							column._property = bind.substring(1)
-					else
-						info.expression = cola._compileExpression(@_scope, bind)
-
-				if column._width
-					width = column._width
-					widthType = null
-					if typeof width is "string"
-						if width.indexOf("px") > 0
-							widthType = "px"
-						else if width.indexOf("%") > 0
-							widthType = "%"
-					widthType ?= "weight"
-					info.widthType = widthType
-					info.width = parseFloat(width)
-					if widthType is "weight"
-						context.totalWidthWeight += info.width
-
-				info.index = context.dataColumns.length
-				info.rootIndex = rootIndex
-				context.dataColumns.push(info)
-
-				if column instanceof cola.TableSelectColumn
-					context.selectColumns ?= []
-					context.selectColumns.push(info)
-			return info
-
-		@_columnsInfo = columnsInfo = {
-			timestamp: cola.sequenceNo()
-			totalWidthWeight: 0
-			colInfos: []
-			dataColumns: []
-			rows: 1
-			alias: "item"
-		}
-		if @_columns
-			expression = @_itemsScope.expression
-			if expression
-				columnsInfo.alias = expression.alias
-
-			leftFixedCols = @_leftFixedCols
-			rightFixedCols = @_rightFixedCols
-
-			if leftFixedCols > 0 or rightFixedCols > 0
-				overflow = leftFixedCols + rightFixedCols - @_columns.length
-				if overflow >= 0
-					if rightFixedCols > overflow
-						rightFixedCols -= (overflow + 1)
-						overflow = -1
-					else
-						rightFixedCols = 0
-						overflow -= rightFixedCols
-
-					if overflow >= 0
-						leftFixedCols -= (overflow + 1)
-
-			if leftFixedCols < 0 then leftFixedCols = 0
-			if rightFixedCols < 0 then rightFixedCols = 0
-
-			for col, i in @_columns
-				if not col._visible
-					if i < leftFixedCols and leftFixedCols > 0
-						leftFixedCols--
-					if @_columns.length - i <= rightFixedCols and rightFixedCols > 0
-						rightFixedCols--
-					continue
-
-				colInfo = collectColumnInfo(col, columnsInfo, 0, i)
-				if colInfo
-					columnsInfo.colInfos.push(colInfo)
-
-			@_realLeftFixedCols = leftFixedCols
-			@_realRightFixedCols = rightFixedCols
-
-			if leftFixedCols > 0 or rightFixedCols > 0
-				if leftFixedCols > 0
-					columnsInfo.left =
-						timestamp: columnsInfo.timestamp
-						start: 0
-						rows: columnsInfo.rows
-						colInfos: columnsInfo.colInfos.slice(0, leftFixedCols)
-						dataColumns: []
-				else
-					delete columnsInfo.left
-
-				if rightFixedCols > 0
-					columnsInfo.right =
-						timestamp: columnsInfo.timestamp
-						start: @_columns.length - rightFixedCols
-						rows: columnsInfo.rows
-						colInfos: columnsInfo.colInfos.slice(columnsInfo.colInfos.length - rightFixedCols, columnsInfo.colInfos.length)
-						dataColumns: []
-				else
-					delete columnsInfo.right
-
-				columnsInfo.center =
-					timestamp: columnsInfo.timestamp
-					start: leftFixedCols
-					rows: columnsInfo.rows
-					colInfos: columnsInfo.colInfos.slice(leftFixedCols, columnsInfo.colInfos.length - rightFixedCols)
-					dataColumns: []
-
-				for col in columnsInfo.dataColumns
-					i = col.rootIndex
-					if i < leftFixedCols
-						columnsInfo.left.dataColumns.push(col)
-					else if i >= @_columns.length - rightFixedCols
-						columnsInfo.right.dataColumns.push(col)
-					else
-						columnsInfo.center.dataColumns.push(col)
-			else
-				delete columnsInfo.left
-				delete columnsInfo.right
-				columnsInfo.center =
-					timestamp: columnsInfo.timestamp
-					start: 0
-					rows: columnsInfo.rows
-					colInfos: columnsInfo.colInfos
-					dataColumns: columnsInfo.dataColumns
-		return
-
 	_createDom: ()->
 		dom = cola.xCreate({})
 		@_doms ?= {}
 		@_createInnerDom(dom)
 		return dom
 
+	_createInnerTable: (config)->
+		return new cola.Table.InnerTable(config)
+
 	_createInnerDom: (dom)->
-		@_centerTable = new cola.Table.InnerTable(
+		@_centerTable = @_createInnerTable(
 			scope: @_scope
 			type: "center"
 			table: @
-			sortCriteria: @_sortCriteria
 		)
 		@_centerTable.appendTo(dom)
 
@@ -373,7 +188,7 @@ class cola.Table extends cola.Widget
 		).on("mouseleave", (evt)=>
 			@_mouseIn = false
 		).on("sizingChange", ()=>
-			@_buildStyleSheet()
+			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
 			@_refreshScrollbars()
 			return
 		)
@@ -442,129 +257,11 @@ class cola.Table extends cola.Widget
 		@_dom.appendChild(@_vertScrollBar)
 		return @_vertScrollBar
 
-	_initDragDrop: (dom)->
-		$fly(dom).delegate(">.inner-table >.table-header", "mousemove", (evt)=>
-			return if @_innerDragging
-			cell = $fly(evt.target).closest(".header-cell")[0]
-			return unless cell
-
-			if evt.offsetX <= 4
-				resizePrevColumn = true
-				nextColumn = @getColumn(cell._name)
-				for nextColumnInfo in @_columnsInfo.dataColumns
-					if nextColumnInfo.column is nextColumn
-						column = columnInfo?.column
-						break
-					columnInfo = nextColumnInfo
-			else if cell.offsetWidth - evt.offsetX <= 4
-				column = @getColumn(cell._name)
-
-			tableHeader = evt.currentTarget
-			handler = @_getHeaderCellResizeHandler(tableHeader)
-			if column?._resizeable
-				$fly(handler).css(
-					left: if resizePrevColumn then cell.offsetLeft else cell.offsetLeft + cell.offsetWidth
-					top: cell.offsetTop
-					height: cell.offsetHeight
-				).removeClass("hidden")
-				cola.util.userData(handler, "column", column)
-
-				cell = @_getHeaderCellByColumn(column)
-				cola.util.userData(handler, "cell", cell)
-			else
-				$fly(handler).addClass("hidden")
-		).delegate(">.inner-table >.table-header", "mouseenter", ()=>
-			$fly(@_dom).find(">.inner-table >.table-header .header-cell").each (i, cell)=>
-				if cell.className.indexOf("ui-draggable") < 0
-					$fly(cell).draggable(
-						appendTo: "body"
-						distance: 10
-						revert: "invalid"
-						revertDuration: 200
-						scroll: false
-						refreshPositions: true
-						helper: ()->
-							helper = cell.cloneNode(true)
-							$fly(helper).addClass("table-column-dragging-helper").width(cell.offsetWidth).height(cell.offsetHeight)
-							return helper
-						start: (evt, ui)=>
-							ui.helper.draggingColumn = @getColumn(cell._name)
-							return
-						drag: (evt, ui)=>
-							dragOverCell = ui.helper.dragOverCell
-							if dragOverCell
-								tableHeader = $fly(dragOverCell).closest(".table-header")[0]
-								dragOverColumn = @getColumn(dragOverCell._name)
-								if dragOverColumn
-									ui.helper.dragOverColumn = dragOverColumn
-									centerPosition = dragOverCell.offsetLeft + (dragOverCell.offsetWidth / 2)
-									$indicator = $fly(@_getColumnInsertIndicator(tableHeader)).removeClass("hidden")
-									dragPosLeft = ui.position.left + (dragOverCell.offsetWidth / 2)
-									$indicator.css("top", dragOverCell.offsetTop)
-									if dragPosLeft < centerPosition
-										$indicator.css("left", dragOverCell.offsetLeft)
-										ui.helper.dragOverMode = "before"
-									else
-										$indicator.css("left", dragOverCell.offsetLeft + dragOverCell.offsetWidth)
-										ui.helper.dragOverMode = "after"
-							return
-					)
-
-				if cell.className.indexOf("ui-droppable") < 0
-					$fly(cell).droppable(
-						accept: ".header-cell"
-						over: (evt, ui)->
-							ui.helper.dragOverCell = @
-							return
-						out: (evt, ui)=>
-							if cell is ui.helper.dragOverCell
-								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
-								ui.helper.dragOverCell = null
-								ui.helper.dragOverColumn = null
-								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
-						drop: (evt, ui)=>
-							shouldRefreshTable = false
-							draggingColumn = ui.helper.draggingColumn
-							dragOverColumn = ui.helper.dragOverColumn
-							columns = dragOverColumn._parent?._columns
-							if columns
-								sourceColumns = draggingColumn._parent?._columns
-								if sourceColumns
-									i = sourceColumns.indexOf(draggingColumn)
-									if i >= 0 then sourceColumns.splice(i, 1)
-									if draggingColumn._parent isnt dragOverColumn._parent
-										draggingColumn._parent.set("columns", sourceColumns)
-
-								i = columns.indexOf(dragOverColumn)
-								if ui.helper.dragOverMode is "after" then i++
-								if i > columns.length - 1
-									columns.push(ui.helper.draggingColumn)
-								else
-									columns.splice(i, 0, draggingColumn)
-								dragOverColumn._parent.set("columns", columns)
-								shouldRefreshTable = true
-
-							if ui.helper.dragOverCell
-								tableHeader = $fly(ui.helper.dragOverCell).closest(".table-header")[0]
-								ui.helper.dragOverCell = null
-								ui.helper.dragOverColumn = null
-								$fly(@_getColumnInsertIndicator(tableHeader)).addClass("hidden")
-
-							if shouldRefreshTable
-								@_onColumnChange(true)
-							return
-					)
-				return
-			return
-		)
-		return
-
 	_initDom: (dom)->
-		@_regDefaultTemplates()
-		@_templateContext ?= {}
+		super(dom)
 
 		if $.fn.draggable
-			@_initDragDrop(dom)
+			@_initDragDrop(">.inner-table >.table-header", dom)
 
 		dataType = @_getBindDataType()
 		if dataType and dataType instanceof cola.EntityDataType
@@ -587,243 +284,11 @@ class cola.Table extends cola.Widget
 						column._caption = propertyDef._caption or propertyDef._property
 		return
 
-	_getHeaderCellByColumn: (column)->
-		headerCell = null
-		@get$Dom().find(">.inner-table >.table-header .header-cell").each (i, cell)->
-			if cell._name is column._name
-				headerCell = cell
-				return false
-			return
-		return headerCell
-
-	_getHeaderCellResizeHandler: (tableHeader)->
-		table = @
-		handler = tableHeader.querySelector(".resize-handler")
-		if not handler
-			handler = cola.xCreate(
-				class: "resize-handler"
-			)
-			$(handler).draggable(
-				axis: "x"
-				start: ()->
-					cell = cola.util.userData(@, "cell")
-					helper = table._doms.resizeHelper
-					if not helper
-						helper = cola.xCreate(
-							class: "resize-helper"
-						)
-						table._dom.appendChild(helper)
-						table._doms.resizeHelper = helper
-
-					innerTable = $fly(cell).closest(".inner-table")[0]
-					$fly(helper).css(
-						left: (innerTable.offsetLeft + cell.offsetLeft - innerTable.scrollLeft - 1) + "px"
-						width: cell.offsetWidth + "px"
-					).show()
-					cola.util.userData(helper, "originalWidth", cell.offsetWidth)
-					table._innerDragging = true
-					return
-				stop: ()->
-					helper = table._doms.resizeHelper
-					column = cola.util.userData(@, "column")
-					column.set("width", helper.offsetWidth + "px")
-					$fly(helper).hide()
-					table._innerDragging = false
-					return
-				drag: (evt, ui)->
-					helper = table._doms.resizeHelper
-					originalWidth = cola.util.userData(helper, "originalWidth")
-					$fly(helper).width(originalWidth + ui.position.left - ui.originalPosition.left)
-					return
-			)
-			tableHeader.appendChild(handler)
-		return handler
-
-	_getColumnInsertIndicator: (tableHeader)->
-		indicator = @_doms.columnInsertIndicator
-		if not indicator
-			@_doms.columnInsertIndicator = indicator = cola.xCreate(
-				class: "insert-indicator"
-			)
-		if indicator.parentNode isnt tableHeader
-			tableHeader.appendChild(indicator)
-		return indicator
-
-	_parseDom: (dom)->
-		return unless dom
-		@_doms ?= {}
-
-		@_uniqueId ?= cola.uniqueId()
-		dom.className += " " + @_uniqueId
-
-		child = dom.firstElementChild
-		while child
-			cola.xRender(child)
-			child.setAttribute(cola.constants.IGNORE_DIRECTIVE, "")
-			child = child.nextElementSibling
-
-		columns = []
-		child = dom.firstElementChild
-		while child
-			next = child.nextElementSibling
-			nodeName = child.nodeName
-			if nodeName is "TEMPLATE"
-				@regTemplate(child)
-			else
-				if nodeName is "COLUMN"
-					column = @_parseColumnDom(child)
-				else if nodeName is "SELECT-COLUMN"
-					column = @_parseColumnDom(child)
-					column.$type = "select"
-				else if nodeName is "STATE-COLUMN"
-					column = @_parseColumnDom(child)
-					column.$type = "state"
-				if column then columns.push(column)
-				dom.removeChild(child)
-			child = next
-
-		@set("columns", columns) if columns.length
-
-		@_createInnerDom(dom)
-		return
-
-	_parseColumnDom: (dom)->
-		column = {}
-		for attr in dom.attributes
-			attrName = attr.name
-			if attrName.substring(0, 2) is "c-"
-				expression = cola._compileExpression(@_scope, attr.value)
-				column[attrName.substring(2)] = expression
-			else
-				column[attrName] = attr.value
-
-		child = dom.firstElementChild
-		while child
-			next = child.nextElementSibling
-			nodeName = child.nodeName
-			if nodeName is "TEMPLATE"
-				templateName = child.getAttribute("name")
-				if templateName and templateName.indexOf("header") is 0
-					templateName = "headerTemplate"
-				else if templateName and templateName.indexOf("footer") is 0
-					templateName = "footerTemplate"
-				else if templateName and templateName.indexOf("edit") is 0
-					templateName = "editTemplate"
-				else
-					templateName = "template"
-				column[templateName] = @trimTemplate(child)
-			else if child.nodeType is 1
-				subColumn = @_parseColumnDom(child)
-				column.columns ?= []
-				column.columns.push(subColumn)
-			child = next
-		return column
-
-	_doSet: (attr, attrConfig, value)->
-		if attrConfig?.refreshItems
-			attrConfig.refreshDom = true
-			@_refreshItemsScheduled = true
-		return super(attr, attrConfig, value)
-
-	_buildStyleSheet: ()->
-		clientWidth = @_dom.clientWidth + 1
-		if @_scrollMode is "scroll"
-			clientWidth -= @constructor.scrollBarWidth
-
-		realTotalWidth = 0
-		weightColumns = []
-
-		leftPaneWidth = 0
-		rightPaneWidth = 0
-		centerPaneWidth = 0
-
-		columnCssDefs = []
-		for colInfo in @_columnsInfo.dataColumns
-			if colInfo.widthType is "weight"
-				weightColumns.push(colInfo)
-				continue
-
-			def = ".#{colInfo.column._id}{"
-
-			if colInfo.widthType is "%"
-				if clientWidth > 0
-					width = Math.round(colInfo.width * clientWidth / 100)
-					widthType = "px"
-					realTotalWidth += width
-				else
-					width = colInfo.width
-					widthType = "%"
-			else
-				width = Math.round(colInfo.width) or 80
-				widthType = colInfo.widthType or "px"
-				realTotalWidth += width
-
-			if colInfo.index < @_realLeftFixedCols and widthType is "px"
-				leftPaneWidth += width
-			else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols and widthType is "px"
-				rightPaneWidth += width
-			else
-				centerPaneWidth += width
-
-			def += "width:#{width}#{widthType};"
-			def += "}"
-			columnCssDefs.push(def)
-
-		clientWidthForWeight = clientWidth - realTotalWidth
-		totalWidthWeight = @_columnsInfo.totalWidthWeight
-		adjust = 0
-		for colInfo, i in weightColumns
-			if colInfo.widthType isnt "weight"
-				continue
-
-			def = ".#{colInfo.column._id}{"
-
-			minWidth = colInfo.width
-			if clientWidth > 0
-				rawWidth = colInfo.width * clientWidthForWeight / totalWidthWeight + adjust
-				width = Math.floor(rawWidth)
-				if width < minWidth then width = minWidth
-				realTotalWidth += width
-				adjust = rawWidth - width
-				def += "width:#{width}px;"
-
-				if colInfo.index < @_realLeftFixedCols
-					leftPaneWidth += width
-				else if @_columnsInfo.dataColumns.length - colInfo.index <= @_realRightFixedCols
-					rightPaneWidth += width
-				else
-					centerPaneWidth += width
-			else
-				width = Math.round(colInfo.width * 100 / totalWidthWeight)
-				def += "width:#{width}%; min-width:#{colInfo.width}px"
-
-			def += "}"
-			columnCssDefs.push(def)
-
-		if leftPaneWidth or rightPaneWidth
-			def = ".#{@_uniqueId} {"
-			def += "padding-left:#{leftPaneWidth}px;padding-right:#{rightPaneWidth}px;"
-			def += "}"
-			columnCssDefs.push(def)
-
-		def = ".#{@_uniqueId} >.center.ui.inner-table >.table-body{"
-		def += "width:#{centerPaneWidth}px;"
-		def += "}"
-		columnCssDefs.push(def)
-
-		head = document.querySelector("head") or document.documentElement
-		@_styleSheetDom ?= $.xCreate(
-			tagName: "style"
-			type: "text/css"
-		)
-		@_styleSheetDom.innerHTML = "\n" + columnCssDefs.join("\n") + "\n"
-		head.appendChild(@_styleSheetDom)
-
+	_getNodeNameColumnMap: ()->
 		return {
-			clientWidth: clientWidth
-			totalWidth: realTotalWidth
-			leftPaneWidth: leftPaneWidth
-			rightPaneWidth: rightPaneWidth
+			"COLUMN": null
+			"SELECT-COLUMN": "select"
+			"STATE-COLUMN": "state"
 		}
 
 	_doRefreshDom: ()->
@@ -872,23 +337,29 @@ class cola.Table extends cola.Widget
 
 			$centerTableDom = @_centerTable.get$Dom()
 			if @_columnsInfo.left and not @_leftTable
-				@_leftTable = new cola.Table.InnerTable(
+				@_leftTable = @_createInnerTable(
 					type: "left"
 					table: @
 				)
 				$centerTableDom.before(@_leftTable.getDom())
 			if @_columnsInfo.right and not @_rightTable
-				@_rightTable = new cola.Table.InnerTable(
+				@_rightTable = @_createInnerTable(
 					type: "right"
 					table: @
 				)
 				$centerTableDom.after(@_rightTable.getDom())
 
-			@_buildStyleSheet()
+			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
 
 			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
 			@_centerTable.set("columnsInfo", @_columnsInfo.center)
+
+		realItems = @_realItems
+		ret = @_getItems()
+		@_realItems = ret.items
+		@_realOriginItems = ret._originItems
+		@_fullRefresh = realItems isnt @_realItems
 
 		@_leftTable?._refreshItems()
 		@_rightTable?._refreshItems()
@@ -901,6 +372,7 @@ class cola.Table extends cola.Widget
 				return
 			)
 
+		@_fullRefresh = false
 		cola.util.delay(@, "refreshScrollbars", 300, @_refreshScrollbars)
 		return
 
@@ -1058,7 +530,7 @@ class cola.Table extends cola.Widget
 						throw new cola.Exception("Can not set sort parameter automatically.")
 
 					if parameter instanceof cola.Entity
-						parameter.set(cola.setting("defaultSortParameter", ) or "sort", criteria)
+						parameter.set(cola.setting("defaultSortParameter",) or "sort", criteria)
 					else
 						parameter[cola.setting("defaultSortParameter") or "sort"] = criteria
 
@@ -1108,6 +580,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return @_table._getItemScope(parentScope, alias, item)
 
 	_getItems: ()-> @_table._getItems()
+
+	_convertItems: null
 
 	_createDom: ()->
 		@_doms ?= {}
@@ -1226,12 +700,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			@_refreshFooter(footer)
 			@_doms.tableBody.style.paddingBottom = @_doms.tableFooter.offsetHeight + "px"
 
-		super(itemsWrapper)
-
-		if @_type is "center"
-			@_table._realItems = @_realItems
-			@_table._realOriginItems = @_realOriginItems
-		return
+		return super(itemsWrapper)
 
 	_refreshHeaderRow: (rowDom, colInfos, rowHeight)->
 		for colInfo in colInfos
@@ -1320,19 +789,28 @@ class cola.Table.InnerTable extends cola.AbstractList
 			for colInfo, i in colInfos
 				column = colInfo.column
 				cell = itemDom.childNodes[i]
-				while cell and cell._name != column._name
-					itemDom.removeChild(cell)
-					cell = itemDom.childNodes[i]
+				while cell and cell._name isnt column._name
+					if cell.nodeName is "CELL"
+						itemDom.removeChild(cell)
+						cell = itemDom.childNodes[i]
+					else
+						tailChild = cell
+						cell = null
+						break
 
 				if not cell
 					isNew = true
 					cell = $.xCreate({
-						tagName: "div"
+						tagName: "cell"
 						content:
 							class: "content"
 					})
 					cell._name = column._name
-					itemDom.appendChild(cell)
+
+					if tailChild
+						itemDom.insertBefore(cell, tailChild)
+					else
+						itemDom.appendChild(cell)
 
 				exClass = ""
 				if column._align
@@ -1345,8 +823,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 				@_refreshCell(contentWrapper, item, colInfo, itemScope, isNew)
 
-			while itemDom.lastChild and itemDom.lastChild != cell
-				itemDom.removeChild(itemDom.lastChild)
+			child = cell.nextSibling
+			while child
+				if child.nodeName is "CELL"
+					temp = child.nextSibling
+					itemDom.removeChild(child)
+					child = temp
+				else
+					break
 		return
 
 	_refreshCell: (dom, item, columnInfo, itemScope, isNew)->

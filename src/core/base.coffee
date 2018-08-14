@@ -39,18 +39,17 @@ if window?
 		if (s = ua.match(/micromessenger\/([\d.]+)/)) then cola.browser.weixin = +s[1] or -1
 
 		cola.device.mobile = !!(`("ontouchstart" in window)` and ua.match(/(mobile)/))
-		cola.device.desktop = !cola.device.mobile
+		cola.device.desktop = not cola.device.mobile
 
-		if cola.device.mobile and !cola.os.ios
+		if cola.device.mobile and not cola.os.ios
 			theshold = 768
 			if cola.browser.qqbrowser
 				cola.device.pad = (window.screen.width / 2) >= theshold or (window.screen.height / 2) >= theshold
 			else
 				cola.device.pad = window.screen.width >= theshold or window.screen.height >= theshold
-			cola.device.phone = !cola.device.pad
+			cola.device.phone = not cola.device.pad
 
-		if window.outerWidth - window.innerWidth > 40 or
-		  window.outerHeight - window.innerHeight > 100
+		if window.outerWidth - window.innerWidth > 40 or window.outerHeight - window.innerHeight > 100
 			cola.consoleOpened = true
 		return
 

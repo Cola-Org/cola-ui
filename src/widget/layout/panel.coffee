@@ -12,7 +12,7 @@ class cola.Panel extends cola.AbstractContainer
 			refreshDom: true
 		icon:
 			refreshDom: true
-	@TEMPLATES:
+	@templates:
 		"tools":
 			tagName: "div"
 	@events:

@@ -89,7 +89,7 @@ class cola.Tree extends cola.AbstractList
 		beforeCurrentNodeChange: null
 		currentNodeChange: null
 
-	@TEMPLATES:
+	@templates:
 		"row-default":
 			tagName: "ul"
 			content:

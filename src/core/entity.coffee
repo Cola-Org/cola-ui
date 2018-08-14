@@ -2119,6 +2119,9 @@ class cola.Entity.MessageHolder
 Functions
 ###
 
+class cola.Iterable
+	each: -> return
+
 cola.each = (collection, fn, options)->
 	if collection instanceof cola.EntityList
 		collection.each(fn, options)
@@ -2127,6 +2130,8 @@ cola.each = (collection, fn, options)->
 			collection.each(fn)
 		else
 			cola.util.each(collection, fn)
+	else if collection instanceof cola.Iterable
+		collection.each(fn)
 	return
 
 ###

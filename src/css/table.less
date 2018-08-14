@@ -167,8 +167,8 @@
 		height: @rowHeight;
 	}
 	.cell {
-		min-height: @rowHeight;
-
+		height: @rowHeight;
+		line-height: @rowHeight;
 	}
 	.cell, .header-cell, .footer-cell {
 		box-sizing: border-box;
@@ -417,7 +417,7 @@
 
 .ui.widget-table.striped {
 	.inner-table {
-		.table.item:nth-child(2n):not(.current) .cell {
+		.table.item:nth-child(2n):not(.current) > .cell {
 			background: @itemsViewItemStripedBackground;
 		}
 	}
@@ -425,10 +425,10 @@
 
 .ui.widget-table.highlight-current {
 	.inner-table {
-		.table.item:hover:not(.current) .cell {
+		.table.item:hover:not(.current) > .cell {
 			background: @itemsViewHoverBackground;
 		}
-		.table.item.current .cell {
+		.table.item.current > .cell {
 			background: @itemsViewCurrentBackground;
 		}
 		.table.item > .cell.current {

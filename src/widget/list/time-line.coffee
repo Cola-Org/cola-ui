@@ -12,7 +12,7 @@ class cola.TimeLine extends cola.AbstractList
 #		itemLineClick: null
 #		itemIconClick: null
 
-	@TEMPLATES:
+	@templates:
 		"default":
 			tagName: "li"
 		"content":

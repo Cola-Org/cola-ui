@@ -44,10 +44,19 @@ cola.TemplateSupport =
 		return
 
 	_regDefaultTemplates: ()->
-		for name, template of @constructor.TEMPLATES
-			if @_templates?.hasOwnProperty(name) or !template
+		for name, template of @constructor.templates
+			if @_templates?.hasOwnProperty(name) or not template
 				continue
 			@regTemplate(name, template)
+
+		superClass = @constructor.__super__?.constructor
+		while superClass
+			if superClass.templates
+				for name, template of superClass.templates
+					if @_templates?.hasOwnProperty(name) or not template
+						continue
+					@regTemplate(name, template)
+			superClass = superClass.__super__?.constructor
 		return
 
 	trimTemplate: (template)->
@@ -274,8 +283,13 @@ cola.DataItemsWidgetMixin =
 		if not @_itemsRetrieved
 			@_itemsRetrieved = true
 			@_itemsScope.retrieveData()
+
+		items = @_items or @_itemsScope.items
+		if @_convertItems and items
+			items = @_convertItems(items)
+
 		return {
-			items: @_items or @_itemsScope.items
+			items: items
 			originItems: @_itemsScope.originItems
 		}
 

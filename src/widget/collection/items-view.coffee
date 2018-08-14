@@ -247,11 +247,8 @@ class cola.ItemsView extends cola.Widget
 
 		ret = @_getItems()
 		items = ret.items
-		@_realOriginItems = ret.originItems
-
-		if @_convertItems and items
-			items = @_convertItems(items)
 		@_realItems = items
+		@_realOriginItems = ret.originItems
 
 		documentFragment = null
 		nextItemDom = itemsWrapper.firstElementChild
