@@ -106,6 +106,9 @@ class cola.TableContentColumn extends cola.TableColumn
 		valign:
 			refreshColumns: true
 			enum: [ "top", "center", "bottom" ]
+
+		footerValue:
+			refreshColumns: true
 		footerTemplate:
 			refreshColumns: true
 

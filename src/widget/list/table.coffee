@@ -70,6 +70,7 @@ class cola.Table extends cola.AbstractTable
 			defaultValue: true
 
 		leftFixedCols:
+			type: "number"
 			defaultValue: 0
 			setter: (value)->
 				@_leftFixedCols = value
@@ -77,6 +78,7 @@ class cola.Table extends cola.AbstractTable
 				return
 
 		rightFixedCols:
+			type: "number"
 			defaultValue: 0
 			setter: (value)->
 				@_rightFixedCols = value
@@ -751,9 +753,14 @@ class cola.Table.InnerTable extends cola.AbstractList
 		$cell.toggleClass("sortable", !!column._sortable).removeClass("asc desc")
 		if column._sortDirection then $cell.addClass(column._sortDirection)
 
-		if column.renderHeader
-			if column.renderHeader(dom) != true
-				return
+		template = column.getTemplate("headerTemplate")
+		if template
+			template = @_cloneTemplate(template)
+			dom.appendChild(template)
+			skipDefault = column._real_headerTemplate
+		else
+			if column.renderHeader
+				skipDefault = column.renderHeader(dom) != true
 
 		if column.getListeners("renderHeader")
 			if column.fire("renderHeader", column, { dom: dom }) == false
@@ -763,11 +770,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			if @fire("renderHeaderCell", @, { column: column, dom: dom }) == false
 				return
 
-		template = column.getTemplate("headerTemplate")
-		if template
-			template = @_cloneTemplate(template)
-			dom.appendChild(template)
-		return if column._real_headerTemplate
+		return if skipDefault
 
 		caption = column._caption or column._name
 		if caption?.charCodeAt(0) is 95 # `_`
@@ -775,7 +778,70 @@ class cola.Table.InnerTable extends cola.AbstractList
 		dom.innerText = caption or ""
 		return
 
+	_refreshFooterRow: (rowDom)->
+		for colInfo in @_columnsInfo.dataColumns
+			column = colInfo.column
+
+			exClass = ""
+			if column._align
+				exClass = " h-" + column._align
+			else
+				exClass = " h-center"
+
+			cell = cola.xCreate(
+				class: "footer-cell " + column._id + exClass
+				content:
+					class: "content"
+			)
+			cell._name = column._name
+			rowDom.appendChild(cell)
+
+			@_refreshFooterCell(cell.firstElementChild, colInfo)
+		return
+
+	_refreshFooterCell: (dom, columnInfo)->
+		column = columnInfo.column
+
+		template = column.getTemplate("footerTemplate")
+		if template
+			template = @_cloneTemplate(template)
+			dom.appendChild(template)
+			skipDefault = column._real_footerTemplate
+		else
+			if column.renderFooter
+				skipDefault = column.renderFooter(dom) != true
+
+		if column.getListeners("renderFooter")
+			if column.fire("renderFooter", column, { dom: dom }) == false
+				return
+
+		if @getListeners("renderFooterCell")
+			if @fire("renderFooterCell", @, { column: column, dom: dom }) == false
+				return
+
+		return if skipDefault
+
+		content = column._footerValue
+		if not content
+			content = column._caption or column._name
+			if content?.charCodeAt(0) is 95 # `_`
+				content = column._property or column._bind
+		dom.innerText = content or ""
+		return
+
 	_refreshFooter: (footer)->
+		return if @_footerTimestamp is @_columnsInfo.timestamp
+		@_footerTimestamp = @_columnsInfo.timestamp
+
+		$fly(footer).empty()
+
+		rowDom = $.xCreate(
+			class: "footer-row"
+		)
+		@_refreshFooterRow(rowDom)
+		cola.xRender(rowDom, @_scope)
+		footer.appendChild(rowDom)
+		return
 
 	_doRefreshItemDom: (itemDom, item, itemScope)->
 		itemType = itemDom._itemType
@@ -837,8 +903,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		column = columnInfo.column
 
 		if column.renderCell
-			if column.renderCell(dom, item, itemScope) != true
-				return
+			skipDefault = column.renderCell(dom, item, itemScope) != true
 
 		if column.getListeners("renderCell")
 			if column.fire("renderCell", column, { item: item, dom: dom, scope: itemScope }) == false
@@ -848,6 +913,8 @@ class cola.Table.InnerTable extends cola.AbstractList
 			if @_table.fire("renderCell", @_table,
 			  { item: item, column: column, dom: dom, scope: itemScope }) == false
 				return
+
+		return if skipDefault
 
 		if isNew
 			template = column.getTemplate("template")
