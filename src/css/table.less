@@ -44,7 +44,7 @@
 			z-index: 2;
 			.box-shadow(@tableBoxShadow);
 			.cell, .header-cell, .footer-cell {
-				&:last-child {
+				&:last-of-type {
 					border-right-width: 0;
 				}
 			}
@@ -104,7 +104,6 @@
 		}
 		> .table-footer {
 			bottom: 0;
-			border-top: 1px solid @tableFootLineColor;
 			background: @tableFootBackground;
 		}
 		> .table-body {
@@ -283,9 +282,14 @@
 			}
 		}
 	}
-	.footer-cell {
-		display: inline-block;
-		border-right: 1px solid @tableColLineColor;
+	.footer-row {
+		white-space: nowrap;
+		line-height: 1;
+		font-size: 0;
+		.footer-cell {
+			display: inline-block;
+			border-right: 1px solid @tableColLineColor;
+		}
 	}
 
 	.table.item {
@@ -365,7 +369,7 @@
 	&.has-right-pane {
 		> .inner-table.center {
 			.cell, .header-cell, .footer-cell {
-				&:last-child {
+				&:last-of-type {
 					border-right-width: 0;
 				}
 			}

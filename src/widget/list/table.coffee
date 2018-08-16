@@ -710,7 +710,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			cell = cola.xCreate(
 				class: "header-cell " + column._id + " h-center"
 				content:
-					class: "content"
+					class: "content default-content"
 			)
 			cell._name = column._name
 
@@ -791,7 +791,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 			cell = cola.xCreate(
 				class: "footer-cell " + column._id + exClass
 				content:
-					class: "content"
+					class: "content default-content"
 			)
 			cell._name = column._name
 			rowDom.appendChild(cell)
