@@ -379,9 +379,7 @@ class cola.Table extends cola.AbstractTable
 		return
 
 	_onCurrentItemChange: (arg)->
-		@_leftTable?._onCurrentItemChange(arg)
-		@_rightTable?._onCurrentItemChange(arg)
-		@_centerTable._onCurrentItemChange(arg)
+		@_setCurrentItem(arg.current)
 		return
 
 	_onItemInsert: (arg)->
@@ -397,6 +395,14 @@ class cola.Table extends cola.AbstractTable
 					colInfo.column.refreshHeaderCheckbox()
 				return
 			)
+		return
+
+	_setCurrentItem: (item)->
+		@_syncCurrentItem = true
+		@_leftTable?._setCurrentItem(item)
+		@_rightTable?._setCurrentItem(item)
+		@_centerTable._setCurrentItem(item)
+		@_syncCurrentItem = false
 		return
 
 	_getCurrentItem: ()->
@@ -991,6 +997,27 @@ class cola.Table.InnerTable extends cola.AbstractList
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
 			@_refreshItemDom(itemDom, item, @_itemsScope)
+		return
+
+	_setCurrentItem: (item)->
+		if item
+			itemId = _getEntityId(item)
+			if itemId
+				currentItemDom = @_itemDomMap[itemId]
+				if not currentItemDom
+					@_refreshItems()
+					return
+		@_setCurrentItemDom(currentItemDom)
+		return
+
+	_setCurrentItemDom: (itemDom)->
+		return if @_duringSetCurrentItemDom
+		@_duringSetCurrentItemDom = true
+		super(itemDom)
+		if not @_table._syncCurrentItem
+			item = cola.util.userData(@_currentItemDom, "item")
+			@_table._setCurrentItem(item)
+		@_duringSetCurrentItemDom = false
 		return
 
 	_getCurrentItem: ()->

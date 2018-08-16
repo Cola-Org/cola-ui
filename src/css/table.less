@@ -277,7 +277,12 @@
 		}
 		&.first-row {
 			position: relative;
-			.header-cell {
+			> .header-cell {
+				border-top-width: 0;
+			}
+		}
+		> .header-group {
+			> .header-cell:first-of-type {
 				border-top-width: 0;
 			}
 		}
