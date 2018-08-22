@@ -225,7 +225,19 @@ cola.registerTypeResolver "widget", (config)->
 	if config.$constructor and cola.util.isSuperClass(cola.Widget, config.$constructor)
 		return config.$constructor
 	if config.$type and typeof config.$type is "string"
-		return cola[cola.util.capitalize(config.$type)]
+		typeName = config.$type
+		type = cola[cola.util.capitalize(typeName)]
+		return type if type
+
+		if typeName.indexOf(".") > 0
+			parts = typeName.split(".")
+			pkg = cola
+			for part, i in parts
+				if i is parts.length - 1
+					return cola[cola.util.capitalize(part)]
+				else
+					pkg = pkg[part]
+					break unless pkg
 	return
 
 cola.registerType("widget", "_default", cola.Widget)
