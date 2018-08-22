@@ -1108,7 +1108,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				path1 = null
 				path2 = path
 				if path2.charCodeAt(path2.length - 1) is 35 # `#`
-					path2 = path1.substring(0, path2.length - 1)
+					path2 = path2.substring(0, path2.length - 1)
 				holder = @_shortcutMap?[path2]
 				if holder
 					return @getProperty(holder.path)
