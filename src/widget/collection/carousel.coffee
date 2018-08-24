@@ -15,7 +15,6 @@ class cola.Carousel extends cola.AbstractItemGroup
 		controls:
 			defaultValue: true
 		pause:
-
 			defaultValue: 3000
 
 	@events:
@@ -88,7 +87,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 		template = @getTemplate()
 		carousel = @
-		
+
 
 		if template
 			if @_bind
@@ -110,12 +109,13 @@ class cola.Carousel extends cola.AbstractItemGroup
 
 		@setCurrentIndex(0)
 		carousel = @
-		
+
 		setTimeout(()->
 			carousel._scroller = new Swipe(carousel._dom, {
 				vertical: carousel._orientation == "vertical",
 				disableScroll: false,
 				continuous: false,
+				speed: 800,
 				callback: (pos)->
 					carousel.setCurrentIndex(pos)
 					return
