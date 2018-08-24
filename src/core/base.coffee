@@ -164,7 +164,7 @@ setting = {
 	defaultTimeInputFormat: "HH:m:mss"
 	defaultDateTimeFormat: "yyyy-MM-dd HH:mm:ss"
 	defaultDateTimeInputFormat: "yyyy-MM-dd HH:mm:ss"
-	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss(.fff)zzz"
+	defaultSubmitDateFormat: "yyyy-MM-dd'T'HH:mm:ss.fffzzz"
 }
 
 cola.setting = (key, value)->

@@ -1113,6 +1113,7 @@ class cola.Entity
 		state = options?.state or false
 		dataType = options?.dataType or false
 		oldData = options?.oldData or false
+		specialProperties = options?.specialProperties or false
 		simpleValue = options?.simpleValue or false
 		nullValue = if options?.nullValue? then options.nullValue else true
 
@@ -1121,7 +1122,12 @@ class cola.Entity
 		for prop, value of data
 			c = prop.charCodeAt(0)
 			if c is 36 or c is 95 # `$` or `_`
-				continue
+				if not specialProperties
+					continue
+				else if specialProperties is '$' and c is 95
+					continue
+				else if specialProperties is '_' and c is 36
+					continue
 
 			if value
 				if value instanceof cola.ProviderInvoker

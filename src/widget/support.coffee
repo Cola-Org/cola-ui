@@ -234,7 +234,7 @@ cola.registerTypeResolver "widget", (config)->
 			pkg = cola
 			for part, i in parts
 				if i is parts.length - 1
-					return cola[cola.util.capitalize(part)]
+					return pkg[cola.util.capitalize(part)]
 				else
 					pkg = pkg[part]
 					break unless pkg

@@ -165,7 +165,9 @@ class cola.Table extends cola.AbstractTable
 		return @_centerTable._getItemType(type)
 
 	_createDom: ()->
-		dom = cola.xCreate({})
+		dom = cola.xCreate(
+			tagName: @constructor.tagName
+		)
 		@_doms ?= {}
 		@_createInnerDom(dom)
 		return dom
@@ -182,7 +184,7 @@ class cola.Table extends cola.AbstractTable
 		@_centerTable.appendTo(dom)
 
 		if @_scrollMode is "scroll"
-			@_createVertScrollBar()
+			@_createVertScrollBar(dom)
 
 		$fly(dom).on("mouseenter", (evt)=>
 			@_mouseIn = true
@@ -229,7 +231,7 @@ class cola.Table extends cola.AbstractTable
 		tableBody = @_centerTable._doms.tableBody
 		if tableBody.scrollHeight > (tableBody.clientHeight + 2)
 			if not @_vertScrollBar and table._mouseIn
-				@_vertScrollBar = @_createVertScrollBar()
+				@_vertScrollBar = @_createVertScrollBar(@_dom)
 
 			vertScrollBar = @_vertScrollBar
 			if vertScrollBar
@@ -241,7 +243,7 @@ class cola.Table extends cola.AbstractTable
 			@_vertScrollBar.style.display = "none"
 		return
 
-	_createVertScrollBar: ()->
+	_createVertScrollBar: (dom)->
 		table = @
 		@_vertScrollBar = cola.xCreate({
 			class: "scroll-bar vert"
@@ -256,7 +258,7 @@ class cola.Table extends cola.AbstractTable
 				table._rightTable?._doms.tableBody.scrollTop = scrollTop
 				return
 		})
-		@_dom.appendChild(@_vertScrollBar)
+		dom.appendChild(@_vertScrollBar)
 		return @_vertScrollBar
 
 	_initDom: (dom)->
@@ -827,12 +829,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		return if skipDefault
 
-		content = column._footerValue
-		if not content
-			content = column._caption or column._name
-			if content?.charCodeAt(0) is 95 # `_`
-				content = column._property or column._bind
-		dom.innerText = content or ""
+		dom.innerText = column._footerValue or ""
 		return
 
 	_refreshFooter: (footer)->
