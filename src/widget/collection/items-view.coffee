@@ -176,11 +176,11 @@ class cola.ItemsView extends cola.Widget
 		@_$loaderContainer?.removeClass("active")
 		return
 
-	_onItemsLoadingStart: (arg)->
+	_doItemsLoadingStart: (arg)->
 		@_showLoadingTip()
 		return
 
-	_onItemsLoadingEnd: (arg)->
+	_doItemsLoadingEnd: (arg)->
 		@_hideLoadingTip()
 		return
 

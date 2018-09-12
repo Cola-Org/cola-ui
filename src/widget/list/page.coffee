@@ -234,8 +234,8 @@ class cola.Pager extends cola.Widget
 	_onItemRefresh: (arg)->
 	_onItemInsert: (arg)->
 	_onItemRemove: (arg)->
-	_onItemsLoadingStart: (arg)->
-	_onItemsLoadingEnd: (arg)->
+	_doItemsLoadingStart: (arg)->
+	_doItemsLoadingEnd: (arg)->
 	_onCurrentItemChange: (arg)->
 		if @_pageNo isnt arg.entityList.pageNo
 			@pagerItemsRefresh()

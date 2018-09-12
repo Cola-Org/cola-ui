@@ -17,11 +17,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				if typeof items is "string"
 					items = items.split(/[,;]/)
 					for item, i in items
-						index = item.indexOf("=")
-						if index >= 0
+						pos = item.indexOf("=")
+						if pos >= 0
 							items[i] =
-								key: item.substring(0, index)
-								value: item.substring(index + 1)
+								key: item.substring(0, pos)
+								value: item.substring(pos + 1)
 
 				if not @_valueProperty and not @_textProperty
 					result = cola.util.decideValueProperty(items)
@@ -220,8 +220,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_setValue: (value)->
 		if @_dom and not @_skipFindCurrentItem
-			if not @_itemsIndex
-				if @_items and @_valueProperty
+			if not @_itemsIndex and  @_items and @_valueProperty
+				if @_items instanceof cola.EntityList
+					@_itemsIndex = cola.util.buildIndex(@_items, @_valueProperty)
+				else
 					@_itemsIndex = index = {}
 					valueProperty = @_valueProperty
 					cola.each @_items, (item)->
@@ -231,9 +233,12 @@ class cola.AbstractDropdown extends cola.AbstractInput
 							key = item[valueProperty]
 						index[key + ""] = item
 						return
+
+			if @_itemsIndex
+				if @_itemsIndex instanceof cola.EntityIndex
+					currentItem = @_itemsIndex.find(value)
+				else
 					currentItem = index[value + ""]
-			else
-				currentItem = @_itemsIndex[value + ""]
 			@_currentItem = currentItem
 
 		return super(value)

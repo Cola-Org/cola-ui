@@ -224,7 +224,14 @@ class cola.Provider extends cola.Definition
 				if typeof parameter is "function"
 					parameter = parameter(@, context);
 
-				if typeof parameter is "object"
+				if parameter instanceof Array
+					oldParameter = parameter
+					parameter = []
+					for v in oldParameter
+						if typeof v is "string"
+							v = @_evalParamValue(v, context)
+						parameter.push(v)
+				else if typeof parameter is "object"
 					oldParameter = parameter
 					parameter = {}
 					for p, v of oldParameter
@@ -234,7 +241,7 @@ class cola.Provider extends cola.Definition
 
 		if not parameter?
 			parameter = {}
-		else if not (parameter instanceof Object)
+		else if typeof parameter isnt "object"
 			parameter = {
 				parameter: parameter
 			}

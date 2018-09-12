@@ -202,6 +202,8 @@ class cola.Table extends cola.AbstractTable
 		table = @
 		dom = @_dom
 		innerTable = @_centerTable._dom
+		return unless innerTable
+
 		if innerTable.scrollWidth > (innerTable.clientWidth + 2)
 			if not @_horiScrollBar and table._mouseIn
 				@_horiScrollBar = cola.xCreate({
@@ -927,7 +929,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 				if column._property
 					if column._format
 						context = {
-							defaultPath: "format(#{@_alias}.#{column._property},#{column._format})"
+							defaultPath: "format(#{@_alias}.#{column._property},\"#{column._format}\")"
 						}
 					else
 						context = {
@@ -1138,3 +1140,4 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return
 
 	_onKeyDown: (evt)->
+		return

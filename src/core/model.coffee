@@ -494,13 +494,13 @@ class cola.ItemsScope extends cola.SubScope
 		@_setItems(items)
 		return
 
-	retrieveData: ()->
+	retrieveData: (dataCtx)->
 		cola.util.cancelDelay(@, "retrieve")
 
 		if @_retrieveItems
-			@_retrieveItems()
+			@_retrieveItems(dataCtx)
 		else if @expression
-			items = @evaluate(@expression, @parent)
+			items = @evaluate(@expression, @parent, null, dataCtx)
 			@setItems(items)
 		return
 

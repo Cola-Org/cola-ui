@@ -120,11 +120,9 @@ class cola.TableContentColumn extends cola.TableColumn
 
 class cola.TableDataColumn extends cola.TableContentColumn
 	@attributes:
-		dataType:
-			readOnlyAfterCreate: true
-			setter: cola.DataType.dataTypeSetter
 		property: null
 		bind: null
+		format: null
 		template:
 			refreshColumns: true
 		sortable:
@@ -830,3 +828,28 @@ class cola.AbstractTable extends cola.Widget
 			leftPaneWidth: leftPaneWidth
 			rightPaneWidth: rightPaneWidth
 		}
+
+	_doItemsLoadingStart: (arg)->
+		@_showLoadingTip()
+		return
+
+	_doItemsLoadingEnd: (arg)->
+		@_hideLoadingTip()
+		return
+
+	_showLoadingTip: ()->
+		$loaderContainer = @_$loaderContainer
+		if not $loaderContainer and @_$dom
+			$dom = @_$dom
+			$dom.xAppend(
+				class: "loader-container"
+				content:
+					class: "ui loader"
+			)
+			@_$loaderContainer = $loaderContainer = $dom.find(">.loader-container");
+		$loaderContainer.addClass("active")
+		return
+
+	_hideLoadingTip: ()->
+		@_$loaderContainer?.removeClass("active")
+		return

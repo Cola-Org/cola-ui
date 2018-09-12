@@ -143,6 +143,12 @@ cola.util.format = (value, format)->
 		return cola.util.formatDate(value, format)
 	else if isFinite(value)
 		return cola.util.formatNumber(value, format)
+	else if value and typeof value is "string"
+		date = (new XDate(value)).toDate()
+		if not isFinite(date)
+			return value
+		else
+			return cola.util.formatDate(date, format)
 	else if value is null or value is undefined
 		return ""
 	else

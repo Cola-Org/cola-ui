@@ -49,6 +49,9 @@ cola.defaultAction["upperCase"] = (str)-> str?.toUpperCase()
 cola.defaultAction["lowerCase"] = (str)-> str?.toLowerCase()
 cola.defaultAction["capitalize"] = (str)-> cola.util.capitalize(str)
 
+cola.defaultAction["escape"] = escape
+cola.defaultAction["unescape"] = unescape
+
 cola.defaultAction.resource = (key, params...)-> cola.resource(key, params...)
 
 cola.defaultAction.filter = cola.util.filter

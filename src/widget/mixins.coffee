@@ -260,6 +260,8 @@ cola.DataItemsWidgetMixin =
 
 			if expression.writeable
 				@_simpleBindPath = expression.writeablePath
+		else if @_dataLoading
+			@_onItemsLoadingEnd?()
 
 		@_itemsScope.setExpression(expression)
 		return
@@ -273,8 +275,8 @@ cola.DataItemsWidgetMixin =
 		itemsScope.onItemRefresh = (arg)=> @_onItemRefresh?(arg)
 		itemsScope.onItemInsert = (arg)=> @_onItemInsert?(arg)
 		itemsScope.onItemRemove = (arg)=> @_onItemRemove?(arg)
-		itemsScope.onItemsLoadingStart = (arg)=> @_onItemsLoadingStart?(arg)
-		itemsScope.onItemsLoadingEnd = (arg)=> @_onItemsLoadingEnd?(arg)
+		itemsScope.onItemsLoadingStart = (arg)=> @_onItemsLoadingStart(arg)
+		itemsScope.onItemsLoadingEnd = (arg)=> @_onItemsLoadingEnd(arg)
 		if @_onCurrentItemChange
 			itemsScope.onCurrentItemChange = (arg)=> @_onCurrentItemChange(arg)
 		return itemsScope
@@ -282,7 +284,14 @@ cola.DataItemsWidgetMixin =
 	_getItems: ()->
 		if not @_itemsRetrieved
 			@_itemsRetrieved = true
-			@_itemsScope.retrieveData()
+			dataCtx = {}
+			@_itemsScope.retrieveData(dataCtx)
+			if dataCtx.unloaded
+				@_onItemsLoadingStart()
+			else if @_dataLoading
+				@_onItemsLoadingEnd?()
+		else if @_dataLoading
+			@_onItemsLoadingEnd?()
 
 		items = @_items or @_itemsScope.items
 		if @_convertItems and items
@@ -305,3 +314,11 @@ cola.DataItemsWidgetMixin =
 		else if @_simpleBindPath
 			dataType = @_scope.data.getDataType(@_simpleBindPath)
 		return dataType
+
+	_onItemsLoadingStart: (arg)->
+		@_dataLoading = true
+		return @_doItemsLoadingStart?(arg)
+
+	_onItemsLoadingEnd: (arg)->
+		@_dataLoading = false
+		return @_doItemsLoadingEnd?(arg)
