@@ -220,6 +220,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_setValue: (value)->
 		if @_dom and not @_skipFindCurrentItem
+			attrBinding = @_elementAttrBindings?["items"]
+			if attrBinding and  @_valueProperty
+				@_refreshAttrValue("items")
+
 			if not @_itemsIndex and  @_items and @_valueProperty
 				if @_items instanceof cola.EntityList
 					@_itemsIndex = cola.util.buildIndex(@_items, @_valueProperty)
@@ -348,6 +352,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if @_container
 			@_refreshDropdownContent?()
 			return @_container
+
 		else if not dontCreate
 			@_finalOpenMode = openMode = @_getFinalOpenMode()
 
@@ -855,13 +860,13 @@ class cola.Dropdown extends cola.AbstractDropdown
 				return
 			).on("click", ()-> false)
 
-		@_refreshDropdownContent?()
+		@_refreshDropdownContent()
 		return template
 
 	_refreshDropdownContent: ()->
 		attrBinding = @_elementAttrBindings?["items"]
 		list = @_list
-		list._textProperty = @_textProperty or @_valueProperty or "value"
+		list._textProperty = @_textProperty or @_valueProperty
 
 		if attrBinding
 			@_refreshAttrValue("items")
@@ -918,10 +923,13 @@ class cola.ComboBox extends cola.Dropdown
 				return item
 
 		if value
-			item = {}
-			item[@_valueProperty] = value
-			item[@_textProperty] = value
-			return item
+			if @_valueProperty or @_textProperty
+				item = {}
+				item[@_valueProperty] = value
+				item[@_textProperty] = value
+				return item
+			else
+				return value
 		else
 			return null
 

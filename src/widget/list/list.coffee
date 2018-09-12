@@ -210,6 +210,8 @@ class cola.ListView extends cola.AbstractList
 	_getDefaultBindPath: (item)->
 		if @_textProperty
 			return (item._alias or @_alias) + "." + @_textProperty
+		else
+			return item._alias or @_alias
 
 	_createNewItem: (itemType, item)->
 		template = @getTemplate(itemType)
