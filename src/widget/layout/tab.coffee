@@ -390,8 +390,8 @@ class cola.Tab extends cola.Widget
 			obj = tab
 		else if typeof tab is "string"
 			obj = @getTab(tab)
-		if obj
 
+		if obj
 			if @get("currentTab") is obj
 
 				tabDom = obj._dom;

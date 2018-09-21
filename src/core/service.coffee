@@ -35,7 +35,7 @@ class cola.ProviderInvoker
 		return changed
 
 	applyPagingParameters: (options)->
-		if options.sendJson or options.data?
+		if options.sendJson or typeof options.data is "string"
 			options.data = JSON.parse(options.data)
 
 		if not @_replaceSysParams(options)

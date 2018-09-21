@@ -4,6 +4,12 @@
 @downBorderColor: rgba(0, 0, 0, 0.3);
 
 .ui.input.select {
+	> select {
+		-webkit-appearance: none;
+		min-width: 40px;
+		width: 100%;
+		background: @inputBackground;
+	}
 	> .editor.placeholder:not(:focus) {
 		color: #999999;
 	}

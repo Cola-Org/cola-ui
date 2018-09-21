@@ -33,8 +33,7 @@ class cola.Button extends cola.Widget
 
 		state:
 			refreshDom: true
-			defaultValue: ""
-			enum: ["loading", "active", ""]
+			enum: ["loading", "active"]
 			setter: (value)->
 				oldValue = @_state
 				if oldValue and oldValue isnt value and @_dom then $fly(@_dom).removeClass(oldValue)
@@ -105,6 +104,11 @@ class cola.Button extends cola.Widget
 		if state then classNamePool.add(state)
 		classNamePool.toggle("disabled", @_disabled)
 		return
+
+	fire: (eventName, self, arg)->
+		if (eventName is "click" or eventName is "tap") and @_state is "loading"
+			return
+		return super(eventName, self, arg)
 
 cola.registerWidget(cola.Button)
 

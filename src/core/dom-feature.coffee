@@ -29,7 +29,7 @@ class cola._ExpressionFeature extends cola._BindingFeature
 		@isStatic = expression.isStatic
 		@paths = expression.paths or []
 		if not @paths.length and expression.hasComplexStatement
-			@paths = ["**"]
+			@paths = [ "**" ]
 			if not @isStatic then @delay = true
 			@watchingMoreMessage = not expression.hasDefinedPath
 		return
@@ -98,7 +98,7 @@ class cola._AliasFeature extends cola._BindingFeature
 		@isStatic = expression.isStatic
 		@paths = expression.paths or []
 		if not @paths.length and expression.hasComplexStatement
-			@paths = ["**"]
+			@paths = [ "**" ]
 			if not @isStatic then @delay = true
 			@watchingMoreMessage = not expression.hasDefinedPath
 		return expression
@@ -262,7 +262,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				domBinding.itemDomBindingMap = {}
 
 				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
-				cola.each items, (item, i)=>
+				cola.each(items, (item, i)=>
 					if not item? then return
 
 					itemDom = currentDom.nextSibling
@@ -287,6 +287,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 					currentDom = itemDom
 					return
+				, { currentPage: true })
 
 			if not documentFragment
 				itemDom = currentDom.nextSibling
@@ -549,9 +550,9 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 				$fly(option).text(optionValue)
 			else if optionValue instanceof cola.Entity
 				option.setAttribute("value",
-					optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
+				  optionValue.get("value") or optionValue.get("key")).text(optionValue.get("text") or optionValue.get("name"))
 			else
 				option.setAttribute("value",
-					optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
+				  optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
 			return
 		return

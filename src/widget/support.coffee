@@ -373,6 +373,7 @@ _extendWidget = (superCls, definition)->
 	`extend(cls, superCls)`
 
 	cls.tagName = definition.tagName?.toUpperCase() or ""
+	cls.className = definition.className or superCls.className or ""
 	cls.parentWidget = definition.parentWidget if definition.parentWidget
 
 	cls.attributes = definition.attributes or {}
@@ -410,11 +411,15 @@ _extendWidget = (superCls, definition)->
 				content: template
 			})
 			return dom
+		else if cls.parentWidget
+			return cls.parentWidget::_createDom.call(@)
 		else
-			return superCls::_createDom.apply(@)
+			return cola.RenderableElement::_createDom.apply(@)
 
 	cls::_initDom = (dom)->
-		superCls::_initDom.call(@, dom)
+		if cls.parentWidget
+			cls.parentWidget::_initDom.call(@, dom)
+
 		template = @_template
 		if template and not @_domCreated
 			templateDom = @xRender(template)

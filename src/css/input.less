@@ -1,13 +1,13 @@
 @import (reference) "global";
 
 .ui.input.readonly {
-	input, textarea {
+	> input, > textarea, > select {
 		background-color: @inputReadOnlyBackgroundColor !important;
 	}
 }
 
 .ui.input {
-	> input {
+	> input, > textarea, > select {
 		padding: 6px 10px;
 		border-radius: 2px;
 	}

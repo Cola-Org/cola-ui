@@ -11,8 +11,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	@attributes:
 		items:
+			refreshDom: true
 			expressionType: "repeat"
-			expressionNegative: true
+		#			expressionNegative: true
 			setter: (items)->
 				if typeof items is "string"
 					items = items.split(/[,;]/)
@@ -36,6 +37,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					if items?.timestamp
 						@_itemsTimestamp = items.timestamp
 					delete @_itemsIndex
+
+					if @_value isnt undefined and items
+						@_setValue(@_value)
 				return
 		currentItem:
 			readOnly: true
@@ -133,7 +137,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		unless @_skipSetIcon
 			unless @_icon then @set("icon", "dropdown")
 
-		if @_items and @_valueProperty then @_setValue(@_value)
+		if @_setValueOnInitDom and @_value isnt undefined
+			delete @_setValueOnInitDom
+			@_setValue(@_value)
 		return
 
 	_onFocus: ()->
@@ -219,31 +225,42 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		return
 
 	_setValue: (value)->
-		if @_dom and not @_skipFindCurrentItem
-			attrBinding = @_elementAttrBindings?["items"]
-			if attrBinding and  @_valueProperty
-				@_refreshAttrValue("items")
+		if value isnt undefined
+			if not @_dom
+				@_setValueOnInitDom = true
+			else if not @_skipFindCurrentItem and @_valueProperty
+				if not @_items
+					attrBinding = @_elementAttrBindings?["items"]
+					if attrBinding and @_valueProperty
+						@_refreshAttrValue("items")
 
-			if not @_itemsIndex and  @_items and @_valueProperty
-				if @_items instanceof cola.EntityList
-					@_itemsIndex = cola.util.buildIndex(@_items, @_valueProperty)
-				else
-					@_itemsIndex = index = {}
-					valueProperty = @_valueProperty
-					cola.each @_items, (item)->
-						if item instanceof cola.Entity
-							key = item.get(valueProperty)
+				if @_items
+					if not @_itemsIndex
+						if @_items instanceof cola.EntityList
+							@_itemsIndex = cola.util.buildIndex(@_items, @_valueProperty)
 						else
-							key = item[valueProperty]
-						index[key + ""] = item
-						return
+							@_itemsIndex = index = {}
+							valueProperty = @_valueProperty
+							cola.each @_items, (item)->
+								if item instanceof cola.Entity
+									key = item.get(valueProperty)
+								else
+									key = item[valueProperty]
+								index[key + ""] = item
+								return
 
-			if @_itemsIndex
-				if @_itemsIndex instanceof cola.EntityIndex
-					currentItem = @_itemsIndex.find(value)
+					if @_itemsIndex
+						if @_itemsIndex instanceof cola.EntityIndex
+							currentItem = @_itemsIndex.find(value)
+						else
+							currentItem = @_itemsIndex[value + ""]
+					@_currentItem = currentItem
 				else
-					currentItem = index[value + ""]
-			@_currentItem = currentItem
+					item = @_currentItem = {
+						$emptyItem: true
+					}
+					item[@_valueProperty] = value
+					item[@_textProperty] = ""
 
 		return super(value)
 
@@ -253,7 +270,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			if not @_textProperty
 				item = @_value
 			else
-				item = {}
+				item = {
+					$emptyItem: true
+				}
 				item[@_textProperty] = @_value
 
 		input = @_doms.input
@@ -295,18 +314,19 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				else
 					text = @readBindingValue()
 					input.value = text or ""
-
-			input.placeholder = ""
-			@get$Dom().removeClass("placeholder")
 		else
 			if not @_useValueContent
 				input.value = ""
 
-			input.placeholder = @_placeholder or ""
-			@get$Dom().addClass("placeholder")
-
 			if @_useValueContent
 				$fly(@_doms.valueContent).hide()
+
+		if item and not item.$emptyItem
+			input.placeholder = ""
+			@get$Dom().removeClass("placeholder")
+		else
+			input.placeholder = @_placeholder or ""
+			@get$Dom().addClass("placeholder")
 
 		if @_focused and @_useValueContent
 			@_showValueTipIfNecessary()
@@ -924,7 +944,9 @@ class cola.ComboBox extends cola.Dropdown
 
 		if value
 			if @_valueProperty or @_textProperty
-				item = {}
+				item = {
+					$emptyItem: true
+				}
 				item[@_valueProperty] = value
 				item[@_textProperty] = value
 				return item

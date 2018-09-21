@@ -491,7 +491,7 @@ class cola.Entity
 			if property
 				provider = property.get("provider")
 				context?.unloaded = !!provider
-				if loadMode isnt "never" and provider and provider._loadMode isnt "never"
+				if loadMode isnt "never" and provider and provider._loadMode isnt "manual"
 					dfd = loadData.call(@, provider).done((result)->
 						value = result
 						cola.callback(callback, true, result)
