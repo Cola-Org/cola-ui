@@ -586,7 +586,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			@_dataGrid = dateGrid = new cola.DateGrid({
 				cellClick: (self, arg)=>
 					value = $fly(arg.element).attr("cell-date")
-					d = new Date(value + " 00:00:00")
+					d = new Date(value)
 					datePicker.close(d)
 			})
 			dateGrid.setCurrentDate(new Date())
@@ -948,7 +948,7 @@ class cola.YearMonthDropDown extends cola.CustomDropdown
 				cellClick: (self, arg)=>
 					datePicker.close(self.get("value"))
 			})
-			
+
 			content = $.xCreate({
 				tagName: "div"
 				class: "month-picker"
