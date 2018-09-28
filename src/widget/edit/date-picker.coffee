@@ -682,7 +682,8 @@ class cola.YearGrid extends cola.RenderableElement
 
 	selectCell: (cell)->
 		year = $(cell).attr("year")
-		@_year = year
+		@_year = Number(year)
+
 		@set("value", year)
 
 
