@@ -102,7 +102,7 @@ class cola.Dialog extends cola.Layer
 				if @_doms.header then headerHeight = @_doms.header.offsetHeight
 				minHeight = height - actionsHeight - headerHeight
 
-				# $(@_doms.content).css(css, "#{minHeight}px")
+		# $(@_doms.content).css(css, "#{minHeight}px")
 		super()
 
 	_transition: (options, callback)->

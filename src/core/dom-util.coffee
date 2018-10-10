@@ -5,7 +5,7 @@ this.$fly = (dom)->
 	return _$
 
 cola.util.isVisible = (dom)->
-	return !!(dom._offsetWidth or dom._offsetHeight)
+	return !!(dom.offsetWidth or dom.offsetHeight)
 
 cola.util.setText = (dom, text = "")->
 	if cola.browser.mozilla

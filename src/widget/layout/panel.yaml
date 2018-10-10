@@ -8,10 +8,6 @@
       type: Boolean
       description: 是否支持收缩
       defaultValue: true
-    - name: closable
-      type: Boolean
-      description: 是否支持关闭
-      defaultValue: false
     - name: caption
       type: String
       description: 标题
@@ -21,42 +17,31 @@
       description: 图标
 
   events:
-    - name: beforeOpen
-      label: 在打开之前触发。
-    - name: open
-      label: 在打开之后触发。
-    - name: beforeClose
-      label: 在关闭之前触发。
-    - name: hide
-      label: 在关闭之后触发。
     - name: beforeCollapsedChange
       label: 在收缩状态发生改变之前触发。
     - name: collapsedChange
       label: 在收缩状态发生改变之后触发。
 
   methods:
-    - name: open
-      label: 打开
-      type: cola.Panel
+    - name: collapse
+      label: 展开
+      type: Deferred
 
     - name: close
-      label: 关闭
-      type: cola.Panel
+      label: 收缩
+      type: Deferred
 
     - name: collapsedChange
       type: cola.Widget
       label: 改变收缩状态
 
     - name: toggle
-      type: cola.Widget
-      label: 切换打开与关闭状态
+      type: Deferred
+      label: 切换展开与收缩状态
 
     - name: isCollapsed
       type: boolean
       label: 是否已收缩
-    - name: isClosed
-      type: boolean
-      label: 是否已关闭
 
 - name: cola.FieldSet
   stereotype: class

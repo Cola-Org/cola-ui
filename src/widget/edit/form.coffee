@@ -144,7 +144,7 @@ class cola.Form extends cola.Widget
 		return
 
 	refreshMessages: ()->
-		return unless @_$messages.length
+		return unless @_$messages?.length
 
 		messageHolder = @_messageHolder
 		messageHolder.clear()

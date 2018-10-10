@@ -18,6 +18,14 @@ class cola.Progress extends cola.Widget
 			readonlyAfterCreate: true
 			type: "boolean"
 			defaultValue: false
+		animated:
+			type: "boolean"
+			defaultValue: true
+			setter: (animated)->
+				@_animated = animated
+				@_$dom?.toggleClass("animated", !!animated)
+				return
+
 	_initDom: (dom)->
 		@_doms ?= {}
 		if @_circle
@@ -34,8 +42,9 @@ class cola.Progress extends cola.Widget
 				{
 					tagName: "text"
 				}
-
 			]))
+		return
+
 	_doRefreshDom: ()->
 		return unless @_dom
 		super()
@@ -44,11 +53,11 @@ class cola.Progress extends cola.Widget
 		total = @_total || 100
 
 		status = ""
-		if value == total
+		if value is total
 			status = "success"
 		else if value > total
 			status = "exception"
-		pValue = Math.ceil(Math.round(value / total * 10000) / 100);
+		pValue = Math.ceil(Math.round(value / total * 10000) / 100)
 		progress = pValue + "%"
 
 		if @_circle
@@ -66,12 +75,13 @@ class cola.Progress extends cola.Widget
 				dashOffset = (1 - value / total) * perimeter + 'px';
 			progressDom.setAttribute("stroke-dashoffset", dashOffset)
 		else
-			$dom.find(">.track>.progress").css("width", if status != "exception" then progress else "100%");
+			$dom.find(">.track>.progress").css("width", if status != "exception" then progress else "100%")
 			$dom.hasClass("inline") && $dom.find("text").css("right", if status != "exception" then (100 - pValue) + "%" else "0%")
 
 		$dom.find(">text").text(progress)
 		pool = @_classNamePool
 
+		pool.toggle("animated", !!@_animated)
 		pool.remove("exception")
 		pool.remove("success")
 		status && pool.add(status)
@@ -79,7 +89,12 @@ class cola.Progress extends cola.Widget
 		return
 
 	reset: ()->
-		@set("value", 0)
+		oldAnimated = @_animated
+		@set("animated", false).set("value", 0).refresh()
+		setTimeout(()=>
+			@set("animated", oldAnimated)
+		, 0)
+		return @
 
 	progress: (progress)->
 		@set("value", progress)
@@ -89,7 +104,7 @@ class cola.Progress extends cola.Widget
 
 	destroy: ()->
 		return if @_destroyed
-		@_$dom?.progress("destroy")
+		@_$dom?.progress?("destroy")
 
 		super()
 		delete @_doms

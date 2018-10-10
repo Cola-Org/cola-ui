@@ -545,15 +545,16 @@ class cola.AbstractDropdown extends cola.AbstractInput
 				@_assignment.split(/[,;]/).forEach((part)=>
 					pair = part.split("=")
 					targetProp = pair[0]
-					sourceProp = pair[1] or targetProp
-					if item
-						if item instanceof cola.Entity
-							value = item.get(sourceProp)
+					if targetProp
+						sourceProp = pair[1] or targetProp
+						if item
+							if item instanceof cola.Entity
+								value = item.get(sourceProp)
+							else
+								value = item[sourceProp]
 						else
-							value = item[sourceProp]
-					else
-						value = null
-					bindEntity.set(targetProp, value)
+							value = null
+						bindEntity.set(targetProp, value)
 					return
 				)
 

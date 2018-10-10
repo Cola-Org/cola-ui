@@ -192,8 +192,13 @@ class cola.Table extends cola.AbstractTable
 		).on("mouseleave", (evt)=>
 			@_mouseIn = false
 		).on("sizingChange", ()=>
+			if dom.offsetWidth is self._oldOffsetWidth and dom.offsetHeight is self._oldOffsetHeight
+				return
+
 			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
 			@_refreshScrollbars()
+			self._oldOffsetWidth = dom.offsetWidth
+			self._oldOffsetHeight = dom.offsetHeight
 			return
 		)
 		return

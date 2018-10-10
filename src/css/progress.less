@@ -17,7 +17,6 @@ c-progress, .ui.progress {
 					stroke-linecap: round;
 					stroke: @primaryColor;
 					fill: none;
-					transition: stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease;
 				}
 
 			}
@@ -37,7 +36,7 @@ c-progress, .ui.progress {
 			> svg {
 				path {
 					&.track {
-						stroke: @successBorderColor;
+						stroke: transparent;
 					}
 					&.progress {
 						stroke: @successColor;
@@ -52,7 +51,7 @@ c-progress, .ui.progress {
 			> svg {
 				path {
 					&.track {
-						stroke: @successBorderColor;
+						stroke: transparent;
 					}
 					&.progress {
 						stroke: @errorColor;
@@ -111,7 +110,6 @@ c-progress, .ui.progress {
 				background-color: @primaryColor;
 
 				height: @basicProgressHeight;
-				.transition(all .4s cubic-bezier(.08, .82, .17, 1) 0s);
 			}
 			position: absolute;
 			top: 50%;
@@ -170,6 +168,19 @@ c-progress, .ui.progress {
 				.progress {
 					background-color: @warningColor;
 				}
+			}
+		}
+	}
+
+	&.animated {
+		&.circle {
+			> svg path.progress {
+				transition: stroke-dashoffset 0.6s ease 0s, stroke 0.6s ease;
+			}
+		}
+		&:not(.circle) {
+			> .track .progress {
+				.transition(all .4s cubic-bezier(.08, .82, .17, 1) 0s);
 			}
 		}
 	}
