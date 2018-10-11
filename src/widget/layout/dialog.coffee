@@ -36,9 +36,6 @@ class cola.Dialog extends cola.Layer
 		dimmerClose:
 			type: "boolean"
 			defaultValue: false
-	_doTransition: (options, callback)->
-		$(window.document.body).toggleClass("hide-overflow", options.target is "show")
-		super(options,callback)
 
 	getContentContainer: ()->
 		return null unless @_dom
@@ -54,6 +51,7 @@ class cola.Dialog extends cola.Layer
 			if @[key]?.length
 				@_render(el, container) for el in @[key]
 		return
+
 	_transitionStart: ()->
 		$dom = @get$Dom()
 		if @_currentAnimation == "show"

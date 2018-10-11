@@ -17,15 +17,12 @@ class cola.Sidebar extends cola.AbstractLayer
 			defaultValue: true
 		modalOpacity:
 			type: "number"
-			defaultValue: 0.6
+			defaultValue: 0.2
 		dimmerClose:
 			type: "boolean"
 			defaultValue: true
 
 	_doTransition: (options, callback)->
-
-		$(window.document.body).toggleClass("hide-overflow", options.target is "show")
-
 		if @get("modal")
 			if options.target is "show"
 				@_showModalLayer()
