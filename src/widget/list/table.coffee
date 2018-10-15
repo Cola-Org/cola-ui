@@ -274,7 +274,7 @@ class cola.Table extends cola.AbstractTable
 		if $.fn.draggable
 			@_initDragDrop(">.inner-table >.table-header", dom)
 
-		dataType = @_getBindDataType()
+		dataType = @get("dataType") or @_getBindDataType()
 		if dataType and dataType instanceof cola.EntityDataType
 			if not @_columns
 				columnConfigs = []
