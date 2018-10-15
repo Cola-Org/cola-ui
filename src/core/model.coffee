@@ -639,7 +639,11 @@ class cola.ItemsScope extends cola.SubScope
 					break
 				child = child.parent
 				i++
-		return item
+
+		if @items is @originItems
+			return item
+		else
+			return if item then true else null
 
 	_processMessage: (bindingPath, path, type, arg)->
 		if @onMessage?(path, type, arg) is false
@@ -664,7 +668,12 @@ class cola.ItemsScope extends cola.SubScope
 			else
 				entity = @findRelativeItem(arg.entity)
 				if entity
-					@refreshItem(entity: entity)
+					if entity instanceof cola.Entity
+						@refreshItem(entity: entity)
+					else
+						@retrieveData()
+					@refreshItems()
+					allProcessed = true
 				else
 					processMoreMessage = true
 
@@ -713,8 +722,8 @@ class cola.ItemsScope extends cola.SubScope
 			if @isParentOfTarget(@expressionPaths, path) then @itemsLoadingEnd(arg)
 
 		if processMoreMessage and @expression
-			if @expression.hasComplexStatement
-				cola.util.delay(@, "retrieve", 100, ()=>
+			if @expression.hasComplexStatement # and not @expressionPaths? and not @expression.hasDefinedPath
+				cola.util.delay(@, "retrieve", 100, ()->
 					@retrieveData()
 					@refreshItems()
 					return
