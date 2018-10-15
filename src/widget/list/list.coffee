@@ -238,9 +238,9 @@ class cola.ListView extends cola.AbstractList
 		if @_itemHeight then $itemDom.height(@_itemHeight)
 		return itemDom
 
-	_refreshItemDom: (itemDom, item, parentScope)->
+	_refreshItemDom: (itemDom, item, parentScope, index)->
 		if itemDom._itemType is "group"
-			return @_refreshGroupDom(itemDom, item, parentScope)
+			return @_refreshGroupDom(itemDom, item, parentScope, index)
 		else
 			return super(itemDom, item, parentScope)
 

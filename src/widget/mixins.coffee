@@ -271,14 +271,43 @@ cola.DataItemsWidgetMixin =
 
 	_createItemsScope: ()->
 		itemsScope = new cola.ItemsScope(@_scope)
-		itemsScope.onItemsRefresh = (arg)=> @_onItemsRefresh(arg)
-		itemsScope.onItemRefresh = (arg)=> @_onItemRefresh?(arg)
-		itemsScope.onItemInsert = (arg)=> @_onItemInsert?(arg)
-		itemsScope.onItemRemove = (arg)=> @_onItemRemove?(arg)
-		itemsScope.onItemsLoadingStart = (arg)=> @_onItemsLoadingStart(arg)
-		itemsScope.onItemsLoadingEnd = (arg)=> @_onItemsLoadingEnd(arg)
+
+		itemsScope.onItemsRefresh = (arg = {})=>
+			arg.scope = itemsScope
+			@_onItemsRefresh(arg)
+			return
+
+		itemsScope.onItemRefresh = (arg = {})=>
+			arg.scope = itemsScope
+			@_onItemRefresh?(arg)
+			return
+
+		itemsScope.onItemInsert = (arg)=>
+			arg.scope = itemsScope
+			@_onItemInsert?(arg)
+			return
+
+		itemsScope.onItemRemove = (arg)=>
+			arg.scope = itemsScope
+			@_onItemRemove?(arg)
+			return
+
+		itemsScope.onItemsLoadingStart = (arg = {})=>
+			arg.scope = itemsScope
+			@_onItemsLoadingStart(arg)
+			return
+
+		itemsScope.onItemsLoadingEnd = (arg = {})=>
+			arg.scope = itemsScope
+			@_onItemsLoadingEnd(arg)
+			return
+
 		if @_onCurrentItemChange
-			itemsScope.onCurrentItemChange = (arg)=> @_onCurrentItemChange(arg)
+			itemsScope.onCurrentItemChange = (arg)=>
+				arg.scope = itemsScope
+				@_onCurrentItemChange(arg)
+				return
+
 		return itemsScope
 
 	_getItems: ()->

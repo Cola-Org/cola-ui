@@ -190,14 +190,14 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			if not insertMode or insertMode is "end"
 				$fly(tailDom).before(itemDom)
 			else
-				if insertMode == "begin"
+				if insertMode is "begin"
 					$fly(headDom).after(itemDom)
 				else if domBinding.itemDomBindingMap
 					refEntityId = cola.Entity._getEntityId(arg.refEntity)
 					if refEntityId
 						refDom = domBinding.itemDomBindingMap[refEntityId]?.dom
 						if refDom
-							if insertMode == "before"
+							if insertMode is "before"
 								$fly(refDom).before(itemDom)
 							else
 								$fly(refDom).after(itemDom)
@@ -218,7 +218,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				itemDomBinding = domBinding.itemDomBindingMap[itemId]
 				if itemDomBinding
 					itemDomBinding.remove()
-					delete domBinding.currentItemDom if itemDomBinding.dom == domBinding.currentItemDom
+					delete domBinding.currentItemDom if itemDomBinding.dom is domBinding.currentItemDom
 
 				if itemScope
 					index = itemScope.data.getIndex()
@@ -276,7 +276,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 							itemDomBinding.itemId = itemId
 							domBinding.itemDomBindingMap[itemId] = itemDomBinding
 						itemScope.data.setItemData(item)
-						itemScope.data.setIndex(i + 1)
+						itemScope.data.setIndex(i + 1, true)
 					else
 						itemDom = @createNewItem(domBinding, templateDom, scope, item, i + 1)
 						$fly(tailDom).before(itemDom)

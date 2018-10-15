@@ -30,7 +30,7 @@ class cola.Sidebar extends cola.AbstractLayer
 			else @_hideModalLayer()
 		sidebar = @
 		onComplete = ->
-			if typeof callback == "function"
+			if typeof callback is "function"
 				callback.call(sidebar)
 			if options.target is "show" then sidebar._onShow() else sidebar._onHide()
 			sidebar.fire(options.target, sidebar, {})
@@ -41,7 +41,7 @@ class cola.Sidebar extends cola.AbstractLayer
 
 		$dom = @get$Dom()
 		width = $dom.width()
-		height = $dom.height() || $dom.outerHeight()
+		height = $dom.height() or $dom.outerHeight()
 
 		isHorizontal = direction is "left" or direction is "right"
 		if direction is "left"
@@ -80,7 +80,7 @@ class cola.Sidebar extends cola.AbstractLayer
 		return unless @_dom
 		super()
 		@_setSize()
-		@_classNamePool.add(@_direction || "left")
+		@_classNamePool.add(@_direction or "left")
 	_setSize: ()->
 		unit = cola.constants.WIDGET_DIMENSION_UNIT
 		size = @get("size")
@@ -124,7 +124,6 @@ class cola.Sidebar extends cola.AbstractLayer
 		$(_dimmerDom).transit({
 				opacity: 0
 				complete: ()->
-
 					$(_dimmerDom).removeClass("active").css({
 						zIndex: 0
 					})

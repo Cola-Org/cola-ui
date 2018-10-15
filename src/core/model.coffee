@@ -628,14 +628,17 @@ class cola.ItemsScope extends cola.SubScope
 		items = @originItems or @items
 		return unless items
 
-		i = 0
 		item = null
-		while child
-			if child.parent is items and i < deepth
-				item = child
-				break
-			child = child.parent
-			i++
+		if items instanceof cola.EntityList
+			i = 0
+			while child
+				if child.parent is items
+					item = child
+					break
+				if i >= deepth
+					break
+				child = child.parent
+				i++
 		return item
 
 	_processMessage: (bindingPath, path, type, arg)->
@@ -710,7 +713,7 @@ class cola.ItemsScope extends cola.SubScope
 			if @isParentOfTarget(@expressionPaths, path) then @itemsLoadingEnd(arg)
 
 		if processMoreMessage and @expression
-			if not @expressionPaths? and @expression.hasComplexStatement and not @expression.hasDefinedPath
+			if @expression.hasComplexStatement
 				cola.util.delay(@, "retrieve", 100, ()=>
 					@retrieveData()
 					@refreshItems()

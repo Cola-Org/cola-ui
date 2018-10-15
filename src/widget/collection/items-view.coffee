@@ -117,16 +117,30 @@ class cola.ItemsView extends cola.Widget
 			@_refreshEmptyItemDom()
 
 			item = arg.entity
+			itemsScope = arg.itemsScope
 			itemType = @_getItemType(item)
 			itemsWrapper = @_doms.itemsWrapper
 			insertMode = arg.insertMode
+
+			insertMode = arg.insertMode
+			if not insertMode or insertMode is "end"
+				index = arg.entityList.entityCount
+			else if insertMode is "begin"
+				index = 1
+			else if insertMode is "before"
+				refItemScope = itemsScope.getItemScope(arg.refEntity)
+				index = refItemScope?.data.getIndex()
+			else if insertMode is "after"
+				refItemScope = itemsScope.getItemScope(arg.refEntity)
+				index = refItemScope?.data.getIndex() + 1
+
 			if not insertMode or insertMode is "end"
 				itemDom = @_createNewItem(itemType, item)
-				@_refreshItemDom(itemDom, item)
+				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper).append(itemDom)
 			else if insertMode is "begin"
 				itemDom = @_createNewItem(itemType, item)
-				@_refreshItemDom(itemDom, item)
+				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper.firstChild).before(itemDom)
 			else if @_itemDomMap
 				refEntityId = _getEntityId(arg.refEntity)
@@ -134,11 +148,17 @@ class cola.ItemsView extends cola.Widget
 					refDom = @_itemDomMap[refEntityId]?
 					if refDom
 						itemDom = @_createNewItem(itemType, item)
-						@_refreshItemDom(itemDom, item)
+						@_refreshItemDom(itemDom, item, null, index)
 						if insertMode is "before"
 							$fly(refDom).before(itemDom)
 						else
 							$fly(refDom).after(itemDom)
+
+			if insertMode isnt "end"
+				for id, iScope of itemsScope.itemScopeMap
+					i = iScope.data.getIndex()
+					if i >= index and iScope.data.getItemData() isnt entity
+						iScope.data.setIndex(i + 1)
 		else
 			@_refreshItems()
 		return
@@ -151,6 +171,13 @@ class cola.ItemsView extends cola.Widget
 			if itemDom
 				$fly(itemDom).remove()
 				@_currentItemDom = null if itemDom is @_currentItemDom
+
+			if arg.scope
+				index = arg.scope.data.getIndex()
+				if index <= arg.entityList.entityCount
+					for id, iScope of itemsScope.itemScopeMap
+						i = iScope.data.getIndex()
+						if i > index then iScope.data.setIndex(i - 1)
 
 		@_refreshEmptyItemDom()
 		return
@@ -265,7 +292,7 @@ class cola.ItemsView extends cola.Widget
 
 		lastItem = null
 		if items
-			cola.each(items, (item)=>
+			cola.each(items, (item, i)=>
 				lastItem = item
 				itemType = @_getItemType(item)
 
@@ -285,10 +312,10 @@ class cola.ItemsView extends cola.Widget
 					itemDom = null
 
 				if itemDom
-					@_refreshItemDom(itemDom, item)
+					@_refreshItemDom(itemDom, item, null, i + 1)
 				else
 					itemDom = @_createNewItem(itemType, item)
-					@_refreshItemDom(itemDom, item)
+					@_refreshItemDom(itemDom, item, null, i + 1)
 					documentFragment ?= document.createDocumentFragment()
 					documentFragment.appendChild(itemDom)
 				return
@@ -313,7 +340,7 @@ class cola.ItemsView extends cola.Widget
 		if not @_currentPageOnly and @_autoLoadPage and (items is @_realOriginItems or not @_realOriginItems) and items instanceof cola.EntityList and items.pageSize > 0
 			currentPageNo = lastItem?._page?.pageNo
 			if currentPageNo and (currentPageNo < items.pageCount or not items.pageCountDetermined)
-				if not @_loadingNextPage and itemsWrapper.scrollHeight == itemsWrapper.clientHeight and itemsWrapper.scrollTop = 0
+				if not @_loadingNextPage and itemsWrapper.scrollHeight is itemsWrapper.clientHeight and itemsWrapper.scrollTop is 0
 					@_showLoadingTip()
 					items.loadPage(currentPageNo + 1, ()=>
 						@_hideLoadingTip()
@@ -329,7 +356,7 @@ class cola.ItemsView extends cola.Widget
 		itemScope.data.setItemData(item, true)
 		return itemScope
 
-	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope)->
+	_refreshItemDom: (itemDom, item, parentScope = @_itemsScope, index)->
 		if item is @_currentItem
 			@_currentItemDom = itemDom
 		else if not @_currentItemDom and not @_allowNoCurrent
@@ -356,6 +383,7 @@ class cola.ItemsView extends cola.Widget
 
 		if not itemScope
 			itemScope = @_getItemScope(parentScope, alias, item)
+			itemScope.data.setIndex(index, true)
 			cola.util.userData(itemDom, "scope", itemScope)
 			cola.util.userData(itemDom, "item", originItem)
 			@_doRefreshItemDom?(itemDom, item, itemScope)
@@ -371,6 +399,7 @@ class cola.ItemsView extends cola.Widget
 
 				cola.util.userData(itemDom, "item", originItem)
 				itemScope.data.setItemData(item)
+				itemScope.data.setIndex(index, true)
 
 			@_doRefreshItemDom?(itemDom, item, itemScope)
 
