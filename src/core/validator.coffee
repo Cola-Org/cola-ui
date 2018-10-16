@@ -5,6 +5,16 @@ cola.registerTypeResolver "validator", (config)->
 cola.registerTypeResolver "validator", (config)->
 	if typeof config is "function"
 		return cola.CustomValidator
+	else if config instanceof Object
+		if config.min? or config.max?
+			return cola.NumberValidator
+		else if config.minLength? or config.maxLength?
+			return cola.LengthValidator
+		else if config.regExp
+			return cola.RegExpValidator
+		else if config.validateEmptyValue? or config.trim?
+			return cola.RequiredValidator
+	return
 
 class cola.Validator extends cola.Definition
 	@attributes:
@@ -73,8 +83,16 @@ class cola.NumberValidator extends cola.Validator
 
 class cola.LengthValidator extends cola.Validator
 	@attributes:
-		min: null
-		max: null
+		minLength: null
+		maxLength: null
+
+		# @Deprecated
+		min:
+			getter: ()-> @get("minLength")
+			setter: (min)-> @set("minLength", min)
+		max:
+			getter: ()-> @get("maxLength")
+			setter: (max)-> @set("maxLength", max)
 
 	_getDefaultMessage: (data)->
 		return cola.resource("cola.validator.error.length", data)
@@ -83,10 +101,10 @@ class cola.LengthValidator extends cola.Validator
 		if typeof data is "string" or typeof data is "number"
 			result = true
 			len = (data + "").length
-			if @_min?
-				result = len >= @_min
-			if result and @_max?
-				result = len <= @_max
+			if @_minLength?
+				result = len >= @_minLength
+			if result and @_maxLength?
+				result = len <= @_maxLength
 			return result
 		return true
 
