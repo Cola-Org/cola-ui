@@ -162,21 +162,18 @@ class cola.Panel extends cola.AbstractContainer
 
 		child = dom.firstElementChild
 		while child
-			if child.nodeType is 1
-				if child.nodeName is "TEMPLATE"
-					@regTemplate(child)
-				else
-					$child = $(child)
-					if $child.hasClass("header")
-						@_doms["header"] = child
-						@_doms["headerContent"] = $child.find(">.content")[0]
-						@_doms["icon"] = $child.find(".icon")[0]
-						@_doms["caption"] = $child.find(".caption")[0]
-					else if $child.hasClass("content")
-						@_doms["content"] = child
-						_parseChild(child, "content")
-					else
-						child = child.nextSibling
+			if child.nodeName is "TEMPLATE"
+				@regTemplate(child)
+			else
+				$child = $(child)
+				if $child.hasClass("header")
+					@_doms["header"] = child
+					@_doms["headerContent"] = $child.find(">.content")[0]
+					@_doms["icon"] = $child.find(".icon")[0]
+					@_doms["caption"] = $child.find(".caption")[0]
+				else if $child.hasClass("content")
+					@_doms["content"] = child
+					_parseChild(child, "content")
 			child = child.nextElementSibling
 		return
 
