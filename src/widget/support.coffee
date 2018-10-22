@@ -185,9 +185,8 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 			if not config.hasOwnProperty(k) then config[k] = v
 
 	if typeof config is "string"
-		config = {
+		config =
 			$type: config
-		}
 
 	if config.$constr instanceof Function
 		constr = config.$constr

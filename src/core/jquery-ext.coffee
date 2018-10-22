@@ -32,7 +32,7 @@ domObserver =
 			dom = holder.dom
 			originWidth = dom._originWidth
 			originHeight = dom._originHeight
-			dom._originHeight = width = dom.offsetWidth
+			dom._originWidth = width = dom.offsetWidth
 			dom._originHeight = height = dom.offsetHeight
 			visible = !!(width and height)
 

@@ -36,8 +36,8 @@ class cola.RadioGroup extends cola.AbstractEditor
 		$(dom).delegate(">item", "click", ()->
 			if selector._readOnly then return
 			value = selector._getDomValue(this)
-			selector._setValue(value);
-			selector._select(value)
+			if selector._setValue(value)
+				selector._select(value)
 		)
 
 	_doRefreshDom: ()->
