@@ -2244,15 +2244,21 @@ class cola.EntityIndex
 
 		if valid
 			value = entity.get(@property)
-			@idMap[entity.id] = true
+			@idMap[entity.id] = value
 			@index[value + ""] = entity
 		return
 
 	onEntityDetach: (entity)->
-		if @idMap[entity.id]
-			value = entity.get(@property)
+		if @idMap.hasOwnProperty(entity.id)
+			value = @idMap[entity.id]
 			delete @idMap[entity.id]
-			delete @index[value + ""]
+			if @index[value + ""] is entity
+				delete @index[value + ""]
+		return
+
+	update: (entity)->
+		@onEntityDetach(entity)
+		@onEntityAttach(entity)
 		return
 
 	find: (value)->

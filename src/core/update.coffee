@@ -178,6 +178,7 @@ cola.util.autoUpdate = (url, model, path, options = {})->
 		dirty: false
 
 		schedule: ()->
+			model.set(options.stateVariable, "dirty") if options.stateVariable
 			if @_updateTimerId
 				clearTimeout(@_updateTimerId)
 				@_updateTimerId = 0
@@ -191,18 +192,25 @@ cola.util.autoUpdate = (url, model, path, options = {})->
 
 		updateIfNecessary: ()->
 			if @dirty
+				if options.stateVariable
+					if model.get(options.stateVariable) isnt "dirty"
+						return false
+
 				@dirty = false
 				@_updateTimerId = 0
 				data = model.get(path, "never")
 				if data
 					self = @
+					model.set(options.stateVariable, "updating") if options.stateVariable
 					cola.util.update(url, data, options).done((result)=>
+						model.set(options.stateVariable, "") if options.stateVariable
 						retVal = @_notify("done", result)
 						return retVal
 					).fail((error)->
 						if error is "NO_DATA"
 							@errorProcessed = true
 						else
+							model.set(options.stateVariable, "failed") if options.stateVariable
 							self._notify("fail", error)
 						return
 					)

@@ -306,7 +306,7 @@ class cola.Element
 				if value? and typeof value isnt "number"
 					value = +value or 0
 
-			if attrConfig.enum and value? and attrConfig.enum.indexOf(value) < 0
+			if attrConfig.enum and value? and value isnt "" and attrConfig.enum.indexOf(value) < 0
 				throw new cola.Exception("The value \"#{value}\" of attribute \"#{attr}\" is out of range.")
 
 			if attrConfig.setter

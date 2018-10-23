@@ -192,8 +192,13 @@ class cola.Table extends cola.AbstractTable
 		).on("mouseleave", (evt)=>
 			@_mouseIn = false
 		).on("sizingChange", ()=>
+			if dom.offsetWidth is self._oldOffsetWidth and dom.offsetHeight is self._oldOffsetHeight
+				return
+
 			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
 			@_refreshScrollbars()
+			self._oldOffsetWidth = dom.offsetWidth
+			self._oldOffsetHeight = dom.offsetHeight
 			return
 		)
 		return
@@ -269,7 +274,7 @@ class cola.Table extends cola.AbstractTable
 		if $.fn.draggable
 			@_initDragDrop(">.inner-table >.table-header", dom)
 
-		dataType = @_getBindDataType()
+		dataType = @get("dataType") or @_getBindDataType()
 		if dataType and dataType instanceof cola.EntityDataType
 			if not @_columns
 				columnConfigs = []

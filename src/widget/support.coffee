@@ -16,7 +16,7 @@ _getElementConfig = (dom)->
 cola.xCreate.attributeProcessor["$"] = (dom, attrName, attrValue, context)->
 	return unless attrValue
 	if typeof attrValue is "function"
-		if context?.xRenderMode
+		if context?.xRender
 			config = _getElementConfig(dom)
 			config.events ?= {}
 			config.events[attrName] = attrValue
@@ -27,6 +27,7 @@ cola.xCreate.attributeProcessor["$"] = (dom, attrName, attrValue, context)->
 		return false
 	return true
 
+# @Deprecated
 cola.xCreate.attributeProcessor["c-widget"] = (dom, attrName, attrValue, context)->
 	return unless attrValue
 	if typeof attrValue is "object"
@@ -163,7 +164,7 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 		if widgetType
 			config = _compileWidgetDom(scope, dom, widgetType, config, context)
 
-	if context?.xRenderMode
+	if context?.xRender
 		elementConfig = dom._config
 		if elementConfig
 			delete dom._config
@@ -184,9 +185,8 @@ cola._userDomCompiler.$.push((scope, dom, context)->
 			if not config.hasOwnProperty(k) then config[k] = v
 
 	if typeof config is "string"
-		config = {
+		config =
 			$type: config
-		}
 
 	if config.$constr instanceof Function
 		constr = config.$constr
