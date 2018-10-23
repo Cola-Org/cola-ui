@@ -455,7 +455,7 @@ class cola.DatePicker extends cola.CustomDropdown
 					inputFormat = cola.setting("defaultDateTimeInputFormat")
 
 			inputValue = value
-			xDate = new XDate(value)
+			xDate = new XDate(inputFormat + "||" + value)
 			value = xDate.toDate()
 
 			if value.toDateString() is "Invalid Date"
@@ -467,14 +467,13 @@ class cola.DatePicker extends cola.CustomDropdown
 		return
 
 	_refreshInputValue: (value)->
-		inputType = @_inputType
 		if value instanceof Date
 			if value.toDateString() is "Invalid Date"
 				value = ""
 			else
-				format = @_inputFormat or @_displayFormat
+				format = if @_focused then @_inputFormat else @_displayFormat
 				unless format
-					if inputType is "date"
+					if @_inputType is "date"
 						format = cola.setting("defaultDateFormat")
 					else
 						format = cola.setting("defaultDateTimeFormat")
@@ -491,12 +490,10 @@ class cola.DatePicker extends cola.CustomDropdown
 		@_refreshInputValue(@_value)
 
 		return
-	_initDom:(dom)->
-		super(dom)
-		$inputDom = $fly(@_doms.input)
-		$inputDom.on("blur",()=>
-			@_postInput()
-		)
+
+	_onBlur: ()->
+		@_postInput()
+		return super()
 
 	open: ()->
 		if super()
@@ -605,6 +602,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			@_dropdownContent = content
 
 		return @_dropdownContent
+
 class cola.YearGrid extends cola.RenderableElement
 	@className: "year-grid"
 	@tagName: "c-year-grid"
@@ -734,6 +732,7 @@ class cola.YearGrid extends cola.RenderableElement
 	onCalDateChange: ()->
 		return @ unless @_dom
 		return @
+
 class cola.YearMonthGrid extends cola.RenderableElement
 	@className: "year-month-grid"
 	@tagName: "c-yearMonthGrid"

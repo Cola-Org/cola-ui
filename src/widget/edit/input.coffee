@@ -419,8 +419,7 @@ class cola.Input extends cola.AbstractInput
 
 	_onBlur: ()->
 		@_postInput()
-		super()
-		return
+		return super()
 
 	_onFocus: ()->
 		super()
@@ -433,8 +432,8 @@ class cola.Input extends cola.AbstractInput
 		if inputType is "text"
 			format = if @_focused then @_inputFormat else @_displayFormat
 			if value instanceof Date
-				if not format
-					format = if @_focused then cola.setting("defaultDateTimeFormat") else cola.setting("defaultDateFormat")
+				unless format
+					format = if @_focused then cola.setting("defaultDateInputFormat") else cola.setting("defaultDateFormat")
 				value = (new XDate(value)).toString(format)
 			else if isFinite(value)
 				if format
