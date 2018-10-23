@@ -489,7 +489,14 @@ class cola.DatePicker extends cola.CustomDropdown
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		$inputDom.prop("type", "text").css("text-align", "left")
 		@_refreshInputValue(@_value)
+
 		return
+	_initDom:(dom)->
+		super(dom)
+		$inputDom = $fly(@_doms.input)
+		$inputDom.on("blur",()=>
+			@_postInput()
+		)
 
 	open: ()->
 		if super()
@@ -991,7 +998,7 @@ class cola.TimeEditor extends cola.Widget
 						type: "number",
 						contextKey: "hour",
 						max: 23,
-						min: 0
+						min: "0"
 					}
 				}
 				{
@@ -1005,7 +1012,7 @@ class cola.TimeEditor extends cola.Widget
 						type: "number",
 						contextKey: "minute",
 						max: 59,
-						min: 0
+						min: "0"
 					}
 				}
 				{
@@ -1019,7 +1026,7 @@ class cola.TimeEditor extends cola.Widget
 						type: "number",
 						contextKey: "second",
 						max: 59,
-						min: 0
+						min: "0"
 					}
 				}
 			]
