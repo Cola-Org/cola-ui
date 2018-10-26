@@ -167,6 +167,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			return
 
 		scope.onItemInsert = (arg)=>
+			return unless scope.items is arg.entityList
+
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
 			templateDom = cola.util.userData(headDom, cola.constants.REPEAT_TEMPLATE_KEY)
