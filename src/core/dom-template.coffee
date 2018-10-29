@@ -467,4 +467,5 @@ cola._domFeatureBuilder =
 		return feature
 
 	event: (scope, attrValue, attrName)->
-		return new cola._EventFeature(attrValue, attrName.substring(2))
+		parts = attrName.substring(2).split(".")
+		return new cola._EventFeature(attrValue, parts[0], parts.slice(1))

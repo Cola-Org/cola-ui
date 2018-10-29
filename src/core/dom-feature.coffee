@@ -377,29 +377,6 @@ class cola._WatchFeature extends cola._BindingFeature
 			domBinding.duringExecuting = false
 		return
 
-class cola._EventFeature extends cola._ExpressionFeature
-	ignoreBind: true
-
-	constructor: (@expressionStr, @event)->
-
-	init: (domBinding, force)->
-		super(domBinding, force)
-		return unless @prepared
-
-		domBinding.$dom.on(@event, (evt)=>
-			oldScope = cola.currentScope
-			cola.currentScope = domBinding.scope
-			try
-				return @evaluate(domBinding, {
-					vars:
-						$model: cola.currentScope
-						$event: evt
-				}, "never")
-			finally
-				cola.currentScope = oldScope
-		)
-		return
-
 class cola._DomFeature extends cola._ExpressionFeature
 	writeBack: (domBinding, value)->
 		return unless @prepared and @expression?.writeable
@@ -557,4 +534,102 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 				option.setAttribute("value",
 				  optionValue.value or optionValue.key).text(optionValue.text or optionValue.name)
 			return
+		return
+
+cola._EventFlagHolder =
+	prevent:
+		result: (evt)->
+			evt.preventDefault()
+			return
+	stop:
+		result: (evt)->
+			evt.stopPropagation()
+			return
+
+	false:
+		result: ()-> false
+	true:
+		result: ()-> true
+
+	atl:
+		filter: (evt) -> evt.altKey
+	ctrl:
+		filter: (evt) -> evt.ctrlKey
+	shift:
+		filter: (evt) -> evt.shiftKey
+
+_keyMaps = [
+	[ "tab", 9 ]
+	[ "enter", 13 ]
+	[ "space", 32 ]
+	[ "esc", 27 ]
+	[ "delete", 46 ]
+	[ "backspace", 8 ]
+
+	[ "up", 38 ]
+	[ "down", 40 ]
+	[ "left", 37 ]
+	[ "right", 39 ]
+]
+
+i = 1
+while i <= 12
+	_keyMaps.push([ "f" + i, 111 + i ])
+	i++
+
+_keyMaps.forEach (args)->
+	cola._EventFlagHolder[args[0]] =
+		group: "keyCode"
+		filter: (evt)-> evt.keyCode is args[1]
+	return
+
+class cola._EventFeature extends cola._ExpressionFeature
+	ignoreBind: true
+
+	constructor: (@expressionStr, @event, @flags)->
+
+	filter: (evt)->
+		result = {}
+		for flag in @flags
+			flagHandler = cola._EventFlagHolder[flag]
+			if flagHandler.filter
+				b = !!flagHandler.filter(evt)
+				group = flagHandler.group or "default"
+				result[group] = b or result[group]
+
+		accept = true
+		for p, b of result
+			accept = b and accept
+		return accept
+
+	getResult: (evt)->
+		result = undefined
+		for flag in @flags
+			flagHandler = cola._EventFlagHolder[flag]
+			if flagHandler.result
+				r = flagHandler.result(evt)
+				result = r if r?
+		return result
+
+	init: (domBinding, force)->
+		super(domBinding, force)
+		return unless @prepared
+
+		domBinding.$dom.on(@event, (evt)=>
+			if @filter(evt)
+				oldScope = cola.currentScope
+				cola.currentScope = domBinding.scope
+				try
+					retval = @evaluate(domBinding, {
+						vars:
+							$model: cola.currentScope
+							$event: evt
+					}, "never")
+				finally
+					cola.currentScope = oldScope
+
+			if retval is undefined
+				retval = @getResult(evt)
+			return retval
+		)
 		return
