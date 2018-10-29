@@ -84,9 +84,15 @@ _compileWidgetDom = (scope, dom, widgetType, config = {}, context)->
 				removeAttrs ?= []
 				removeAttrs.push(attrName)
 			else
-				isEvent = widgetType.events.$has(prop)
-				if not isEvent and prop.indexOf("on") is 0
-					if widgetType.events.$has(prop.slice(2))
+				i = prop.indexOf(".")
+				if i > 0
+					eventName = prop.substring(0, i)
+				else
+					eventName = prop
+
+				isEvent = widgetType.events.$has(eventName)
+				if not isEvent and eventName.indexOf("on") is 0
+					if widgetType.events.$has(eventName.slice(2))
 						isEvent = true
 						prop = prop.slice(2)
 
@@ -103,9 +109,15 @@ _compileWidgetDom = (scope, dom, widgetType, config = {}, context)->
 			if widgetType.attributes.$has(prop)
 				config[prop] = attrValue
 			else
-				isEvent = widgetType.events.$has(prop)
-				if not isEvent and prop.indexOf("on") is 0
-					if widgetType.events.$has(prop.slice(2))
+				i = prop.indexOf(".")
+				if i > 0
+					eventName = prop.substring(0, i)
+				else
+					eventName = prop
+
+				isEvent = widgetType.events.$has(eventName)
+				if not isEvent and eventName.indexOf("on") is 0
+					if widgetType.events.$has(eventName.slice(2))
 						isEvent = true
 						prop = prop.slice(2)
 

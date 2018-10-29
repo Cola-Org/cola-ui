@@ -341,8 +341,8 @@ class cola.Widget extends cola.RenderableElement
 			@_bindEvent(eventName) if @getListeners(eventName)
 		return
 
-	_on: (eventName, listener, alias)->
-		super(eventName, listener, alias)
+	_on: (eventName, listener, alias, once, flags)->
+		super(eventName, listener, alias, once, flags)
 		@_bindEvent(eventName) if @_dom
 		return @
 
@@ -353,7 +353,7 @@ class cola.Widget extends cola.RenderableElement
 
 		return if @constructor.attributes.hasOwnProperty("disabled") and @get("disabled") and eventConfig and (eventConfig.$event or eventConfig.hammerEvent)
 
-		@["_hasFireTapEvent"] = eventName is "tap" if !@["_hasFireTapEvent"]
+		@["_hasFireTapEvent"] = eventName is "tap" if not @["_hasFireTapEvent"]
 		return if eventName is "click" and @["_hasFireTapEvent"]
 
 		return super(eventName, self, arg)

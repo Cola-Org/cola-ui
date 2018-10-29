@@ -148,26 +148,27 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.itemDomBindingMap = {}
 
 		scope.onItemsRefresh = ()=>
-			@onItemsRefresh(domBinding)
+			@onItemsRefresh(domBinding) unless domBinding.destroyed
 			return
 
 		scope.onCurrentItemChange = (arg)->
-			$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
-			if arg.current and domBinding.itemDomBindingMap
-				itemId = cola.Entity._getEntityId(arg.current)
-				if itemId
-					currentItemDomBinding = domBinding.itemDomBindingMap[itemId]
-					if (currentItemDomBinding)
-						currentItemDom = currentItemDomBinding.dom
-						$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
-					else
-						@onItemsRefresh(domBinding)
-						return
-			domBinding.currentItemDom = currentItemDom
+			unless domBinding.destroyed
+				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
+				if arg.current and domBinding.itemDomBindingMap
+					itemId = cola.Entity._getEntityId(arg.current)
+					if itemId
+						currentItemDomBinding = domBinding.itemDomBindingMap[itemId]
+						if (currentItemDomBinding)
+							currentItemDom = currentItemDomBinding.dom
+							$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+						else
+							@onItemsRefresh(domBinding)
+							return
+				domBinding.currentItemDom = currentItemDom
 			return
 
 		scope.onItemInsert = (arg)=>
-			return unless scope.items is arg.entityList
+			return if scope.items isnt arg.entityList or domBinding.destroyed
 
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)
@@ -211,6 +212,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			return
 
 		scope.onItemRemove = (arg)->
+			return if domBinding.destroyed
+
 			entity = arg.entity
 			itemsScope = arg.itemsScope
 
@@ -234,6 +237,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		return
 
 	_refresh: (domBinding, dataCtx)->
+		return if domBinding.destroyed
 		domBinding.scope.retrieveData()
 		domBinding.scope.refreshItems()
 		return
@@ -536,27 +540,51 @@ class cola._SelectOptionsFeature extends cola._DomFeature
 			return
 		return
 
-cola._EventFlagHolder =
-	prevent:
-		result: (evt)->
-			evt.preventDefault()
-			return
-	stop:
-		result: (evt)->
-			evt.stopPropagation()
-			return
+cola.EventFlagHandler =
+	flagMap:
+		prevent:
+			result: (evt)->
+				evt.preventDefault()
+				return
+		stop:
+			result: (evt)->
+				evt.stopPropagation()
+				return
 
-	false:
-		result: ()-> false
-	true:
-		result: ()-> true
+		false:
+			result: ()-> false
+		true:
+			result: ()-> true
 
-	atl:
-		filter: (evt) -> evt.altKey
-	ctrl:
-		filter: (evt) -> evt.ctrlKey
-	shift:
-		filter: (evt) -> evt.shiftKey
+		atl:
+			filter: (evt) -> evt.altKey
+		ctrl:
+			filter: (evt) -> evt.ctrlKey
+		shift:
+			filter: (evt) -> evt.shiftKey
+
+	filter: (flags, evt = {})->
+		result = {}
+		for flag in flags
+			flagHandler = @flagMap[flag]
+			if flagHandler?.filter
+				b = !!flagHandler.filter(evt)
+				group = flagHandler.group or "default"
+				result[group] = b or result[group]
+
+		accept = true
+		for p, b of result
+			accept = b and accept
+		return accept
+
+	getResult: (flags, evt = {})->
+		result = undefined
+		for flag in flags
+			flagHandler = @flagMap[flag]
+			if flagHandler?.result
+				r = flagHandler.result(evt)
+				result = r if r?
+		return result
 
 _keyMaps = [
 	[ "tab", 9 ]
@@ -578,7 +606,7 @@ while i <= 12
 	i++
 
 _keyMaps.forEach (args)->
-	cola._EventFlagHolder[args[0]] =
+	cola.EventFlagHandler.flagMap[args[0]] =
 		group: "keyCode"
 		filter: (evt)-> evt.keyCode is args[1]
 	return
@@ -588,35 +616,13 @@ class cola._EventFeature extends cola._ExpressionFeature
 
 	constructor: (@expressionStr, @event, @flags)->
 
-	filter: (evt)->
-		result = {}
-		for flag in @flags
-			flagHandler = cola._EventFlagHolder[flag]
-			if flagHandler.filter
-				b = !!flagHandler.filter(evt)
-				group = flagHandler.group or "default"
-				result[group] = b or result[group]
-
-		accept = true
-		for p, b of result
-			accept = b and accept
-		return accept
-
-	getResult: (evt)->
-		result = undefined
-		for flag in @flags
-			flagHandler = cola._EventFlagHolder[flag]
-			if flagHandler.result
-				r = flagHandler.result(evt)
-				result = r if r?
-		return result
-
 	init: (domBinding, force)->
 		super(domBinding, force)
 		return unless @prepared
 
 		domBinding.$dom.on(@event, (evt)=>
-			if @filter(evt)
+			retval = undefined
+			if cola.EventFlagHandler.filter(@flags, evt)
 				oldScope = cola.currentScope
 				cola.currentScope = domBinding.scope
 				try
@@ -628,8 +634,8 @@ class cola._EventFeature extends cola._ExpressionFeature
 				finally
 					cola.currentScope = oldScope
 
-			if retval is undefined
-				retval = @getResult(evt)
+				if retval is undefined
+					retval = cola.EventFlagHandler.getResult(@flags, evt)
 			return retval
 		)
 		return

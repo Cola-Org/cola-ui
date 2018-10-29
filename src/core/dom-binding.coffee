@@ -19,6 +19,7 @@ class cola._DomBinding
 		cola.util.onNodeDispose(dom, _destroyDomBinding)
 
 	destroy: ()->
+		@destroyed = true
 		_features = @features
 		if _features
 			i = _features.length - 1
@@ -109,7 +110,7 @@ class cola._DomBinding
 		return
 
 	refresh: (force)->
-		if @features
+		if @features and not @destroyed
 			for f in @features
 				f.refresh(@, force)
 		return

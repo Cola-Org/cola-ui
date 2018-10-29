@@ -191,6 +191,11 @@ class cola.Element
 				paths = attr.split(".")
 				obj = @
 				for path, i in paths
+					if i is 0
+						if @constructor.events.$has(path)
+							@_set(attr, value, ignoreError)
+							return @
+
 					if obj instanceof cola.Element
 						obj = obj._get(path, ignoreError)
 					else
@@ -237,24 +242,24 @@ class cola.Element
 					if ignoreError then return
 					throw new cola.Exception("Attribute \"#{attr}\" cannot be changed after create.")
 		else if value
-			eventName = attr
-			i = eventName.indexOf(":")
-			if i > 0 then eventName = eventName.substring(0, i)
+			if attr.indexOf(".") > 0 or attr.indexOf(":") > 0
+				eventName = attr.split(/[\.|\:]/)[0]
+			else
+				eventName = attr
+
 			if @constructor.events.$has(eventName)
 				if value instanceof cola.Expression
 					expression = value
 					@on(attr, (self, arg)->
 						scope = self._getExpressionScope()
-						expression.evaluate(scope, "never", {
+						return expression.evaluate(scope, "never", {
 							vars:
 								$self: self
 								$arg: arg
 								$dom: arg.dom
 								$model: scope
 								$event: arg.event
-						})
-						return
-					, ignoreError)
+						}))
 					return
 				else if typeof value is "function"
 					@on(attr, value)
@@ -262,8 +267,7 @@ class cola.Element
 				else if typeof value is "string"
 					for actionName in value.split(",")
 						if actionName
-							@on(attr, (self, arg)=>
-								self._getExpressionScope().action(actionName)(self, arg))
+							@on(attr, (self, arg)=> self._getExpressionScope().action(actionName)(self, arg))
 					return
 
 			if ignoreError then return
@@ -322,9 +326,15 @@ class cola.Element
 			elementAttrBinding?.refresh()
 		return
 
-	_on: (eventName, listener, alias, once)->
+	_on: (eventName, listener, alias, once, flags)->
 		eventName = eventName.toLowerCase()
 		eventConfig = @constructor.events[eventName]
+
+		if once or flags
+			listener =
+				handler: listener
+				once: once
+				flags: flags
 
 		if @_eventRegistry
 			listenerRegistry = @_eventRegistry[eventName]
@@ -333,10 +343,6 @@ class cola.Element
 
 		if not listenerRegistry
 			@_eventRegistry[eventName] = listenerRegistry = {}
-
-		if once
-			listenerRegistry.onceListeners ?= []
-			listenerRegistry.onceListeners.push(listener)
 
 		listeners = listenerRegistry.listeners
 		aliasMap = listenerRegistry.aliasMap
@@ -363,13 +369,20 @@ class cola.Element
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
 
+		i = eventName.indexOf(".")
+		if i > 0
+			parts = eventName.split(".")
+			eventName = parts[0]
+			flags = parts.slice(1)
+			once = once or !!flags.once
+
 		if not @constructor.events.$has(eventName)
 			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
 
 		if typeof listener isnt "function"
 			throw new cola.Exception("Invalid event listener.")
 
-		@_on(eventName, listener, alias, once)
+		@_on(eventName, listener, alias, once, flags)
 		return @
 
 	one: (eventName, listener)->
@@ -388,30 +401,20 @@ class cola.Element
 			if alias
 				aliasMap = listenerRegistry.aliasMap
 				i = aliasMap?[alias]
-
 				if i > -1
 					delete aliasMap?[alias]
-					listener = listeners[i]
 					listeners.splice(i, 1)
 			else if listener
-				i = listeners.indexOf(listener)
-				if i > -1
-					listeners.splice(i, 1)
-
-					aliasMap = listenerRegistry.aliasMap
-					if aliasMap
-						for alias of aliasMap
-							if aliasMap[alias] is listener
-								delete aliasMap[alias]
-								break
-
-			if listenerRegistry.onceListeners and listener
-				onceListeners = listenerRegistry.onceListeners
-				i = onceListeners.indexOf(listener)
-				if i > -1
-					onceListeners.splice(i, 1)
-					if not onceListeners.length
-						delete listenerRegistry.onceListeners
+				for l, i in listeners
+					if l is listener or l.handler is listener
+						listeners.splice(i, 1)
+						aliasMap = listenerRegistry.aliasMap
+						if aliasMap
+							for alias of aliasMap
+								if aliasMap[alias] is listener
+									delete aliasMap[alias]
+									break
+						break
 		else
 			delete listenerRegistry.listeners
 			delete listenerRegistry.aliasMap
@@ -424,6 +427,11 @@ class cola.Element
 		if i > 0
 			alias = eventName.substring(i + 1)
 			eventName = eventName.substring(0, i)
+
+		i = eventName.indexOf(".")
+		if i > 0
+			parts = eventName.split(".")
+			eventName = parts[0]
 
 		@_off(eventName, listener, alias)
 		return @
@@ -447,8 +455,9 @@ class cola.Element
 
 				oldScope = cola.currentScope
 				cola.currentScope = @_scope
+				removeListeners = null
 				try
-					for listener in listeners
+					for listener, i in listeners
 						if typeof listener is "function"
 							argsMode = listener._argsMode
 							if not listener._argsMode
@@ -459,16 +468,35 @@ class cola.Element
 								retValue = listener.call(self, arg, self)
 						else if typeof listener is "string"
 							retValue = do()=> eval(listener)
+						else
+							holder = listener
+							if holder.one
+								removeListeners ?= []
+								removeListeners.push(listener)
+
+							listener = holder.handler
+							if cola.EventFlagHandler.filter(holder.flags, arg.event)
+								argsMode = listener._argsMode
+								if not listener._argsMode
+									argsMode = cola.util.parseListener(listener)
+								if argsMode is 1
+									retValue = listener.call(self, self, arg)
+								else
+									retValue = listener.call(self, arg, self)
+
+								if retValue is undefined
+									retValue = cola.EventFlagHandler.getResult(holder.flags, arg.event)
 
 						if retValue isnt undefined then result = retValue
 						if retValue is false then break
 				finally
 					cola.currentScope = oldScope
 
-				if listenerRegistry.onceListeners
-					onceListeners = listenerRegistry.onceListeners.slice()
-					delete listenerRegistry.onceListeners
-					@off(eventName, listener) for listener in onceListeners
+				if removeListeners
+					i = removeListeners.length - 1
+					while i >= 0
+						@off(eventName, removeListeners[i])
+						i--
 
 		return result
 
