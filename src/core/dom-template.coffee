@@ -384,6 +384,10 @@ cola._domFeatureBuilder =
 			feature = new cola._DisplayFeature(attrValue)
 		else if attrName is "options" and dom.nodeName is "SELECT"
 			feature = new cola._SelectOptionsFeature(attrValue)
+		else if attrName.substring(0, 6) is "class."
+			feature = new cola._DomToggleClassFeature(attrValue, attrName.substring(6))
+		else if attrName.substring(0, 6) is "style."
+			feature = new cola._DomStylePropFeature(attrValue, attrName.substring(6))
 		else
 			feature = new cola._DomAttrFeature(attrValue, attrName)
 		return feature
