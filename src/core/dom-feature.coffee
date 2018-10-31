@@ -591,9 +591,9 @@ _keyMaps = [
 	[ "enter", 13 ]
 	[ "space", 32 ]
 	[ "esc", 27 ]
+	[ "insert", 45 ]
 	[ "delete", 46 ]
 	[ "backspace", 8 ]
-
 	[ "up", 38 ]
 	[ "down", 40 ]
 	[ "left", 37 ]
@@ -622,7 +622,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 
 		domBinding.$dom.on(@event, (evt)=>
 			retval = undefined
-			if cola.EventFlagHandler.filter(@flags, evt)
+			if not @flags or cola.EventFlagHandler.filter(@flags, evt)
 				oldScope = cola.currentScope
 				cola.currentScope = domBinding.scope
 				try
@@ -634,7 +634,7 @@ class cola._EventFeature extends cola._ExpressionFeature
 				finally
 					cola.currentScope = oldScope
 
-				if retval is undefined
+				if @flags and retval is undefined
 					retval = cola.EventFlagHandler.getResult(@flags, evt)
 			return retval
 		)

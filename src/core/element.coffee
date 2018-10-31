@@ -475,7 +475,7 @@ class cola.Element
 								removeListeners.push(listener)
 
 							listener = holder.handler
-							if cola.EventFlagHandler.filter(holder.flags, arg.event)
+							if not holder.flags or cola.EventFlagHandler.filter(holder.flags, arg.event)
 								argsMode = listener._argsMode
 								if not listener._argsMode
 									argsMode = cola.util.parseListener(listener)
@@ -484,7 +484,7 @@ class cola.Element
 								else
 									retValue = listener.call(self, arg, self)
 
-								if retValue is undefined
+								if holder.flags and retValue is undefined
 									retValue = cola.EventFlagHandler.getResult(holder.flags, arg.event)
 
 						if retValue isnt undefined then result = retValue
