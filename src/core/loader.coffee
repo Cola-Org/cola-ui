@@ -33,6 +33,7 @@ do() ->
 					cssUrls.push(cssUrl)
 
 		# load
+		context.targetDom = targetDom
 		context.suspendedInitFuncs = []
 
 		deferreds = []

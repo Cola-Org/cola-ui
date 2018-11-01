@@ -126,6 +126,7 @@ class cola.SubView extends cola.Widget
 		@_loaded = false
 
 		@_loadingDeferred = cola.loadSubView($content[0], {
+			subView: @
 			model: model
 			htmlUrl: @_url
 			jsUrl: @_jsUrl
