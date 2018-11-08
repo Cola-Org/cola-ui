@@ -1,4 +1,9 @@
 cola.resource(
+	"cola.error.loadResource": "装载资源[{0}]失败。\n{1}"
+	"cola.error.unrecognizedAttribute": "未声明的Attribute \"{0}\"。"
+	"cola.error.unrecognizedEvent": "未声明的Event \"{0}\"。"
+	"cola.error.unrecognizedDataType": "未声明的DataType \"{0}\".\n{1}"
+
 	"cola.date.monthNames": "01月,02月,03月,04月,05月,06月,07月,08月,09月,10月,11月,12月"
 	"cola.date.monthNamesShort": "1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月"
 	"cola.date.dayNames": "星期日,星期一,星期二,星期三,星期四,星期五,星期六"

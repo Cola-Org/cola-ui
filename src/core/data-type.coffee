@@ -155,7 +155,7 @@ cola.DataType.dataTypeSetter = (dataType)->
 		else
 			dataType = cola.DataType.defaultDataTypes[name]
 		if not dataType
-			throw new cola.Exception("Unrecognized DataType \"#{name}\".")
+			throw new cola.Exception(cola.resource("cola.error.unrecognizedDataType", name, ""))
 	else if dataType? and not (dataType instanceof cola.DataType)
 		dataType = new cola.EntityDataType(dataType)
 	@_dataType = dataType or null

@@ -1892,7 +1892,7 @@ class cola.EntityList
 		criteria = cola._trimCriteria(criteria, option)
 		return _filterCollection(@, criteria, option)
 
-	find: (criteria, option)->
+	find: (criteria, option = {})->
 		option.one = true
 		result = cola.util.where(@, criteria, option)
 		return result?[0]

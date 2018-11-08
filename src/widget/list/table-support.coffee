@@ -729,6 +729,8 @@ class cola.AbstractTable extends cola.Widget
 		return super(attr, attrConfig, value)
 
 	_buildStyleSheet: (selector)->
+		return unless @_columnsInfo?.dataColumns
+
 		clientWidth = @_dom.clientWidth + 1
 		if @_scrollMode is "scroll"
 			clientWidth -= @constructor.scrollBarWidth

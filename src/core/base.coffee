@@ -73,7 +73,7 @@ cola.on = (eventName, listener)->
 
 	listenerRegistry = colaEventRegistry[eventName]
 	if !listenerRegistry
-		throw new cola.Exception("Unrecognized event \"#{eventName}\".")
+		throw new cola.Exception(cola.resource("cola.error.unrecognizedEvent", eventName))
 
 	if typeof listener isnt "function"
 		throw new cola.Exception("Invalid event listener.")

@@ -176,7 +176,7 @@ class cola.Element
 	_get: (attr, ignoreError)->
 		if not @constructor.attributes.$has(attr)
 			if ignoreError then return
-			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
+			throw new cola.Exception(cola.resource("cola.error.unrecognizedAttribute", attr))
 
 		attrConfig = @constructor.attributes[attr.toLowerCase()]
 		if attrConfig?.getter
@@ -271,7 +271,7 @@ class cola.Element
 					return
 
 			if ignoreError then return
-			throw new cola.Exception("Unrecognized Attribute \"#{attr}\".")
+			throw new cola.Exception(cola.resource("cola.error.unrecognizedAttribute", attr))
 
 		@_doSet(attr, attrConfig, value)
 
@@ -377,7 +377,7 @@ class cola.Element
 			once = once or !!flags.once
 
 		if not @constructor.events.$has(eventName)
-			throw new cola.Exception("Unrecognized event \"#{eventName}\".")
+			throw new cola.Exception(cola.resource("cola.error.unrecognizedEvent", eventName))
 
 		if typeof listener isnt "function"
 			throw new cola.Exception("Invalid event listener.")

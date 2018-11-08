@@ -132,7 +132,7 @@ do() ->
 			if cola.callback(context.callback, false, error) isnt false
 				if error._url
 					errorMessage = error.statusText
-					throw new cola.Exception("Failed to load resource from [#{error._url}]. " + errorMessage)
+					throw new cola.Exception(cola.resource("cola.error.loadResource", error._url, errorMessage))
 				else
 					throw new cola.Exception(error)
 			return

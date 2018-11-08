@@ -1,4 +1,9 @@
 cola.resource(
+	"cola.error.loadResource": "Failed to load resource from \"{0}\".\n{1}"
+	"cola.error.unrecognizedAttribute": "Unrecognized Attribute \"{0}\""
+	"cola.error.unrecognizedEvent": "Unrecognized Event \"{0}\"."
+	"cola.error.unrecognizedDataType": "Unrecognized DataType \"{0}\".\n{1}"
+
 	"cola.date.monthNames": "January,February,March,April,May,June,July,August,September,October,November,December"
 	"cola.date.monthNamesShort": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sept,Oct,Nov,Dec"
 	"cola.date.dayNames": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday"

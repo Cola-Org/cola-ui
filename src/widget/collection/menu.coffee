@@ -97,6 +97,7 @@ class cola.Menu extends cola.Widget
 		})).hover(()-> menu._bindToSemantic()).delegate(">.item,.right.menu>.item", "click", ()-> menu._setActive(this))
 
 		setTimeout(()->
+			return if menu._destroyed
 			menu._bindToSemantic()
 			return
 		, 300)

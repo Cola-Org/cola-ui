@@ -1084,7 +1084,7 @@ class cola.DataModel extends cola.AbstractDataModel
 				if typeof config is "string"
 					dataType = @definition(config)
 					if not dataType
-						throw new cola.Exception("Unrecognized DataType \"#{config}\".")
+						throw new cola.Exception(cola.resource("cola.error.unrecognizedDataType", config, "Property \"#{property}\""))
 					propertyDef.set("dataType", dataType)
 				else if config instanceof cola.DataType
 					propertyDef.set("dataType", config)
@@ -1532,7 +1532,7 @@ cola.data = (config)->
 			name = dataType
 			dataType = cola.currentScope.dataType(name)
 			if not dataType
-				throw new cola.Exception("Unrecognized DataType \"#{name}\".")
+				throw new cola.Exception(cola.resource("cola.error.unrecognizedDataType", name, ""))
 		else if not (dataType instanceof cola.DataType)
 			dataType = new cola.EntityDataType(dataType)
 
