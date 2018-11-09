@@ -332,7 +332,7 @@ class cola.DateGrid extends cola.RenderableElement
 		return
 
 	getDateCellDom: (date)->
-		value = new XDate(date).toString("yyyy-MM-dd")
+		value = new XDate(date).toString(cola.setting("defaultDateFormat"))
 		return $(@_dom).find("td[cell-date='#{value}']")[0]
 
 	setCurrentDate: (date)->
@@ -488,7 +488,6 @@ class cola.DatePicker extends cola.CustomDropdown
 		@get("actionButton")?.set("disabled", @_finalReadOnly)
 		$inputDom.prop("type", "text").css("text-align", "left")
 		@_refreshInputValue(@_value)
-
 		return
 
 	_onBlur: ()->
@@ -516,7 +515,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		return
 
 	_getDropdownContent: ()->
-		if @_inputType == "date" then @_getDateDropdownContent() else @_getDateTimeDropdownContent()
+		if @_inputType is "date" then @_getDateDropdownContent() else @_getDateTimeDropdownContent()
 
 	_getDateTimeDropdownContent: ()->
 		datePicker = @
@@ -590,8 +589,8 @@ class cola.DatePicker extends cola.CustomDropdown
 			@_dataGrid = dateGrid = new cola.DateGrid({
 				cellClick: (self, arg)=>
 					value = $fly(arg.element).attr("cell-date")
-					d = new Date(value)
-					datePicker.close(d)
+					d = new XDate(cola.setting("defaultDateFormat") + "||" + value);
+					datePicker.close(d.toDate())
 			})
 			dateGrid.setCurrentDate(new Date())
 			content = $.xCreate({

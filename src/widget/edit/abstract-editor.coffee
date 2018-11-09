@@ -63,7 +63,11 @@ class cola.AbstractEditor extends cola.Widget
 			@_value = value
 
 		if @_rendered and (value isnt @_modelValue or not @_bindInfo)
-			@post()
+			if value instanceof Date
+				if (value + "") isnt (@_modelValue + "")
+					@post()
+			else
+				@post()
 
 		@onSetValue?(value)
 
