@@ -1,97 +1,159 @@
 /**
- * @preserve IntegraXor Web SCADA - JavaScript Number Formatter
- * http://www.integraxor.com/
- * author: KPL, KHL
- * (c)2011 ecava
- * Dual licensed under the MIT or GPL Version 2 licenses.
+ * Javascript-number-formatter
+ * Lightweight & Fast JavaScript Number Formatter
+ *
+ * @preserve IntegraXor Web SCADA - JavaScript Number Formatter (http://www.integraxor.com/)
+ * @author KPL
+ * @maintainer Rob Garrison
+ * @copyright 2018 ecava
+ * @license MIT
+ * @link http://mottie.github.com/javascript-number-formatter/
+ * @version 2.0.6
  */
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+		typeof define === 'function' && define.amd ? define(factory) :
+			(global.formatNumber = factory());
+}(this, (function () { 'use strict';
 
-////////////////////////////////////////////////////////////////////////////////
-// param: Mask & Value
-////////////////////////////////////////////////////////////////////////////////
+	var maskRegex = /[0-9\-+#]/;
+	var notMaskRegex = /[^\d\-+#]/g;
 
-this['formatNumber'] = function(m, v){
-	var prefix, suffix;
-	if (m) {
-		var i1, i2, i;
-		i1 = m.indexOf("#");
-		i2 = m.indexOf("0");
-		if (i1 < 0) i1 = 0;
-		if (i2 < 0) i2 = 0;
-		i = i1 < i2 ? i1 : i2;
-		if (i > 0) {
-			prefix = m.substring(0, i);
-			m = m.substring(i);
+	function getIndex(mask) {
+		return mask.search(maskRegex);
+	}
+
+	function processMask(mask) {
+		if (!mask) mask = "#.##";
+		
+		var maskObj = {};
+		var len = mask.length;
+		var start = getIndex(mask);
+		maskObj.prefix = start > 0 ? mask.substring(0, start) : "";
+
+		// Reverse string: not an ideal method if there are surrogate pairs
+		var end = getIndex(mask.split("").reverse().join(""));
+		var offset = len - end;
+		var substr = mask.substring(offset, offset + 1);
+		// Add 1 to offset if mask has a trailing decimal/comma
+		var indx = offset + ((substr === "." || (substr === ",")) ? 1 : 0);
+		maskObj.suffix = end > 0 ? mask.substring(indx, len) : "";
+
+		maskObj.mask = mask.substring(start, indx);
+		maskObj.maskHasNegativeSign = maskObj.mask.charAt(0) === "-";
+		maskObj.maskHasPositiveSign = maskObj.mask.charAt(0) === "+";
+
+		// Search for group separator & decimal; anything not digit,
+		// not +/- sign, and not #
+		var result = maskObj.mask.match(notMaskRegex);
+		// Treat the right most symbol as decimal
+		maskObj.decimal = (result && result[result.length - 1]) || ".";
+		// Treat the left most symbol as group separator
+		maskObj.separator = (result && result[1] && result[0]) || ",";
+
+		// Split the decimal for the format string if any
+		result = maskObj.mask.split(maskObj.decimal);
+		maskObj.integer = result[0];
+		maskObj.fraction = result[1];
+		return maskObj;
+	}
+
+	function processValue(value, maskObj, options) {
+		var isNegative = false;
+		var valObj = {
+			value: value
+		};
+		if (value < 0) {
+			isNegative = true;
+			// Process only abs(), and turn on flag.
+			valObj.value = -valObj.value;
+		}
+		valObj.sign = isNegative ? "-" : "";
+
+		// Fix the decimal first, toFixed will auto fill trailing zero.
+		valObj.value = Number(valObj.value).toFixed(maskObj.fraction && maskObj.fraction.length);
+		// Convert number to string to trim off *all* trailing decimal zero(es)
+		valObj.value = Number(valObj.value).toString();
+
+		// Fill back any trailing zero according to format
+		// look for last zero in format
+		var posTrailZero = maskObj.fraction && maskObj.fraction.lastIndexOf("0");
+		var parts = valObj.value.split(".");
+		var valInteger = parts[0] || "0", valFraction = parts[1] || "";
+
+		if (!valFraction || (valFraction && valFraction.length <= posTrailZero)) {
+			valFraction = (Number("0." + valFraction).toFixed(posTrailZero + 1)).replace("0.", "");
+		}
+		valObj.integer = valInteger;
+		valObj.fraction = valFraction;
+		addSeparators(valObj, maskObj);
+
+		// Remove negative sign if result is zero
+		if (valObj.result === "0" || valObj.result === "") {
+			// Remove negative sign if result is zero
+			isNegative = false;
+			valObj.sign = "";
 		}
 
-		i1 = m.lastIndexOf("#");
-		i2 = m.lastIndexOf("0");
-		i = i1 > i2 ? i1 : i2;
-		if (i >= 0 && i < m.length) {
-			suffix = m.substring(i + 1);
-			m = m.substring(0, i + 1);
+		if (!isNegative && maskObj.maskHasPositiveSign) {
+			valObj.sign = "+";
+		} else if (isNegative && maskObj.maskHasPositiveSign) {
+			valObj.sign = "-";
+		} else if (isNegative) {
+			valObj.sign = options && options.enforceMaskSign && !maskObj.maskHasNegativeSign ? "" : "-";
 		}
+		return valObj;
 	}
 
-	if (!m || isNaN(+v)) {
-		return v; //return as it is.
-	}
-	//convert any string to number according to formation sign.
-	var v = m.charAt(0) == '-'? -v: +v;
-	var isNegative = v<0? v= -v: 0; //process only abs(), and turn on flag.
+	function addSeparators(valObj, maskObj) {
+		valObj.result = "";
+		// Look for separator
+		var szSep = maskObj.integer.split(maskObj.separator);
+		// Join back without separator for counting the pos of any leading 0
+		var maskInteger = szSep.join("");
 
-	//search for separator for grp & decimal, anything not digit, not +/- sign, not #.
-	var result = m.match(/[^\d\-\+#]/g);
-	var Decimal = (result && result[result.length-1]) || '.'; //treat the right most symbol as decimal
-	var Group = (result && result[1] && result[0]) || ',';  //treat the left most symbol as group separator
-
-	//split the decimal for the format string if any.
-	var m = m.split( Decimal);
-	//Fix the decimal first, toFixed will auto fill trailing zero.
-	v = v.toFixed( m[1] && m[1].length);
-	v = +(v) + ''; //convert number to string to trim off *all* trailing decimal zero(es)
-
-	//fill back any trailing zero according to format
-	var pos_trail_zero = m[1] && m[1].lastIndexOf('0'); //look for last zero in format
-	var part = v.split('.');
-	//integer will get !part[1]
-	if (!part[1] || part[1] && part[1].length <= pos_trail_zero) {
-		v = (+v).toFixed( pos_trail_zero+1);
-	}
-	var szSep = m[0].split( Group); //look for separator
-	m[0] = szSep.join(''); //join back without separator for counting the pos of any leading 0.
-
-	var pos_lead_zero = m[0] && m[0].indexOf('0');
-	if (pos_lead_zero > -1 ) {
-		while (part[0].length < (m[0].length - pos_lead_zero)) {
-			part[0] = '0' + part[0];
-		}
-	}
-	else if (+part[0] == 0){
-		part[0] = '';
-	}
-
-	v = v.split('.');
-	v[0] = part[0];
-
-	//process the first group separator from decimal (.) only, the rest ignore.
-	//get the length of the last slice of split result.
-	var pos_separator = ( szSep[1] && szSep[ szSep.length-1].length);
-	if (pos_separator) {
-		var integer = v[0];
-		var str = '';
-		var offset = integer.length % pos_separator;
-		for (var i=0, l=integer.length; i<l; i++) {
-
-			str += integer.charAt(i); //ie6 only support charAt for sz.
-			//-pos_separator so that won't trail separator on full length
-			if (!((i-offset+1)%pos_separator) && i<l-pos_separator ) {
-				str += Group;
+		var posLeadZero = maskInteger && maskInteger.indexOf("0");
+		if (posLeadZero > -1) {
+			while (valObj.integer.length < (maskInteger.length - posLeadZero)) {
+				valObj.integer = "0" + valObj.integer;
 			}
+		} else if (Number(valObj.integer) === 0) {
+			valObj.integer = "";
 		}
-		v[0] = str;
+
+		// Process the first group separator from decimal (.) only, the rest ignore.
+		// get the length of the last slice of split result.
+		var posSeparator = (szSep[1] && szSep[szSep.length - 1].length);
+		if (posSeparator) {
+			var len = valObj.integer.length;
+			var offset = len % posSeparator;
+			for (var indx = 0; indx < len; indx++) {
+				valObj.result += valObj.integer.charAt(indx);
+				// -posSeparator so that won't trail separator on full length
+				if (!((indx - offset + 1) % posSeparator) && indx < len - posSeparator) {
+					valObj.result += maskObj.separator;
+				}
+			}
+		} else {
+			valObj.result = valObj.integer;
+		}
+		valObj.result += (maskObj.fraction && valObj.fraction) ? maskObj.decimal + valObj.fraction : "";
+		return valObj;
 	}
 
-	v[1] = (m[1] && v[1])? Decimal+v[1] : "";
-	return (prefix || "") + ((isNegative?'-':'') + v[0] + v[1]) + (suffix || ""); //put back any negation and combine integer and fraction.
-};
+	return function(mask, value, options) {
+		if (!options) options = {};
+		if (!mask || isNaN(Number(value))) {
+			// Invalid inputs
+			return value;
+		}
+
+		var i = mask.indexOf(".");
+		if (i < 0 || i === mask.length - 1) mask += ".";
+
+		var maskObj = processMask(mask);
+		var valObj = processValue(value, maskObj, options);
+		return maskObj.prefix + valObj.sign + valObj.result + maskObj.suffix;
+	}
+
+})));
