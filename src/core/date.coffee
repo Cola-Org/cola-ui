@@ -22,6 +22,7 @@ if XDate
 			M: len: 0, value: 1
 			d: len: 0, value: 1
 			h: len: 0, value: 0
+			H: len: 0, value: 0
 			m: len: 0, value: 0
 			s: len: 0, value: 0
 		patterns = []
@@ -65,6 +66,6 @@ if XDate
 					parts[pattern].value = +digits[i]
 
 		if shouldReturn
-			return new XDate(parts.y.value, parts.M.value - 1, parts.d.value, parts.h.value, parts.m.value, parts.s.value)
+			return new XDate(parts.y.value, parts.M.value - 1, parts.d.value, (parts.h.value or parts.H.value), parts.m.value, parts.s.value)
 		else
 			return
