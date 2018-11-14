@@ -423,14 +423,11 @@ _extendWidget = (superCls, definition)->
 				content: template
 			})
 			return dom
-		else if cls.parentWidget
-			return cls.parentWidget::_createDom.call(@)
 		else
-			return cola.RenderableElement::_createDom.apply(@)
+			return super(dom)
 
 	cls::_initDom = (dom)->
-		if cls.parentWidget
-			cls.parentWidget::_initDom.call(@, dom)
+		super(dom)
 
 		template = @_template
 		if template and not @_domCreated

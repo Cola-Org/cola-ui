@@ -17,7 +17,7 @@ _processEntity = (entity, context, options)->
 		oldData: options.oldData
 	context.messages ?= {}
 
-	if not options.ignoreValidators and entity.state isnt cola.Entity.STATE_DELETED
+	if not options.disableValidators and entity.state isnt cola.Entity.STATE_DELETED
 		entity.validate()
 		messages = entity.findMessages()
 		if messages
