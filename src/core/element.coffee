@@ -99,7 +99,11 @@ class cola.Element
 			setter: (tag)->
 				cola.tagManager.unreg(t, @) for t in @_tag if @_tag
 				if tag
-					@_tag = ts = tag.split(tagSplitter)
+					if tag instanceof Array
+						ts = tag
+					else
+						ts = tag.split(tagSplitter)
+					@_tag = ts
 					cola.tagManager.reg(t, @) for t in ts
 				else
 					@_tag = null
