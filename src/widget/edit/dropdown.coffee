@@ -260,7 +260,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 						$emptyItem: true
 					}
 					item[@_valueProperty] = value
-					item[@_textProperty] = ""
+					item[@_textProperty] = value
 
 		return super(value)
 

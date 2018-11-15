@@ -148,7 +148,8 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 		domBinding.itemDomBindingMap = {}
 
 		scope.onItemsRefresh = ()=>
-			@onItemsRefresh(domBinding) unless domBinding.destroyed
+			return if domBinding.destroyed
+			@onItemsRefresh(domBinding)
 			return
 
 		scope.onCurrentItemChange = (arg)->
@@ -163,12 +164,14 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 							$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
 						else
 							@onItemsRefresh(domBinding)
-							return
 				domBinding.currentItemDom = currentItemDom
 			return
 
 		scope.onItemInsert = (arg)=>
-			return if scope.items isnt arg.entityList or domBinding.destroyed
+			if scope.items isnt arg.entityList or domBinding.destroyed
+				if scope.items?.$origin is arg.entityList
+					@_refresh(domBinding)
+				return
 
 			headDom = domBinding.dom
 			tailDom = cola.util.userData(headDom, cola.constants.REPEAT_TAIL_KEY)

@@ -575,8 +575,36 @@ cola.tagManager =
 			delete @registry[tag]
 		return
 
-	find: (tag)->
-		return @registry[tag]
+	_find: (tag)->
+		ts = tag.split(tagSplitter)
+		if ts.length is 1
+			return @registry[tag]
+		else
+			elements = []
+			for t in ts
+				es = @registry[t]
+				if es
+					if elements.length
+						elements = elements.filter (e)-> es.indexOf(e) >= 0
+					else
+						Array.prototype.push.apply(elements, es)
+			return elements
+
+	find: (tags)->
+		if tags instanceof Array
+			elements = []
+			for tag in tags
+				es = @_find(tag)
+				if es
+					if elements.length
+						for e in es
+							if elements.indexOf(e) < 0
+								elements.push(e)
+					else
+						Array.prototype.push.apply(elements, es)
+			return elements
+		else
+			return @_find(tags)
 
 cola.tag = (tag)->
 	elements = cola.tagManager.find(tag)
