@@ -1097,6 +1097,10 @@ class cola.Entity
 		return @_messageHolder?.getMessages(prop)
 
 	clearMessages: (prop, force)->
+		if typeof prop is "boolean"
+			force = prop
+			prop = undefined
+
 		return @ unless @_messageHolder
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
@@ -1261,7 +1265,6 @@ class Page extends Array
 			delete entity.parent
 			entity._setDataModel(null)
 			entity._onPathChange()
-			entity = entity._next
 			i--
 		@splice(0, @length)
 		@entityCount = 0
@@ -1576,7 +1579,7 @@ class cola.EntityList
 			refEntity ?= @current
 			if refEntity
 				page = refEntity._page
-				index = page.indexOf(entity)
+				index = page.indexOf(refEntity)
 				if insertMode is "after"
 					index++
 		else

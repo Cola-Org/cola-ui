@@ -45,7 +45,7 @@ cola._compileExpression = (scope, exprStr, specialType)->
 	return null unless exprStr
 
 	if exprStr.charCodeAt(0) is 63 # `?`
-		exp = cola._compileExpression(scope, exprStr.substring(1))
+		exp = cola._compileExpression(scope, exprStr.substring(1), specialType)
 		exprStr = exp.evaluate(scope, "never")
 		return null unless exprStr
 

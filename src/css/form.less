@@ -58,9 +58,11 @@
 .per-row(@row,@spacing:@fields-default-spacing,@include-spacing:true) {
 	> field {
 		width: 100%/@row;
+
 		&:nth-of-type(1n) {
 			clear: none;
 		}
+
 		&:nth-of-type(@{row}n+1) {
 			clear: both;
 		}
@@ -108,6 +110,7 @@
 		&.required {
 			> label {
 				position: relative;
+
 				&:after {
 					content: '*';
 					color: #DB2828;
@@ -129,6 +132,7 @@
 			flex: 1 0 auto;
 			width: auto;
 		}
+
 		.ui.tag-editor {
 			-webkit-box-flex: 1;
 			-webkit-flex: 1 0 auto;
@@ -171,10 +175,12 @@
 		width: 100%;
 		box-sizing: border-box;
 	}
+
 	> fields {
 		.base-fields();
 
 	}
+
 	> field {
 		box-sizing: border-box;
 		width: 100%;
@@ -184,24 +190,41 @@
 	> fields, > [class*="fields-"] {
 		.form-field();
 	}
+
 	.form-field();
 	.fields-html-classes(false);
 }
 
-.small-form-field() {
+.vertial-form-field() {
 	> field {
+		display: block;
 		box-sizing: border-box;
+
 		> label {
 			display: block;
+			text-align: left;
+			margin-bottom: 4px;
 		}
+
 		> .ui.input, .ui.textarea, > .content, > content {
-			-webkit-box-flex: 1;
-			-webkit-flex: 1 0 auto;
-			-ms-flex: 1 0 auto;
-			flex: 1 0 auto;
+			display: block;
 			width: auto;
 		}
-		width: 100% !important;
+	}
+}
+
+.form, form-layout {
+	&.vertical {
+		> fields, > [class*="fields-"] {
+			.vertial-form-field();
+		}
+	}
+}
+
+
+fields, [class*="fields-"] {
+	&.vertical {
+		.vertial-form-field();
 	}
 }
 
@@ -209,11 +232,32 @@ form-layout {
 	display: block;
 }
 
+.small-form-field() {
+	> field {
+		box-sizing: border-box;
+
+		> label {
+			display: block;
+		}
+
+		> .ui.input, .ui.textarea, > .content, > content {
+			-webkit-box-flex: 1;
+			-webkit-flex: 1 0 auto;
+			-ms-flex: 1 0 auto;
+			flex: 1 0 auto;
+			width: auto;
+		}
+
+		width: 100% !important;
+	}
+}
+
 @media @small-only {
 	.form, form-layout {
 		> fields, > [class*="fields-"] {
 			.small-form-field();
 		}
+
 		.small-form-field();
 	}
 }

@@ -157,7 +157,7 @@ class cola.DateGrid extends cola.RenderableElement
 						tagName: "tbody",
 						contextKey: "body"
 					}
-				}]
+				} ]
 		}, @_doms)
 
 		i = 0
@@ -287,7 +287,7 @@ class cola.DateGrid extends cola.RenderableElement
 		lastSelectedCell = @_lastSelectedCell
 
 		unless @_dom
-			@_selectionPosition = {row: row, column: column}
+			@_selectionPosition = { row: row, column: column }
 			return @
 		if lastSelectedCell
 			$fly(lastSelectedCell).removeClass(@_selectedCellClassName || "selected")
@@ -437,6 +437,15 @@ class cola.DatePicker extends cola.CustomDropdown
 			$type: "calender"
 		inputType:
 			defaultValue: "date"
+		defaultDate:
+			defaultValue: "currentDate"
+			setter: (value)->
+				if value
+					if not (value instanceof Date) and value isnt "currentDate"
+							value = new XDate(value)
+				@_defaultDate = value
+				return
+
 	@events:
 		focus: null
 		blur: null
@@ -471,7 +480,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			if value.toDateString() is "Invalid Date"
 				value = ""
 			else
-				format = if @_focused then @_inputFormat else @_displayFormat
+				format = if @_focused then (@_inputFormat or @_displayFormat) else (@_displayFormat or @_inputFormat)
 				unless format
 					if @_inputType is "date"
 						format = cola.setting("defaultDateFormat")
@@ -497,20 +506,19 @@ class cola.DatePicker extends cola.CustomDropdown
 	open: ()->
 		if super()
 			value = @get("value")
-			unless value
-				value = new Date()
-			else
-				unless value instanceof Date
-					value = new Date(Date.parse(value))
-			if value.toDateString() is "Invalid Date"
-				value = new Date()
+			unless value instanceof Date
+				value = new Date(Date.parse(value))
 
-			@_dataGrid.setCurrentDate(value)
-			@_timeEditor?.set({
-				hour: value.getHours()
-				minute: value.getMinutes()
-				second: value.getSeconds()
-			})
+			if value.toDateString() is "Invalid Date"
+				value = null
+
+			if value
+				@_dataGrid.setCurrentDate(value)
+				@_timeEditor?.set({
+					hour: value.getHours()
+					minute: value.getMinutes()
+					second: value.getSeconds()
+				})
 			return true
 		return
 
@@ -526,7 +534,14 @@ class cola.DatePicker extends cola.CustomDropdown
 					value = $fly(arg.element).attr("cell-date")
 					datePicker._selectedDate = value
 			})
-			currentDate = new Date()
+
+			if @_defaultDate is "currentDate"
+				currentDate = (new XDate()).setHours(0).setMinutes(0).setSeconds(0).setMilliseconds(0).toDate()
+			else
+				currentDate = @_defaultDate
+
+			currentDate or= (new XDate()).setMilliseconds(0).toDate()
+
 			dateGrid.setCurrentDate(currentDate)
 			context = {}
 			container = $.xCreate({
@@ -748,40 +763,40 @@ class cola.YearMonthGrid extends cola.RenderableElement
 		picker = @
 		@_doms ?= {}
 		headerDom = $.xCreate(
-			{
-				tagName: "div"
-				class: "header"
-				contextKey: "header"
-				content: [
-					{
-						tagName: "div"
-						class: "year"
-						content: [
-							{
-								tagName: "div"
-								class: "button prev"
-								contextKey: "prevYearButton"
-								click: ()->
-									picker.prevYear()
-							}
-							{
-								tagName: "div"
-								class: "label"
-								contextKey: "yearLabel"
-							}
-							{
-								tagName: "div"
-								class: "button next"
-								contextKey: "nextYearButton"
-								click: ()->
-									picker.nextYear()
-							}
+		  {
+			  tagName: "div"
+			  class: "header"
+			  contextKey: "header"
+			  content: [
+				  {
+					  tagName: "div"
+					  class: "year"
+					  content: [
+						  {
+							  tagName: "div"
+							  class: "button prev"
+							  contextKey: "prevYearButton"
+							  click: ()->
+								  picker.prevYear()
+						  }
+						  {
+							  tagName: "div"
+							  class: "label"
+							  contextKey: "yearLabel"
+						  }
+						  {
+							  tagName: "div"
+							  class: "button next"
+							  contextKey: "nextYearButton"
+							  click: ()->
+								  picker.nextYear()
+						  }
 
-						]
-					}
-				]
+					  ]
+				  }
+			  ]
 
-			}, @_doms)
+		  }, @_doms)
 
 		table = $.xCreate({
 			tagName: "table"
@@ -1044,7 +1059,7 @@ class cola.TimeEditor extends cola.Widget
 
 	_doRefreshDom: ()->
 		super()
-		for v in ["hour", "minute", "second"]
+		for v in [ "hour", "minute", "second" ]
 			$fly(@_doms[v]).val(@["_#{v}"])
 		return
 

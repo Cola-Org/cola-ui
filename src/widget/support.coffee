@@ -415,7 +415,7 @@ _extendWidget = (superCls, definition)->
 
 			template = @_template
 			if template
-				template = cola.xRender(template, @_widgetModel)
+				template = cola.xRender(template, @_widgetModel, @_doms ?= {})
 
 			dom = cola.xCreate({
 				tagName: @constructor.tagName or "DIV"
@@ -451,7 +451,8 @@ _extendWidget = (superCls, definition)->
 					dom.appendChild(templateDom.firstChild)
 		return
 
-	cls::xRender = (template, context)-> cola.xRender(template, @_widgetModel, context)
+	cls::xRender = (template, context)->
+		cola.xRender(template, @_widgetModel, context or @_doms ?= {})
 
 	for prop, def of definition
 		if definition.hasOwnProperty(prop) and typeof def is "function"

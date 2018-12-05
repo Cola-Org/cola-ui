@@ -100,6 +100,17 @@ class cola.AbstractEditor extends cola.Widget
 					keyMessage = entity.getKeyMessage?(@_bindInfo.property)
 					@set("state", keyMessage?.type)
 
+					if @_dom
+						$dom = @get$Dom()
+						if keyMessage
+							$dom.attr("data-content", keyMessage.text)
+							if not $dom.data("popup")
+								$dom.data("popup", true).popup(
+									position: "bottom center"
+								)
+						else if $dom.data("popup")
+							$dom.data("popup", null).popup("destroy")
+
 		if type isnt cola.constants.MESSAGE_VALIDATION_STATE_CHANGE and type < cola.constants.MESSAGE_LOADING_START
 			@_modelSetValue = true
 			if @refreshValue()

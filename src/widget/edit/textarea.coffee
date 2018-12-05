@@ -59,26 +59,7 @@ class cola.Textarea extends cola.AbstractEditor
 		$(@_doms.input).on("change", ()=>
 			doPost()
 			return
-		).on("focus", ()=>
-			@_focused = true
-			@_refreshInputValue(@_value)
-			@addClass("focused") if not @_finalReadOnly
-			@fire("focus", @)
-			return
-		).on("blur", ()=>
-			@_focused = false
-			@removeClass("focused")
-			@_refreshInputValue(@_value)
-
-			if !@_value? or @_value is "" and @_bindInfo?.writeable
-				propertyDef = @getBindingProperty()
-				if propertyDef?._required and propertyDef._validators
-					entity = @_scope.get(@_bindInfo.entityPath)
-					entity.validate(@_bindInfo.property) if entity
-			return
-		).on("input", ()=>
-			if @_postOnInput then doPost()
-			return
+		).on("focus", ()=> cola._setFocusWidget(@)
 		).on("keypress", (event)=>
 			arg =
 				keyCode: event.keyCode
@@ -90,6 +71,20 @@ class cola.Textarea extends cola.AbstractEditor
 			if event.keyCode == 13 && isIE11 then doPost()
 		)
 		super(dom)
+		return
+
+	_onFocus: ()->
+		@_refreshInputValue(@_value)
+		return
+
+	_onBlur: ()->
+		@_refreshInputValue(@_value)
+
+		if !@_value? or @_value is "" and @_bindInfo?.writeable
+			propertyDef = @getBindingProperty()
+			if propertyDef?._required and propertyDef._validators
+				entity = @_scope.get(@_bindInfo.entityPath)
+				entity.validate(@_bindInfo.property) if entity
 		return
 
 	_refreshInputValue: (value)->

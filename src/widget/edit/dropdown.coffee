@@ -370,7 +370,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_getContainer: (dontCreate)->
 		if @_container
+			@_dontRefreshItems = true
 			@_refreshDropdownContent?()
+			delete @_dontRefreshItems
 			return @_container
 
 		else if not dontCreate
@@ -486,7 +488,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			@_openTimestamp = new Date()
 			$fly(@_dom).addClass("opened")
 
-			@_refreshInputValue(null)
+			if @_filterable and @_useValueContent
+				@_refreshInputValue(null)
 			return true
 		return
 
@@ -890,7 +893,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 		list._textProperty = @_textProperty or @_valueProperty
 
 		if attrBinding
-			@_refreshAttrValue("items")
+#			if not @_dontRefreshItems
+#				@_refreshAttrValue("items")
 			list.set("bind", attrBinding.expression.raw)
 		else
 			list.set("items", @_items)

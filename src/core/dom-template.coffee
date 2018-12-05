@@ -121,8 +121,8 @@ cola.xRender = (template, model, context)->
 	else
 		cola.currentScope = model
 		try
-			context ?=
-				xRender: true
+			context ?= {}
+			context.xRender = true
 
 			if template instanceof Array
 				documentFragment = document.createDocumentFragment()

@@ -9,6 +9,14 @@
 @tableFootCellPadding: 0.6em 0.6em;
 @tableCellPadding: 0.6em 0.6em;
 
+@tableCellWarningBackground: @warningBackgroundColor;
+@tableCellWarningTextColor: @warningTextColor;
+@tableCellWarningBorderColor: @warningBorderColor;
+
+@tableCellErrorBackground: @errorBackgroundColor;
+@tableCellErrorTextColor: @errorTextColor;
+@tableCellErrorBorderColor: @errorBorderColor;
+
 @tableHeadBackground: #fbfbfb;
 @tableFootBackground: @tableHeadBackground;
 @tableCurrentCellBackground: fade(@primaryColor, 15%);
@@ -309,6 +317,17 @@
 			border-width: 0 1px 1px 0;
 			border-style: solid;
 			border-color: @tableColLineColor;
+
+			&.warn {
+				background-color: @tableCellWarningBackground !important;
+				color: @tableCellWarningTextColor !important;
+				box-shadow: inset 0px -1px 0px 0px @tableCellWarningTextColor;
+			}
+			&.error {
+				background-color: @tableCellErrorBackground !important;
+				color: @tableCellErrorTextColor !important;
+				box-shadow: inset 0px -1px 0px 0px @tableCellErrorTextColor;
+			}
 		}
 	}
 

@@ -117,17 +117,23 @@ class cola.Scope
 		@data.notifyObservers(path)
 		return @
 
-	watch: (path, fn)->
-		processor =
+	_watch: (path, fn)->
+		@data.bind(path, {
+			watchingPath: if /[\#\*]/.test(path) then null else path
 			processMessage: (bindingPath, path, type, arg)->
-				fn(path, type, arg)
+				if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE) and
+				  (not @watchingPath or path.join(".") is @watchingPath)
+					fn(path, type, arg)
 				return
+		})
+		return
 
+	watch: (path, fn)->
 		if path instanceof Array
 			for p in path
-				@data.bind(p, processor)
+				@_watch(p, fn)
 		else
-			@data.bind(path, processor)
+			@_watch(path, fn)
 		return @
 
 	hasExBinding: ()->
@@ -346,7 +352,8 @@ class cola.SubScope extends cola.Scope
 					targetPart = targetPart.substring(0, targetPart.length - 1)
 
 				if part isnt targetPart
-					if targetPart is "**" then continue
+					if targetPart is "**"
+						continue
 					else if targetPart is "*"
 						if i is changedPath.length - 1 then continue
 					isParent = false

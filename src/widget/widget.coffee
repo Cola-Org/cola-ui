@@ -156,12 +156,15 @@ class cola.RenderableElement extends cola.Element
 	_resetDimension: ()->
 		return
 
-	getDom: ()->
+	getDom: (key)->
 		return null if @_destroyed
-		unless @_dom
-			dom = @_createDom()
-			@_setDom(dom)
-		return @_dom
+		if not key
+			unless @_dom
+				dom = @_createDom()
+				@_setDom(dom)
+			return @_dom
+		else
+			return @_doms[key]
 
 	get$Dom: ()->    # 将获得jQuery或zepto实例
 		return null if @_destroyed
