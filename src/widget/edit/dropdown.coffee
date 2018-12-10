@@ -161,6 +161,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		@_doms.tipDom and cola.util.cacheDom(@_doms.tipDom)
 		return
 
+	_onKeyDown: (evt)->
+		if evt.keyCode is 27 # ESC
+			@close()
+		return
+
 	_showValueTipIfNecessary: ()->
 		if @_useValueContent and @_doms.valueContent
 			valueContent = @_doms.valueContent
@@ -503,10 +508,6 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		container?.hide?(callback)
 		return
 
-	_closeDropdown: ()->
-		container = @_getContainer(true)
-		container?.hide?()
-
 	_getItemValue: (item)->
 		if @_valueProperty and item
 			if item instanceof cola.Entity
@@ -590,6 +591,9 @@ class cola.DropBox extends cola.Layer
 		dom = @getDom()
 		$dom = @get$Dom()
 		dropdownDom = @_dropdown._doms.input
+		if not cola.util.isVisible(dropdownDom)
+			@hide()
+			return
 
 		# 防止因改变高度导致滚动条自动还原到初始位置
 		if opened

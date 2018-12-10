@@ -39,7 +39,6 @@ class cola.Textarea extends cola.AbstractEditor
 		return
 
 	_initDom: (dom)->
-
 		@_doms ?= {}
 		unless dom.nodeName is "TEXTAREA"
 			input = $.xCreate(
@@ -78,9 +77,7 @@ class cola.Textarea extends cola.AbstractEditor
 		return
 
 	_onBlur: ()->
-		@_refreshInputValue(@_value)
-
-		if !@_value? or @_value is "" and @_bindInfo?.writeable
+		if (not @_value? or @_value is "") and @_bindInfo?.writeable
 			propertyDef = @getBindingProperty()
 			if propertyDef?._required and propertyDef._validators
 				entity = @_scope.get(@_bindInfo.entityPath)

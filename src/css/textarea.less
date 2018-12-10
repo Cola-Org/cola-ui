@@ -24,6 +24,15 @@ border-color @defaultDuration @defaultEasing;
 
 .ui.input.textarea {
 	width: 100%;
+
+	&.error {
+		textarea {
+			background: @textAreaBackgroundColor;
+			border-color: @textAreaBorderColor;
+			color: @textAreaErrorColor;
+			box-shadow: none;
+		}
+	}
 }
 
 textarea {
@@ -61,11 +70,4 @@ textarea:focus {
 
 textarea {
 	vertical-align: top;
-}
-
-textarea.error {
-	background: @textAreaBackgroundColor;
-	border-color: @textAreaBorderColor;
-	color: @textAreaErrorColor;
-	box-shadow: none;
 }

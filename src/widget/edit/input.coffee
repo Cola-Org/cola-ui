@@ -217,6 +217,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 			)
 		return
 
+	_makeFocusable: ()->
+
 	_onKeyDown: (evt)->
 		if evt.altKey and evt.keyCode is 18 and isIE11 then @_postInput()
 		return

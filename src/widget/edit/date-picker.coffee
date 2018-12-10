@@ -17,6 +17,7 @@ class cola.DateGrid extends cola.RenderableElement
 
 	@events:
 		cellClick: null
+		cellDoubleClick: null
 		refreshCellDom: null
 
 	_initDom: (dom)->
@@ -183,6 +184,15 @@ class cola.DateGrid extends cola.RenderableElement
 					value = $fly(position.element).attr("cell-date")
 					picker._currentDate = new Date(Date.parse(value))
 				picker.fire("cellClick", picker, position)
+		).on("dblclick", (event)->
+			position = cola.calendar.getCellPosition(event)
+			if position and position.element
+				return if position.row >= picker._rowCount
+				if picker._autoSelect
+					picker.setSelectionCell(position.row, position.column)
+					value = $fly(position.element).attr("cell-date")
+					picker._currentDate = new Date(Date.parse(value))
+				picker.fire("cellDoubleClick", picker, position)
 		)
 		dom.appendChild(headerDom)
 		@_doms.tableWrapper = $.xCreate({
@@ -528,11 +538,13 @@ class cola.DatePicker extends cola.CustomDropdown
 	_getDateTimeDropdownContent: ()->
 		datePicker = @
 		datePicker._selectedDate = null;
-		if !@_dropdownContent
+		if not @_dropdownContent
 			@_dataGrid = dateGrid = new cola.DateGrid({
-				cellClick: (self, arg)=>
+				cellClick: (self, arg)->
 					value = $fly(arg.element).attr("cell-date")
 					datePicker._selectedDate = value
+				cellDoubleClick: ()->
+					context.approveBtn.click()
 			})
 
 			if @_defaultDate is "currentDate"
@@ -602,7 +614,7 @@ class cola.DatePicker extends cola.CustomDropdown
 		datePicker = @
 		if !@_dropdownContent
 			@_dataGrid = dateGrid = new cola.DateGrid({
-				cellClick: (self, arg)=>
+				cellClick: (self, arg)->
 					value = $fly(arg.element).attr("cell-date")
 					d = new XDate(cola.setting("defaultDateFormat") + "||" + value);
 					datePicker.close(d.toDate())
@@ -642,6 +654,7 @@ class cola.YearGrid extends cola.RenderableElement
 				contextKey: "body"
 			}
 		}, @_doms)
+
 		$fly(table).on("click", (event)->
 			position = cola.calendar.getCellPosition(event)
 			if position and position.element
@@ -651,6 +664,7 @@ class cola.YearGrid extends cola.RenderableElement
 					picker.selectCell(cell)
 				picker.fire("cellClick", picker, position)
 		)
+
 		@_doms.tableWrapper = $.xCreate({
 			tagName: "div"
 			class: "table-wrapper"

@@ -81,7 +81,9 @@ class cola.RenderableElement extends cola.Element
 
 		$dom = @get$Dom()
 		if @_focusable
-			if not $dom.attr("tabindex")?
+			if @_makeFocusable
+				@_makeFocusable()
+			else if not $dom.attr("tabindex")?
 				$dom.attr("tabindex", "0")
 
 		popup = @_popup

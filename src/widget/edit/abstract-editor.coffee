@@ -52,8 +52,14 @@ class cola.AbstractEditor extends cola.Widget
 		return
 
 	_setValue: (value)->
-		return false if @_value is value
-		arg = { oldValue: @_value, value: value }
+		if value instanceof Date
+			return false if (@_value + "") is (value + "")
+		else
+			return false if @_value is value
+
+		arg =
+			oldValue: @_value
+			value: value
 
 		if not @_modelSetValue
 			return if @fire("beforeChange", @, arg) is false
@@ -74,6 +80,7 @@ class cola.AbstractEditor extends cola.Widget
 		return true
 
 	post: ()->
+		debugger
 		if @fire("beforePost", @) is false
 			@refreshValue()
 			return @
