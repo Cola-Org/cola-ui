@@ -80,7 +80,6 @@ class cola.AbstractEditor extends cola.Widget
 		return true
 
 	post: ()->
-		debugger
 		if @fire("beforePost", @) is false
 			@refreshValue()
 			return @

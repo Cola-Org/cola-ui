@@ -14,7 +14,7 @@ class cola.NumberDataType extends cola.BaseDataType
 		isInteger: null
 
 	parse: (text)->
-		if not text then return null
+		if not text? then return null
 
 		if typeof text is "number"
 			if @_isInteger
