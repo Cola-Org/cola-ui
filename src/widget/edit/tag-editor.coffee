@@ -1,95 +1,103 @@
 cola.TagEditor = cola.defineWidget({
-	tagName: "c-tag-editor",
-	attributes: {
+	tagName: "c-tag-editor"
+	attributes:
 		bind: null,
 		items: null,
 		keyProperty: null,
 		valueProperty: null,
 		readOnly: null
-	},
-	events: {
+		focusable:
+			defaultValue: true
+
+	events:
 		createItemDom: null,
 		keyDown: null,
 		input: null,
 		removeItem: null,
 		addItem: null
-	},
-	template: {
-		class: "ui tag-editor",
-		content: [{
-			class: "tag",
-			"c-repeat": "item in @bind",
-			"c-watch": "initItemDom on item",
-			content: [
-				{
-					tagName: "span"
-				},
-				{
-					tagName: "i",
-					"c-onclick": "removeItem(item)",
-					class: "delete-icon",
-					content: "×"
-				}
-			]
-		}, {
-			tagName: "input"
-		}]
-	},
+
+	template:
+		class: "ui tag-editor"
+		content: [
+			{
+				class: "tag"
+				"c-repeat": "item in @bind"
+				"c-watch": "initItemDom on item"
+				content: [
+					{
+						tagName: "span"
+					}
+					{
+						tagName: "i"
+						"c-onclick": "removeItem(item)"
+						class: "delete-icon"
+						content: "×"
+					}
+				]
+			}
+			{
+				tagName: "input"
+				contextKey: "input"
+			}
+		]
+
 	_refreshDom: ()->
 		readOnly = !!@_readOnly
 		@_dom && $(@_dom).toggleClass("readonly", readOnly)
 		input = $(@_dom).find("input")[0]
 		input.readOnly = readOnly
+		return
 
 	initDom: (dom)->
 		tagEditor = @
-		$(dom).on("click", ()->
-			$(@).find("input").focus()
-		)
-		$input = $(dom).find("input")
-		@_doms ?= {}
-		@_doms.input = dom
 
-		$input.on("focus", ()->
+		@get$Dom().click(()->
 			tagEditor._showDropBox()
-		).on("input", (evt)->
+		)
+
+		@get$Dom("input").on("focus", ()->
+			cola._setFocusWidget(tagEditor)
+		).on("input", ()->
 			inputValue = $(@).val()
 			tagEditor.fire("input", tagEditor, {
 				inputValue: inputValue,
 				input: @
 			})
-		).on("blur", ()->
-			tagEditor.close()
-		)
 
+			if tagEditor._filterTimerId
+				clearTimeout(tagEditor._filterTimerId)
+			tagEditor._filterTimerId = setTimeout(()->
+				delete tagEditor._filterTimerId
+				tagEditor._widgetModel.set("refreshTimestamp", new Date())
+			, 300)
+		)
+		return
 
 	removeItem: (item)->
 		if item
 			result = @fire("removeItem", @, {
 				item: item
 			})
-
 			if result is false then return
-
 			item.remove()
 		return
 
 	_onKeyDown: (evt)->
 		tagEditor = @
 		selectedItems = tagEditor._scope.get(tagEditor._bind)
-		inputValue = $(this).val()
-		if evt.keyCode == 8
+		inputValue = $(@_doms.input).val()
+		if evt.keyCode is 8
 			if !inputValue && selectedItems
 				last = selectedItems.last()
 				last && tagEditor.removeItem(last)
 
-		if evt.keyCode == 46 && selectedItems
+		if evt.keyCode is 46 && selectedItems
 			selectedItems.empty()
 
 		if tagEditor.isOpended()
 			$tagsDom = $(tagEditor._dropBox._dom).find(".tag-items")
 			$current = $tagsDom.find(">li.current")
-			if evt.keyCode == 40
+			if evt.keyCode is 40
 				if $current.length
 					$next = $current.next()
 					if $next.length
@@ -101,7 +109,7 @@ cola.TagEditor = cola.defineWidget({
 				else
 					$tagsDom.find(">li").first().addClass("current")
 
-			else if evt.keyCode == 38
+			else if evt.keyCode is 38
 				if $current.length
 					$prev = $current.prev()
 					if $prev.length
@@ -114,41 +122,54 @@ cola.TagEditor = cola.defineWidget({
 					$tagsDom.find(">li").last().addClass("current")
 
 
-			else if evt.keyCode == 13
+			else if evt.keyCode is 13
 				$current.length && $current.trigger("click")
 				return
 
 		return
 
+	focus: ()->
+		@_doms.input?.focus()
+		return
+
+	_onFocus: ()->
+		@_showDropBox()
+		return
+
+	_onBlur: ()->
+		if @_filterTimerId
+			clearTimeout(@_filterTimerId)
+			delete @_filterTimerId
+		@close()
+
 	open: ()->
 		@_showDropBox()
+		return
 
 	isOpended: ()->
 		if @_dropBox
 			return @_dropBox.isVisible()
-
 		return false
 
 	_showDropBox: ()->
 		if !!@_readOnly then return
 		dropBox = @_getDropBox()
-		content = @_getDropContent()
-		dropBox.get$Dom().empty().append(content)
-		dropBox.show()
-
-	resetData: ()->
-		dropBox = @_getDropBox()
-		content = @_getDropContent()
-		dropBox.get$Dom().empty().append(content)
+		if not dropBox.get("visible")
+			@_widgetModel.set("refreshTimestamp", new Date())
+			if dropBox.getDom().childNodes.length is 0
+				content = cola.xRender(@_getDropContent(), @_widgetModel)
+				dropBox.get$Dom().empty().append(content)
+			dropBox.show()
+		return
 
 	_getDropBox: ()->
 		tagEditor = @
 
 		unless @_dropBox
 			@_dropBox = new cola.DropBox({
-				beforeHide: (self, arg)->
+				beforeHide: ()->
 					tagEditor.get$Dom().removeClass("opened")
-				hide: (self, arg)->
+				hide: ()->
 					tagEditor._opened = false
 			})
 			@_dropBox._context = @
@@ -157,40 +178,55 @@ cola.TagEditor = cola.defineWidget({
 		return @_dropBox
 
 	_getDropContent: ()->
-		valueProperty = @_valueProperty || "value"
-		keyProperty = @_keyProperty || "key"
-		selection = @_scope.get(@_items)
+		return $.xCreate(
+			tagName: "ul"
+			class: "tag-items"
+			content:
+				tagName: "li"
+				"c-repeat": "item in filter(items) on items,refreshTimestamp"
+				"c-key": "item." + (@_keyProperty || "key")
+				"c-bind": "item." + (@_valueProperty || "value")
+				"c-onclick": "close(item)"
+		)
+
+	filter: (items, filterValue)->
+		return [] unless items
+
+		keyProperty = @_keyProperty or "key"
+		valueProperty = @_valueProperty or "value"
+		map = {}
 		selectedItems = @_scope.get(@_bind)
-		mapping = {}
-		tagEditor = @
-		template = []
-
 		selectedItems && selectedItems.each((item)->
-			mapping[item.get(keyProperty)] = true
+			if item instanceof cola.Entity
+				key = item.get(keyProperty)
+			else
+				key = item[keyProperty]
+			map[key] = true
 		)
-		selection.each((item)->
-			key = item.get(keyProperty)
-			if mapping[key]
-				return
 
-			template.push({
-				tagName: "li",
-				key: item.get(keyProperty),
-				content: item.get(valueProperty),
-				click: ()->
-					tagEditor.close(item)
+		filterValue = $(@_doms.input).val()
+		return cola.util.filter(items, (item)->
+			if item instanceof cola.Entity
+				key = item.get(keyProperty)
+			else
+				key = item[keyProperty]
+			if map[key]
+				return false
 
-			})
+			if item instanceof cola.Entity
+				value = item.get(valueProperty) + ""
+			else
+				value = item[valueProperty] + ""
+			if filterValue and value and value.indexOf(filterValue) < 0
+				return false
+
+			return true
 		)
-		return $.xCreate({
-			tagName: "ul",
-			class: "tag-items",
-			content: template
-		})
 
 	initItemDom: (dom, scope)->
-		text = scope.get("item").get(@_valueProperty || "value")
+		text = scope.get("item").get(@_valueProperty or "value")
 		$(dom).find("span").empty().text(text)
+		return
 
 	close: (item)->
 		if item
@@ -203,5 +239,6 @@ cola.TagEditor = cola.defineWidget({
 
 		@_getDropBox().hide()
 		$(@_dom).find("input").val(null)
+		return
 
 })

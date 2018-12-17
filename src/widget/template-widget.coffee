@@ -22,7 +22,7 @@ class cola.WidgetDataModel extends cola.AbstractDataModel
 		if path.charCodeAt(0) is 64 # `@`
 			@model.parent?.data.set(@_getRealPath(path), value)
 		else
-			@widget.set(path, value)
+			@widget.set(path, value, true)
 			@onDataMessage(path.split("."), cola.constants.MESSAGE_PROPERTY_CHANGE, {})
 		return
 
