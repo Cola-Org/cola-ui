@@ -266,7 +266,10 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					}
 					item[@_valueProperty] = value
 					item[@_textProperty] = value
-
+		else
+			@_currentItem = {
+				$emptyItem: true
+			}
 		return super(value)
 
 	_setValueContent: ()->

@@ -266,7 +266,7 @@ class cola.AbstractTable extends cola.Widget
 			refreshItems: true
 			setter: (columnConfigs)->
 				_columnsSetter.call(@, @, columnConfigs)
-				@_collectionColumnsInfo()
+				if @_rendered then @_collectionColumnsInfo()
 				return
 
 		showHeader:
@@ -653,13 +653,14 @@ class cola.AbstractTable extends cola.Widget
 		return indicator
 
 	_initDom: (dom)->
+		dom.className += " " + @_uniqueId
 		@_regDefaultTemplates()
 		@_templateContext ?= {}
+		return
 
 	_parseDom: (dom)->
 		return unless dom
 		@_doms ?= {}
-		dom.className += " " + @_uniqueId
 
 		child = dom.firstElementChild
 		while child
@@ -806,12 +807,12 @@ class cola.AbstractTable extends cola.Widget
 			columnCssDefs.push(def)
 
 		if leftPaneWidth or rightPaneWidth
-			def = ".#{@_uniqueId} {"
+			def = ".#{@_uniqueId}{"
 			def += "padding-left:#{leftPaneWidth}px;padding-right:#{rightPaneWidth}px;"
 			def += "}"
 			columnCssDefs.push(def)
 
-		def = ".#{@_uniqueId} " + selector + "{"
+		def = ".#{@_uniqueId} #{@_mainItemsContainer}{"
 		def += "width:#{centerPaneWidth}px;"
 		def += "}"
 		columnCssDefs.push(def)

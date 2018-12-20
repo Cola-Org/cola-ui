@@ -286,7 +286,6 @@ cola.util.getGlobalTemplate = (name)->
 	return html
 
 
-
 do ()->
 	document.addEventListener("DOMNodeInserted", _DOMNodeInsertedListener)
 	document.addEventListener("DOMNodeRemoved", _DOMNodeRemovedListener)

@@ -186,21 +186,24 @@ class cola.Table extends cola.AbstractTable
 		if @_scrollMode is "scroll"
 			@_createVertScrollBar(dom)
 
-		$fly(dom).on("mouseenter", (evt)=>
-			@_mouseIn = true
-			@_refreshScrollbars()
-		).on("mouseleave", (evt)=>
-			@_mouseIn = false
-		).on("sizingChange", ()=>
-			if dom.offsetWidth is self._oldOffsetWidth and dom.offsetHeight is self._oldOffsetHeight
-				return
+		setTimeout(()=>
+			$fly(dom).on("mouseenter", ()=>
+				@_mouseIn = true
+				@_refreshScrollbars()
+			).on("mouseleave", ()=>
+				@_mouseIn = false
+			).on("sizingChange", ()=>
+				if dom.offsetWidth is self._oldOffsetWidth and dom.offsetHeight is self._oldOffsetHeight
+					return
 
-			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
-			@_refreshScrollbars()
-			self._oldOffsetWidth = dom.offsetWidth
-			self._oldOffsetHeight = dom.offsetHeight
+				@_buildStyleSheet()
+				@_refreshScrollbars()
+				self._oldOffsetWidth = dom.offsetWidth
+				self._oldOffsetHeight = dom.offsetHeight
+				return
+			)
 			return
-		)
+		, 50);
 		return
 
 	_refreshScrollbars: ()->
@@ -210,6 +213,9 @@ class cola.Table extends cola.AbstractTable
 		return unless innerTable
 
 		if innerTable.scrollWidth > (innerTable.clientWidth + 2)
+			# 修复右边内容缺失，tbody无法被撑开的BUG
+			innerTable.querySelector(".table-body").style.width = innerTable.scrollWidth + "px"
+
 			if not @_horiScrollBar and table._mouseIn
 				@_horiScrollBar = cola.xCreate({
 					class: "scroll-bar hori"
@@ -224,13 +230,17 @@ class cola.Table extends cola.AbstractTable
 
 			horiScrollBar = @_horiScrollBar
 			if horiScrollBar
-				horiScrollBar.querySelector(".fake-content").style.width =
-				  (innerTable.scrollWidth / innerTable.clientWidth * dom.clientWidth) + "px"
+				fakeContent = horiScrollBar.querySelector(".fake-content")
+				fakeContent.style.width =
+				  (innerTable.scrollWidth / innerTable.clientWidth * horiScrollBar.clientWidth) + "px"
 				horiScrollBar.scrollLeft = innerTable.scrollLeft / innerTable.scrollWidth * horiScrollBar.scrollWidth
 				horiScrollBar.style.display = ""
 
 			@_$dom.addClass("h-scroll")
 		else
+			# 修复右边内容缺失，tbody无法被撑开的BUG
+			innerTable.querySelector(".table-body").style.width = "100%"
+
 			if @_horiScrollBar
 				@_horiScrollBar.style.display = "none"
 			@_$dom.removeClass("h-scroll")
@@ -242,8 +252,9 @@ class cola.Table extends cola.AbstractTable
 
 			vertScrollBar = @_vertScrollBar
 			if vertScrollBar
-				vertScrollBar.querySelector(".fake-content").style.height =
-				  (tableBody.scrollHeight / tableBody.clientHeight * dom.clientHeight) + "px"
+				fakeContent = vertScrollBar.querySelector(".fake-content")
+				fakeContent.style.height =
+				  (tableBody.scrollHeight / tableBody.clientHeight * vertScrollBar.clientHeight) + "px"
 				vertScrollBar.scrollTop = tableBody.scrollTop / tableBody.scrollHeight * vertScrollBar.scrollHeight
 				vertScrollBar.style.display = ""
 		else if @_vertScrollBar
@@ -269,6 +280,7 @@ class cola.Table extends cola.AbstractTable
 		return @_vertScrollBar
 
 	_initDom: (dom)->
+		@_mainItemsContainer = ">.center.ui.inner-table >.table-body"
 		super(dom)
 
 		if $.fn.draggable
@@ -360,7 +372,7 @@ class cola.Table extends cola.AbstractTable
 				)
 				$centerTableDom.after(@_rightTable.getDom())
 
-			@_buildStyleSheet(">.center.ui.inner-table >.table-body")
+			@_buildStyleSheet()
 
 			@_leftTable?.set("columnsInfo", @_columnsInfo.left)
 			@_rightTable?.set("columnsInfo", @_columnsInfo.right)
@@ -836,7 +848,10 @@ class cola.Table.InnerTable extends cola.AbstractList
 
 		return if skipDefault
 
-		dom.innerText = column._footerValue or ""
+		data = column._footerValue
+		if column._format
+			data = cola.util.format(data, column._format)
+		dom.innerText = data or ""
 		return
 
 	_refreshFooter: (footer)->
