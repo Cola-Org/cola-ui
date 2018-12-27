@@ -482,11 +482,11 @@ class cola.DatePicker extends cola.CustomDropdown
 				else
 					displayFormat = cola.setting("defaultDateTimeFormat")
 
-			xDate = new XDate(inputFormat + "||" + value)
+			xDate = new XDate(inputFormat + "||" + inputValue)
 			value = xDate.toDate()
 
 			if value.toDateString() is "Invalid Date"
-				xDate = new XDate(displayFormat + "||" + value)
+				xDate = new XDate(displayFormat + "||" + inputValue)
 				value = xDate.toDate()
 
 			if value.toDateString() is "Invalid Date"
