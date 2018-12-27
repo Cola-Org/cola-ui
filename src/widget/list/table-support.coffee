@@ -135,6 +135,23 @@ class cola.TableDataColumn extends cola.TableContentColumn
 		readOnly: null
 		editTemplate: null
 
+class cola.TableNumColumn extends cola.TableContentColumn
+	@attributes:
+		width:
+			defaultValue: "42px"
+		align:
+			defaultValue: "center"
+
+	renderHeader: (dom)->
+
+		$fly(dom).addClass("row-num")
+		return
+
+	renderCell: (dom)->
+		$fly(dom).addClass("row-num")
+		return
+
+
 class cola.TableSelectColumn extends cola.TableContentColumn
 	@attributes:
 		width:

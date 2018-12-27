@@ -270,7 +270,12 @@ class cola.Tree extends cola.AbstractList
 	_createNewItem: (itemType, node)->
 		template = @getTemplate("row-" + itemType, "row-default")
 		itemDom = @_cloneTemplate(template)
-		$fly(itemDom).addClass("tree item " + itemType)
+
+		klass = "tree item " + itemType
+		if @_transition
+			klass += " " + cola.constants.REPEAT_ITEM_TRANSITION_CLASS
+		$fly(itemDom).addClass(klass)
+
 		itemDom._itemType = itemType
 
 		nodeDom = itemDom.firstElementChild

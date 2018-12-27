@@ -193,7 +193,7 @@ class cola.AbstractInput extends cola.AbstractEditor
 
 	fire: (eventName, self, arg)->
 		if eventName is "keyDown" or eventName is "keyPress"
-			arg.inputValue = $(@_doms.input).val()
+			arg.inputValue = @_doms.input.value
 		return super(eventName, self, arg)
 
 	_initDom: (dom)->
@@ -410,7 +410,7 @@ class cola.Input extends cola.AbstractInput
 		input = @_doms.input
 		$(input).on("input", ()=>
 			arg = {
-				inputValue: $(input).val(),
+				inputValue: input.value,
 				value: this.get("value")
 			}
 			@fire("input", @, arg)

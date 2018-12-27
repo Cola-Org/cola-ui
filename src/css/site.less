@@ -42,8 +42,22 @@ template {
 	visibility: hidden;
 }
 
+.hide-on-ready {
+	visibility: hidden;
+}
+
 .display-none {
 	display: none !important;
+}
+
+.item-transition {
+	transition-duration: 0.3s;
+	transition-property: all;
+}
+
+.item-out {
+	.transform(scale(0));
+	.opacity(0);
 }
 
 .text-center {

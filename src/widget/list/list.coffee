@@ -8,7 +8,7 @@ _createGroupArray = ()->
 	return groups
 
 class cola.ListView extends cola.AbstractList
-	@tagName: "c-listView"
+	@tagName: "c-listview,c-list-view"
 	@className: "items-view list-view"
 
 	_columnsChanged: true
@@ -229,6 +229,9 @@ class cola.ListView extends cola.AbstractList
 				klass += " collapsible"
 		else
 			klass = "list item " + itemType
+
+		if @_transition
+			klass += " " + cola.constants.REPEAT_ITEM_TRANSITION_CLASS
 
 		itemDom._itemType = itemType
 

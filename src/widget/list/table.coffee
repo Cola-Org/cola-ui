@@ -312,6 +312,7 @@ class cola.Table extends cola.AbstractTable
 			"COLUMN": null
 			"SELECT-COLUMN": "select"
 			"STATE-COLUMN": "state"
+			"NUM-COLUMN": "num"
 		}
 
 	_doRefreshDom: ()->
@@ -668,7 +669,10 @@ class cola.Table.InnerTable extends cola.AbstractList
 	_createNewItem: (itemType, item)->
 		template = @_table.getTemplate(itemType + "-row")
 		itemDom = @_table._cloneTemplate(template)
-		$fly(itemDom).addClass("table item " + itemType)
+		klass = "table item " + itemType
+		if @_transition
+			klass += " " + cola.constants.REPEAT_ITEM_TRANSITION_CLASS
+		$fly(itemDom).addClass(klass)
 		itemDom._itemType = itemType
 		return itemDom
 

@@ -466,16 +466,28 @@ class cola.DatePicker extends cola.CustomDropdown
 	_postInput: ()->
 		if not @_finalReadOnly
 			value = $(@_doms.input).val()
-			inputFormat = @_inputFormat or @_displayFormat
+			inputValue = value
+
+			inputFormat = @_inputFormat
 			unless inputFormat
-				if @_inputType == "date"
+				if @_inputType is "date"
 					inputFormat = cola.setting("defaultDateInputFormat")
 				else
 					inputFormat = cola.setting("defaultDateTimeInputFormat")
 
-			inputValue = value
+			displayFormat = @_displayFormat
+			unless displayFormat
+				if @_inputType is "date"
+					displayFormat = cola.setting("defaultDateFormat")
+				else
+					displayFormat = cola.setting("defaultDateTimeFormat")
+
 			xDate = new XDate(inputFormat + "||" + value)
 			value = xDate.toDate()
+
+			if value.toDateString() is "Invalid Date"
+				xDate = new XDate(displayFormat + "||" + value)
+				value = xDate.toDate()
 
 			if value.toDateString() is "Invalid Date"
 				@fire("inputInvalidDate", @, {

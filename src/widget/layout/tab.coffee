@@ -239,6 +239,7 @@ class cola.Tab extends cola.Widget
 		$tabDom = @get$Dom().find(">nav>tabs>tab.active")
 		if $tabDom.length > 0
 			return cola.widget($tabDom[0])
+
 	setCurrentTab: (index)->
 		oldTab = @getCurrentTab()
 		newTab = @getTab(index)
@@ -393,7 +394,6 @@ class cola.Tab extends cola.Widget
 
 		if obj
 			if @get("currentTab") is obj
-
 				tabDom = obj._dom;
 				sibling = $(tabDom).parent().find(">tab,>.tab-button")
 				index = sibling.index(tabDom);
@@ -405,7 +405,9 @@ class cola.Tab extends cola.Widget
 
 				if targetDom
 					targetTab = cola.widget(targetDom)
-					return false unless @setCurrentTab(targetTab)
+
+			return false unless @setCurrentTab(targetTab)
+
 			contentContainer = obj.get("contentContainer")
 			unless contentContainer
 				contentContainer = @_getTabContentDom(obj);
@@ -414,7 +416,7 @@ class cola.Tab extends cola.Widget
 				obj.remove()
 
 			$(contentContainer).remove()
-		@refreshNavButtons(width)
+			@refreshNavButtons(width)
 		return true
 
 	clear: ()->

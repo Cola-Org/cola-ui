@@ -51,20 +51,25 @@
 			bottom: 0;
 			z-index: 2;
 			.box-shadow(@tableBoxShadow);
+
 			.cell, .header-cell, .footer-cell {
 				&:last-of-type {
 					border-right-width: 0;
 				}
 			}
 		}
+
 		&.left {
 			left: 0;
 		}
+
 		&.right {
 			right: 0;
 		}
+
 		&.center {
 			height: 100%;
+
 			> .table-body {
 				.box-shadow(@tableBoxShadow);
 			}
@@ -76,13 +81,23 @@
 			overflow: hidden;
 			z-index: 1;
 			.box-shadow(@tableBoxShadow);
+
 			> table {
 				table-layout: fixed;
 				width: 0;
 			}
 		}
+
 		> .table-header {
 			top: 0;
+
+			.row-num:before {
+				content: "\f292";
+				font-family: icons;
+				font-weight: normal;
+				color: fade(@textColor, 25%);
+			}
+
 			> .resize-handler {
 				content: "";
 				position: absolute !important;
@@ -92,10 +107,12 @@
 				margin-left: -4px;
 				z-index: 10;
 				cursor: col-resize;
+
 				&.hidden {
 					display: none
 				}
 			}
+
 			> .insert-indicator {
 				background: rgba(0, 0, 0, 0.5);
 				content: "";
@@ -105,30 +122,37 @@
 				width: 4px;
 				margin-left: -3px;
 				z-index: 10;
+
 				&.hidden {
 					display: none
 				}
 			}
 		}
+
 		> .table-footer {
 			bottom: 0;
 			background: @tableFootBackground;
 		}
+
 		> .table-body {
 			position: relative;
 			width: 100%;
 			height: 100%;
 			box-sizing: border-box;
 			overflow: hidden;
+
 			&.header-1 {
 				padding-top: @rowHeight * 1;
 			}
+
 			&.header-2 {
 				padding-top: @rowHeight * 2;
 			}
+
 			&.header-3 {
 				padding-top: @rowHeight * 3;
 			}
+
 			&.header-4 {
 				padding-top: @rowHeight * 4;
 			}
@@ -138,6 +162,7 @@
 			padding: 0;
 			margin: 0;
 			overflow: visible;
+			counter-reset: tablecounter;
 
 			.cell-editor-pane {
 				position: absolute;
@@ -155,6 +180,7 @@
 					width: 100%;
 					height: 100%;
 				}
+
 				> .editor-container {
 					display: flex;
 
@@ -173,15 +199,23 @@
 	.header-cell, .footer-cell {
 		height: @rowHeight;
 	}
+
 	.cell {
 		height: @rowHeight;
 		line-height: @rowHeight;
+
+		> .row-num:before {
+			content: counter(tablecounter);
+			counter-increment: tablecounter;
+		}
 	}
+
 	.cell, .header-cell, .footer-cell {
 		box-sizing: border-box;
 		overflow-x: hidden;
 		overflow-y: visible;
 		font-size: 1rem;
+
 		> .content {
 			display: -webkit-box;
 			display: -ms-flexbox;
@@ -202,10 +236,12 @@
 			> .ui.input {
 				width: 100%;
 			}
+
 			> .ui.checkbox {
 				margin-left: 0.5em;
 			}
 		}
+
 		&.sortable {
 			&:before {
 				content: "\f0dc";
@@ -218,10 +254,12 @@
 				font-family: Icons;
 				color: @disabledTextColor;
 			}
+
 			&.asc:before {
 				content: "\f0de";
 				color: @darkTextColor;
 			}
+
 			&.desc:before {
 				content: "\f0dd";
 				color: @darkTextColor;
@@ -233,11 +271,13 @@
 			-ms-flex-pack: start;
 			justify-content: flex-start;
 		}
+
 		&.h-center > .content {
 			-webkit-justify-content: center;
 			-ms-flex-pack: center;
 			justify-content: center;
 		}
+
 		&.h-right > .content {
 			-webkit-justify-content: flex-end;
 			-ms-flex-pack: end;
@@ -249,12 +289,14 @@
 			-ms-flex-align: start;
 			align-items: flex-start;
 		}
+
 		&.v-bottom > .content {
 			-webkit-align-items: flex-end;
 			-ms-flex-align: end;
 			align-items: flex-end;
 		}
 	}
+
 	.header-row {
 		white-space: nowrap;
 		line-height: 1;
@@ -265,40 +307,50 @@
 			display: inline-block;
 			cursor: pointer;
 		}
+
 		.header-cell {
 			position: relative;
 			border-width: 1px 1px 0 0;
 			border-style: solid;
 			border-color: @tableHeadLineColor @tableColLineColor;
+
 			&.rows-2 {
 				height: @rowHeight * 2;
 			}
+
 			&.rows-3 {
 				height: @rowHeight * 3;
 			}
+
 			&.rows-4 {
 				height: @rowHeight * 4;
 			}
 		}
+
 		> .header-group > .header-cell {
 			width: 100%;
 		}
+
 		&.first-row {
 			position: relative;
+
 			> .header-cell {
 				border-top-width: 0;
 			}
 		}
+
 		> .header-group {
 			> .header-cell:first-of-type {
 				border-top-width: 0;
 			}
 		}
 	}
+
 	.footer-row {
 		white-space: nowrap;
 		line-height: 1;
 		font-size: 0;
+
 		.footer-cell {
 			display: inline-block;
 			border-right: 1px solid @tableColLineColor;
@@ -312,6 +364,7 @@
 		font-size: 0;
 		box-sizing: border-box;
 		overflow: visible;
+
 		> .cell {
 			display: inline-block;
 			border-width: 0 1px 1px 0;
@@ -323,6 +376,7 @@
 				color: @tableCellWarningTextColor !important;
 				box-shadow: inset 0px -1px 0px 0px @tableCellWarningTextColor;
 			}
+
 			&.error {
 				background-color: @tableCellErrorBackground !important;
 				color: @tableCellErrorTextColor !important;
@@ -333,6 +387,7 @@
 
 	> .scroll-bar {
 		z-index: 3;
+
 		&.hori {
 			position: absolute;
 			left: 0;
@@ -341,10 +396,12 @@
 			height: 10px;
 			overflow: hidden;
 			overflow-x: scroll;
+
 			> .fake-content {
 				height: 1px;
 			}
 		}
+
 		&.vert {
 			position: absolute;
 			right: 0;
@@ -354,15 +411,18 @@
 			overflow: hidden;
 			overflow-y: scroll;
 			display: none;
+
 			> .fake-content {
 				width: 1px;
 			}
 		}
+
 		&::-webkit-scrollbar {
 			width: 10px;
 			height: 10px;
 		}
 	}
+
 	&:hover {
 		.scroll-bar.vert {
 			display: block;
@@ -371,9 +431,11 @@
 
 	&.v-scroll {
 		padding-right: 10px;
+
 		> .scroll-bar.vert {
 			display: block !important;
 		}
+
 		> .inner-table.right {
 			right: 10px;
 		}
@@ -381,9 +443,11 @@
 
 	&.h-scroll {
 		padding-bottom: 10px;
+
 		> .inner-table.left, > .inner-table.right, > .scroll-bar.vert {
 			bottom: 10px;
 		}
+
 		&.v-scroll {
 			> .scroll-bar.hori {
 				right: 10px;
@@ -423,9 +487,11 @@
 		bottom: 0;
 		z-index: 1;
 		background: rgba(255, 255, 255, 0.5);
-		>.ui.loader {
+
+		> .ui.loader {
 			display: block;
 		}
+
 		&.active {
 			display: block;
 		}
@@ -474,9 +540,11 @@
 		.table.item:hover:not(.current) > .cell {
 			background: @itemsViewHoverBackground;
 		}
+
 		.table.item.current > .cell {
 			background: @itemsViewCurrentBackground;
 		}
+
 		.table.item > .cell.current {
 			background: @tableCurrentCellBackground;
 		}

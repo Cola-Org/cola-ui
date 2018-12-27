@@ -28,7 +28,12 @@ class cola.TimeLine extends cola.AbstractList
 	_createNewItem: (itemType, item)->
 		template = @getTemplate(itemType)
 		itemDom = @_cloneTemplate(template)
-		$fly(itemDom).addClass("item #{itemType}")
+
+		klass = "item #{itemType}"
+		if @_transition
+			klass += " " + cola.constants.REPEAT_ITEM_TRANSITION_CLASS
+		$fly(itemDom).addClass(klass)
+
 		itemDom._itemType = itemType
 		for name in ["content", "icon", "label"]
 			template = @getTemplate(name)

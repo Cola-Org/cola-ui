@@ -109,8 +109,9 @@ cola._trimCriteria = (criteria, option = {})->
 	else if typeof criteria is "object"
 		for prop, propFilter of criteria
 			if typeof propFilter is "string"
+				if not option.caseSensitive then propFilter = (propFilter + "").toLowerCase()
 				criteria[prop] = {
-					value: propFilter.toLowerCase()
+					value: propFilter
 					caseSensitive: option.caseSensitive
 					strict: option.strict
 				}

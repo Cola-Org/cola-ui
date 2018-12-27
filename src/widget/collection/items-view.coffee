@@ -25,6 +25,8 @@ class cola.ItemsView extends cola.Widget
 
 		focusable:
 			defaultValue: true
+		transition:
+			type: "boolean"
 
 	@events:
 		getItemTemplate: null
@@ -113,7 +115,7 @@ class cola.ItemsView extends cola.Widget
 		return @_refreshItems()
 
 	_onItemInsert: (arg)->
-		if @_realItems is @_realOriginItems
+		if @_realItems is arg.entityList
 			@_refreshEmptyItemDom()
 
 			item = arg.entity
@@ -134,12 +136,14 @@ class cola.ItemsView extends cola.Widget
 				refItemScope = itemsScope.getItemScope(arg.refEntity)
 				index = refItemScope?.data.getIndex() + 1
 
-			if not insertMode or insertMode is "end"
+			if not insertMode or insertMode is "end" or not itemsWrapper.firstChild
 				itemDom = @_createNewItem(itemType, item)
+				$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper).append(itemDom)
 			else if insertMode is "begin"
 				itemDom = @_createNewItem(itemType, item)
+				$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper.firstChild).before(itemDom)
 			else if @_itemDomMap
@@ -148,11 +152,18 @@ class cola.ItemsView extends cola.Widget
 					refDom = @_itemDomMap[refEntityId]?
 					if refDom
 						itemDom = @_createNewItem(itemType, item)
+						$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 						@_refreshItemDom(itemDom, item, null, index)
 						if insertMode is "before"
 							$fly(refDom).before(itemDom)
 						else
 							$fly(refDom).after(itemDom)
+
+			if itemDom and @_transition
+				setTimeout(()->
+					$itemDom.removeClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+					return
+				, 50);
 
 			if insertMode isnt "end"
 				for id, iScope of itemsScope.itemScopeMap
@@ -160,6 +171,7 @@ class cola.ItemsView extends cola.Widget
 					if i >= index and iScope.data.getItemData() isnt entity
 						iScope.data.setIndex(i + 1)
 		else
+			@_itemsRetrieved = false
 			@_refreshItems()
 		return
 
@@ -169,14 +181,20 @@ class cola.ItemsView extends cola.Widget
 			itemDom = @_itemDomMap[itemId]
 			delete @_itemDomMap[itemId]
 			if itemDom
-				$fly(itemDom).remove()
+				$itemDom = $(itemDom)
+				if @_transition
+					$itemDom.attr(cola.constants.REPEAT_ITEM_REMOVED_KEY, true)
+						.one("transitionend", ()->$itemDom.remove())
+						.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+				else
+					$itemDom.remove()
 				@_currentItemDom = null if itemDom is @_currentItemDom
 
 			if arg.scope
-				index = arg.scope.data.getIndex()
+				index = arg.scope.data.getIndex?()
 				if index <= arg.entityList.entityCount
 					for id, iScope of itemsScope.itemScopeMap
-						i = iScope.data.getIndex()
+						i = iScope.data.getIndex?()
 						if i > index then iScope.data.setIndex(i - 1)
 
 		@_refreshEmptyItemDom()
@@ -213,10 +231,10 @@ class cola.ItemsView extends cola.Widget
 
 	_setCurrentItemDom: (currentItemDom)->
 		if @_currentItemDom
-			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
+			$fly(@_currentItemDom).removeClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 		@_currentItemDom = currentItemDom
 		if currentItemDom
-			$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+			$fly(currentItemDom).addClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 		return
 
 	_getFirstItemDom: ()->
@@ -284,7 +302,7 @@ class cola.ItemsView extends cola.Widget
 		if @_currentItemDom
 			if not currentItem
 				currentItem = cola.util.userData(@_currentItemDom, "item")
-			$fly(@_currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS)
+			$fly(@_currentItemDom).removeClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 			delete @_currentItemDom
 		@_currentItem = currentItem
 
@@ -298,7 +316,8 @@ class cola.ItemsView extends cola.Widget
 
 				if nextItemDom
 					while nextItemDom
-						if nextItemDom._itemType is itemType
+						if nextItemDom._itemType is itemType and
+						  not nextItemDom.getAttribute?(cola.constants.REPEAT_ITEM_REMOVED_KEY)
 							break
 						else
 							_nextItemDom = nextItemDom.nextElementSibling
@@ -332,7 +351,7 @@ class cola.ItemsView extends cola.Widget
 
 		delete @_currentItem
 		if @_currentItemDom
-			$fly(@_currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+			$fly(@_currentItemDom).addClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 
 		if documentFragment
 			itemsWrapper.appendChild(documentFragment)

@@ -10,9 +10,12 @@ cola.constants = {
 	IGNORE_DIRECTIVE: "c-ignore"
 
 	SHOW_ON_READY_CLASS: "show-on-ready"
+	HIDE_ON_READY_CLASS: "hide-on-ready"
 	LAZY_CLASS: "lazy"
 	LAZY_CONTENT_CLASS: "lazy-content"
-	COLLECTION_CURRENT_CLASS: "current"
+	REPEAT_ITEM_CURRENT_CLASS: "current"
+	REPEAT_ITEM_TRANSITION_CLASS: "item-transition"
+	REPEAT_ITEM_OUT_CLASS: "item-out"
 
 	DEFAULT_PATH: "$root"
 	REPEAT_INDEX: "$index"
@@ -22,6 +25,7 @@ cola.constants = {
 	DOM_INITIALIZER_KEY: "_initialize"
 	REPEAT_TEMPLATE_KEY: "_template"
 	REPEAT_TAIL_KEY: "_tail"
+	REPEAT_ITEM_REMOVED_KEY: "_removed"
 	DOM_ELEMENT_KEY: "_element"
 	DOM_SKIP_CHILDREN: "_skipChildren"
 

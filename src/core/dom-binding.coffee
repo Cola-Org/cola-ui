@@ -198,8 +198,3 @@ class cola._RepeatItemDomBinding extends cola._DomBinding
 	refresh: ()->
 		return if @isTemplate
 		return super()
-
-	remove: ()->
-		if !@isTemplate
-			@$dom.remove()
-		return

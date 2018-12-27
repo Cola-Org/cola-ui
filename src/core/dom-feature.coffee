@@ -154,14 +154,14 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		scope.onCurrentItemChange = (arg)->
 			unless domBinding.destroyed
-				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
+				$fly(domBinding.currentItemDom).removeClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS) if domBinding.currentItemDom
 				if arg.current and domBinding.itemDomBindingMap
 					itemId = cola.Entity._getEntityId(arg.current)
 					if itemId
 						currentItemDomBinding = domBinding.itemDomBindingMap[itemId]
 						if (currentItemDomBinding)
 							currentItemDom = currentItemDomBinding.dom
-							$fly(currentItemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+							$fly(currentItemDom).addClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 						else
 							@onItemsRefresh(domBinding)
 				domBinding.currentItemDom = currentItemDom
@@ -192,6 +192,14 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				index = refItemScope?.data.getIndex() + 1
 
 			itemDom = @createNewItem(domBinding, templateDom, domBinding.scope, entity, index)
+			$itemDom= $(itemDom)
+			useTransition = $itemDom.hasClass(cola.constants.REPEAT_ITEM_TRANSITION_CLASS)
+			if useTransition
+				$itemDom.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+				setTimeout(()->
+					$itemDom.removeClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+					return
+				, 50);
 
 			if not insertMode or insertMode is "end"
 				$fly(tailDom).before(itemDom)
@@ -225,8 +233,17 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 				itemScope = itemsScope.getItemScope(entity)
 				itemDomBinding = domBinding.itemDomBindingMap[itemId]
 				if itemDomBinding
-					itemDomBinding.remove()
-					delete domBinding.currentItemDom if itemDomBinding.dom is domBinding.currentItemDom
+					$itemDom = itemDomBinding.$dom
+					useTransition = $itemDom.hasClass(cola.constants.REPEAT_ITEM_TRANSITION_CLASS)
+					if useTransition
+						$itemDom.attr(cola.constants.REPEAT_ITEM_REMOVED_KEY, true)
+							.one("transitionend", ()->$itemDom.remove())
+							.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+					else
+						$itemDom.remove()
+
+					if itemDomBinding.dom is domBinding.currentItemDom
+						delete domBinding.currentItemDom
 
 				if itemScope
 					index = itemScope.data.getIndex()
@@ -270,12 +287,18 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 			if items
 				domBinding.itemDomBindingMap = {}
 
-				$fly(domBinding.currentItemDom).removeClass(cola.constants.COLLECTION_CURRENT_CLASS) if domBinding.currentItemDom
+				$fly(domBinding.currentItemDom).removeClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS) if domBinding.currentItemDom
 				cola.each(items, (item, i)=>
 					if not item? then return
 
 					itemDom = currentDom.nextSibling
-					if itemDom is tailDom then itemDom = null
+					while itemDom
+						if itemDom is tailDom
+							itemDom = null
+							break
+						unless itemDom.getAttribute?(cola.constants.REPEAT_ITEM_REMOVED_KEY)
+							break
+						itemDom = itemDom.nextSibling
 
 					if itemDom
 						itemDomBinding = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
@@ -291,7 +314,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 						$fly(tailDom).before(itemDom)
 
 					if item is (items.current or originItems?.current)
-						$fly(itemDom).addClass(cola.constants.COLLECTION_CURRENT_CLASS)
+						$fly(itemDom).addClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
 						domBinding.currentItemDom = itemDom
 
 					currentDom = itemDom
@@ -315,6 +338,7 @@ class cola._RepeatFeature extends cola._ExpressionFeature
 
 		itemDom = templateDom.cloneNode(true)
 		@deepCloneNodeData(itemDom, itemScope)
+
 		domBinding = cola.util.userData(itemDom, cola.constants.DOM_BINDING_KEY)
 		@refreshItemDomBinding(itemDom, itemScope)
 

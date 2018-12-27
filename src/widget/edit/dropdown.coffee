@@ -24,7 +24,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 								key: item.substring(0, pos)
 								value: item.substring(pos + 1)
 
-				if not @_valueProperty and not @_textProperty
+				if not @_acceptUnknownValue and not @_valueProperty and not @_textProperty
 					result = cola.util.decideValueProperty(items)
 					if result
 						@_valueProperty = result.valueProperty
@@ -153,10 +153,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 
 	_onBlur: ()->
 		if @_opened and @_finalOpenMode is "drop"
-			setTimeout(()=>
-				@close()
-				return
-			, 50)
+			@close()
 		super()
 		@_doms.tipDom and cola.util.cacheDom(@_doms.tipDom)
 		return
@@ -505,7 +502,11 @@ class cola.AbstractDropdown extends cola.AbstractInput
 		if selectedData isnt undefined
 			@_selectData(selectedData)
 		else if @_inputEdited
-			@refresh()
+			if @_acceptUnknownValue
+				@set("value", @_doms.input.value)
+				@post()
+			else
+				@refresh()
 
 		container = @_getContainer(true)
 		container?.hide?(callback)
@@ -706,6 +707,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				allowNoCurrent: true
 				changeCurrentItem: true
 				highlightCurrentItem: true
+				transition: true
 				style: "overflow:auto"
 			keydown: (evt)->
 				if not @_disableKeyBubble
@@ -738,6 +740,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 						allowNoCurrent: true
 						changeCurrentItem: true
 						highlightCurrentItem: true
+						transition: true
 				}
 			]
 			keydown: (evt)->
@@ -938,8 +941,64 @@ cola.registerWidget(cola.CustomDropdown)
 class cola.ComboBox extends cola.Dropdown
 	@tagName: "c-combo-box"
 
+	@attributes:
+		postOnInput:
+			type: "boolean"
+
+	@events:
+		keyPress: null
+		input:null
+
+	constructor: (config)->
+		@_acceptUnknownValue = true
+		super(config)
+
+	_initDom: (dom)->
+		super(dom)
+
+		input = @_doms.input
+		$(input).on("input", ()=>
+			arg = {
+				inputValue: input.value,
+				value: this.get("value")
+			}
+			@fire("input", @, arg)
+			if @_postOnInput then @set("value", input.value)
+			return
+		).on("keypress", (event)=>
+			arg =
+				keyCode: event.keyCode
+				shiftKey: event.shiftKey
+				ctrlKey: event.ctrlKey
+				altKey: event.altKey
+				event: event
+
+			if @fire("keyPress", @, arg) == false then return false
+			if event.keyCode is 13 and isIE11 then @_postInput()
+		)
+		return
+
+	fire: (eventName, self, arg)->
+		if eventName is "keyDown" or eventName is "keyPress"
+			arg.inputValue = @_doms.input.value
+		return super(eventName, self, arg)
+
+	_setValueContent: ()->
+		ctx = {}
+		value = @readBindingValue(ctx)
+		input = @_doms.input
+		input.value = value or ""
+
+		if value
+			input.placeholder = ""
+			@get$Dom().removeClass("placeholder")
+		else
+			input.placeholder = @_placeholder or ""
+			@get$Dom().addClass("placeholder")
+		return
+
 	_getSelectData: ()->
-		items = @_list.get("items")
+		items = @_list?.get("items")
 		if items
 			if items instanceof Array
 				if items.length is 1 then item = items[0]
@@ -947,12 +1006,14 @@ class cola.ComboBox extends cola.Dropdown
 				if items.entityCount is 1 then item = items.current
 
 		value = @_doms.input.value
-		if item instanceof cola.Entity
-			if item.get(@_filterProperty or @_textProperty) is value
-				return item
-		else if typeof item is "object"
-			if item[@_filterProperty or @_textProperty] is value
-				return item
+		matchProperty = @_filterProperty or @_textProperty or @_valueProperty
+		if matchProperty
+			if item instanceof cola.Entity
+				if item.get(matchProperty) is value
+					return item
+			else if typeof item is "object"
+				if item[matchProperty] is value
+					return item
 
 		if value
 			if @_valueProperty or @_textProperty
@@ -962,9 +1023,6 @@ class cola.ComboBox extends cola.Dropdown
 				item[@_valueProperty] = value
 				item[@_textProperty] = value
 				return item
-			else
-				return value
-		else
-			return null
+		return undefined
 
 cola.registerWidget(cola.ComboBox)
