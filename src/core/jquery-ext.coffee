@@ -1,11 +1,7 @@
 cola.ready ()->
-	$fly(window).resize ()->
-		cola.util.delay(domObserver, "windowResize", 300, ()->
-			if domObserver.sizingObserverCount
-				domObserver.mutationHandler([])
-			return
-		)
-		return
+	$fly(window)
+		.resize(()-> domObserver.check())
+		.on("checkDomObservers", ()-> domObserver.check())
 	return
 
 domObserver =
@@ -17,6 +13,14 @@ domObserver =
 
 	visibilityObserverCount: 0
 	sizingObserverCount: 0
+
+	check: ->
+		return unless @sizingObserverCount
+		cola.util.delay(@, "windowResize", 300, ()=>
+			if @sizingObserverCount
+				@mutationHandler([])
+		)
+		return
 
 	mutationHandler: (records)->
 		shouldCheckVisible = false

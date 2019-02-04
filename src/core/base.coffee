@@ -268,7 +268,7 @@ I18N
 
 resourceStore = {}
 
-sprintf = (templ, params...)->
+cola.sprintf = (templ, params...)->
 	for param, i in params
 		templ = templ.replace(new RegExp("\\{#{i}\\}", "g"), param)
 	return templ
@@ -280,7 +280,7 @@ cola.resource = (key, params...)->
 		templ = resourceStore[key]
 		if templ?
 			if params.length
-				return sprintf.apply(@, [ templ ].concat(params))
+				return cola.sprintf.apply(cola, [ templ ].concat(params))
 			else
 				return templ
 		else

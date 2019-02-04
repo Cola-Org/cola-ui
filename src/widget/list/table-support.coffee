@@ -39,6 +39,7 @@ class cola.TableColumn extends cola.Element
 			attrConfig = @constructor.attributes[arg.attribute]
 			return unless attrConfig
 			if attrConfig.refreshStructure
+				@_table._refreshItemsScheduled = true
 				@_table._collectionColumnsInfo()
 			return
 		)

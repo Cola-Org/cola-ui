@@ -196,14 +196,17 @@ class cola.Table extends cola.AbstractTable
 				if dom.offsetWidth is self._oldOffsetWidth and dom.offsetHeight is self._oldOffsetHeight
 					return
 
-				@_buildStyleSheet()
-				@_refreshScrollbars()
+				if @_refreshItemsScheduled
+					@refresh()
+				else
+					@_buildStyleSheet()
+					@_refreshScrollbars()
 				self._oldOffsetWidth = dom.offsetWidth
 				self._oldOffsetHeight = dom.offsetHeight
 				return
 			)
 			return
-		, 50);
+		, 50)
 		return
 
 	_refreshScrollbars: ()->
@@ -212,9 +215,11 @@ class cola.Table extends cola.AbstractTable
 		innerTable = @_centerTable._dom
 		return unless innerTable
 
+		tableBody = innerTable.querySelector(".table-body")
 		if innerTable.scrollWidth > (innerTable.clientWidth + 2)
 			# 修复右边内容缺失，tbody无法被撑开的BUG
-			innerTable.querySelector(".table-body").style.width = innerTable.scrollWidth + "px"
+			tableBody.style.width = "auto"
+			tableBody.style.width = innerTable.scrollWidth + "px"
 
 			if not @_horiScrollBar and table._mouseIn
 				@_horiScrollBar = cola.xCreate({
@@ -239,7 +244,7 @@ class cola.Table extends cola.AbstractTable
 			@_$dom.addClass("h-scroll")
 		else
 			# 修复右边内容缺失，tbody无法被撑开的BUG
-			innerTable.querySelector(".table-body").style.width = "100%"
+			tableBody.style.width = "100%"
 
 			if @_horiScrollBar
 				@_horiScrollBar.style.display = "none"
@@ -351,7 +356,7 @@ class cola.Table extends cola.AbstractTable
 		return @_refreshItems()
 
 	_refreshItems: ()->
-		if not @_dom
+		if not @_dom or not cola.util.isVisible(@_dom)
 			@_refreshItemsScheduled = true
 			return
 
@@ -423,12 +428,12 @@ class cola.Table extends cola.AbstractTable
 		@_syncCurrentItem = true
 		@_leftTable?._setCurrentItem(item)
 		@_rightTable?._setCurrentItem(item)
-		@_centerTable._setCurrentItem(item)
+		@_centerTable?._setCurrentItem(item)
 		@_syncCurrentItem = false
 		return
 
 	_getCurrentItem: ()->
-		return @_centerTable._getCurrentItem()
+		return @_centerTable?._getCurrentItem()
 
 	_onBlur: ()->
 		@_currentInnerTable?.hideCellEditor()
@@ -1016,15 +1021,18 @@ class cola.Table.InnerTable extends cola.AbstractList
 		return
 
 	refreshItem: (item)->
-		itemId = _getEntityId(item)
+		return unless @_itemDomMap
+
+		itemId = cola.Entity._getEntityId(item)
 		itemDom = @_itemDomMap[itemId]
 		if itemDom
 			@_refreshItemDom(itemDom, item, @_itemsScope)
 		return
 
 	_setCurrentItem: (item)->
+		return unless @_itemDomMap
 		if item
-			itemId = _getEntityId(item)
+			itemId = cola.Entity._getEntityId(item)
 			if itemId
 				currentItemDom = @_itemDomMap[itemId]
 				if not currentItemDom
@@ -1050,13 +1058,15 @@ class cola.Table.InnerTable extends cola.AbstractList
 			return null
 
 	setCurrentCell: (item, column)->
+		return unless @_rendered
+
 		@_table._currentInnerTable = @
 		@_table._currentColumn = column
 		if @_table._currentCell
 			$fly(@_table._currentCell).removeClass("current")
 
 		if item
-			itemId = _getEntityId(item)
+			itemId = cola.Entity._getEntityId(item)
 			itemDom = @_itemDomMap[itemId]
 			if itemDom
 				child = itemDom.firstElementChild

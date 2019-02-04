@@ -230,6 +230,7 @@ class cola.DateGrid extends cola.RenderableElement
 
 	doFireRefreshEvent: (eventArg)->
 		return @fire("refreshCellDom", @, eventArg)
+
 	toggleMonthPicker: ()->
 		$wrapper = $(@_doms.tableWrapper)
 		$monthPicker = $wrapper.find(">.year-month-grid");
@@ -240,6 +241,7 @@ class cola.DateGrid extends cola.RenderableElement
 			@_yearMonthGrid.setState(parseInt(@_year), (@_month))
 			$wrapper.find(".active").removeClass("active");
 			$wrapper.find(">.year-month-grid").addClass("active")
+
 	toggleYearPicker: ()->
 		$wrapper = $(@_doms.tableWrapper)
 		$yearPicker = $wrapper.find(">.year-grid");
@@ -250,6 +252,7 @@ class cola.DateGrid extends cola.RenderableElement
 			@_yearGrid.setState(parseInt(@_year))
 			$wrapper.find(".active").removeClass("active");
 			$wrapper.find(">.year-grid").addClass("active")
+
 	refreshHeader: ()->
 		if @_doms
 			monthLabel = @_doms.monthLabel
@@ -268,6 +271,9 @@ class cola.DateGrid extends cola.RenderableElement
 			$fly(lastSelectedCell).removeClass(@_selectedCellClassName || "selected")
 			@_lastSelectedCell = null
 
+		if @_currentDate
+			currentCellData = new XDate(@_currentDate).toString(cola.setting("defaultDateFormat"))
+
 		i = 0
 		while i < rowCount
 			rows = dom.rows[i]
@@ -281,7 +287,11 @@ class cola.DateGrid extends cola.RenderableElement
 					column: j
 
 				processDefault = @doFireRefreshEvent(eventArg)
-				@doRefreshCell(cell, i, j) if processDefault isnt false
+				if processDefault isnt false
+					@doRefreshCell(cell, i, j)
+					if currentCellData && $fly(cell).attr("cell-date") is currentCellData
+						$fly(cell).addClass("selected")
+						@_lastSelectedCell = cell
 				j++
 			i++
 		return @
@@ -351,6 +361,7 @@ class cola.DateGrid extends cola.RenderableElement
 		year = date.getFullYear()
 		@setState(year, month)
 		@selectCell(@getDateCellDom(date))
+		return
 
 	selectCell: (cell)->
 		lastSelectedCell = @_lastSelectedCell
@@ -362,6 +373,7 @@ class cola.DateGrid extends cola.RenderableElement
 		return @ unless cell
 		$fly(cell).addClass(@_selectedCellClassName || "selected")
 		@_lastSelectedCell = cell
+		return
 
 	doRefreshCell: (cell, row, column)->
 		state = @_state
@@ -375,6 +387,7 @@ class cola.DateGrid extends cola.RenderableElement
 		if month < 10 then month = "0#{month}"
 		if +d < 10 then d = "0#{d}"
 		$fly(cell).attr("cell-date", "#{ym.year}-#{month}-#{d}")
+		return
 
 	setState: (year, month)->
 		oldYear = @_year
@@ -452,7 +465,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			setter: (value)->
 				if value
 					if not (value instanceof Date) and value isnt "currentDate"
-							value = new XDate(value)
+						value = new XDate(value)
 				@_defaultDate = value
 				return
 
@@ -560,7 +573,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			})
 
 			if @_defaultDate is "currentDate"
-				currentDate = (new XDate()).setHours(0).setMinutes(0).setSeconds(0).setMilliseconds(0).toDate()
+				currentDate = (new XDate()).clearTime().toDate()
 			else
 				currentDate = @_defaultDate
 
@@ -907,6 +920,7 @@ class cola.YearMonthGrid extends cola.RenderableElement
 			month = "0#{month}"
 
 		@set("value", "#{year}-#{month}")
+
 	setState: (year, month)->
 		oldYear = @_year
 		oldMonth = @_month

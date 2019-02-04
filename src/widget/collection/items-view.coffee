@@ -288,7 +288,7 @@ class cola.ItemsView extends cola.Widget
 		return
 
 	_doRefreshItems: (itemsWrapper)->
-		@_itemDomMap ?= {}
+		@_itemDomMap = {}
 
 		ret = @_getItems()
 		items = ret.items

@@ -5,6 +5,7 @@ class cola.MultiSelect extends cola.CustomDropdown
 		renderItem: null
 		beforeRemoveItem: null
 		removeItem: null
+
 	_setValueContent: ()->
 		value = @_value
 		values = []
@@ -53,7 +54,6 @@ class cola.MultiSelect extends cola.CustomDropdown
 		if @fire("beforeRemoveItem", @, {item: data, oldValue: value, value: newValue}) isnt false
 			@_set("value", newValue)
 		@fire("removeItem", @, {item: data, oldValue: value, value: newValue})
-
 
 	_selectData: (item)->
 		@_inputEdited = false

@@ -406,7 +406,7 @@ class cola.Tab extends cola.Widget
 				if targetDom
 					targetTab = cola.widget(targetDom)
 
-			return false unless @setCurrentTab(targetTab)
+				return false unless @setCurrentTab(targetTab)
 
 			contentContainer = obj.get("contentContainer")
 			unless contentContainer

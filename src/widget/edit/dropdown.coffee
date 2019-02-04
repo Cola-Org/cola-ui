@@ -23,6 +23,9 @@ class cola.AbstractDropdown extends cola.AbstractInput
 							items[i] =
 								key: item.substring(0, pos)
 								value: item.substring(pos + 1)
+							if not @_valueProperty and not @_textProperty
+								@_valueProperty = "key"
+								@_textProperty = "value"
 
 				if not @_acceptUnknownValue and not @_valueProperty and not @_textProperty
 					result = cola.util.decideValueProperty(items)
@@ -321,7 +324,8 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					input.value = text or ""
 		else
 			if not @_useValueContent
-				input.value = ""
+				text = @readBindingValue()
+				input.value = text or ""
 
 			if @_useValueContent
 				$fly(@_doms.valueContent).hide()
@@ -402,7 +406,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 			if openMode is "drop"
 				config.duration = 200
 				config.dropdown = @
-				config.ui = @_ui
+				config.class = @_class
 				container = new cola.DropBox(config)
 			else if openMode is "layer"
 				if openMode is "sidebar"
@@ -590,6 +594,14 @@ class cola.DropBox extends cola.Layer
 
 		focusable:
 			defaultValue: true
+
+	_setDom: (dom)->
+		super(dom)
+#		@get$Dom().on("visibilityChange", ()=>
+#			debugger
+#			return
+#		)
+		return
 
 	resize: (opened)->
 		dom = @getDom()
