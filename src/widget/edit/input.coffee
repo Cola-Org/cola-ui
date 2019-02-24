@@ -203,7 +203,8 @@ class cola.AbstractInput extends cola.AbstractEditor
 			$(@_doms.input).on("change", ()=>
 				if @_focused then @_postInput()
 				return
-			).on("focus", ()=> cola._setFocusWidget(@)
+			).on("focus", ()=>
+				cola._setFocusWidget(@)
 			).on("keypress", (event)=>
 				arg =
 					keyCode: event.keyCode

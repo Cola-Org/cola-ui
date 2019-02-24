@@ -577,7 +577,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			else
 				currentDate = @_defaultDate
 
-			currentDate or= (new XDate()).setMilliseconds(0).toDate()
+			currentDate or= (new XDate()).clearTime().toDate()
 
 			dateGrid.setCurrentDate(currentDate)
 			context = {}
@@ -1027,13 +1027,13 @@ class cola.TimeEditor extends cola.Widget
 	@className: "ui time-editor"
 	@attributes:
 		hour:
-			defaultValue: "00"
+			defaultValue: 0
 			refreshDom: true
 		minute:
-			defaultValue: "00"
+			defaultValue: 0
 			refreshDom: true
 		second:
-			defaultValue: "00"
+			defaultValue: 0
 			refreshDom: true
 	@events:
 		change: null

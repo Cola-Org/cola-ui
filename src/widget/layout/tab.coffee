@@ -227,13 +227,14 @@ class cola.Tab extends cola.Widget
 				@setCurrentTab(list[0].name)
 
 		@refreshNavButtons()
-
 		return
+
 	_getTabContentDom: (tab)->
 		contents = @getContentsContainer()
 		content = $(contents).find(">content[name='" + tab._name + "']")
 		if content.length > 0
 			return content[0]
+
 	getCurrentTab: ()->
 		unless @_dom then return
 		$tabDom = @get$Dom().find(">nav>tabs>tab.active")

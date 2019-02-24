@@ -108,7 +108,7 @@ class cola.ProviderInvoker
 				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
 			return data
 		).fail((xhr, status, message)=>
-			console.error(xhr.responseJSON)
+			console.error(xhr.responseJSON or message) if xhr.responseJSON or message
 
 			error =
 				xhr: xhr

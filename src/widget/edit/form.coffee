@@ -300,6 +300,9 @@ class cola.Field extends cola.Widget
 
 			if (caption or @_caption) and @_labelDom.innerHTML is ""
 				$label.text(caption or @_caption)
+
+		if @_message
+			@setMessage(@_message)
 		return
 
 	_filterDataMessage: (path, type, arg)->
@@ -342,6 +345,7 @@ class cola.Field extends cola.Widget
 				text: message
 
 		@_message = message
+		return unless @_rendered
 
 		$dom = @get$Dom()
 		if message

@@ -149,7 +149,7 @@ class cola.RenderableElement extends cola.Element
 		@_doRefreshDom()
 
 		className = @_classNamePool.join()
-		@_dom.className = className
+		if @_dom.className isnt className then @_dom.className = className
 		@_classNamePool.destroy()
 		delete @["_classNamePool"]
 

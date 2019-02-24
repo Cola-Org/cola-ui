@@ -1046,7 +1046,7 @@ class cola.Table.InnerTable extends cola.AbstractList
 		@_duringSetCurrentItemDom = true
 		super(itemDom)
 		if not @_table._syncCurrentItem
-			item = cola.util.userData(@_currentItemDom, "item")
+			item = cola.util.userData(itemDom, "item")
 			@_table._setCurrentItem(item)
 		@_duringSetCurrentItemDom = false
 		return

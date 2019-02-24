@@ -595,14 +595,6 @@ class cola.DropBox extends cola.Layer
 		focusable:
 			defaultValue: true
 
-	_setDom: (dom)->
-		super(dom)
-#		@get$Dom().on("visibilityChange", ()=>
-#			debugger
-#			return
-#		)
-		return
-
 	resize: (opened)->
 		dom = @getDom()
 		$dom = @get$Dom()
@@ -781,8 +773,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 				text: "input"
 				type: "text",
 				class: "filter-input"
-				focus: ()=> @onFocus()
-				blur: ()=> @onBlur()
+				focus: ()=> cola._setFocusWidget(@)
 				input: (evt)=>
 					if @_useValueContent
 						$valueContent = $fly(@_doms.valueContent)
@@ -866,6 +857,8 @@ class cola.Dropdown extends cola.AbstractDropdown
 			return false
 		else if evt.keyCode is 27 # ESC
 			@close(@_currentItem or null)
+		else if evt.keyCode is 38 or evt.keyCode is 40 # UP, DOWN
+			@_list?._onKeyDown(evt)
 		return
 
 	_selectData: (item)->
