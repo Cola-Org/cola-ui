@@ -44,9 +44,9 @@ class cola.IFrame extends cola.Widget
 		], frameDoms))
 
 		$(frameDoms.iframe).on("load", ()=>
+			$(frameDoms.dimmer).removeClass("active")
 			frame.fire("load", @)
 			frame._loaded = true
-			$(frameDoms.dimmer).removeClass("active")
 		).attr("src", @_path)
 		return
 

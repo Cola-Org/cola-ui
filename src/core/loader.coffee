@@ -103,8 +103,10 @@ do() ->
 		cssUrls?.forEach (cssUrl)->
 			deferreds.push(_loadCss(context, cssUrl))
 
-		return $.when.apply($, deferreds).done(()->
+		deferred = $.Deferred()
+		$.when.apply($, deferreds).done(()->
 			$fly(targetDom).removeClass("loading")
+			deferred.notify("resourcesLoaded")
 
 			if targetDom.hasAttribute(cola.constants.IGNORE_DIRECTIVE)
 				hasIgnoreDirective = true
@@ -126,10 +128,14 @@ do() ->
 				cola.off("ready")
 
 			cola.callback(context.callback, true)
+
+			deferred.resolve()
 			return
 		).fail(()->
 			error = arguments[0]
 			if cola.callback(context.callback, false, error) isnt false
+				deferred.reject(error)
+
 				if error._url
 					errorMessage = error.statusText
 					throw new cola.Exception(cola.resource("cola.error.loadResource", error._url, errorMessage))
@@ -137,6 +143,7 @@ do() ->
 					throw new cola.Exception(error)
 			return
 		)
+		return deferred
 
 	cola.unloadSubView = (targetDom, context)->
 		$fly(targetDom).empty()

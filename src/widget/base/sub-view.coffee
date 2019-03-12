@@ -133,14 +133,16 @@ class cola.SubView extends cola.Widget
 			cssUrl: @_cssUrl
 			timeout: @_timeout
 			param: @_param
-		}).done(()=>
+		}).progress((progress)=>
+			if progress is "resourcesLoaded"
+				if not @_showLoadingContent
+					$dom.find(">.content").css("visibility", "")
+
+				if @_showLoadingDimmer
+					$dom.find(">.ui.dimmer").removeClass("active")
+		).done(()=>
 			@_loadingDeferred = null
 			@_loaded = true
-
-			if not @_showLoadingContent
-				$dom.find(">.content").css("visibility", "")
-
-			$dom.find(">.ui.dimmer").removeClass("active")
 
 			@fire("load", @)
 			cola.callback(callback, true)

@@ -462,12 +462,6 @@ class cola.DatePicker extends cola.CustomDropdown
 			defaultValue: "date"
 		defaultDate:
 			defaultValue: "currentDate"
-			setter: (value)->
-				if value
-					if not (value instanceof Date) and value isnt "currentDate"
-						value = new XDate(value)
-				@_defaultDate = value
-				return
 
 	@events:
 		focus: null
@@ -544,16 +538,21 @@ class cola.DatePicker extends cola.CustomDropdown
 			unless value instanceof Date
 				value = new Date(Date.parse(value))
 
-			if value.toDateString() is "Invalid Date"
+			if not value.getTime()
 				value = null
 
-			if value
-				@_dataGrid.setCurrentDate(value)
-				@_timeEditor?.set({
-					hour: value.getHours()
-					minute: value.getMinutes()
-					second: value.getSeconds()
-				})
+			if not value
+				if @_defaultDate is "currentTime"
+					value = (new XDate()).toDate()
+				else
+					value = (new XDate()).clearTime().toDate()
+
+			@_dataGrid.setCurrentDate(value)
+			@_timeEditor?.set({
+				hour: value.getHours()
+				minute: value.getMinutes()
+				second: value.getSeconds()
+			})
 			return true
 		return
 
@@ -572,14 +571,6 @@ class cola.DatePicker extends cola.CustomDropdown
 					context.approveBtn.click()
 			})
 
-			if @_defaultDate is "currentDate"
-				currentDate = (new XDate()).clearTime().toDate()
-			else
-				currentDate = @_defaultDate
-
-			currentDate or= (new XDate()).clearTime().toDate()
-
-			dateGrid.setCurrentDate(currentDate)
 			context = {}
 			container = $.xCreate({
 				class: "v-box date-time-picker"
@@ -615,11 +606,7 @@ class cola.DatePicker extends cola.CustomDropdown
 				]
 			}, context)
 
-			@_timeEditor = new cola.TimeEditor({
-				hour: currentDate.getHours()
-				minute: currentDate.getMinutes()
-				second: currentDate.getSeconds()
-			})
+			@_timeEditor = new cola.TimeEditor()
 
 			context.dateGridBox.appendChild(dateGrid.getDom())
 			context.timeEditorBox.appendChild(@_timeEditor.getDom())
@@ -633,6 +620,7 @@ class cola.DatePicker extends cola.CustomDropdown
 			)
 
 			@_dropdownContent = container
+
 		return @_dropdownContent
 
 	_getDateDropdownContent: ()->

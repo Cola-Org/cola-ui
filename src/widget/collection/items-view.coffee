@@ -235,6 +235,7 @@ class cola.ItemsView extends cola.Widget
 		@_currentItemDom = currentItemDom
 		if currentItemDom
 			$fly(currentItemDom).addClass(cola.constants.REPEAT_ITEM_CURRENT_CLASS)
+			currentItemDom.scrollIntoViewIfNeeded()
 		return
 
 	_getFirstItemDom: ()->

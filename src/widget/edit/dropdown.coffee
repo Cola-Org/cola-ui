@@ -120,7 +120,7 @@ class cola.AbstractDropdown extends cola.AbstractInput
 					@_doms.clearButton = clearButton = $.xCreate({
 						tagName: "i"
 						class: "icon remove"
-						click: ()=>
+						mousedown: ()=>
 							@_selectData(null)
 							return false
 					})
