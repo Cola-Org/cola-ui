@@ -58,11 +58,11 @@ class cola.Scope
 					return
 			}, context)
 
-	set: (path, data, context)->
+	set: (path, data, dataType, context)->
 		if typeof path is "string" and path.substring(0, 8) is "$parent." and @parent
-			@parent.set(path.substring(8), data, context)
+			@parent.set(path.substring(8), data, dataType, context)
 		else
-			@data.set(path, data, context)
+			@data.set(path, data, dataType, context)
 		return @
 
 	insert: (prop, data)->
@@ -804,7 +804,7 @@ class cola.AbstractDataModel
 		else
 			return @parent?.get(path, loadMode, context)
 
-	set: (path, data, context)->
+	set: (path, data, dataType, context)->
 		if path
 			rootData = @_getRootData()
 			if typeof path is "string"
@@ -820,27 +820,27 @@ class cola.AbstractDataModel
 						shortcutHolder = @_shortcutMap[firstPart]
 						if shortcutHolder
 							if shortcutHolder.data
-								cola.Entity._setValue(shortcutHolder.data, path.substring(i + 1), data, context)
+								cola.Entity._setValue(shortcutHolder.data, path.substring(i + 1), data, dataType, context)
 							else
 								throw new cola.Exception("Cannot set value to \"#{path}\"")
 							return @
 
 					if @parent
 						if rootData.hasValue(firstPart)
-							rootData.set(path, data, context)
+							rootData.set(path, data, dataType, context)
 						else
-							@parent.set(path, data, context)
+							@parent.set(path, data, dataType, context)
 					else
-						rootData.set(path, data, context)
+						rootData.set(path, data, dataType, context)
 				else
-					@_set(path, data, context)
+					@_set(path, data, dataType, context)
 			else
 				data = path
 				for p of data
-					@set(p, data[p], context)
+					@set(p, data[p], dataType, context)
 		return @
 
-	_set: (prop, data, context)->
+	_set: (prop, data, dataType, context)->
 		rootData = @_rootData
 		hasValue = rootData.hasValue(prop)
 
@@ -872,7 +872,7 @@ class cola.AbstractDataModel
 			if data and (data instanceof cola.Entity or data instanceof cola.EntityList) and data.parent and data isnt rootData._data[prop] # is alias
 				@addShortcut(prop, data)
 			else
-				rootData.set(prop, data, context)
+				rootData.set(prop, data, dataType, context)
 		return
 
 	addShortcut: (shortcut, data)->
@@ -1323,20 +1323,20 @@ class cola.SubDataModel extends cola.AbstractDataModel
 		else
 			return @parent.get(path, loadMode, context)
 
-	set: (path, data, context)->
+	set: (path, data, dataType, context)->
 		i = path.indexOf(".")
 		if i > 0
 			holder = @_aliasMap[path.substring(0, i)]
 			if holder
-				holder.data?.set(path.substring(i + 1), data, context)
+				holder.data?.set(path.substring(i + 1), data, dataType, context)
 			else
-				@parent.set(path, data, context)
+				@parent.set(path, data, dataType, context)
 		else
 			holder = @_aliasMap[path]
 			if holder
-				@parent.set(holder.path, data, context)
+				@parent.set(holder.path, data, dataType, context)
 			else
-				@parent.set(path, data, context)
+				@parent.set(path, data, dataType, context)
 		return @
 
 	flush: (path, loadMode)->
@@ -1480,7 +1480,7 @@ class cola.ItemDataModel extends cola.SubDataModel
 					return @_itemData
 			return @parent.get(path, loadMode, context)
 
-	set: (path, data, context)->
+	set: (path, data, dataType, context)->
 		if path is cola.constants.REPEAT_INDEX or path is @alias
 			throw new cola.Exception("Can not set \"#{path}\" of ItemScope.")
 
@@ -1490,12 +1490,12 @@ class cola.ItemDataModel extends cola.SubDataModel
 			c = path.charCodeAt(aliasLen)
 			if c is 46 # `.`
 				if path.indexOf(".") > 0
-					@_itemData?.set(path.substring(aliasLen + 1), data, context)
+					@_itemData?.set(path.substring(aliasLen + 1), data, dataType, context)
 					return @
 			else if isNaN(c)
 				throw new cola.Exception("Can not change \"#{alias}\" of ItemScope.")
 
-		@parent.set(path, data, context)
+		@parent.set(path, data, dataType, context)
 		return @
 
 	onDataMessage: (path, type, arg)->

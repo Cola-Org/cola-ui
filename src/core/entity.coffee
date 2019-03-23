@@ -279,18 +279,12 @@ _sortCollection = (collection, comparator, caseSensitive)->
 								value2 = value2.toLowerCase()
 
 							result = 0
-							if not value1? then result = -1
-							else if not value2? then result = 1
-							else if value1 > value2 then result = 1
-							else if value1 < value2 then result = -1
+							if not value1? then result = -1 else if not value2? then result = 1 else if value1 > value2 then result = 1 else if value1 < value2 then result = -1
 							if result isnt 0
 								return if comparatorProp.desc then (0 - result) else result
 					else
 						result = 0
-						if not item1? then result = -1
-						else if not item2? then result = 1
-						else if item1 > item2 then result = 1
-						else if item1 < item2 then result = -1
+						if not item1? then result = -1 else if not item2? then result = 1 else if item1 > item2 then result = 1 else if item1 < item2 then result = -1
 						if result isnt 0
 							return if comparatorProp.desc then (0 - result) else result
 				return 0
@@ -300,10 +294,7 @@ _sortCollection = (collection, comparator, caseSensitive)->
 			if not caseSensitive
 				if typeof item1 is "string" then item1 = item1.toLowerCase()
 				if typeof item2 is "string" then item2 = item2.toLowerCase()
-			if not item1? then result = -1
-			else if not item2? then result = 1
-			else if item1 > item2 then result = 1
-			else if item1 < item2 then result = -1
+			if not item1? then result = -1 else if not item2? then result = 1 else if item1 > item2 then result = 1 else if item1 < item2 then result = -1
 			return result
 
 	comparatorFunc = (item1, item2)->
@@ -345,11 +336,10 @@ class cola.Entity
 		if data?
 			@_disableWriteObservers++
 			for prop, value of data
-				@_set(prop, value, true)
+				@_set(prop, value, null, true)
 			@_disableWriteObservers--
 
-			if data.$state then @state = data.$state
-			else if data.state$ then @state = data.state$ # Deprecated
+			if data.$state then @state = data.$state else if data.state$ then @state = data.state$ # Deprecated
 
 			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
@@ -410,7 +400,7 @@ class cola.Entity
 
 					if skip and providerInvoker.invokerOptions.url is provider._url
 						if property._multiple
-							@_set(prop, [], true)
+							@_set(prop, [], null, null, true)
 							retValue = @_data[prop]
 						loaded = true
 
@@ -425,7 +415,7 @@ class cola.Entity
 
 					if not loaded
 						retValue = providerInvoker.invokeSync((result)=>
-							result = @_set(prop, result, true)
+							result = @_set(prop, result, null, null,true)
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
 
@@ -452,7 +442,7 @@ class cola.Entity
 						}
 						completed = false
 						dfd = providerInvoker.invokeAsync((result)=>
-							result = @_set(prop, result, true)
+							result = @_set(prop, result, null, null, true)
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
 
@@ -525,13 +515,13 @@ class cola.Entity
 			cola.callback(callback, true, value)
 		return value
 
-	set: (prop, value, context)->
+	set: (prop, value, dataType, context)->
 		if typeof prop is "string"
-			_setValue(@, prop, value, context)
+			_setValue(@, prop, value, dataType, context)
 		else if prop and (typeof prop is "object")
 			config = prop
 			for prop, val of config
-				@set(prop, val)
+				@set(prop, val, dataType, context)
 		return @
 
 	_jsonToEntity: (value, dataType, multiple)->
@@ -541,7 +531,7 @@ class cola.Entity
 			result._providerInvoker = providerInvoker
 		return result
 
-	_set: (prop, value, ignoreState)->
+	_set: (prop, value, dataType, context, ignoreState)->
 		oldValue = @_data[prop]
 		isSpecialProp = prop.charCodeAt(0) is 36 # `$`
 
@@ -551,37 +541,20 @@ class cola.Entity
 				changed = (oldValue != undefined)
 			else
 				if property
-					dataType = property._dataType
+					if not dataType
+						dataType = property._dataType
 					provider = property._provider
+
+				if typeof dataType is "string"
+					dataType = @_dataModel.definition(dataType)
 
 				if dataType
 					if value?
-						if dataType instanceof cola.StringDataType and typeof value isnt "string" or dataType instanceof cola.BooleanDataType and
-						  typeof value isnt "boolean" or dataType instanceof cola.NumberDataType and typeof value isnt "number" or dataType instanceof cola.DateDataType and not (value instanceof Date)
-							value = dataType.parse(value)
-						else if dataType instanceof cola.EntityDataType
-							matched = true
-							if value instanceof _Entity
-								matched = value.dataType is dataType and not property._multiple
-							else if value instanceof _EntityList
-								matched = value.dataType is dataType and property._multiple isnt false
-							else if property._multiple or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
-								value = @_jsonToEntity(value, dataType, true)
-							else
-								value = new _Entity(value, dataType)
+						value = _Entity._convertValue(value, dataType)
 
-							if not matched
-								expectedType = dataType.get("name")
-								actualType = value.dataType?.get("name") or "undefined"
-								if property._multiple then expectedType = "[#{expectedType}]"
-								if value instanceof cola.EntityList then actualType = "[#{actualType}]"
-								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
-						else
-							value = dataType.parse(value)
-
-						#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
-							# is Number.MAX_SAFE_INTEGER)
-						#	throw new cola.Exception(cola.resource("cola.validator.error.number", value))
+					#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
+					# is Number.MAX_SAFE_INTEGER)
+					#	throw new cola.Exception(cola.resource("cola.validator.error.number", value))
 				else if typeof value is "object" and value? and not isSpecialProp
 					if value instanceof Array
 						convert = true
@@ -1989,7 +1962,32 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 		evalPart(data, parts, 0)
 		return
 
-_Entity._setValue = _setValue = (entity, path, value, context)->
+_Entity._convertValue = (value, dataType) ->
+	if dataType instanceof cola.StringDataType and typeof value isnt "string" or dataType instanceof cola.BooleanDataType and
+	  typeof value isnt "boolean" or dataType instanceof cola.NumberDataType and typeof value isnt "number" or dataType instanceof cola.DateDataType and not (value instanceof Date)
+		value = dataType.parse(value)
+	else if dataType instanceof cola.EntityDataType
+		matched = true
+		if value instanceof _Entity
+			matched = value.dataType is dataType and not property._multiple
+		else if value instanceof _EntityList
+			matched = value.dataType is dataType and property._multiple isnt false
+		else if property._multiple or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
+			value = @_jsonToEntity(value, dataType, true)
+		else
+			value = new _Entity(value, dataType)
+
+		if not matched
+			expectedType = dataType.get("name")
+			actualType = value.dataType?.get("name") or "undefined"
+			if property._multiple then expectedType = "[#{expectedType}]"
+			if value instanceof cola.EntityList then actualType = "[#{actualType}]"
+			throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
+	else
+		value = dataType.parse(value)
+	return value
+
+_Entity._setValue = _setValue = (entity, path, value, dataType, context)->
 	i = path.lastIndexOf(".")
 	if i > 0
 		part1 = path.substring(0, i)
@@ -2003,13 +2001,13 @@ _Entity._setValue = _setValue = (entity, path, value, context)->
 			if entity instanceof cola.ProviderInvoker
 				entity = undefined
 			else if typeof entity._set is "function"
-				entity._set(part2, value)
+				entity._set(part2, value, dataType)
 			else
 				entity[part2] = value
 		else
 			throw new cola.Exception("Cannot set value to EntityList \"#{path}\".")
 	else if typeof entity._set is "function"
-		entity._set(path, value)
+		entity._set(path, value, dataType)
 	else
 		entity[path] = value
 	return

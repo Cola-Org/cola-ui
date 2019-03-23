@@ -106,7 +106,7 @@ cola.util.update = (url, data, options = {})->
 									if entity._page
 										entity._page.remove(entity)
 									else if entity.parent
-										entity.parent._set(entity._parentProperty, null, true)
+										entity.parent._set(entity._parentProperty, null,  null, null, true)
 								else
 									entity.setState(state)
 							else
