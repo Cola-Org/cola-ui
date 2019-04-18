@@ -1,4 +1,4 @@
-function formatFloat(format, n) {
+function formatNumber(format, n) {
 
 	function formatInt(n, format, dec) {
 		if (!format) {

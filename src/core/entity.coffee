@@ -550,7 +550,28 @@ class cola.Entity
 
 				if dataType
 					if value?
-						value = _Entity._convertValue(value, dataType)
+						if dataType instanceof cola.StringDataType and typeof value isnt "string" or dataType instanceof cola.BooleanDataType and
+						  typeof value isnt "boolean" or dataType instanceof cola.NumberDataType and typeof value isnt "number" or dataType instanceof cola.DateDataType and not (value instanceof Date)
+							value = dataType.parse(value)
+						else if dataType instanceof cola.EntityDataType
+							matched = true
+							if value instanceof _Entity
+								matched = value.dataType is dataType and not property._multiple
+							else if value instanceof _EntityList
+								matched = value.dataType is dataType and property._multiple isnt false
+							else if property._multiple or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
+								value = @_jsonToEntity(value, dataType, true)
+							else
+								value = new _Entity(value, dataType)
+
+							if not matched
+								expectedType = dataType.get("name")
+								actualType = value.dataType?.get("name") or "undefined"
+								if property._multiple then expectedType = "[#{expectedType}]"
+								if value instanceof cola.EntityList then actualType = "[#{actualType}]"
+								throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
+						else
+							value = dataType.parse(value)
 
 					#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
 					# is Number.MAX_SAFE_INTEGER)
@@ -1961,31 +1982,6 @@ _Entity._evalDataPath = _evalDataPath = (data, path, noEntityList, loadMode, cal
 	else
 		evalPart(data, parts, 0)
 		return
-
-_Entity._convertValue = (value, dataType) ->
-	if dataType instanceof cola.StringDataType and typeof value isnt "string" or dataType instanceof cola.BooleanDataType and
-	  typeof value isnt "boolean" or dataType instanceof cola.NumberDataType and typeof value isnt "number" or dataType instanceof cola.DateDataType and not (value instanceof Date)
-		value = dataType.parse(value)
-	else if dataType instanceof cola.EntityDataType
-		matched = true
-		if value instanceof _Entity
-			matched = value.dataType is dataType and not property._multiple
-		else if value instanceof _EntityList
-			matched = value.dataType is dataType and property._multiple isnt false
-		else if property._multiple or value instanceof Array or value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
-			value = @_jsonToEntity(value, dataType, true)
-		else
-			value = new _Entity(value, dataType)
-
-		if not matched
-			expectedType = dataType.get("name")
-			actualType = value.dataType?.get("name") or "undefined"
-			if property._multiple then expectedType = "[#{expectedType}]"
-			if value instanceof cola.EntityList then actualType = "[#{actualType}]"
-			throw new cola.Exception("Unmatched DataType. expect \"#{expectedType}\" but \"#{actualType}\".")
-	else
-		value = dataType.parse(value)
-	return value
 
 _Entity._setValue = _setValue = (entity, path, value, dataType, context)->
 	i = path.lastIndexOf(".")
