@@ -1,0 +1,218 @@
+@white: #ffffff;
+@black: #000000;
+@fontName: 'Open Sans';
+@fontSmoothing: antialiased;
+
+@headerFont: @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+@pageFont: @fontName, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+
+@emSize: 14px;
+@headerFontColor: @black;
+
+@fontSize: 14px;
+@inputReadOnlyBackgroundColor: #fbfbfb;
+@defaultBorderRadius: 4px;
+
+@primaryColor: #1565C0;
+@lightPrimaryColor: fade(@primaryColor, 80%);
+@darkPrimaryColor: darken(@primaryColor, 6%);
+@secondaryColor: #FA4E3E;
+@lightSecondaryColor: lighten(@secondaryColor, 20%);
+@darkSecondaryColor: darken(@secondaryColor, 20%);
+
+@headerFontWeight: bold;
+@headerLineHeight: 1.2857em;
+
+@h1: 2rem;
+@h2: 1.714rem;
+@h3: 1.28rem;
+@h4: 1.071rem;
+@h5: 1rem;
+
+@inputBackground: @white;
+@inputVerticalPadding: 8px;
+@inputHorizontalPadding: 10px;
+@inputPadding: @inputVerticalPadding @inputHorizontalPadding;
+
+@inputLineHeight: 1.2142em;
+
+@pageBackground: #FFFFFF;
+@pageOverflowX: hidden;
+
+@lineHeight: 1.4285em;
+@textColor: rgba(0, 0, 0, 0.87);
+
+@paragraphMargin: 0em 0em 1em;
+@paragraphLineHeight: @lineHeight;
+
+@linkColor: #4183C4;
+@linkUnderline: none;
+@linkHoverColor: darken(saturate(@linkColor, 20), 15, relative);
+@linkHoverUnderline: @linkUnderline;
+
+@highlightBackground: #CCE2FF;
+@highlightColor: @textColor;
+
+@inputHighlightBackground: rgba(100, 100, 100, 0.4);
+@inputHighlightColor: @textColor;
+
+@columnCount: 16;
+
+@defaultDuration: 0.1s;
+@defaultEasing: ease;
+
+@mobileBreakpoint: 320px;
+@tabletBreakpoint: 768px;
+@computerBreakpoint: 992px;
+@largeMonitorBreakpoint: 1200px;
+@widescreenMonitorBreakpoint: 1920px;
+
+@fullBlack: #000000;
+@offWhite: #F9FAFB;
+@darkWhite: #F3F4F5;
+@midWhite: #DCDDDE;
+@white: #FFFFFF;
+
+@subtleTransparentBlack: rgba(0, 0, 0, 0.03);
+@transparentBlack: rgba(0, 0, 0, 0.05);
+@strongTransparentBlack: rgba(0, 0, 0, 0.10);
+@veryStrongTransparentBlack: rgba(0, 0, 0, 0.15);
+
+@subtleTransparentWhite: rgba(255, 255, 255, 0.02);
+@transparentWhite: rgba(255, 255, 255, 0.08);
+@strongTransparentWhite: rgba(255, 255, 255, 0.15);
+
+@subtleGradient: linear-gradient(transparent, @transparentBlack);
+
+@subtleShadow: 0px 1px 2px 0 @borderColor;
+@floatingShadow: 0px 2px 4px 0px rgba(34, 36, 38, 0.12),
+0px 2px 10px 0px rgba(34, 36, 38, 0.08);
+
+@positiveColor: @primaryColor;
+@positiveBackgroundColor: #FCFFF5;
+@positiveBorderColor: @darkPrimaryColor;
+@positiveHeaderColor: @darkPrimaryColor;
+@positiveTextColor: @primaryColor;
+
+@negativeColor: #FA4E3E;
+@negativeBackgroundColor: #FFF6F6;
+@negativeBorderColor: #E0B4B4;
+@negativeHeaderColor: #912D2B;
+@negativeTextColor: #9F3A38;
+
+@infoColor: #31CCEC;
+@infoBackgroundColor: #F8FFFF;
+@infoBorderColor: #A9D5DE;
+@infoHeaderColor: #0E566C;
+@infoTextColor: #276F86;
+
+@warningColor: #F2C037;
+@warningBorderColor: #C9BA9B;
+@warningBackgroundColor: #FFFAF3;
+@warningHeaderColor: #794B02;
+@warningTextColor: #573A08;
+
+@iconWidth: 1.18em;
+
+@darkTextColor: rgba(0, 0, 0, 0.85);
+@mutedTextColor: rgba(0, 0, 0, 0.6);
+@lightTextColor: rgba(0, 0, 0, 0.4);
+
+@unselectedTextColor: rgba(0, 0, 0, 0.4);
+@hoveredTextColor: rgba(0, 0, 0, 0.8);
+@pressedTextColor: rgba(0, 0, 0, 0.9);
+@selectedTextColor: rgba(0, 0, 0, 0.95);
+@disabledTextColor: rgba(0, 0, 0, 0.2);
+
+@invertedTextColor: rgba(255, 255, 255, 0.9);
+
+@invertedLightTextColor: rgba(255, 255, 255, 0.7);
+
+@invertedHoveredTextColor: rgba(255, 255, 255, 1);
+
+@invertedSelectedTextColor: rgba(255, 255, 255, 1);
+@invertedDisabledTextColor: rgba(255, 255, 255, 0.2);
+
+@circularRadius: 500rem;
+
+@borderColor: rgba(34, 36, 38, 0.15);
+@strongBorderColor: rgba(34, 36, 38, 0.22);
+@selectedBorderColor: rgba(34, 36, 38, 0.35);
+@strongSelectedBorderColor: rgba(34, 36, 38, 0.5);
+@disabledBorderColor: rgba(34, 36, 38, 0.5);
+
+@whiteBorderColor: rgba(255, 255, 255, 0.1);
+
+@scrollbarWidth: 17px;
+
+@glyphWidth: 1.1em;
+
+@lineHeightOffset: ((@lineHeight - 1em) / 2);
+@headerLineHeightOffset: (@headerLineHeight - 1em) / 2;
+
+@headerTopMargin: ~"calc(2rem - " @headerLineHeightOffset ~")";
+@headerBottomMargin: 1rem;
+@headerMargin: @headerTopMargin 0em @headerBottomMargin;
+
+@pageMinWidth: 320px;
+
+@successBackgroundColor: @positiveBackgroundColor;
+@successColor: @positiveColor;
+@successBorderColor: @positiveBorderColor;
+@successHeaderColor: @positiveHeaderColor;
+@successTextColor: @positiveTextColor;
+
+@errorBackgroundColor: @negativeBackgroundColor;
+@errorColor: @negativeColor;
+@errorBorderColor: @negativeBorderColor;
+@errorHeaderColor: @negativeHeaderColor;
+@errorTextColor: @negativeTextColor;
+
+@largestMobileScreen: (@tabletBreakpoint - 1px);
+@largestTabletScreen: (@computerBreakpoint - 1px);
+@largestSmallMonitor: (@largeMonitorBreakpoint - 1px);
+@largestLargeMonitor: (@widescreenMonitorBreakpoint - 1px);
+
+@disabledOpacity: 0.45;
+@disabledTextColor: rgba(40, 40, 40, 0.3);
+@invertedDisabledTextColor: rgba(225, 225, 225, 0.3);
+
+@primaryColorHover: saturate(darken(@primaryColor, 5), 10, relative);
+@secondaryColorHover: saturate(lighten(@secondaryColor, 5), 10, relative);
+
+@positiveColorHover: saturate(darken(@positiveColor, 5), 10, relative);
+@negativeColorHover: saturate(darken(@negativeColor, 5), 10, relative);
+
+@whiteHover: darken(@white, 5);
+@offWhiteHover: darken(@offWhite, 5);
+@darkWhiteHover: darken(@darkWhite, 5);
+
+@primaryColorFocus: saturate(darken(@primaryColor, 8), 20, relative);
+@secondaryColorFocus: saturate(lighten(@secondaryColor, 8), 20, relative);
+
+@positiveColorFocus: saturate(darken(@positiveColor, 8), 20, relative);
+@negativeColorFocus: saturate(darken(@negativeColor, 8), 20, relative);
+
+@whiteFocus: darken(@white, 8);
+@offWhiteFocus: darken(@offWhite, 8);
+@darkWhiteFocus: darken(@darkWhite, 8);
+
+@primaryColorDown: darken(@primaryColor, 10);
+@secondaryColorDown: lighten(@secondaryColor, 10);
+
+@positiveColorDown: darken(@positiveColor, 10);
+@negativeColorDown: darken(@negativeColor, 10);
+
+@whiteDown: darken(@white, 10);
+@offWhiteDown: darken(@offWhite, 10);
+@darkWhiteDown: darken(@darkWhite, 10);
+
+@primaryColorActive: saturate(darken(@primaryColor, 5), 15, relative);
+@secondaryColorActive: saturate(lighten(@secondaryColor, 5), 15, relative);
+
+@positiveColorActive: saturate(darken(@positiveColor, 5), 15, relative);
+@negativeColorActive: saturate(darken(@negativeColor, 5), 15, relative);
+
+@whiteActive: darken(@white, 5);
+@offWhiteActive: darken(@offWhite, 5);
+@darkWhiteActive: darken(@darkWhite, 5);
