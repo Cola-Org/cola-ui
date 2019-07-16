@@ -17,6 +17,7 @@ class cola.AbstractItemGroup extends cola.Widget
 	constructor: (config)->
 		@_items = []
 		super(config)
+
 	getContentContainer: ()->return @getDom()
 	getItems: ()->return @_items
 	getItemDom: (item)->
@@ -58,6 +59,7 @@ class cola.AbstractItemGroup extends cola.Widget
 		return @
 
 	_doOnItemsChange: ()-> cola.util.delay(@, "_refreshItems", 50, @refreshItems)
+
 	refreshItems: ()->
 		cola.util.cancelDelay(@, "_refreshItems")
 		return @

@@ -14,6 +14,8 @@ class cola.Carousel extends cola.AbstractItemGroup
 			enum: ["horizontal", "vertical"]
 		controls:
 			defaultValue: true
+		animationDuration:
+			defaultValue: 800
 		pause:
 			defaultValue: 3000
 
@@ -38,7 +40,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 		doms = @_doms
 		child = dom.firstElementChild
 		while child
-			if child.nodeType == 1
+			if child.nodeType is 1
 				if cola.util.hasClass(child, "items-wrap")
 					doms.wrap = child
 					parseItem(child)
@@ -95,11 +97,12 @@ class cola.Carousel extends cola.AbstractItemGroup
 			@_doms.wrap.appendChild(template)
 			cola.xRender(template, @_scope)
 
-			refreshItems = (ev)->
-				carousel._refreshItemsTimer && clearTimeout(carousel._refreshItemsTimer)
-				carousel._refreshItemsTimer = setTimeout(()->
-					carousel.refreshItems()
-				, 100)
+			refreshItems = (evt)->
+				if evt.path and evt.path[0] is carousel._doms.wrap
+					carousel._refreshItemsTimer && clearTimeout(carousel._refreshItemsTimer)
+					carousel._refreshItemsTimer = setTimeout(()->
+							carousel.refreshItems()
+					, 100)
 			@_doms.wrap.addEventListener("DOMNodeRemoved", refreshItems, false);
 			@_doms.wrap.addEventListener("DOMNodeInserted", refreshItems, false);
 
@@ -115,7 +118,7 @@ class cola.Carousel extends cola.AbstractItemGroup
 				vertical: carousel._orientation == "vertical",
 				disableScroll: false,
 				continuous: false,
-				speed: 800,
+				speed: carousel._animationDuration || 800,
 				callback: (pos)->
 					carousel.setCurrentIndex(pos)
 					return

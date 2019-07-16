@@ -198,7 +198,7 @@ cola.registerWidget(cola.Steps)
 
 cola.steps ?= {}
 class cola.steps.Step extends cola.Widget
-	@tagName: "div"
+	@tagName: "div,c-step"
 	@parentWidget: cola.Steps
 
 	@className: "step"

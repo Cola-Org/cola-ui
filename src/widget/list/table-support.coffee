@@ -874,3 +874,6 @@ class cola.AbstractTable extends cola.Widget
 	_hideLoadingTip: ()->
 		@_$loaderContainer?.removeClass("active")
 		return
+
+cola.Element.mixin(cola.AbstractTable, cola.TemplateSupport)
+cola.Element.mixin(cola.AbstractTable, cola.DataItemsWidgetMixin)

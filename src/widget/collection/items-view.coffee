@@ -138,12 +138,16 @@ class cola.ItemsView extends cola.Widget
 
 			if not insertMode or insertMode is "end" or not itemsWrapper.firstChild
 				itemDom = @_createNewItem(itemType, item)
-				$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+				$itemDom = $(itemDom)
+				if @_transition
+					$itemDom.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper).append(itemDom)
 			else if insertMode is "begin"
 				itemDom = @_createNewItem(itemType, item)
-				$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+				$itemDom = $(itemDom)
+				if @_transition
+					$itemDom.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 				@_refreshItemDom(itemDom, item, null, index)
 				$fly(itemsWrapper.firstChild).before(itemDom)
 			else if @_itemDomMap
@@ -152,7 +156,9 @@ class cola.ItemsView extends cola.Widget
 					refDom = @_itemDomMap[refEntityId]?
 					if refDom
 						itemDom = @_createNewItem(itemType, item)
-						$itemDom = $(itemDom).addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
+						$itemDom = $(itemDom)
+						if @_transition
+							$itemDom.addClass(cola.constants.REPEAT_ITEM_OUT_CLASS)
 						@_refreshItemDom(itemDom, item, null, index)
 						if insertMode is "before"
 							$fly(refDom).before(itemDom)

@@ -581,8 +581,6 @@ class cola.Table extends cola.AbstractTable
 		return
 
 cola.registerWidget(cola.Table)
-cola.Element.mixin(cola.Table, cola.TemplateSupport)
-cola.Element.mixin(cola.Table, cola.DataItemsWidgetMixin)
 
 class cola.Table.InnerTable extends cola.AbstractList
 	@className: "inner-table"

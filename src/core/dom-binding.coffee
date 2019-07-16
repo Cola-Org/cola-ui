@@ -70,7 +70,7 @@ class cola._DomBinding
 		pipe = {
 			path: path
 			processMessage: (bindingPath, path, type, arg)=>
-				if @dom._freezedCount > 0
+				if @dom?._freezedCount > 0
 					if not @_hasMissingBindingMessage
 						@_hasMissingBindingMessage = true
 						@$dom.one "domUnfreezed", ()=>

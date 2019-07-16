@@ -84,7 +84,7 @@ class cola.Element
 					classType._destructors = [ member ]
 				else
 					classType._destructors.push(member)
-			else
+			else if not classType.prototype[name]
 				classType.prototype[name] = member
 		return
 

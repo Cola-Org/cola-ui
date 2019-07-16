@@ -124,6 +124,7 @@ class cola.SubView extends cola.Widget
 		@_currentJsUrl = @_jsUrl
 		@_currentCssUrl = @_cssUrl
 		@_loaded = false
+		@_loadError = false
 
 		@_loadingDeferred = cola.loadSubView($content[0], {
 			subView: @
@@ -149,6 +150,7 @@ class cola.SubView extends cola.Widget
 			return
 		).fail((result)=>
 			@_loadingDeferred = null
+			@_loadError = true
 
 			@fire("loadError", @, {
 				error: result
@@ -180,7 +182,7 @@ class cola.SubView extends cola.Widget
 			else
 				throw new cola.Exception("Can not load SubView during loading.")
 
-		if @_loaded and @_currentUrl is url and @_currentJsUrl is jsUrl and @_currentCssUrl is cssUrl
+		if @_loaded and not @_loadError and @_currentUrl is url and @_currentJsUrl is jsUrl and @_currentCssUrl is cssUrl
 			dfd = $.Deferred().resolve()
 			return dfd.done(()->
 				cola.callback(callback, true)

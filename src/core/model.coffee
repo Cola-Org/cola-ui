@@ -121,7 +121,8 @@ class cola.Scope
 		@data.bind(path, {
 			watchingPath: if /[\#\*]/.test(path) then null else path
 			processMessage: (bindingPath, path, type, arg)->
-				if (type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE) and
+				if (type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
+				  type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE) and
 				  (not @watchingPath or path.join(".") is @watchingPath)
 					fn(path, type, arg)
 				return
