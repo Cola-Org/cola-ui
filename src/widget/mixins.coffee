@@ -315,7 +315,7 @@ cola.DataItemsWidgetMixin =
 			@_itemsRetrieved = true
 			dataCtx = {}
 			@_itemsScope.retrieveData(dataCtx)
-			if dataCtx.unloaded
+			if dataCtx.unloaded and dataCtx.deferreds?.length
 				@_onItemsLoadingStart()
 			else if @_dataLoading
 				@_onItemsLoadingEnd?()

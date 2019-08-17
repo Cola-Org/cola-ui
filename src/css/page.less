@@ -7,6 +7,22 @@
 		margin: 0 4px;
 	}
 
+	> .count {
+		>.icon {
+			display: none;
+		}
+		&.loose {
+			cursor: pointer;
+			>.icon {
+				display: inline-block;
+				margin-left: 4px;
+			}
+			&:hover {
+				color: @primaryColor;
+			}
+		}
+	}
+
 	> .page-no-wrapper {
 		span {
 			margin: 0 2px;

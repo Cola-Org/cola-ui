@@ -24,7 +24,7 @@ _watch = (path, watcher)->
 	if not holder
 		@_watchers[path] =
 			path: path.split(".")
-			watchers: [ watcher ]
+			watchers: [watcher]
 	else
 		holder.watchers.push(watcher)
 	return
@@ -316,10 +316,10 @@ class cola.Entity
 	_disableWriteObservers: 0
 	_disableValidatorsCount: 0
 
-	#_parent
-	#_parentProperty
-	#_providerInvoker
-	#_disableWriteObservers
+#_parent
+#_parentProperty
+#_providerInvoker
+#_disableWriteObservers
 
 	constructor: (data, dataType)->
 		@id = cola.uniqueId()
@@ -344,7 +344,7 @@ class cola.Entity
 			if data.$disableValidatiors then @_disableValidatorsCount = 1
 
 		if dataType
-			dataType.fire("entityCreate", dataType, { entity: @ })
+			dataType.fire("entityCreate", dataType, {entity: @})
 
 	hasValue: (prop)->
 		return @_data.hasOwnProperty(prop) or @dataType?.getProperty(prop)?
@@ -415,7 +415,7 @@ class cola.Entity
 
 					if not loaded
 						retValue = providerInvoker.invokeSync((result)=>
-							result = @_set(prop, result, null, null,true)
+							result = @_set(prop, result, null, null, true)
 							if result and (result instanceof cola.EntityList or result instanceof cola.Entity)
 								result._providerInvoker = providerInvoker
 
@@ -573,9 +573,9 @@ class cola.Entity
 						else
 							value = dataType.parse(value)
 
-					#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
-					# is Number.MAX_SAFE_INTEGER)
-					#	throw new cola.Exception(cola.resource("cola.validator.error.number", value))
+#if dataType instanceof cola.NumberDataType and (value is Number.MIN_SAFE_INTEGER or value
+# is Number.MAX_SAFE_INTEGER)
+#	throw new cola.Exception(cola.resource("cola.validator.error.number", value))
 				else if typeof value is "object" and value? and not isSpecialProp
 					if value instanceof Array
 						convert = true
@@ -586,7 +586,7 @@ class cola.Entity
 					else if value.hasOwnProperty("$data") or value.hasOwnProperty("data$")
 						value = @_jsonToEntity(value, null, true)
 					else if value instanceof Date
-						# do nothing
+# do nothing
 					else unless value instanceof _Entity or value instanceof _EntityList
 						value = @_jsonToEntity(value, null, false)
 
@@ -804,7 +804,7 @@ class cola.Entity
 
 		parent = @parent
 		if state is _Entity.STATE_DELETED
-			if @dataType?.fire("beforeEntityRemove", @dataType, { entity: @, parent: parent }) is false
+			if @dataType?.fire("beforeEntityRemove", @dataType, {entity: @, parent: parent}) is false
 				return false
 
 		if @state is _Entity.STATE_NONE and state is _Entity.STATE_MODIFIED
@@ -820,7 +820,7 @@ class cola.Entity
 		})
 
 		if state is _Entity.STATE_DELETED
-			@dataType?.fire("entityRemove", @dataType, { entity: @, parent: parent })
+			@dataType?.fire("entityRemove", @dataType, {entity: @, parent: parent})
 		return true
 
 	_storeOldData: ()->
@@ -849,7 +849,7 @@ class cola.Entity
 					delete data[prop]
 			@resetState()
 			@enableObservers()
-			@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+			@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	cancel: (prop)->
@@ -866,7 +866,7 @@ class cola.Entity
 						@_set(prop, @_oldData[prop])
 				@resetState()
 				@enableObservers()
-				@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+				@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 			else
 				@resetState()
 		return @
@@ -974,7 +974,7 @@ class cola.Entity
 		return @
 
 	notifyObservers: ()->
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	_notify: (type, arg)->
@@ -986,11 +986,11 @@ class cola.Entity
 				if path
 					path = path.concat(arg.property)
 				else
-					path = [ arg.property ]
+					path = [arg.property]
 			@_doNotify(path, type, arg)
 
 			if type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_REFRESH
-				@_triggerWatcher([ arg.property or "*" ], type, arg)
+				@_triggerWatcher([arg.property or "*"], type, arg)
 		return
 
 	_doNotify: (path, type, arg)->
@@ -1047,16 +1047,16 @@ class cola.Entity
 		else if @_messageHolder
 			if prop
 				if @_messageHolder.clear(prop)
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
 			else
 				messages = @_messageHolder.getMessages()
 				@_messageHolder.clear()
 				for p in messages
-					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: p })
+					@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: p})
 
 		keyMessage = @_messageHolder?.getKeyMessage()
 		if (oldKeyMessage or keyMessage) and oldKeyMessage isnt keyMessage
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 
 		return not (keyMessage?.type is "error")
 
@@ -1078,11 +1078,11 @@ class cola.Entity
 			message = prop
 			prop = "$"
 		if prop is "$"
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		else
 			topKeyChanged = @_addMessage(prop, message)
-			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
-			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
+			@_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+			if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
 	getKeyMessage: (prop)->
@@ -1100,8 +1100,8 @@ class cola.Entity
 		if prop
 			hasPropMessage = @_messageHolder.getKeyMessage(prop)
 		topKeyChanged = @_messageHolder.clear(prop, force)
-		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @, property: prop })
-		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, { entity: @ })
+		if hasPropMessage then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @, property: prop})
+		if topKeyChanged then @_notify(cola.constants.MESSAGE_VALIDATION_STATE_CHANGE, {entity: @})
 		return @
 
 	findMessages: (prop, type)->
@@ -1182,9 +1182,6 @@ class Page extends Array
 				entityList.totalEntityCount = rawJson.entityCount$
 
 			if entityList.totalEntityCount?
-				if entityList.pageSize
-					temp = entityList.totalEntityCount + entityList.pageSize - 1
-					entityList.pageCount = Math.floor(temp / entityList.pageSize)
 				entityList.pageCountDetermined = true
 
 			entityList.entityCount += json.length
@@ -1294,10 +1291,10 @@ class cola.EntityList
 	_pageCount: 0
 	_disableObserverCount: 0
 
-	# totalEntityCount
-	# _parent
-	# _parentProperty
-	# _providerInvoker
+# totalEntityCount
+# _parent
+# _parentProperty
+# _providerInvoker
 
 	constructor: (array, dataType)->
 		@id = cola.uniqueId()
@@ -1353,7 +1350,7 @@ class cola.EntityList
 		return
 
 	fillData: (array)->
-		page = @_findPage(@pageNo)
+		page = @findPage(@pageNo)
 		if not page
 			page = new Page(@, @pageNo)
 			@_insertElement(page, "begin")
@@ -1365,6 +1362,15 @@ class cola.EntityList
 					@setCurrent(entity)
 					break
 		return
+
+	setTotalEntityCount: (count)->
+		@pageCountDetermined = true
+		@totalEntityCount = count
+		@pageCount = Math.ceil(count / @pageSize)
+		@timestamp = cola.sequenceNo()
+		@_notify(cola.constants.MESSAGE_REFRESH, {
+			data: @
+		})
 
 	_setDataModel: (dataModel)->
 		return if @_dataModel is dataModel
@@ -1423,7 +1429,7 @@ class cola.EntityList
 				while index > 0
 					entity = page[--index]
 					if entity.state isnt _Entity.STATE_DELETED
-						return [ entity, index ]
+						return [entity, index]
 
 				page = page._previous
 				index = page?.length
@@ -1446,13 +1452,13 @@ class cola.EntityList
 				while index < lastIndex
 					entity = page[++index]
 					if entity.state isnt _Entity.STATE_DELETED
-						return [ entity, index ]
+						return [entity, index]
 
 				page = page._next
 				index = -1
 		return []
 
-	_findPage: (pageNo)->
+	findPage: (pageNo)->
 		if pageNo < 1 then return null
 		if pageNo > @pageCount
 			if @pageCountDetermined or pageNo > (@pageCount + 1)
@@ -1516,7 +1522,7 @@ class cola.EntityList
 			callback = loadMode
 			loadMode = "async"
 
-		page = @_findPage(pageNo)
+		page = @findPage(pageNo)
 		if page isnt @_currentPage
 			if page
 				@_setCurrentPage(page, setCurrent)
@@ -1530,10 +1536,10 @@ class cola.EntityList
 					@_dontAutoSetCurrent++
 					dfd = page.loadData(loadMode).done((result)=>
 						@_dontAutoSetCurrent--
-						if @_currentPage isnt page
-							@_setCurrentPage(page, setCurrent)
 						if page.entityCount and @pageCount < pageNo
 							@pageCount = pageNo
+						if @_currentPage isnt page
+							@_setCurrentPage(page, setCurrent)
 						return
 					)
 		return cola.util.createDeferredIf(dfd).done(()->
@@ -1686,7 +1692,7 @@ class cola.EntityList
 
 	empty: ()->
 		@_reset()
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	setCurrent: (entity)->
@@ -1815,7 +1821,7 @@ class cola.EntityList
 		return @
 
 	notifyObservers: ()->
-		@_notify(cola.constants.MESSAGE_REFRESH, { data: @ })
+		@_notify(cola.constants.MESSAGE_REFRESH, {data: @})
 		return @
 
 	_notify: (type, arg)->
@@ -1825,7 +1831,7 @@ class cola.EntityList
 			@_dataModel?.onDataMessage(path, type, arg)
 
 			if type is cola.constants.MESSAGE_CURRENT_CHANGE or type is cola.constants.MESSAGEinsert or type is cola.constants.MESSAGE_REMOVE
-				@_triggerWatcher([ "*" ], type, arg)
+				@_triggerWatcher(["*"], type, arg)
 		return
 
 	each: (fn, options)->
@@ -1842,7 +1848,7 @@ class cola.EntityList
 					pageNo = @pageNo
 
 		if pageNo > 1
-			page = @_findPage(pageNo)
+			page = @findPage(pageNo)
 			return @ unless page
 
 		i = 0
@@ -2032,7 +2038,7 @@ class cola.Entity.MessageHolder
 	add: (prop, message)->
 		messages = @propertyMessages[prop]
 		if not messages
-			@propertyMessages[prop] = [ message ]
+			@propertyMessages[prop] = [message]
 		else
 			messages.push(message)
 

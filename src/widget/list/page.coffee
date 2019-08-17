@@ -4,6 +4,9 @@ class cola.Pager extends cola.Widget
 	@attributes:
 		bind:
 			setter: (bindStr)-> @_bindSetter(bindStr)
+	@events:
+		retrieveTotalEntityCount: null
+
 	_getBindItems: ()-> @_getItems()?.items
 	_initDom: (dom)->
 		@_doms ?= {}
@@ -52,10 +55,18 @@ class cola.Pager extends cola.Widget
 			]
 		}, @_doms)
 
-
 		@_doms.count = $.xCreate({
-			tagName: "div",
 			class: "count"
+			content: [
+				{
+					tagName: "span"
+					class: "text"
+				}
+				{
+					tagName: "i"
+					class: "icon eye"
+				}
+			]
 		})
 		dom.appendChild(@_doms.count)
 		dom.appendChild(@_doms.pageNoWrapper)
@@ -75,6 +86,33 @@ class cola.Pager extends cola.Widget
 		)
 		dom.appendChild(@_doms._pageSizeInput)
 		dom.appendChild(@_doms.goTo)
+
+		$count = $(@_doms.count).toggleClass("loose", data?.entityCount and not (data.pageCountDetermined)).click(()=>
+			return if not $count.hasClass("loose") or $count.hasClass("loading")
+
+			$icon = $count.find(">.icon")
+
+			$count.addClass("loading")
+			$icon.removeClass("eye").addClass("loading spinner")
+
+			eventArg =
+				items: @_getBindItems()
+			@fire("retrieveTotalEntityCount", @, eventArg)
+
+			if eventArg.deferred
+				eventArg.deferred.done((count) =>
+					eventArg.items.setTotalEntityCount(count)
+				).always(()=>
+					$count.removeClass("loading")
+					$icon.removeClass("loading spinner")
+				)
+			else
+				if eventArg.totalEntityCount?
+					eventArg.items.setTotalEntityCount(count)
+				$count.removeClass("loading")
+				$icon.removeClass("loading spinner").addClass("eye")
+		)
+		return
 
 	goTo: (pageNo)->
 		data = @_getBindItems()
@@ -104,16 +142,20 @@ class cola.Pager extends cola.Widget
 		hasPrev = false
 		hasNext = false
 		if data
-			pageCount = Math.floor((data.totalEntityCount + data.pageSize - 1) / data.pageSize)
-			totalEntityCount = data.totalEntityCount || 0
+			if data.pageCountDetermined
+				totalEntityCount = data.totalEntityCount
+			else
+				page = data.findPage(data.pageCount)
+				totalEntityCount = data.pageSize * (data.pageCount - 1) + (if page then page.entityCount else data.pageSize)
+
+			@_pageNo = pageNo
+			@_pageCount = pageCount
+
 			pageNo = data.pageNo || 0
 			pageCount = data.pageCount || 0
 			pageSize = data.pageSize || 0
 			hasPrev = data.pageNo > 1
-			hasNext = pageCount > data.pageNo
-		@_pageNo = pageNo
-
-		@_pageCount = pageCount;
+			hasNext = data.hasNextPage()
 
 		wrapper = @_doms.pageNoWrapper
 		$(wrapper).empty()
@@ -215,9 +257,10 @@ class cola.Pager extends cola.Widget
 				return
 		}))
 
-		$(@_doms.count).text(cola.resource("cola.pager.entityCount", totalEntityCount))
-		$(@_doms.gotoInput).val(pageNo);
-		$(@_doms.gotoInput).attr("max", pageCount);
+		$count = $(@_doms.count).toggleClass("loose", !(data?.pageCountDetermined) and totalEntityCount > 0)
+		$count.find(">.text").text(cola.resource("cola.pager.entityCount", totalEntityCount + (if data?.pageCountDetermined then "" else "+")))
+
+		$(@_doms.gotoInput).val(pageNo).attr("max", pageCount);
 		cola.widget(@_doms._pageSizeInput).set("value", pageSize);
 
 		$(@_dom).find("span[no='#{pageNo}']").addClass("current");

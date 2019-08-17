@@ -342,7 +342,11 @@ class cola.Tree extends cola.AbstractList
 		else
 			$fly(itemDom).toggleClass("current", node is @_currentNode and @_highlightCurrentItem)
 
-		if node.get("hasChild") isnt false and not collapsed and node.get("expanded")
+		nodeDom = itemDom.firstElementChild
+		$nodeDom = $(nodeDom)
+
+		expanded = node.get("expanded")
+		if node.get("hasChild") isnt false and not collapsed and expanded
 			if node._hasExpanded
 				@_refreshChildNodes(itemDom, node)
 			else
@@ -355,8 +359,8 @@ class cola.Tree extends cola.AbstractList
 			else
 				$fly(itemDom).find(">.child-nodes").empty()
 
-			nodeDom = itemDom.firstElementChild
-			$fly(nodeDom).toggleClass("leaf", node.get("hasChild") == false)
+			$nodeDom.toggleClass("leaf", node.get("hasChild") == false)
+		$nodeDom.toggleClass("expanded", !!expanded)
 
 		return nodeScope
 

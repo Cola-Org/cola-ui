@@ -74,22 +74,22 @@ class cola.ProviderInvoker
 		if options.sendJson
 			options.data = JSON.stringify(options.data)
 
+		if @_beforeSend then @_beforeSend(options)
+
 		if ajaxService.getListeners("beforeSend")
-			if ajaxService.fire("beforeSend", ajaxService, {options: options}) == false
+			if ajaxService.fire("beforeSend", ajaxService, {options: options, providerInvoker: @}) == false
 				@invokeCallback(true, undefined)
 				return $.Deferred().resolve(undefined)
-
-		if @_beforeSend then @_beforeSend(options)
 
 		@invoking = true
 		@deferred = retValue = $.ajax(options).then((result)=>
 			if ajaxService.getListeners("response")
-				arg = {options: options, result: result}
+				arg = {options: options, result: result, providerInvoker: @}
 				ajaxService.fire("response", ajaxService, arg)
 				result = arg.result
 
 			result = ajaxService.translateResult(result, options)
-			if result and typeof result is "object"
+			if result and not result.$providerInvoker and typeof result is "object"
 				result.$providerInvoker = @
 
 			data = @invokeCallback(true, result)
@@ -103,9 +103,9 @@ class cola.ProviderInvoker
 					data = @parentData
 
 			if ajaxService.getListeners("success")
-				ajaxService.fire("success", ajaxService, {options: options, result: result, data: data })
+				ajaxService.fire("success", ajaxService, {options: options, result: result, data: data, providerInvoker: @ })
 			if ajaxService.getListeners("complete")
-				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data })
+				ajaxService.fire("complete", ajaxService, {success: true, options: options, result: result, data: data, providerInvoker: @ })
 			return data
 		).fail((xhr, status, message)=>
 			console.error(xhr.responseJSON or message) if xhr.responseJSON or message
@@ -120,11 +120,11 @@ class cola.ProviderInvoker
 			retValue = ret if ret isnt undefined
 			return retValue if retValue is false
 
-			ret = ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error})
+			ret = ajaxService.fire("error", ajaxService, {options: options, xhr: xhr, error: error, providerInvoker: @})
 			retValue = ret if ret isnt undefined
 			return retValue if retValue is false
 
-			ret = ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error})
+			ret = ajaxService.fire("complete", ajaxService, {success: false, xhr: xhr, options: options, error: error, providerInvoker: @})
 			retValue = ret if ret isnt undefined
 			return
 		)

@@ -83,7 +83,7 @@ cola.util.update = (url, data, options = {})->
 				url: url
 				type: options.method or "post"
 				contentType: options.contentType or "application/json"
-				# dataType: "json"
+# dataType: "json"
 				data: JSON.stringify(data)
 				options: options.ajaxOptions
 			).done (responseData)->
@@ -98,7 +98,7 @@ cola.util.update = (url, data, options = {})->
 							if entityDiff
 								if entityDiff.data
 									for p, v of entityDiff.data
-										entity._set(p, v, true)
+										entity._set(p, v, null, null, true)
 								state = entityDiff.state
 
 							if state
@@ -106,7 +106,7 @@ cola.util.update = (url, data, options = {})->
 									if entity._page
 										entity._page.remove(entity)
 									else if entity.parent
-										entity.parent._set(entity._parentProperty, null,  null, null, true)
+										entity.parent._set(entity._parentProperty, null, null, null, true)
 								else
 									entity.setState(state)
 							else

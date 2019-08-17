@@ -117,13 +117,37 @@ class cola.Scope
 		@data.notifyObservers(path)
 		return @
 
+	isParentOfTarget: (expressionPaths, changedPath)->
+		if not expressionPaths?.length then return false
+		if not changedPath then return true
+
+		for targetPath in expressionPaths
+			isParent = true
+			for part, i in changedPath
+				targetPart = targetPath[i]
+
+				if targetPart and targetPart.charCodeAt(targetPart.length - 1) is 35 # '#'
+					targetPart = targetPart.substring(0, targetPart.length - 1)
+
+				if part isnt targetPart
+					if targetPart is "**"
+						continue
+					else if targetPart is "*"
+						if i is changedPath.length - 1 then continue
+					isParent = false
+					break
+
+			if isParent then return true
+		return false
+
 	_watch: (path, fn)->
 		@data.bind(path, {
-			watchingPath: if /[\#\*]/.test(path) then null else path
+			self: @
+			watchingPaths: if path then [path.split('.')] else []
 			processMessage: (bindingPath, path, type, arg)->
 				if (type is cola.constants.MESSAGE_REFRESH or type is cola.constants.MESSAGE_CURRENT_CHANGE or
 				  type is cola.constants.MESSAGE_PROPERTY_CHANGE or type is cola.constants.MESSAGE_INSERT or type is cola.constants.MESSAGE_REMOVE) and
-				  (not @watchingPath or path.join(".") is @watchingPath)
+				  (not @watchingPath or @self.isParentOfTarget(@watchingPaths, path))
 					fn(path, type, arg)
 				return
 		})
@@ -339,29 +363,6 @@ class cola.SubScope extends cola.Scope
 		data = @evaluate(@aliasExpressions[alias], @)
 		@setAliasTargetData(alias, data)
 		return
-
-	isParentOfTarget: (expressionPaths, changedPath)->
-		if not expressionPaths?.length then return false
-		if not changedPath then return true
-
-		for targetPath in expressionPaths
-			isParent = true
-			for part, i in changedPath
-				targetPart = targetPath[i]
-
-				if targetPart and targetPart.charCodeAt(targetPart.length - 1) is 35 # '#'
-					targetPart = targetPart.substring(0, targetPart.length - 1)
-
-				if part isnt targetPart
-					if targetPart is "**"
-						continue
-					else if targetPart is "*"
-						if i is changedPath.length - 1 then continue
-					isParent = false
-					break
-
-			if isParent then return true
-		return false
 
 	isParentOf: (parent, child) ->
 		while child

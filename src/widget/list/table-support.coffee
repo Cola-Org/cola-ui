@@ -828,6 +828,13 @@ class cola.AbstractTable extends cola.Widget
 			def = ".#{@_uniqueId}{"
 			def += "padding-left:#{leftPaneWidth}px;padding-right:#{rightPaneWidth}px;"
 			def += "}"
+
+			def += ".#{@_uniqueId} >.inner-table.left{"
+			def += "width:#{leftPaneWidth}px;"
+			def += "}"
+			def += ".#{@_uniqueId} >.inner-table.right{"
+			def += "width:#{rightPaneWidth}px;"
+			def += "}"
 			columnCssDefs.push(def)
 
 		def = ".#{@_uniqueId} #{@_mainItemsContainer}{"

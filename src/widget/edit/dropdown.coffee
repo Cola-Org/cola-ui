@@ -907,7 +907,7 @@ class cola.Dropdown extends cola.AbstractDropdown
 		list = @_list
 		list._textProperty = @_textProperty or @_valueProperty
 
-		if attrBinding
+		if attrBinding && list.get("model").get(attrBinding.expression.raw)
 #			if not @_dontRefreshItems
 #				@_refreshAttrValue("items")
 			list.set("bind", attrBinding.expression.raw)
