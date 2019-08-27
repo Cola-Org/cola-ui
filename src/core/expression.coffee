@@ -222,7 +222,13 @@ class cola.Expression
 	getData: (scope, path, loadMode, dataCtx)->
 		retValue = scope.get(path, loadMode, dataCtx)
 		if retValue is undefined and dataCtx?.vars
-			retValue = dataCtx.vars[path]
+			i = path.indexOf(".")
+			if i > 0
+				data = dataCtx.vars[path.substring(0, i)]
+				if data
+					retValue = cola.Entity._evalDataPath(data, path.substring(i + 1), false, loadMode, null, dataCtx)
+			else
+				retValue = dataCtx.vars[path]
 		return retValue
 
 	evaluate: (scope, loadMode, dataCtx)->

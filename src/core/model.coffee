@@ -1393,13 +1393,13 @@ class cola.ItemDataModel extends cola.SubDataModel
 		return @_itemData
 
 	setItemData: (data, silence)->
+		oldData = @_itemData
 		return if oldData is data
 
 		itemsScope = @model.parent
 		if not (itemsScope instanceof cola.ItemsScope)
 			itemsScope = null
 
-		oldData = @_itemData
 		if typeof oldData is "object" and itemsScope
 			if itemsScope.getItemScope(oldData) is @model
 				itemId = cola.Entity._getEntityId(oldData)
