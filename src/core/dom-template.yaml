@@ -19,6 +19,12 @@ methods:
       });
       </code>
     arguments:
+      - name: subScript
+        type: Array
+        label: 同作用域脚本路径
+        description: |
+          在很多情况下，一个js并不能满足开发需要，Cola可以提供一个同作用域model;
+          它们和subView的作用相似，当前脚本为父级,可以在页面模板方法表达式中通过"R:xxxxx"直接获取子级的action，subScript可以获取父级作用域下的属性或者方法。
       - name: modelName
         type: string
         label: Model的名称

@@ -208,7 +208,14 @@ class cola.Model extends cola.Scope
 			store = @action
 			if arguments.length is 1
 				if typeof name is "string"
-					return @_getAction(name) or cola.defaultAction[name]
+					if name.indexOf("R:") is 0
+						name = name.substr(2);
+						if @_childScopes && @_childScopes.constructor.name is "Array"
+							childrens = @_childScopes;
+							for children in childrens when children.action isnt null
+								return children.action[a] for action in children.action when action is a
+					else
+						return @_getAction(name) or cola.defaultAction[name]
 				else if name and typeof name is "object"
 					config = name
 					for n, a of config

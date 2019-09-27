@@ -7,6 +7,11 @@ cola._rootFunc = ()->
 	fn = null
 	targetDom = null
 	modelName = null
+	jsUrls = null
+
+	if(typeof arguments[0] is "object" and arguments[0].constructor.name is "Array")
+		jsUrls = arguments[0]
+
 	for arg in arguments
 		if typeof arg is "function"
 			fn = arg
@@ -33,8 +38,50 @@ cola._rootFunc = ()->
 					model._doms = [ model._dom ]
 				model._doms.concat(dom)
 			delete model._$doms
-
-			fn?(model, param)
+			if typeof fn is "function"
+				if jsUrls and typeof jsUrls is "object" and jsUrls.constructor.name is "Array"
+					jsModels = []
+					jsUrls.forEach((r,i)=>
+						if typeof r is "string"
+							if r.indexOf(".js") < 0
+								r = jsUrls[i] = r + ".js";
+							if r.indexOf(".js") > 0
+								jsModels.push(new cola.Model(model))
+					)
+					params = [model]
+					Array.prototype.push.apply(params,jsModels)
+					Array.prototype.push.apply(params,[param])
+					fn.apply(cola, params);
+					jsUrls.forEach((r, i)=>
+						if typeof r is "string"
+							if r.indexOf(".js") > 0
+								setTimeout(()=>
+									cola._loadResource({}, r).done(()=>
+										scriptElement = $.xCreate({
+											tagName: "script",
+											language: "javascript",
+											type: "text/javascript",
+											charset: cola.setting("defaultCharset")
+										})
+										scriptElement.text = result;
+										cola._suspendedInitFuncs = [];
+										head = document.querySelector("head") || document.documentElement
+										head.appendChild(scriptElement)
+										jsModels[i].suspendedInitFuncs = cola._suspendedInitFuncs
+										jsModels[i]._jsUrl = r
+										jsModels[i].suspendedInitFuncs.forEach((r)=>
+											r(model._doms, jsModels[i], param)
+										)
+										delete cola._suspendedInitFuncs
+										delete jsModels[i].suspendedInitFuncs
+										if (cola.getListeners("ready"))
+											cola.fire("ready", cola)
+											cola.off("ready")
+									)
+								,0)
+					)
+				else
+					fn(model, param)
 		finally
 			cola.currentScope = oldScope
 		return
